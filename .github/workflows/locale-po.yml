@@ -3,7 +3,11 @@ name: Compile po into mo
 on:
   push:
     branches:
+      - main
       - dev_locale
+    paths:
+      - '**/*.po'
+      - '**/locale-po.yml'
 
 jobs:
   job1:
@@ -29,7 +33,7 @@ jobs:
 
       - name: Compile PO files
         run: |
-          PYTHONPATH=$(pwd) python your_script.py python src/one_dragon/devtools/compile_po.py
+          PYTHONPATH=$(pwd)/src python src/one_dragon/devtools/compile_po.py
 
       - name: Commit changes
         run: |
