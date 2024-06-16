@@ -15,7 +15,7 @@ def get_translations(model: str, lang: str):
     :param lang: 语言
     :return:
     """
-    translate_path = os_utils.get_path_under_work_dir('assets', 'text')
+    translate_path = os_utils.get_path_under_work_dir('assets', 'text', 'output')
     lang_dir = os.path.join(translate_path, lang, 'LC_MESSAGES', f'{model}.mo')
     # 未有对应的文本mo文件
     if not os.path.exists(lang_dir):

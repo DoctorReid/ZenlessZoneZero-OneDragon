@@ -30,7 +30,8 @@ class InstallerWindow(BaseFluentWindow):
     def init_window(self):
         title = f"{gt(self.project_config.project_name, 'ui')} {gt('安装器', 'ui')}"
         self.setWindowTitle(title)
-        self.resize(960, 720)
+        self.resize(960, 820)
+        self.move(100, 100)
 
 
 if __name__ == '__main__':
