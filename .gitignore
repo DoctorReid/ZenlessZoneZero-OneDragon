@@ -4,3 +4,5 @@ dist/
 .log/
 .env/
 config/env.yml
+__pycache__/
+installer.exe
