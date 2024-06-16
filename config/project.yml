@@ -1,0 +1,7 @@
+project_name: "ZenlessZoneZero-OneDragon"
+python_version: "3.11.9"
+pip_version: "24.0"
+github_repository: "github.com/DoctorReid/ZenlessZoneZero-OneDragon.git"
+gitee_repository: ""
+project_git_branch: "master"
+requirements: "requirements-prod.txt"

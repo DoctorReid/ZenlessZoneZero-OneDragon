@@ -1,0 +1,11 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+# ZZZ-OD UI
+msgid "设置"
+msgstr "设置/Settings"
+
+msgid "语言"
+msgstr "语言/Language"
