@@ -47,7 +47,7 @@ class PipInstallCard(WithExistedInstallCard):
         """
         if success:
             self.env_config.pip_path = DEFAULT_PIP_PATH
-            self.update_display()
+            self.check_and_update_display()
         else:
             self.setContent(gt('安装失败', 'ui'))
             self.iconLabel.setIcon(FluentIcon.INFO.icon(color=FluentThemeColor.RED.value))

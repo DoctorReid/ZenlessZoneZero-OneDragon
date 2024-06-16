@@ -48,6 +48,9 @@ class PythonService:
                 os.remove(zip_file_path)
                 continue
             else:
+                pth_path = os.path.join(DEFAULT_PYTHON_DIR_PATH, 'python311._pth')
+                with open(pth_path, 'a') as file:
+                    file.write('\nLib\\site-packages\n')
                 return True
 
         # 重试之后还是失败了
@@ -145,8 +148,10 @@ class PythonService:
         :return:
         """
         progress_callback(-1, '正在安装')
-        result = cmd_utils.run_command([self.env.pip_path, 'install' '-r',
-                                        os.path.join(os_utils.get_work_dir(), self.project.requirements)])
+        result = cmd_utils.run_command([self.env.pip_path, 'install', '-r',
+                                        os.path.join(os_utils.get_work_dir(), self.project.requirements),
+                                        '-i', self.env.pip_source
+                                        ])
         return result is not None
 
 

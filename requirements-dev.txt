@@ -1,3 +1,4 @@
+# requirements that this script needs
 pyside6==6.7.1
 PySide6-Fluent-Widgets==1.5.7
 pyyaml==6.0.1

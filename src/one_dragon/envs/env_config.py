@@ -173,5 +173,21 @@ class EnvConfig(YamlConfig):
         """
         self.update('git_method', new_value)
 
+    @property
+    def pip_source(self) -> str:
+        """
+        pip源
+        :return:
+        """
+        return self.get('pip_source', 'https://pypi.tuna.tsinghua.edu.cn/simple')
+
+    @pip_source.setter
+    def pip_source(self, new_value: str) -> None:
+        """
+        pip源
+        :return:
+        """
+        self.update('pip_source', new_value)
+
 
 env_config = EnvConfig()

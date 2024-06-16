@@ -117,6 +117,10 @@ class BaseInstallCard(MultiPushSettingCard):
         安装结束的回调 发送结束信号
         :return:
         """
+        if success:
+            self.progress_changed.emit(100, None)
+        else:
+            self.progress_changed.emit(0, None)
         self.finished.emit(success)
         self.after_progress_done(success)
 
