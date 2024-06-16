@@ -1,4 +1,5 @@
 import os
+import shutil
 from typing import Optional, Callable, List
 
 from one_dragon.envs.env_config import env_config, GH_PROXY_URL, DEFAULT_ENV_PATH, DEFAULT_GIT_DIR_PATH
@@ -123,12 +124,34 @@ class GitService:
         克隆仓库
         :return: 是否成功
         """
-        log.info('开始克隆仓库')
+        temp_folder = '.temp_clone'
+
+        msg = '清空临时文件夹'
+        log.info(msg)
         if progress_callback is not None:
-            progress_callback(-1, '')
+            progress_callback(-1, msg)
+
+        temp_dir_path = os.path.join(os_utils.get_work_dir(), temp_folder)
+        if os.path.exists(temp_dir_path):
+            shutil.rmtree(temp_dir_path)
+
+        msg = '开始克隆仓库'
+        log.info(msg)
+        if progress_callback is not None:
+            progress_callback(-1, msg)
         result = cmd_utils.run_command([self.env.git_path, 'clone', '-b', self.project.project_git_branch,
-                                        self.get_git_repository(),
-                                        '.'])
+                                        self.get_git_repository(), temp_folder])
+        if result is None:
+            return False
+
+        msg = '开始复制文件'
+        log.info(msg)
+        if progress_callback is not None:
+            progress_callback(-1, msg)
+        result = cmd_utils.run_command(['xcopy', temp_dir_path, os_utils.get_work_dir(),
+                                        '/E', '/H', '/C', '/I', '/Y'
+                                        ])
+
         return result is not None
 
     def checkout_latest_project_branch(self, progress_callback: Optional[Callable[[float, str], None]] = None) -> bool:

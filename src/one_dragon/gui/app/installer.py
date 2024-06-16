@@ -22,7 +22,6 @@ class InstallerWindow(BaseFluentWindow):
 
         self.init_navigation()
         self.init_window()
-        self.switchTo(self.code_interface)
 
     def init_navigation(self):
         self.addSubInterface(self.install_interface, FluentIcon.CLOUD_DOWNLOAD, '安装')

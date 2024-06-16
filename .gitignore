@@ -6,3 +6,4 @@ dist/
 config/env.yml
 __pycache__/
 installer.exe
+.temp_clone/
