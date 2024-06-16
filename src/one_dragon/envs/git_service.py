@@ -190,7 +190,7 @@ class GitService:
         if progress_callback is not None:
             progress_callback(4/5, '切换到目标分支成功')
 
-        rebase_result = cmd_utils.run_command([self.env.git_path, 'rebase', '-i', f'origin/{self.project.project_git_branch}'])
+        rebase_result = cmd_utils.run_command([self.env.git_path, 'pull', '-rebase'])
         if rebase_result is None or not rebase_result:
             log.error('更新本地代码失败')
             cmd_utils.run_command([self.env.git_path, 'rebase', '--abort'])  # 回滚回去
@@ -226,7 +226,7 @@ class GitService:
         :return:
         """
         log.info('获取依赖文件的最后修改时间')
-        return cmd_utils.run_command([self.env.git_path, 'log', '-1', '--pretty=format:"%ai%', '--', self.project.requirements])
+        return cmd_utils.run_command([self.env.git_path, 'log', '-1', '--pretty=format:"%ai', '--', self.project.requirements])
 
     def fetch_total_commit(self) -> int:
         """
