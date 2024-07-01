@@ -1,6 +1,6 @@
 from qfluentwidgets import FluentWindow
 
-from one_dragon.gui.view.base_interface import BaseInterface
+from one_dragon.gui.component.interface.base_interface import BaseInterface
 
 
 class BaseFluentWindow(FluentWindow):

@@ -1,9 +1,10 @@
-from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import QWidget, QVBoxLayout
-from qfluentwidgets import SingleDirectionScrollArea, ProgressBar, IndeterminateProgressBar, SettingCardGroup
+from qfluentwidgets import ProgressBar, IndeterminateProgressBar, SettingCardGroup, \
+    FluentIcon
 
 from one_dragon.envs.env_config import EnvConfig, env_config
 from one_dragon.envs.project_config import ProjectConfig, project_config
+from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.log_display_card import LogDisplayCard
 from one_dragon.gui.install_card.all_install_card import AllInstallCard
 from one_dragon.gui.install_card.code_install_card import CodeInstallCard
@@ -11,23 +12,14 @@ from one_dragon.gui.install_card.git_install_card import GitInstallCard
 from one_dragon.gui.install_card.pip_install_card import PipInstallCard
 from one_dragon.gui.install_card.python_install_card import PythonInstallCard
 from one_dragon.gui.install_card.venv_install_card import VenvInstallCard
-from one_dragon.gui.view.base_interface import BaseInterface
 from one_dragon.utils.i18_utils import gt
 
 
-class InstallerInterface(SingleDirectionScrollArea, BaseInterface):
+class InstallerInterface(VerticalScrollInterface):
 
     def __init__(self, parent=None):
-        BaseInterface.__init__(self)
-        SingleDirectionScrollArea.__init__(self, parent=parent, orient=Qt.Orientation.Vertical)
-        self.setWidgetResizable(True)
-
-        view = QWidget()
-        self.setWidget(view)
-        self.setStyleSheet("QScrollArea { border: none; }")
-        self.setObjectName('install_interface')
-
-        v_layout = QVBoxLayout(view)
+        content_widget = QWidget()
+        v_layout = QVBoxLayout(content_widget)
 
         self.progress_bar = ProgressBar()
         self.progress_bar.setRange(0, 1)
@@ -69,6 +61,10 @@ class InstallerInterface(SingleDirectionScrollArea, BaseInterface):
         log_card = LogDisplayCard(max_height=200)
         log_group.addSettingCard(log_card)
         v_layout.addWidget(log_group)
+
+        VerticalScrollInterface.__init__(self, object_name='install_interface',
+                                         parent=parent, content_widget=content_widget,
+                                         nav_text_cn='一键安装', nav_icon=FluentIcon.CLOUD_DOWNLOAD)
 
         self.env_config: EnvConfig = env_config
         self.project_config: ProjectConfig = project_config

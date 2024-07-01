@@ -28,6 +28,8 @@ def get_translations(model: str, lang: str):
 
 
 def gt(msg: str, model: str = 'ocr', lang: str = None) -> str:
+    if msg is None or len(msg) == 0:
+        return msg
     if lang is None:
         lang = _default_lang
     if model not in _gt:

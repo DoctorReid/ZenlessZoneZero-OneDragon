@@ -2,9 +2,7 @@ import logging
 from typing import List, Optional
 
 from PySide6.QtCore import Signal, QObject
-from PySide6.QtGui import Qt
-from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QSizePolicy
-from qfluentwidgets import CardWidget, PlainTextEdit
+from qfluentwidgets import PlainTextEdit
 
 from one_dragon.utils.log_utils import log
 

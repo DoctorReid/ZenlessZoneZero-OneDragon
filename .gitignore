@@ -1,9 +1,15 @@
+# 开发过程产生的临时文件
 build/
 dist/
 .idea/
+__pycache__/
+
+# 用户独有的配置文件
+env.bat
+config/env.yml
+installer.exe
+
+# 用户运行时产生的文件
 .log/
 .env/
-config/env.yml
-__pycache__/
-installer.exe
 .temp_clone/

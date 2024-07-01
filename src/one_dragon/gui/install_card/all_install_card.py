@@ -25,9 +25,9 @@ class AllInstallCard(BaseInstallCard):
 
         super().__init__(
             title_cn='全部',
-            content_cn='正常情况请使用一件安装。如你了解如何使用个人环境，可在下方选择。',
+            content_cn='正常情况请使用一键安装。如你了解如何使用个人环境，可在下方选择。',
             install_method=self.install_all,
-            install_btn_text_cn='一件安装',
+            install_btn_text_cn='一键安装',
         )
 
     def install_all(self, progress_callback: Callable[[float, str], None]) -> bool:
@@ -47,7 +47,7 @@ class AllInstallCard(BaseInstallCard):
         :param success:
         :return:
         """
-        if self.installing_idx == -1:  # 并非从这里开始的一件安装
+        if self.installing_idx == -1:  # 并非从这里开始的一键安装
             return
         if not success:  # 失败了 重置进度
             self.update_display(None,

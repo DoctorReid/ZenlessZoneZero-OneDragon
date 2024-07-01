@@ -1,10 +1,13 @@
+import os
 from typing import Callable, Optional
 
 from PySide6.QtWidgets import QFileDialog
 from qfluentwidgets import FluentIcon, PushButton
 
 from one_dragon.gui.install_card.base_install_card import BaseInstallCard
+from one_dragon.utils import os_utils
 from one_dragon.utils.i18_utils import gt
+from one_dragon.utils.log_utils import log
 
 
 class WithExistedInstallCard(BaseInstallCard):
@@ -32,13 +35,16 @@ class WithExistedInstallCard(BaseInstallCard):
         :return:
         """
         default_dir = self.get_existed_os_path()
+        if default_dir is None:
+            default_dir = os_utils.get_work_dir()
         file_path, _ = QFileDialog.getOpenFileName(self,
                                                    gt('选择你的', 'ui') + self.title,
                                                    dir=default_dir,
                                                    filter="Exe (*.exe)",
                                                    )
         if file_path is not None and file_path.endswith('.exe'):
-            self.on_existed_chosen(file_path)
+            log.info('选择路径 %s', file_path)
+            self.on_existed_chosen(os.path.normpath(file_path))
 
     def get_existed_os_path(self) -> Optional[str]:
         """

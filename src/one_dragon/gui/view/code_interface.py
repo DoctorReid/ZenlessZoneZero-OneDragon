@@ -1,22 +1,12 @@
 from typing import Callable, List
 
-from PySide6.QtCore import Qt, QTimer, QThread, Signal
+from PySide6.QtCore import QThread, Signal
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QTableWidgetItem
-from qfluentwidgets import SingleDirectionScrollArea, ProgressBar, IndeterminateProgressBar, SettingCardGroup, \
-    HeaderCardWidget, TableWidget, PipsPager
+from qfluentwidgets import TableWidget, PipsPager, FluentIcon
 
-from one_dragon.envs.env_config import EnvConfig, env_config
 from one_dragon.envs.git_service import GitLog, git_service
-from one_dragon.envs.project_config import ProjectConfig, project_config
-from one_dragon.gui.component.log_display_card import LogDisplayCard
-from one_dragon.gui.component.od_setting_card import MultiPushSettingCard
-from one_dragon.gui.install_card.all_install_card import AllInstallCard
+from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.install_card.code_install_card import CodeInstallCard
-from one_dragon.gui.install_card.git_install_card import GitInstallCard
-from one_dragon.gui.install_card.pip_install_card import PipInstallCard
-from one_dragon.gui.install_card.python_install_card import PythonInstallCard
-from one_dragon.gui.install_card.venv_install_card import VenvInstallCard
-from one_dragon.gui.view.base_interface import BaseInterface
 from one_dragon.utils.i18_utils import gt
 
 
@@ -44,28 +34,21 @@ class FetchPageRunner(QThread):
         self.finished.emit(self.method())
 
 
-class CodeInterface(SingleDirectionScrollArea, BaseInterface):
+class CodeInterface(VerticalScrollInterface):
 
     def __init__(self, parent=None):
-        BaseInterface.__init__(self)
-        SingleDirectionScrollArea.__init__(self, parent=parent, orient=Qt.Orientation.Vertical)
-        self.setWidgetResizable(True)
-
-        view = QWidget()
-        self.setWidget(view)
-        self.setStyleSheet("QScrollArea { border: none; }")
-        self.setObjectName('code_interface')
+        content_widget = QWidget()
 
         self.page_num: int = -1
         self.page_size: int = 10
 
-        v_layout = QVBoxLayout(view)
+        v_layout = QVBoxLayout(content_widget)
 
         self.install_card = CodeInstallCard()
         self.install_card.finished.connect(self.on_code_updated)
         v_layout.addWidget(self.install_card)
 
-        self.log_table = TableWidget(self)
+        self.log_table = TableWidget()
 
         self.log_table.setBorderVisible(True)
         self.log_table.setBorderRadius(8)
@@ -91,6 +74,10 @@ class CodeInterface(SingleDirectionScrollArea, BaseInterface):
         self.pager.setVisibleNumber(5)
         self.pager.currentIndexChanged.connect(self.on_page_changed)
         v_layout.addWidget(self.pager)
+
+        VerticalScrollInterface.__init__(self, object_name='code_interface',
+                                         parent=parent, content_widget=content_widget,
+                                         nav_text_cn='代码同步', nav_icon=FluentIcon.DOCUMENT)
 
         self.git_service = git_service
         self.fetch_total_runner = FetchTotalRunner(self.git_service.fetch_total_commit)

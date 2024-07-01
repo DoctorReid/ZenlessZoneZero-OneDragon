@@ -266,7 +266,7 @@ class GitService:
         获取使用的仓库地址
         :return:
         """
-        suffix = self.project.github_repository if self.env.repository_from == 'github' else self.project.gitee_repository
+        suffix = self.project.github_repository if self.env.repository_type == 'github' else self.project.gitee_repository
         prefix = 'https://' if self.env.git_method == 'https' else 'git@'
         return prefix + suffix
 

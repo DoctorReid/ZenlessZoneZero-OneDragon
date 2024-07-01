@@ -2,7 +2,8 @@ import os
 from enum import Enum
 from typing import Optional
 
-from one_dragon.base.yaml_config import YamlConfig
+from one_dragon.base.config.config_item import ConfigItem
+from one_dragon.base.config.yaml_config import YamlConfig
 from one_dragon.utils import os_utils
 
 
@@ -23,6 +24,18 @@ class ProxyType(Enum):
     NONE: str = '无'
     PERSONAL: str = '个人代理',
     GHPROXY: str = '免费代理'
+
+
+class RepositoryTypeEnum(Enum):
+
+    GITHUB = ConfigItem('Github')
+    GITEE = ConfigItem('Gitee')
+
+
+class GitMethodEnum(Enum):
+
+    HTTPS = ConfigItem('https')
+    SSH = ConfigItem('ssh')
 
 
 class EnvConfig(YamlConfig):
@@ -61,6 +74,14 @@ class EnvConfig(YamlConfig):
         :return:
         """
         self.update('python_path', new_value)
+        self.write_env_bat()
+
+    @property
+    def pythonw_path(self) -> str:
+        """
+        :return: pythonw.exe的路径
+        """
+        return os.path.join(os.path.dirname(self.python_path), 'pythonw.exe')
 
     @property
     def pip_path(self) -> str:
@@ -142,20 +163,20 @@ class EnvConfig(YamlConfig):
         self.update('requirement_time', new_value)
 
     @property
-    def repository_from(self) -> str:
+    def repository_type(self) -> str:
         """
-        代码托管地方
+        仓库类型 Github / Gitee
         :return:
         """
-        return self.get('repository_from', 'github')
+        return self.get('repository_type', RepositoryTypeEnum.GITHUB.value.value)
 
-    @repository_from.setter
-    def repository_from(self, new_value: str) -> None:
+    @repository_type.setter
+    def repository_type(self, new_value: str) -> None:
         """
-        代码托管地方
+        仓库类型 Github / Gitee
         :return:
         """
-        self.update('repository_from', new_value)
+        self.update('repository_type', new_value)
 
     @property
     def git_method(self) -> str:
@@ -188,6 +209,16 @@ class EnvConfig(YamlConfig):
         :return:
         """
         self.update('pip_source', new_value)
+
+    def write_env_bat(self) -> None:
+        """
+        写入环境变量的bat
+        :return:
+        """
+        env_path = os.path.join(os_utils.get_work_dir(), 'env.bat')
+
+        with open(env_path, 'w', encoding='utf-8') as file:
+            file.write(f'set PYTHON={self.pythonw_path}')
 
 
 env_config = EnvConfig()

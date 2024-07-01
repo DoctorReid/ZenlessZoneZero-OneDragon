@@ -1,4 +1,4 @@
-from one_dragon.base.yaml_config import YamlConfig
+from one_dragon.base.config.yaml_config import YamlConfig
 
 
 class ProjectConfig(YamlConfig):
