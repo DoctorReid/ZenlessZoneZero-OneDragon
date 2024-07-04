@@ -2,7 +2,7 @@ import os
 import shutil
 from typing import Optional, Callable, List
 
-from one_dragon.envs.env_config import env_config, GH_PROXY_URL, DEFAULT_ENV_PATH, DEFAULT_GIT_DIR_PATH
+from one_dragon.envs.env_config import env_config, GH_PROXY_URL, DEFAULT_ENV_PATH, DEFAULT_GIT_DIR_PATH, ProxyTypeEnum
 from one_dragon.envs.project_config import project_config
 from one_dragon.utils import http_utils, cmd_utils, file_utils, os_utils
 from one_dragon.utils.log_utils import log
@@ -26,6 +26,8 @@ class GitService:
     def __init__(self):
         self.project = project_config
         self.env = env_config
+
+        self.is_proxy_set: bool = False  # 是否已经设置代理了
 
     def download_env_file(self, file_name: str, save_file_path: str,
                           progress_callback: Optional[Callable[[float, str], None]] = None) -> bool:
@@ -269,6 +271,25 @@ class GitService:
         suffix = self.project.github_repository if self.env.repository_type == 'github' else self.project.gitee_repository
         prefix = 'https://' if self.env.git_method == 'https' else 'git@'
         return prefix + suffix
+
+    def init_git_proxy(self) -> None:
+        """
+        初始化 git 使用的代理
+        :return:
+        """
+        if self.is_proxy_set:
+            return
+        if not os.path.exists(DOT_GIT_DIR_PATH):  # 未有.git文件夹
+            return
+
+        if self.env.proxy_type != ProxyTypeEnum.PERSONAL.value.value:  # 没有代理
+            cmd_utils.run_command([self.env.git_path, 'config', '--local', '--unset', 'http.proxy'])
+            cmd_utils.run_command([self.env.git_path, 'config', '--local', '--unset', 'https.proxy'])
+        else:
+            proxy_address = self.env.proxy_address
+            cmd_utils.run_command([self.env.git_path, 'config', '--local', 'http.proxy', proxy_address])
+            cmd_utils.run_command([self.env.git_path, 'config', '--local', 'https.proxy', proxy_address])
+        self.is_proxy_set = True
 
 
 git_service = GitService()

@@ -19,11 +19,11 @@ DEFAULT_PIP_PATH = os.path.join(DEFAULT_PYTHON_SCRIPTS_DIR_PATH, 'pip.exe')  # �
 GH_PROXY_URL = 'https://mirror.ghproxy.com/'  # 免费代理的路径
 
 
-class ProxyType(Enum):
+class ProxyTypeEnum(Enum):
 
-    NONE: str = '无'
-    PERSONAL: str = '个人代理',
-    GHPROXY: str = '免费代理'
+    NONE = ConfigItem('无', 'None')
+    PERSONAL = ConfigItem('个人代理', 'personal')
+    GHPROXY = ConfigItem('免费代理', 'ghproxy')
 
 
 class RepositoryTypeEnum(Enum):
@@ -105,7 +105,7 @@ class EnvConfig(YamlConfig):
         代理类型
         :return:
         """
-        return self.get('proxy_type', ProxyType.GHPROXY.value)
+        return self.get('proxy_type', ProxyTypeEnum.GHPROXY.value.value)
 
     @proxy_type.setter
     def proxy_type(self, new_value: str) -> None:
@@ -137,11 +137,11 @@ class EnvConfig(YamlConfig):
         :return: 真正使用的代理地址
         """
         proxy_type = self.proxy_type
-        if proxy_type == ProxyType.NONE.value:
+        if proxy_type == ProxyTypeEnum.NONE.value.value:
             return None
-        elif proxy_type == ProxyType.GHPROXY.value:
+        elif proxy_type == ProxyTypeEnum.GHPROXY.value.value:
             return GH_PROXY_URL
-        elif proxy_type == ProxyType.PERSONAL.value:
+        elif proxy_type == ProxyTypeEnum.PERSONAL.value.value:
             proxy = self.personal_proxy
             return None if proxy == '' else proxy
         return None
@@ -184,7 +184,7 @@ class EnvConfig(YamlConfig):
         git使用https还是ssh
         :return:
         """
-        return self.get('git_method', 'https')
+        return self.get('git_method', GitMethodEnum.HTTPS.value.value)
 
     @git_method.setter
     def git_method(self, new_value: str) -> None:

@@ -26,7 +26,7 @@ class VerticalScrollInterface(BaseInterface):
         # 创建一个垂直布局
         main_layout = QVBoxLayout(self)
         scroll_area = SingleDirectionScrollArea(orient=Qt.Orientation.Vertical)
-        main_layout.addWidget(scroll_area)
+        main_layout.addWidget(scroll_area, stretch=0)
 
         scroll_area.setWidget(content_widget)
         scroll_area.setWidgetResizable(True)

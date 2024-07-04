@@ -26,8 +26,8 @@ class InstallerWindow(BaseFluentWindow):
         self.init_window()
 
     def init_navigation(self):
-        # self.addSubInterface(self.install_interface, self.install_interface.nav_icon, self.install_interface.nav_text)
-        # self.addSubInterface(self.code_interface, self.code_interface.nav_icon, self.code_interface.nav_text)
+        self.addSubInterface(self.install_interface, self.install_interface.nav_icon, self.install_interface.nav_text)
+        self.addSubInterface(self.code_interface, self.code_interface.nav_icon, self.code_interface.nav_text)
         self.addSubInterface(self.setting_interface, self.setting_interface.nav_icon, self.setting_interface.nav_text, position=NavigationItemPosition.BOTTOM)
 
     def init_window(self):

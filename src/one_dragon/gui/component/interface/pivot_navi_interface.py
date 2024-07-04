@@ -45,3 +45,4 @@ class PivotNavigatorInterface(BaseInterface):
         widget = self.stacked_widget.widget(index)
         self.pivot.setCurrentItem(widget.objectName())
         qrouter.push(self.stacked_widget, widget.objectName())
+        self.stacked_widget.currentWidget().init_on_shown()

@@ -1,4 +1,5 @@
-from typing import Union, List
+from enum import Enum
+from typing import Union, Iterable
 
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QIcon, Qt
@@ -18,7 +19,7 @@ class ComboBoxSettingCard(SettingCard):
 
     value_changed = Signal(int, object)
 
-    def __init__(self, icon: Union[str, QIcon, FluentIconBase], title: str, options: List[ConfigItem], content=None, parent=None):
+    def __init__(self, icon: Union[str, QIcon, FluentIconBase], title: str, options: Iterable[Enum], content=None, parent=None):
         """
         :param icon: 左边显示的图标
         :param title: 左边的标题 中文
@@ -32,10 +33,13 @@ class ComboBoxSettingCard(SettingCard):
         self.hBoxLayout.addSpacing(16)
 
         for opt in options:
-            self.comboBox.addItem(opt.ui_text, userData=opt.value)
+            if not isinstance(opt.value, ConfigItem):
+                continue
+            opt_item: ConfigItem = opt.value
+            self.comboBox.addItem(opt_item.ui_text, userData=opt_item.value)
 
         self.last_index: int = -1  # 上一次选择的下标
-        if len(options) > 0:
+        if len(self.comboBox.items) > 0:
             self.comboBox.setCurrentIndex(0)
             self.last_index = 0
 
@@ -58,7 +62,7 @@ class ComboBoxSettingCard(SettingCard):
         :param content: 文本 中文
         :return:
         """
-        super().setContent(gt(content, 'ui'))
+        SettingCard.setContent(self, gt(content, 'ui'))
 
     def setValue(self, value: object) -> None:
         """
