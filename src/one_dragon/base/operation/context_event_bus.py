@@ -20,7 +20,7 @@ class ContextEventBus:
         """
         log.debug("事件触发 %s", event_id)
         if event_id not in self.callbacks:
-            pass
+            return
         future_list: List[Future] = []
         for callback in self.callbacks[event_id]:
             future_list.append(_od_event_bus_executor.submit(callback, event_obj))

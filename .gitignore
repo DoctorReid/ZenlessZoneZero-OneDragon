@@ -13,3 +13,4 @@ installer.exe
 .log/
 .env/
 .temp_clone/
+.debug/

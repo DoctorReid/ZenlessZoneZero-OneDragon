@@ -23,7 +23,7 @@ class Application(Operation):
                  timeout_seconds: float = -1,
                  op_callback: Optional[Callable[[OperationResult], None]] = None,
                  check_game_win: bool = True,
-                 op_to_enter_game:  Optional[Operation] = None,
+                 op_to_enter_game: Optional[Operation] = None,
                  init_context_before_start: bool = True,
                  stop_context_after_stop: bool = True,
                  run_record: Optional[AppRunRecord] = None):
@@ -42,18 +42,12 @@ class Application(Operation):
         self.stop_context_after_stop: bool = stop_context_after_stop
         """运行后是否停止上下文 一条龙只有最后一个应用需要"""
 
-    def handle_init(self) -> None:
-        """
-        执行前的初始化 由子类实现
-        注意初始化要全面 方便一个指令重复使用
-        可以返回初始化后判断的结果
-        - 成功时跳过本指令
-        - 失败时立刻返回失败
-        - 不返回时正常运行本指令
-        """
+    def _init_before_execute(self) -> None:
+        Operation._init_before_execute(self)
         if self.run_record is not None:
             self.run_record.update_status(AppRunRecord.STATUS_RUNNING)
 
+        self.ctx.start_running()
         self.ctx.dispatch_event(ApplicationEventId.APPLICATION_START.value)
 
     def handle_resume(self) -> None:

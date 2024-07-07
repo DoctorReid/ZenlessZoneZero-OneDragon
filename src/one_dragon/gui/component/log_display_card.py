@@ -38,6 +38,8 @@ class LogDisplayCard(PlainTextEdit):
         if max_height is not None:
             self.setMaximumHeight(max_height)
 
+        self.update_on_log: bool = False  # 在接收到log的时候更新
+
         self.log_signal = LogSignal()
         self.log_signal.new_log.connect(self.on_log)
         self.receiver = LogReceiver(self.log_signal)
@@ -49,6 +51,8 @@ class LogDisplayCard(PlainTextEdit):
         :param full_log:
         :return:
         """
+        if not self.update_on_log:
+            return
         self.setPlainText(full_log)
 
         # 滚动到最下面

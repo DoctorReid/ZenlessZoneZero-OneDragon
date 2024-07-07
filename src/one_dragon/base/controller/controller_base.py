@@ -1,15 +1,29 @@
+import time
+from typing import List
+
 from cv2.typing import MatLike
 
 from one_dragon.base.geometry.point import Point
 
 
+class ScreenshotWithTime:
+
+    def __init__(self, screenshot: MatLike, create_time: float):
+        self.image: MatLike = screenshot
+        self.create_time: float = create_time
+
+
 class ControllerBase:
 
-    def __init__(self):
+    def __init__(self,
+                 screenshot_alive_seconds: float = 5,
+                 max_screenshot_cnt: int = 10):
         """
         基础控制器的定义
         """
-        pass
+        self.screenshot_history: List[ScreenshotWithTime] = []
+        self.screenshot_alive_seconds: float = screenshot_alive_seconds  # 截图在内存的存活时间
+        self.max_screenshot_cnt: int = max_screenshot_cnt  # 内存中最多保持的截图数量
 
     def init(self) -> bool:
         """
@@ -38,8 +52,40 @@ class ControllerBase:
 
     def screenshot(self) -> MatLike:
         """
+        截图并保存在内存中
+        """
+        self.before_screenshot()
+        now = time.time()
+        screen = self.get_screenshot()
+        fix_screen = self.fill_uid_black(screen)
+
+        self.screenshot_history.append(ScreenshotWithTime(fix_screen, now))
+        while len(self.screenshot_history) > self.max_screenshot_cnt:
+            self.screenshot_history.pop(0)
+
+        while (len(self.screenshot_history) > 0
+            and now - self.screenshot_history[0].create_time > self.screenshot_alive_seconds):
+            self.screenshot_history.pop(0)
+
+        return fix_screen
+
+    def before_screenshot(self) -> None:
+        """
+        截图前的操作 由子类实现
+        """
+        pass
+
+    def get_screenshot(self) -> MatLike:
+        """
         截图 如果分辨率和默认不一样则进行缩放
+        由子类实现 做具体的截图
         :return: 缩放到默认分辨率的截图
+        """
+        pass
+
+    def fill_uid_black(self, screen: MatLike) -> MatLike:
+        """
+        遮挡UID 由子类实现
         """
         pass
 

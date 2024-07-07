@@ -294,7 +294,11 @@ class Operation(OperationBase):
 
         if self.check_game_win and start_node is not None:
             check_game_window = OperationNode('检测游戏窗口', self.check_game_window)
+            self._node_map[check_game_window.cn] = check_game_window
+
             open_and_enter_game = OperationNode('打开并进入游戏', self.open_and_enter_game)
+            self._node_map[open_and_enter_game.cn] = open_and_enter_game
+
             no_game_edge = StateOperationEdge(check_game_window, open_and_enter_game, success=False)
             with_game_edge = StateOperationEdge(check_game_window, start_node)
             enter_game_edge = StateOperationEdge(open_and_enter_game, start_node)
@@ -440,7 +444,7 @@ class Operation(OperationBase):
         :return:
         """
         edges = self._node_edges_map.get(self._current_node.cn)
-        if edges is None or len(edges):  # 没有下一个节点了
+        if edges is None or len(edges) == 0:  # 没有下一个节点了
             return None
 
         next_node_id: Optional[str] = None
@@ -521,7 +525,8 @@ class Operation(OperationBase):
         包装一层截图 会在内存中保存上一张截图 方便出错时候保存
         :return:
         """
-        self.last_screenshot = self.ctx.controller.screenshot()
+        screen = self.ctx.controller.screenshot()
+        self.last_screenshot = screen
         return self.last_screenshot
 
     def save_screenshot(self) -> str:

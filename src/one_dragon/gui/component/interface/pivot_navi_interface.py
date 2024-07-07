@@ -51,3 +51,17 @@ class PivotNavigatorInterface(BaseInterface):
         self.pivot.setCurrentItem(widget.objectName())
         qrouter.push(self.stacked_widget, widget.objectName())
         widget.init_on_shown()
+
+    def init_on_shown(self) -> None:
+        """
+        子界面显示时 进行初始化
+        :return:
+        """
+        self.stacked_widget.currentWidget().init_on_shown()
+
+    def on_hidden(self) -> None:
+        """
+        子界面隐藏时的回调
+        :return:
+        """
+        self.stacked_widget.currentWidget().on_hidden()

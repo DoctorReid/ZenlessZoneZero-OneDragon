@@ -18,6 +18,7 @@ class ZApplication(Application):
                  init_context_before_start: bool = True,
                  stop_context_after_stop: bool = True,
                  run_record: Optional[AppRunRecord] = None):
+        self.ctx: ZContext = ctx
         op_to_enter_game = OpenAndEnterGame(ctx)
         Application.__init__(self,
                              ctx=ctx,

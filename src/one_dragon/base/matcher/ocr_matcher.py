@@ -33,7 +33,7 @@ class OcrMatcher:
         try:
             # 不使用方向检测, CPU推理, drop_score控制识别模型的精度,模型默认0.5 (rec)
             # 不启用空格识别 (rec) 文字空间结构交给 det 处理
-            models_dir = os_utils.get_path_under_work_dir('assets', 'ocr')
+            models_dir = os_utils.get_path_under_work_dir('assets', 'models', 'ocr')
 
             self.ocr = PaddleOCR(use_angle_cls=False, lang="ch", use_gpu=False, use_space_char=False, drop_score=0.5,
                                  det_model_dir=os.path.join(models_dir, 'ch_PP-OCRv4_det_infer'),

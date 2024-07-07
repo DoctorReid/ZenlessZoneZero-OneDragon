@@ -67,7 +67,7 @@ class PcControllerBase(ControllerBase):
             pyautogui.keyUp('alt')
         return True
 
-    def screenshot(self) -> MatLike:
+    def get_screenshot(self) -> MatLike:
         """
         截图 如果分辨率和默认不一样则进行缩放
         :return: 截图

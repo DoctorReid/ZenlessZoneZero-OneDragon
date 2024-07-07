@@ -58,8 +58,8 @@ class InstallerInterface(VerticalScrollInterface):
         v_layout.addWidget(update_group)
 
         log_group = SettingCardGroup(gt('安装日志', 'ui'))
-        log_card = LogDisplayCard(max_height=200)
-        log_group.addSettingCard(log_card)
+        self.log_card = LogDisplayCard(max_height=200)
+        log_group.addSettingCard(self.log_card)
         v_layout.addWidget(log_group)
 
         VerticalScrollInterface.__init__(self, object_name='install_interface',
@@ -79,6 +79,14 @@ class InstallerInterface(VerticalScrollInterface):
         self.python_opt.check_and_update_display()
         self.pip_opt.check_and_update_display()
         self.venv_opt.check_and_update_display()
+        self.log_card.update_on_log = True
+
+    def on_hidden(self) -> None:
+        """
+        子界面隐藏时的回调
+        :return:
+        """
+        self.log_card.update_on_log = False
 
     def update_progress(self, progress: float, message: str) -> None:
         """

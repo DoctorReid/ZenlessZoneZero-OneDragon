@@ -102,7 +102,7 @@ class PcGameWindow:
         ctypes.windll.user32.GetClientRect(self.hWnd, ctypes.byref(client_rect))
         left_top_pos = ctypes.wintypes.POINT(client_rect.left, client_rect.top)
         ctypes.windll.user32.ClientToScreen(self.hWnd, ctypes.byref(left_top_pos))
-        return Rect(left_top_pos.x, left_top_pos.y, client_rect.right, client_rect.bottom)
+        return Rect(left_top_pos.x, left_top_pos.y, left_top_pos.x + client_rect.right, left_top_pos.y + client_rect.bottom)
 
     def get_scaled_game_pos(self, game_pos: Point) -> Point:
         """

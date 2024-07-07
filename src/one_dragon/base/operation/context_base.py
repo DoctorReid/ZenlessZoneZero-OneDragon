@@ -2,11 +2,14 @@ from enum import Enum
 from typing import Optional
 
 import keyboard
+import pyautogui
 
 from one_dragon.base.controller.controller_base import ControllerBase
+from one_dragon.base.geometry.rectangle import Rect
 from one_dragon.base.matcher.ocr_matcher import OcrMatcher
 from one_dragon.base.matcher.template_matcher import TemplateMatcher
 from one_dragon.base.operation.context_event_bus import ContextEventBus
+from one_dragon.utils import debug_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 
@@ -33,7 +36,8 @@ class ContextKeyboardEventEnum(Enum):
 
 class ContextBase(ContextEventBus):
 
-    def __init__(self, controller: Optional[ControllerBase] = None):
+    def __init__(self, controller: Optional[ControllerBase] = None
+                 ):
         ContextEventBus.__init__(self)
 
         self.context_running_state: int = ContextRunStateEnum.STOP.value
@@ -41,7 +45,6 @@ class ContextBase(ContextEventBus):
         self.tm: TemplateMatcher = TemplateMatcher()
         self.ocr: OcrMatcher = OcrMatcher()
         self.controller: ControllerBase = controller
-
         keyboard.on_press(self.__on_key_press)
 
     def start_running(self) -> bool:
@@ -54,6 +57,7 @@ class ContextBase(ContextEventBus):
             return False
 
         self.context_running_state = ContextRunStateEnum.RUN.value
+        self.controller.init()
         self.dispatch_event(ContextEventEnum.START_RUNNING.value)
         return True
 
@@ -104,6 +108,16 @@ class ContextBase(ContextEventBus):
         :return:
         """
         k = event.name
+
+        if k == self.key_start_running:
+            self.switch_context_pause_and_run()
+        elif k == self.key_stop_running:
+            self.stop_running()
+        elif k == self.key_screenshot:
+            self.screenshot_and_save_debug()
+        elif k == self.key_mouse_pos:
+            self.log_mouse_position()
+
         self.dispatch_event(ContextKeyboardEventEnum.PRESS.value, k)
 
     @property
@@ -113,3 +127,37 @@ class ContextBase(ContextEventBus):
         :return:
         """
         return self.controller.is_game_window_ready
+
+    @property
+    def key_start_running(self) -> str:
+        return 'f9'
+
+    @property
+    def key_stop_running(self) -> str:
+        return 'f10'
+
+    @property
+    def key_screenshot(self) -> str:
+        return 'f11'
+
+    @property
+    def key_mouse_pos(self) -> str:
+        return 'f12'
+
+    def screenshot_and_save_debug(self) -> None:
+        """
+        截图 保存到debug
+        """
+        if self.controller is None or not self.controller.is_game_window_ready:
+            return
+        self.controller.init()
+        img = self.controller.screenshot()
+        debug_utils.save_debug_image(img)
+
+    def log_mouse_position(self):
+        if self.controller is None or not self.controller.is_game_window_ready:
+            return
+
+        rect: Rect = self.controller.game_win.win_rect
+        pos = pyautogui.position()
+        log.info('当前鼠标坐标 %s', (pos.x - rect.x1, pos.y - rect.y1))
