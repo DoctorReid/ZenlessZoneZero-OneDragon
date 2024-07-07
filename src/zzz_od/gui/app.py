@@ -10,7 +10,7 @@ from one_dragon.gui.view.base_window import BaseFluentWindow
 from one_dragon.gui.view.code_interface import CodeInterface
 from one_dragon.utils import os_utils
 from one_dragon.utils.i18_utils import gt
-from zzz_od.gui.view.app_setting_interface import AppSettingInterface
+from zzz_od.gui.view.setting.app_setting_interface import AppSettingInterface
 from zzz_od.gui.view.home_interface import HomeInterface
 
 

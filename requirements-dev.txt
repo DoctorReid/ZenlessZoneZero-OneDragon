@@ -2,3 +2,7 @@
 pyside6==6.7.1
 PySide6-Fluent-Widgets==1.5.7
 pyyaml==6.0.1
+opencv-python==4.10.0.84
+paddlepaddle==2.6.1
+paddleocr==2.8.0
+keyboard==0.13.5

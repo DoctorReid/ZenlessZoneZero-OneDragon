@@ -31,3 +31,10 @@ class BaseInterface(QWidget):
         :return:
         """
         pass
+
+    def on_hidden(self) -> None:
+        """
+        子界面隐藏时的回调
+        :return:
+        """
+        pass

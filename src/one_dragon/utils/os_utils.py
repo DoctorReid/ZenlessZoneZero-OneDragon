@@ -45,7 +45,7 @@ def run_in_exe() -> bool:
 @lru_cache
 def get_work_dir() -> str:
     """
-    返回项目根目录的路径 ZenlessZoneZero-OneDragon/
+    返回项目根目录的路径
     :return: 项目根目录
     """
     if run_in_exe():
@@ -75,15 +75,6 @@ def get_env_def(key: str, dft: str) -> str:
     """
     val = get_env(key)
     return val if val is not None else dft
-
-
-def is_debug() -> bool:
-    """
-    判断当前是否在debug模式
-    环境变量 DEBUG = 1
-    :return: 是否在debug模式
-    """
-    return '1' == get_env_def('DEBUG', '0')
 
 
 def now_timestamp_str() -> str:
