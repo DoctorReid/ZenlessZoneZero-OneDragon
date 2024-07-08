@@ -7,6 +7,7 @@ from one_dragon.base.operation.context_base import OneDragonContext
 from one_dragon.envs.env_config import RepositoryTypeEnum, GitMethodEnum, ProxyTypeEnum, ThemeEnum
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.component.setting_card.keyboard_setting_card import KeyboardSettingCard
 from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils.i18_utils import gt
@@ -21,8 +22,21 @@ class SettingEnvInterface(VerticalScrollInterface):
         content_layout = VBoxLayout(content_widget)
         content_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
+        content_layout.addWidget(self._init_basic_group())
+        content_layout.addWidget(self._init_git_group())
+        content_layout.addWidget(self._init_web_group())
+        content_layout.addWidget(self._init_key_group())
+
+        VerticalScrollInterface.__init__(
+            self,
+            ctx=ctx,
+            object_name='setting_env_interface',
+            content_widget=content_widget, parent=parent,
+            nav_text_cn='脚本环境'
+        )
+
+    def _init_basic_group(self) -> SettingCardGroup:
         basic_group = SettingCardGroup(gt('基础', 'ui'))
-        content_layout.addWidget(basic_group)
 
         self.theme_opt = ComboBoxSettingCard(
             icon=FluentIcon.CONSTRACT, title='界面主题', content='有没有大神提供个好配色',
@@ -37,8 +51,10 @@ class SettingEnvInterface(VerticalScrollInterface):
         self.debug_opt.value_changed.connect(self._on_debug_changed)
         basic_group.addSettingCard(self.debug_opt)
 
+        return basic_group
+
+    def _init_git_group(self) -> SettingCardGroup:
         git_group = SettingCardGroup(gt('Git相关', 'ui'))
-        content_layout.addWidget(git_group)
 
         self.repository_type_opt = ComboBoxSettingCard(
             icon=FluentIcon.APPLICATION, title='代码源', content='国内无法访问Github则选择Gitee',
@@ -54,8 +70,10 @@ class SettingEnvInterface(VerticalScrollInterface):
         self.git_method_opt.value_changed.connect(self._on_git_method_changed)
         git_group.addSettingCard(self.git_method_opt)
 
+        return git_group
+
+    def _init_web_group(self) -> SettingCardGroup:
         web_group = SettingCardGroup(gt('网络相关', 'ui'))
-        content_layout.addWidget(web_group)
 
         self.proxy_type_opt = ComboBoxSettingCard(
             icon=FluentIcon.GLOBE, title='网络代理', content='免费代理仅能加速工具和模型下载，无法加速代码同步',
@@ -71,13 +89,36 @@ class SettingEnvInterface(VerticalScrollInterface):
         self.personal_proxy_input.value_changed.connect(self._on_personal_proxy_changed)
         web_group.addSettingCard(self.personal_proxy_input)
 
-        VerticalScrollInterface.__init__(
-            self,
-            ctx=ctx,
-            object_name='setting_env_interface',
-            content_widget=content_widget, parent=parent,
-            nav_text_cn='脚本环境'
+        return web_group
+
+    def _init_key_group(self) -> SettingCardGroup:
+        key_group = SettingCardGroup(gt('脚本按键', 'ui'))
+
+        self.key_start_running_input = KeyboardSettingCard(
+            icon=FluentIcon.PLAY, title='开始运行', content='开始、暂停、恢复某个应用',
         )
+        self.key_start_running_input.value_changed.connect(self._on_key_start_running_changed)
+        key_group.addSettingCard(self.key_start_running_input)
+
+        self.key_stop_running_input = KeyboardSettingCard(
+            icon=FluentIcon.CLOSE, title='停止运行', content='停止正在运行的应用，不能恢复'
+        )
+        self.key_stop_running_input.value_changed.connect(self._on_key_stop_running_changed)
+        key_group.addSettingCard(self.key_stop_running_input)
+
+        self.key_screenshot_input = KeyboardSettingCard(
+            icon=FluentIcon.CLOSE, title='游戏截图', content='用于开发、提交bug。会自动对UID打码'
+        )
+        self.key_screenshot_input.value_changed.connect(self._on_key_screenshot_changed)
+        key_group.addSettingCard(self.key_screenshot_input)
+
+        self.key_mouse_pos_input = KeyboardSettingCard(
+            icon=FluentIcon.CLOSE, title='鼠标位置', content='用于开发'
+        )
+        self.key_mouse_pos_input.value_changed.connect(self._on_key_mouse_position_changed)
+        key_group.addSettingCard(self.key_mouse_pos_input)
+
+        return key_group
 
     def init_on_shown(self) -> None:
         """
@@ -89,6 +130,11 @@ class SettingEnvInterface(VerticalScrollInterface):
             self.theme_opt.setValue(theme.value)
 
         self.debug_opt.setValue(self.ctx.env_config.is_debug)
+
+        self.key_start_running_input.setValue(self.ctx.env_config.key_start_running)
+        self.key_stop_running_input.setValue(self.ctx.env_config.key_stop_running)
+        self.key_screenshot_input.setValue(self.ctx.env_config.key_screenshot)
+        self.key_mouse_pos_input.setValue(self.ctx.env_config.key_mouse_pos)
 
         repo_type = get_config_item_from_enum(RepositoryTypeEnum, self.ctx.env_config.repository_type)
         if repo_type is not None:
@@ -170,3 +216,15 @@ class SettingEnvInterface(VerticalScrollInterface):
         :return:
         """
         self.ctx.git_service.is_proxy_set = False
+
+    def _on_key_start_running_changed(self, value: str) -> None:
+        self.ctx.env_config.key_start_running = value
+
+    def _on_key_stop_running_changed(self, value: str) -> None:
+        self.ctx.env_config.key_stop_running = value
+
+    def _on_key_screenshot_changed(self, value: str) -> None:
+        self.ctx.env_config.key_screenshot = value
+
+    def _on_key_mouse_position_changed(self, value: str) -> None:
+        self.ctx.env_config.key_mouse_pos = value
