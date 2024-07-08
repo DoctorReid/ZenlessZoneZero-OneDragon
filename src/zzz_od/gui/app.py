@@ -11,21 +11,23 @@ from zzz_od.gui.view.home_interface import HomeInterface
 from zzz_od.gui.view.setting.app_setting_interface import AppSettingInterface
 
 
-class InstallerWindowBase(FluentWindowBase):
-    """ Main Interface """
+class AppWindow(FluentWindowBase):
 
     def __init__(self, ctx: ZContext, parent=None):
-        self.ctx: ZContext = ctx
-        FluentWindowBase.__init__(self,
-                                  win_title=self.ctx.project_config.project_name,
-                                  app_icon='app.ico',
-                                  parent=parent)
+        self.ctx: ZContext
+        FluentWindowBase.__init__(
+            self,
+            ctx=ctx,
+            win_title=ctx.project_config.project_name,
+            app_icon='app.ico',
+            parent=parent
+        )
 
-        self.home_interface = HomeInterface(self)
+        self.home_interface = HomeInterface(ctx, parent=self)
 
-        self.devtools_interface = AppDevtoolsInterface(self.ctx, parent=self)
-        self.code_interface = CodeInterface(parent=self)
-        self.setting_interface = AppSettingInterface(parent=self)
+        self.devtools_interface = AppDevtoolsInterface(ctx, parent=self)
+        self.code_interface = CodeInterface(ctx, parent=self)
+        self.setting_interface = AppSettingInterface(ctx, parent=self)
 
         self.init_navigation()
 
@@ -40,7 +42,7 @@ class InstallerWindowBase(FluentWindowBase):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     _ctx = get_context()
-    w = InstallerWindowBase(_ctx)
     setTheme(Theme[_ctx.env_config.theme.upper()])
+    w = AppWindow(_ctx)
     w.show()
     app.exec()

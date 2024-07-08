@@ -2,8 +2,8 @@ import os
 import shutil
 from typing import Optional, Callable, List
 
-from one_dragon.envs.env_config import env_config, GH_PROXY_URL, DEFAULT_ENV_PATH, DEFAULT_GIT_DIR_PATH, ProxyTypeEnum
-from one_dragon.envs.project_config import project_config
+from one_dragon.envs.env_config import GH_PROXY_URL, DEFAULT_ENV_PATH, DEFAULT_GIT_DIR_PATH, ProxyTypeEnum, EnvConfig
+from one_dragon.envs.project_config import ProjectConfig
 from one_dragon.utils import http_utils, cmd_utils, file_utils, os_utils
 from one_dragon.utils.log_utils import log
 
@@ -23,9 +23,9 @@ class GitLog:
 
 class GitService:
 
-    def __init__(self):
-        self.project = project_config
-        self.env = env_config
+    def __init__(self, project_config: ProjectConfig, env_config: EnvConfig):
+        self.project_config: ProjectConfig = project_config
+        self.env_config: EnvConfig = env_config
 
         self.is_proxy_set: bool = False  # 是否已经设置代理了
 
@@ -38,8 +38,8 @@ class GitService:
         :param progress_callback: 下载进度的回调，进度发生改变时，通过该方法通知调用方。
         :return: 是否下载成功
         """
-        download_url = f'{GITHUB_ENV_DOWNLOAD_PREFIX}/{self.project.project_name}/{file_name}'
-        proxy = self.env.proxy_address
+        download_url = f'{GITHUB_ENV_DOWNLOAD_PREFIX}/{self.project_config.project_name}/{file_name}'
+        proxy = self.env_config.proxy_address
         if proxy == GH_PROXY_URL:
             download_url = GH_PROXY_URL + download_url
             proxy = None
@@ -64,7 +64,7 @@ class GitService:
         :return:
         """
         log.info('检测当前git版本')
-        cmd_result = cmd_utils.run_command([self.env.git_path, '--version'])  # 示例 git version 2.35.2.windows.1
+        cmd_result = cmd_utils.run_command([self.env_config.git_path, '--version'])  # 示例 git version 2.35.2.windows.1
         if cmd_result is not None:
             prefix = 'git version '
             return cmd_result[cmd_result.find(prefix) + len(prefix): ]
@@ -141,7 +141,7 @@ class GitService:
         log.info(msg)
         if progress_callback is not None:
             progress_callback(-1, msg)
-        result = cmd_utils.run_command([self.env.git_path, 'clone', '-b', self.project.project_git_branch,
+        result = cmd_utils.run_command([self.env_config.git_path, 'clone', '-b', self.project_config.project_git_branch,
                                         self.get_git_repository(), temp_folder])
         if result is None:
             return False
@@ -162,7 +162,7 @@ class GitService:
         :return:
         """
         log.info('获取远程代码')
-        fetch_result = cmd_utils.run_command([self.env.git_path, 'fetch', 'origin', self.project.project_git_branch])
+        fetch_result = cmd_utils.run_command([self.env_config.git_path, 'fetch', 'origin', self.project_config.project_git_branch])
         if fetch_result is None:
             log.error('获取远程代码失败')
             return False
@@ -184,18 +184,18 @@ class GitService:
         elif progress_callback is not None:
             progress_callback(3/5, '获取当前分支成功')
 
-        if current_result != self.project.project_git_branch:
-            checkout_result = cmd_utils.run_command([self.env.git_path, 'checkout', f'{self.project.project_git_branch}'])
+        if current_result != self.project_config.project_git_branch:
+            checkout_result = cmd_utils.run_command([self.env_config.git_path, 'checkout', f'{self.project_config.project_git_branch}'])
             if checkout_result is None or not checkout_result:
                 log.error('切换到目标分支失败')
                 return False
         if progress_callback is not None:
             progress_callback(4/5, '切换到目标分支成功')
 
-        rebase_result = cmd_utils.run_command([self.env.git_path, 'pull', '-rebase'])
+        rebase_result = cmd_utils.run_command([self.env_config.git_path, 'pull', '-rebase'])
         if rebase_result is None or not rebase_result:
             log.error('更新本地代码失败')
-            cmd_utils.run_command([self.env.git_path, 'rebase', '--abort'])  # 回滚回去
+            cmd_utils.run_command([self.env_config.git_path, 'rebase', '--abort'])  # 回滚回去
             return False
         elif progress_callback is not None:
             progress_callback(5/5, '更新本地代码成功')
@@ -208,7 +208,7 @@ class GitService:
         :return:
         """
         log.info('检测当前代码分支')
-        return cmd_utils.run_command([self.env.git_path, 'branch', '--show-current'])
+        return cmd_utils.run_command([self.env_config.git_path, 'branch', '--show-current'])
 
     def is_current_branch_clean(self) -> Optional[bool]:
         """
@@ -216,7 +216,7 @@ class GitService:
         :return:
         """
         log.info('检测当前代码是否有修改')
-        status_str = cmd_utils.run_command([self.env.git_path, 'status'])
+        status_str = cmd_utils.run_command([self.env_config.git_path, 'status'])
         if status_str is None:
             return None
         else:
@@ -228,7 +228,7 @@ class GitService:
         :return:
         """
         log.info('获取依赖文件的最后修改时间')
-        return cmd_utils.run_command([self.env.git_path, 'log', '-1', '--pretty=format:"%ai', '--', self.project.requirements])
+        return cmd_utils.run_command([self.env_config.git_path, 'log', '-1', '--pretty=format:"%ai', '--', self.project_config.requirements])
 
     def fetch_total_commit(self) -> int:
         """
@@ -236,7 +236,7 @@ class GitService:
         :return:
         """
         log.info('获取commit总数')
-        result = cmd_utils.run_command([self.env.git_path, 'rev-list', '--count', 'HEAD'])
+        result = cmd_utils.run_command([self.env_config.git_path, 'rev-list', '--count', 'HEAD'])
         return 0 if result is None else int(result)
 
     def fetch_page_commit(self, page_num: int, page_size: int) -> List[GitLog]:
@@ -248,7 +248,7 @@ class GitService:
         """
         log.info(f'获取commit 第{page_num + 1}页')
         result = cmd_utils.run_command([
-            self.env.git_path, 'log', f'-{page_size}',
+            self.env_config.git_path, 'log', f'-{page_size}',
             '--pretty=format:"%h #@# %an #@# %ai #@# %s"',
             '--date=short',
             f'--skip={page_num * page_size}'
@@ -268,8 +268,8 @@ class GitService:
         获取使用的仓库地址
         :return:
         """
-        suffix = self.project.github_repository if self.env.repository_type == 'github' else self.project.gitee_repository
-        prefix = 'https://' if self.env.git_method == 'https' else 'git@'
+        suffix = self.project_config.github_repository if self.env_config.repository_type == 'github' else self.project_config.gitee_repository
+        prefix = 'https://' if self.env_config.git_method == 'https' else 'git@'
         return prefix + suffix
 
     def init_git_proxy(self) -> None:
@@ -282,14 +282,11 @@ class GitService:
         if not os.path.exists(DOT_GIT_DIR_PATH):  # 未有.git文件夹
             return
 
-        if self.env.proxy_type != ProxyTypeEnum.PERSONAL.value.value:  # 没有代理
-            cmd_utils.run_command([self.env.git_path, 'config', '--local', '--unset', 'http.proxy'])
-            cmd_utils.run_command([self.env.git_path, 'config', '--local', '--unset', 'https.proxy'])
+        if self.env_config.proxy_type != ProxyTypeEnum.PERSONAL.value.value:  # 没有代理
+            cmd_utils.run_command([self.env_config.git_path, 'config', '--local', '--unset', 'http.proxy'])
+            cmd_utils.run_command([self.env_config.git_path, 'config', '--local', '--unset', 'https.proxy'])
         else:
-            proxy_address = self.env.proxy_address
-            cmd_utils.run_command([self.env.git_path, 'config', '--local', 'http.proxy', proxy_address])
-            cmd_utils.run_command([self.env.git_path, 'config', '--local', 'https.proxy', proxy_address])
+            proxy_address = self.env_config.proxy_address
+            cmd_utils.run_command([self.env_config.git_path, 'config', '--local', 'http.proxy', proxy_address])
+            cmd_utils.run_command([self.env_config.git_path, 'config', '--local', 'https.proxy', proxy_address])
         self.is_proxy_set = True
-
-
-git_service = GitService()

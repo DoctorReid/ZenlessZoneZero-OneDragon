@@ -2,9 +2,7 @@ from typing import List, Callable
 
 from qfluentwidgets import FluentIcon, FluentThemeColor
 
-from one_dragon.envs.env_config import EnvConfig, env_config
-from one_dragon.envs.git_service import git_service, GitService
-from one_dragon.envs.project_config import ProjectConfig, project_config
+from one_dragon.base.operation.context_base import OneDragonContext
 from one_dragon.gui.install_card.base_install_card import BaseInstallCard
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
@@ -12,18 +10,16 @@ from one_dragon.utils.log_utils import log
 
 class AllInstallCard(BaseInstallCard):
 
-    def __init__(self, install_cards: List[BaseInstallCard]):
-        self.env_config: EnvConfig = env_config
-        self.project_config: ProjectConfig = project_config
-        self.git_service: GitService = git_service
-
+    def __init__(self, ctx: OneDragonContext, install_cards: List[BaseInstallCard]):
         self.install_cards: List[BaseInstallCard] = install_cards  # 按顺序进行安装的内容
         self.installing_idx: int = -1  # 正在进行安装的下标
 
         for card in self.install_cards:
             card.finished.connect(self.on_install_done)
 
-        super().__init__(
+        BaseInstallCard.__init__(
+            self,
+            ctx=ctx,
             title_cn='全部',
             content_cn='正常情况请使用一键安装。如你了解如何使用个人环境，可在下方选择。',
             install_method=self.install_all,

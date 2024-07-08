@@ -4,7 +4,7 @@ from typing import Optional, ClassVar, Callable, List, Any
 
 from cv2.typing import MatLike
 
-from one_dragon.base.operation.context_base import ContextBase, ContextRunningStateEventEnum
+from one_dragon.base.operation.context_base import OneDragonContext, ContextRunningStateEventEnum
 from one_dragon.base.operation.operation_base import OperationBase, OperationResult
 from one_dragon.base.screen.screen_area import ScreenArea
 from one_dragon.utils import cv2_utils, str_utils, debug_utils
@@ -138,7 +138,7 @@ class Operation(OperationBase):
     """
     STATUS_TIMEOUT: ClassVar[str] = '执行超时'
 
-    def __init__(self, ctx: ContextBase,
+    def __init__(self, ctx: OneDragonContext,
                  node_max_retry_times: int = 3,
                  op_name: str = '',
                  timeout_seconds: float = -1,
@@ -154,7 +154,7 @@ class Operation(OperationBase):
         self.node_max_retry_times: int = node_max_retry_times
         """每个节点可以重试的次数"""
 
-        self.ctx: ContextBase = ctx
+        self.ctx: OneDragonContext = ctx
         """上下文"""
 
         self.timeout_seconds: float = timeout_seconds

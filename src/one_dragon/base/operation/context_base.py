@@ -1,3 +1,4 @@
+import logging
 from enum import Enum
 from typing import Optional
 
@@ -9,7 +10,11 @@ from one_dragon.base.geometry.rectangle import Rect
 from one_dragon.base.matcher.ocr_matcher import OcrMatcher
 from one_dragon.base.matcher.template_matcher import TemplateMatcher
 from one_dragon.base.operation.context_event_bus import ContextEventBus
-from one_dragon.utils import debug_utils
+from one_dragon.envs.env_config import EnvConfig
+from one_dragon.envs.git_service import GitService
+from one_dragon.envs.project_config import ProjectConfig
+from one_dragon.envs.python_service import PythonService
+from one_dragon.utils import debug_utils, log_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 
@@ -37,11 +42,15 @@ class ContextKeyboardEventEnum(Enum):
     PRESS: str = 'context_keyboard_press'
 
 
-class ContextBase(ContextEventBus):
+class OneDragonContext(ContextEventBus):
 
-    def __init__(self, controller: Optional[ControllerBase] = None
-                 ):
+    def __init__(self, controller: Optional[ControllerBase] = None):
         ContextEventBus.__init__(self)
+        self.project_config: ProjectConfig = ProjectConfig()
+        self.env_config: EnvConfig = EnvConfig()
+
+        self.git_service: GitService = GitService(self.project_config, self.env_config)
+        self.python_service: PythonService = PythonService(self.project_config, self.env_config, self.git_service)
 
         self.context_running_state: ContextRunStateEnum = ContextRunStateEnum.STOP
 
@@ -49,6 +58,14 @@ class ContextBase(ContextEventBus):
         self.ocr: OcrMatcher = OcrMatcher()
         self.controller: ControllerBase = controller
         keyboard.on_press(self.__on_key_press)
+
+    def init_by_config(self) -> None:
+        """
+        根据配置进行初始化
+        不能在 __init__ 中调用，因为子类可能还没有完成初始话
+        :return:
+        """
+        log_utils.set_log_level(logging.DEBUG if self.env_config.is_debug else logging.INFO)
 
     def start_running(self) -> bool:
         """
@@ -133,19 +150,19 @@ class ContextBase(ContextEventBus):
 
     @property
     def key_start_running(self) -> str:
-        return 'f9'
+        return self.env_config.key_start_running
 
     @property
     def key_stop_running(self) -> str:
-        return 'f10'
+        return self.env_config.key_stop_running
 
     @property
     def key_screenshot(self) -> str:
-        return 'f11'
+        return self.env_config.key_screenshot
 
     @property
     def key_mouse_pos(self) -> str:
-        return 'f12'
+        return self.env_config.key_mouse_pos
 
     def screenshot_and_save_debug(self) -> None:
         """

@@ -46,6 +46,7 @@ class LogDisplayCard(PlainTextEdit):
         log.addHandler(self.receiver)
 
         # self.setDisabled(True)  # disable之后无法选中文本 也无法滚动
+        self.setReadOnly(True)
 
     def on_log(self, full_log: str) -> None:
         """

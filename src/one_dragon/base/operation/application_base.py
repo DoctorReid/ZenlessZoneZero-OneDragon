@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Optional, Callable
 
 from one_dragon.base.operation.application_run_record import AppRunRecord
-from one_dragon.base.operation.context_base import ContextBase
+from one_dragon.base.operation.context_base import OneDragonContext
 from one_dragon.base.operation.operation import Operation
 from one_dragon.base.operation.operation_base import OperationResult
 
@@ -17,7 +17,7 @@ class ApplicationEventId(Enum):
 
 class Application(Operation):
 
-    def __init__(self, ctx: ContextBase,
+    def __init__(self, ctx: OneDragonContext,
                  node_max_retry_times: int = 1,
                  op_name: str = None,
                  timeout_seconds: float = -1,

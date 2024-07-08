@@ -95,6 +95,7 @@ class AppRunInterface(VerticalScrollInterface):
 
         VerticalScrollInterface.__init__(
             self,
+            ctx=ctx,
             content_widget=content_widget,
             object_name=object_name,
             nav_text_cn=nav_text_cn,

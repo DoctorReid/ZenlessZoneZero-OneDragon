@@ -1,44 +1,37 @@
 import sys
 
 from PySide6.QtWidgets import QApplication
-from qfluentwidgets import NavigationItemPosition
+from qfluentwidgets import NavigationItemPosition, Theme, setTheme
 
-from one_dragon.envs.project_config import project_config
+from one_dragon.base.operation.context_base import OneDragonContext
 from one_dragon.gui.app.fluent_window_base import FluentWindowBase
 from one_dragon.gui.view.code_interface import CodeInterface
 from one_dragon.gui.view.install_interface import InstallerInterface
 from one_dragon.gui.view.installer_setting_interface import InstallerSettingInterface
-from one_dragon.utils.i18_utils import gt
 
 
 class InstallerWindowBase(FluentWindowBase):
     """ Main Interface """
 
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
+    def __init__(self, ctx: OneDragonContext, win_title: str, parent=None):
+        FluentWindowBase.__init__(self, ctx=ctx, win_title=win_title, parent=parent)
 
-        self.project_config = project_config
-        self.install_interface = InstallerInterface(self)
-        self.code_interface = CodeInterface(self)
-        self.setting_interface = InstallerSettingInterface(self)
+        self.install_interface = InstallerInterface(ctx, parent=self)
+        self.code_interface = CodeInterface(ctx, parent=self)
+        self.setting_interface = InstallerSettingInterface(ctx, parent=self)
 
         self.init_navigation()
-        self.init_window()
 
     def init_navigation(self):
-        self.addSubInterface(self.install_interface, self.install_interface.nav_icon, self.install_interface.nav_text)
-        self.addSubInterface(self.code_interface, self.code_interface.nav_icon, self.code_interface.nav_text)
-        self.addSubInterface(self.setting_interface, self.setting_interface.nav_icon, self.setting_interface.nav_text, position=NavigationItemPosition.BOTTOM)
-
-    def init_window(self):
-        title = f"{gt(self.project_config.project_name, 'ui')} {gt('安装器', 'ui')}"
-        self.setWindowTitle(title)
-        self.resize(960, 820)
-        self.move(100, 100)
+        self.add_sub_interface(self.install_interface)
+        self.add_sub_interface(self.code_interface)
+        self.add_sub_interface(self.setting_interface, position=NavigationItemPosition.BOTTOM)
 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    w = InstallerWindowBase()
+    _ctx = OneDragonContext()
+    setTheme(Theme[_ctx.env_config.theme.upper()])
+    w = InstallerWindowBase(_ctx, f'{_ctx.project_config.project_name}-installer')
     w.show()
     app.exec()

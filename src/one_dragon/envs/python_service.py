@@ -1,20 +1,19 @@
 import os.path
-import subprocess
 from typing import Optional, Callable
 
-from one_dragon.envs.env_config import env_config, DEFAULT_ENV_PATH, DEFAULT_PYTHON_DIR_PATH
-from one_dragon.envs.git_service import git_service
-from one_dragon.envs.project_config import project_config
+from one_dragon.envs.env_config import DEFAULT_ENV_PATH, DEFAULT_PYTHON_DIR_PATH, EnvConfig
+from one_dragon.envs.git_service import GitService
+from one_dragon.envs.project_config import ProjectConfig
 from one_dragon.utils import file_utils, cmd_utils, os_utils
 from one_dragon.utils.log_utils import log
 
 
 class PythonService:
 
-    def __init__(self):
-        self.env = env_config
-        self.project = project_config
-        self.github_service = git_service
+    def __init__(self, project_config: ProjectConfig, env_config: EnvConfig, git_service: GitService):
+        self.project_config = project_config
+        self.env_config = env_config
+        self.git_service: GitService = git_service
 
     def install_default_python(self, progress_callback: Optional[Callable[[float, str], None]]) -> bool:
         """
@@ -23,15 +22,15 @@ class PythonService:
         :return: 是否安装成功
         """
         log.info('开始安装 python')
-        if self.get_python_version() == self.project.python_version:
+        if self.get_python_version() == self.project_config.python_version:
             log.info('已经安装了推荐版本的python')
             return True
         for _ in range(2):
-            zip_file_name = f'python-{self.project.python_version}-embed-amd64.zip'
+            zip_file_name = f'python-{self.project_config.python_version}-embed-amd64.zip'
             zip_file_path = os.path.join(DEFAULT_ENV_PATH, zip_file_name)
             if not os.path.exists(zip_file_path):
-                success = self.github_service.download_env_file(zip_file_name, zip_file_path,
-                                                                progress_callback=progress_callback)
+                success = self.git_service.download_env_file(zip_file_name, zip_file_path,
+                                                             progress_callback=progress_callback)
                 if not success:
                     return False
             msg = f'开始解压 {zip_file_name}'
@@ -63,16 +62,16 @@ class PythonService:
         :return: 是否安装成功
         """
         log.info('开始安装 pip')
-        if self.get_pip_version() == self.project.pip_version:
+        if self.get_pip_version() == self.project_config.pip_version:
             log.info('已经安装了推荐版本的pip')
             return True
-        python_path = self.env.python_path
+        python_path = self.env_config.python_path
         for _ in range(2):
             py_file_name = 'get-pip.py'
             py_file_path = os.path.join(DEFAULT_ENV_PATH, py_file_name)
             if not os.path.exists(py_file_path):
-                success = self.github_service.download_env_file(py_file_name, py_file_path,
-                                                                progress_callback=progress_callback)
+                success = self.git_service.download_env_file(py_file_name, py_file_path,
+                                                             progress_callback=progress_callback)
                 if not success:
                     return False
 
@@ -105,7 +104,7 @@ class PythonService:
         :return: 当前使用的python版本
         """
         log.info('检测当前python版本')
-        python_path = self.env.python_path
+        python_path = self.env_config.python_path
         if python_path == '' or not os.path.exists(python_path):
             return None
 
@@ -132,7 +131,7 @@ class PythonService:
         :return: 当前使用的pip版本
         """
         log.info('检测当前pip版本')
-        pip_path = self.env.pip_path
+        pip_path = self.env_config.pip_path
         if pip_path == '' or not os.path.exists(pip_path):
             return None
 
@@ -148,11 +147,8 @@ class PythonService:
         :return:
         """
         progress_callback(-1, '正在安装')
-        result = cmd_utils.run_command([self.env.pip_path, 'install', '-r',
-                                        os.path.join(os_utils.get_work_dir(), self.project.requirements),
-                                        '-i', self.env.pip_source
+        result = cmd_utils.run_command([self.env_config.pip_path, 'install', '-r',
+                                        os.path.join(os_utils.get_work_dir(), self.project_config.requirements),
+                                        '-i', self.env_config.pip_source
                                         ])
         return result is not None
-
-
-python_service = PythonService()

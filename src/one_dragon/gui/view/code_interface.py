@@ -4,7 +4,8 @@ from PySide6.QtCore import QThread, Signal, Qt
 from PySide6.QtWidgets import QWidget, QTableWidgetItem
 from qfluentwidgets import TableWidget, PipsPager, FluentIcon, VBoxLayout
 
-from one_dragon.envs.git_service import GitLog, git_service
+from one_dragon.base.operation.context_base import OneDragonContext
+from one_dragon.envs.git_service import GitLog
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.install_card.code_install_card import CodeInstallCard
 from one_dragon.utils.i18_utils import gt
@@ -36,7 +37,7 @@ class FetchPageRunner(QThread):
 
 class CodeInterface(VerticalScrollInterface):
 
-    def __init__(self, parent=None):
+    def __init__(self, ctx: OneDragonContext, parent=None):
         content_widget = QWidget()
 
         self.page_num: int = -1
@@ -45,7 +46,7 @@ class CodeInterface(VerticalScrollInterface):
         v_layout = VBoxLayout(content_widget)
         v_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        self.install_card = CodeInstallCard()
+        self.install_card = CodeInstallCard(ctx)
         self.install_card.finished.connect(self.on_code_updated)
         v_layout.addWidget(self.install_card)
 
@@ -78,12 +79,15 @@ class CodeInterface(VerticalScrollInterface):
         self.pager.setItemAlignment(Qt.AlignmentFlag.AlignCenter)
         v_layout.addWidget(self.pager)
 
-        VerticalScrollInterface.__init__(self, object_name='code_interface',
-                                         parent=parent, content_widget=content_widget,
-                                         nav_text_cn='代码同步', nav_icon=FluentIcon.DOCUMENT)
+        VerticalScrollInterface.__init__(
+            self,
+            ctx=ctx,
+            object_name='code_interface',
+            parent=parent, content_widget=content_widget,
+            nav_text_cn='代码同步', nav_icon=FluentIcon.DOCUMENT
+        )
 
-        self.git_service = git_service
-        self.fetch_total_runner = FetchTotalRunner(self.git_service.fetch_total_commit)
+        self.fetch_total_runner = FetchTotalRunner(ctx.git_service.fetch_total_commit)
         self.fetch_total_runner.finished.connect(self.update_total)
         self.fetch_page_runner = FetchPageRunner(self.fetch_page)
         self.fetch_page_runner.finished.connect(self.update_page)
@@ -130,7 +134,7 @@ class CodeInterface(VerticalScrollInterface):
         获取分页数据
         :return:
         """
-        return self.git_service.fetch_page_commit(self.page_num, self.page_size)
+        return self.ctx.git_service.fetch_page_commit(self.page_num, self.page_size)
 
     def update_page(self, log_list: List[GitLog]) -> None:
         """

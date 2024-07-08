@@ -5,6 +5,7 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, PrimaryPushButton
 
+from one_dragon.base.operation.context_base import OneDragonContext
 from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiPushSettingCard
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
@@ -61,6 +62,7 @@ class BaseInstallCard(MultiPushSettingCard):
     finished = Signal(bool)
 
     def __init__(self,
+                 ctx: OneDragonContext,
                  title_cn: str,
                  install_method: Callable[[Callable[[float, str], None]], bool],
                  install_btn_icon: FluentIcon = FluentIcon.DOWN,
@@ -69,6 +71,7 @@ class BaseInstallCard(MultiPushSettingCard):
                  left_widgets: List[QWidget] = None,
                  parent=None
                  ):
+        self.ctx: OneDragonContext = ctx
         self.title: str = gt(title_cn, 'ui')
 
         btn_list = []

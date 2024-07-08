@@ -1,33 +1,41 @@
 from PySide6.QtGui import Qt
-from PySide6.QtWidgets import QWidget, QVBoxLayout
+from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, SettingCardGroup, setTheme, Theme, VBoxLayout
 
 from one_dragon.base.config.config_item import get_config_item_from_enum
-from one_dragon.envs.env_config import env_config, RepositoryTypeEnum, GitMethodEnum, ProxyTypeEnum, ThemeEnum
-from one_dragon.envs.git_service import git_service
+from one_dragon.base.operation.context_base import OneDragonContext
+from one_dragon.envs.env_config import RepositoryTypeEnum, GitMethodEnum, ProxyTypeEnum, ThemeEnum
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils.i18_utils import gt
 
 
 class SettingEnvInterface(VerticalScrollInterface):
 
-    def __init__(self, parent=None):
+    def __init__(self, ctx: OneDragonContext, parent=None):
+        self.ctx: OneDragonContext = ctx
 
         content_widget = QWidget()
         content_layout = VBoxLayout(content_widget)
         content_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        gui_group = SettingCardGroup(gt('界面相关', 'ui'))
-        content_layout.addWidget(gui_group)
+        basic_group = SettingCardGroup(gt('基础', 'ui'))
+        content_layout.addWidget(basic_group)
 
         self.theme_opt = ComboBoxSettingCard(
-            icon=FluentIcon.CONSTRACT, title='主题', content='有没有大神提供个好配色',
+            icon=FluentIcon.CONSTRACT, title='界面主题', content='有没有大神提供个好配色',
             options=ThemeEnum
         )
         self.theme_opt.value_changed.connect(self._on_theme_changed)
-        gui_group.addSettingCard(self.theme_opt)
+        basic_group.addSettingCard(self.theme_opt)
+
+        self.debug_opt = SwitchSettingCard(
+            icon=FluentIcon.CONSTRACT, title='调试模式', content='正常无需开启'
+        )
+        self.debug_opt.value_changed.connect(self._on_debug_changed)
+        basic_group.addSettingCard(self.debug_opt)
 
         git_group = SettingCardGroup(gt('Git相关', 'ui'))
         content_layout.addWidget(git_group)
@@ -63,35 +71,38 @@ class SettingEnvInterface(VerticalScrollInterface):
         self.personal_proxy_input.value_changed.connect(self._on_personal_proxy_changed)
         web_group.addSettingCard(self.personal_proxy_input)
 
-        VerticalScrollInterface.__init__(self, object_name='setting_env_interface',
-                                         content_widget=content_widget, parent=parent,
-                                         nav_text_cn='脚本环境')
-
-        self.env_config = env_config
-        self.git_service = git_service
+        VerticalScrollInterface.__init__(
+            self,
+            ctx=ctx,
+            object_name='setting_env_interface',
+            content_widget=content_widget, parent=parent,
+            nav_text_cn='脚本环境'
+        )
 
     def init_on_shown(self) -> None:
         """
         子界面显示时 进行初始化
         :return:
         """
-        theme = get_config_item_from_enum(ThemeEnum, self.env_config.theme)
+        theme = get_config_item_from_enum(ThemeEnum, self.ctx.env_config.theme)
         if theme is not None:
             self.theme_opt.setValue(theme.value)
 
-        repo_type = get_config_item_from_enum(RepositoryTypeEnum, self.env_config.repository_type)
+        self.debug_opt.setValue(self.ctx.env_config.is_debug)
+
+        repo_type = get_config_item_from_enum(RepositoryTypeEnum, self.ctx.env_config.repository_type)
         if repo_type is not None:
             self.repository_type_opt.setValue(repo_type.value)
 
-        git_method = get_config_item_from_enum(GitMethodEnum, self.env_config.git_method)
+        git_method = get_config_item_from_enum(GitMethodEnum, self.ctx.env_config.git_method)
         if git_method is not None:
             self.git_method_opt.setValue(git_method.value)
 
-        proxy_type = get_config_item_from_enum(ProxyTypeEnum, self.env_config.proxy_type)
+        proxy_type = get_config_item_from_enum(ProxyTypeEnum, self.ctx.env_config.proxy_type)
         if proxy_type is not None:
             self.proxy_type_opt.setValue(proxy_type.value)
 
-        self.personal_proxy_input.setValue(self.env_config.personal_proxy)
+        self.personal_proxy_input.setValue(self.ctx.env_config.personal_proxy)
 
     def _on_theme_changed(self, index: int, value: str) -> None:
         """
@@ -101,8 +112,17 @@ class SettingEnvInterface(VerticalScrollInterface):
         :return:
         """
         config_item = get_config_item_from_enum(ThemeEnum, value)
-        self.env_config.theme = config_item.value
+        self.ctx.env_config.theme = config_item.value
         setTheme(Theme[config_item.value.upper()])
+
+    def _on_debug_changed(self, value: bool):
+        """
+        调试模式改变
+        :param value:
+        :return:
+        """
+        self.ctx.env_config.is_debug = value
+        self.ctx.init_by_config()
 
     def _on_repo_type_changed(self, index: int, value: str) -> None:
         """
@@ -112,7 +132,7 @@ class SettingEnvInterface(VerticalScrollInterface):
         :return:
         """
         config_item = get_config_item_from_enum(RepositoryTypeEnum, value)
-        self.env_config.repository_type = config_item.value
+        self.ctx.env_config.repository_type = config_item.value
 
     def _on_git_method_changed(self, index: int, value: str) -> None:
         """
@@ -122,7 +142,7 @@ class SettingEnvInterface(VerticalScrollInterface):
         :return:
         """
         config_item = get_config_item_from_enum(GitMethodEnum, value)
-        self.env_config.git_method = config_item.value
+        self.ctx.env_config.git_method = config_item.value
 
     def _on_proxy_type_changed(self, index: int, value: str) -> None:
         """
@@ -132,7 +152,7 @@ class SettingEnvInterface(VerticalScrollInterface):
         :return:
         """
         config_item = get_config_item_from_enum(ProxyTypeEnum, value)
-        self.env_config.proxy_type = config_item.value
+        self.ctx.env_config.proxy_type = config_item.value
         self._on_proxy_changed()
 
     def _on_personal_proxy_changed(self, value: str) -> None:
@@ -141,7 +161,7 @@ class SettingEnvInterface(VerticalScrollInterface):
         :param value: 值
         :return:
         """
-        self.env_config.personal_proxy = value
+        self.ctx.env_config.personal_proxy = value
         self._on_proxy_changed()
 
     def _on_proxy_changed(self) -> None:
@@ -149,4 +169,4 @@ class SettingEnvInterface(VerticalScrollInterface):
         代理发生改变
         :return:
         """
-        self.git_service.is_proxy_set = False
+        self.ctx.git_service.is_proxy_set = False

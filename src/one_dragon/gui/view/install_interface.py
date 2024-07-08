@@ -2,8 +2,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout
 from qfluentwidgets import ProgressBar, IndeterminateProgressBar, SettingCardGroup, \
     FluentIcon
 
-from one_dragon.envs.env_config import EnvConfig, env_config
-from one_dragon.envs.project_config import ProjectConfig, project_config
+from one_dragon.base.operation.context_base import OneDragonContext
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.log_display_card import LogDisplayCard
 from one_dragon.gui.install_card.all_install_card import AllInstallCard
@@ -17,7 +16,7 @@ from one_dragon.utils.i18_utils import gt
 
 class InstallerInterface(VerticalScrollInterface):
 
-    def __init__(self, parent=None):
+    def __init__(self, ctx: OneDragonContext, parent=None):
         content_widget = QWidget()
         v_layout = QVBoxLayout(content_widget)
 
@@ -30,22 +29,22 @@ class InstallerInterface(VerticalScrollInterface):
         self.progress_bar_2.setVisible(False)
         v_layout.addWidget(self.progress_bar_2)
 
-        self.git_opt = GitInstallCard()
+        self.git_opt = GitInstallCard(ctx)
         self.git_opt.progress_changed.connect(self.update_progress)
 
-        self.code_opt = CodeInstallCard()
+        self.code_opt = CodeInstallCard(ctx)
         self.code_opt.progress_changed.connect(self.update_progress)
 
-        self.python_opt = PythonInstallCard()
+        self.python_opt = PythonInstallCard(ctx)
         self.python_opt.progress_changed.connect(self.update_progress)
 
-        self.pip_opt = PipInstallCard()
+        self.pip_opt = PipInstallCard(ctx)
         self.pip_opt.progress_changed.connect(self.update_progress)
 
-        self.venv_opt = VenvInstallCard()
+        self.venv_opt = VenvInstallCard(ctx)
         self.venv_opt.progress_changed.connect(self.update_progress)
 
-        self.all_opt = AllInstallCard([self.git_opt, self.code_opt, self.python_opt, self.pip_opt, self.venv_opt])
+        self.all_opt = AllInstallCard(ctx, [self.git_opt, self.code_opt, self.python_opt, self.pip_opt, self.venv_opt])
 
         update_group = SettingCardGroup(gt('运行环境', 'ui'))
         update_group.addSettingCard(self.all_opt)
@@ -62,12 +61,9 @@ class InstallerInterface(VerticalScrollInterface):
         log_group.addSettingCard(self.log_card)
         v_layout.addWidget(log_group)
 
-        VerticalScrollInterface.__init__(self, object_name='install_interface',
+        VerticalScrollInterface.__init__(self, ctx=ctx, object_name='install_interface',
                                          parent=parent, content_widget=content_widget,
                                          nav_text_cn='一键安装', nav_icon=FluentIcon.CLOUD_DOWNLOAD)
-
-        self.env_config: EnvConfig = env_config
-        self.project_config: ProjectConfig = project_config
 
     def init_on_shown(self) -> None:
         """

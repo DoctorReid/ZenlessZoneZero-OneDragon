@@ -6,7 +6,6 @@ from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
 from one_dragon.utils import os_utils
 
-
 DEFAULT_ENV_PATH = os_utils.get_path_under_work_dir('.env')
 DEFAULT_GIT_DIR_PATH = os.path.join(DEFAULT_ENV_PATH, 'PortableGit')  # 默认的git文件夹路径
 DEFAULT_GIT_PATH = os.path.join(DEFAULT_GIT_DIR_PATH, 'cmd', 'git.exe')  # 默认的git.exe文件路径
@@ -40,9 +39,9 @@ class GitMethodEnum(Enum):
 
 class ThemeEnum(Enum):
 
-    LIGHT = ConfigItem('Light')
-    DARK = ConfigItem('Dark')
-    AUTO = ConfigItem('Auto')
+    LIGHT = ConfigItem('浅色', 'Light')
+    DARK = ConfigItem('深色', 'Dark')
+    AUTO = ConfigItem('跟随系统', 'Auto')
 
 
 class EnvConfig(YamlConfig):
@@ -243,5 +242,78 @@ class EnvConfig(YamlConfig):
         with open(env_path, 'w', encoding='utf-8') as file:
             file.write(f'set PYTHON={self.pythonw_path}')
 
+    @property
+    def is_debug(self) -> bool:
+        """
+        调试模式
+        :return:
+        """
+        return self.get('is_debug', False)
 
-env_config = EnvConfig()
+    @is_debug.setter
+    def is_debug(self, new_value: bool):
+        """
+        更新调试模式
+        :return:
+        """
+        self.update('is_debug', new_value)
+
+    @property
+    def key_start_running(self) -> str:
+        """
+        开始、暂停、恢复运行的按键
+        """
+        return self.get('key_start_running', 'f9')
+
+    @key_start_running.setter
+    def key_start_running(self, new_value: str) -> None:
+        """
+        开始、暂停、恢复运行的按键
+        :return:
+        """
+        self.update('key_start_running', new_value)
+
+    @property
+    def key_stop_running(self) -> str:
+        """
+        停止运行的按键
+        """
+        return self.get('key_stop_running', 'f10')
+
+    @key_stop_running.setter
+    def key_stop_running(self, new_value: str) -> None:
+        """
+        停止运行的按键
+        :return:
+        """
+        self.update('key_stop_running', new_value)
+
+    @property
+    def key_screenshot(self) -> str:
+        """
+        截图的按钮
+        """
+        return self.get('key_screenshot', 'f11')
+
+    @key_screenshot.setter
+    def key_screenshot(self, new_value: str) -> None:
+        """
+        截图的按钮
+        :return:
+        """
+        self.update('key_screenshot', new_value)
+
+    @property
+    def key_mouse_pos(self) -> str:
+        """
+        鼠标位置的按钮
+        """
+        return self.get('key_mouse_pos', 'f12')
+
+    @key_mouse_pos.setter
+    def key_mouse_pos(self, new_value: str) -> None:
+        """
+        鼠标位置的按钮
+        :return:
+        """
+        self.update('key_mouse_pos', new_value)

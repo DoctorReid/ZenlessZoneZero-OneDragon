@@ -10,12 +10,6 @@ from one_dragon.utils.i18_utils import gt
 
 
 class ComboBoxSettingCard(SettingCard):
-    """
-    复制原ComboBoxSettingCard
-    封装了些多语言
-    去除了 OptionsConfigItem
-    暴露了值变更的信号
-    """
 
     value_changed = Signal(int, object)
 
@@ -28,22 +22,22 @@ class ComboBoxSettingCard(SettingCard):
         :param parent: 组件的parent
         """
         super().__init__(icon, gt(title, 'ui'), gt(content, 'ui'), parent)
-        self.comboBox = ComboBox(self)
-        self.hBoxLayout.addWidget(self.comboBox, 0, Qt.AlignmentFlag.AlignRight)
+        self.combo_box = ComboBox(self)
+        self.hBoxLayout.addWidget(self.combo_box, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
         for opt in options:
             if not isinstance(opt.value, ConfigItem):
                 continue
             opt_item: ConfigItem = opt.value
-            self.comboBox.addItem(opt_item.ui_text, userData=opt_item.value)
+            self.combo_box.addItem(opt_item.ui_text, userData=opt_item.value)
 
         self.last_index: int = -1  # 上一次选择的下标
-        if len(self.comboBox.items) > 0:
-            self.comboBox.setCurrentIndex(0)
+        if len(self.combo_box.items) > 0:
+            self.combo_box.setCurrentIndex(0)
             self.last_index = 0
 
-        self.comboBox.currentIndexChanged.connect(self._on_index_changed)
+        self.combo_box.currentIndexChanged.connect(self._on_index_changed)
 
     def _on_index_changed(self, index: int) -> None:
         """
@@ -54,7 +48,7 @@ class ComboBoxSettingCard(SettingCard):
         if index == self.last_index:  # 没改变时 不发送信号
             return
         self.last_index = index
-        self.value_changed.emit(index, self.comboBox.itemData(index))
+        self.value_changed.emit(index, self.combo_box.itemData(index))
 
     def setContent(self, content: str) -> None:
         """
@@ -70,7 +64,7 @@ class ComboBoxSettingCard(SettingCard):
         :param value:
         :return:
         """
-        for idx, item in enumerate(self.comboBox.items):
+        for idx, item in enumerate(self.combo_box.items):
             if item.userData == value:
-                self.comboBox.setCurrentIndex(idx)
+                self.combo_box.setCurrentIndex(idx)
                 return

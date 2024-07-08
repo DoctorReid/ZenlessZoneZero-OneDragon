@@ -9,6 +9,7 @@ from one_dragon.gui.component.interface.vertical_scroll_interface import Vertica
 from one_dragon.gui.component.link_card import LinkCardView
 from one_dragon.utils import os_utils
 from one_dragon.utils.i18_utils import gt
+from zzz_od.context.zzz_context import ZContext
 
 
 class BannerWidget(QWidget):
@@ -75,7 +76,7 @@ class BannerWidget(QWidget):
 class HomeInterface(VerticalScrollInterface):
     """ Home interface """
 
-    def __init__(self, parent=None):
+    def __init__(self, ctx: ZContext, parent=None):
         content_widget = QWidget()
         content_layout = QVBoxLayout(content_widget)
 
@@ -86,6 +87,9 @@ class HomeInterface(VerticalScrollInterface):
         banner = BannerWidget()
         content_layout.addWidget(banner)
 
-        VerticalScrollInterface.__init__(self, parent=parent,
-                                         content_widget=content_widget, object_name='home_interface',
-                                         nav_text_cn='主页', nav_icon=FluentIcon.HOME)
+        VerticalScrollInterface.__init__(
+            self,
+            ctx=ctx, parent=parent,
+            content_widget=content_widget, object_name='home_interface',
+            nav_text_cn='主页', nav_icon=FluentIcon.HOME
+        )

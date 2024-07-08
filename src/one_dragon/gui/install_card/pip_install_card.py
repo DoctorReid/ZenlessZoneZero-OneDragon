@@ -4,23 +4,22 @@ from typing import Optional, Tuple
 from PySide6.QtGui import QIcon
 from qfluentwidgets import FluentIcon, FluentThemeColor
 
-from one_dragon.envs.env_config import EnvConfig, env_config, DEFAULT_PIP_PATH
-from one_dragon.envs.project_config import ProjectConfig, project_config
-from one_dragon.envs.python_service import python_service, PythonService
+from one_dragon.base.operation.context_base import OneDragonContext
+from one_dragon.envs.env_config import EnvConfig, DEFAULT_PIP_PATH
+from one_dragon.envs.project_config import ProjectConfig
+from one_dragon.envs.python_service import PythonService
 from one_dragon.gui.install_card.wtih_existed_install_card import WithExistedInstallCard
 from one_dragon.utils.i18_utils import gt
 
 
 class PipInstallCard(WithExistedInstallCard):
 
-    def __init__(self):
-        self.env_config: EnvConfig = env_config
-        self.project_config: ProjectConfig = project_config
-        self.python_service: PythonService = python_service
-
-        super().__init__(
+    def __init__(self, ctx: OneDragonContext):
+        WithExistedInstallCard.__init__(
+            self,
+            ctx=ctx,
             title_cn='Pip',
-            install_method=self.python_service.install_default_pip,
+            install_method=ctx.python_service.install_default_pip,
         )
 
     def get_existed_os_path(self) -> Optional[str]:
@@ -28,7 +27,7 @@ class PipInstallCard(WithExistedInstallCard):
         获取系统环境变量中的路径，由子类自行实现
         :return:
         """
-        return self.python_service.get_os_pip_path()
+        return self.ctx.python_service.get_os_pip_path()
 
     def on_existed_chosen(self, file_path: str) -> None:
         """
@@ -36,7 +35,7 @@ class PipInstallCard(WithExistedInstallCard):
         :param file_path: 本地文件的路径
         :return:
         """
-        self.env_config.pip_path = file_path
+        self.ctx.env_config.pip_path = file_path
         self.check_and_update_display()
 
     def after_progress_done(self, success: bool) -> None:
@@ -46,7 +45,7 @@ class PipInstallCard(WithExistedInstallCard):
         :return:
         """
         if success:
-            self.env_config.pip_path = DEFAULT_PIP_PATH
+            self.ctx.env_config.pip_path = DEFAULT_PIP_PATH
             self.check_and_update_display()
         else:
             self.setContent(gt('安装失败', 'ui'))
@@ -57,7 +56,7 @@ class PipInstallCard(WithExistedInstallCard):
         获取需要显示的状态，由子类自行实现
         :return: 显示的图标、文本
         """
-        pip_path = self.env_config.pip_path
+        pip_path = self.ctx.env_config.pip_path
 
         if pip_path == '':
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
@@ -66,13 +65,13 @@ class PipInstallCard(WithExistedInstallCard):
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
             msg = gt('文件不存在', 'ui') + ' ' + pip_path
         else:
-            pip_version = self.python_service.get_pip_version()
+            pip_version = self.ctx.python_service.get_pip_version()
             if pip_version is None:
                 icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
                 msg = gt('无法获取Pip版本', 'ui') + ' ' + pip_path
-            elif pip_version != self.project_config.pip_version:
+            elif pip_version != self.ctx.project_config.pip_version:
                 icon = FluentIcon.INFO.icon(color=FluentThemeColor.GOLD.value)
-                msg = (f"{gt('当前版本', 'ui')}: {pip_version}; {gt('建议版本', 'ui')}: {self.project_config.pip_version}"
+                msg = (f"{gt('当前版本', 'ui')}: {pip_version}; {gt('建议版本', 'ui')}: {self.ctx.project_config.pip_version}"
                        + ' ' + pip_path)
             else:
                 icon = FluentIcon.INFO.icon(color=FluentThemeColor.DEFAULT_BLUE.value)
