@@ -12,16 +12,18 @@ from one_dragon.utils.i18_utils import gt
 
 class CodeInstallCard(BaseInstallCard):
 
-    def __init__(self):
+    def __init__(self, parent=None):
         self.env_config: EnvConfig = env_config
         self.project_config: ProjectConfig = project_config
         self.git_service: GitService = git_service
 
-        super().__init__(
+        BaseInstallCard.__init__(
+            self,
             title_cn='代码版本',
             install_method=self.git_service.fetch_latest_code,
             install_btn_icon=FluentIcon.SYNC,
             install_btn_text_cn='代码同步',
+            parent=parent
         )
 
     def after_progress_done(self, success: bool) -> None:

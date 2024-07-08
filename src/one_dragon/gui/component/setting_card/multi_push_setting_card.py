@@ -28,7 +28,13 @@ class MultiPushSettingCard(SettingCard):
         parent: QWidget
             parent widget
         """
-        super().__init__(icon, title, content, parent)
+        SettingCard.__init__(
+            self,
+            icon=icon,
+            title=title,
+            content=content,
+            parent=parent
+        )
 
         for i in range(len(btn_list)):
             self.hBoxLayout.addWidget(btn_list[i], alignment=Qt.AlignmentFlag.AlignRight)

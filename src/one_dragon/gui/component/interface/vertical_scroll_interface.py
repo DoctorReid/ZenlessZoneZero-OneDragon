@@ -28,6 +28,7 @@ class VerticalScrollInterface(BaseInterface):
         scroll_area = SingleDirectionScrollArea(orient=Qt.Orientation.Vertical)
         main_layout.addWidget(scroll_area, stretch=0)
 
+        content_widget.setStyleSheet("QWidget { background-color: transparent; }")
         scroll_area.setWidget(content_widget)
         scroll_area.setWidgetResizable(True)
-        scroll_area.setStyleSheet("QScrollArea { border: none; }")
+        scroll_area.setStyleSheet("QScrollArea { background-color: transparent; border: none; }")

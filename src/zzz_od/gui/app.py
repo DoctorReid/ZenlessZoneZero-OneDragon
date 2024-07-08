@@ -1,7 +1,7 @@
 import sys
 
 from PySide6.QtWidgets import QApplication
-from qfluentwidgets import NavigationItemPosition
+from qfluentwidgets import NavigationItemPosition, setTheme, Theme
 
 from one_dragon.gui.app.fluent_window_base import FluentWindowBase
 from one_dragon.gui.view.code_interface import CodeInterface
@@ -39,6 +39,8 @@ class InstallerWindowBase(FluentWindowBase):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    w = InstallerWindowBase(get_context())
+    _ctx = get_context()
+    w = InstallerWindowBase(_ctx)
+    setTheme(Theme[_ctx.env_config.theme.upper()])
     w.show()
     app.exec()

@@ -1,8 +1,8 @@
 from typing import Callable, List
 
-from PySide6.QtCore import QThread, Signal
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QTableWidgetItem
-from qfluentwidgets import TableWidget, PipsPager, FluentIcon
+from PySide6.QtCore import QThread, Signal, Qt
+from PySide6.QtWidgets import QWidget, QTableWidgetItem
+from qfluentwidgets import TableWidget, PipsPager, FluentIcon, VBoxLayout
 
 from one_dragon.envs.git_service import GitLog, git_service
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
@@ -42,13 +42,15 @@ class CodeInterface(VerticalScrollInterface):
         self.page_num: int = -1
         self.page_size: int = 10
 
-        v_layout = QVBoxLayout(content_widget)
+        v_layout = VBoxLayout(content_widget)
+        v_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         self.install_card = CodeInstallCard()
         self.install_card.finished.connect(self.on_code_updated)
         v_layout.addWidget(self.install_card)
 
         self.log_table = TableWidget()
+        self.log_table.setMinimumHeight(self.page_size * 42)
 
         self.log_table.setBorderVisible(True)
         self.log_table.setBorderRadius(8)
@@ -73,6 +75,7 @@ class CodeInterface(VerticalScrollInterface):
         self.pager.setPageNumber(1)
         self.pager.setVisibleNumber(5)
         self.pager.currentIndexChanged.connect(self.on_page_changed)
+        self.pager.setItemAlignment(Qt.AlignmentFlag.AlignCenter)
         v_layout.addWidget(self.pager)
 
         VerticalScrollInterface.__init__(self, object_name='code_interface',

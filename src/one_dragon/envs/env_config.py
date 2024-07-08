@@ -38,6 +38,13 @@ class GitMethodEnum(Enum):
     SSH = ConfigItem('ssh')
 
 
+class ThemeEnum(Enum):
+
+    LIGHT = ConfigItem('Light')
+    DARK = ConfigItem('Dark')
+    AUTO = ConfigItem('Auto')
+
+
 class EnvConfig(YamlConfig):
 
     def __init__(self):
@@ -98,6 +105,22 @@ class EnvConfig(YamlConfig):
         :return:
         """
         self.update('pip_path', new_value)
+
+    @property
+    def theme(self) -> str:
+        """
+        主题
+        :return:
+        """
+        return self.get('theme', ThemeEnum.AUTO.value.value)
+
+    @theme.setter
+    def theme(self, new_value: str) -> None:
+        """
+        主题
+        :return:
+        """
+        self.update('theme', new_value)
 
     @property
     def proxy_type(self) -> str:

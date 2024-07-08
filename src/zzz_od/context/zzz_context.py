@@ -1,6 +1,7 @@
 import logging
 
 from one_dragon.base.operation.context_base import ContextBase
+from one_dragon.envs.env_config import EnvConfig, env_config
 from one_dragon.envs.project_config import ProjectConfig, project_config
 from one_dragon.utils import i18_utils, log_utils
 from one_dragon.utils.i18_utils import gt
@@ -31,6 +32,8 @@ class ZContext(ContextBase):
         :return:
         """
         self.project_config: ProjectConfig = project_config
+        self.env_config: EnvConfig = env_config
+
         self.one_dragon_config: OneDragonConfig = OneDragonConfig()
         instance_idx = self.one_dragon_config.instance_idx
 

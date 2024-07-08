@@ -66,7 +66,8 @@ class BaseInstallCard(MultiPushSettingCard):
                  install_btn_icon: FluentIcon = FluentIcon.DOWN,
                  install_btn_text_cn: str = '默认安装',
                  content_cn: str = '未安装',
-                 left_widgets: List[QWidget] = None
+                 left_widgets: List[QWidget] = None,
+                 parent=None
                  ):
         self.title: str = gt(title_cn, 'ui')
 
@@ -86,11 +87,14 @@ class BaseInstallCard(MultiPushSettingCard):
         self.display_checker = DisplayChecker(self.get_display_content)
         self.display_checker.finished.connect(self.update_display)
 
-        super().__init__(btn_list=btn_list,
-                         icon=FluentIcon.INFO,
-                         title=self.title,
-                         content=gt(content_cn, 'ui')
-                         )
+        MultiPushSettingCard.__init__(
+            self,
+            btn_list=btn_list,
+            icon=FluentIcon.INFO,
+            title=self.title,
+            content=gt(content_cn, 'ui'),
+            parent=parent
+        )
 
     def start_progress(self) -> None:
         """
