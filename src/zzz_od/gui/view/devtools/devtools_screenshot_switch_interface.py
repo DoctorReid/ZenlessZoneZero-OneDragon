@@ -1,4 +1,5 @@
 from zzz_od.application.devtools.screenshot_switch_app import ScreenshotSwitchApp
+from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.app_run_interface import AppRunInterface
 
@@ -16,6 +17,5 @@ class DevtoolsScreenshotSwitchInterface(AppRunInterface):
             parent=parent
         )
 
-    def run_app(self) -> None:
-        app = ScreenshotSwitchApp(self.ctx)
-        app.execute()
+    def get_app(self) -> ZApplication:
+        return ScreenshotSwitchApp(self.ctx)

@@ -45,6 +45,8 @@ class LogDisplayCard(PlainTextEdit):
         self.receiver = LogReceiver(self.log_signal)
         log.addHandler(self.receiver)
 
+        # self.setDisabled(True)  # disable之后无法选中文本 也无法滚动
+
     def on_log(self, full_log: str) -> None:
         """
         日志出现时更新

@@ -7,4 +7,4 @@ paddlepaddle==2.6.1
 paddleocr==2.8.0
 keyboard==0.13.5
 pyautogui==0.9.54
-requests==-2.32.3  # OCR needs this
+requests==2.32.3  # OCR needs this

@@ -20,7 +20,7 @@ class PivotNavigatorInterface(BaseInterface):
 
         self.pivot = Pivot(self)
         self.stacked_widget = QStackedWidget(self)
-        self.last_stack_idx: int = 0
+        self._last_stack_idx: int = 0
         self.v_box_layout = QVBoxLayout(self)
 
         self.v_box_layout.addWidget(self.pivot, 0, Qt.AlignmentFlag.AlignLeft)
@@ -43,14 +43,17 @@ class PivotNavigatorInterface(BaseInterface):
             self.pivot.setCurrentItem(sub_interface.objectName())
 
     def on_current_index_changed(self, index):
-        if index != self.last_stack_idx:
-            last_interface: BaseInterface = self.stacked_widget.widget(self.last_stack_idx)
-            last_interface.on_hidden()
+        if index != self._last_stack_idx:
+            last_interface = self.stacked_widget.widget(self._last_stack_idx)
+            if isinstance(last_interface, BaseInterface):
+                last_interface.on_hidden()
+            self._last_stack_idx = index
 
-        widget: BaseInterface = self.stacked_widget.widget(index)
-        self.pivot.setCurrentItem(widget.objectName())
-        qrouter.push(self.stacked_widget, widget.objectName())
-        widget.init_on_shown()
+        current_interface = self.stacked_widget.widget(index)
+        self.pivot.setCurrentItem(current_interface.objectName())
+        qrouter.push(self.stacked_widget, current_interface.objectName())
+        if isinstance(current_interface, BaseInterface):
+            current_interface.on_hidden()
 
     def init_on_shown(self) -> None:
         """

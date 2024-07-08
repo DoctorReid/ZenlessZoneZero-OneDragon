@@ -4,7 +4,7 @@ from typing import Optional, ClassVar, Callable, List, Any
 
 from cv2.typing import MatLike
 
-from one_dragon.base.operation.context_base import ContextBase, ContextEventEnum
+from one_dragon.base.operation.context_base import ContextBase, ContextRunningStateEventEnum
 from one_dragon.base.operation.operation_base import OperationBase, OperationResult
 from one_dragon.base.screen.screen_area import ScreenArea
 from one_dragon.utils import cv2_utils, str_utils, debug_utils
@@ -208,8 +208,8 @@ class Operation(OperationBase):
         """当前节点开始时间"""
 
         self.ctx.unlisten_all_event(self)
-        self.ctx.listen_event(ContextEventEnum.PAUSE_RUNNING.value, self._on_pause)
-        self.ctx.listen_event(ContextEventEnum.RESUME_RUNNING.value, self._on_resume)
+        self.ctx.listen_event(ContextRunningStateEventEnum.PAUSE_RUNNING.value, self._on_pause)
+        self.ctx.listen_event(ContextRunningStateEventEnum.RESUME_RUNNING.value, self._on_resume)
 
         self.handle_init()
 

@@ -21,7 +21,10 @@ class ContextRunStateEnum(Enum):
     PAUSE: int = 2  # 暂停
 
 
-class ContextEventEnum(Enum):
+class ContextRunningStateEventEnum(Enum):
+    """
+    运行状态相关的事件 事件体为 ContextRunStateEnum
+    """
 
     START_RUNNING: str = 'context_start_running'
     PAUSE_RUNNING: str = 'context_pause_running'
@@ -40,7 +43,7 @@ class ContextBase(ContextEventBus):
                  ):
         ContextEventBus.__init__(self)
 
-        self.context_running_state: int = ContextRunStateEnum.STOP.value
+        self.context_running_state: ContextRunStateEnum = ContextRunStateEnum.STOP
 
         self.tm: TemplateMatcher = TemplateMatcher()
         self.ocr: OcrMatcher = OcrMatcher()
@@ -52,54 +55,54 @@ class ContextBase(ContextEventBus):
         开始运行
         :return:
         """
-        if self.context_running_state != ContextRunStateEnum.STOP.value:
+        if self.context_running_state != ContextRunStateEnum.STOP:
             log.error('请先结束其他运行中的功能 再启动')
             return False
 
-        self.context_running_state = ContextRunStateEnum.RUN.value
+        self.context_running_state = ContextRunStateEnum.RUN
         self.controller.init()
-        self.dispatch_event(ContextEventEnum.START_RUNNING.value)
+        self.dispatch_event(ContextRunningStateEventEnum.START_RUNNING.value, self.context_running_state)
         return True
 
     def stop_running(self):
         if self.is_context_running:  # 先触发暂停 让执行中的指令停止
             self.switch_context_pause_and_run()
-        self.context_running_state = ContextRunStateEnum.STOP.value
+        self.context_running_state = ContextRunStateEnum.STOP
         log.info('停止运行')
-        self.dispatch_event(ContextEventEnum.STOP_RUNNING.value)
+        self.dispatch_event(ContextRunningStateEventEnum.STOP_RUNNING.value, self.context_running_state)
 
     @property
     def is_context_stop(self) -> bool:
-        return self.context_running_state == ContextRunStateEnum.STOP.value
+        return self.context_running_state == ContextRunStateEnum.STOP
 
     @property
     def is_context_running(self) -> bool:
-        return self.context_running_state == ContextRunStateEnum.RUN.value
+        return self.context_running_state == ContextRunStateEnum.RUN
 
     @property
     def is_context_pause(self) -> bool:
-        return self.context_running_state == ContextRunStateEnum.PAUSE.value
+        return self.context_running_state == ContextRunStateEnum.PAUSE
 
     @property
     def context_running_status_text(self) -> str:
-        if self.context_running_state == 0:
+        if self.context_running_state == ContextRunStateEnum.STOP:
             return gt('空闲', 'ui')
-        elif self.context_running_state == 1:
+        elif self.context_running_state == ContextRunStateEnum.RUN:
             return gt('运行中', 'ui')
-        elif self.context_running_state == 2:
+        elif self.context_running_state == ContextRunStateEnum.PAUSE:
             return gt('暂停中', 'ui')
         else:
             return 'unknow'
 
     def switch_context_pause_and_run(self):
-        if self.context_running_state == ContextRunStateEnum.RUN.value:
+        if self.context_running_state == ContextRunStateEnum.RUN:
             log.info('暂停运行')
-            self.context_running_state = ContextRunStateEnum.PAUSE.value
-            self.dispatch_event(ContextEventEnum.PAUSE_RUNNING.value)
-        elif self.context_running_state == ContextRunStateEnum.PAUSE.value:
+            self.context_running_state = ContextRunStateEnum.PAUSE
+            self.dispatch_event(ContextRunningStateEventEnum.PAUSE_RUNNING.value, self.context_running_state)
+        elif self.context_running_state == ContextRunStateEnum.PAUSE:
             log.info('恢复运行')
-            self.context_running_state = ContextRunStateEnum.RUN.value
-            self.dispatch_event(ContextEventEnum.RESUME_RUNNING.value)
+            self.context_running_state = ContextRunStateEnum.RUN
+            self.dispatch_event(ContextRunningStateEventEnum.RESUME_RUNNING.value, self.context_running_state)
 
     def __on_key_press(self, event):
         """

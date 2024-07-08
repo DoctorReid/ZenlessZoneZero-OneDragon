@@ -1,17 +1,17 @@
 import sys
 
 from PySide6.QtWidgets import QApplication
-from qfluentwidgets import FluentIcon, NavigationItemPosition
+from qfluentwidgets import NavigationItemPosition
 
 from one_dragon.envs.project_config import project_config
-from one_dragon.gui.view.base_window import BaseFluentWindow
+from one_dragon.gui.app.fluent_window_base import FluentWindowBase
 from one_dragon.gui.view.code_interface import CodeInterface
 from one_dragon.gui.view.install_interface import InstallerInterface
 from one_dragon.gui.view.installer_setting_interface import InstallerSettingInterface
 from one_dragon.utils.i18_utils import gt
 
 
-class InstallerWindow(BaseFluentWindow):
+class InstallerWindowBase(FluentWindowBase):
     """ Main Interface """
 
     def __init__(self, parent=None):
@@ -39,6 +39,6 @@ class InstallerWindow(BaseFluentWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    w = InstallerWindow()
+    w = InstallerWindowBase()
     w.show()
     app.exec()
