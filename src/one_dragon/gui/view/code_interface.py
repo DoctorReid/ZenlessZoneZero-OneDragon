@@ -84,7 +84,7 @@ class CodeInterface(VerticalScrollInterface):
             ctx=ctx,
             object_name='code_interface',
             parent=parent, content_widget=content_widget,
-            nav_text_cn='代码同步', nav_icon=FluentIcon.DOCUMENT
+            nav_text_cn='代码同步', nav_icon=FluentIcon.SYNC
         )
 
         self.fetch_total_runner = FetchTotalRunner(ctx.git_service.fetch_total_commit)

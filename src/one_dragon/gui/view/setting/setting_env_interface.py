@@ -46,7 +46,7 @@ class SettingEnvInterface(VerticalScrollInterface):
         basic_group.addSettingCard(self.theme_opt)
 
         self.debug_opt = SwitchSettingCard(
-            icon=FluentIcon.CONSTRACT, title='调试模式', content='正常无需开启'
+            icon=FluentIcon.SEARCH, title='调试模式', content='正常无需开启'
         )
         self.debug_opt.value_changed.connect(self._on_debug_changed)
         basic_group.addSettingCard(self.debug_opt)
@@ -107,13 +107,13 @@ class SettingEnvInterface(VerticalScrollInterface):
         key_group.addSettingCard(self.key_stop_running_input)
 
         self.key_screenshot_input = KeyboardSettingCard(
-            icon=FluentIcon.CLOSE, title='游戏截图', content='用于开发、提交bug。会自动对UID打码'
+            icon=FluentIcon.IMAGE_EXPORT, title='游戏截图', content='用于开发、提交bug。会自动对UID打码，保存在 .debug/images/ 文件夹中'
         )
         self.key_screenshot_input.value_changed.connect(self._on_key_screenshot_changed)
         key_group.addSettingCard(self.key_screenshot_input)
 
         self.key_mouse_pos_input = KeyboardSettingCard(
-            icon=FluentIcon.CLOSE, title='鼠标位置', content='用于开发'
+            icon=FluentIcon.MOVE, title='鼠标位置', content='日志中输出当前鼠标位置，用于开发'
         )
         self.key_mouse_pos_input.value_changed.connect(self._on_key_mouse_position_changed)
         key_group.addSettingCard(self.key_mouse_pos_input)

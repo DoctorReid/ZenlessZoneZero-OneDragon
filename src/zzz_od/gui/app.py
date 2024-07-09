@@ -42,6 +42,7 @@ class AppWindow(FluentWindowBase):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     _ctx = get_context()
+    _ctx.init_by_config()
     setTheme(Theme[_ctx.env_config.theme.upper()])
     w = AppWindow(_ctx)
     w.show()
