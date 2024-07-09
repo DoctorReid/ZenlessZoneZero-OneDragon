@@ -6,3 +6,5 @@ github_repository: "github.com/DoctorReid/ZenlessZoneZero-OneDragon.git"
 gitee_repository: ""
 project_git_branch: "release"
 requirements: "requirements-prod.txt"
+screen_standard_width: 1920
+screen_standard_height: 1080

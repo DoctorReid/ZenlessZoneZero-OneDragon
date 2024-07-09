@@ -21,7 +21,7 @@ class TextSettingCard(SettingCard):
         :param input_placeholder: 输入提示
         :param input_max_width: 输入框的最大长度
         """
-        super().__init__(icon, gt(title, 'ui'), gt(content, 'ui'), parent)
+        SettingCard.__init__(self, icon, gt(title, 'ui'), gt(content, 'ui'), parent)
         self.line_edit = LineEdit(self)
         self.line_edit.setMaximumWidth(input_max_width)
         self.line_edit.setPlaceholderText(input_placeholder)

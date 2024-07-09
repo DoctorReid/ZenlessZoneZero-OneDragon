@@ -107,7 +107,7 @@ class SettingEnvInterface(VerticalScrollInterface):
         key_group.addSettingCard(self.key_stop_running_input)
 
         self.key_screenshot_input = KeyboardSettingCard(
-            icon=FluentIcon.IMAGE_EXPORT, title='游戏截图', content='用于开发、提交bug。会自动对UID打码，保存在 .debug/images/ 文件夹中'
+            icon=FluentIcon.CAMERA, title='游戏截图', content='用于开发、提交bug。会自动对UID打码，保存在 .debug/images/ 文件夹中'
         )
         self.key_screenshot_input.value_changed.connect(self._on_key_screenshot_changed)
         key_group.addSettingCard(self.key_screenshot_input)

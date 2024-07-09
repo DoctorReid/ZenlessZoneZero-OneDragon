@@ -28,8 +28,8 @@ class ZContext(OneDragonContext):
         if self.game_config.platform == GamePlatformEnum.PC.value.value:
             self.controller = ZPcController(
                 win_title=gt(self.project_config.win_title, 'ui'),
-                standard_width=game_const.STANDARD_WIDTH,
-                standard_height=game_const.STANDARD_HEIGHT
+                standard_width=self.project_config.screen_standard_width,
+                standard_height=self.project_config.screen_standard_height
             )
 
 

@@ -63,6 +63,7 @@ class CodeInterface(VerticalScrollInterface):
         self.log_table.setColumnWidth(2, 200)
         self.log_table.setColumnWidth(3, 400)
         self.log_table.verticalHeader().hide()
+        self.log_table.setDisabled(True)
         self.log_table.setHorizontalHeaderLabels([
             gt('ID', 'ui'),
             gt('作者', 'ui'),
