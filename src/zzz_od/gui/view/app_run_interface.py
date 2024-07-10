@@ -155,7 +155,7 @@ class AppRunInterface(VerticalScrollInterface):
             text = gt('开始', 'ui')
             icon = FluentIcon.PLAY
 
-        self.start_btn.setText(text)
+        self.start_btn.setText('%s %s' % (text, self.ctx.key_start_running.upper()))
         self.start_btn.setIcon(icon)
         self.state_text.setText('%s %s' % (gt('当前状态', 'ui'), self.ctx.context_running_status_text))
 

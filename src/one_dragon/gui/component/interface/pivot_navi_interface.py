@@ -54,7 +54,7 @@ class PivotNavigatorInterface(BaseInterface):
         self.pivot.setCurrentItem(current_interface.objectName())
         qrouter.push(self.stacked_widget, current_interface.objectName())
         if isinstance(current_interface, BaseInterface):
-            current_interface.on_hidden()
+            current_interface.init_on_shown()
 
     def init_on_shown(self) -> None:
         """
