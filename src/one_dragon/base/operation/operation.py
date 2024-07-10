@@ -279,6 +279,9 @@ class Operation(OperationBase):
             self._node_map[from_id] = edge.node_from
             self._node_map[to_id] = edge.node_to
 
+        if len(self.edge_list) == 0 and self.param_start_node is not None:  # 只有一个节点的情况
+            self._node_map[self.param_start_node.cn] = self.param_start_node
+
         start_node: Optional[OperationNode] = None
         if self.param_start_node is None:  # 没有指定开始节点时 自动判断
             # 找出入度为0的开始点

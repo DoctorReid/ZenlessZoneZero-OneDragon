@@ -1,13 +1,13 @@
 import time
 
 from one_dragon.base.operation.context_base import ContextKeyboardEventEnum
-from one_dragon.base.operation.operation import OperationRoundResult
+from one_dragon.base.operation.operation import OperationRoundResult, OperationNode
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 
 
-class ScreenshotSwitchApp(ZApplication):
+class SwitchAssistantApp(ZApplication):
 
     def __init__(self, ctx: ZContext):
         """
@@ -20,6 +20,14 @@ class ScreenshotSwitchApp(ZApplication):
         )
 
         self.last_switch_time: float = time.time()
+
+    def add_edges_and_nodes(self) -> None:
+        """
+        初始化前 添加边和节点 由子类实行
+        :return:
+        """
+        check = OperationNode('闪避判断', self.check_switch)
+        self.param_start_node = check
 
     def handle_init(self) -> None:
         """
@@ -41,7 +49,7 @@ class ScreenshotSwitchApp(ZApplication):
             return
         self.last_switch_time = time.time()  # 更新按键时间
 
-    def help_switch(self) -> OperationRoundResult:
+    def check_switch(self) -> OperationRoundResult:
         """
         识别当前画面 并进行点击
         :return:

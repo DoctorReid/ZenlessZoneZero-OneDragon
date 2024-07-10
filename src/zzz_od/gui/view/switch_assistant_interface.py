@@ -1,6 +1,6 @@
 from qfluentwidgets import FluentIcon
 
-from zzz_od.application.devtools.screenshot_switch_app import ScreenshotSwitchApp
+from zzz_od.application.switch_assistant_app import SwitchAssistantApp
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.app_run_interface import AppRunInterface
@@ -21,4 +21,4 @@ class SwitchAssistantInterface(AppRunInterface):
         )
 
     def get_app(self) -> ZApplication:
-        return ScreenshotSwitchApp(self.ctx)
+        return SwitchAssistantApp(self.ctx)

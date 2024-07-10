@@ -1,3 +1,4 @@
+import keyboard
 import pyautogui
 from cv2.typing import MatLike
 
@@ -35,4 +36,4 @@ class ZPcController(PcControllerBase):
         切换下一个人
         :return:
         """
-        pyautogui.press('space')
+        keyboard.send('c')
