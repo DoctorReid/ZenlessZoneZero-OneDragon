@@ -1,3 +1,4 @@
+import pyautogui
 from cv2.typing import MatLike
 
 from one_dragon.base.controller.pc_controller_base import PcControllerBase
@@ -28,3 +29,10 @@ class ZPcController(PcControllerBase):
             color=game_const.YOLO_DEFAULT_COLOR,
             new_image=True
         )
+
+    def switch_next(self) -> None:
+        """
+        切换下一个人
+        :return:
+        """
+        pyautogui.press('space')

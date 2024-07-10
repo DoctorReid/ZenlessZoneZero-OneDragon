@@ -3,14 +3,15 @@ from one_dragon.utils import i18_utils
 from one_dragon.utils.i18_utils import gt
 from zzz_od.config.game_config import GameConfig, GamePlatformEnum
 from zzz_od.config.one_dragon_config import OneDragonConfig
-from zzz_od.const import game_const
+from zzz_od.context.yolo_context import YoloContext
 from zzz_od.controller.zzz_pc_controller import ZPcController
 
 
-class ZContext(OneDragonContext):
+class ZContext(OneDragonContext, YoloContext):
 
     def __init__(self):
         OneDragonContext.__init__(self)
+        YoloContext.__init__(self)
 
         self.one_dragon_config: OneDragonConfig = OneDragonConfig()
         instance_idx = self.one_dragon_config.instance_idx
