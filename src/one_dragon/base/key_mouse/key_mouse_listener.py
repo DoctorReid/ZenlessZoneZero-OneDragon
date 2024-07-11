@@ -10,12 +10,14 @@ _key_mouse_btn_listener_executor = ThreadPoolExecutor(thread_name_prefix='od_key
 class KeyMouseButtonListener:
 
     def __init__(self,
-                 on_button_tap: Callable[[str], None]
+                 on_button_tap: Callable[[str], None],
+                 only_keyboard: bool = False
                  ):
         self.keyboard_listener = keyboard.Listener(on_press=self._on_keyboard_press)
         self.mouse_listener = mouse.Listener(on_click=self._on_mouse_click)
 
         self.on_button_tap: Callable[[str], None] = on_button_tap
+        self.only_keyboard: bool = only_keyboard
 
     def _on_keyboard_press(self, event):
         if isinstance(event, keyboard.Key):
@@ -37,8 +39,10 @@ class KeyMouseButtonListener:
 
     def start(self):
         self.keyboard_listener.start()
-        self.mouse_listener.start()
+        if not self.only_keyboard:
+            self.mouse_listener.start()
 
     def stop(self):
         self.keyboard_listener.stop()
-        self.mouse_listener.stop()
+        if not self.only_keyboard:
+            self.mouse_listener.stop()

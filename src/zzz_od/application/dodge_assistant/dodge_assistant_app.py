@@ -44,8 +44,9 @@ class DodgeAssistantApp(ZApplication):
         :return:
         """
         if key not in [
-            self.ctx.game_config.key_change_next,
-            self.ctx.game_config.key_change_prev
+            self.ctx.game_config.key_switch_next,
+            self.ctx.game_config.key_switch_prev,
+            self.ctx.game_config.key_dodge
         ]:
             return
         self.last_dodge_time = time.time()  # 更新按键时间

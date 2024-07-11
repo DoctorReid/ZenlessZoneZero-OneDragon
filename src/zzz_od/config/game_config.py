@@ -36,44 +36,44 @@ class GameConfig(YamlConfig):
         self.update('game_language', new_value)
 
     @property
-    def key_attack(self) -> str:
-        return self.get('key_attack', 'mouse_left')
+    def key_normal_attack(self) -> str:
+        return self.get('key_normal_attack', 'mouse_left')
 
-    @key_attack.setter
-    def key_attack(self, new_value: str) -> None:
-        self.update('key_attack', new_value)
+    @key_normal_attack.setter
+    def key_normal_attack(self, new_value: str) -> None:
+        self.update('key_normal_attack', new_value)
 
     @property
     def key_dodge(self) -> str:
-        return self.get('key_dodge', 'mouse_right')
+        return self.get('key_dodge', 'shift')
 
     @key_dodge.setter
     def key_dodge(self, new_value: str) -> None:
         self.update('key_dodge', new_value)
 
     @property
-    def key_change_next(self) -> str:
-        return self.get('key_change_next', 'space')
+    def key_switch_next(self) -> str:
+        return self.get('key_switch_next', 'space')
 
-    @key_change_next.setter
-    def key_change_next(self, new_value: str) -> None:
-        self.update('key_change_next', new_value)
-
-    @property
-    def key_change_prev(self) -> str:
-        return self.get('key_change_prev', 'c')
-
-    @key_change_prev.setter
-    def key_change_prev(self, new_value: str) -> None:
-        self.update('key_change_prev', new_value)
+    @key_switch_next.setter
+    def key_switch_next(self, new_value: str) -> None:
+        self.update('key_switch_next', new_value)
 
     @property
-    def key_technique(self) -> str:
-        return self.get('key_technique', 'e')
+    def key_switch_prev(self) -> str:
+        return self.get('key_switch_prev', 'c')
 
-    @key_technique.setter
-    def key_technique(self, new_value: str) -> None:
-        self.update('key_technique', new_value)
+    @key_switch_prev.setter
+    def key_switch_prev(self, new_value: str) -> None:
+        self.update('key_switch_prev', new_value)
+
+    @property
+    def key_special_attack(self) -> str:
+        return self.get('key_special_attack', 'e')
+
+    @key_special_attack.setter
+    def key_special_attack(self, new_value: str) -> None:
+        self.update('key_special_attack', new_value)
 
     @property
     def key_ultimate(self) -> str:

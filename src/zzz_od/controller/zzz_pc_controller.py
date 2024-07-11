@@ -1,4 +1,3 @@
-import keyboard
 import pyautogui
 from cv2.typing import MatLike
 from pynput.keyboard import Controller
@@ -48,18 +47,11 @@ class ZPcController(PcControllerBase):
         切换下一个人
         :return:
         """
-        self.btn_controller.tap(self.game_config.key_change_next)
+        self.btn_controller.tap(self.game_config.key_switch_next)
 
     def switch_prev(self) -> None:
         """
         切换上一个人
         :return:
         """
-        self.btn_controller.tap(self.game_config.key_change_prev)
-
-
-if __name__ == '__main__':
-    keyboard.send('c')
-    pyautogui.press('c')
-    nc = Controller()
-    nc.press('c')
+        self.btn_controller.tap(self.game_config.key_switch_prev)
