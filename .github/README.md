@@ -15,9 +15,8 @@ __绝区零 - 一条龙__
 ### 使用自己的Python环境
 
 1. `git clone git@github.com:DoctorReid/ZenlessZoneZero-OneDragon.git`
-2. `git checkout release`
-3. `pip install -r requirements-prod.txt`
-4. 运行 （以下二选一）
+2. `pip install -r requirements-prod.txt`
+3. 运行 （以下二选一）
    - 复制 `env.sample.bat`，重命名为 `env.bat`，并修改内容为你的python路径，使用 `app.bat` 运行。
    - 将`src`文件夹加入环境变量`PYTHONPATH`，执行 `python src/zzz_od/gui/app.py` 。
 
