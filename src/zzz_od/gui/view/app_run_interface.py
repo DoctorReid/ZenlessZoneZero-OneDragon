@@ -56,12 +56,18 @@ class AppRunInterface(VerticalScrollInterface):
                  object_name: str,
                  nav_text_cn: str,
                  nav_icon: Union[FluentIconBase, QIcon, str] = None,
-                 parent=None):
+                 parent=None,
+                 widget_at_top: Optional[QWidget] = None,
+                 widget_at_bottom: Optional[QWidget] = None,
+                 ):
         self.ctx = ctx
 
         content_widget = QWidget()
         content_layout = QVBoxLayout(content_widget)
         content_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        if widget_at_top is not None:
+            content_layout.addWidget(widget_at_top)
 
         self.state_text = SubtitleLabel()
         self.state_text.setText('%s %s' % (gt('当前状态', 'ui'), self.ctx.context_running_status_text))
@@ -92,6 +98,9 @@ class AppRunInterface(VerticalScrollInterface):
 
         self.app_runner = AppRunner(self.ctx)
         self.app_runner.state_changed.connect(self.update_display_by_state)
+
+        if widget_at_bottom is not None:
+            content_layout.addWidget(widget_at_bottom)
 
         VerticalScrollInterface.__init__(
             self,

@@ -1,13 +1,14 @@
 import time
 
 from one_dragon.base.operation.context_base import ContextKeyboardEventEnum
-from one_dragon.base.operation.operation import OperationRoundResult, OperationNode
+from one_dragon.base.operation.operation import OperationNode, OperationRoundResult
 from one_dragon.utils.i18_utils import gt
+from zzz_od.application.dodge_assistant.dodge_assistant_config import DodgeWayEnum
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 
 
-class SwitchAssistantApp(ZApplication):
+class DodgeAssistantApp(ZApplication):
 
     def __init__(self, ctx: ZContext):
         """
@@ -19,14 +20,14 @@ class SwitchAssistantApp(ZApplication):
             op_name=gt('辅助闪避', 'ui')
         )
 
-        self.last_switch_time: float = time.time()
+        self.last_dodge_time: float = time.time()
 
     def add_edges_and_nodes(self) -> None:
         """
         初始化前 添加边和节点 由子类实行
         :return:
         """
-        check = OperationNode('闪避判断', self.check_switch)
+        check = OperationNode('闪避判断', self.check_dodge)
         self.param_start_node = check
 
     def handle_init(self) -> None:
@@ -47,20 +48,25 @@ class SwitchAssistantApp(ZApplication):
             self.ctx.game_config.key_change_prev
         ]:
             return
-        self.last_switch_time = time.time()  # 更新按键时间
+        self.last_dodge_time = time.time()  # 更新按键时间
 
-    def check_switch(self) -> OperationRoundResult:
+    def check_dodge(self) -> OperationRoundResult:
         """
         识别当前画面 并进行点击
         :return:
         """
         now = time.time()
-        if now - self.last_switch_time <= 1:  # 短时间内只要闪避一次就够了
-            return self.round_wait(wait_round_time=now - self.last_switch_time)
+        if now - self.last_dodge_time <= 1:  # 短时间内只要闪避一次就够了
+            return self.round_wait(wait_round_time=now - self.last_dodge_time)
 
         screen = self.screenshot()
-        if self.ctx.should_switch(screen):
-            self.last_switch_time = time.time()
-            self.ctx.controller.switch_next()
+        if self.ctx.should_dodge(screen):
+            self.last_dodge_time = time.time()
+            if self.ctx.dodge_assistant_config.dodge_way == DodgeWayEnum.DODGE.value.value:
+                self.ctx.controller.dodge()
+            elif self.ctx.dodge_assistant_config.dodge_way == DodgeWayEnum.NEXT.value.value:
+                self.ctx.controller.switch_next()
+            elif self.ctx.dodge_assistant_config.dodge_way == DodgeWayEnum.PREV.value.value:
+                self.ctx.controller.switch_prev()
 
         return self.round_wait()

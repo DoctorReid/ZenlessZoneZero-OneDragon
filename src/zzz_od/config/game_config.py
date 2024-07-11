@@ -36,6 +36,22 @@ class GameConfig(YamlConfig):
         self.update('game_language', new_value)
 
     @property
+    def key_attack(self) -> str:
+        return self.get('key_attack', 'mouse_left')
+
+    @key_attack.setter
+    def key_attack(self, new_value: str) -> None:
+        self.update('key_attack', new_value)
+
+    @property
+    def key_dodge(self) -> str:
+        return self.get('key_dodge', 'mouse_right')
+
+    @key_dodge.setter
+    def key_dodge(self, new_value: str) -> None:
+        self.update('key_dodge', new_value)
+
+    @property
     def key_change_next(self) -> str:
         return self.get('key_change_next', 'space')
 
@@ -50,3 +66,29 @@ class GameConfig(YamlConfig):
     @key_change_prev.setter
     def key_change_prev(self, new_value: str) -> None:
         self.update('key_change_prev', new_value)
+
+    @property
+    def key_technique(self) -> str:
+        return self.get('key_technique', 'e')
+
+    @key_technique.setter
+    def key_technique(self, new_value: str) -> None:
+        self.update('key_technique', new_value)
+
+    @property
+    def key_ultimate(self) -> str:
+        """爆发技"""
+        return self.get('key_ultimate', 'e')
+
+    @key_ultimate.setter
+    def key_ultimate(self, new_value: str) -> None:
+        self.update('key_ultimate', new_value)
+
+    @property
+    def key_interact(self) -> str:
+        """交互"""
+        return self.get('key_interact', 'f')
+
+    @key_interact.setter
+    def key_interact(self, new_value: str) -> None:
+        self.update('key_interact', new_value)

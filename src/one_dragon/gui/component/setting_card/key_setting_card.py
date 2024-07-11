@@ -1,10 +1,11 @@
 from typing import Union, Optional
 
-import keyboard
 from PySide6.QtCore import Signal, QObject
 from PySide6.QtGui import QIcon, Qt
+from pynput import keyboard, mouse
 from qfluentwidgets import SettingCard, FluentIconBase, PushButton
 
+from one_dragon.base.key_mouse.key_mouse_listener import KeyMouseButtonListener
 from one_dragon.utils.i18_utils import gt
 
 
@@ -21,7 +22,7 @@ class KeyEventWorker(QObject):
         self.key_pressed.emit(key)
 
 
-class KeyboardSettingCard(SettingCard):
+class KeySettingCard(SettingCard):
 
     value_changed = Signal(str)
 
@@ -39,9 +40,10 @@ class KeyboardSettingCard(SettingCard):
         super().__init__(icon, gt(title, 'ui'), gt(content, 'ui'), parent)
         self.value: str = value
         self.btn = PushButton(text=value.upper(), parent=self)
+        self.btn.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.btn.clicked.connect(self._on_btn_clicked)
 
-        self.keyboard_hook = None  # 监听hook
+        self.button_listener = None  # 监听
         self.key_worker = KeyEventWorker()
         self.key_worker.key_pressed.connect(self._on_key_signal)
 
@@ -53,21 +55,22 @@ class KeyboardSettingCard(SettingCard):
         点击按钮后 开始监听按键事件
         :return:
         """
-        if self.keyboard_hook is None:
-            self.keyboard_hook = keyboard.on_press(self._on_key_press)
+        if self.button_listener is None:
+            self.button_listener = KeyMouseButtonListener(self._on_key_press)
             self.btn.setText(gt('请按键', 'ui'))
+            self.button_listener.start()
         else:
-            keyboard.unhook(self.keyboard_hook)
-            self.keyboard_hook = None
+            self._stop_listener()
             self.btn.setText(self.value.upper())
 
-    def _on_key_press(self, event):
+    def _on_key_press(self, key):
         """
         按键时触发
-        :param event:
+        :param key:
         :return:
         """
-        self.key_worker.on_key_press(event.name)
+        self._stop_listener()
+        self.key_worker.on_key_press(key)
 
     def _on_key_signal(self, key: str) -> None:
         """
@@ -92,6 +95,12 @@ class KeyboardSettingCard(SettingCard):
         :return:
         """
         self.btn.setText(value.upper())
-        if self.keyboard_hook is not None:
-            keyboard.unhook(self.keyboard_hook)
-            self.keyboard_hook = None
+
+    def _stop_listener(self) -> None:
+        """
+        停止键盘鼠标的监听
+        :return:
+        """
+        if self.button_listener is not None:
+            self.button_listener.stop()
+            self.button_listener = None

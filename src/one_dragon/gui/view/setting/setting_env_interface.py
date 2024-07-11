@@ -7,7 +7,7 @@ from one_dragon.base.operation.context_base import OneDragonContext
 from one_dragon.envs.env_config import RepositoryTypeEnum, GitMethodEnum, ProxyTypeEnum, ThemeEnum
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.component.setting_card.keyboard_setting_card import KeyboardSettingCard
+from one_dragon.gui.component.setting_card.key_setting_card import KeySettingCard
 from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils.i18_utils import gt
@@ -94,25 +94,25 @@ class SettingEnvInterface(VerticalScrollInterface):
     def _init_key_group(self) -> SettingCardGroup:
         key_group = SettingCardGroup(gt('脚本按键', 'ui'))
 
-        self.key_start_running_input = KeyboardSettingCard(
+        self.key_start_running_input = KeySettingCard(
             icon=FluentIcon.PLAY, title='开始运行', content='开始、暂停、恢复某个应用',
         )
         self.key_start_running_input.value_changed.connect(self._on_key_start_running_changed)
         key_group.addSettingCard(self.key_start_running_input)
 
-        self.key_stop_running_input = KeyboardSettingCard(
+        self.key_stop_running_input = KeySettingCard(
             icon=FluentIcon.CLOSE, title='停止运行', content='停止正在运行的应用，不能恢复'
         )
         self.key_stop_running_input.value_changed.connect(self._on_key_stop_running_changed)
         key_group.addSettingCard(self.key_stop_running_input)
 
-        self.key_screenshot_input = KeyboardSettingCard(
+        self.key_screenshot_input = KeySettingCard(
             icon=FluentIcon.CAMERA, title='游戏截图', content='用于开发、提交bug。会自动对UID打码，保存在 .debug/images/ 文件夹中'
         )
         self.key_screenshot_input.value_changed.connect(self._on_key_screenshot_changed)
         key_group.addSettingCard(self.key_screenshot_input)
 
-        self.key_mouse_pos_input = KeyboardSettingCard(
+        self.key_mouse_pos_input = KeySettingCard(
             icon=FluentIcon.MOVE, title='鼠标位置', content='日志中输出当前鼠标位置，用于开发'
         )
         self.key_mouse_pos_input.value_changed.connect(self._on_key_mouse_position_changed)

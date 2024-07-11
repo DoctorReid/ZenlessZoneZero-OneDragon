@@ -2,8 +2,7 @@ import logging
 from enum import Enum
 from typing import Optional
 
-import keyboard
-import pyautogui
+from pynput import keyboard, mouse
 
 from one_dragon.base.controller.controller_base import ControllerBase
 from one_dragon.base.geometry.rectangle import Rect
@@ -57,7 +56,10 @@ class OneDragonContext(ContextEventBus):
         self.tm: TemplateMatcher = TemplateMatcher()
         self.ocr: OcrMatcher = OcrMatcher()
         self.controller: ControllerBase = controller
-        keyboard.on_press(self.__on_key_press)
+
+        self.keyboard_controller = keyboard.Controller()
+        self.mouse_controller = mouse.Controller()
+        self.keyboard_listener = keyboard.Listener(on_press=self._on_key_press)
 
     def init_by_config(self) -> None:
         """
@@ -121,24 +123,29 @@ class OneDragonContext(ContextEventBus):
             self.context_running_state = ContextRunStateEnum.RUN
             self.dispatch_event(ContextRunningStateEventEnum.RESUME_RUNNING.value, self.context_running_state)
 
-    def __on_key_press(self, event):
+    def _on_key_press(self, event):
         """
         按键时触发 抛出事件，事件体为按键
-        :param event:
+        :param event: 按键事件
         :return:
         """
-        k = event.name
+        if isinstance(event, keyboard.Key):
+            key = event.name
+        elif isinstance(event, keyboard.KeyCode):
+            key = event.char
+        else:
+            return
 
-        if k == self.key_start_running:
+        if key == self.key_start_running:
             self.switch_context_pause_and_run()
-        elif k == self.key_stop_running:
+        elif key == self.key_stop_running:
             self.stop_running()
-        elif k == self.key_screenshot:
+        elif key == self.key_screenshot:
             self.screenshot_and_save_debug()
-        elif k == self.key_mouse_pos:
+        elif key == self.key_mouse_pos:
             self.log_mouse_position()
 
-        self.dispatch_event(ContextKeyboardEventEnum.PRESS.value, k)
+        self.dispatch_event(ContextKeyboardEventEnum.PRESS.value, key)
 
     @property
     def is_game_window_ready(self) -> bool:
@@ -179,5 +186,5 @@ class OneDragonContext(ContextEventBus):
             return
 
         rect: Rect = self.controller.game_win.win_rect
-        pos = pyautogui.position()
-        log.info('当前鼠标坐标 %s', (pos.x - rect.x1, pos.y - rect.y1))
+        pos = self.mouse_controller.position
+        log.info('当前鼠标坐标 %s', (pos[0] - rect.x1, pos[1] - rect.y1))

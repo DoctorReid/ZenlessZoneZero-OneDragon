@@ -7,6 +7,8 @@ __pycache__/
 # 用户独有的配置文件
 env.bat
 config/env.yml
+config/game.yml
+config/dodge_assistant.yml
 installer.exe
 
 # 用户运行时产生的文件

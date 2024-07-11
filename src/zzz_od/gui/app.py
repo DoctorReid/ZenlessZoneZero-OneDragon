@@ -5,7 +5,7 @@ from qfluentwidgets import NavigationItemPosition, setTheme, Theme
 
 from one_dragon.gui.app.fluent_window_base import FluentWindowBase
 from one_dragon.gui.view.code_interface import CodeInterface
-from zzz_od.context.zzz_context import ZContext, get_context
+from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.devtools.app_devtools_interface import AppDevtoolsInterface
 from zzz_od.gui.view.home_interface import HomeInterface
 from zzz_od.gui.view.setting.app_setting_interface import AppSettingInterface
@@ -44,7 +44,7 @@ class AppWindow(FluentWindowBase):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    _ctx = get_context()
+    _ctx = ZContext()
     _ctx.init_by_config()
     setTheme(Theme[_ctx.env_config.theme.upper()])
     w = AppWindow(_ctx)
