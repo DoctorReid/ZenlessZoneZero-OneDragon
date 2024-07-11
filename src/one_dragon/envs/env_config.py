@@ -22,7 +22,7 @@ class ProxyTypeEnum(Enum):
 
     NONE = ConfigItem('无', 'None')
     PERSONAL = ConfigItem('个人代理', 'personal')
-    GHPROXY = ConfigItem('免费代理', 'ghproxy')
+    GHPROXY = ConfigItem('Github免费代理', 'ghproxy')
 
 
 class RepositoryTypeEnum(Enum):
