@@ -7,8 +7,8 @@ from one_dragon.base.config.yaml_config import YamlConfig
 class DodgeWayEnum(Enum):
 
     DODGE = ConfigItem('闪避', 'dodge')
-    NEXT = ConfigItem('换人-下一个', 'next')
-    PREV = ConfigItem('换人-上一个', 'prev')
+    NEXT = ConfigItem('切换角色-下一个', 'next')
+    PREV = ConfigItem('切换角色-上一个', 'prev')
 
 
 class DodgeAssistantConfig(YamlConfig):

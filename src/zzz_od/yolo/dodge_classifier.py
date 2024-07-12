@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 from cv2.typing import MatLike
 
+from one_dragon.utils import os_utils
 from one_dragon.utils.log_utils import log
 from zzz_od.yolo import onnx_utils
 from zzz_od.yolo.onnx_model_loader import OnnxModelLoader
@@ -51,20 +52,20 @@ class ClassificationResult:
         self.class_idx: int = class_idx  # 分类的下标 -1代表无法识别（不满足阈值）
 
 
-class SwitchClassifier(OnnxModelLoader):
+class DodgeClassifier(OnnxModelLoader):
 
     def __init__(self,
-                 model_name: str = 'yolov8n-640-switch-0710',
+                 model_name: str = 'yolov8n-640-dodge-0710',
                  model_parent_dir_path: Optional[str] = os.path.abspath(__file__),  # 默认使用本文件的目录
                  gh_proxy: bool = True,
                  personal_proxy: Optional[str] = '',
-                 cuda: bool = False,
+                 gpu: bool = False,
                  keep_result_seconds: float = 2
                  ):
         """
         :param model_name: 模型名称 在根目录下会有一个以模型名称创建的子文件夹
         :param model_parent_dir_path: 放置所有模型的根目录
-        :param cuda: 是否启用CUDA
+        :param gpu: 是否启用GPU加速
         :param keep_result_seconds: 保留多长时间的识别结果
         """
         OnnxModelLoader.__init__(
@@ -74,7 +75,7 @@ class SwitchClassifier(OnnxModelLoader):
             model_parent_dir_path=model_parent_dir_path,
             gh_proxy=gh_proxy,
             personal_proxy=personal_proxy,
-            cuda=cuda
+            gpu=gpu
         )
 
         self.keep_result_seconds: float = keep_result_seconds  # 保留识别结果的秒数
@@ -168,3 +169,8 @@ def get_switch_red_mask(image: MatLike) -> MatLike:
     mask = np.zeros(image.shape[:2], dtype=np.uint8)
     mask[(g_b >= -20) & (g_b <= 20) & (r >= 240)] = 255
     return mask
+
+
+if __name__ == '__main__':
+    DodgeClassifier(model_parent_dir_path=os_utils.get_path_under_work_dir('assets', 'models', 'yolo'),
+                    gpu=True)

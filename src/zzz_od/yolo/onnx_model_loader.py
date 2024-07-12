@@ -18,7 +18,7 @@ class OnnxModelLoader:
                  model_parent_dir_path: str = os.path.abspath(__file__),  # 默认使用本文件的目录
                  gh_proxy: bool = True,
                  personal_proxy: Optional[str] = '',
-                 cuda: bool = False
+                 gpu: bool = False
                  ):
         self.model_name: str = model_name
         self.model_download_url: str = model_download_url  # 模型下载地址
@@ -26,7 +26,7 @@ class OnnxModelLoader:
         self.model_dir_path = os.path.join(self.model_parent_dir_path, self.model_name)
         self.gh_proxy: bool = gh_proxy
         self.personal_proxy: Optional[str] = personal_proxy
-        self.cuda: bool = cuda  # 是否使用cuda
+        self.gpu: bool = gpu  # 是否使用GPU加速
 
         # 从模型中读取到的输入输出信息
         self.session: ort.InferenceSession = None
@@ -114,9 +114,9 @@ class OnnxModelLoader:
         :return:
         """
         availables = ort.get_available_providers()
-        providers = ['CUDAExecutionProvider' if self.cuda else 'CPUExecutionProvider']
-        if self.cuda and 'CUDAExecutionProvider' not in availables:
-            log.error('机器未支持CUDA 使用CPU')
+        providers = ['DmlExecutionProvider' if self.gpu else 'CPUExecutionProvider']
+        if self.gpu and 'DmlExecutionProvider' not in availables:
+            log.error('机器未支持DirectML 使用CPU')
             providers = ['CPUExecutionProvider']
 
         onnx_path = os.path.join(self.model_dir_path, 'model.onnx')

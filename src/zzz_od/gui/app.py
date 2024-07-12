@@ -9,7 +9,7 @@ from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.devtools.app_devtools_interface import AppDevtoolsInterface
 from zzz_od.gui.view.home_interface import HomeInterface
 from zzz_od.gui.view.setting.app_setting_interface import AppSettingInterface
-from zzz_od.gui.view.switch_assistant_interface import SwitchAssistantInterface
+from zzz_od.gui.view.dodge_assistant_interface import DodgeAssistantInterface
 
 
 class AppWindow(FluentWindowBase):
@@ -25,7 +25,7 @@ class AppWindow(FluentWindowBase):
         )
 
         self.home_interface = HomeInterface(ctx, parent=self)
-        self.switch_assistant_interface = SwitchAssistantInterface(ctx, parent=self)
+        self.switch_assistant_interface = DodgeAssistantInterface(ctx, parent=self)
 
         self.devtools_interface = AppDevtoolsInterface(ctx, parent=self)
         self.code_interface = CodeInterface(ctx, parent=self)

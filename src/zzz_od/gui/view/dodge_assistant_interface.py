@@ -9,7 +9,7 @@ from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.app_run_interface import AppRunInterface
 
 
-class SwitchAssistantInterface(AppRunInterface):
+class DodgeAssistantInterface(AppRunInterface):
 
     def __init__(self,
                  ctx: ZContext,
@@ -22,7 +22,7 @@ class SwitchAssistantInterface(AppRunInterface):
         AppRunInterface.__init__(
             self,
             ctx=ctx,
-            object_name='switch_assistant,interface',
+            object_name='dodge_assistant,interface',
             nav_text_cn='闪避助手',
             nav_icon=FluentIcon.PLAY,
             parent=parent,
