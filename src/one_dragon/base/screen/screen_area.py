@@ -7,6 +7,7 @@ from one_dragon.base.geometry.rectangle import Rect
 class ScreenArea:
 
     def __init__(self,
+                 area_name: str,
                  pc_rect: Rect,
                  text: Optional[str] = None,
                  status: Optional[str] = None,
@@ -15,6 +16,7 @@ class ScreenArea:
                  template_sub_dir: Optional[str] = None,
                  template_match_threshold: float = 0.7,
                  pc_alt: bool = False):
+        self.area_name: str = area_name
         self.pc_rect: Rect = pc_rect
         self.text: Optional[str] = text
         self.status: Optional[str] = status if status is not None else text
@@ -59,3 +61,11 @@ class ScreenArea:
     @property
     def height(self) -> int:
         return self.rect.height
+
+    @property
+    def template_id_display_text(self) -> str:
+        text = ''
+        if len(self.template_sub_dir) == 0:
+            return self.template_id
+        else:
+            return f'{self.template_sub_dir}.{self.template_id}'
