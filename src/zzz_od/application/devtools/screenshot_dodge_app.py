@@ -8,7 +8,7 @@ from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 
 
-class ScreenshotSwitchApp(ZApplication):
+class ScreenshotDodgeApp(ZApplication):
 
     def __init__(self, ctx: ZContext):
         """
@@ -62,8 +62,7 @@ class ScreenshotSwitchApp(ZApplication):
         if time.time() - self.last_save_screenshot_time <= 1:  # 每秒最多保持一次 防止战斗中按得太多
             return
         if key not in [
-            self.ctx.game_config.key_change_next,
-            self.ctx.game_config.key_change_prev
+            self.ctx.game_config.key_dodge
         ]:
             return
 

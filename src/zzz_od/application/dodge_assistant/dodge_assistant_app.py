@@ -61,7 +61,7 @@ class DodgeAssistantApp(ZApplication):
             return self.round_wait(wait_round_time=now - self.last_dodge_time)
 
         screen = self.screenshot()
-        if self.ctx.should_dodge(screen):
+        if self.ctx.should_dodge(screen, self.ctx.dodge_assistant_config.use_gpu):
             self.last_dodge_time = time.time()
             if self.ctx.dodge_assistant_config.dodge_way == DodgeWayEnum.DODGE.value.value:
                 self.ctx.controller.dodge()

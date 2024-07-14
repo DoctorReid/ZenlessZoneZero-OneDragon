@@ -3,7 +3,7 @@ from qfluentwidgets import qrouter, FluentIcon
 from one_dragon.gui.component.interface.pivot_navi_interface import PivotNavigatorInterface
 from one_dragon.gui.view.devtools.devtools_screen_area_interface import DevtoolsScreenAreaInterface
 from zzz_od.context.zzz_context import ZContext
-from zzz_od.gui.view.devtools.devtools_screenshot_switch_interface import DevtoolsScreenshotSwitchInterface
+from zzz_od.gui.view.devtools.devtools_screenshot_dodge_interface import DevtoolsScreenshotDodgeInterface
 
 
 class AppDevtoolsInterface(PivotNavigatorInterface):
@@ -16,7 +16,7 @@ class AppDevtoolsInterface(PivotNavigatorInterface):
                                          nav_text_cn='开发工具', nav_icon=FluentIcon.DEVELOPER_TOOLS)
 
         self.screen_area_interface = DevtoolsScreenAreaInterface(ctx)
-        self.screenshot_switch_interface = DevtoolsScreenshotSwitchInterface(ctx)
+        self.screenshot_switch_interface = DevtoolsScreenshotDodgeInterface(ctx)
 
         self.add_sub_interface(self.screen_area_interface)
         self.add_sub_interface(self.screenshot_switch_interface)
