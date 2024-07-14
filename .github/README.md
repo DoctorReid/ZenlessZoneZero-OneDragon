@@ -25,6 +25,14 @@ __绝区零 - 一条龙__
    - 复制 `env.sample.bat`，重命名为 `env.bat`，并修改内容为你的虚拟环境的python路径，使用 `app.bat` 运行。
    - 将`src`文件夹加入环境变量`PYTHONPATH`，执行 `python src/zzz_od/gui/app.py` 。
 
+
+### 常见报错
+
+#### 动态链接库(DLL)初始化例程失败
+
+安装最新版的 [Microsoft Visual C++](https://aka.ms/vs/17/release/vc_redist.x64.exe)
+
+
 ## 功能说明
 
 ### 自动闪避
