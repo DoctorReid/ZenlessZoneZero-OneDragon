@@ -40,6 +40,8 @@ class YamlConfig(YamlOperator):
             sub_dir.append('%02d' % self.instance_idx)
         if self.sub_dir is not None:
             sub_dir = sub_dir + self.sub_dir
+        if self.instance_idx is not None:
+            sub_dir = sub_dir + ['%02d' % self.instance_idx]
 
         yml_path = os.path.join(os_utils.get_path_under_work_dir(*sub_dir), f'{self.module_name}.yml')
         sample_yml_path = os.path.join(os_utils.get_path_under_work_dir(*sub_dir), f'{self.module_name}.sample.yml')

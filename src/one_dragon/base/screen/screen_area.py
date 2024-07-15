@@ -7,13 +7,13 @@ from one_dragon.base.geometry.rectangle import Rect
 class ScreenArea:
 
     def __init__(self,
-                 area_name: str,
-                 pc_rect: Rect,
-                 text: Optional[str] = None,
-                 status: Optional[str] = None,
+                 area_name: str = '',
+                 pc_rect: Rect = Rect(0, 0, 0, 0),
+                 text: Optional[str] = '',
+                 status: Optional[str] = '',
                  lcs_percent: float = 0.1,
-                 template_id: Optional[str] = None,
-                 template_sub_dir: Optional[str] = None,
+                 template_id: Optional[str] = '',
+                 template_sub_dir: Optional[str] = '',
                  template_match_threshold: float = 0.7,
                  pc_alt: bool = False):
         self.area_name: str = area_name

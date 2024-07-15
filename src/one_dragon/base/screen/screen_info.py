@@ -85,3 +85,16 @@ class ScreenInfo(YamlOperator):
             return self.screen_image
         else:
             return None
+
+    def remove_area_by_idx(self, idx: int) -> None:
+        """
+        删除某行数据
+        :param idx:
+        :return:
+        """
+        if self.area_list is None:
+            return
+        length = len(self.area_list)
+        if idx < 0 or idx >= length:
+            return
+        self.area_list.pop(idx)

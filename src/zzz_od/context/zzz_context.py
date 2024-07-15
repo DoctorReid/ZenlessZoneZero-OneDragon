@@ -1,6 +1,7 @@
 from one_dragon.base.operation.context_base import OneDragonContext
 from one_dragon.utils import i18_utils
 from one_dragon.utils.i18_utils import gt
+from zzz_od.application.devtools.screenshot_helper.screenshot_helper_config import ScreenshotHelperConfig
 from zzz_od.application.dodge_assistant.dodge_assistant_config import DodgeAssistantConfig
 from zzz_od.config.game_config import GameConfig, GamePlatformEnum
 from zzz_od.config.one_dragon_config import OneDragonConfig
@@ -29,6 +30,7 @@ class ZContext(OneDragonContext, YoloContext):
         self.game_config: GameConfig = GameConfig(instance_idx)
 
         # 应用配置
+        self.screenshot_helper_config: ScreenshotHelperConfig = ScreenshotHelperConfig(instance_idx)
         self.dodge_assistant_config: DodgeAssistantConfig = DodgeAssistantConfig(instance_idx)
 
     def init_by_config(self) -> None:

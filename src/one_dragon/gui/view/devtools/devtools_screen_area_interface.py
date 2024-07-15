@@ -1,9 +1,10 @@
 import os
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QWidget, QFileDialog, QTableWidgetItem
-from qfluentwidgets import FluentIcon, ImageLabel, DropDownPushButton, PushButton, TableWidget
+from qfluentwidgets import FluentIcon, ImageLabel, DropDownPushButton, PushButton, TableWidget, ToolButton
 
 from one_dragon.base.operation.context_base import OneDragonContext
+from one_dragon.base.screen.screen_area import ScreenArea
 from one_dragon.base.screen.screen_info import ScreenInfo
 from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.cv2_image import Cv2Image
@@ -39,8 +40,15 @@ class DevtoolsScreenAreaInterface(VerticalScrollInterface):
         content_widget.add_widget(self._init_right_part())
 
         self.chosen_screen: ScreenInfo = None
-        self._worker = ScreenInfoWorker()
-        self._worker.value_changed.connect(self._update_display_by_screen)
+
+        self._whole_update = ScreenInfoWorker()
+        self._whole_update.value_changed.connect(self._update_display_by_screen)
+
+        self._image_update = ScreenInfoWorker()
+        self._image_update.value_changed.connect(self._update_image_display)
+
+        self._area_table_update = ScreenInfoWorker()
+        self._area_table_update.value_changed.connect(self._update_area_table_display)
 
     def _init_left_part(self) -> QWidget:
         widget = ColumnWidget()
@@ -61,6 +69,9 @@ class DevtoolsScreenAreaInterface(VerticalScrollInterface):
         self.delete_btn = PushButton(text=gt('删除', 'ui'))
         btn_row.add_widget(self.delete_btn)
 
+        self.cancel_btn = PushButton(text=gt('取消', 'ui'))
+        btn_row.add_widget(self.cancel_btn)
+
         btn_row.add_stretch(1)
 
         self.choose_image_btn = PushButton(text=gt('选择图片', 'ui'))
@@ -77,22 +88,25 @@ class DevtoolsScreenAreaInterface(VerticalScrollInterface):
         widget.add_widget(self.pc_alt_opt)
 
         self.area_table = TableWidget()
-        self.area_table.setMinimumWidth(500)
+        self.area_table.setMinimumWidth(600)
         self.area_table.setMinimumHeight(420)
         self.area_table.setBorderVisible(True)
         self.area_table.setBorderRadius(8)
         self.area_table.setWordWrap(True)
-        self.area_table.setColumnCount(6)
+        self.area_table.setColumnCount(7)
         self.area_table.verticalHeader().hide()
         self.area_table.setHorizontalHeaderLabels([
             gt('操作', 'ui'),
             gt('区域名称', 'ui'),
             gt('位置', 'ui'),
             gt('文本', 'ui'),
-            gt('文本阈值', 'ui'),
+            gt('阈值', 'ui'),
             gt('模板', 'ui'),
-            gt('模板阈值', 'ui')
+            gt('阈值', 'ui')
         ])
+        self.area_table.setColumnWidth(0, 40)  # 操作
+        self.area_table.setColumnWidth(4, 70)  # 文本阈值
+        self.area_table.setColumnWidth(6, 70)  # 模板阈值
         widget.add_widget(self.area_table)
 
         widget.add_stretch(1)
@@ -122,11 +136,17 @@ class DevtoolsScreenAreaInterface(VerticalScrollInterface):
         self.create_btn.setDisabled(chosen)
         self.save_btn.setDisabled(not chosen)
         self.delete_btn.setDisabled(not chosen)
+        self.cancel_btn.setDisabled(not chosen)
 
         self.choose_image_btn.setDisabled(not chosen)
         self.screen_id_opt.setDisabled(not chosen)
         self.screen_name_opt.setDisabled(not chosen)
         self.pc_alt_opt.setDisabled(not chosen)
+
+        if not chosen:  # 清除一些值
+            self.screen_id_opt.setValue('')
+            self.screen_name_opt.setValue('')
+            self.pc_alt_opt.setValue(False)
 
         self._update_image_display()
         self._update_area_table_display()
@@ -142,7 +162,9 @@ class DevtoolsScreenAreaInterface(VerticalScrollInterface):
 
         for idx in range(area_cnt):
             area_item = area_list[idx]
-            del_btn = PushButton(text=gt('删除', 'ui'))
+            del_btn = ToolButton(FluentIcon.DELETE)
+            del_btn.clicked.connect(self._on_row_delete_clicked)
+
             self.area_table.setCellWidget(idx, 0, del_btn)
             self.area_table.setItem(idx, 1, QTableWidgetItem(area_item.area_name))
             self.area_table.setItem(idx, 2, QTableWidgetItem(str(area_item.pc_rect)))
@@ -151,7 +173,8 @@ class DevtoolsScreenAreaInterface(VerticalScrollInterface):
             self.area_table.setItem(idx, 5, QTableWidgetItem(area_item.template_id_display_text))
             self.area_table.setItem(idx, 6, QTableWidgetItem(str(area_item.template_match_threshold)))
 
-        add_btn = PushButton(text=gt('新增', 'ui'))
+        add_btn = ToolButton(FluentIcon.ADD)
+        add_btn.clicked.connect(self._on_area_add_clicked)
         self.area_table.setCellWidget(area_cnt, 0, add_btn)
         self.area_table.setItem(area_cnt, 2, QTableWidgetItem(''))
         self.area_table.setItem(area_cnt, 3, QTableWidgetItem(''))
@@ -181,7 +204,7 @@ class DevtoolsScreenAreaInterface(VerticalScrollInterface):
             return
 
         self.chosen_screen = ScreenInfo(create_new=True)
-        self._worker.value_changed.emit()
+        self._whole_update.value_changed.emit()
 
     def choose_existed_image(self) -> None:
         """
@@ -209,4 +232,29 @@ class DevtoolsScreenAreaInterface(VerticalScrollInterface):
             return
 
         self.chosen_screen.chosen_screen_image = cv2_utils.read_image(image_file_path)
-        self._worker.value_changed.emit()
+        self._image_update.value_changed.emit()
+
+    def _on_area_add_clicked(self) -> None:
+        """
+        新增一个区域
+        :return:
+        """
+        if self.chosen_screen is None:
+            return
+
+        self.chosen_screen.area_list.append(ScreenArea())
+        self._area_table_update.value_changed.emit()
+
+    def _on_row_delete_clicked(self):
+        """
+        删除一行
+        :return:
+        """
+        if self.chosen_screen is None:
+            return
+
+        button_idx = self.sender()
+        if button_idx is not None:
+            row_idx = self.area_table.indexAt(button_idx.pos()).row()
+            self.chosen_screen.remove_area_by_idx(row_idx)
+            self.area_table.removeRow(row_idx)
