@@ -24,7 +24,7 @@ class ZContext(OneDragonContext, YoloContext):
         按实例初始化配置
         :return:
         """
-        instance_idx = self.one_dragon_config.instance_idx
+        instance_idx = 0
 
         # 基础配置
         self.game_config: GameConfig = GameConfig(instance_idx)
