@@ -44,6 +44,7 @@ class DevtoolsScreenshotHelperInterface(AppRunInterface):
         子界面显示时 进行初始化
         :return:
         """
+        AppRunInterface.init_on_shown(self)
         self.frequency_opt.setValue(str(self.ctx.screenshot_helper_config.frequency_second))
         self.length_opt.setValue(str(self.ctx.screenshot_helper_config.length_second))
         self.key_save_opt.setValue(str(self.ctx.screenshot_helper_config.key_save))
