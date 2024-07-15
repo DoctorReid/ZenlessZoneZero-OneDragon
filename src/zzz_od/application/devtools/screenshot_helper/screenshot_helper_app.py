@@ -8,7 +8,7 @@ from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 
 
-class ScreenshotDodgeApp(ZApplication):
+class ScreenshotHelperApp(ZApplication):
 
     def __init__(self, ctx: ZContext):
         """
@@ -40,7 +40,9 @@ class ScreenshotDodgeApp(ZApplication):
         执行前的初始化 由子类实现
         注意初始化要全面 方便一个指令重复使用
         """
-        self.ctx.controller.max_screenshot_cnt = 10  # 需要保留多一点的图片
+        self.ctx.controller.screenshot_alive_seconds = self.ctx.screenshot_helper_config.length_second + 1
+        self.ctx.controller.max_screenshot_cnt = self.ctx.screenshot_helper_config.length_second // self.ctx.screenshot_helper_config.frequency_second + 5
+
         self.ctx.listen_event(ContextKeyboardEventEnum.PRESS.value, self._on_key_press)
 
     def repeat_screenshot(self) -> OperationRoundResult:
@@ -51,7 +53,7 @@ class ScreenshotDodgeApp(ZApplication):
         if self.to_save_screenshot:
             return self.round_success()
         else:
-            return self.round_wait(wait_round_time=0.02)
+            return self.round_wait(wait_round_time=self.ctx.screenshot_helper_config.frequency_second)
 
     def _on_key_press(self, key: str) -> None:
         """
@@ -61,9 +63,7 @@ class ScreenshotDodgeApp(ZApplication):
             return
         if time.time() - self.last_save_screenshot_time <= 1:  # 每秒最多保持一次 防止战斗中按得太多
             return
-        if key not in [
-            self.ctx.game_config.key_dodge
-        ]:
+        if key != self.ctx.screenshot_helper_config.key_save:
             return
 
         self.to_save_screenshot = True
