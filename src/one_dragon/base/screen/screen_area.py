@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from typing import Optional
 
 from one_dragon.base.geometry.point import Point
@@ -10,7 +12,6 @@ class ScreenArea:
                  area_name: str = '',
                  pc_rect: Rect = Rect(0, 0, 0, 0),
                  text: Optional[str] = '',
-                 status: Optional[str] = '',
                  lcs_percent: float = 0.1,
                  template_id: Optional[str] = '',
                  template_sub_dir: Optional[str] = '',
@@ -19,7 +20,6 @@ class ScreenArea:
         self.area_name: str = area_name
         self.pc_rect: Rect = pc_rect
         self.text: Optional[str] = text
-        self.status: Optional[str] = status if status is not None else text
         self.lcs_percent: float = lcs_percent
         self.template_id: Optional[str] = template_id
         self.template_sub_dir: Optional[str] = template_sub_dir
@@ -64,8 +64,39 @@ class ScreenArea:
 
     @property
     def template_id_display_text(self) -> str:
-        text = ''
         if len(self.template_sub_dir) == 0:
             return self.template_id
         else:
             return f'{self.template_sub_dir}.{self.template_id}'
+
+    @property
+    def is_text_area(self) -> bool:
+        """
+        是否文本区域
+        :return:
+        """
+        return self.text is not None and len(self.text) > 0
+
+    @property
+    def is_template_area(self) -> bool:
+        """
+        是否模板区域
+        :return:
+        """
+        return self.template_id is not None and len(self.template_id) > 0
+
+    def to_order_dict(self) -> dict:
+        """
+        有顺序的dict 用于保存时候展示
+        :return:
+        """
+        order_dict = dict()
+        order_dict['area_name'] = self.area_name
+        order_dict['pc_rect'] = [self.pc_rect.x1, self.pc_rect.y1, self.pc_rect.x2, self.pc_rect.y2]
+        order_dict['text'] = self.text
+        order_dict['lcs_percent'] = self.lcs_percent
+        order_dict['template_sub_dir'] = self.template_sub_dir
+        order_dict['template_id'] = self.template_id
+        order_dict['template_match_threshold'] = self.template_match_threshold
+
+        return order_dict

@@ -1,3 +1,4 @@
+import cv2
 import os
 from cv2.typing import MatLike
 from typing import List, Optional
@@ -15,8 +16,7 @@ class ScreenInfo(YamlOperator):
         self.screen_id: str = screen_id  # 画面ID 用于加载文件
         self.screen_name: str = ''  # 画面名称 用于显示
 
-        self.screen_image: MatLike = None  # 画面图片 存放在 assets/game_data/screen_info
-        self.chosen_screen_image: MatLike = None  # 画面图片 从文件系统选择的 是用于新保存的图片
+        self.screen_image: MatLike = None
 
         self.pc_alt: bool = False  # PC端点击是否需要使用ALT键
         self.area_list: List[ScreenArea] = []  # 画面中包含的区域
@@ -27,19 +27,24 @@ class ScreenInfo(YamlOperator):
             YamlOperator.__init__(self, self.get_yml_file_path())
             self._init_from_data()
 
-    def get_dir_path(self) -> str:
+    @staticmethod
+    def get_dir_path() -> str:
         """
         文件夹位置
         :return:
         """
-        return os_utils.get_path_under_work_dir('assets', 'game_data', 'screen_info', self.screen_id)
+        return os_utils.get_path_under_work_dir('assets', 'game_data', 'screen_info')
 
-    def get_yml_file_path(self) -> str:
+    def get_yml_file_path(self, old: bool = False) -> str:
         """
         配置文件位置
+        :param old: 是否取旧文件的路径
         :return:
         """
-        return os.path.join(self.get_dir_path(), f'{self.screen_id}.yml')
+        if old and self.old_screen_id is not None:
+            return os.path.join(self.get_dir_path(), f'{self.old_screen_id}.yml')
+        else:
+            return os.path.join(self.get_dir_path(), f'{self.screen_id}.yml')
 
     def get_image_file_path(self) -> str:
         """
@@ -79,12 +84,17 @@ class ScreenInfo(YamlOperator):
         用于显示的图片
         :return:
         """
-        if self.chosen_screen_image is not None:
-            return self.chosen_screen_image
-        elif self.screen_image is not None:
-            return self.screen_image
-        else:
+        if self.screen_image is None:
             return None
+
+        image = self.screen_image.copy()
+        for area in self.area_list:
+            cv2.rectangle(image,
+                          (area.pc_rect.x1, area.pc_rect.y1),
+                          (area.pc_rect.x2, area.pc_rect.y2),
+                          (0, 0, 255), 2)
+
+        return image
 
     def remove_area_by_idx(self, idx: int) -> None:
         """
@@ -98,3 +108,32 @@ class ScreenInfo(YamlOperator):
         if idx < 0 or idx >= length:
             return
         self.area_list.pop(idx)
+
+    def save(self):
+        """
+        保存 覆写了基类的方法
+        :return:
+        """
+        order_dict = dict()
+        order_dict['screen_id'] = self.screen_id
+        order_dict['screen_name'] = self.screen_name
+        order_dict['pc_alt'] = self.pc_alt
+        order_dict['area_list'] = [i.to_order_dict() for i in self.area_list]
+
+        self.file_path = self.get_yml_file_path(old=False)  # screen_id 有修改 更新路径
+        self.data = order_dict
+        YamlOperator.save(self)
+
+        # screen_id 有修改 删除旧的文件
+        if self.old_screen_id is not None and len(self.old_screen_id) > 0 and self.old_screen_id != self.screen_id:
+            old_yml_file_path = self.get_yml_file_path(old=True)
+            if os.path.exists(old_yml_file_path):
+                os.remove(old_yml_file_path)
+
+    def delete(self):
+        """
+        删除 覆写了基类的方法
+        :return:
+        """
+        self.file_path = self.get_yml_file_path(old=False)  # screen_id 有修改 更新路径
+        YamlOperator.delete(self)

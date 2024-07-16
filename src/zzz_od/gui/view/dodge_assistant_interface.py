@@ -31,7 +31,7 @@ class DodgeAssistantInterface(AppRunInterface):
         AppRunInterface.__init__(
             self,
             ctx=ctx,
-            object_name='dodge_assistant,interface',
+            object_name='dodge_assistant_interface',
             nav_text_cn='闪避助手',
             nav_icon=FluentIcon.PLAY,
             parent=parent,

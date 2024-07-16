@@ -653,16 +653,14 @@ class Operation(OperationBase):
     def round_fail_by_op(self, op_result: OperationResult) -> OperationRoundResult:
         return self.round_fail(status=op_result.status, data=op_result.data)
 
-    def find_and_click_area(self, area: ScreenArea, screen: Optional[MatLike] = None) -> OcrClickResultEnum:
+    def find_and_click_area(self, screen: MatLike, area: ScreenArea) -> OcrClickResultEnum:
         """
         在一个区域匹配成功后进行点击
-        :param area: 目标区域
         :param screen: 屏幕截图
+        :param area: 目标区域
         :return:
         """
-        if screen is None:
-            screen = self.screenshot()
-        if area.text is not None:
+        if area.is_text_area:
             rect = area.rect
             part = cv2_utils.crop_image_only(screen, rect)
 
@@ -675,7 +673,7 @@ class Operation(OperationBase):
                     return OcrClickResultEnum.OCR_CLICK_FAIL
 
             return OcrClickResultEnum.OCR_CLICK_NOT_FOUND
-        elif area.template_id is not None:
+        elif area.is_template_area:
             rect = area.rect
             part = cv2_utils.crop_image_only(screen, rect)
 
@@ -705,37 +703,37 @@ class Operation(OperationBase):
         :param retry_wait_round: 失败后等待当前轮的运行时间到达这个时间时再结束 优先success_wait
         :return:
         """
-        click = self.find_and_click_area(area=area, screen=screen)
+        click = self.find_and_click_area(screen=screen, area=area)
         if click == OcrClickResultEnum.OCR_CLICK_SUCCESS:
-            return self.round_success(status=area.status, wait=success_wait, wait_round_time=success_wait_round)
+            return self.round_success(status=area.area_name, wait=success_wait, wait_round_time=success_wait_round)
         elif click == OcrClickResultEnum.OCR_CLICK_NOT_FOUND:
-            return self.round_retry(status=f'未找到{area.status}', wait=retry_wait, wait_round_time=retry_wait_round)
+            return self.round_retry(status=f'未找到{area.area_name}', wait=retry_wait, wait_round_time=retry_wait_round)
         elif click == OcrClickResultEnum.OCR_CLICK_FAIL:
-            return self.round_retry(status=f'点击{area.status}失败', wait=retry_wait, wait_round_time=retry_wait_round)
+            return self.round_retry(status=f'点击{area.area_name}失败', wait=retry_wait, wait_round_time=retry_wait_round)
         else:
             return self.round_retry(status='未知状态', wait=retry_wait, wait_round_time=retry_wait_round)
 
-    def find_area(self, area: ScreenArea, screen: Optional[MatLike] = None) -> bool:
+    def find_area(self, screen: MatLike, area: ScreenArea) -> bool:
         """
         在一个区域匹配成功后进行点击
-        :param area: 目标区域
         :param screen: 屏幕截图
+        :param area: 目标区域
         :return:
         """
-        if screen is None:
-            screen = self.screenshot()
-        if area.text is not None:
+        if area.is_text_area:
             rect = area.rect
             part = cv2_utils.crop_image_only(screen, rect)
 
             ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
 
             return str_utils.find_by_lcs(gt(area.text, 'ocr'), ocr_result, percent=area.lcs_percent)
-        elif area.template_id is not None:
+        elif area.is_template_area:
             rect = area.rect
             part = cv2_utils.crop_image_only(screen, rect)
 
-            mrl = self.ctx.tm.match_template(part, area.template_id, threshold=area.template_match_threshold)
+            mrl = self.ctx.tm.match_template(part, area.template_id,
+                                             template_sub_dir=area.template_sub_dir,
+                                             threshold=area.template_match_threshold)
             return mrl.max is not None
         else:
             return False
@@ -754,7 +752,7 @@ class Operation(OperationBase):
         :param retry_wait_round: 失败后等待当前轮的运行时间到达这个时间时再结束 优先success_wait
         :return:
         """
-        if self.find_area(area=area, screen=screen):
+        if self.find_area(screen=screen, area=area):
             return self.round_success(wait=success_wait, wait_round_time=success_wait_round)
         else:
             return self.round_retry(wait=retry_wait, wait_round_time=retry_wait_round)

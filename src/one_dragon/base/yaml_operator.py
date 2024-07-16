@@ -48,7 +48,7 @@ class YamlOperator:
             return
 
         with open(self.file_path, 'w', encoding='utf-8') as file:
-            yaml.dump(self.data, file)
+            yaml.dump(self.data, file, allow_unicode=True, sort_keys=False)
 
     def save_diy(self, text: str):
         """

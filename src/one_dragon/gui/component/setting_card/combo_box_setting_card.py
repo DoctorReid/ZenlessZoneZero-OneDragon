@@ -68,3 +68,6 @@ class ComboBoxSettingCard(SettingCard):
             if item.userData == value:
                 self.combo_box.setCurrentIndex(idx)
                 return
+
+    def getValue(self):
+        return self.combo_box.itemData(self.combo_box.currentIndex())
