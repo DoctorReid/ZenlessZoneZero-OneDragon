@@ -8,7 +8,7 @@ class ScreenshotHelperConfig(YamlConfig):
 
     @property
     def frequency_second(self) -> float:
-        return self.get('frequency_second', 0.05)
+        return self.get('frequency_second', 0.1)
 
     @frequency_second.setter
     def frequency_second(self, new_value: float) -> None:
@@ -29,3 +29,11 @@ class ScreenshotHelperConfig(YamlConfig):
     @key_save.setter
     def key_save(self, new_value: str) -> None:
         self.update('key_save', new_value)
+
+    @property
+    def dodge_detect(self) -> bool:
+        return self.get('dodge_detect', True)
+
+    @dodge_detect.setter
+    def dodge_detect(self, new_value: bool) -> None:
+        self.update('dodge_detect', new_value)

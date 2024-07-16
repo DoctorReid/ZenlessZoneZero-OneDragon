@@ -49,7 +49,12 @@ class ScreenshotHelperApp(ZApplication):
         """
         持续截图
         """
-        self.screenshot()
+        screen = self.screenshot()
+
+        if self.ctx.screenshot_helper_config.dodge_detect:
+            if self.ctx.should_dodge(screen, use_gpu=True):
+                debug_utils.save_debug_image(screen, prefix='dodge_wrong')
+
         if self.to_save_screenshot:
             return self.round_success()
         else:

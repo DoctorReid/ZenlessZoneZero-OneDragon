@@ -539,7 +539,6 @@ class Operation(OperationBase):
         """
         if self.last_screenshot is None:
             return ''
-        # fill_uid_black(self.last_screenshot)
         return debug_utils.save_debug_image(self.last_screenshot, prefix=self.__class__.__name__)
 
     @property
