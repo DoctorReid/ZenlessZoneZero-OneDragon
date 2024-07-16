@@ -9,8 +9,10 @@ from one_dragon.utils import os_utils
 DEFAULT_ENV_PATH = os_utils.get_path_under_work_dir('.env')
 DEFAULT_GIT_DIR_PATH = os.path.join(DEFAULT_ENV_PATH, 'PortableGit')  # 默认的git文件夹路径
 DEFAULT_GIT_PATH = os.path.join(DEFAULT_GIT_DIR_PATH, 'cmd', 'git.exe')  # 默认的git.exe文件路径
-DEFAULT_PYTHON_DIR_PATH = os_utils.get_path_under_work_dir('.env', 'python')  # 默认的python文件夹路径 这个赋值会创建空文件夹
+DEFAULT_PYTHON_DIR_PATH = os.path.join(DEFAULT_ENV_PATH, 'python')  # 默认的python文件夹路径
 DEFAULT_PYTHON_PATH = os.path.join(DEFAULT_PYTHON_DIR_PATH, 'python.exe')  # 默认安装的python路径
+DEFAULT_PYTHON_VENV_DIR_PATH = os.path.join(DEFAULT_ENV_PATH, 'venv')  # 默认的虚拟环境文件夹路径
+DEFAULT_VENV_PYTHON_PATH = os.path.join(DEFAULT_PYTHON_VENV_DIR_PATH, 'python.exe')  # 默认的虚拟环境中python.exe的路径
 DEFAULT_PYTHON_PTH_PATH = os.path.join(DEFAULT_PYTHON_DIR_PATH, 'python311._pth')  # 默认安装的python配置文件路径
 DEFAULT_PYTHON_SCRIPTS_DIR_PATH = os_utils.get_path_under_work_dir('.env', 'python', 'Scripts')  # 默认的python环境中的其它exe文件夹路径
 DEFAULT_PIP_PATH = os.path.join(DEFAULT_PYTHON_SCRIPTS_DIR_PATH, 'pip.exe')  # 默认安装的pip路径
@@ -88,22 +90,6 @@ class EnvConfig(YamlConfig):
         :return: pythonw.exe的路径
         """
         return os.path.join(os.path.dirname(self.python_path), 'pythonw.exe')
-
-    @property
-    def pip_path(self) -> str:
-        """
-        :return: pip的路径
-        """
-        return self.get('pip_path', '')
-
-    @pip_path.setter
-    def pip_path(self, new_value: str) -> None:
-        """
-        更新 pip的路径 正常不需要调用
-        :param new_value: pip路径
-        :return:
-        """
-        self.update('pip_path', new_value)
 
     @property
     def theme(self) -> str:

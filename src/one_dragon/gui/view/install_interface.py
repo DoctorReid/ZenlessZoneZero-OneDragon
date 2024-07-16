@@ -8,7 +8,6 @@ from one_dragon.gui.component.log_display_card import LogDisplayCard
 from one_dragon.gui.install_card.all_install_card import AllInstallCard
 from one_dragon.gui.install_card.code_install_card import CodeInstallCard
 from one_dragon.gui.install_card.git_install_card import GitInstallCard
-from one_dragon.gui.install_card.pip_install_card import PipInstallCard
 from one_dragon.gui.install_card.python_install_card import PythonInstallCard
 from one_dragon.gui.install_card.venv_install_card import VenvInstallCard
 from one_dragon.utils.i18_utils import gt
@@ -38,20 +37,16 @@ class InstallerInterface(VerticalScrollInterface):
         self.python_opt = PythonInstallCard(ctx)
         self.python_opt.progress_changed.connect(self.update_progress)
 
-        self.pip_opt = PipInstallCard(ctx)
-        self.pip_opt.progress_changed.connect(self.update_progress)
-
         self.venv_opt = VenvInstallCard(ctx)
         self.venv_opt.progress_changed.connect(self.update_progress)
 
-        self.all_opt = AllInstallCard(ctx, [self.git_opt, self.code_opt, self.python_opt, self.pip_opt, self.venv_opt])
+        self.all_opt = AllInstallCard(ctx, [self.git_opt, self.code_opt, self.python_opt, self.venv_opt])
 
         update_group = SettingCardGroup(gt('运行环境', 'ui'))
         update_group.addSettingCard(self.all_opt)
         update_group.addSettingCard(self.git_opt)
         update_group.addSettingCard(self.code_opt)
         update_group.addSettingCard(self.python_opt)
-        update_group.addSettingCard(self.pip_opt)
         update_group.addSettingCard(self.venv_opt)
 
         v_layout.addWidget(update_group)
@@ -73,7 +68,6 @@ class InstallerInterface(VerticalScrollInterface):
         self.git_opt.check_and_update_display()
         self.code_opt.check_and_update_display()
         self.python_opt.check_and_update_display()
-        self.pip_opt.check_and_update_display()
         self.venv_opt.check_and_update_display()
         self.log_card.update_on_log = True
 

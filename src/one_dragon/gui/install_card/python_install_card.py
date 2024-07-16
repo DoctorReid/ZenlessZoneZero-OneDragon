@@ -17,7 +17,7 @@ class PythonInstallCard(WithExistedInstallCard):
             self,
             ctx=ctx,
             title_cn='Python',
-            install_method=ctx.python_service.install_default_python,
+            install_method=ctx.python_service.install_default_python_venv,
         )
 
     def get_existed_os_path(self) -> Optional[str]:
@@ -57,10 +57,16 @@ class PythonInstallCard(WithExistedInstallCard):
 
         if python_path == '':
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
-            msg = gt('未安装', 'ui')
+            msg = gt('未安装。可选择你自己的虚拟环境，或一键安装。', 'ui')
         elif not os.path.exists(python_path):
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
             msg = gt('文件不存在', 'ui') + ' ' + python_path
+        elif not self.ctx.python_service.is_virtual_python():
+            icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
+            if self.ctx.python_service.get_pip_version() is None:
+                msg = gt('未安装pip', 'ui')
+            else:
+                msg = gt('非虚拟环境', 'ui') + ' ' + python_path
         else:
             python_version = self.ctx.python_service.get_python_version()
             if python_version is None:
