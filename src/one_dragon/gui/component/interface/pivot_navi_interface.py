@@ -47,25 +47,25 @@ class PivotNavigatorInterface(BaseInterface):
         if index != self._last_stack_idx:
             last_interface = self.stacked_widget.widget(self._last_stack_idx)
             if isinstance(last_interface, BaseInterface):
-                last_interface.on_hidden()
+                last_interface.on_interface_hidden()
             self._last_stack_idx = index
 
         current_interface = self.stacked_widget.widget(index)
         self.pivot.setCurrentItem(current_interface.objectName())
         qrouter.push(self.stacked_widget, current_interface.objectName())
         if isinstance(current_interface, BaseInterface):
-            current_interface.init_on_shown()
+            current_interface.on_interface_shown()
 
-    def init_on_shown(self) -> None:
+    def on_interface_shown(self) -> None:
         """
         子界面显示时 进行初始化
         :return:
         """
-        self.stacked_widget.currentWidget().init_on_shown()
+        self.stacked_widget.currentWidget().on_interface_shown()
 
-    def on_hidden(self) -> None:
+    def on_interface_hidden(self) -> None:
         """
         子界面隐藏时的回调
         :return:
         """
-        self.stacked_widget.currentWidget().on_hidden()
+        self.stacked_widget.currentWidget().on_interface_hidden()

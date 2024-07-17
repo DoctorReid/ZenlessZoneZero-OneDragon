@@ -33,6 +33,7 @@ class InstallerInterface(VerticalScrollInterface):
 
         self.code_opt = CodeInstallCard(ctx)
         self.code_opt.progress_changed.connect(self.update_progress)
+        self.code_opt.finished.connect(self._on_code_updated)
 
         self.python_opt = PythonInstallCard(ctx)
         self.python_opt.progress_changed.connect(self.update_progress)
@@ -60,7 +61,7 @@ class InstallerInterface(VerticalScrollInterface):
                                          parent=parent, content_widget=content_widget,
                                          nav_text_cn='一键安装', nav_icon=FluentIcon.CLOUD_DOWNLOAD)
 
-    def init_on_shown(self) -> None:
+    def on_interface_shown(self) -> None:
         """
         页面加载完成后 检测各个组件状态并更新显示
         :return:
@@ -71,7 +72,7 @@ class InstallerInterface(VerticalScrollInterface):
         self.venv_opt.check_and_update_display()
         self.log_card.update_on_log = True
 
-    def on_hidden(self) -> None:
+    def on_interface_hidden(self) -> None:
         """
         子界面隐藏时的回调
         :return:
@@ -94,3 +95,13 @@ class InstallerInterface(VerticalScrollInterface):
             self.progress_bar.setVal(progress)
             self.progress_bar_2.setVisible(False)
             self.progress_bar_2.stop()
+
+    def _on_code_updated(self, success: bool, msg: str) -> None:
+        """
+        代码更新后
+        :param success:
+        :param msg:
+        :return:
+        """
+        if success:
+            self.venv_opt.check_and_update_display()

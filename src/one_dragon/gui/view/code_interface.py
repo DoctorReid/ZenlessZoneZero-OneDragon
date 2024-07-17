@@ -8,6 +8,7 @@ from one_dragon.base.operation.context_base import OneDragonContext
 from one_dragon.envs.git_service import GitLog
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.install_card.code_install_card import CodeInstallCard
+from one_dragon.gui.install_card.venv_install_card import VenvInstallCard
 from one_dragon.utils.i18_utils import gt
 
 
@@ -46,9 +47,13 @@ class CodeInterface(VerticalScrollInterface):
         v_layout = VBoxLayout(content_widget)
         v_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        self.install_card = CodeInstallCard(ctx)
-        self.install_card.finished.connect(self.on_code_updated)
-        v_layout.addWidget(self.install_card)
+        self.code_card = CodeInstallCard(ctx)
+        self.code_card.finished.connect(self.on_code_updated)
+        v_layout.addWidget(self.code_card)
+
+        self.venv_card = VenvInstallCard(ctx)
+        self.venv_card.install_btn.setDisabled(True)
+        v_layout.addWidget(self.venv_card)
 
         self.log_table = TableWidget()
         self.log_table.setMinimumHeight(self.page_size * 42)
@@ -93,13 +98,14 @@ class CodeInterface(VerticalScrollInterface):
         self.fetch_page_runner = FetchPageRunner(self.fetch_page)
         self.fetch_page_runner.finished.connect(self.update_page)
 
-    def init_on_shown(self) -> None:
+    def on_interface_shown(self) -> None:
         """
         子界面显示时 进行初始化
         :return:
         """
         self.start_fetch_total()
-        self.install_card.check_and_update_display()
+        self.code_card.check_and_update_display()
+        self.venv_card.check_and_update_display()
 
     def start_fetch_total(self) -> None:
         """
@@ -172,6 +178,7 @@ class CodeInterface(VerticalScrollInterface):
         if not success:
             return
 
+        self.venv_card.check_and_update_display()
         self.pager.setCurrentIndex(0)
         self.page_num = -1
         self.start_fetch_total()

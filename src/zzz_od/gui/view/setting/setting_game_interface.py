@@ -54,7 +54,7 @@ class SettingGameInterface(VerticalScrollInterface):
             nav_text_cn='游戏设置'
         )
 
-    def init_on_shown(self) -> None:
+    def on_interface_shown(self) -> None:
         self.key_normal_attack_opt.setValue(self.ctx.game_config.key_normal_attack)
         self.dodge_opt.setValue(self.ctx.game_config.key_dodge)
         self.switch_next_opt.setValue(self.ctx.game_config.key_switch_next)

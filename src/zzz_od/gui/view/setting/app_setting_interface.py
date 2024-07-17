@@ -16,9 +16,9 @@ class AppSettingInterface(PivotNavigatorInterface):
         self.add_sub_interface(SettingGameInterface(ctx=ctx))
         qrouter.setDefaultRouteKey(self.stacked_widget, self.stacked_widget.currentWidget().objectName())
 
-    def init_on_shown(self) -> None:
+    def on_interface_shown(self) -> None:
         """
         子界面显示时 进行初始化
         :return:
         """
-        self.stacked_widget.currentWidget().init_on_shown()
+        self.stacked_widget.currentWidget().on_interface_shown()

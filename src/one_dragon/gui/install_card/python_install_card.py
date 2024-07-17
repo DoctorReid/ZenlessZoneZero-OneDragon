@@ -1,11 +1,9 @@
 import os
-from typing import Optional, Tuple
-
 from PySide6.QtGui import QIcon
 from qfluentwidgets import FluentIcon, FluentThemeColor
+from typing import Optional, Tuple
 
 from one_dragon.base.operation.context_base import OneDragonContext
-from one_dragon.envs.env_config import DEFAULT_PYTHON_PATH
 from one_dragon.gui.install_card.wtih_existed_install_card import WithExistedInstallCard
 from one_dragon.utils.i18_utils import gt
 
@@ -16,7 +14,7 @@ class PythonInstallCard(WithExistedInstallCard):
         WithExistedInstallCard.__init__(
             self,
             ctx=ctx,
-            title_cn='Python',
+            title_cn='Python虚拟环境',
             install_method=ctx.python_service.install_default_python_venv,
         )
 
@@ -36,17 +34,17 @@ class PythonInstallCard(WithExistedInstallCard):
         self.ctx.env_config.python_path = file_path
         self.check_and_update_display()
 
-    def after_progress_done(self, success: bool) -> None:
+    def after_progress_done(self, success: bool, msg: str) -> None:
         """
         安装结束的回调，由子类自行实现
-        :param success:
+        :param success: 是否成功
+        :param msg: 提示信息
         :return:
         """
         if success:
-            self.ctx.env_config.python_path = DEFAULT_PYTHON_PATH
             self.check_and_update_display()
         else:
-            self.update_display(FluentIcon.INFO.icon(color=FluentThemeColor.RED.value), gt('安装失败', 'ui'))
+            self.update_display(FluentIcon.INFO.icon(color=FluentThemeColor.RED.value), gt(msg, 'ui'))
 
     def get_display_content(self) -> Tuple[QIcon, str]:
         """
@@ -57,16 +55,13 @@ class PythonInstallCard(WithExistedInstallCard):
 
         if python_path == '':
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
-            msg = gt('未安装。可选择你自己的虚拟环境，或一键安装。', 'ui')
+            msg = gt('未安装。可选择你自己的虚拟环境的python.exe，或默认安装。', 'ui')
         elif not os.path.exists(python_path):
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
             msg = gt('文件不存在', 'ui') + ' ' + python_path
         elif not self.ctx.python_service.is_virtual_python():
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
-            if self.ctx.python_service.get_pip_version() is None:
-                msg = gt('未安装pip', 'ui')
-            else:
-                msg = gt('非虚拟环境', 'ui') + ' ' + python_path
+            msg = gt('非虚拟环境', 'ui') + ' ' + python_path
         else:
             python_version = self.ctx.python_service.get_python_version()
             if python_version is None:

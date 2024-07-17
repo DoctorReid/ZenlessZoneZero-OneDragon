@@ -120,7 +120,7 @@ class SettingEnvInterface(VerticalScrollInterface):
 
         return key_group
 
-    def init_on_shown(self) -> None:
+    def on_interface_shown(self) -> None:
         """
         子界面显示时 进行初始化
         :return:

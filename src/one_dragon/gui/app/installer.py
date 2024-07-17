@@ -5,7 +5,6 @@ from qfluentwidgets import NavigationItemPosition, Theme, setTheme
 
 from one_dragon.base.operation.context_base import OneDragonContext
 from one_dragon.gui.app.fluent_window_base import FluentWindowBase
-from one_dragon.gui.view.code_interface import CodeInterface
 from one_dragon.gui.view.install_interface import InstallerInterface
 from one_dragon.gui.view.installer_setting_interface import InstallerSettingInterface
 
@@ -17,14 +16,12 @@ class InstallerWindowBase(FluentWindowBase):
         FluentWindowBase.__init__(self, ctx=ctx, win_title=win_title, parent=parent)
 
         self.install_interface = InstallerInterface(ctx, parent=self)
-        self.code_interface = CodeInterface(ctx, parent=self)
         self.setting_interface = InstallerSettingInterface(ctx, parent=self)
 
         self.init_navigation()
 
     def init_navigation(self):
         self.add_sub_interface(self.install_interface)
-        self.add_sub_interface(self.code_interface)
         self.add_sub_interface(self.setting_interface, position=NavigationItemPosition.BOTTOM)
 
 

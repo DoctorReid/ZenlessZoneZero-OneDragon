@@ -1,10 +1,10 @@
 import os.path
 
 import shutil
-from typing import Optional, Callable
+from typing import Optional, Callable, Tuple
 
 from one_dragon.envs.env_config import DEFAULT_ENV_PATH, DEFAULT_PYTHON_DIR_PATH, EnvConfig, \
-    DEFAULT_PYTHON_VENV_DIR_PATH, DEFAULT_VENV_PYTHON_PATH
+    DEFAULT_VENV_DIR_PATH, DEFAULT_VENV_PYTHON_PATH, DEFAULT_PYTHON_PATH
 from one_dragon.envs.git_service import GitService
 from one_dragon.envs.project_config import ProjectConfig
 from one_dragon.utils import file_utils, cmd_utils, os_utils
@@ -24,10 +24,10 @@ class PythonService:
         :param progress_callback: 进度回调。进度发生改变时，通过该方法通知调用方。
         :return: 是否安装成功
         """
-        log.info('开始安装 python')
         if self.get_python_version() == self.project_config.python_version:
             log.info('已经安装了推荐版本的python')
             return True
+        log.info('开始安装 python')
         for _ in range(2):
             zip_file_name = f'python-{self.project_config.python_version}-embed-amd64.zip'
             zip_file_path = os.path.join(DEFAULT_ENV_PATH, zip_file_name)
@@ -72,10 +72,10 @@ class PythonService:
         :param progress_callback: 进度回调。进度发生改变时，通过该方法通知调用方。
         :return: 是否安装成功
         """
-        log.info('开始安装 pip')
         if self.get_pip_version() is not None:
             log.info('已经安装了pip')
             return True
+        log.info('开始安装 pip')
         python_path = self.env_config.python_path
         for _ in range(2):
             py_file_name = 'get-pip.py'
@@ -87,7 +87,7 @@ class PythonService:
                     return False
 
             if progress_callback:
-                progress_callback(-1, '准备安装pip')
+                progress_callback(-1, '正在安装pip')
             result = cmd_utils.run_command([python_path, py_file_path, '--index-url', self.env_config.pip_source])
             success = result is not None
             msg = '安装pip成功' if success else '安装pip失败 准备重试'
@@ -111,9 +111,9 @@ class PythonService:
         :return: 是否安装成功
         """
         if progress_callback:
-            progress_callback(-1, '准备安装virtualenv')
+            progress_callback(-1, '正在安装virtualenv')
         python_path = self.env_config.python_path
-        result = cmd_utils.run_command([python_path, '-m', 'pip', 'install' 'virtualenv', '--index-url', self.env_config.pip_source])
+        result = cmd_utils.run_command([python_path, '-m', 'pip', 'install', 'virtualenv', '--index-url', self.env_config.pip_source])
         success = result is not None
         msg = '安装virtualenv成功' if success else '安装virtualenv失败'
         log.info(msg)
@@ -130,15 +130,12 @@ class PythonService:
         if progress_callback:
             progress_callback(-1, '准备创建虚拟环境')
         python_path = self.env_config.python_path
-        result = cmd_utils.run_command([python_path, '-m', 'virtualenv', DEFAULT_PYTHON_VENV_DIR_PATH])
+        result = cmd_utils.run_command([python_path, '-m', 'virtualenv', DEFAULT_VENV_DIR_PATH])
         success = result is not None
         msg = '创建虚拟环境成功' if success else '创建虚拟环境失败'
         log.info(msg)
         if progress_callback:
             progress_callback(1 if success else 0, msg)
-
-        if success:
-            self.env_config.python_path = DEFAULT_VENV_PYTHON_PATH
         return success
 
     def get_os_python_path(self) -> Optional[str]:
@@ -195,37 +192,43 @@ class PythonService:
         else:
             return None
 
-    def install_default_python_venv(self, progress_callback: Optional[Callable[[float, str], None]]) -> bool:
+    def install_default_python_venv(self, progress_callback: Optional[Callable[[float, str], None]]) -> Tuple[bool, str]:
         """
         完整流程安装 python 环境
         :param progress_callback:
         :return:
         """
+        if progress_callback is not None:
+            progress_callback(-1, '正在清理旧文件')
         self.env_config.python_path = ''
         if os.path.exists(DEFAULT_PYTHON_DIR_PATH):
             shutil.rmtree(DEFAULT_PYTHON_DIR_PATH)
 
-        if os.path.exists(DEFAULT_PYTHON_VENV_DIR_PATH):
-            shutil.rmtree(DEFAULT_PYTHON_VENV_DIR_PATH)
+        if os.path.exists(DEFAULT_VENV_DIR_PATH):
+            shutil.rmtree(DEFAULT_VENV_DIR_PATH)
 
         if not self.install_default_python(progress_callback):
-            return False
+            return False, '安装Python失败'
+        self.env_config.python_path = DEFAULT_PYTHON_PATH
         if not self.install_default_pip(progress_callback):
-            return False
+            return False, '安装pip失败'
         if not self.install_default_virtualenv(progress_callback):
-            return False
+            return False, '安装virtualenv失败'
         if not self.create_default_venv(progress_callback):
-            return False
+            return False, '创建虚拟环境失败'
+        self.env_config.python_path = DEFAULT_VENV_PYTHON_PATH
 
-        return True
+        return True, ''
 
-    def install_requirements(self, progress_callback: Optional[Callable[[float, str], None]]) -> bool:
+    def install_requirements(self, progress_callback: Optional[Callable[[float, str], None]]) -> Tuple[bool, str]:
         """
         安装依赖
         :return:
         """
-        progress_callback(-1, '正在安装')
-        result = cmd_utils.run_command([self.env_config.pip_path, 'install', '-r',
+        progress_callback(-1, '正在安装...安装过程需要5~10分钟，请耐心等待')
+        result = cmd_utils.run_command([self.env_config.python_path, '-m', 'pip', 'install', '-r',
                                         os.path.join(os_utils.get_work_dir(), self.project_config.requirements)
                                         ])
-        return result is not None
+        success = result is not None
+        msg = '运行依赖安装成功' if success else '运行依赖安装失败'
+        return success, msg

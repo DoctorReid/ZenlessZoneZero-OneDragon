@@ -112,11 +112,11 @@ class AppRunInterface(VerticalScrollInterface):
             parent=parent
         )
 
-    def init_on_shown(self) -> None:
+    def on_interface_shown(self) -> None:
         self.log_card.update_on_log = True
         self.ctx.listen_event(ContextKeyboardEventEnum.PRESS.value, self._on_key_press)
 
-    def on_hidden(self) -> None:
+    def on_interface_hidden(self) -> None:
         self.log_card.update_on_log = False
         self.ctx.unlisten_all_event(self)
 

@@ -38,12 +38,12 @@ class DodgeAssistantInterface(AppRunInterface):
             widget_at_top=top_widget
         )
 
-    def init_on_shown(self) -> None:
+    def on_interface_shown(self) -> None:
         """
         界面显示时 进行初始化
         :return:
         """
-        AppRunInterface.init_on_shown(self)
+        AppRunInterface.on_interface_shown(self)
         dodge_way = get_config_item_from_enum(DodgeWayEnum, self.ctx.dodge_assistant_config.dodge_way)
         if dodge_way is not None:
             self.dodge_opt.setValue(dodge_way.value)

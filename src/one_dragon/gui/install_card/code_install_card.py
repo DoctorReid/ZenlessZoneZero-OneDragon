@@ -1,7 +1,6 @@
-from typing import Tuple
-
 from PySide6.QtGui import QIcon
 from qfluentwidgets import FluentIcon, FluentThemeColor
+from typing import Tuple
 
 from one_dragon.base.operation.context_base import OneDragonContext
 from one_dragon.gui.install_card.base_install_card import BaseInstallCard
@@ -22,16 +21,20 @@ class CodeInstallCard(BaseInstallCard):
             parent=parent
         )
 
-    def after_progress_done(self, success: bool) -> None:
+        self._updated: bool = False  # 是否已经更新了
+
+    def after_progress_done(self, success: bool, msg: str) -> None:
         """
         安装结束的回调，由子类自行实现
-        :param success:
+        :param success: 是否成功
+        :param msg: 提示信息
         :return:
         """
         if success:
             self.check_and_update_display()
+            self._updated = True
         else:
-            self.update_display(FluentIcon.INFO.icon(color=FluentThemeColor.RED.value), gt('同步失败', 'ui'))
+            self.update_display(FluentIcon.INFO.icon(color=FluentThemeColor.RED.value), gt(msg, 'ui'))
 
     def get_display_content(self) -> Tuple[QIcon, str]:
         """
@@ -48,5 +51,8 @@ class CodeInstallCard(BaseInstallCard):
         else:
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.DEFAULT_BLUE.value)
             msg = f"{gt('已同步代码', 'ui')}" + ' ' + current_branch
+
+            if self._updated:
+                msg += ' ' + gt('更新后需重启脚本生效', 'ui')
 
         return icon, msg

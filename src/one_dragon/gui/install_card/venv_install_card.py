@@ -1,7 +1,6 @@
-from typing import Tuple
-
 from PySide6.QtGui import QIcon
 from qfluentwidgets import FluentIcon, FluentThemeColor
+from typing import Tuple
 
 from one_dragon.base.operation.context_base import OneDragonContext
 from one_dragon.gui.install_card.base_install_card import BaseInstallCard
@@ -18,17 +17,18 @@ class VenvInstallCard(BaseInstallCard):
             install_method=ctx.python_service.install_requirements
         )
 
-    def after_progress_done(self, success: bool) -> None:
+    def after_progress_done(self, success: bool, msg: str) -> None:
         """
         安装结束的回调，由子类自行实现
-        :param success:
+        :param success: 是否成功
+        :param msg: 提示信息
         :return:
         """
         if success:
             self.ctx.env_config.requirement_time = self.ctx.git_service.get_requirement_time()
             self.check_and_update_display()
         else:
-            self.update_display(FluentIcon.INFO.icon(color=FluentThemeColor.RED.value), gt('安装失败', 'ui'))
+            self.update_display(FluentIcon.INFO.icon(color=FluentThemeColor.RED.value), gt(msg, 'ui'))
 
     def get_display_content(self) -> Tuple[QIcon, str]:
         """
@@ -42,7 +42,7 @@ class VenvInstallCard(BaseInstallCard):
             msg = gt('未安装', 'ui')
         elif last != self.ctx.git_service.get_requirement_time():
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.GOLD.value)
-            msg = gt('需更新', 'ui')
+            msg = gt('需更新，请使用安装器更新', 'ui')
         else:
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.DEFAULT_BLUE.value)
             msg = f"{gt('已安装', 'ui')}" + ' ' + last

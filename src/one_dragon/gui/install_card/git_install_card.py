@@ -36,17 +36,18 @@ class GitInstallCard(WithExistedInstallCard):
         self.ctx.env_config.git_path = file_path
         super().on_existed_chosen(file_path)
 
-    def after_progress_done(self, success: bool) -> None:
+    def after_progress_done(self, success: bool, msg: str) -> None:
         """
         安装结束的回调，由子类自行实现
-        :param success:
+        :param success: 是否成功
+        :param msg: 提示信息
         :return:
         """
         if success:
             self.ctx.env_config.git_path = DEFAULT_GIT_PATH
             self.check_and_update_display()
         else:
-            self.update_display(FluentIcon.INFO.icon(color=FluentThemeColor.RED.value), gt('安装失败', 'ui'))
+            self.update_display(FluentIcon.INFO.icon(color=FluentThemeColor.RED.value), gt(msg, 'ui'))
 
     def get_display_content(self) -> Tuple[QIcon, str]:
         """
@@ -57,7 +58,7 @@ class GitInstallCard(WithExistedInstallCard):
 
         if git_path == '':
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
-            msg = gt('未安装', 'ui')
+            msg = gt('未安装。可选择你自己的git.exe，或默认安装', 'ui')
         elif not os.path.exists(git_path):
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
             msg = gt('文件不存在', 'ui')

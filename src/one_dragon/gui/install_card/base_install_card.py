@@ -13,19 +13,19 @@ from one_dragon.utils.log_utils import log
 
 class InstallRunner(QThread):
     progress_changed = Signal(float, str)
-    finished = Signal(bool)
+    finished = Signal(bool, str)
 
-    def __init__(self, method: Callable[[Callable[[float, str], None]], bool]):
+    def __init__(self, method: Callable[[Callable[[float, str], None]], Tuple[bool, str]]):
         super().__init__()
-        self.method: Callable[[Callable[[float, str], None]], bool] = method
+        self.method: Callable[[Callable[[float, str], None]], Tuple[bool, str]] = method
 
     def run(self):
         """
         运行 最后发送结束信号
         :return:
         """
-        success = self.method(self.progress_callback)
-        self.finished.emit(success)
+        result = self.method(self.progress_callback)
+        self.finished.emit(result[0], result[1])
 
     def progress_callback(self, progress: float, message: str) -> None:
         """
@@ -64,7 +64,7 @@ class BaseInstallCard(MultiPushSettingCard):
     def __init__(self,
                  ctx: OneDragonContext,
                  title_cn: str,
-                 install_method: Callable[[Callable[[float, str], None]], bool],
+                 install_method: Callable[[Callable[[float, str], None]], Tuple[bool, str]],
                  install_btn_icon: FluentIcon = FluentIcon.DOWN,
                  install_btn_text_cn: str = '默认安装',
                  content_cn: str = '未安装',
@@ -119,7 +119,7 @@ class BaseInstallCard(MultiPushSettingCard):
         self.progress_changed.emit(progress, message)
         self.setContent(message)
 
-    def on_progress_done(self, success: bool) -> None:
+    def on_progress_done(self, success: bool, msg: str) -> None:
         """
         安装结束的回调 发送结束信号
         :return:
@@ -129,12 +129,13 @@ class BaseInstallCard(MultiPushSettingCard):
         else:
             self.progress_changed.emit(0, None)
         self.finished.emit(success)
-        self.after_progress_done(success)
+        self.after_progress_done(success, msg)
 
-    def after_progress_done(self, success: bool) -> None:
+    def after_progress_done(self, success: bool, msg: str) -> None:
         """
         安装结束的回调，由子类自行实现
-        :param success:
+        :param success: 是否成功
+        :param msg: 提示信息
         :return:
         """
         pass

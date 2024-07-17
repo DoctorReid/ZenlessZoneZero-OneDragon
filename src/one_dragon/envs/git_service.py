@@ -1,6 +1,6 @@
 import os
 import shutil
-from typing import Optional, Callable, List
+from typing import Optional, Callable, List, Tuple
 
 from one_dragon.envs.env_config import GH_PROXY_URL, DEFAULT_ENV_PATH, DEFAULT_GIT_DIR_PATH, ProxyTypeEnum, EnvConfig
 from one_dragon.envs.project_config import ProjectConfig
@@ -71,7 +71,7 @@ class GitService:
         else:
             return None
 
-    def install_default_git(self, progress_callback: Optional[Callable[[float, str], None]]) -> bool:
+    def install_default_git(self, progress_callback: Optional[Callable[[float, str], None]]) -> Tuple[bool, str]:
         """
         安装默认的git
         :param progress_callback: 进度回调。进度发生改变时，通过该方法通知调用方。
@@ -79,8 +79,9 @@ class GitService:
         """
         log.info('开始安装 git')
         if self.get_git_version() is not None:
-            log.info('已经安装了git')
-            return True
+            msg = '已经安装了git'
+            log.info(msg)
+            return True, msg
         for _ in range(2):
             zip_file_name = 'PortableGit.zip'
             zip_file_path = os.path.join(DEFAULT_ENV_PATH, zip_file_name)
@@ -88,7 +89,7 @@ class GitService:
                 success = self.download_env_file(zip_file_name, zip_file_path,
                                                  progress_callback=progress_callback)
                 if not success:
-                    return False
+                    return False, '下载PortableGit.zip失败'
 
             msg = f'开始解压 {zip_file_name}'
             log.info(msg)
@@ -105,12 +106,12 @@ class GitService:
                 os.remove(zip_file_path)
                 continue
             else:
-                return True
+                return True, '安装Git成功'
 
         # 重试之后还是失败了
-        return False
+        return False, '安装Git失败'
 
-    def fetch_latest_code(self, progress_callback: Optional[Callable[[float, str], None]] = None) -> bool:
+    def fetch_latest_code(self, progress_callback: Optional[Callable[[float, str], None]] = None) -> Tuple[bool, str]:
         """
         更新最新的代码
         :return: 是否成功
@@ -121,7 +122,7 @@ class GitService:
         else:  # 已经克隆了
             return self.checkout_latest_project_branch(progress_callback)
 
-    def clone_repository(self, progress_callback: Optional[Callable[[float, str], None]] = None) -> bool:
+    def clone_repository(self, progress_callback: Optional[Callable[[float, str], None]] = None) -> Tuple[bool, str]:
         """
         克隆仓库
         :return: 是否成功
@@ -144,7 +145,7 @@ class GitService:
         result = cmd_utils.run_command([self.env_config.git_path, 'clone', '-b', self.project_config.project_git_branch,
                                         self.get_git_repository(), temp_folder])
         if result is None:
-            return False
+            return False, '克隆仓库失败'
 
         msg = '开始复制文件'
         log.info(msg)
@@ -153,10 +154,11 @@ class GitService:
         result = cmd_utils.run_command(['xcopy', temp_dir_path, os_utils.get_work_dir(),
                                         '/E', '/H', '/C', '/I', '/Y'
                                         ])
+        success = result is not None
+        msg = '克隆仓库成功' if success else '克隆仓库失败'
+        return success, msg
 
-        return result is not None
-
-    def checkout_latest_project_branch(self, progress_callback: Optional[Callable[[float, str], None]] = None) -> bool:
+    def checkout_latest_project_branch(self, progress_callback: Optional[Callable[[float, str], None]] = None) -> Tuple[bool, str]:
         """
         切换到最新的目标分支
         :return:
@@ -164,43 +166,47 @@ class GitService:
         log.info('获取远程代码')
         fetch_result = cmd_utils.run_command([self.env_config.git_path, 'fetch', 'origin', self.project_config.project_git_branch])
         if fetch_result is None:
-            log.error('获取远程代码失败')
-            return False
+            msg = '获取远程代码失败'
+            log.error(msg)
+            return False, msg
         elif progress_callback is not None:
             progress_callback(1/5, '获取远程代码成功')
 
         clean_result = self.is_current_branch_clean()
         if clean_result is None or not clean_result:
-            # 有修改的话 自行commit完再做更新
-            log.error('当前代码有修改 请自行处理后再更新')
-            return True
+            msg = '当前代码有修改 请自行处理后再更新'
+            log.error(msg)
+            return False, msg
         elif progress_callback is not None:
             progress_callback(2/5, '当前代码无修改')
 
         current_result = self.get_current_branch()
         if current_result is None:
-            log.error('获取当前分支失败')
-            return False
+            msg = '获取当前分支失败'
+            log.error(msg)
+            return False, msg
         elif progress_callback is not None:
             progress_callback(3/5, '获取当前分支成功')
 
         if current_result != self.project_config.project_git_branch:
             checkout_result = cmd_utils.run_command([self.env_config.git_path, 'checkout', f'{self.project_config.project_git_branch}'])
             if checkout_result is None or not checkout_result:
-                log.error('切换到目标分支失败')
-                return False
+                msg = '切换到目标分支失败'
+                log.error(msg)
+                return False, msg
         if progress_callback is not None:
             progress_callback(4/5, '切换到目标分支成功')
 
-        rebase_result = cmd_utils.run_command([self.env_config.git_path, 'pull', '-rebase'])
+        rebase_result = cmd_utils.run_command([self.env_config.git_path, 'pull', '--rebase'])
         if rebase_result is None or not rebase_result:
-            log.error('更新本地代码失败')
+            msg = '更新本地代码失败'
+            log.error(msg)
             cmd_utils.run_command([self.env_config.git_path, 'rebase', '--abort'])  # 回滚回去
-            return False
+            return False, msg
         elif progress_callback is not None:
             progress_callback(5/5, '更新本地代码成功')
 
-        return True
+        return True, ''
 
     def get_current_branch(self) -> Optional[str]:
         """

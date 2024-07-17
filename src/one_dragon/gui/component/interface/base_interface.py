@@ -28,14 +28,14 @@ class BaseInterface(QWidget):
         self.nav_icon: Union[FluentIconBase, QIcon, str] = nav_icon
         self.setObjectName(object_name)
 
-    def init_on_shown(self) -> None:
+    def on_interface_shown(self) -> None:
         """
         子界面显示时 进行初始化
         :return:
         """
         pass
 
-    def on_hidden(self) -> None:
+    def on_interface_hidden(self) -> None:
         """
         子界面隐藏时的回调
         :return:

@@ -45,9 +45,9 @@ class FluentWindowBase(FluentWindow):
         if index != self._last_stack_idx:
             last_interface: BaseInterface = self.stackedWidget.widget(self._last_stack_idx)
             if isinstance(last_interface, BaseInterface):
-                last_interface.on_hidden()
+                last_interface.on_interface_hidden()
             self._last_stack_idx = index
 
         base_interface: BaseInterface = self.stackedWidget.currentWidget()
         if isinstance(base_interface, BaseInterface):
-            base_interface.init_on_shown()
+            base_interface.on_interface_shown()

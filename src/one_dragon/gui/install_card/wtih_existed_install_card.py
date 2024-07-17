@@ -1,8 +1,7 @@
 import os
-from typing import Callable, Optional
-
 from PySide6.QtWidgets import QFileDialog
 from qfluentwidgets import FluentIcon, PushButton
+from typing import Callable, Optional, Tuple
 
 from one_dragon.base.operation.context_base import OneDragonContext
 from one_dragon.gui.install_card.base_install_card import BaseInstallCard
@@ -16,7 +15,7 @@ class WithExistedInstallCard(BaseInstallCard):
     def __init__(self,
                  ctx: OneDragonContext,
                  title_cn: str,
-                 install_method: Callable[[Callable[[float, str], None]], bool],
+                 install_method: Callable[[Callable[[float, str], None]], Tuple[bool, str]],
                  install_btn_icon: FluentIcon = FluentIcon.DOWN,
                  install_btn_text_cn: str = '默认安装',
                  content_cn: str = '未安装'):

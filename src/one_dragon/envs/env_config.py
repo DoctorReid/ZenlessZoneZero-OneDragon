@@ -11,11 +11,9 @@ DEFAULT_GIT_DIR_PATH = os.path.join(DEFAULT_ENV_PATH, 'PortableGit')  # 默认�
 DEFAULT_GIT_PATH = os.path.join(DEFAULT_GIT_DIR_PATH, 'cmd', 'git.exe')  # 默认的git.exe文件路径
 DEFAULT_PYTHON_DIR_PATH = os.path.join(DEFAULT_ENV_PATH, 'python')  # 默认的python文件夹路径
 DEFAULT_PYTHON_PATH = os.path.join(DEFAULT_PYTHON_DIR_PATH, 'python.exe')  # 默认安装的python路径
-DEFAULT_PYTHON_VENV_DIR_PATH = os.path.join(DEFAULT_ENV_PATH, 'venv')  # 默认的虚拟环境文件夹路径
-DEFAULT_VENV_PYTHON_PATH = os.path.join(DEFAULT_PYTHON_VENV_DIR_PATH, 'python.exe')  # 默认的虚拟环境中python.exe的路径
+DEFAULT_VENV_DIR_PATH = os.path.join(DEFAULT_ENV_PATH, 'venv')  # 默认的虚拟环境文件夹路径
+DEFAULT_VENV_PYTHON_PATH = os.path.join(DEFAULT_VENV_DIR_PATH, 'scripts', 'python.exe')  # 默认的虚拟环境中python.exe的路径
 DEFAULT_PYTHON_PTH_PATH = os.path.join(DEFAULT_PYTHON_DIR_PATH, 'python311._pth')  # 默认安装的python配置文件路径
-DEFAULT_PYTHON_SCRIPTS_DIR_PATH = os_utils.get_path_under_work_dir('.env', 'python', 'Scripts')  # 默认的python环境中的其它exe文件夹路径
-DEFAULT_PIP_PATH = os.path.join(DEFAULT_PYTHON_SCRIPTS_DIR_PATH, 'pip.exe')  # 默认安装的pip路径
 
 GH_PROXY_URL = 'https://mirror.ghproxy.com/'  # 免费代理的路径
 

@@ -22,11 +22,20 @@ def run_command(commands: List[str], cwd: Optional[str] = None,
         cwd = os_utils.get_work_dir()
 
     try:
+        # 在Windows上
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
+        # 为子进程指定不创建新窗口的标志
+        creationflags = subprocess.CREATE_NO_WINDOW
+
         process = subprocess.Popen(commands, cwd=cwd,
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1,
                                    text=True,
                                    encoding='utf-8',  # 指定编码为 GBK
-                                   errors='ignore'  # 忽略解码错误
+                                   errors='ignore',  # 忽略解码错误
+                                   startupinfo=startupinfo,
+                                   creationflags=creationflags
                                    )
 
         result_str: str = ''
