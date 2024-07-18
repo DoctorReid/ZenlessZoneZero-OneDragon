@@ -55,7 +55,7 @@ class ClassificationResult:
 class DodgeClassifier(OnnxModelLoader):
 
     def __init__(self,
-                 model_name: str = 'yolov8n-640-dodge-0710',
+                 model_name: str = 'yolov8n-640-dodge-0718',
                  model_parent_dir_path: Optional[str] = os.path.abspath(__file__),  # 默认使用本文件的目录
                  gh_proxy: bool = True,
                  personal_proxy: Optional[str] = '',
