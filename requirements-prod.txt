@@ -12,14 +12,14 @@ beautifulsoup4==4.12.3    # via paddleocr
 certifi==2024.7.4         # via httpcore, httpx, requests
 charset-normalizer==3.3.2  # via requests
 colorama==0.4.6           # via tqdm
-coloredlogs==15.0.1       # via onnxruntime
+coloredlogs==15.0.1       # via onnxruntime-directml
 contourpy==1.2.1          # via matplotlib
 cycler==0.12.1            # via matplotlib
 cython==3.0.10            # via paddleocr
 darkdetect==0.8.0         # via pyside6-fluent-widgets
 decorator==5.1.1          # via paddlepaddle
 fire==0.6.0               # via paddleocr
-flatbuffers==24.3.25      # via onnxruntime
+flatbuffers==24.3.25      # via onnxruntime-directml
 fonttools==4.53.1         # via matplotlib, paddleocr
 h11==0.14.0               # via httpcore
 httpcore==1.0.5           # via httpx
@@ -36,16 +36,16 @@ matplotlib==3.9.1         # via imgaug
 mouseinfo==0.1.3          # via pyautogui
 mpmath==1.3.0             # via sympy
 networkx==3.3             # via scikit-image
-numpy==1.26.4             # via contourpy, imageio, imgaug, matplotlib, onnxruntime, opencv-contrib-python, opencv-python, opt-einsum, paddleocr, paddlepaddle, scikit-image, scipy, shapely, tifffile
-onnxruntime==1.18.1       # via -r requirements-dev.txt
+numpy==1.26.4             # via contourpy, imageio, imgaug, matplotlib, onnxruntime-directml, opencv-contrib-python, opencv-python, opt-einsum, paddleocr, paddlepaddle, scikit-image, scipy, shapely, tifffile
+onnxruntime-directml==1.18.1  # via -r requirements-dev.txt
 opencv-contrib-python==4.10.0.84  # via paddleocr
 opencv-python==4.10.0.84  # via -r requirements-dev.txt, imgaug, paddleocr
 opt-einsum==3.3.0         # via paddlepaddle
-packaging==24.1           # via lazy-loader, matplotlib, onnxruntime, scikit-image
+packaging==24.1           # via lazy-loader, matplotlib, onnxruntime-directml, scikit-image
 paddleocr==2.8.0          # via -r requirements-dev.txt
 paddlepaddle==2.6.1       # via -r requirements-dev.txt
 pillow==10.4.0            # via imageio, imgaug, matplotlib, paddleocr, paddlepaddle, pyscreeze, scikit-image
-protobuf==3.20.2          # via onnxruntime, paddlepaddle
+protobuf==3.20.2          # via onnxruntime-directml, paddlepaddle
 pyautogui==0.9.54         # via -r requirements-dev.txt
 pyclipper==1.3.0.post5    # via paddleocr
 pygetwindow==0.0.9        # via pyautogui
@@ -75,7 +75,7 @@ shiboken6==6.7.2          # via pyside6, pyside6-addons, pyside6-essentials
 six==1.16.0               # via fire, imgaug, pynput, python-dateutil
 sniffio==1.3.1            # via anyio, httpx
 soupsieve==2.5            # via beautifulsoup4
-sympy==1.13.0             # via onnxruntime
+sympy==1.13.0             # via onnxruntime-directml
 termcolor==2.4.0          # via fire
 tifffile==2024.7.2        # via scikit-image
 tqdm==4.66.4              # via paddleocr
