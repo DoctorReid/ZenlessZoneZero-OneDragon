@@ -1,14 +1,23 @@
 @echo off
-chcp 65001
 
-call %~dp0/env.bat
+>nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
 
-set PYTHONPATH=%~dp0/src
+if '%errorlevel%' NEQ '0' (
 
-echo 启动中...大约需要10+秒
+goto UACPrompt
 
-start "zzz-od-app" %PYTHON% %~dp0/src/zzz_od/gui/app.py > %~dp0/.log/bat.log
+) else ( goto gotAdmin )
 
-timeout /t 10
+:UACPrompt
 
-exit 0
+echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
+
+echo UAC.ShellExecute "%~s0", "", "", "runas", 1 >> "%temp%\getadmin.vbs"
+
+"%temp%\getadmin.vbs"
+
+exit /B
+
+:gotAdmin
+
+if exist "%temp%\getadmin.vbs" ( del "%temp%\getadmin.vbs" )
