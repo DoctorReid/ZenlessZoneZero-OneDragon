@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, SettingCardGroup, setTheme, Theme, VBoxLayout
 
 from one_dragon.base.config.config_item import get_config_item_from_enum
-from one_dragon.base.operation.context_base import OneDragonContext
+from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.envs.env_config import RepositoryTypeEnum, GitMethodEnum, ProxyTypeEnum, ThemeEnum
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
@@ -40,7 +40,7 @@ class SettingEnvInterface(VerticalScrollInterface):
 
         self.theme_opt = ComboBoxSettingCard(
             icon=FluentIcon.CONSTRACT, title='界面主题', content='有没有大神提供个好配色',
-            options=ThemeEnum
+            options_enum=ThemeEnum
         )
         self.theme_opt.value_changed.connect(self._on_theme_changed)
         basic_group.addSettingCard(self.theme_opt)
@@ -58,14 +58,14 @@ class SettingEnvInterface(VerticalScrollInterface):
 
         self.repository_type_opt = ComboBoxSettingCard(
             icon=FluentIcon.APPLICATION, title='代码源', content='国内无法访问Github则选择Gitee',
-            options=RepositoryTypeEnum
+            options_enum=RepositoryTypeEnum
         )
         self.repository_type_opt.value_changed.connect(self._on_repo_type_changed)
         git_group.addSettingCard(self.repository_type_opt)
 
         self.git_method_opt = ComboBoxSettingCard(
             icon=FluentIcon.SYNC, title='拉取方式', content='不懂什么是ssh就选https',
-            options=GitMethodEnum
+            options_enum=GitMethodEnum
         )
         self.git_method_opt.value_changed.connect(self._on_git_method_changed)
         git_group.addSettingCard(self.git_method_opt)
@@ -77,7 +77,7 @@ class SettingEnvInterface(VerticalScrollInterface):
 
         self.proxy_type_opt = ComboBoxSettingCard(
             icon=FluentIcon.GLOBE, title='网络代理', content='免费代理仅能加速工具和模型下载，无法加速代码同步',
-            options=ProxyTypeEnum
+            options_enum=ProxyTypeEnum
         )
         self.proxy_type_opt.value_changed.connect(self._on_proxy_type_changed)
         web_group.addSettingCard(self.proxy_type_opt)

@@ -4,7 +4,7 @@ from typing import Optional, ClassVar, Callable, List, Any
 
 from cv2.typing import MatLike
 
-from one_dragon.base.operation.context_base import OneDragonContext, ContextRunningStateEventEnum
+from one_dragon.base.operation.one_dragon_context import OneDragonContext, ContextRunningStateEventEnum
 from one_dragon.base.operation.operation_base import OperationBase, OperationResult
 from one_dragon.base.screen.screen_area import ScreenArea
 from one_dragon.utils import cv2_utils, str_utils, debug_utils

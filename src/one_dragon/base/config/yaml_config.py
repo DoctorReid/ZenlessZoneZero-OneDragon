@@ -1,4 +1,5 @@
 import os
+import shutil
 from typing import Optional, List
 
 from one_dragon.base.yaml_operator import YamlOperator
@@ -25,11 +26,12 @@ class YamlConfig(YamlOperator):
         self.mock: bool = mock
         """mock情况下 不读取文件 也不会实际保存 用于测试"""
 
-        super().__init__(self.get_yaml_file_path(sample))
+        YamlOperator.__init__(self, self._get_yaml_file_path(sample))
 
-    def get_yaml_file_path(self, sample: bool = False) -> Optional[str]:
+    def _get_yaml_file_path(self, sample: bool = False) -> Optional[str]:
         """
         获取配置文件的路径
+        如果只有sample文件，就复制一个到实例文件夹下
         :param sample: 是否有sample文件
         :return:
         """
@@ -43,4 +45,10 @@ class YamlConfig(YamlOperator):
 
         yml_path = os.path.join(os_utils.get_path_under_work_dir(*sub_dir), f'{self.module_name}.yml')
         sample_yml_path = os.path.join(os_utils.get_path_under_work_dir(*sub_dir), f'{self.module_name}.sample.yml')
-        return sample_yml_path if sample and not os.path.exists(yml_path) else yml_path
+        path = sample_yml_path if sample and not os.path.exists(yml_path) else yml_path
+        use_sample = sample and not os.path.exists(yml_path)
+
+        if use_sample:
+            shutil.copyfile(sample_yml_path, yml_path)
+
+        return yml_path

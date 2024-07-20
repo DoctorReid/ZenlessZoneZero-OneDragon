@@ -4,7 +4,7 @@ from PySide6.QtWidgets import QWidget, QFileDialog, QTableWidgetItem
 from qfluentwidgets import FluentIcon, PushButton, TableWidget, ToolButton, ComboBox
 
 from one_dragon.base.geometry.rectangle import Rect
-from one_dragon.base.operation.context_base import OneDragonContext
+from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.base.screen.screen_area import ScreenArea
 from one_dragon.base.screen.screen_info import ScreenInfo
 from one_dragon.gui.component.column_widget import ColumnWidget
@@ -150,7 +150,7 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
 
         self.image_display_size_opt = ComboBoxSettingCard(
             icon=FluentIcon.ZOOM_IN, title='图片显示大小',
-            options=ImageScaleEnum
+            options_enum=ImageScaleEnum
         )
         self.image_display_size_opt.setValue(0.5)
         self.image_display_size_opt.value_changed.connect(self._update_image_display)
