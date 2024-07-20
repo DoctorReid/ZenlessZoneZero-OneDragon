@@ -19,3 +19,4 @@ installer.exe
 .env/
 .temp_clone/
 .debug/
+.conda/
