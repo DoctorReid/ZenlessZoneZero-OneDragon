@@ -16,7 +16,11 @@ __绝区零 - 一条龙__
 
 ## 学习方式
 
-### 使用自己的Python环境
+以下二选一
+
+### 1.1.使用自己的Python环境
+
+不懂代码的可以跳过使用下一种
 
 1. 创建你自己的虚拟环境
 2. `git clone git@github.com:DoctorReid/ZenlessZoneZero-OneDragon.git`
@@ -24,6 +28,13 @@ __绝区零 - 一条龙__
 4. 运行 （以下二选一）
    - 复制 `env.sample.bat`，重命名为 `env.bat`，并修改内容为你的虚拟环境的python路径，使用 `app.bat` 运行。
    - 将`src`文件夹加入环境变量`PYTHONPATH`，执行 `python src/zzz_od/gui/app.py` 。
+
+### 1.2.使用安装器
+
+1. 从 [最新Release](https://github.com/DoctorReid/ZenlessZoneZero-OneDragon/releases/tag/latest) 中下载 `ZZZ-OD-X.Y.Z.zip` (X.Y.Z为版本号)
+2. 选择一个完整的英文目录，右键解压 `提取到当前位置`
+3. 运行 `installer.exe`，选择 `一键安装`。如果无法同步代码，请在【设置】中填入你的网络代理。安装过程可能需要5~10分钟，请耐心等待。
+4. 在安装器上点击`启动一条龙`，或手动运行 `app.bat`
 
 
 ### 常见报错

@@ -69,6 +69,4 @@ class AllInstallCard(BaseInstallCard):
         :return:
         """
         log.info('启动中...大约需要10+秒')
-        result = app_utils.start_one_dragon(restart=True)
-        if not result:
-            log.error('启动失败')
+        app_utils.start_one_dragon(restart=True)

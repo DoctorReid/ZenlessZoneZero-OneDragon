@@ -58,7 +58,7 @@ class CodeInstallCard(BaseInstallCard):
                 msg = f"{gt('已同步代码', 'ui')}" + ' ' + current_branch
 
                 if self._updated:
-                    msg += ' ' + gt('更新后需重启脚本生效。如不能运行，尝试使用安装器更新运行依赖', 'ui')
+                    msg += ' ' + gt('更新后需重启脚本生效。如不能运行，尝试使用安装器更新运行依赖，或更新安装器', 'ui')
             else:
                 icon = FluentIcon.INFO.icon(color=FluentThemeColor.GOLD.value)
 
