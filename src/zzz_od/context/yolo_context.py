@@ -21,7 +21,6 @@ class YoloContext:
 
     def init_dodge_model(self, use_gpu: bool = True):
         self._dodge_model = DodgeClassifier(
-            model_name='test1',
             model_parent_dir_path=os_utils.get_path_under_work_dir('assets', 'models', 'yolo'),
             gpu=use_gpu
         )
