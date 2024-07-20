@@ -159,10 +159,9 @@ class GitService:
         msg = '克隆仓库成功' if success else '克隆仓库失败'
         return success, msg
 
-    def checkout_latest_project_branch(self, progress_callback: Optional[Callable[[float, str], None]] = None) -> Tuple[bool, str]:
+    def fetch_remote_branch(self) -> Tuple[bool, str]:
         """
-        切换到最新的目标分支
-        :return:
+        获取远程分支代码
         """
         log.info('获取远程代码')
         fetch_result = cmd_utils.run_command([self.env_config.git_path, 'fetch', 'origin', self.project_config.project_git_branch])
@@ -170,8 +169,22 @@ class GitService:
             msg = '获取远程代码失败'
             log.error(msg)
             return False, msg
+        else:
+            msg = '获取远程代码成功'
+            log.error(msg)
+            return True, msg
+
+    def checkout_latest_project_branch(self, progress_callback: Optional[Callable[[float, str], None]] = None) -> Tuple[bool, str]:
+        """
+        切换到最新的目标分支
+        :return:
+        """
+        log.info('获取远程代码')
+        fetch_result, msg = self.fetch_remote_branch()
+        if not fetch_result:
+            return False, msg
         elif progress_callback is not None:
-            progress_callback(1/5, '获取远程代码成功')
+            progress_callback(1/5, msg)
 
         clean_result = self.is_current_branch_clean()
         if clean_result is None or not clean_result:
@@ -236,6 +249,20 @@ class GitService:
             return None
         else:
             return status_str.find('nothing to commit, working tree clean') != -1
+
+    def is_current_brand_latest(self) -> Tuple[bool, str]:
+        """
+        当前分支是否已经最新 与远程分支一致
+        """
+        fetch, msg = self.fetch_remote_branch()
+        if not fetch:
+            return fetch, msg
+        log.info('检测当前代码是否最新')
+        diff_result = cmd_utils.run_command([self.env_config.git_path, 'diff', 'HEAD', f'origin/{self.project_config.project_git_branch}'])
+        if len(diff_result.strip()) == 0:
+            return True, ''
+        else:
+            return False, '与远程分支不一致'
 
     def get_requirement_time(self) -> Optional[str]:
         """

@@ -44,19 +44,22 @@ class CodeInstallCard(BaseInstallCard):
         git_path = self.ctx.env_config.git_path
         current_branch = self.ctx.git_service.get_current_branch()
         if git_path == '':
-            icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
-            msg = gt('未配置Git', 'ui')
+            return FluentIcon.INFO.icon(color=FluentThemeColor.RED.value), gt('未配置Git', 'ui')
         elif current_branch is None:
-            icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
-            msg = gt('未同步代码', 'ui')
+            return FluentIcon.INFO.icon(color=FluentThemeColor.RED.value), gt('未同步代码', 'ui')
         elif current_branch != self.ctx.project_config.project_git_branch:
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.GOLD.value)
             msg = f"{gt('当前分支', 'ui')}: {current_branch}; {gt('建议分支', 'ui')}: {self.ctx.project_config.project_git_branch}; {gt('不自动同步', 'ui')}"
+            return icon, msg
         else:
-            icon = FluentIcon.INFO.icon(color=FluentThemeColor.DEFAULT_BLUE.value)
-            msg = f"{gt('已同步代码', 'ui')}" + ' ' + current_branch
+            latest, msg = self.ctx.git_service.is_current_brand_latest()
+            if latest:
+                icon = FluentIcon.INFO.icon(color=FluentThemeColor.DEFAULT_BLUE.value)
+                msg = f"{gt('已同步代码', 'ui')}" + ' ' + current_branch
 
-            if self._updated:
-                msg += ' ' + gt('更新后需重启脚本生效。如不能运行，尝试使用安装器更新运行依赖', 'ui')
+                if self._updated:
+                    msg += ' ' + gt('更新后需重启脚本生效。如不能运行，尝试使用安装器更新运行依赖', 'ui')
+            else:
+                icon = FluentIcon.INFO.icon(color=FluentThemeColor.GOLD.value)
 
-        return icon, msg
+            return icon, msg
