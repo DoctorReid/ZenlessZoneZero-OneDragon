@@ -3,6 +3,7 @@ from enum import Enum
 
 from one_dragon.base.operation.context_event_bus import ContextEventBus
 from one_dragon.utils import os_utils
+from one_dragon.utils.log_utils import log
 from zzz_od.yolo.dodge_classifier import DodgeClassifier
 
 
@@ -20,6 +21,7 @@ class YoloContext:
 
     def init_dodge_model(self, use_gpu: bool = True):
         self._dodge_model = DodgeClassifier(
+            model_name='test1',
             model_parent_dir_path=os_utils.get_path_under_work_dir('assets', 'models', 'yolo'),
             gpu=use_gpu
         )
@@ -29,10 +31,14 @@ class YoloContext:
             self.init_dodge_model(use_gpu)
         result = self._dodge_model.run(screen)
         if result.class_idx == 1:
-            self._event_bus.dispatch_event(YoloStateEventEnum.DODGE_RED.value, screenshot_time)
+            e = YoloStateEventEnum.DODGE_RED.value
+            log.info(e)
+            self._event_bus.dispatch_event(e, screenshot_time)
             return True
         elif result.class_idx == 2:
-            self._event_bus.dispatch_event(YoloStateEventEnum.DODGE_YELLOW.value, screenshot_time)
+            e = YoloStateEventEnum.DODGE_YELLOW.value
+            log.info(e)
+            self._event_bus.dispatch_event(e, screenshot_time)
             return True
         else:
             return False

@@ -18,7 +18,7 @@ class DodgeAssistantApp(ZApplication):
         ZApplication.__init__(
             self,
             ctx=ctx,
-            op_name=gt('辅助闪避', 'ui')
+            op_name=gt('闪避助手', 'ui')
         )
 
         self.last_dodge_time: float = time.time()

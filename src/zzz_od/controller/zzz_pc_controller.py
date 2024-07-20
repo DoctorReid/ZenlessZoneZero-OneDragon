@@ -55,3 +55,15 @@ class ZPcController(PcControllerBase):
         :return:
         """
         self.btn_controller.tap(self.game_config.key_switch_prev)
+
+    def normal_attack(self) -> None:
+        """
+        普通攻击
+        """
+        self.btn_controller.tap(self.game_config.key_normal_attack)
+
+    def special_attack(self) -> None:
+        """
+        特殊攻击
+        """
+        self.btn_controller.tap(self.game_config.key_special_attack)
