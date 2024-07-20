@@ -1,6 +1,7 @@
 import time
 
 from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
+from one_dragon.base.operation.context_event_bus import ContextEventItem
 from one_dragon.base.operation.one_dragon_context import ContextKeyboardEventEnum
 from one_dragon.base.operation.operation import OperationNode, OperationRoundResult
 from one_dragon.utils.i18_utils import gt
@@ -66,12 +67,13 @@ class DodgeAssistantApp(ZApplication):
         self.ctx.init_dodge_model(use_gpu=self.ctx.dodge_assistant_config.use_gpu)
         return self.round_success()
 
-    def _on_key_press(self, key: str) -> None:
+    def _on_key_press(self, event: ContextEventItem) -> None:
         """
         监听按键触发
-        :param key:
+        :param event:
         :return:
         """
+        key: str = event.data
         if key not in [
             self.ctx.game_config.key_switch_next,
             self.ctx.game_config.key_switch_prev,
@@ -90,7 +92,7 @@ class DodgeAssistantApp(ZApplication):
         screen = self.screenshot()
         self.ctx.should_dodge(screen, now, self.ctx.dodge_assistant_config.use_gpu)
 
-        return self.round_wait()
+        return self.round_wait(wait_round_time=self.ctx.dodge_assistant_config.screenshot_interval)
 
     def _on_pause(self, e=None):
         ZApplication._on_pause(self, e)

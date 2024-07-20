@@ -26,6 +26,7 @@ class AutoBattleLoader:
         return [
             StateRecorder(self.ctx, YoloStateEventEnum.DODGE_YELLOW.value),
             StateRecorder(self.ctx, YoloStateEventEnum.DODGE_RED.value),
+
             StateRecorder(self.ctx, BattleEventEnum.BTN_DODGE.value),
             StateRecorder(self.ctx, BattleEventEnum.BTN_SWITCH_NEXT.value),
             StateRecorder(self.ctx, BattleEventEnum.BTN_SWITCH_PREV.value),

@@ -1,6 +1,7 @@
 name: "切换角色-上一个"
 scenes:
 - triggers: ["闪避识别-黄光", "闪避识别-红光"]
+  interval: 0.5
   handlers:
   - states: "( [闪避识别-黄光, 0, 1] | [闪避识别-红光, 0, 1] ) & ![按键-切换角色-上一个, 0, 1]"
     operations:

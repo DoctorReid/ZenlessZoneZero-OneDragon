@@ -1,17 +1,18 @@
-name: "闪A切人-下一个"
+name: "闪A切下一个"
 scenes:
 - triggers: ["闪避识别-黄光"]
+  interval: 0.5
   handlers:
   - states: "[闪避识别-黄光, 0, 1] & ![按键-闪避, 0, 1]"
     operations:
       - op_name: "按键-闪避"
         data: []
       - op_name: "等待秒数"
-        data: ["0.07"]
+        data: ["0.02"]
       - op_name: "按键-普通攻击"
         data: []
       - op_name: "等待秒数"
-        data: ["0.07"]
+        data: ["0.02"]
       - op_name: "按键-切换角色-下一个"
         data: []
       - op_name: "等待秒数"
@@ -19,6 +20,7 @@ scenes:
       - op_name: "按键-普通攻击"
         data: []
 - triggers: ["闪避识别-红光"]
+  interval: 0.5
   handlers:
   - states: "[闪避识别-红光, 0, 1] & ![按键-闪避, 0, 1]"
     operations:

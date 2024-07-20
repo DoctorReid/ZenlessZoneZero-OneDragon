@@ -28,6 +28,14 @@ class DodgeAssistantConfig(YamlConfig):
     def use_gpu(self, new_value: bool) -> None:
         self.update('use_gpu', new_value)
 
+    @property
+    def screenshot_interval(self) -> float:
+        return self.get('screenshot_interval', 0.02)
+
+    @screenshot_interval.setter
+    def screenshot_interval(self, new_value: float) -> None:
+        self.update('screenshot_interval', new_value)
+
 
 def get_dodge_op_config_list() -> List[ConfigItem]:
     """

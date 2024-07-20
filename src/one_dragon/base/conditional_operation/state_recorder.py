@@ -1,6 +1,6 @@
 from typing import Optional
 
-from one_dragon.base.operation.context_event_bus import ContextEventBus
+from one_dragon.base.operation.context_event_bus import ContextEventBus, ContextEventItem
 
 
 class StateRecorder:
@@ -14,13 +14,13 @@ class StateRecorder:
         if self.event_bus is not None:
             self.event_bus.listen_event(state_name, self._on_state_event)
 
-    def _on_state_event(self, data: float):
+    def _on_state_event(self, event: ContextEventItem):
         """
         状态事件被触发时 记录触发的时间
-        :param data:
+        :param event:
         :return:
         """
-        self.last_record_time = data
+        self.last_record_time = event.data
 
     def dispose(self) -> None:
         """

@@ -1,5 +1,6 @@
 import time
 
+from one_dragon.base.operation.context_event_bus import ContextEventItem
 from one_dragon.base.operation.one_dragon_context import ContextKeyboardEventEnum
 from one_dragon.base.operation.operation import OperationRoundResult, OperationNode
 from one_dragon.utils import debug_utils
@@ -61,12 +62,13 @@ class ScreenshotHelperApp(ZApplication):
         else:
             return self.round_wait(wait_round_time=self.ctx.screenshot_helper_config.frequency_second)
 
-    def _on_key_press(self, key: str) -> None:
+    def _on_key_press(self, event: ContextEventItem) -> None:
         """
         按键监听
         """
         if self.to_save_screenshot:  # 上轮截图还没有完成保存
             return
+        key: str = event.data
         if time.time() - self.last_save_screenshot_time <= 1:  # 每秒最多保持一次 防止战斗中按得太多
             return
         if key != self.ctx.screenshot_helper_config.key_save:

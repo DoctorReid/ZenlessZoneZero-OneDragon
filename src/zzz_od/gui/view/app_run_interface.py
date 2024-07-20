@@ -6,6 +6,7 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
 from qfluentwidgets import FluentIconBase, PrimaryPushButton, FluentIcon, PushButton, SubtitleLabel
 
+from one_dragon.base.operation.context_event_bus import ContextEventItem
 from one_dragon.base.operation.one_dragon_context import ContextKeyboardEventEnum, ContextRunningStateEventEnum
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.log_display_card import LogDisplayCard
@@ -120,10 +121,11 @@ class AppRunInterface(VerticalScrollInterface):
         self.log_card.update_on_log = False
         self.ctx.unlisten_all_event(self)
 
-    def _on_key_press(self, key: str) -> None:
+    def _on_key_press(self, event: ContextEventItem) -> None:
         """
         按键监听
         """
+        key: str = event.data
         if key == self.ctx.key_start_running and self.ctx.is_context_stop:
             _app_run_interface_executor.submit(self.run_app)
 

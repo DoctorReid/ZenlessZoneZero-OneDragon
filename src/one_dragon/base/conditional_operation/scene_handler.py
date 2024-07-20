@@ -7,8 +7,10 @@ from one_dragon.base.conditional_operation.state_recorder import StateRecorder
 
 class SceneHandler:
 
-    def __init__(self, state_handlers: List[StateHandler]):
+    def __init__(self, interval_seconds: float, state_handlers: List[StateHandler]):
+        self.interval_seconds: float = interval_seconds
         self.state_handlers: List[StateHandler] = state_handlers
+        self.last_trigger_time: float = 0
 
     def execute(self, now: float) -> None:
         """
@@ -16,6 +18,9 @@ class SceneHandler:
         :param now:
         :return:
         """
+        if now - self.last_trigger_time <= self.interval_seconds:
+            return
+        self.last_trigger_time = now
         for sh in self.state_handlers:
             if sh.check_and_run(now):
                 return
@@ -43,9 +48,11 @@ def construct_scene_handler(
         state_recorders: List[StateRecorder],
         op_constructor: Callable[[str, List[str]], AtomicOp]
 ):
+    interval_seconds = scene_data.get('interval', 0.5)
+
     state_handlers: List[StateHandler] = []
     data_handlers = scene_data.get('handlers', [])
     for state_data in data_handlers:
         state_handlers.append(construct_state_handler(state_data, state_recorders, op_constructor))
 
-    return SceneHandler(state_handlers)
+    return SceneHandler(interval_seconds, state_handlers)

@@ -6,6 +6,13 @@ from one_dragon.utils.log_utils import log
 _od_event_bus_executor = ThreadPoolExecutor(thread_name_prefix='od_event_bus', max_workers=8)
 
 
+class ContextEventItem:
+
+    def __init__(self, event_id: str, data: Any):
+        self.event_id: str = event_id
+        self.data: Any = data
+
+
 class ContextEventBus:
 
     def __init__(self):
@@ -23,12 +30,9 @@ class ContextEventBus:
             return
         future_list: List[Future] = []
         for callback in self.callbacks[event_id]:
-            future_list.append(_od_event_bus_executor.submit(callback, event_obj))
+            future_list.append(_od_event_bus_executor.submit(callback, ContextEventItem(event_id, event_obj)))
 
-        for future in future_list:
-            future.result()
-
-    def listen_event(self, event_id: str, callback: Callable[[Any], None]):
+    def listen_event(self, event_id: str, callback: Callable[[ContextEventItem], None]):
         """
         新增监听事件
         监听的回调，如果耗时过长，应该在自己的线程池的工作，避免阻塞

@@ -7,7 +7,7 @@ from one_dragon.base.conditional_operation.atomic_op import AtomicOp
 from one_dragon.base.conditional_operation.scene_handler import SceneHandler, construct_scene_handler
 from one_dragon.base.conditional_operation.state_recorder import StateRecorder
 from one_dragon.base.config.yaml_config import YamlConfig
-from one_dragon.base.operation.context_event_bus import ContextEventBus
+from one_dragon.base.operation.context_event_bus import ContextEventBus, ContextEventItem
 from one_dragon.utils.log_utils import log
 
 _od_conditional_op_executor = ThreadPoolExecutor(thread_name_prefix='od_conditional_op', max_workers=8)
@@ -98,11 +98,30 @@ class ConditionalOperator(YamlConfig):
         """
         if self.event_to_scene_handler is not None and self.event_bus is not None:
             for state_event, handler in self.event_to_scene_handler.items():
-                self.event_bus.listen_event(state_event, handler.execute)
+                self.event_bus.listen_event(state_event, self._on_event)
 
         if self.normal_scene_handler is not None:
             while self.running:
                 self.normal_scene_handler.execute(time.time())
+
+    def _on_event(self, event: ContextEventItem):
+        event_id = event.event_id
+        if event_id not in self.event_to_scene_handler:
+            return
+
+        handler = self.event_to_scene_handler[event_id]
+
+        # 中断当前在执行的指令
+        if self.normal_scene_handler is not None:
+            self.normal_scene_handler.stop_running()
+
+        for _, another_handler in self.event_to_scene_handler.items():
+            if another_handler != handler:
+                another_handler.stop_running()
+
+        self.running = True
+        handler.execute(event.data)
+        self.running = False
 
     def stop_running(self) -> None:
         """

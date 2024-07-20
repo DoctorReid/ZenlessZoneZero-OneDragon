@@ -3,6 +3,7 @@ from qfluentwidgets import FluentIcon
 from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from zzz_od.application.dodge_assistant.dodge_assistant_app import DodgeAssistantApp
 from zzz_od.application.dodge_assistant.dodge_assistant_config import get_dodge_op_config_list
 from zzz_od.application.zzz_application import ZApplication
@@ -26,6 +27,10 @@ class DodgeAssistantInterface(AppRunInterface):
         self.gpu_opt.value_changed.connect(self._on_gpu_changed)
         top_widget.add_widget(self.gpu_opt)
 
+        self.screenshot_interval_opt = TextSettingCard(icon=FluentIcon.GAME, title='截图间隔(秒)')
+        self.screenshot_interval_opt.value_changed.connect(self._on_screenshot_interval_changed)
+        top_widget.add_widget(self.screenshot_interval_opt)
+
         AppRunInterface.__init__(
             self,
             ctx=ctx,
@@ -45,6 +50,7 @@ class DodgeAssistantInterface(AppRunInterface):
         self._update_dodge_way_opts()
         self.dodge_opt.setValue(self.ctx.dodge_assistant_config.dodge_way)
         self.gpu_opt.setValue(self.ctx.dodge_assistant_config.use_gpu)
+        self.screenshot_interval_opt.setValue(str(self.ctx.dodge_assistant_config.screenshot_interval))
 
     def _update_dodge_way_opts(self) -> None:
         """
@@ -63,6 +69,9 @@ class DodgeAssistantInterface(AppRunInterface):
 
     def _on_gpu_changed(self, value: bool):
         self.ctx.dodge_assistant_config.use_gpu = value
+
+    def _on_screenshot_interval_changed(self, value: str) -> None:
+        self.ctx.dodge_assistant_config.screenshot_interval = float(value)
 
     def get_app(self) -> ZApplication:
         return DodgeAssistantApp(self.ctx)
