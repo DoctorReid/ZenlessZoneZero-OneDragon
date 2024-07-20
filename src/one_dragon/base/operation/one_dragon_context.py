@@ -7,7 +7,6 @@ from pynput import keyboard, mouse
 from one_dragon.base.controller.controller_base import ControllerBase
 from one_dragon.base.geometry.rectangle import Rect
 from one_dragon.base.key_mouse.key_mouse_listener import KeyMouseButtonListener
-from one_dragon.base.matcher.ocr_matcher import OcrMatcher
 from one_dragon.base.matcher.template_matcher import TemplateMatcher
 from one_dragon.base.operation.context_event_bus import ContextEventBus
 from one_dragon.base.screen.screen_loader import ScreenLoader
@@ -57,7 +56,11 @@ class OneDragonContext(ContextEventBus):
 
         self.screen_loader: ScreenLoader = ScreenLoader()
         self.tm: TemplateMatcher = TemplateMatcher()
-        self.ocr: OcrMatcher = OcrMatcher()
+        try:
+            from one_dragon.base.matcher.ocr_matcher import OcrMatcher
+            self.ocr: OcrMatcher = OcrMatcher()
+        except Exception:
+            pass
         self.controller: ControllerBase = controller
 
         self.keyboard_controller = keyboard.Controller()

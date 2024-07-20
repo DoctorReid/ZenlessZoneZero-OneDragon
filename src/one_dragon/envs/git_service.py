@@ -2,7 +2,8 @@ import os
 import shutil
 from typing import Optional, Callable, List, Tuple
 
-from one_dragon.envs.env_config import GH_PROXY_URL, DEFAULT_ENV_PATH, DEFAULT_GIT_DIR_PATH, ProxyTypeEnum, EnvConfig
+from one_dragon.envs.env_config import GH_PROXY_URL, DEFAULT_ENV_PATH, DEFAULT_GIT_DIR_PATH, ProxyTypeEnum, EnvConfig, \
+    RepositoryTypeEnum
 from one_dragon.envs.project_config import ProjectConfig
 from one_dragon.utils import http_utils, cmd_utils, file_utils, os_utils
 from one_dragon.utils.log_utils import log
@@ -274,7 +275,7 @@ class GitService:
         获取使用的仓库地址
         :return:
         """
-        suffix = self.project_config.github_repository if self.env_config.repository_type == 'github' else self.project_config.gitee_repository
+        suffix = self.project_config.github_repository if self.env_config.repository_type == RepositoryTypeEnum.GITHUB.value.value else self.project_config.gitee_repository
         prefix = 'https://' if self.env_config.git_method == 'https' else 'git@'
         return prefix + suffix
 
