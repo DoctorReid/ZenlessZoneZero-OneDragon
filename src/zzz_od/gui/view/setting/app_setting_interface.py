@@ -12,8 +12,8 @@ class AppSettingInterface(PivotNavigatorInterface):
         PivotNavigatorInterface.__init__(self, ctx=ctx, object_name='app_setting_interface', parent=parent,
                                          nav_text_cn='设置', nav_icon=FluentIcon.SETTING)
 
-        self.add_sub_interface(SettingEnvInterface(ctx=ctx))
         self.add_sub_interface(SettingGameInterface(ctx=ctx))
+        self.add_sub_interface(SettingEnvInterface(ctx=ctx))
         qrouter.setDefaultRouteKey(self.stacked_widget, self.stacked_widget.currentWidget().objectName())
 
     def on_interface_shown(self) -> None:

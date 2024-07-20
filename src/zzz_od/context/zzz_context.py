@@ -52,7 +52,7 @@ class ZContext(OneDragonContext, YoloContext, BattleContext):
         if self.game_config.platform == GamePlatformEnum.PC.value.value:
             self.controller = ZPcController(
                 game_config=self.game_config,
-                win_title=gt(self.project_config.win_title, 'ui'),
+                win_title=self.game_config.win_title,
                 standard_width=self.project_config.screen_standard_width,
                 standard_height=self.project_config.screen_standard_height
             )

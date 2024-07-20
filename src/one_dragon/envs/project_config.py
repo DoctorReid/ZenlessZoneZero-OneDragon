@@ -7,7 +7,6 @@ class ProjectConfig(YamlConfig):
         super().__init__(module_name='project')
 
         self.project_name = self.get('project_name')
-        self.win_title = self.get('win_title')
         self.python_version = self.get('python_version')
         self.github_repository = self.get('github_repository')
         self.gitee_repository = self.get('gitee_repository')

@@ -12,6 +12,16 @@ class GamePlatformEnum(Enum):
 class GameLanguageEnum(Enum):
 
     CN = ConfigItem('简体中文', 'cn')
+    EN = ConfigItem('English', 'en')
+
+
+class GameRegionEnum(Enum):
+
+    CN = ConfigItem('国服', 'cn')
+    INTERNATIONAL = ConfigItem('国际服', 'international')
+
+
+
 
 
 class GameConfig(YamlConfig):
@@ -34,6 +44,24 @@ class GameConfig(YamlConfig):
     @game_language.setter
     def game_language(self, new_value: str) -> None:
         self.update('game_language', new_value)
+
+    @property
+    def game_region(self) -> str:
+        return self.get('game_region', GameRegionEnum.CN.value.value)
+
+    @game_region.setter
+    def game_region(self, new_value: str) -> None:
+        self.update('game_region', new_value)
+
+    @property
+    def win_title(self) -> str:
+        """
+        游戏窗口名称 只有区服有关
+        """
+        if self.game_region == GameRegionEnum.CN.value.value:
+            return '绝区零'
+        else:
+            return 'ZenlessZoneZero'
 
     @property
     def key_normal_attack(self) -> str:

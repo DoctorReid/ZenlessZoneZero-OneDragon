@@ -1,5 +1,4 @@
 project_name: "ZenlessZoneZero-OneDragon"
-win_title: "ZenlessZoneZero"
 python_version: "3.11.9"
 github_repository: "github.com/DoctorReid/ZenlessZoneZero-OneDragon.git"
 gitee_repository: ""

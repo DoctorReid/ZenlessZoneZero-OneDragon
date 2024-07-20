@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional
+from typing import Optional, Iterable
 
 from one_dragon.utils.i18_utils import gt
 
@@ -24,7 +24,7 @@ class ConfigItem:
         return gt(self.label, 'ui')
 
 
-def get_config_item_from_enum(enum: Enum, value: object) -> Optional[ConfigItem]:
+def get_config_item_from_enum(enum: Iterable[Enum], value: object) -> Optional[ConfigItem]:
     """
     从一个配置枚举中 获取目标配置
     :param enum: 枚举
