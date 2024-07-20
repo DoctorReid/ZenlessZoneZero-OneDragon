@@ -33,7 +33,7 @@ if not exist "%PYTHONPATH%\zzz_od\gui\app.py" (
     exit /b 1
 )
 
-echo 启动中...大约需要10+秒 >> "%LOGFILE%"
+echo 启动中...大约需要10+秒
 "%PYTHON%" "%PYTHONPATH%\zzz_od\gui\app.py" >> "%LOGFILE%" 2>&1
 if %errorlevel% neq 0 (
     echo An error occurred while running the application. Check the debug.log for details.
