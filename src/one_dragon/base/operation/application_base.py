@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Optional, Callable
 
 from one_dragon.base.operation.application_run_record import AppRunRecord
-from one_dragon.base.operation.context_base import OneDragonContext
+from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.base.operation.operation import Operation
 from one_dragon.base.operation.operation_base import OperationResult
 

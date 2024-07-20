@@ -1,6 +1,6 @@
 import time
 
-from one_dragon.base.operation.context_base import ContextKeyboardEventEnum
+from one_dragon.base.operation.one_dragon_context import ContextKeyboardEventEnum
 from one_dragon.base.operation.operation import OperationRoundResult, OperationNode
 from one_dragon.utils import debug_utils
 from one_dragon.utils.i18_utils import gt
@@ -49,10 +49,11 @@ class ScreenshotHelperApp(ZApplication):
         """
         持续截图
         """
+        now = time.time()
         screen = self.screenshot()
 
         if self.ctx.screenshot_helper_config.dodge_detect:
-            if self.ctx.should_dodge(screen, use_gpu=True):
+            if self.ctx.should_dodge(screen, now, use_gpu=True):
                 debug_utils.save_debug_image(screen, prefix='dodge_wrong')
 
         if self.to_save_screenshot:

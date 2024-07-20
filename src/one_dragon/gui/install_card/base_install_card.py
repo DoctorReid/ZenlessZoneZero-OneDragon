@@ -5,7 +5,7 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, PrimaryPushButton
 
-from one_dragon.base.operation.context_base import OneDragonContext
+from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiPushSettingCard
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log

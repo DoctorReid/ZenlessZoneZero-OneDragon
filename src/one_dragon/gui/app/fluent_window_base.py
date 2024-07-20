@@ -4,7 +4,7 @@ from typing import Optional
 from PySide6.QtGui import QIcon
 from qfluentwidgets import FluentWindow, NavigationItemPosition
 
-from one_dragon.base.operation.context_base import OneDragonContext
+from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.gui.component.interface.base_interface import BaseInterface
 from one_dragon.utils import os_utils
 from one_dragon.utils.i18_utils import gt

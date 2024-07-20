@@ -1,10 +1,11 @@
 import time
 
-from one_dragon.base.operation.context_base import ContextKeyboardEventEnum
+from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
+from one_dragon.base.operation.one_dragon_context import ContextKeyboardEventEnum
 from one_dragon.base.operation.operation import OperationNode, OperationRoundResult
 from one_dragon.utils.i18_utils import gt
-from zzz_od.application.dodge_assistant.dodge_assistant_config import DodgeWayEnum
 from zzz_od.application.zzz_application import ZApplication
+from zzz_od.auto_battle.auto_battle_loader import AutoBattleLoader
 from zzz_od.context.zzz_context import ZContext
 
 
@@ -21,14 +22,19 @@ class DodgeAssistantApp(ZApplication):
         )
 
         self.last_dodge_time: float = time.time()
+        self.auto_op: ConditionalOperator = None
 
     def add_edges_and_nodes(self) -> None:
         """
         初始化前 添加边和节点 由子类实行
         :return:
         """
+        load_model = OperationNode('加载判断模型', self.load_model)
+        load_op = OperationNode('加载闪避指令', self.load_op)
+        self.add_edge(load_model, load_op)
+
         check = OperationNode('闪避判断', self.check_dodge)
-        self.param_start_node = check
+        self.add_edge(load_op, check)
 
     def handle_init(self) -> None:
         """
@@ -36,6 +42,29 @@ class DodgeAssistantApp(ZApplication):
         注意初始化要全面 方便一个指令重复使用
         """
         self.ctx.listen_event(ContextKeyboardEventEnum.PRESS.value, self._on_key_press)
+
+    def load_op(self) -> OperationRoundResult:
+        """
+        加载战斗指令
+        :return:
+        """
+        if self.auto_op is not None:  # 如果有上一个 先销毁
+            self.auto_op.dispose()
+        auto_battle_loader = AutoBattleLoader(self.ctx)
+        self.auto_op = ConditionalOperator(module_name=self.ctx.dodge_assistant_config.dodge_way, sub_dir='dodge')
+        self.auto_op.init(event_bus=self.ctx,
+                          state_recorders=auto_battle_loader.get_all_state_recorders(),
+                          op_constructor=auto_battle_loader.get_atomic_op)
+        self.auto_op.start_running_async()
+        return self.round_success()
+
+    def load_model(self) -> OperationRoundResult:
+        """
+        加载模型
+        :return:
+        """
+        self.ctx.init_dodge_model(use_gpu=self.ctx.dodge_assistant_config.use_gpu)
+        return self.round_success()
 
     def _on_key_press(self, key: str) -> None:
         """
@@ -57,17 +86,18 @@ class DodgeAssistantApp(ZApplication):
         :return:
         """
         now = time.time()
-        if now - self.last_dodge_time <= 1:  # 短时间内只要闪避一次就够了
-            return self.round_wait(wait_round_time=now - self.last_dodge_time)
 
         screen = self.screenshot()
-        if self.ctx.should_dodge(screen, self.ctx.dodge_assistant_config.use_gpu):
-            self.last_dodge_time = time.time()
-            if self.ctx.dodge_assistant_config.dodge_way == DodgeWayEnum.DODGE.value.value:
-                self.ctx.controller.dodge()
-            elif self.ctx.dodge_assistant_config.dodge_way == DodgeWayEnum.NEXT.value.value:
-                self.ctx.controller.switch_next()
-            elif self.ctx.dodge_assistant_config.dodge_way == DodgeWayEnum.PREV.value.value:
-                self.ctx.controller.switch_prev()
+        self.ctx.should_dodge(screen, now, self.ctx.dodge_assistant_config.use_gpu)
 
         return self.round_wait()
+
+    def _on_pause(self, e=None):
+        ZApplication._on_pause(self, e)
+        if self.auto_op is not None:
+            self.auto_op.stop_running()
+
+    def _on_resume(self, e=None):
+        ZApplication._on_resume(self, e)
+        if self.auto_op is not None:
+            self.auto_op.start_running_async()

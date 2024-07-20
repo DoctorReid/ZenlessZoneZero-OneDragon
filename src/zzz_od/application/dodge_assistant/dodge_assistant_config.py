@@ -1,14 +1,10 @@
-from enum import Enum
+import os
+from typing import List
 
+from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
-
-
-class DodgeWayEnum(Enum):
-
-    DODGE = ConfigItem('闪避', 'dodge')
-    NEXT = ConfigItem('切换角色-下一个', 'next')
-    PREV = ConfigItem('切换角色-上一个', 'prev')
+from one_dragon.utils import os_utils
 
 
 class DodgeAssistantConfig(YamlConfig):
@@ -31,3 +27,34 @@ class DodgeAssistantConfig(YamlConfig):
     @use_gpu.setter
     def use_gpu(self, new_value: bool) -> None:
         self.update('use_gpu', new_value)
+
+
+def get_dodge_op_config_list() -> List[ConfigItem]:
+    """
+    获取用于配置页面显示的指令列表
+    :return:
+    """
+    op_list: List[ConditionalOperator] = get_all_dodge_op()
+    return [ConfigItem(label=op.name, value=op.module_name)
+            for op in op_list]
+
+
+def get_all_dodge_op() -> List[ConditionalOperator]:
+    """
+    加载所有的闪避指令
+    :return:
+    """
+    module_name_list = []
+    dodge_dir_path = os_utils.get_path_under_work_dir('config', 'dodge')
+    for file_name in os.listdir(dodge_dir_path):
+        if file_name.endswith('.sample.yml'):
+            module_name = file_name[:-11]
+        elif file_name.endswith('.yml'):
+            module_name = file_name[:-4]
+        else:
+            continue
+        if module_name not in module_name_list:
+            module_name_list.append(module_name)
+
+    return [ConditionalOperator(module_name=module_name, sub_dir='dodge')
+            for module_name in module_name_list]
