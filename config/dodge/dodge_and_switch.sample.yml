@@ -1,4 +1,4 @@
-name: "闪A切下一个"
+name: "闪A切人-下一个"
 scenes:
 - triggers: ["闪避识别-黄光"]
   handlers:
