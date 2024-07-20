@@ -187,6 +187,7 @@ class SettingEnvInterface(VerticalScrollInterface):
         """
         config_item = get_config_item_from_enum(RepositoryTypeEnum, value)
         self.ctx.env_config.repository_type = config_item.value
+        self.ctx.git_service.update_git_remote()
 
     def _on_git_method_changed(self, index: int, value: str) -> None:
         """
@@ -197,6 +198,7 @@ class SettingEnvInterface(VerticalScrollInterface):
         """
         config_item = get_config_item_from_enum(GitMethodEnum, value)
         self.ctx.env_config.git_method = config_item.value
+        self.ctx.git_service.update_git_remote()
 
     def _on_force_update_changed(self, value: bool) -> None:
         """

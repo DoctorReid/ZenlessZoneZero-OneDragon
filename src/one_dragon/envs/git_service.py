@@ -3,7 +3,7 @@ import shutil
 from typing import Optional, Callable, List, Tuple
 
 from one_dragon.envs.env_config import GH_PROXY_URL, DEFAULT_ENV_PATH, DEFAULT_GIT_DIR_PATH, ProxyTypeEnum, EnvConfig, \
-    RepositoryTypeEnum
+    RepositoryTypeEnum, GitMethodEnum
 from one_dragon.envs.project_config import ProjectConfig
 from one_dragon.utils import http_utils, cmd_utils, file_utils, os_utils
 from one_dragon.utils.log_utils import log
@@ -310,9 +310,13 @@ class GitService:
         获取使用的仓库地址
         :return:
         """
-        suffix = self.project_config.github_repository if self.env_config.repository_type == RepositoryTypeEnum.GITHUB.value.value else self.project_config.gitee_repository
-        prefix = 'https://' if self.env_config.git_method == 'https' else 'git@'
-        return prefix + suffix
+        if self.env_config.repository_type == RepositoryTypeEnum.GITHUB.value.value:
+            if self.env_config.git_method == GitMethodEnum.HTTPS.value.value:
+                return self.project_config.github_https_repository
+            else:
+                return self.project_config.github_ssh_repository
+        else:
+            return ''
 
     def init_git_proxy(self) -> None:
         """
@@ -332,3 +336,11 @@ class GitService:
             cmd_utils.run_command([self.env_config.git_path, 'config', '--local', 'http.proxy', proxy_address])
             cmd_utils.run_command([self.env_config.git_path, 'config', '--local', 'https.proxy', proxy_address])
         self.is_proxy_set = True
+
+    def update_git_remote(self) -> None:
+        """
+        更新remote
+        """
+        if not os.path.exists(DOT_GIT_DIR_PATH):  # 未有.git文件夹
+            return
+        cmd_utils.run_command([self.env_config.git_path, 'remote', 'set-url', 'origin', self.get_git_repository()])

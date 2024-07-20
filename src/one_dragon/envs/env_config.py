@@ -28,7 +28,7 @@ class ProxyTypeEnum(Enum):
 class RepositoryTypeEnum(Enum):
 
     GITHUB = ConfigItem('Github')
-    GITEE = ConfigItem('Gitee')
+    # GITEE = ConfigItem('Gitee')
 
 
 class GitMethodEnum(Enum):
