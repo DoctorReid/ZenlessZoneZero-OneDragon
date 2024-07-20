@@ -3,6 +3,8 @@ from typing import List
 from one_dragon.base.conditional_operation.atomic_op import AtomicOp
 from one_dragon.base.conditional_operation.state_recorder import StateRecorder
 from zzz_od.auto_battle.atomic_op.dodge import AtomicDodge
+from zzz_od.auto_battle.atomic_op.normal_attack import AtomicNormalAttack
+from zzz_od.auto_battle.atomic_op.special_attack import AtomicSpecialAttack
 from zzz_od.auto_battle.atomic_op.switch_next import AtomicSwitchNext
 from zzz_od.auto_battle.atomic_op.switch_prev import AtomicSwitchPrev
 from zzz_od.auto_battle.atomic_op.wait import AtomicWait
@@ -27,6 +29,8 @@ class AutoBattleLoader:
             StateRecorder(self.ctx, BattleEventEnum.BTN_DODGE.value),
             StateRecorder(self.ctx, BattleEventEnum.BTN_SWITCH_NEXT.value),
             StateRecorder(self.ctx, BattleEventEnum.BTN_SWITCH_PREV.value),
+            StateRecorder(self.ctx, BattleEventEnum.BTN_SWITCH_NORMAL_ATTACK.value),
+            StateRecorder(self.ctx, BattleEventEnum.BTN_SWITCH_SPECIAL_ATTACK.value),
         ]
 
     def get_atomic_op(self, op_name: str, op_data: List[str]) -> AtomicOp:
@@ -36,13 +40,17 @@ class AutoBattleLoader:
         :param op_data:
         :return:
         """
-        if op_name == AtomicDodge.OP_NAME:
+        if op_name == BattleEventEnum.BTN_DODGE.value:
             return AtomicDodge(self.ctx)
-        elif op_name == AtomicSwitchNext.OP_NAME:
+        elif op_name == BattleEventEnum.BTN_SWITCH_NEXT.value:
             return AtomicSwitchNext(self.ctx)
-        elif op_name == AtomicSwitchPrev.OP_NAME:
+        elif op_name == BattleEventEnum.BTN_SWITCH_PREV.value:
             return AtomicSwitchPrev(self.ctx)
         elif op_name == AtomicWait.OP_NAME:
             return AtomicWait(float(op_data[0]))
+        elif op_name == BattleEventEnum.BTN_SWITCH_NORMAL_ATTACK.value:
+            return AtomicNormalAttack(self.ctx)
+        elif op_name == BattleEventEnum.BTN_SWITCH_SPECIAL_ATTACK.value:
+            return AtomicSpecialAttack(self.ctx)
         else:
             raise ValueError('非法的指令 %s' % op_name)

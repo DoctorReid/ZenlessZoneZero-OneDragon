@@ -1,0 +1,8 @@
+name: "本-格挡"
+scenes:
+- triggers: ["闪避识别-黄光", "闪避识别-红光"]
+  handlers:
+  - states: "( [闪避识别-黄光, 0, 1] | [闪避识别-红光, 0, 1] ) & ![按键-特殊攻击, 0, 1]"
+    operations:
+      - op_name: "按键-特殊攻击"
+        data: []

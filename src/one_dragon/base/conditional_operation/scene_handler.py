@@ -48,3 +48,4 @@ def construct_scene_handler(
     for state_data in data_handlers:
         state_handlers.append(construct_state_handler(state_data, state_recorders, op_constructor))
 
+    return SceneHandler(state_handlers)

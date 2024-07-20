@@ -77,18 +77,19 @@ class ConditionalOperator(YamlConfig):
         if self.normal_scene_handler is not None:
             self.normal_scene_handler.dispose()
 
-    def start_running_async(self) -> None:
+    def start_running_async(self) -> bool:
         """
         异步开始运行
         :return:
         """
-        if self._inited:
+        if not self._inited:
             log.error('自动指令 [ %s ] 未完成初始化 无法运行', self.name)
-            return
+            return False
         if self.running:
-            return
+            return False
         self.running = True
         _od_conditional_op_executor.submit(self._execute)
+        return True
 
     def _execute(self) -> None:
         """

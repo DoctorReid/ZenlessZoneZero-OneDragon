@@ -43,7 +43,7 @@ class DodgeAssistantInterface(AppRunInterface):
         """
         AppRunInterface.on_interface_shown(self)
         self._update_dodge_way_opts()
-        self.dodge_opt.setValue(self.dodge_opt)
+        self.dodge_opt.setValue(self.ctx.dodge_assistant_config.dodge_way)
         self.gpu_opt.setValue(self.ctx.dodge_assistant_config.use_gpu)
 
     def _update_dodge_way_opts(self) -> None:
