@@ -58,7 +58,7 @@ __手残救星，只管输出即可__
 
 判断游戏画面，出现黄光/红光后进行自动闪避，可设置成切人格挡，闪A切人(双反)，甚至自定义指令。[详细说明](https://github.com/DoctorReid/ZenlessZoneZero-OneDragon/wiki/%E5%8A%9F%E8%83%BD-%E9%97%AA%E9%81%BF%E5%8A%A9%E6%89%8B)
 
-注意: 不同响应速度的机器、不同的角色需要的按键手法不一样，请按自身情况调整配置文件。见 [功能-自定义指令](https://github.com/DoctorReid/ZenlessZoneZero-OneDragon/wiki/%E5%8A%9F%E8%83%BD-%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8C%87%E4%BB%A4)。
+注意: 不同响应速度的机器、不同的角色需要的按键手法不一样，默认的配置未必适用所有情况，请按自身情况调整配置文件。见 [功能-自定义指令](https://github.com/DoctorReid/ZenlessZoneZero-OneDragon/wiki/%E5%8A%9F%E8%83%BD-%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8C%87%E4%BB%A4)。
 
 支持使用GPU运算，模型运行在50ms内应该就能正常使用。（整个闪光过程大概持续100ms）
 
