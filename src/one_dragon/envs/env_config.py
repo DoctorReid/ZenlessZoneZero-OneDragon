@@ -201,6 +201,22 @@ class EnvConfig(YamlConfig):
         self.update('git_method', new_value)
 
     @property
+    def force_update(self) -> bool:
+        """
+        代码是否强制更新 会直接丢弃现有的改动
+        :return:
+        """
+        return self.get('force_update', True)
+
+    @force_update.setter
+    def force_update(self, new_value: bool) -> None:
+        """
+        代码是否强制更新 会直接丢弃现有的改动
+        :return:
+        """
+        self.update('force_update', new_value)
+
+    @property
     def pip_source(self) -> str:
         """
         pip源

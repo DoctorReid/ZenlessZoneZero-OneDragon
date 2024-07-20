@@ -226,7 +226,7 @@ class PythonService:
         :return:
         """
         progress_callback(-1, '正在安装...安装过程需要5~10分钟，请耐心等待')
-        result = cmd_utils.run_command([self.env_config.python_path, '-m', 'pip', 'install', '-r',
+        result = cmd_utils.run_command([self.env_config.python_path, '-m', 'pip', 'install', '--upgrade', '-r',
                                         os.path.join(os_utils.get_work_dir(), self.project_config.requirements)
                                         ])
         success = result is not None

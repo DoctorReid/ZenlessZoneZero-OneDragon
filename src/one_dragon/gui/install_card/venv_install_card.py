@@ -37,10 +37,7 @@ class VenvInstallCard(BaseInstallCard):
         """
         last = self.ctx.env_config.requirement_time
 
-        if last == '':
-            icon =FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
-            msg = gt('未安装', 'ui')
-        elif last != self.ctx.git_service.get_requirement_time():
+        if last != self.ctx.git_service.get_requirement_time():
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.GOLD.value)
             msg = gt('需更新，请使用安装器更新', 'ui')
         else:

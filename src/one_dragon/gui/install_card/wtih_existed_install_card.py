@@ -63,5 +63,4 @@ class WithExistedInstallCard(BaseInstallCard):
         :param file_path: 本地文件的路径
         :return:
         """
-        pass
-
+        self.finished.emit(True)

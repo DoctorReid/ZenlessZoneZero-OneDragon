@@ -175,9 +175,17 @@ class GitService:
 
         clean_result = self.is_current_branch_clean()
         if clean_result is None or not clean_result:
-            msg = '当前代码有修改 请自行处理后再更新'
-            log.error(msg)
-            return False, msg
+            if self.env_config.force_update:
+                reset_result = cmd_utils.run_command(
+                    [self.env_config.git_path, 'reset', '--hard', 'HEAD'])
+                if reset_result is None or not reset_result:
+                    msg = '强制更新失败'
+                    log.error(msg)
+                    return False, msg
+            else:
+                msg = '未开启强制更新 当前代码有修改 请自行处理后再更新'
+                log.error(msg)
+                return False, msg
         elif progress_callback is not None:
             progress_callback(2/5, '当前代码无修改')
 

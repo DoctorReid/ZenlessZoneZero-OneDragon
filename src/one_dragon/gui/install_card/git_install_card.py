@@ -58,7 +58,7 @@ class GitInstallCard(WithExistedInstallCard):
 
         if git_path == '':
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
-            msg = gt('未安装。可选择你自己的git.exe，或默认安装', 'ui')
+            msg = gt('未安装。可选择你自己的git.exe，或到安装器中默认安装', 'ui')
         elif not os.path.exists(git_path):
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
             msg = gt('文件不存在', 'ui')

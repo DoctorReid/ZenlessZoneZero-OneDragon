@@ -70,6 +70,12 @@ class SettingEnvInterface(VerticalScrollInterface):
         self.git_method_opt.value_changed.connect(self._on_git_method_changed)
         git_group.addSettingCard(self.git_method_opt)
 
+        self.force_update_opt = SwitchSettingCard(
+            icon=FluentIcon.SYNC, title='强制更新', content='不懂代码请开启，会将脚本更新到最新并将你的改动覆盖，不会使你的配置失效',
+        )
+        self.force_update_opt.value_changed.connect(self._on_force_update_changed)
+        git_group.addSettingCard(self.force_update_opt)
+
         return git_group
 
     def _init_web_group(self) -> SettingCardGroup:
@@ -144,6 +150,8 @@ class SettingEnvInterface(VerticalScrollInterface):
         if git_method is not None:
             self.git_method_opt.setValue(git_method.value)
 
+        self.force_update_opt.setValue(self.ctx.env_config.force_update)
+
         proxy_type = get_config_item_from_enum(ProxyTypeEnum, self.ctx.env_config.proxy_type)
         if proxy_type is not None:
             self.proxy_type_opt.setValue(proxy_type.value)
@@ -189,6 +197,12 @@ class SettingEnvInterface(VerticalScrollInterface):
         """
         config_item = get_config_item_from_enum(GitMethodEnum, value)
         self.ctx.env_config.git_method = config_item.value
+
+    def _on_force_update_changed(self, value: bool) -> None:
+        """
+        强制更新改变
+        """
+        self.ctx.env_config.force_update = value
 
     def _on_proxy_type_changed(self, index: int, value: str) -> None:
         """

@@ -7,7 +7,9 @@ from qfluentwidgets import TableWidget, PipsPager, FluentIcon, VBoxLayout
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.envs.git_service import GitLog
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.install_card.code_install_card import CodeInstallCard
+from one_dragon.gui.install_card.git_install_card import GitInstallCard
 from one_dragon.gui.install_card.venv_install_card import VenvInstallCard
 from one_dragon.utils.i18_utils import gt
 
@@ -46,6 +48,17 @@ class CodeInterface(VerticalScrollInterface):
 
         v_layout = VBoxLayout(content_widget)
         v_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        self.force_update_opt = SwitchSettingCard(
+            icon=FluentIcon.SYNC, title='强制更新', content='不懂代码请开启，会将脚本更新到最新并将你的改动覆盖，不会使你的配置失效',
+        )
+        self.force_update_opt.value_changed.connect(self._on_force_update_changed)
+        v_layout.addWidget(self.force_update_opt)
+
+        self.git_card = GitInstallCard(ctx)
+        self.git_card.install_btn.setDisabled(True)
+        self.git_card.finished.connect(self._on_git_updated)
+        v_layout.addWidget(self.git_card)
 
         self.code_card = CodeInstallCard(ctx)
         self.code_card.finished.connect(self.on_code_updated)
@@ -103,7 +116,10 @@ class CodeInterface(VerticalScrollInterface):
         子界面显示时 进行初始化
         :return:
         """
+        VerticalScrollInterface.on_interface_shown(self)
+        self.force_update_opt.setValue(self.ctx.env_config.force_update)
         self.start_fetch_total()
+        self.git_card.check_and_update_display()
         self.code_card.check_and_update_display()
         self.venv_card.check_and_update_display()
 
@@ -169,6 +185,17 @@ class CodeInterface(VerticalScrollInterface):
         self.page_num = page
         self.start_fetch_page()
 
+    def _on_git_updated(self, success: bool) -> None:
+        """
+        Git选择后更新显示
+        :param success: 是否成功
+        :return:
+        """
+        if not success:
+            return
+        self.git_card.check_and_update_display()
+        self.code_card.check_and_update_display()
+
     def on_code_updated(self, success: bool) -> None:
         """
         代码同步后更新显示
@@ -182,3 +209,6 @@ class CodeInterface(VerticalScrollInterface):
         self.pager.setCurrentIndex(0)
         self.page_num = -1
         self.start_fetch_total()
+
+    def _on_force_update_changed(self, value: bool) -> None:
+        self.ctx.env_config.force_update = value
