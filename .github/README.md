@@ -31,7 +31,7 @@ __绝区零 - 一条龙__
 
 ### 1.2.使用安装器
 
-1. 从 [最新Release](https://github.com/DoctorReid/ZenlessZoneZero-OneDragon/releases/tag/latest) 中下载 `ZZZ-OD-X.Y.Z.zip` (X.Y.Z为版本号)
+1. 从 [最新Release](https://github.com/DoctorReid/ZenlessZoneZero-OneDragon/releases/latest) 中下载 `ZZZ-OD-X.Y.Z.zip` (X.Y.Z为版本号)
 2. 选择一个完整的英文目录，右键解压 `提取到当前位置`
 3. 运行 `installer.exe`，选择 `一键安装`。如果无法同步代码，请在【设置】中填入你的网络代理。安装过程可能需要5~10分钟，请耐心等待。
 4. 在安装器上点击`启动一条龙`，或手动运行 `app.bat`
