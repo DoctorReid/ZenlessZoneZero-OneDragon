@@ -1,0 +1,10 @@
+sub_dir: battle
+template_id: avatar_3_2_anby
+template_name: 战斗角色_3_2_安比
+template_shape: quadrilateral
+auto_mask: true
+point_list:
+- 510, 50
+- 497, 81
+- 567, 81
+- 580, 50
