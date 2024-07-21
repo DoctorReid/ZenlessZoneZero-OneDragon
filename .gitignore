@@ -20,3 +20,6 @@ installer.exe
 .temp_clone/
 .debug/
 .conda/
+
+# 模型文件 仅保留手工commit的
+models/yolo/

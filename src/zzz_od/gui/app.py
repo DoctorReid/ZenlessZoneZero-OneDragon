@@ -49,4 +49,5 @@ if __name__ == '__main__':
     setTheme(Theme[_ctx.env_config.theme.upper()])
     w = AppWindow(_ctx)
     w.show()
+    w.activateWindow()
     app.exec()

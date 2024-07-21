@@ -10,6 +10,7 @@ from one_dragon.base.key_mouse.key_mouse_listener import KeyMouseButtonListener
 from one_dragon.base.matcher.template_matcher import TemplateMatcher
 from one_dragon.base.operation.context_event_bus import ContextEventBus
 from one_dragon.base.screen.screen_loader import ScreenLoader
+from one_dragon.base.screen.template_loader import TemplateLoader
 from one_dragon.envs.env_config import EnvConfig
 from one_dragon.envs.git_service import GitService
 from one_dragon.envs.project_config import ProjectConfig
@@ -55,6 +56,7 @@ class OneDragonContext(ContextEventBus):
         self.context_running_state: ContextRunStateEnum = ContextRunStateEnum.STOP
 
         self.screen_loader: ScreenLoader = ScreenLoader()
+        self.template_loader: TemplateLoader = TemplateLoader()
         self.tm: TemplateMatcher = TemplateMatcher()
         try:
             from one_dragon.base.matcher.ocr_matcher import OcrMatcher
