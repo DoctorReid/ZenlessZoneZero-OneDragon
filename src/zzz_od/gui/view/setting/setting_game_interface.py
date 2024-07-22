@@ -84,10 +84,10 @@ class SettingGameInterface(VerticalScrollInterface):
         self.ctx.init_by_config()
 
     def _on_key_normal_attack_changed(self, key: str) -> None:
-        self.ctx.game_config.key_attack = key
+        self.ctx.game_config.key_normal_attack = key
 
     def _on_key_dodge_changed(self, key: str) -> None:
-        self.ctx.game_config.key_attack = key
+        self.ctx.game_config.key_dodge = key
 
     def _on_key_switch_next_changed(self, key: str) -> None:
         self.ctx.game_config.key_switch_next = key
