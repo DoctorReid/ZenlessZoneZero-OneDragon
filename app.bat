@@ -1,13 +1,13 @@
 @echo off
 chcp 65001
 call %~dp0env.bat
-set PYTHONPATH=%~dp0src
+set "PYTHONPATH=%~dp0src"
 echo PYTHON=%PYTHON%
 echo PYTHONPATH=%PYTHONPATH%
 if not exist "%~dp0.log" (
     mkdir "%~dp0.log"
 )
-set LOGFILE=%~dp0.log\debug.log
+set "LOGFILE=%~dp0.log\debug.log"
 
 echo PYTHON=%PYTHON% > "%LOGFILE%"
 echo PYTHONPATH=%PYTHONPATH% >> "%LOGFILE%"

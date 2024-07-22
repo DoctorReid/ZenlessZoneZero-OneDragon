@@ -240,7 +240,7 @@ class EnvConfig(YamlConfig):
         env_path = os.path.join(os_utils.get_work_dir(), 'env.bat')
 
         with open(env_path, 'w', encoding='utf-8') as file:
-            file.write(f'set PYTHON={self.pythonw_path}')
+            file.write(f'set "PYTHON={self.pythonw_path}"')
 
     @property
     def is_debug(self) -> bool:
