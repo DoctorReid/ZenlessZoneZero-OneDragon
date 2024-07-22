@@ -23,11 +23,13 @@ class DodgeAssistantInterface(AppRunInterface):
         self.dodge_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='闪避方式')
         top_widget.add_widget(self.dodge_opt)
 
-        self.gpu_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='GPU运算')
+        self.gpu_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='GPU运算',
+                                         content='游戏画面掉帧的话 可以不启用 保证截图间隔+推理耗时在50ms内即可')
         self.gpu_opt.value_changed.connect(self._on_gpu_changed)
         top_widget.add_widget(self.gpu_opt)
 
-        self.screenshot_interval_opt = TextSettingCard(icon=FluentIcon.GAME, title='截图间隔(秒)')
+        self.screenshot_interval_opt = TextSettingCard(icon=FluentIcon.GAME, title='截图间隔(秒)',
+                                                       content='游戏画面掉帧的话 可以适当加大截图间隔 保证截图间隔+推理耗时在50ms内即可')
         self.screenshot_interval_opt.value_changed.connect(self._on_screenshot_interval_changed)
         top_widget.add_widget(self.screenshot_interval_opt)
 
