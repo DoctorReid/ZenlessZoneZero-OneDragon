@@ -16,7 +16,7 @@ class ScreenInfo(YamlOperator):
         self.screen_id: str = screen_id  # 画面ID 用于加载文件
         self.screen_name: str = ''  # 画面名称 用于显示
 
-        self.screen_image: MatLike = None
+        self.screen_image: Optional[MatLike] = None
 
         self.pc_alt: bool = False  # PC端点击是否需要使用ALT键
         self.area_list: List[ScreenArea] = []  # 画面中包含的区域

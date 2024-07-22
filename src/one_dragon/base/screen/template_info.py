@@ -1,11 +1,11 @@
 import cv2
 import numpy as np
-import shutil
-from typing import List, Optional, Tuple
-
 import os
+import shutil
 from cv2.typing import MatLike
 from enum import Enum
+from functools import lru_cache
+from typing import List, Optional
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.geometry.point import Point
@@ -435,6 +435,24 @@ class TemplateInfo(YamlOperator):
         self.point_updated = True
 
 
+@lru_cache()
+def get_template_root_dir_path() -> str:
+    """
+    模板文件夹的根目录
+    :return:
+    """
+    return os_utils.get_path_under_work_dir('assets', 'template')
+
+
+@lru_cache()
+def get_template_sub_dir_path(sub_dir: str) -> str:
+    """
+    模板文件夹的分类目录
+    :return:
+    """
+    return os.path.join(os_utils.get_path_under_work_dir('assets', 'template'), sub_dir)
+
+
 def get_template_dir_path(sub_dir: str, template_id: str, make_dir: bool = False) -> str:
     """
     获取具体的模板文件夹位置
@@ -471,6 +489,7 @@ def is_template_existed(sub_dir: str, template_id: str, need_raw: bool = True, n
     return True
 
 
+@lru_cache
 def get_template_raw_path(sub_dir: str, template_id: str) -> str:
     """
     模板原图的路径
@@ -481,6 +500,7 @@ def get_template_raw_path(sub_dir: str, template_id: str) -> str:
     return os.path.join(get_template_dir_path(sub_dir, template_id), TEMPLATE_RAW_FILE_NAME)
 
 
+@lru_cache
 def get_template_mask_path(sub_dir: str, template_id: str) -> str:
     """
     模板掩码的路径
@@ -491,6 +511,7 @@ def get_template_mask_path(sub_dir: str, template_id: str) -> str:
     return os.path.join(get_template_dir_path(sub_dir, template_id), TEMPLATE_MASK_FILE_NAME)
 
 
+@lru_cache
 def get_template_config_path(sub_dir: str, template_id: str) -> str:
     """
     模板配置文件的路径

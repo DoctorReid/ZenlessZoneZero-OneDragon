@@ -17,6 +17,6 @@ class AppDevtoolsInterface(PivotNavigatorInterface):
                                          nav_text_cn='开发工具', nav_icon=FluentIcon.DEVELOPER_TOOLS)
 
         self.add_sub_interface(DevtoolsScreenshotHelperInterface(ctx))
-        self.add_sub_interface(DevtoolsScreenManageInterface(ctx))
         self.add_sub_interface(DevtoolsTemplateHelperInterface(ctx))
+        self.add_sub_interface(DevtoolsScreenManageInterface(ctx))
         qrouter.setDefaultRouteKey(self.stacked_widget, self.stacked_widget.currentWidget().objectName())
