@@ -32,7 +32,9 @@ body:
   - type: textarea
     attributes:
       label: "问题副本"
-      description: "是在哪个副本里触发这个问题的，特别是误判的场景，提供后作者可以针对副本进一步优化模型"
+      description: "是在哪个副本里触发这个问题的，方便作者复现"
+    validations:
+      required: true
 
   - type: textarea
     attributes:
