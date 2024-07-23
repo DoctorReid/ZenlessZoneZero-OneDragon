@@ -8,8 +8,10 @@ from qfluentwidgets import FluentIconBase, PrimaryPushButton, FluentIcon, PushBu
 
 from one_dragon.base.operation.context_event_bus import ContextEventItem
 from one_dragon.base.operation.one_dragon_context import ContextKeyboardEventEnum, ContextRunningStateEventEnum
+from one_dragon.gui.component.app_event_log_display_card import AppEventLogDisplayCard
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.log_display_card import LogDisplayCard
+from one_dragon.gui.component.row_widget import RowWidget
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from zzz_od.application.zzz_application import ZApplication
@@ -60,6 +62,7 @@ class AppRunInterface(VerticalScrollInterface):
                  parent=None,
                  widget_at_top: Optional[QWidget] = None,
                  widget_at_bottom: Optional[QWidget] = None,
+                 app_event_log_card: Optional[AppEventLogDisplayCard] = None
                  ):
         self.ctx = ctx
 
@@ -95,13 +98,25 @@ class AppRunInterface(VerticalScrollInterface):
         btn_row_layout.addWidget(self.stop_btn)
 
         self.log_card = LogDisplayCard()
-        content_layout.addWidget(self.log_card)
+
+        if app_event_log_card is not None:
+            log_row = RowWidget()
+            content_layout.addWidget(log_row)
+
+            log_row.row_layout.addWidget(self.log_card, stretch=1)
+
+            self.app_event_log_card: AppEventLogDisplayCard = app_event_log_card
+            log_row.row_layout.addWidget(app_event_log_card, stretch=1)
+        else:
+            content_layout.addWidget(self.log_card)
 
         self.app_runner = AppRunner(self.ctx)
         self.app_runner.state_changed.connect(self.update_display_by_state)
 
         if widget_at_bottom is not None:
             content_layout.addWidget(widget_at_bottom)
+
+        content_layout.setStretch(content_layout.count() - 1, 1)
 
         VerticalScrollInterface.__init__(
             self,
@@ -114,10 +129,13 @@ class AppRunInterface(VerticalScrollInterface):
         )
 
     def on_interface_shown(self) -> None:
+        VerticalScrollInterface.on_interface_shown(self)
         self.log_card.update_on_log = True
         self.ctx.listen_event(ContextKeyboardEventEnum.PRESS.value, self._on_key_press)
+        self.ctx.listen_event(ContextRunningStateEventEnum.STOP_RUNNING.value, self.on_context_stop)
 
     def on_interface_hidden(self) -> None:
+        VerticalScrollInterface.on_interface_hidden(self)
         self.log_card.update_on_log = False
         self.ctx.unlisten_all_event(self)
 
@@ -140,6 +158,8 @@ class AppRunInterface(VerticalScrollInterface):
         if app is None:
             log.error('未提供对应应用')
             return
+        if self.app_event_log_card is not None:
+            self.app_event_log_card.start_listen()
         self.app_runner.app = app
         self.app_runner.start()
 
@@ -175,3 +195,12 @@ class AppRunInterface(VerticalScrollInterface):
 
     def _on_stop_clicked(self) -> None:
         self.ctx.stop_running()
+
+    def on_context_stop(self, event) -> None:
+        """
+        应用停止了
+        :param event:
+        :return:
+        """
+        if self.app_event_log_card is not None:
+            self.app_event_log_card.stop_listen()

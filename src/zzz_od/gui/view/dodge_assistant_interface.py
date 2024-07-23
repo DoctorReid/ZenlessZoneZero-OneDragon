@@ -4,6 +4,7 @@ from PySide6.QtCore import Qt
 from qfluentwidgets import FluentIcon, PushButton
 
 from one_dragon.base.config.config_item import ConfigItem
+from one_dragon.gui.component.app_event_log_display_card import AppEventLogDisplayCard
 from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
@@ -12,6 +13,7 @@ from zzz_od.application.dodge_assistant.dodge_assistant_app import DodgeAssistan
 from zzz_od.application.dodge_assistant.dodge_assistant_config import get_dodge_op_config_list, \
     get_dodge_config_file_path
 from zzz_od.application.zzz_application import ZApplication
+from zzz_od.auto_battle.auto_battle_loader import AutoBattleLoader
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.app_run_interface import AppRunInterface
 
@@ -44,6 +46,8 @@ class DodgeAssistantInterface(AppRunInterface):
         self.screenshot_interval_opt.value_changed.connect(self._on_screenshot_interval_changed)
         top_widget.add_widget(self.screenshot_interval_opt)
 
+        app_event_log_card = AppEventLogDisplayCard(ctx, AutoBattleLoader.get_all_state_event_ids())
+
         AppRunInterface.__init__(
             self,
             ctx=ctx,
@@ -51,7 +55,8 @@ class DodgeAssistantInterface(AppRunInterface):
             nav_text_cn='闪避助手',
             nav_icon=FluentIcon.PLAY,
             parent=parent,
-            widget_at_top=top_widget
+            widget_at_top=top_widget,
+            app_event_log_card=app_event_log_card
         )
 
     def on_interface_shown(self) -> None:

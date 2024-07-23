@@ -1,8 +1,8 @@
 import logging
-from typing import List, Optional
-
 from PySide6.QtCore import Signal, QObject
+from PySide6.QtWidgets import QVBoxLayout, QSizePolicy
 from qfluentwidgets import PlainTextEdit
+from typing import List, Optional
 
 from one_dragon.utils.log_utils import log
 
@@ -33,10 +33,10 @@ class LogReceiver(logging.Handler):
 
 class LogDisplayCard(PlainTextEdit):
 
-    def __init__(self, parent=None, max_height: Optional[int] = None):
+    def __init__(self, parent=None):
         super().__init__(parent=parent)
-        if max_height is not None:
-            self.setMaximumHeight(max_height)
+        _ = QVBoxLayout(self)  # 创建内部的 QVBoxLayout 以允许高度自动扩展
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         self.update_on_log: bool = False  # 在接收到log的时候更新
 

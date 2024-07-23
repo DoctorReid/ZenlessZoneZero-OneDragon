@@ -18,6 +18,23 @@ class AutoBattleLoader:
     def __init__(self, ctx: ZContext):
         self.ctx: ZContext = ctx
 
+    @staticmethod
+    def get_all_state_event_ids() -> List[str]:
+        """
+        目前可用的状态事件ID
+        :return:
+        """
+        return [
+            YoloStateEventEnum.DODGE_YELLOW.value,
+            YoloStateEventEnum.DODGE_RED.value,
+
+            BattleEventEnum.BTN_DODGE.value,
+            BattleEventEnum.BTN_SWITCH_NEXT.value,
+            BattleEventEnum.BTN_SWITCH_PREV.value,
+            BattleEventEnum.BTN_SWITCH_NORMAL_ATTACK.value,
+            BattleEventEnum.BTN_SWITCH_SPECIAL_ATTACK.value,
+        ]
+
     def get_all_state_recorders(self) -> List[StateRecorder]:
         """
         获取所有的状态记录器
