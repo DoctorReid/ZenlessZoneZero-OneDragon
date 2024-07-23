@@ -66,3 +66,15 @@ def get_all_dodge_op() -> List[ConditionalOperator]:
 
     return [ConditionalOperator(module_name=module_name, sub_dir='dodge')
             for module_name in module_name_list]
+
+
+def get_dodge_config_file_path(module_name: str) -> str:
+    """
+    闪避配置文件路径
+    :param module_name:
+    :return:
+    """
+    return os.path.join(
+        os_utils.get_path_under_work_dir('config', 'dodge'),
+        f'{module_name}.yml'
+    )

@@ -28,12 +28,12 @@ class DevtoolsScreenshotHelperInterface(AppRunInterface):
         top_widget.add_widget(self.length_opt)
 
         self.key_save_opt = KeySettingCard(icon=FluentIcon.GAME, title='保存截图按键',
-                                           content='按下后，保存 持续时间(秒) 内的截图')
+                                           content='按下后，保存 持续时间(秒) 内的截图，用于捕捉漏判')
         self.key_save_opt.value_changed.connect(self._on_key_save_changed)
         top_widget.add_widget(self.key_save_opt)
 
         self.dodge_detect_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='闪避检测',
-                                                  content='练习场中控制怪物无动作时，依然检测到需要闪避，截图保存用于优化模型')
+                                                  content='脚本识别黄光红光时，自动截图，用于捕捉误判')
         self.dodge_detect_opt.value_changed.connect(self._on_dodge_detect_changed)
         top_widget.add_widget(self.dodge_detect_opt)
 

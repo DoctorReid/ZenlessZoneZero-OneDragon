@@ -1,11 +1,16 @@
-from qfluentwidgets import FluentIcon
+import os.path
 
+from PySide6.QtCore import Qt
+from qfluentwidgets import FluentIcon, PushButton
+
+from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from zzz_od.application.dodge_assistant.dodge_assistant_app import DodgeAssistantApp
-from zzz_od.application.dodge_assistant.dodge_assistant_config import get_dodge_op_config_list
+from zzz_od.application.dodge_assistant.dodge_assistant_config import get_dodge_op_config_list, \
+    get_dodge_config_file_path
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.app_run_interface import AppRunInterface
@@ -20,8 +25,14 @@ class DodgeAssistantInterface(AppRunInterface):
 
         top_widget = ColumnWidget()
 
-        self.dodge_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='闪避方式')
+        self.dodge_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='闪避方式',
+                                             content='配置文件在 config/dodge 文件夹，删除会恢复默认配置')
         top_widget.add_widget(self.dodge_opt)
+
+        self.del_btn = PushButton(text='删除')
+        self.dodge_opt.hBoxLayout.addWidget(self.del_btn, alignment=Qt.AlignmentFlag.AlignRight)
+        self.dodge_opt.hBoxLayout.addSpacing(16)
+        self.del_btn.clicked.connect(self._on_del_clicked)
 
         self.gpu_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='GPU运算',
                                          content='游戏画面掉帧的话 可以不启用 保证截图间隔+推理耗时在50ms内即可')
@@ -77,3 +88,18 @@ class DodgeAssistantInterface(AppRunInterface):
 
     def get_app(self) -> ZApplication:
         return DodgeAssistantApp(self.ctx)
+
+    def _on_del_clicked(self) -> None:
+        """
+        删除配置
+        :return:
+        """
+        item: str = self.dodge_opt.getValue()
+        if item is None:
+            return
+
+        path = get_dodge_config_file_path(item)
+        if os.path.exists(path):
+            os.remove(path)
+
+        self._update_dodge_way_opts()
