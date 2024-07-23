@@ -2,10 +2,9 @@ from typing import Union, Optional
 
 from PySide6.QtCore import Signal, QObject
 from PySide6.QtGui import QIcon, Qt
-from pynput import keyboard, mouse
 from qfluentwidgets import SettingCard, FluentIconBase, PushButton
 
-from one_dragon.base.key_mouse.key_mouse_listener import KeyMouseButtonListener
+from one_dragon.base.controller.pc_button.pc_button_listener import PcButtonListener
 from one_dragon.utils.i18_utils import gt
 
 
@@ -56,7 +55,7 @@ class KeySettingCard(SettingCard):
         :return:
         """
         if self.button_listener is None:
-            self.button_listener = KeyMouseButtonListener(self._on_key_press)
+            self.button_listener = PcButtonListener(self._on_key_press, listen_keyboard=True, listen_mouse=True)
             self.btn.setText(gt('请按键', 'ui'))
             self.button_listener.start()
         else:

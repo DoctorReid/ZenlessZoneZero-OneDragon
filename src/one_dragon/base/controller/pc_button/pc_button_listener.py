@@ -1,23 +1,28 @@
 from concurrent.futures import ThreadPoolExecutor
-from typing import Callable
 
 from pynput import keyboard, mouse
-
+from typing import Callable
 
 _key_mouse_btn_listener_executor = ThreadPoolExecutor(thread_name_prefix='od_key_mouse_btn_listener', max_workers=8)
 
 
-class KeyMouseButtonListener:
+class PcButtonListener:
 
     def __init__(self,
                  on_button_tap: Callable[[str], None],
-                 only_keyboard: bool = False
+                 listen_keyboard: bool = False,
+                 listen_mouse: bool = False,
+                 listen_gamepad: bool = False,
                  ):
         self.keyboard_listener = keyboard.Listener(on_press=self._on_keyboard_press)
         self.mouse_listener = mouse.Listener(on_click=self._on_mouse_click)
+        self.gamepad_listener = None
 
         self.on_button_tap: Callable[[str], None] = on_button_tap
-        self.only_keyboard: bool = only_keyboard
+
+        self.listen_keyboard: bool = listen_keyboard
+        self.listen_mouse: bool = listen_mouse
+        self.listen_gamepad: bool = listen_gamepad
 
     def _on_keyboard_press(self, event):
         if isinstance(event, keyboard.Key):
@@ -38,11 +43,11 @@ class KeyMouseButtonListener:
             _key_mouse_btn_listener_executor.submit(self.on_button_tap, key)
 
     def start(self):
-        self.keyboard_listener.start()
-        if not self.only_keyboard:
+        if self.listen_keyboard:
+            self.keyboard_listener.start()
+        if self.listen_mouse:
             self.mouse_listener.start()
 
     def stop(self):
         self.keyboard_listener.stop()
-        if not self.only_keyboard:
-            self.mouse_listener.stop()
+        self.mouse_listener.stop()

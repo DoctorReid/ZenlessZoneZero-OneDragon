@@ -1,11 +1,16 @@
 from functools import lru_cache
+from pynput import keyboard, mouse
 from typing import Union
 
-from pynput import mouse, keyboard
+try:
+    import vgamepad
+    _VGAMEPAD_INSTALLED = True
+except ModuleNotFoundError:
+    _VGAMEPAD_INSTALLED = False
 
 
 @lru_cache
-def is_mouse_key(key: str) -> bool:
+def is_mouse_button(key: str) -> bool:
     """
     是否鼠标按键
     :param key:
@@ -15,8 +20,28 @@ def is_mouse_key(key: str) -> bool:
 
 
 @lru_cache
+def is_xbox_button(key: str) -> bool:
+    """
+    是否xbox按键
+    :param key:
+    :return:
+    """
+    return key.startswith('xbox_')
+
+
+@lru_cache
+def is_ds4_button(key: str) -> bool:
+    """
+    是否ds4按键
+    :param key:
+    :return:
+    """
+    return key.startswith('ds4_')
+
+
+@lru_cache
 def get_button(key: str):
-    if is_mouse_key(key):
+    if is_mouse_button(key):
         return get_mouse_button(key)
     else:
         return get_keyboard_button(key)
@@ -36,3 +61,12 @@ def get_keyboard_button(key: str) -> Union[keyboard.KeyCode, keyboard.Key, str]:
         return keyboard.KeyCode.from_char(key)
     else:
         return key
+
+
+@lru_cache
+def is_vgamepad_installed() -> bool:
+    """
+    是否安装了虚拟手柄库
+    :return:
+    """
+    return _VGAMEPAD_INSTALLED
