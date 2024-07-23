@@ -7,8 +7,6 @@ import pyautogui
 from PIL.Image import Image
 from cv2.typing import MatLike
 from functools import lru_cache
-from pynput import keyboard, mouse
-from typing import Union
 
 from one_dragon.base.controller.controller_base import ControllerBase
 from one_dragon.base.controller.pc_button.pc_button_controller import PcButtonController

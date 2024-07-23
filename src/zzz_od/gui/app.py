@@ -7,15 +7,16 @@ from one_dragon.gui.app.fluent_window_base import FluentWindowBase
 from one_dragon.gui.view.code_interface import CodeInterface
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.devtools.app_devtools_interface import AppDevtoolsInterface
-from zzz_od.gui.view.home_interface import HomeInterface
-from zzz_od.gui.view.setting.app_setting_interface import AppSettingInterface
 from zzz_od.gui.view.dodge_assistant_interface import DodgeAssistantInterface
+from zzz_od.gui.view.home_interface import HomeInterface
+from zzz_od.gui.view.one_dragon_interface import OneDragonInterface
+from zzz_od.gui.view.setting.app_setting_interface import AppSettingInterface
 
 
 class AppWindow(FluentWindowBase):
 
     def __init__(self, ctx: ZContext, parent=None):
-        self.ctx: ZContext
+        self.ctx: ZContext = ctx
         FluentWindowBase.__init__(
             self,
             ctx=ctx,
@@ -24,22 +25,16 @@ class AppWindow(FluentWindowBase):
             parent=parent
         )
 
-        self.home_interface = HomeInterface(ctx, parent=self)
-        self.switch_assistant_interface = DodgeAssistantInterface(ctx, parent=self)
-
-        self.devtools_interface = AppDevtoolsInterface(ctx, parent=self)
-        self.code_interface = CodeInterface(ctx, parent=self)
-        self.setting_interface = AppSettingInterface(ctx, parent=self)
-
         self.init_navigation()
 
     def init_navigation(self):
-        self.add_sub_interface(self.home_interface)
-        self.add_sub_interface(self.switch_assistant_interface)
+        self.add_sub_interface(HomeInterface(self.ctx, parent=self))
+        self.add_sub_interface(DodgeAssistantInterface(self.ctx, parent=self))
+        self.add_sub_interface(OneDragonInterface(self.ctx, parent=self))
 
-        self.add_sub_interface(self.devtools_interface, position=NavigationItemPosition.BOTTOM)
-        self.add_sub_interface(self.code_interface, position=NavigationItemPosition.BOTTOM)
-        self.add_sub_interface(self.setting_interface, position=NavigationItemPosition.BOTTOM)
+        self.add_sub_interface(AppDevtoolsInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)
+        self.add_sub_interface(CodeInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)
+        self.add_sub_interface(AppSettingInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)
 
 
 if __name__ == '__main__':
