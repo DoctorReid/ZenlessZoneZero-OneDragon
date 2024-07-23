@@ -16,6 +16,7 @@ from one_dragon.utils import os_utils, cal_utils, cv2_utils
 TEMPLATE_RAW_FILE_NAME = 'raw.png'
 TEMPLATE_MASK_FILE_NAME = 'mask.png'
 TEMPLATE_CONFIG_FILE_NAME = 'config.yml'
+TEMPLATE_FEATURES_FILE_NAME = 'features.xml'
 
 
 class TemplateShapeEnum(Enum):
@@ -52,8 +53,6 @@ class TemplateInfo(YamlOperator):
 
         self.raw: Optional[MatLike] = cv2_utils.read_image(get_template_raw_path(self.sub_dir, self.template_id))  # 原图
         self.mask: Optional[MatLike] = cv2_utils.read_image(get_template_mask_path(self.sub_dir, self.template_id))  # 掩码
-        self.kps = None  # 特征点
-        self.desc = None  # 描述符
 
     def get_yml_file_path(self) -> str:
         return get_template_config_path(self.sub_dir, self.template_id)
@@ -107,7 +106,7 @@ class TemplateInfo(YamlOperator):
         elif self.template_shape == TemplateShapeEnum.POLYGON.value.value:
             self.point_list.append(point)
 
-    def get_image(self, t: str) -> MatLike:
+    def get_image(self, t: Optional[str]) -> MatLike:
         if t is None or t == 'raw':
             return self.raw
         if t == 'gray':
@@ -434,8 +433,16 @@ class TemplateInfo(YamlOperator):
         ]
         self.point_updated = True
 
+    @lru_cache
+    def get_template_features(self):
+        """
+        获取特征
+        :return:
+        """
+        return cv2_utils.feature_detect_and_compute(self.raw, self.mask)
 
-@lru_cache()
+
+@lru_cache
 def get_template_root_dir_path() -> str:
     """
     模板文件夹的根目录
@@ -444,7 +451,7 @@ def get_template_root_dir_path() -> str:
     return os_utils.get_path_under_work_dir('assets', 'template')
 
 
-@lru_cache()
+@lru_cache
 def get_template_sub_dir_path(sub_dir: str) -> str:
     """
     模板文件夹的分类目录
@@ -531,3 +538,14 @@ def is_template_config_existed(sub_dir: str, template_id: str) -> bool:
     """
     template_dir = get_template_dir_path(sub_dir, template_id)
     return os.path.exists(os.path.join(template_dir, TEMPLATE_CONFIG_FILE_NAME))
+
+
+@lru_cache
+def get_template_features_path(sub_dir: str, template_id: str) -> str:
+    """
+    模板特征文件的路径
+    :param sub_dir: 模板分类
+    :param template_id: 模板id
+    :return:
+    """
+    return os.path.join(get_template_dir_path(sub_dir, template_id), TEMPLATE_FEATURES_FILE_NAME)

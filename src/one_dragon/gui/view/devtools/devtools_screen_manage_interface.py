@@ -378,7 +378,7 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
         if file_path is not None and file_path.endswith('.yml'):
             fix_file_path = os.path.normpath(file_path)
             log.info('选择路径 %s', fix_file_path)
-            self._on_image_chosen(fix_file_path)
+            self._on_template_chosen(fix_file_path)
 
     def _on_template_chosen(self, template_file_path: str) -> None:
         """
@@ -390,8 +390,8 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
             return
 
         directory, filename = os.path.split(template_file_path)
-        sub_dir = os.path.basename(directory)
-        template_id, _ = os.path.splitext(filename)
+        template_id = os.path.basename(directory)
+        sub_dir = os.path.basename(os.path.dirname(directory))
 
         template_info = TemplateInfo(sub_dir=sub_dir, template_id=template_id)
         template_info.update_template_shape(TemplateShapeEnum.RECTANGLE.value.value)
@@ -402,7 +402,7 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
             p1 = template_info.point_list[0]
             p2 = template_info.point_list[1]
             # 需要取稍微比模板大一点的范围
-            area.pc_rect = Rect(max(0, p1.x - 10), max(0, p1.y),
+            area.pc_rect = Rect(max(0, p1.x - 10), max(0, p1.y - 10),
                                 min(self.ctx.project_config.screen_standard_width, p2.x + 10),
                                 min(self.ctx.project_config.screen_standard_height, p2.y + 10))
         area.template_sub_dir = sub_dir

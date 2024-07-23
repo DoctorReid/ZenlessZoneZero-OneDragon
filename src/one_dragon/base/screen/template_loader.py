@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Optional
 
 from one_dragon.base.screen.template_info import TemplateInfo, is_template_existed
 from one_dragon.utils import os_utils
@@ -8,10 +8,11 @@ from one_dragon.utils import os_utils
 class TemplateLoader:
 
     def __init__(self):
-        pass
+        self.template: dict[str, TemplateInfo] = {}
 
-    def get_all_template_info(self, need_raw: bool = True, need_config: bool = False) -> List[TemplateInfo]:
+    def get_all_template_info_from_disk(self, need_raw: bool = True, need_config: bool = False) -> List[TemplateInfo]:
         """
+        从硬盘加载模板信息
         模板存放在 assets/template 中，再按二级目录区分，例如 assets/template/x/y/
         x = 页面或者类别
         y = 具体的模板文件夹
@@ -39,3 +40,31 @@ class TemplateLoader:
                 info_list.append(TemplateInfo(sub_name_1, sub_name_2))
 
         return info_list
+
+    def load_template(self, sub_dir: str, template_id: str) -> Optional[TemplateInfo]:
+        """
+        加载某个模板到内存
+        :param sub_dir: 子文件夹
+        :param template_id: 模板id
+        :return: 模板图片
+        """
+        if not is_template_existed(sub_dir, template_id):
+            return None
+        template: TemplateInfo = TemplateInfo(sub_dir, template_id)
+
+        key = '%s:%s' % (sub_dir, template_id)
+        self.template[key] = template
+        return template
+
+    def get_template(self, sub_dir: str, template_id: str) -> TemplateInfo:
+        """
+        获取某个模板 会存在内容
+        :param sub_dir: 子文件夹
+        :param template_id: 模板id
+        :return: 模板图片
+        """
+        key = '%s:%s' % (sub_dir, template_id)
+        if key in self.template:
+            return self.template[key]
+        else:
+            return self.load_template(sub_dir, template_id)

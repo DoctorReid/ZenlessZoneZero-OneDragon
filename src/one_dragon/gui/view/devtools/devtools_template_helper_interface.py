@@ -232,7 +232,7 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
         except Exception:
             pass
         self.existed_yml_btn.clear()
-        template_info_list: List[TemplateInfo] = self.ctx.template_loader.get_all_template_info(need_raw=False, need_config=True)
+        template_info_list: List[TemplateInfo] = self.ctx.template_loader.get_all_template_info_from_disk(need_raw=False, need_config=True)
         for template_info in template_info_list:
             self.existed_yml_btn.addItem(text=template_info.template_name, icon=None, userData=template_info)
         self.existed_yml_btn.setCurrentIndex(-1)
