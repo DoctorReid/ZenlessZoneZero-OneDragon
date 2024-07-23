@@ -6,9 +6,10 @@ from typing import Optional, ClassVar, Callable, List, Any
 
 from one_dragon.base.operation.one_dragon_context import OneDragonContext, ContextRunningStateEventEnum
 from one_dragon.base.operation.operation_base import OperationBase, OperationResult
-from one_dragon.base.screen.screen_area import ScreenArea
-from one_dragon.utils import cv2_utils, str_utils, debug_utils
-from one_dragon.utils.i18_utils import coalesce_gt, gt
+from one_dragon.base.screen import screen_utils
+from one_dragon.base.screen.screen_utils import OcrClickResultEnum, FindAreaResultEnum
+from one_dragon.utils import debug_utils
+from one_dragon.utils.i18_utils import coalesce_gt
 from one_dragon.utils.log_utils import log
 
 
@@ -123,21 +124,6 @@ class StateOperationEdge:
         一个节点应该最多只有一条边忽略返回状态
         忽略返回状态只有在所有需要匹配的状态都匹配不到时才会用做兜底
         """
-
-
-class OcrClickResultEnum(Enum):
-
-    OCR_CLICK_SUCCESS: int = 1  # OCR并点击成功
-    OCR_CLICK_FAIL: int = 0  # OCR成功但点击失败 基本不会出现
-    OCR_CLICK_NOT_FOUND: int = -1  # OCR找不到目标
-    AREA_NO_CONFIG: int = -2  # 区域配置找不到
-
-
-class FindAreaResultEnum(Enum):
-
-    TRUE: int = 1  # 找到了
-    FALSE: int = 0  # 找不到
-    AREA_NO_CONFIG: int = -2  # 区域配置找不到
 
 
 class Operation(OperationBase):
@@ -661,46 +647,6 @@ class Operation(OperationBase):
     def round_fail_by_op(self, op_result: OperationResult) -> OperationRoundResult:
         return self.round_fail(status=op_result.status, data=op_result.data)
 
-    def find_and_click_area(self, screen: MatLike, screen_name: str, area_name: str) -> OcrClickResultEnum:
-        """
-        在一个区域匹配成功后进行点击
-        :param screen: 屏幕截图
-        :param screen_name: 画面名称
-        :param area_name: 区域名称
-        :return:
-        """
-        area: ScreenArea = self.ctx.screen_loader.get_area(screen_name, area_name)
-        if area is None:
-            return OcrClickResultEnum.AREA_NO_CONFIG
-        if area.is_text_area:
-            rect = area.rect
-            part = cv2_utils.crop_image_only(screen, rect)
-
-            ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
-
-            if str_utils.find_by_lcs(gt(area.text, 'ocr'), ocr_result, percent=area.lcs_percent):
-                if self.ctx.controller.click(rect.center, pc_alt=area.pc_alt):
-                    return OcrClickResultEnum.OCR_CLICK_SUCCESS
-                else:
-                    return OcrClickResultEnum.OCR_CLICK_FAIL
-
-            return OcrClickResultEnum.OCR_CLICK_NOT_FOUND
-        elif area.is_template_area:
-            rect = area.rect
-            part = cv2_utils.crop_image_only(screen, rect)
-
-            mrl = self.ctx.tm.match_template(part, area.template_id,
-                                             template_sub_dir=area.template_sub_dir,
-                                             threshold=area.template_match_threshold)
-            if mrl.max is None:
-                return OcrClickResultEnum.OCR_CLICK_NOT_FOUND
-            elif self.ctx.controller.click(mrl.max.center + rect.left_top, pc_alt=area.pc_alt):
-                return OcrClickResultEnum.OCR_CLICK_SUCCESS
-            else:
-                return OcrClickResultEnum.OCR_CLICK_FAIL
-        else:
-            return OcrClickResultEnum.OCR_CLICK_FAIL
-
     def round_by_find_and_click_area(self, screen: MatLike, screen_name: str, area_name: str,
                                      success_wait: Optional[float] = None, success_wait_round: Optional[float] = None,
                                      retry_wait: Optional[float] = None, retry_wait_round: Optional[float] = None,
@@ -716,7 +662,7 @@ class Operation(OperationBase):
         :param retry_wait_round: 失败后等待当前轮的运行时间到达这个时间时再结束 优先success_wait
         :return:
         """
-        click = self.find_and_click_area(screen=screen, screen_name=screen_name, area_name=area_name)
+        click = screen_utils.find_and_click_area(ctx=self.ctx, screen=screen, screen_name=screen_name, area_name=area_name)
         if click == OcrClickResultEnum.OCR_CLICK_SUCCESS:
             return self.round_success(status=area_name, wait=success_wait, wait_round_time=success_wait_round)
         elif click == OcrClickResultEnum.OCR_CLICK_NOT_FOUND:
@@ -727,37 +673,6 @@ class Operation(OperationBase):
             return self.round_fail(status=f'区域{area_name}未配置')
         else:
             return self.round_retry(status='未知状态', wait=retry_wait, wait_round_time=retry_wait_round)
-
-    def find_area(self, screen: MatLike, screen_name: str, area_name: str) -> FindAreaResultEnum:
-        """
-        在一个区域匹配成功后进行点击
-        :param screen: 屏幕截图
-        :param screen_name: 画面名称
-        :param area_name: 区域名称
-        :return:
-        """
-        area: ScreenArea = self.ctx.screen_loader.get_area(screen_name, area_name)
-        if area is None:
-            return FindAreaResultEnum.AREA_NO_CONFIG
-
-        find: bool = False
-        if area.is_text_area:
-            rect = area.rect
-            part = cv2_utils.crop_image_only(screen, rect)
-
-            ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
-
-            find = str_utils.find_by_lcs(gt(area.text, 'ocr'), ocr_result, percent=area.lcs_percent)
-        elif area.is_template_area:
-            rect = area.rect
-            part = cv2_utils.crop_image_only(screen, rect)
-
-            mrl = self.ctx.tm.match_template(part, area.template_id,
-                                             template_sub_dir=area.template_sub_dir,
-                                             threshold=area.template_match_threshold)
-            find = mrl.max is not None
-
-        return FindAreaResultEnum.TRUE if find else FindAreaResultEnum.FALSE
 
     def round_by_find_area(self, screen: MatLike, screen_name: str, area_name: str,
                            success_wait: Optional[float] = None, success_wait_round: Optional[float] = None,
@@ -774,7 +689,7 @@ class Operation(OperationBase):
         :param retry_wait_round: 失败后等待当前轮的运行时间到达这个时间时再结束 优先success_wait
         :return:
         """
-        result = self.find_area(screen=screen, screen_name=screen_name, area_name=area_name)
+        result = screen_utils.find_area(ctx=self.ctx, screen=screen, screen_name=screen_name, area_name=area_name)
         if result == FindAreaResultEnum.AREA_NO_CONFIG:
             return self.round_fail(status=f'区域{area_name}未配置')
         elif result == FindAreaResultEnum.TRUE:

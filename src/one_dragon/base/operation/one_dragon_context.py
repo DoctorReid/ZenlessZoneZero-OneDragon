@@ -57,7 +57,7 @@ class OneDragonContext(ContextEventBus):
 
         self.screen_loader: ScreenLoader = ScreenLoader()
         self.template_loader: TemplateLoader = TemplateLoader()
-        self.tm: TemplateMatcher = TemplateMatcher()
+        self.tm: TemplateMatcher = TemplateMatcher(self.template_loader)
         try:
             from one_dragon.base.matcher.ocr_matcher import OcrMatcher
             self.ocr: OcrMatcher = OcrMatcher()
