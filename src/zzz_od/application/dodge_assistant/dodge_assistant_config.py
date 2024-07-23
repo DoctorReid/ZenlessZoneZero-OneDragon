@@ -14,7 +14,7 @@ class DodgeAssistantConfig(YamlConfig):
 
     @property
     def dodge_way(self) -> str:
-        return self.get('dodge_way', 'dodge')
+        return self.get('dodge_way', 'default_dodge')
 
     @dodge_way.setter
     def dodge_way(self, new_value: str) -> None:
