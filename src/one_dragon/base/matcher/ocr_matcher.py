@@ -53,7 +53,7 @@ class OcrMatcher:
         :return:
         """
         if strict_one_line:
-            return self.run_ocr_without_det(image, threshold)
+            return self._run_ocr_without_det(image, threshold)
         else:
             ocr_map: dict = self.run_ocr(image, threshold)
             tmp = merge_ocr_result_to_single_line(ocr_map, join_space=False)
@@ -93,7 +93,7 @@ class OcrMatcher:
         log.debug('OCR结果 %s 耗时 %.2f', result_map.keys(), time.time() - start_time)
         return result_map
 
-    def run_ocr_without_det(self, image: MatLike, threshold: float = None) -> str:
+    def _run_ocr_without_det(self, image: MatLike, threshold: float = None) -> str:
         """
         不使用检测模型分析图片内文字的分布
         默认传入的图片仅有文字信息
