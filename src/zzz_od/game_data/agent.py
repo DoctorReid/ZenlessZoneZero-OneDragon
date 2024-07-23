@@ -8,24 +8,49 @@ from one_dragon.utils import os_utils
 from one_dragon.utils.i18_utils import gt
 
 
-class AgentType:
-
-    def __init__(self, cn: str):
-        """
-        代理人类型
-        :param cn:
-        """
-        self.cn: str = cn
-
-
 class AgentTypeEnum(Enum):
 
-    SUPPORT = AgentType('支援')
-    UNKNOWN = AgentType('未知')
+    ATTACK = '强攻'
+    STUN = '突破'
+    SUPPORT = '支援'
+    DEFENSE = '防护'
+    ANOMALY = '异常'
+    UNKNOWN = '未知'
 
     @classmethod
     def from_name(cls, name):
         if name in AgentTypeEnum.__members__:
+            return cls[name]
+        else:
+            return cls.UNKNOWN
+
+
+class DmgTypeEnum(Enum):
+
+    ELECTRIC = '电属性'
+    ETHER = '以太'
+    PHYSICAL = '物理'
+    FIRE = '火属性'
+    ICE = '冰属性'
+    UNKNOWN = '未知'
+
+    @classmethod
+    def from_name(cls, name):
+        if name in DmgTypeEnum.__members__:
+            return cls[name]
+        else:
+            return cls.UNKNOWN
+
+
+class RareTypeEnum(Enum):
+
+    S = 'S'
+    A = 'A'
+    UNKNOWN = '未知'
+
+    @classmethod
+    def from_name(cls, name):
+        if name in RareTypeEnum.__members__:
             return cls[name]
         else:
             return cls.UNKNOWN
@@ -40,12 +65,14 @@ class Agent(YamlOperator):
         YamlOperator.__init__(self, get_agent_yml_path(agent_id))
         self.agent_id: str = agent_id  # 代理人的英文名称
         self.agent_name: str = self.get('agent_name', '')  # 代理人的中文名称
-        agent_type_str = self.get('agent_type', '')
-        self.agent_type: AgentTypeEnum = AgentTypeEnum.UNKNOWN if agent_type_str not in AgentTypeEnum else AgentTypeEnum[agent_type_str]
+
+        self.agent_type: AgentTypeEnum = AgentTypeEnum.from_name(self.get('agent_type', ''))  #
+        self.dmg_type: DmgTypeEnum = DmgTypeEnum.from_name(self.get('dmg_type', ''))  # 伤害类型
+        self.rare_type: RareTypeEnum = RareTypeEnum.from_name(self.get('rare_type', ''))
 
     @property
     def agent_type_str(self) -> str:
-        return gt(self.agent_type.value.cn)
+        return gt(self.agent_type.value)
 
 
 class AgentLoader:
