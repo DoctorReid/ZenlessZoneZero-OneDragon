@@ -1,10 +1,13 @@
 import time
 
+from cv2.typing import MatLike
 from enum import Enum
+from typing import Optional
 
 from one_dragon.base.operation.context_event_bus import ContextEventBus
 from one_dragon.utils.log_utils import log
 from zzz_od.controller.zzz_pc_controller import ZPcController
+from zzz_od.game_data.agent import AgentLoader
 
 
 class BattleEventEnum(Enum):
@@ -18,9 +21,14 @@ class BattleEventEnum(Enum):
 
 class BattleContext:
 
-    def __init__(self, event_bus: ContextEventBus):
+    def __init__(self, event_bus: ContextEventBus,
+                 controller: Optional[ZPcController] = None,
+                 agent_loader: Optional[AgentLoader] = None):
         self.__event_bus: ContextEventBus = event_bus
-        self.controller: ZPcController = None
+
+        # 以下都在 ZContext中赋值 在这里只是起一个声明作用
+        self.controller: ZPcController = controller
+        self.agent_loader: AgentLoader = agent_loader
 
     def dodge(self):
         e = BattleEventEnum.BTN_DODGE.value
@@ -51,3 +59,11 @@ class BattleContext:
         log.info(e)
         self.controller.special_attack()
         self.__event_bus.dispatch_event(e, time.time())
+
+    def check_character(self, screen: MatLike):
+        """
+        识别当前画面的角色
+        :param screen:
+        :return:
+        """
+        pass
