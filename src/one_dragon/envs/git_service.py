@@ -258,7 +258,7 @@ class GitService:
         if not fetch:
             return fetch, msg
         log.info('检测当前代码是否最新')
-        diff_result = cmd_utils.run_command([self.env_config.git_path, 'diff', 'HEAD', f'origin/{self.project_config.project_git_branch}'])
+        diff_result = cmd_utils.run_command([self.env_config.git_path, 'diff', '--name-only', 'HEAD', f'origin/{self.project_config.project_git_branch}'])
         if len(diff_result.strip()) == 0:
             return True, ''
         else:

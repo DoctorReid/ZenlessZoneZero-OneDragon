@@ -11,6 +11,7 @@ from pynput import keyboard, mouse
 from typing import Union
 
 from one_dragon.base.controller.controller_base import ControllerBase
+from one_dragon.base.controller.pc_button.pc_button_controller import PcButtonController
 from one_dragon.base.controller.pc_game_window import PcGameWindow
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.geometry.rectangle import Rect
@@ -31,6 +32,7 @@ class PcControllerBase(ControllerBase):
         self.standard_height: int = standard_height
         self.game_win: PcGameWindow = PcGameWindow(win_title,
                                                    standard_width=standard_width, standard_height=standard_height)
+        self.btn_controller: PcButtonController = PcButtonController()
 
     def init(self) -> bool:
         self.game_win.init_win()
