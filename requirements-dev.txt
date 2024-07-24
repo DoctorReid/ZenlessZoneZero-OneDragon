@@ -9,3 +9,4 @@ pyautogui==0.9.54
 requests==2.32.3  # OCR needs this
 pynput==1.7.7
 onnxruntime-directml==1.18.0
+mss==9.0.1
