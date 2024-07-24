@@ -7,9 +7,14 @@ import pyautogui
 from PIL.Image import Image
 from cv2.typing import MatLike
 from functools import lru_cache
+from typing import Optional
 
 from one_dragon.base.controller.controller_base import ControllerBase
+from one_dragon.base.controller.pc_button import pc_button_utils
+from one_dragon.base.controller.pc_button.ds4_button_controller import Ds4ButtonController
+from one_dragon.base.controller.pc_button.keyboard_mouse_controller import KeyboardMouseController
 from one_dragon.base.controller.pc_button.pc_button_controller import PcButtonController
+from one_dragon.base.controller.pc_button.xbox_button_controller import XboxButtonController
 from one_dragon.base.controller.pc_game_window import PcGameWindow
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.geometry.rectangle import Rect
@@ -30,11 +35,33 @@ class PcControllerBase(ControllerBase):
         self.standard_height: int = standard_height
         self.game_win: PcGameWindow = PcGameWindow(win_title,
                                                    standard_width=standard_width, standard_height=standard_height)
-        self.btn_controller: PcButtonController = PcButtonController()
+
+        self.keyboard_controller: KeyboardMouseController = KeyboardMouseController()
+        self.xbox_controller: Optional[XboxButtonController] = None
+        self.ds4_controller: Optional[Ds4ButtonController] = None
+
+        self.btn_controller: PcButtonController = self.keyboard_controller
 
     def init(self) -> bool:
         self.game_win.init_win()
         return self.game_win.active()
+
+    def enable_xbox(self):
+        if pc_button_utils.is_vgamepad_installed():
+            if self.xbox_controller is None:
+                self.xbox_controller = XboxButtonController()
+            self.btn_controller = self.xbox_controller
+            self.btn_controller.reset()
+
+    def enable_ds4(self):
+        if pc_button_utils.is_vgamepad_installed():
+            if self.ds4_controller is None:
+                self.ds4_controller = Ds4ButtonController()
+            self.btn_controller = self.ds4_controller
+            self.btn_controller.reset()
+
+    def enable_keyboard(self):
+        self.btn_controller = self.keyboard_controller
 
     @property
     def is_game_window_ready(self) -> bool:

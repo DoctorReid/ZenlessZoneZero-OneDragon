@@ -185,7 +185,10 @@ class AppRunInterface(VerticalScrollInterface):
         self.state_text.setText('%s %s' % (gt('当前状态', 'ui'), self.ctx.context_running_status_text))
 
         if self.app_event_log_card is not None:
-            self.app_event_log_card.stop_listen()
+            if self.ctx.is_context_stop:
+                self.app_event_log_card.stop_listen()
+            else:
+                self.app_event_log_card.start_listen()
 
     def _on_start_clicked(self) -> None:
         self.run_app()

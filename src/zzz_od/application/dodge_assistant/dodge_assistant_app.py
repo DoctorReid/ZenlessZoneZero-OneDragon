@@ -4,8 +4,6 @@ from typing import Optional
 
 from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
 from one_dragon.base.controller.pc_button import pc_button_utils
-from one_dragon.base.operation.context_event_bus import ContextEventItem
-from one_dragon.base.operation.one_dragon_context import ContextKeyboardEventEnum
 from one_dragon.base.operation.operation import OperationNode, OperationRoundResult
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.zzz_application import ZApplication
@@ -34,7 +32,10 @@ class DodgeAssistantApp(ZApplication):
         :return:
         """
         check_gamepad = OperationNode('手柄检测', self.check_gamepad)
+
         load_model = OperationNode('加载判断模型', self.load_model)
+        self.add_edge(check_gamepad, load_model)
+
         load_op = OperationNode('加载闪避指令', self.load_op)
         self.add_edge(load_model, load_op)
 
@@ -54,13 +55,17 @@ class DodgeAssistantApp(ZApplication):
         :return:
         """
         if self.ctx.dodge_assistant_config.gamepad_type == GamepadTypeEnum.NONE.value.value:
+            self.ctx.controller.enable_keyboard()
             return self.round_success(status='无需手柄')
         elif not pc_button_utils.is_vgamepad_installed():
+            self.ctx.controller.enable_keyboard()
             return self.round_fail(status='未安装虚拟手柄依赖')
         elif self.ctx.dodge_assistant_config.gamepad_type == GamepadTypeEnum.XBOX.value.value:
-            self.ctx.controller.btn_controller.enable_xbox()
+            self.ctx.controller.enable_xbox()
+            self.ctx.controller.btn_controller.set_key_press_time(self.ctx.game_config.xbox_key_press_time)
         elif self.ctx.dodge_assistant_config.gamepad_type == GamepadTypeEnum.DS4.value.value:
-            self.ctx.controller.btn_controller.enable_ds4()
+            self.ctx.controller.enable_ds4()
+            self.ctx.controller.btn_controller.set_key_press_time(self.ctx.game_config.ds4_key_press_time)
         return self.round_success(status='已安装虚拟手柄依赖')
 
     def load_model(self) -> OperationRoundResult:
@@ -85,8 +90,6 @@ class DodgeAssistantApp(ZApplication):
                           op_constructor=auto_battle_loader.get_atomic_op)
         self.auto_op.start_running_async()
         return self.round_success()
-
-
 
     def check_dodge(self) -> OperationRoundResult:
         """

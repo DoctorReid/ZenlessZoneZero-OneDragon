@@ -7,6 +7,7 @@ from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.key_setting_card import KeySettingCard
+from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils.i18_utils import gt
 from zzz_od.config.game_config import GameRegionEnum, GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
@@ -89,6 +90,11 @@ class SettingGameInterface(VerticalScrollInterface):
         gamepad_group.addSettingCard(self.gamepad_type_opt)
 
         # xbox
+        self.xbox_key_press_time_opt = TextSettingCard(icon=FluentIcon.GAME, title='单次按键持续时间(秒)',
+                                                       content='自行调整，过小可能按键被吞，过大可能影响操作')
+        self.xbox_key_press_time_opt.value_changed.connect(self._on_xbox_key_press_time_changed)
+        gamepad_group.addSettingCard(self.xbox_key_press_time_opt)
+
         self.xbox_key_normal_attack_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='普通攻击', options_enum=XboxButtonEnum)
         self.xbox_key_normal_attack_opt.value_changed.connect(self._on_xbox_key_normal_attack_changed)
         gamepad_group.addSettingCard(self.xbox_key_normal_attack_opt)
@@ -118,6 +124,11 @@ class SettingGameInterface(VerticalScrollInterface):
         gamepad_group.addSettingCard(self.xbox_key_interact_opt)
 
         # ds4
+        self.ds4_key_press_time_opt = TextSettingCard(icon=FluentIcon.GAME, title='单次按键持续时间(秒)',
+                                                      content='自行调整，过小可能按键被吞，过大可能影响操作')
+        self.ds4_key_press_time_opt.value_changed.connect(self._on_ds4_key_press_time_changed)
+        gamepad_group.addSettingCard(self.ds4_key_press_time_opt)
+
         self.ds4_key_normal_attack_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='普通攻击', options_enum=XboxButtonEnum)
         self.ds4_key_normal_attack_opt.value_changed.connect(self._on_ds4_key_normal_attack_changed)
         gamepad_group.addSettingCard(self.ds4_key_normal_attack_opt)
@@ -174,6 +185,7 @@ class SettingGameInterface(VerticalScrollInterface):
 
         is_xbox = self.ctx.game_config.gamepad_type == GamepadTypeEnum.XBOX.value.value
 
+        self.xbox_key_press_time_opt.setValue(str(self.ctx.game_config.xbox_key_press_time))
         self.xbox_key_normal_attack_opt.setValue(self.ctx.game_config.xbox_key_normal_attack)
         self.xbox_key_dodge_opt.setValue(self.ctx.game_config.xbox_key_dodge)
         self.xbox_key_switch_next_opt.setValue(self.ctx.game_config.xbox_key_switch_next)
@@ -182,6 +194,7 @@ class SettingGameInterface(VerticalScrollInterface):
         self.xbox_key_ultimate_opt.setValue(self.ctx.game_config.xbox_key_ultimate)
         self.xbox_key_interact_opt.setValue(self.ctx.game_config.xbox_key_interact)
 
+        self.xbox_key_press_time_opt.setVisible(is_xbox)
         self.xbox_key_normal_attack_opt.setVisible(is_xbox)
         self.xbox_key_dodge_opt.setVisible(is_xbox)
         self.xbox_key_switch_next_opt.setVisible(is_xbox)
@@ -192,6 +205,7 @@ class SettingGameInterface(VerticalScrollInterface):
 
         is_ds4 = self.ctx.game_config.gamepad_type == GamepadTypeEnum.DS4.value.value
 
+        self.ds4_key_press_time_opt.setValue(str(self.ctx.game_config.ds4_key_press_time))
         self.ds4_key_normal_attack_opt.setValue(self.ctx.game_config.ds4_key_normal_attack)
         self.ds4_key_dodge_opt.setValue(self.ctx.game_config.ds4_key_dodge)
         self.ds4_key_switch_next_opt.setValue(self.ctx.game_config.ds4_key_switch_next)
@@ -200,6 +214,7 @@ class SettingGameInterface(VerticalScrollInterface):
         self.ds4_key_ultimate_opt.setValue(self.ctx.game_config.ds4_key_ultimate)
         self.ds4_key_interact_opt.setValue(self.ctx.game_config.ds4_key_interact)
 
+        self.ds4_key_press_time_opt.setVisible(is_ds4)
         self.ds4_key_normal_attack_opt.setVisible(is_ds4)
         self.ds4_key_dodge_opt.setVisible(is_ds4)
         self.ds4_key_switch_next_opt.setVisible(is_ds4)
@@ -237,6 +252,9 @@ class SettingGameInterface(VerticalScrollInterface):
         self.ctx.game_config.gamepad_type = value
         self._update_gamepad_part()
 
+    def _on_xbox_key_press_time_changed(self, value: str) -> None:
+        self.ctx.game_config.xbox_key_press_time = float(value)
+
     def _on_xbox_key_normal_attack_changed(self, idx: int, key: str) -> None:
         self.ctx.game_config.xbox_key_normal_attack = key
 
@@ -257,6 +275,9 @@ class SettingGameInterface(VerticalScrollInterface):
 
     def _on_xbox_key_interact_changed(self, idx: int, key: str) -> None:
         self.ctx.game_config.xbox_key_interact = key
+
+    def _on_ds4_key_press_time_changed(self, value: str) -> None:
+        self.ctx.game_config.ds4_key_press_time = float(value)
 
     def _on_ds4_key_normal_attack_changed(self, idx: int, key: str) -> None:
         self.ctx.game_config.ds4_key_normal_attack = key

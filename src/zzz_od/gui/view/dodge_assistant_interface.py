@@ -52,6 +52,7 @@ class DodgeAssistantInterface(AppRunInterface):
             options_enum=GamepadTypeEnum
         )
         self.gamepad_type_opt.value_changed.connect(self._on_gamepad_type_changed)
+        top_widget.add_widget(self.gamepad_type_opt)
 
         app_event_log_card = AppEventLogDisplayCard(ctx, AutoBattleLoader.get_all_state_event_ids())
 

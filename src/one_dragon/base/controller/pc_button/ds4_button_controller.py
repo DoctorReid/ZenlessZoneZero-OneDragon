@@ -1,35 +1,34 @@
 import time
 
-from typing import Callable, List
-
 from enum import Enum
+from typing import Callable, List
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.controller.pc_button import pc_button_utils
 from one_dragon.base.controller.pc_button.pc_button_controller import PcButtonController
 
 
-class XboxButtonEnum(Enum):
+class Ds4ButtonEnum(Enum):
 
-    A = ConfigItem('A', 'xbox_0')
-    B = ConfigItem('B', 'xbox_1')
-    X = ConfigItem('X', 'xbox_2')
-    Y = ConfigItem('Y', 'xbox_3')
-    LT = ConfigItem('LT', 'xbox_4')
-    RT = ConfigItem('RT', 'xbox_5')
-    LB = ConfigItem('LB', 'xbox_6')
-    RB = ConfigItem('RB', 'xbox_7')
+    CROSS = ConfigItem('X', 'ds4_0')
+    CIRCLE = ConfigItem('○', 'ds4_1')
+    SQUARE = ConfigItem('□', 'ds4_2')
+    TRIANGLE = ConfigItem('△', 'ds4_3')
+    L2 = ConfigItem('L2', 'ds4_4')
+    R2 = ConfigItem('R2', 'ds4_5')
+    L1 = ConfigItem('L1', 'ds4_6')
+    R1 = ConfigItem('R1', 'ds4_7')
 
 
-class XboxButtonController(PcButtonController):
+class Ds4ButtonController(PcButtonController):
 
     def __init__(self):
         PcButtonController.__init__(self)
         self.pad = None
         if pc_button_utils.is_vgamepad_installed():
             import vgamepad as vg
-            self.pad = vg.VX360Gamepad()
-            self._btn = vg.XUSB_BUTTON
+            self.pad = vg.VDS4Gamepad()
+            self._btn = vg.DS4_BUTTONS
 
         self.handler: List[Callable[[], None]] = [
             self.tap_a,
@@ -51,16 +50,16 @@ class XboxButtonController(PcButtonController):
         self.handler[int(key[-1])]()
 
     def tap_a(self) -> None:
-        self._tap_button(self._btn.XUSB_GAMEPAD_A)
+        self._tap_button(self._btn.DS4_BUTTON_CROSS)
 
     def tap_b(self) -> None:
-        self._tap_button(self._btn.XUSB_GAMEPAD_B)
+        self._tap_button(self._btn.DS4_BUTTON_CIRCLE)
 
     def tap_x(self) -> None:
-        self._tap_button(self._btn.XUSB_GAMEPAD_X)
+        self._tap_button(self._btn.DS4_BUTTON_SQUARE)
 
     def tap_y(self) -> None:
-        self._tap_button(self._btn.XUSB_GAMEPAD_Y)
+        self._tap_button(self._btn.DS4_BUTTON_TRIANGLE)
 
     def tap_lt(self) -> None:
         self.pad.left_trigger(value=255)
@@ -77,10 +76,10 @@ class XboxButtonController(PcButtonController):
         self.pad.update()
 
     def tap_lb(self) -> None:
-        self._tap_button(self._btn.XUSB_GAMEPAD_LEFT_SHOULDER)
+        self._tap_button(self._btn.DS4_BUTTON_SHOULDER_LEFT)
 
     def tap_rb(self) -> None:
-        self._tap_button(self._btn.XUSB_GAMEPAD_RIGHT_SHOULDER)
+        self._tap_button(self._btn.DS4_BUTTON_SHOULDER_RIGHT)
 
     def _tap_button(self, btn):
         self.pad.press_button(btn)
