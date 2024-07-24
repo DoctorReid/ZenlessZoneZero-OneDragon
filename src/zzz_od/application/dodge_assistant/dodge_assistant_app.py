@@ -3,12 +3,14 @@ import time
 from typing import Optional
 
 from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
+from one_dragon.base.controller.pc_button import pc_button_utils
 from one_dragon.base.operation.context_event_bus import ContextEventItem
 from one_dragon.base.operation.one_dragon_context import ContextKeyboardEventEnum
 from one_dragon.base.operation.operation import OperationNode, OperationRoundResult
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.auto_battle.auto_battle_loader import AutoBattleLoader
+from zzz_od.config.game_config import GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
 
 
@@ -31,6 +33,7 @@ class DodgeAssistantApp(ZApplication):
         初始化前 添加边和节点 由子类实行
         :return:
         """
+        check_gamepad = OperationNode('手柄检测', self.check_gamepad)
         load_model = OperationNode('加载判断模型', self.load_model)
         load_op = OperationNode('加载闪避指令', self.load_op)
         self.add_edge(load_model, load_op)
@@ -44,6 +47,29 @@ class DodgeAssistantApp(ZApplication):
         注意初始化要全面 方便一个指令重复使用
         """
         pass
+
+    def check_gamepad(self) -> OperationRoundResult:
+        """
+        检测手柄
+        :return:
+        """
+        if self.ctx.dodge_assistant_config.gamepad_type == GamepadTypeEnum.NONE.value.value:
+            return self.round_success(status='无需手柄')
+        elif not pc_button_utils.is_vgamepad_installed():
+            return self.round_fail(status='未安装虚拟手柄依赖')
+        elif self.ctx.dodge_assistant_config.gamepad_type == GamepadTypeEnum.XBOX.value.value:
+            self.ctx.controller.btn_controller.enable_xbox()
+        elif self.ctx.dodge_assistant_config.gamepad_type == GamepadTypeEnum.DS4.value.value:
+            self.ctx.controller.btn_controller.enable_ds4()
+        return self.round_success(status='已安装虚拟手柄依赖')
+
+    def load_model(self) -> OperationRoundResult:
+        """
+        加载模型
+        :return:
+        """
+        self.ctx.init_dodge_model(use_gpu=self.ctx.dodge_assistant_config.use_gpu)
+        return self.round_success()
 
     def load_op(self) -> OperationRoundResult:
         """
@@ -60,13 +86,7 @@ class DodgeAssistantApp(ZApplication):
         self.auto_op.start_running_async()
         return self.round_success()
 
-    def load_model(self) -> OperationRoundResult:
-        """
-        加载模型
-        :return:
-        """
-        self.ctx.init_dodge_model(use_gpu=self.ctx.dodge_assistant_config.use_gpu)
-        return self.round_success()
+
 
     def check_dodge(self) -> OperationRoundResult:
         """

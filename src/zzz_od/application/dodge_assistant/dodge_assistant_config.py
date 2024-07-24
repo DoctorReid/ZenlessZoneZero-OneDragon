@@ -5,6 +5,7 @@ from one_dragon.base.conditional_operation.conditional_operator import Condition
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
 from one_dragon.utils import os_utils
+from zzz_od.config.game_config import GamepadTypeEnum
 
 
 class DodgeAssistantConfig(YamlConfig):
@@ -35,6 +36,14 @@ class DodgeAssistantConfig(YamlConfig):
     @screenshot_interval.setter
     def screenshot_interval(self, new_value: float) -> None:
         self.update('screenshot_interval', new_value)
+
+    @property
+    def gamepad_type(self) -> str:
+        return self.get('gamepad_type', GamepadTypeEnum.NONE.value.value)
+
+    @gamepad_type.setter
+    def gamepad_type(self, new_value: str) -> None:
+        self.update('gamepad_type', new_value)
 
 
 def get_dodge_op_config_list() -> List[ConfigItem]:
