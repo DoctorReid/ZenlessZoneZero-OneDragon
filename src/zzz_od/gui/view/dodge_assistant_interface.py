@@ -3,7 +3,6 @@ import os.path
 from PySide6.QtCore import Qt
 from qfluentwidgets import FluentIcon, PushButton
 
-from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.gui.component.app_event_log_display_card import AppEventLogDisplayCard
 from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
@@ -15,7 +14,7 @@ from zzz_od.application.dodge_assistant.dodge_assistant_config import get_dodge_
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.auto_battle.auto_battle_loader import AutoBattleLoader
 from zzz_od.context.zzz_context import ZContext
-from zzz_od.gui.view.app_run_interface import AppRunInterface
+from one_dragon.gui.view.app_run_interface import AppRunInterface
 
 
 class DodgeAssistantInterface(AppRunInterface):

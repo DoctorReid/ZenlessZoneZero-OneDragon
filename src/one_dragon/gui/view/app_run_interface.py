@@ -1,34 +1,29 @@
-from concurrent.futures import ThreadPoolExecutor
-from typing import Union, Optional
-
 from PySide6.QtCore import Qt, Signal, QThread
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
 from qfluentwidgets import FluentIconBase, PrimaryPushButton, FluentIcon, PushButton, SubtitleLabel
+from typing import Union, Optional
 
+from one_dragon.base.operation.application_base import Application
 from one_dragon.base.operation.context_event_bus import ContextEventItem
-from one_dragon.base.operation.one_dragon_context import ContextKeyboardEventEnum, ContextRunningStateEventEnum
+from one_dragon.base.operation.one_dragon_context import ContextKeyboardEventEnum, ContextRunningStateEventEnum, \
+    OneDragonContext
 from one_dragon.gui.component.app_event_log_display_card import AppEventLogDisplayCard
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.log_display_card import LogDisplayCard
 from one_dragon.gui.component.row_widget import RowWidget
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
-from zzz_od.application.zzz_application import ZApplication
-from zzz_od.context.zzz_context import ZContext
-
-_app_run_interface_executor = ThreadPoolExecutor(thread_name_prefix='app_run_interface', max_workers=1)
-_state_changed_signal = Signal()
 
 
 class AppRunner(QThread):
 
     state_changed = Signal()
 
-    def __init__(self, ctx: ZContext, app: Optional[ZApplication] = None):
+    def __init__(self, ctx: OneDragonContext, app: Optional[Application] = None):
         super().__init__()
-        self.ctx: ZContext = ctx
-        self.app: ZApplication = app
+        self.ctx: OneDragonContext = ctx
+        self.app: Application = app
 
     def run(self):
         """
@@ -55,7 +50,7 @@ class AppRunner(QThread):
 class AppRunInterface(VerticalScrollInterface):
 
     def __init__(self,
-                 ctx: ZContext,
+                 ctx: OneDragonContext,
                  object_name: str,
                  nav_text_cn: str,
                  nav_icon: Union[FluentIconBase, QIcon, str] = None,
@@ -111,7 +106,7 @@ class AppRunInterface(VerticalScrollInterface):
             content_layout.addWidget(self.log_card)
 
         self.app_runner = AppRunner(self.ctx)
-        self.app_runner.state_changed.connect(self.update_display_by_state)
+        self.app_runner.state_changed.connect(self._on_context_state_changed)
 
         if widget_at_bottom is not None:
             content_layout.addWidget(widget_at_bottom)
@@ -132,7 +127,6 @@ class AppRunInterface(VerticalScrollInterface):
         VerticalScrollInterface.on_interface_shown(self)
         self.log_card.update_on_log = True
         self.ctx.listen_event(ContextKeyboardEventEnum.PRESS.value, self._on_key_press)
-        self.ctx.listen_event(ContextRunningStateEventEnum.STOP_RUNNING.value, self.on_context_stop)
 
     def on_interface_hidden(self) -> None:
         VerticalScrollInterface.on_interface_hidden(self)
@@ -145,7 +139,7 @@ class AppRunInterface(VerticalScrollInterface):
         """
         key: str = event.data
         if key == self.ctx.key_start_running and self.ctx.is_context_stop:
-            _app_run_interface_executor.submit(self.run_app)
+            self.run_app()
 
     def run_app(self) -> None:
         """
@@ -163,7 +157,7 @@ class AppRunInterface(VerticalScrollInterface):
         self.app_runner.app = app
         self.app_runner.start()
 
-    def get_app(self) -> ZApplication:
+    def get_app(self) -> Application:
         """
         获取本次运行的app 由子类实现
         由
@@ -171,7 +165,7 @@ class AppRunInterface(VerticalScrollInterface):
         """
         pass
 
-    def update_display_by_state(self) -> None:
+    def _on_context_state_changed(self) -> None:
         """
         按运行状态更新显示
         :return:
@@ -190,17 +184,11 @@ class AppRunInterface(VerticalScrollInterface):
         self.start_btn.setIcon(icon)
         self.state_text.setText('%s %s' % (gt('当前状态', 'ui'), self.ctx.context_running_status_text))
 
+        if self.app_event_log_card is not None:
+            self.app_event_log_card.stop_listen()
+
     def _on_start_clicked(self) -> None:
         self.run_app()
 
     def _on_stop_clicked(self) -> None:
         self.ctx.stop_running()
-
-    def on_context_stop(self, event) -> None:
-        """
-        应用停止了
-        :param event:
-        :return:
-        """
-        if self.app_event_log_card is not None:
-            self.app_event_log_card.stop_listen()

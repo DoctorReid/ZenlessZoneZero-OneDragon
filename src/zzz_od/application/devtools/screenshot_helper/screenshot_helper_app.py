@@ -17,7 +17,7 @@ class ScreenshotHelperApp(ZApplication):
         """
         ZApplication.__init__(
             self,
-            ctx=ctx,
+            ctx=ctx, app_id='screenshot_helper',
             op_name=gt('闪避截图', 'ui')
         )
 

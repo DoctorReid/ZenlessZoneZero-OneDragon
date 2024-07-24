@@ -133,3 +133,38 @@ class OneDragonConfig(YamlConfig):
             if instance.active:
                 return instance
         return None
+
+    @property
+    def app_order(self) -> List[str]:
+        """
+        运行顺序
+        :return:
+        """
+        return self.get("app_order", [])
+
+    @app_order.setter
+    def app_order(self, new_list: List[str]):
+        self.update('app_order', new_list)
+
+    def move_up_app(self, app_id: str) -> None:
+        """
+        将一个app的执行顺序往前调一位
+        :param app_id:
+        :return:
+        """
+        old_app_orders = self.app_order
+        idx = -1
+
+        for i in range(len(old_app_orders)):
+            if old_app_orders[i] == app_id:
+                idx = i
+                break
+
+        if idx <= 0:  # 无法交换
+            return
+
+        temp = old_app_orders[idx - 1]
+        old_app_orders[idx - 1] = old_app_orders[idx]
+        old_app_orders[idx] = temp
+
+        self.app_order = old_app_orders

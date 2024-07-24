@@ -18,6 +18,15 @@ class SettingEnvInterface(VerticalScrollInterface):
     def __init__(self, ctx: OneDragonContext, parent=None):
         self.ctx: OneDragonContext = ctx
 
+        VerticalScrollInterface.__init__(
+            self,
+            ctx=ctx,
+            object_name='setting_env_interface',
+            content_widget=None, parent=parent,
+            nav_text_cn='脚本环境'
+        )
+
+    def get_content_widget(self) -> QWidget:
         content_widget = QWidget()
         content_layout = VBoxLayout(content_widget)
         content_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -27,13 +36,7 @@ class SettingEnvInterface(VerticalScrollInterface):
         content_layout.addWidget(self._init_web_group())
         content_layout.addWidget(self._init_key_group())
 
-        VerticalScrollInterface.__init__(
-            self,
-            ctx=ctx,
-            object_name='setting_env_interface',
-            content_widget=content_widget, parent=parent,
-            nav_text_cn='脚本环境'
-        )
+        return content_widget
 
     def _init_basic_group(self) -> SettingCardGroup:
         basic_group = SettingCardGroup(gt('基础', 'ui'))
@@ -131,6 +134,7 @@ class SettingEnvInterface(VerticalScrollInterface):
         子界面显示时 进行初始化
         :return:
         """
+        VerticalScrollInterface.on_interface_shown(self)
         theme = get_config_item_from_enum(ThemeEnum, self.ctx.env_config.theme)
         if theme is not None:
             self.theme_opt.setValue(theme.value)

@@ -1,5 +1,7 @@
 import time
 
+from typing import Optional
+
 from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
 from one_dragon.base.operation.context_event_bus import ContextEventItem
 from one_dragon.base.operation.one_dragon_context import ContextKeyboardEventEnum
@@ -18,12 +20,11 @@ class DodgeAssistantApp(ZApplication):
         """
         ZApplication.__init__(
             self,
-            ctx=ctx,
+            ctx=ctx, app_id='dodge_assistant',
             op_name=gt('闪避助手', 'ui')
         )
 
-        self.last_dodge_time: float = time.time()
-        self.auto_op: ConditionalOperator = None
+        self.auto_op: Optional[ConditionalOperator] = None
 
     def add_edges_and_nodes(self) -> None:
         """
@@ -42,7 +43,7 @@ class DodgeAssistantApp(ZApplication):
         执行前的初始化 由子类实现
         注意初始化要全面 方便一个指令重复使用
         """
-        self.ctx.listen_event(ContextKeyboardEventEnum.PRESS.value, self._on_key_press)
+        pass
 
     def load_op(self) -> OperationRoundResult:
         """
@@ -66,21 +67,6 @@ class DodgeAssistantApp(ZApplication):
         """
         self.ctx.init_dodge_model(use_gpu=self.ctx.dodge_assistant_config.use_gpu)
         return self.round_success()
-
-    def _on_key_press(self, event: ContextEventItem) -> None:
-        """
-        监听按键触发
-        :param event:
-        :return:
-        """
-        key: str = event.data
-        if key not in [
-            self.ctx.game_config.key_switch_next,
-            self.ctx.game_config.key_switch_prev,
-            self.ctx.game_config.key_dodge
-        ]:
-            return
-        self.last_dodge_time = time.time()  # 更新按键时间
 
     def check_dodge(self) -> OperationRoundResult:
         """

@@ -15,7 +15,8 @@ class AppRunRecord(YamlConfig):
 
     def __init__(self, app_id: str,
                  instance_idx: Optional[int] = None,
-                 game_refresh_hour_offset: int = 4):
+                 game_refresh_hour_offset: int = 0):
+        self.app_id: str = app_id
         self.dt: str = ''
         self.run_time: str = ''
         self.run_time_float: float = 0

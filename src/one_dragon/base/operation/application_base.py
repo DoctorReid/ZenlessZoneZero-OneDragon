@@ -1,4 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
+
 from enum import Enum
 from typing import Optional, Callable
 
@@ -17,7 +18,7 @@ class ApplicationEventId(Enum):
 
 class Application(Operation):
 
-    def __init__(self, ctx: OneDragonContext,
+    def __init__(self, ctx: OneDragonContext, app_id: str,
                  node_max_retry_times: int = 1,
                  op_name: str = None,
                  timeout_seconds: float = -1,
@@ -32,6 +33,9 @@ class Application(Operation):
                          op_callback=op_callback,
                          check_game_win=check_game_win,
                          op_to_enter_game=op_to_enter_game)
+
+        self.app_id: str = app_id
+        """应用唯一标识"""
 
         self.run_record: Optional[AppRunRecord] = run_record
         """运行记录"""

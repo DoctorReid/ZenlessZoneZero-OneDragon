@@ -9,8 +9,8 @@ from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.devtools.app_devtools_interface import AppDevtoolsInterface
 from zzz_od.gui.view.dodge_assistant_interface import DodgeAssistantInterface
 from zzz_od.gui.view.home_interface import HomeInterface
-from zzz_od.gui.view.one_dragon_interface import OneDragonInterface
 from zzz_od.gui.view.setting.app_setting_interface import AppSettingInterface
+from zzz_od.gui.view.zzz_one_dragon_interface import ZOneDragonInterface
 
 
 class AppWindow(FluentWindowBase):
@@ -21,16 +21,14 @@ class AppWindow(FluentWindowBase):
             self,
             ctx=ctx,
             win_title=ctx.project_config.project_name,
-            app_icon='app.ico',
+            app_icon='zzz_logo.ico',
             parent=parent
         )
 
-        self.init_navigation()
-
-    def init_navigation(self):
+    def create_sub_interface(self):
         self.add_sub_interface(HomeInterface(self.ctx, parent=self))
         self.add_sub_interface(DodgeAssistantInterface(self.ctx, parent=self))
-        self.add_sub_interface(OneDragonInterface(self.ctx, parent=self))
+        self.add_sub_interface(ZOneDragonInterface(self.ctx, parent=self))
 
         self.add_sub_interface(AppDevtoolsInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)
         self.add_sub_interface(CodeInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)

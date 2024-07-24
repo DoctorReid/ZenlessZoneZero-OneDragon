@@ -9,7 +9,7 @@ from zzz_od.operation.enter_game import OpenAndEnterGame
 
 class ZApplication(Application):
 
-    def __init__(self, ctx: ZContext,
+    def __init__(self, ctx: ZContext, app_id: str,
                  node_max_retry_times: int = 1,
                  op_name: str = None,
                  timeout_seconds: float = -1,
@@ -21,7 +21,7 @@ class ZApplication(Application):
         self.ctx: ZContext = ctx
         op_to_enter_game = OpenAndEnterGame(ctx)
         Application.__init__(self,
-                             ctx=ctx,
+                             ctx=ctx, app_id=app_id,
                              node_max_retry_times=node_max_retry_times,
                              op_name=op_name,
                              timeout_seconds=timeout_seconds,
