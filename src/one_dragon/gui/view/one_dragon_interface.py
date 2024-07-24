@@ -80,7 +80,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
         :return:
         """
         layout = QVBoxLayout()
-        self.app_card_group = SettingCardGroup(gt('任务列表', 'ui'))
+        self.app_card_group = SettingCardGroup(gt('任务列表(施工中 还不能用)', 'ui'))
         layout.addWidget(self.app_card_group)
 
         return layout
