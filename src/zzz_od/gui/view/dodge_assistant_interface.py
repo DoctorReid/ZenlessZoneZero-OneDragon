@@ -41,6 +41,11 @@ class DodgeAssistantInterface(AppRunInterface):
         self.gpu_opt.value_changed.connect(self._on_gpu_changed)
         top_widget.add_widget(self.gpu_opt)
 
+        self.screenshot_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='MSS截图',
+                                         content='实验性截图机制，约减少10~20ms的截图处理时间')
+        self.screenshot_opt.value_changed.connect(self._on_screenshot_changed)
+        top_widget.add_widget(self.screenshot_opt)
+
         self.screenshot_interval_opt = TextSettingCard(icon=FluentIcon.GAME, title='截图间隔(秒)',
                                                        content='游戏画面掉帧的话 可以适当加大截图间隔 保证截图间隔+推理耗时在50ms内即可')
         self.screenshot_interval_opt.value_changed.connect(self._on_screenshot_interval_changed)
@@ -87,6 +92,9 @@ class DodgeAssistantInterface(AppRunInterface):
 
     def _on_gpu_changed(self, value: bool):
         self.ctx.dodge_assistant_config.use_gpu = value
+
+    def _on_screenshot_changed(self, value: bool):
+        self.ctx.controller.screenshot_mss =value
 
     def _on_screenshot_interval_changed(self, value: str) -> None:
         self.ctx.dodge_assistant_config.screenshot_interval = float(value)
