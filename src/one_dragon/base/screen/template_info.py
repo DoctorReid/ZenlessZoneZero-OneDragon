@@ -179,7 +179,7 @@ class TemplateInfo(YamlOperator):
         :return:
         """
         self.make_template_dir()
-        mask = self.get_template_mask_by_screen_point() if self.auto_mask else self.mask
+        mask = self.get_template_mask_by_screen_point() if self.auto_mask else None
         if mask is not None:
             cv2.imwrite(get_template_mask_path(self.sub_dir, self.template_id), mask)
 
@@ -440,6 +440,18 @@ class TemplateInfo(YamlOperator):
         :return:
         """
         return cv2_utils.feature_detect_and_compute(self.raw, self.mask)
+
+    def copy_new(self) -> None:
+        """
+        复制变成一个新的
+        :return:
+        """
+        self.template_id = self.template_id + '_copy'
+
+        self.old_sub_dir = self.sub_dir  # 无需删除
+        self.old_template_id = self.template_id
+
+        self.file_path = self.get_yml_file_path()
 
 
 @lru_cache

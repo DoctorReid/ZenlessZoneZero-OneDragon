@@ -54,6 +54,10 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
         self.create_btn.clicked.connect(self._on_create_clicked)
         btn_row.add_widget(self.create_btn)
 
+        self.copy_btn = PushButton(text=gt('复制', 'ui'))
+        self.copy_btn.clicked.connect(self._on_copy_clicked)
+        btn_row.add_widget(self.copy_btn)
+
         self.delete_btn = PushButton(text=gt('删除', 'ui'))
         self.delete_btn.clicked.connect(self._on_delete_clicked)
         btn_row.add_widget(self.delete_btn)
@@ -191,6 +195,7 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
 
         self.existed_yml_btn.setDisabled(chosen)
         self.create_btn.setDisabled(chosen)
+        self.copy_btn.setDisabled(not chosen)
         self.delete_btn.setDisabled(not chosen)
         self.cancel_btn.setDisabled(not chosen)
 
@@ -354,6 +359,17 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
             return
 
         self.chosen_template = TemplateInfo('', '')
+        self._update_whole_display()
+
+    def _on_copy_clicked(self):
+        """
+        复制一个
+        :return:
+        """
+        if self.chosen_template is None:
+            return
+
+        self.chosen_template.copy_new()
         self._update_whole_display()
 
     def _on_save_config_clicked(self) -> None:
