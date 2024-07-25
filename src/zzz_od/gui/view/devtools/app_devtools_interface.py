@@ -1,4 +1,4 @@
-from qfluentwidgets import qrouter, FluentIcon
+from qfluentwidgets import FluentIcon
 
 from one_dragon.gui.component.interface.pivot_navi_interface import PivotNavigatorInterface
 from one_dragon.gui.view.devtools.devtools_screen_manage_interface import DevtoolsScreenManageInterface
@@ -16,7 +16,11 @@ class AppDevtoolsInterface(PivotNavigatorInterface):
         PivotNavigatorInterface.__init__(self, ctx=ctx, object_name='app_devtools_interface', parent=parent,
                                          nav_text_cn='开发工具', nav_icon=FluentIcon.DEVELOPER_TOOLS)
 
-        self.add_sub_interface(DevtoolsScreenshotHelperInterface(ctx))
-        self.add_sub_interface(DevtoolsTemplateHelperInterface(ctx))
-        self.add_sub_interface(DevtoolsScreenManageInterface(ctx))
-        qrouter.setDefaultRouteKey(self.stacked_widget, self.stacked_widget.currentWidget().objectName())
+    def create_sub_interface(self):
+        """
+        创建下面的子页面
+        :return:
+        """
+        self.add_sub_interface(DevtoolsScreenshotHelperInterface(self.ctx))
+        self.add_sub_interface(DevtoolsTemplateHelperInterface(self.ctx))
+        self.add_sub_interface(DevtoolsScreenManageInterface(self.ctx))

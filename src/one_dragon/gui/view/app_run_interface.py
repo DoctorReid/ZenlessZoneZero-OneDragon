@@ -56,8 +56,6 @@ class AppRunInterface(VerticalScrollInterface):
                  nav_icon: Union[FluentIconBase, QIcon, str] = None,
                  parent=None,
                  ):
-        self.ctx = ctx
-
         VerticalScrollInterface.__init__(
             self,
             ctx=ctx,
