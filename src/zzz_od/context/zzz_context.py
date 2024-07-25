@@ -10,6 +10,7 @@ from zzz_od.config.game_config import GameConfig, GamePlatformEnum
 from zzz_od.context.battle_context import BattleContext
 from zzz_od.context.yolo_context import YoloContext
 from zzz_od.controller.zzz_pc_controller import ZPcController
+from zzz_od.game_data.map_area import MapAreaService
 
 
 class ZContext(OneDragonContext, YoloContext, BattleContext):
@@ -23,6 +24,9 @@ class ZContext(OneDragonContext, YoloContext, BattleContext):
 
         # 基础配置
         self.game_config: GameConfig = GameConfig(instance_idx)
+
+        # 游戏数据
+        self.map_service: MapAreaService = MapAreaService()
 
         # 应用配置
         self.screenshot_helper_config: ScreenshotHelperConfig = ScreenshotHelperConfig(instance_idx)

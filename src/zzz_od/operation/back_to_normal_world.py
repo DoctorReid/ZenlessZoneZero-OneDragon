@@ -13,16 +13,16 @@ class BackToNormalWorld(ZOperation):
         :param ctx:
         """
         ZOperation.__init__(self, ctx,
-                           node_max_retry_times=5,
-                           op_name=gt('返回大世界', 'ui')
-                           )
+                            node_max_retry_times=5,
+                            op_name=gt('返回大世界', 'ui')
+                            )
 
     def add_edges_and_nodes(self) -> None:
         """
         初始化前 添加边和节点 由子类实行
         :return:
         """
-        check = OperationNode('', self.check_screen_and_run)
+        check = OperationNode('画面识别', self.check_screen_and_run)
 
         self.param_start_node = check
 

@@ -43,7 +43,7 @@ class OcrMatcher:
         except Exception:
             log.error('OCR模型加载出错', exc_info=True)
 
-    def ocr_for_single_line(self, image: MatLike, threshold: float = None, strict_one_line: bool = True) -> str:
+    def run_ocr_single_line(self, image: MatLike, threshold: float = None, strict_one_line: bool = True) -> str:
         """
         单行文本识别 手动合成一行 按匹配结果从左到右 从上到下
         理论中文情况不会出现过长分行的 这里只是为了兼容英语的情况
