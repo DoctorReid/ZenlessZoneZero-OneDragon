@@ -53,7 +53,7 @@ class InstallerInterface(VerticalScrollInterface):
         v_layout.addWidget(update_group)
 
         log_group = SettingCardGroup(gt('安装日志', 'ui'))
-        self.log_card = LogDisplayCard(max_height=200)
+        self.log_card = LogDisplayCard()
         log_group.addSettingCard(self.log_card)
         v_layout.addWidget(log_group)
 
