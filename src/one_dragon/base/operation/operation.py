@@ -379,8 +379,7 @@ class Operation(OperationBase):
                 if self.node_retry_times <= self.node_max_retry_times:
                     continue
                 else:
-                    op_result = self.op_fail(round_result.status, round_result.data)
-                    break
+                    round_result.result = OperationRoundResultEnum.FAIL
             elif round_result.result == OperationRoundResultEnum.WAIT:
                 continue
 

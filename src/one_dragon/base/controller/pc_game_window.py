@@ -17,6 +17,7 @@ class PcGameWindow:
         self.win_title: str = win_title
         self.standard_width: int = standard_width
         self.standard_height: int = standard_height
+        self.standard_game_rect: Rect = Rect(0, 0, standard_width, standard_height)
 
         self.win: Win32Window = None
         self.hWnd = None
@@ -116,7 +117,7 @@ class PcGameWindow:
         xs = 1 if rect.width == self.standard_width else rect.width * 1.0 / self.standard_width
         ys = 1 if rect.height == self.standard_height else rect.height * 1.0 / self.standard_height
         s_pos = Point(game_pos.x * xs, game_pos.y * ys)
-        return None if self.is_valid_game_pos(s_pos, rect) else s_pos
+        return s_pos if self.is_valid_game_pos(s_pos, self.standard_game_rect) else None
 
     def is_valid_game_pos(self, s_pos: Point, rect: Rect = None) -> bool:
         """
@@ -128,7 +129,7 @@ class PcGameWindow:
         if self.win is None:
             return False
         if rect is None:
-            rect = self.win_rect
+            rect = self.standard_game_rect
         return 0 <= s_pos.x < rect.width and 0 <= s_pos.y < rect.height
 
     def game2win_pos(self, game_pos: Point) -> Point:

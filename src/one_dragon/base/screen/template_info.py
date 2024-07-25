@@ -97,12 +97,6 @@ class TemplateInfo(YamlOperator):
         elif self.template_shape == TemplateShapeEnum.CIRCLE.value.value:
             if len(self.point_list) < 2:
                 self.point_list.append(point)
-            elif len(self.point_list) == 2:
-                if (cal_utils.distance_between(point, self.point_list[0]) <
-                        cal_utils.distance_between(point, self.point_list[1])):
-                    self.point_list[0] = point
-                else:
-                    self.point_list[1] = point
         elif self.template_shape == TemplateShapeEnum.POLYGON.value.value:
             self.point_list.append(point)
 

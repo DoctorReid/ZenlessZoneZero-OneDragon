@@ -7,6 +7,7 @@ import pyautogui
 from PIL.Image import Image
 from cv2.typing import MatLike
 from functools import lru_cache
+from pynput import keyboard
 from typing import Optional
 
 from one_dragon.base.controller.controller_base import ControllerBase
@@ -89,11 +90,11 @@ class PcControllerBase(ControllerBase):
             click_pos = get_current_mouse_pos()
 
         if pc_alt:
-            pyautogui.keyDown('alt')
-            time.sleep(0.01)
+            self.keyboard_controller.keyboard.press(keyboard.Key.alt)
+            time.sleep(0.2)
         win_click(click_pos, press_time=press_time)
         if pc_alt:
-            pyautogui.keyUp('alt')
+            self.keyboard_controller.keyboard.release(keyboard.Key.alt)
         return True
 
     def get_screenshot(self) -> MatLike:

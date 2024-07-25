@@ -71,7 +71,7 @@ class Transport(ZOperation):
         screen = self.screenshot()
 
         result = self.round_by_find_area(screen, '地图', '标题')
-        if result == FindAreaResultEnum.TRUE.value:
+        if result.is_success:
             return self.round_success()
         else:
             return self.round_success(status=Transport.STATUS_NOT_IN_MAP)

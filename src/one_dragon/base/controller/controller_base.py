@@ -1,7 +1,7 @@
 import time
-from typing import List
 
 from cv2.typing import MatLike
+from typing import List
 
 from one_dragon.base.geometry.point import Point
 

@@ -1,0 +1,26 @@
+screen_id: normal_world
+screen_name: 大世界
+pc_alt: true
+area_list:
+- area_name: 信息
+  pc_rect:
+  - 1728
+  - 918
+  - 1826
+  - 1016
+  text: ''
+  lcs_percent: 0.1
+  template_sub_dir: normal_world
+  template_id: message
+  template_match_threshold: 0.7
+- area_name: 菜单
+  pc_rect:
+  - 100
+  - 54
+  - 162
+  - 94
+  text: ''
+  lcs_percent: 0.1
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

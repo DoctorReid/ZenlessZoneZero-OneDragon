@@ -24,8 +24,11 @@ class EmailApp(ZApplication):
         :return:
         """
         open_menu = OperationNode('打开菜单', op=OpenMenu(self.ctx))
+        click_more = OperationNode('点击更多', self.click_more)
+        self.add_edge(open_menu, click_more)
+
         click_email = OperationNode('点击邮件', self.click_email)  # TODO 是否需要红点检测
-        self.add_edge(open_menu, click_email)
+        self.add_edge(click_more, click_email)
 
         click_get_all = OperationNode('全部领取', self.click_get_all)
         self.add_edge(click_email, click_get_all)
@@ -43,6 +46,14 @@ class EmailApp(ZApplication):
         注意初始化要全面 方便一个指令重复使用
         """
         pass
+
+    def click_more(self) -> OperationRoundResult:
+        """
+        点击更多
+        """
+        screen = self.screenshot()
+        return self.round_by_find_and_click_area(screen, '菜单', '更多',
+                                                 success_wait=1, retry_wait_round=1)
 
     def click_email(self) -> OperationRoundResult:
         """
@@ -77,5 +88,5 @@ class EmailApp(ZApplication):
         :return:
         """
         screen = self.screenshot()
-        return self.round_by_find_and_click_area(screen, '邮件', '返回',
+        return self.round_by_find_and_click_area(screen, '菜单', '返回',
                                                  success_wait=1, retry_wait_round=1)

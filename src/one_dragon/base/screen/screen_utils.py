@@ -40,10 +40,11 @@ def find_area(ctx: OneDragonContext, screen: MatLike, screen_name: str, area_nam
     if area.is_text_area:
         rect = area.rect
         part = cv2_utils.crop_image_only(screen, rect)
+        cv2_utils.show_image(part, win_name='part')
 
         ocr_result = ctx.ocr.run_ocr_single_line(part, strict_one_line=True)
 
-        find = str_utils.find_by_lcs(gt(area.text, 'ocr'), ocr_result, percent=area.lcs_percent)
+        find = str_utils.find_by_lcs(gt(area.text), ocr_result, percent=area.lcs_percent)
     elif area.is_template_area:
         rect = area.rect
         part = cv2_utils.crop_image_only(screen, rect)
@@ -74,7 +75,7 @@ def find_and_click_area(ctx: OneDragonContext, screen: MatLike, screen_name: str
 
         ocr_result = ctx.ocr.run_ocr_single_line(part, strict_one_line=True)
 
-        if str_utils.find_by_lcs(gt(area.text, 'ocr'), ocr_result, percent=area.lcs_percent):
+        if str_utils.find_by_lcs(gt(area.text), ocr_result, percent=area.lcs_percent):
             if ctx.controller.click(rect.center, pc_alt=area.pc_alt):
                 return OcrClickResultEnum.OCR_CLICK_SUCCESS
             else:

@@ -1,0 +1,37 @@
+screen_id: menu
+screen_name: 菜单
+pc_alt: false
+area_list:
+- area_name: 返回
+  pc_rect:
+  - 82
+  - 13
+  - 150
+  - 90
+  text: ''
+  lcs_percent: 0.1
+  template_sub_dir: menu
+  template_id: back
+  template_match_threshold: 0.7
+- area_name: 更多
+  pc_rect:
+  - 368
+  - 1024
+  - 420
+  - 1054
+  text: 更多
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 邮件
+  pc_rect:
+  - 934
+  - 544
+  - 990
+  - 572
+  text: 邮件
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

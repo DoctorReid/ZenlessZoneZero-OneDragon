@@ -35,7 +35,7 @@ class TemplateMatcher:
         :param ignore_inf: 是否忽略无限大的结果
         :return: 所有匹配结果
         """
-        template: TemplateInfo = self.template_loader.get_template(template_id, template_sub_dir)
+        template: TemplateInfo = self.template_loader.get_template(template_sub_dir, template_id)
         if template is None:
             log.error('未加载模板 %s' % template_id)
             return MatchResultList()

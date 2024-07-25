@@ -99,18 +99,19 @@ class OcrMatcher:
         默认传入的图片仅有文字信息
         :param image: 图片
         :param threshold: 匹配阈值
-        :return: [("text", "score"),] 由于禁用了空格，可以直接取第一个元素
+        :return: [[("text", "score"),]] 由于禁用了空格，可以直接取第一个元素
         """
         start_time = time.time()
         scan_result: list = self.ocr.ocr(image, det=False, cls=False)
-        if len(scan_result) > 1:
+        img_result = scan_result[0]  # 取第一张图片
+        if len(img_result) > 1:
             log.debug("禁检测的OCR模型返回多个识别结果")  # 目前没有出现这种情况
 
         if threshold is not None and scan_result[0][1] < threshold:
             log.debug("OCR模型返回的识别结果置信度低于阈值")
             return ""
         log.debug('OCR结果 %s 耗时 %.2f', scan_result, time.time() - start_time)
-        return scan_result[0][0]
+        return img_result[0][0]
 
 
 def merge_ocr_result_to_single_line(ocr_map, join_space: bool = True) -> str:

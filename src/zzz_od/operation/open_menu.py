@@ -1,7 +1,8 @@
 from typing import ClassVar
 
-from one_dragon.base.operation.operation import Operation, OperationRoundResult, OperationNode
+from one_dragon.base.operation.operation import OperationRoundResult, OperationNode
 from one_dragon.base.screen.screen_utils import FindAreaResultEnum
+from one_dragon.utils import cv2_utils
 from one_dragon.utils.i18_utils import gt
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.back_to_normal_world import BackToNormalWorld
@@ -43,9 +44,10 @@ class OpenMenu(ZOperation):
         :return:
         """
         screen = self.screenshot()
+        cv2_utils.show_image(screen, win_name='debug')
 
-        result = self.round_by_find_area(screen, '菜单', '标题')
-        if result == FindAreaResultEnum.TRUE.value:
+        result = self.round_by_find_area(screen, '菜单', '更多')
+        if result.is_success:
             return self.round_success()
         else:
             return self.round_success(status=OpenMenu.STATUS_NOT_IN_MENU)
@@ -55,7 +57,8 @@ class OpenMenu(ZOperation):
         在大世界画面 点击菜单的按钮
         :return:
         """
-        screen = self.screenshot()
-        return self.round_by_find_and_click_area(screen, '大世界', '菜单',
-                                                 success_wait=2,
-                                                 retry_wait_round=1)
+        click = self.click_area('大世界', '菜单')
+        if click:
+            return self.round_success(wait=2)
+        else:
+            return self.round_retry(wait=1)

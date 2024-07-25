@@ -1,0 +1,8 @@
+sub_dir: normal_world
+template_id: message
+template_name: 大世界-信息
+template_shape: circle
+auto_mask: true
+point_list:
+- 1777, 967
+- 1738, 967

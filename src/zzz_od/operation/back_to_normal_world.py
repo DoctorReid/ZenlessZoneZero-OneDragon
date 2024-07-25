@@ -36,9 +36,9 @@ class BackToNormalWorld(ZOperation):
         """
         screen = self.screenshot()
 
-        result = self.round_by_find_area(screen, '大世界', '菜单')
+        result = self.round_by_find_area(screen, '大世界', '信息')
 
-        if result == FindAreaResultEnum.TRUE.value:
+        if result.is_success:
             return self.round_success()
 
         click_back = self.click_area('菜单', '返回')
