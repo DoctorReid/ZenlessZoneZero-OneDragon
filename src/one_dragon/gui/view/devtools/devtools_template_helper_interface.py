@@ -179,6 +179,7 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
         子界面显示时 进行初始化
         :return:
         """
+        VerticalScrollInterface.on_interface_shown(self)
         self._update_whole_display()
 
     def _update_whole_display(self) -> None:

@@ -1,13 +1,14 @@
+from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon
 
 from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.setting_card.key_setting_card import KeySettingCard
 from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
+from one_dragon.gui.view.app_run_interface import AppRunInterface
 from zzz_od.application.devtools.screenshot_helper.screenshot_helper_app import ScreenshotHelperApp
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
-from one_dragon.gui.view.app_run_interface import AppRunInterface
 
 
 class DevtoolsScreenshotHelperInterface(AppRunInterface):
@@ -17,6 +18,15 @@ class DevtoolsScreenshotHelperInterface(AppRunInterface):
                  parent=None):
         self.ctx: ZContext = ctx
 
+        AppRunInterface.__init__(
+            self,
+            ctx=ctx,
+            object_name='devtools_screenshot_helper_interface',
+            nav_text_cn='截图助手',
+            parent=parent,
+        )
+
+    def get_widget_at_top(self) -> QWidget:
         top_widget = ColumnWidget()
 
         self.frequency_opt = TextSettingCard(icon=FluentIcon.GAME, title='截图间隔(秒)')
@@ -37,14 +47,7 @@ class DevtoolsScreenshotHelperInterface(AppRunInterface):
         self.dodge_detect_opt.value_changed.connect(self._on_dodge_detect_changed)
         top_widget.add_widget(self.dodge_detect_opt)
 
-        AppRunInterface.__init__(
-            self,
-            ctx=ctx,
-            object_name='devtools_screenshot_helper_interface',
-            nav_text_cn='截图助手',
-            parent=parent,
-            widget_at_top=top_widget
-        )
+        return top_widget
 
     def on_interface_shown(self) -> None:
         """
