@@ -2,6 +2,7 @@ from PySide6.QtWidgets import QWidget
 from qfluentwidgets import SettingCardGroup, FluentIcon
 
 from one_dragon.base.config.config_item import get_config_item_from_enum
+from one_dragon.base.controller.pc_button.ds4_button_controller import Ds4ButtonEnum
 from one_dragon.base.controller.pc_button.xbox_button_controller import XboxButtonEnum
 from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
@@ -129,31 +130,31 @@ class SettingGameInterface(VerticalScrollInterface):
         self.ds4_key_press_time_opt.value_changed.connect(self._on_ds4_key_press_time_changed)
         gamepad_group.addSettingCard(self.ds4_key_press_time_opt)
 
-        self.ds4_key_normal_attack_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='普通攻击', options_enum=XboxButtonEnum)
+        self.ds4_key_normal_attack_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='普通攻击', options_enum=Ds4ButtonEnum)
         self.ds4_key_normal_attack_opt.value_changed.connect(self._on_ds4_key_normal_attack_changed)
         gamepad_group.addSettingCard(self.ds4_key_normal_attack_opt)
 
-        self.ds4_key_dodge_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='闪避', options_enum=XboxButtonEnum)
+        self.ds4_key_dodge_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='闪避', options_enum=Ds4ButtonEnum)
         self.ds4_key_dodge_opt.value_changed.connect(self._on_ds4_key_dodge_changed)
         gamepad_group.addSettingCard(self.ds4_key_dodge_opt)
 
-        self.ds4_key_switch_next_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='角色切换-下一个', options_enum=XboxButtonEnum)
+        self.ds4_key_switch_next_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='角色切换-下一个', options_enum=Ds4ButtonEnum)
         self.ds4_key_switch_next_opt.value_changed.connect(self._on_ds4_key_switch_next_changed)
         gamepad_group.addSettingCard(self.ds4_key_switch_next_opt)
 
-        self.ds4_key_switch_prev_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='角色切换-上一个', options_enum=XboxButtonEnum)
+        self.ds4_key_switch_prev_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='角色切换-上一个', options_enum=Ds4ButtonEnum)
         self.ds4_key_switch_prev_opt.value_changed.connect(self._on_ds4_key_switch_prev_changed)
         gamepad_group.addSettingCard(self.ds4_key_switch_prev_opt)
 
-        self.ds4_key_special_attack_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='特殊攻击', options_enum=XboxButtonEnum)
+        self.ds4_key_special_attack_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='特殊攻击', options_enum=Ds4ButtonEnum)
         self.ds4_key_special_attack_opt.value_changed.connect(self._on_ds4_key_special_attack_changed)
         gamepad_group.addSettingCard(self.ds4_key_special_attack_opt)
 
-        self.ds4_key_ultimate_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='终结技', options_enum=XboxButtonEnum)
+        self.ds4_key_ultimate_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='终结技', options_enum=Ds4ButtonEnum)
         self.ds4_key_ultimate_opt.value_changed.connect(self._on_ds4_key_ultimate_changed)
         gamepad_group.addSettingCard(self.ds4_key_ultimate_opt)
 
-        self.ds4_key_interact_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='交互', options_enum=XboxButtonEnum)
+        self.ds4_key_interact_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='交互', options_enum=Ds4ButtonEnum)
         self.ds4_key_interact_opt.value_changed.connect(self._on_ds4_key_interact_changed)
         gamepad_group.addSettingCard(self.ds4_key_interact_opt)
 

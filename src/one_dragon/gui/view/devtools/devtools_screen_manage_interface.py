@@ -181,6 +181,7 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
         子界面显示时 进行初始化
         :return:
         """
+        VerticalScrollInterface.on_interface_shown(self)
         self._update_display_by_screen()
 
     def _update_display_by_screen(self) -> None:

@@ -1,3 +1,0 @@
-class XboxButton:
-
-    pass

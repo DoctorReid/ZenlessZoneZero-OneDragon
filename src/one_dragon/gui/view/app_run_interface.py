@@ -55,16 +55,23 @@ class AppRunInterface(VerticalScrollInterface):
                  nav_text_cn: str,
                  nav_icon: Union[FluentIconBase, QIcon, str] = None,
                  parent=None,
-                 widget_at_top: Optional[QWidget] = None,
-                 widget_at_bottom: Optional[QWidget] = None,
-                 app_event_log_card: Optional[AppEventLogDisplayCard] = None
                  ):
-        self.ctx = ctx
+        VerticalScrollInterface.__init__(
+            self,
+            ctx=ctx,
+            content_widget=None,
+            object_name=object_name,
+            nav_text_cn=nav_text_cn,
+            nav_icon=nav_icon,
+            parent=parent
+        )
 
+    def get_content_widget(self) -> QWidget:
         content_widget = QWidget()
         content_layout = QVBoxLayout(content_widget)
         content_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
+        widget_at_top = self.get_widget_at_top()
         if widget_at_top is not None:
             content_layout.addWidget(widget_at_top)
 
@@ -93,35 +100,36 @@ class AppRunInterface(VerticalScrollInterface):
         btn_row_layout.addWidget(self.stop_btn)
 
         self.log_card = LogDisplayCard()
-
-        if app_event_log_card is not None:
+        self.app_event_log_card: AppEventLogDisplayCard = self.get_app_event_log_card()
+        if self.app_event_log_card is not None:
             log_row = RowWidget()
             content_layout.addWidget(log_row)
 
             log_row.row_layout.addWidget(self.log_card, stretch=1)
 
-            self.app_event_log_card: AppEventLogDisplayCard = app_event_log_card
-            log_row.row_layout.addWidget(app_event_log_card, stretch=1)
+            log_row.row_layout.addWidget(self.app_event_log_card, stretch=1)
         else:
             content_layout.addWidget(self.log_card)
 
         self.app_runner = AppRunner(self.ctx)
         self.app_runner.state_changed.connect(self._on_context_state_changed)
 
+        widget_at_bottom = self.get_widget_at_bottom()
         if widget_at_bottom is not None:
             content_layout.addWidget(widget_at_bottom)
 
         content_layout.setStretch(content_layout.count() - 1, 1)
 
-        VerticalScrollInterface.__init__(
-            self,
-            ctx=ctx,
-            content_widget=content_widget,
-            object_name=object_name,
-            nav_text_cn=nav_text_cn,
-            nav_icon=nav_icon,
-            parent=parent
-        )
+        return content_widget
+
+    def get_widget_at_top(self) -> QWidget:
+        pass
+
+    def get_widget_at_bottom(self) -> QWidget:
+        pass
+
+    def get_app_event_log_card(self) -> Optional[AppEventLogDisplayCard]:
+        pass
 
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)

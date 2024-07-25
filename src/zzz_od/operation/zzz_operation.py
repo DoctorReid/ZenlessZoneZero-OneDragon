@@ -15,6 +15,7 @@ class ZOperation(Operation):
                  op_callback: Optional[Callable[[OperationResult], None]] = None,
                  check_game_win: bool = True
                  ):
+        self.ctx: ZContext = ctx
         op_to_enter_game = OpenAndEnterGame(ctx)
         Operation.__init__(self,
                            ctx=ctx,

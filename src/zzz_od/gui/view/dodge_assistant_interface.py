@@ -1,7 +1,9 @@
 import os.path
 
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, PushButton
+from typing import Optional
 
 from one_dragon.gui.component.app_event_log_display_card import AppEventLogDisplayCard
 from one_dragon.gui.component.column_widget import ColumnWidget
@@ -25,6 +27,16 @@ class DodgeAssistantInterface(AppRunInterface):
                  parent=None):
         self.ctx: ZContext = ctx
 
+        AppRunInterface.__init__(
+            self,
+            ctx=ctx,
+            object_name='dodge_assistant_interface',
+            nav_text_cn='闪避助手',
+            nav_icon=FluentIcon.GAME,
+            parent=parent,
+        )
+
+    def get_widget_at_top(self) -> QWidget:
         top_widget = ColumnWidget()
 
         self.dodge_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='闪避方式',
@@ -59,18 +71,10 @@ class DodgeAssistantInterface(AppRunInterface):
         self.gamepad_type_opt.value_changed.connect(self._on_gamepad_type_changed)
         top_widget.add_widget(self.gamepad_type_opt)
 
-        app_event_log_card = AppEventLogDisplayCard(ctx, AutoBattleLoader.get_all_state_event_ids())
+        return top_widget
 
-        AppRunInterface.__init__(
-            self,
-            ctx=ctx,
-            object_name='dodge_assistant_interface',
-            nav_text_cn='闪避助手',
-            nav_icon=FluentIcon.GAME,
-            parent=parent,
-            widget_at_top=top_widget,
-            app_event_log_card=app_event_log_card
-        )
+    def get_app_event_log_card(self) -> Optional[AppEventLogDisplayCard]:
+        return AppEventLogDisplayCard(self.ctx, AutoBattleLoader.get_all_state_event_ids())
 
     def on_interface_shown(self) -> None:
         """
