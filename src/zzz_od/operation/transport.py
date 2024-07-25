@@ -3,7 +3,6 @@ import time
 from typing import ClassVar
 
 from one_dragon.base.operation.operation import OperationNode, OperationRoundResult
-from one_dragon.base.screen.screen_utils import FindAreaResultEnum
 from one_dragon.utils import cv2_utils
 from one_dragon.utils.i18_utils import gt
 from zzz_od.context.zzz_context import ZContext
@@ -70,7 +69,7 @@ class Transport(ZOperation):
         """
         screen = self.screenshot()
 
-        result = self.round_by_find_area(screen, '地图', '标题')
+        result = self.round_by_find_area(screen, '地图', '街区详情')
         if result.is_success:
             return self.round_success()
         else:

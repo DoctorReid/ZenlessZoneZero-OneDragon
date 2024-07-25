@@ -1,0 +1,8 @@
+sub_dir: normal_world
+template_id: inter_knot
+template_name: 大世界-绳网
+template_shape: circle
+auto_mask: true
+point_list:
+- 1670, 967
+- 1630, 967

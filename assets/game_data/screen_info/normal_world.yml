@@ -24,3 +24,14 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 地图
+  pc_rect:
+  - 1728
+  - 778
+  - 1826
+  - 876
+  text: ''
+  lcs_percent: 0.1
+  template_sub_dir: normal_world
+  template_id: map
+  template_match_threshold: 0.7

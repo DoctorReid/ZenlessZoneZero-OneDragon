@@ -1,0 +1,8 @@
+sub_dir: normal_world
+template_id: run
+template_name: 大世界-疾跑
+template_shape: circle
+auto_mask: true
+point_list:
+- 1563, 967
+- 1522, 967
