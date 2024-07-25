@@ -698,3 +698,15 @@ class Operation(OperationBase):
             return self.round_success(wait=success_wait, wait_round_time=success_wait_round)
         else:
             return self.round_retry(wait=retry_wait, wait_round_time=retry_wait_round)
+
+    def click_area(self, screen_name: str, area_name: str) -> bool:
+        """
+        无脑点击某个区域一次
+        :param screen_name:
+        :param area_name:
+        :return: 是否点击成功
+        """
+        area = self.ctx.screen_loader.get_area(screen_name, area_name)
+        if area is None:
+            return False
+        return self.ctx.controller.click(pos=area.center, pc_alt=area.pc_alt)
