@@ -1,3 +1,4 @@
+import os
 import subprocess
 from typing import List, Optional, Callable
 
@@ -66,3 +67,21 @@ def run_command(commands: List[str], cwd: Optional[str] = None,
             return None
     except Exception:
         return None
+
+
+def shutdown_sys(seconds: int):
+    """
+    使用 shutdown -s -t ${seconds} 来关闭系统
+    :param seconds: 秒
+    :return:
+    """
+    os.system("shutdown /s /t %d" % seconds)
+
+
+def cancel_shutdown_sys():
+    """
+    取消计划的自动关机
+    使用 shutdown /a 命令
+    :return:
+    """
+    os.system("shutdown /a")

@@ -5,7 +5,7 @@ from typing import Union
 try:
     import vgamepad
     _VGAMEPAD_INSTALLED = True
-except ModuleNotFoundError:
+except Exception:
     _VGAMEPAD_INSTALLED = False
 
 

@@ -13,16 +13,17 @@ class InstallerWindowBase(FluentWindowBase):
     """ Main Interface """
 
     def __init__(self, ctx: OneDragonContext, win_title: str, parent=None):
-        FluentWindowBase.__init__(self, ctx=ctx, win_title=win_title, parent=parent)
+        FluentWindowBase.__init__(
+            self,
+            ctx=ctx,
+            win_title=win_title,
+            parent=parent,
+            app_icon='zzz_logo.ico'
+        )
 
-        self.install_interface = InstallerInterface(ctx, parent=self)
-        self.setting_interface = InstallerSettingInterface(ctx, parent=self)
-
-        self.init_navigation()
-
-    def init_navigation(self):
-        self.add_sub_interface(self.install_interface)
-        self.add_sub_interface(self.setting_interface, position=NavigationItemPosition.BOTTOM)
+    def create_sub_interface(self):
+        self.add_sub_interface(InstallerInterface(self.ctx, parent=self))
+        self.add_sub_interface(InstallerSettingInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)
 
 
 if __name__ == '__main__':

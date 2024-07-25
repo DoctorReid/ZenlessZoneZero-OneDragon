@@ -1,9 +1,9 @@
 import logging
 from enum import Enum
+from pynput import keyboard, mouse
 from typing import Optional
 
-from pynput import keyboard, mouse
-
+from one_dragon.base.config.one_dragon_config import OneDragonConfig
 from one_dragon.base.controller.controller_base import ControllerBase
 from one_dragon.base.controller.pc_button.pc_button_listener import PcButtonListener
 from one_dragon.base.geometry.rectangle import Rect
@@ -49,6 +49,7 @@ class OneDragonContext(ContextEventBus):
         ContextEventBus.__init__(self)
         self.project_config: ProjectConfig = ProjectConfig()
         self.env_config: EnvConfig = EnvConfig()
+        self.one_dragon_config: OneDragonConfig = OneDragonConfig()
 
         self.git_service: GitService = GitService(self.project_config, self.env_config)
         self.python_service: PythonService = PythonService(self.project_config, self.env_config, self.git_service)

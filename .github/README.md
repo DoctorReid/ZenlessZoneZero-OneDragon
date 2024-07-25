@@ -65,6 +65,8 @@ __手残救星，只管输出即可__
 
 判断游戏画面，出现黄光/红光后进行自动闪避，可设置成切人格挡，闪A切人(双反)，甚至自定义指令。[详细说明](https://github.com/DoctorReid/ZenlessZoneZero-OneDragon/wiki/%E5%8A%9F%E8%83%BD-%E9%97%AA%E9%81%BF%E5%8A%A9%E6%89%8B)
 
+支持手柄，参考[文档](https://github.com/DoctorReid/ZenlessZoneZero-OneDragon/wiki/%E5%85%B6%E5%AE%83-%E6%89%8B%E6%9F%84%E6%94%AF%E6%8C%81)安装所需依赖。
+
 注意: 不同响应速度的机器、不同的角色需要的按键手法不一样，特别是按键的间隔。 所以默认的配置未必适用所有情况，请按自身情况调整配置文件。
 
 由于目前游戏机制(bug?)，切人是有可能切乱的，例如带丽娜的队伍。详细参考[B站视频](https://www.bilibili.com/video/BV1JwaYeYEQo)

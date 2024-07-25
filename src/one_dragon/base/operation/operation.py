@@ -440,6 +440,8 @@ class Operation(OperationBase):
         :param current_round_result:
         :return:
         """
+        if self._current_node is None:
+            return None
         edges = self._node_edges_map.get(self._current_node.cn)
         if edges is None or len(edges) == 0:  # 没有下一个节点了
             return None

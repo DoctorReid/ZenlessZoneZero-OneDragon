@@ -1,8 +1,9 @@
 import os
+from PySide6.QtCore import QSize
 from typing import Optional
 
 from PySide6.QtGui import QIcon
-from qfluentwidgets import FluentWindow, NavigationItemPosition
+from qfluentwidgets import FluentWindow, NavigationItemPosition, SplashScreen
 
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.gui.component.interface.base_interface import BaseInterface
@@ -22,7 +23,26 @@ class FluentWindowBase(FluentWindow):
         self._last_stack_idx: int = 0
 
         self.init_window(win_title, app_icon)
+
+        # 1. 创建启动页面
+        self.splashScreen = SplashScreen(self.windowIcon(), self)
+        self.splashScreen.setIconSize(QSize(144, 144))
+
+        # 2. 在创建其他子页面前先显示主界面
+        self.show()
+
         self.stackedWidget.currentChanged.connect(self.init_interface_on_shown)
+        self.create_sub_interface()
+
+        # 4. 隐藏启动页面
+        self.splashScreen.finish()
+
+    def create_sub_interface(self) -> None:
+        """
+        创建子页面
+        :return:
+        """
+        pass
 
     def add_sub_interface(self, interface: BaseInterface, position=NavigationItemPosition.TOP):
         self.addSubInterface(interface, interface.nav_icon, interface.nav_text, position=position)

@@ -1,12 +1,15 @@
+from PySide6.QtWidgets import QWidget
 from qfluentwidgets import SettingCardGroup, FluentIcon
 
 from one_dragon.base.config.config_item import get_config_item_from_enum
+from one_dragon.base.controller.pc_button.xbox_button_controller import XboxButtonEnum
 from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.key_setting_card import KeySettingCard
+from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils.i18_utils import gt
-from zzz_od.config.game_config import GameRegionEnum
+from zzz_od.config.game_config import GameRegionEnum, GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
 
 
@@ -14,17 +17,36 @@ class SettingGameInterface(VerticalScrollInterface):
 
     def __init__(self, ctx: ZContext, parent=None):
         self.ctx: ZContext = ctx
+
+        VerticalScrollInterface.__init__(
+            self,
+            ctx=ctx,
+            object_name='setting_game_interface',
+            content_widget=None, parent=parent,
+            nav_text_cn='游戏设置'
+        )
+
+    def get_content_widget(self) -> QWidget:
         content_widget = ColumnWidget()
 
+        content_widget.add_widget(self._get_basic_group())
+        content_widget.add_widget(self._get_key_group())
+        content_widget.add_widget(self._get_gamepad_group())
+        content_widget.add_stretch(1)
+
+        return content_widget
+
+    def _get_basic_group(self) -> QWidget:
         basic_group = SettingCardGroup(gt('游戏基础', 'ui'))
-        content_widget.add_widget(basic_group)
 
         self.game_region_opt = ComboBoxSettingCard(icon=FluentIcon.HOME, title='游戏区服', options_enum=GameRegionEnum)
         self.game_region_opt.value_changed.connect(self._on_game_region_changed)
         basic_group.addSettingCard(self.game_region_opt)
 
+        return basic_group
+
+    def _get_key_group(self) -> QWidget:
         key_group = SettingCardGroup(gt('游戏按键', 'ui'))
-        content_widget.add_widget(key_group)
 
         self.key_normal_attack_opt = KeySettingCard(icon=FluentIcon.GAME, title='普通攻击')
         self.key_normal_attack_opt.value_changed.connect(self._on_key_normal_attack_changed)
@@ -54,15 +76,88 @@ class SettingGameInterface(VerticalScrollInterface):
         self.key_interact_opt.value_changed.connect(self._on_key_interact_changed)
         key_group.addSettingCard(self.key_interact_opt)
 
-        content_widget.add_stretch(1)
+        return key_group
 
-        VerticalScrollInterface.__init__(
-            self,
-            ctx=ctx,
-            object_name='setting_game_interface',
-            content_widget=content_widget, parent=parent,
-            nav_text_cn='游戏设置'
+    def _get_gamepad_group(self) -> QWidget:
+        gamepad_group = SettingCardGroup(gt('手柄按键', 'ui'))
+
+        self.gamepad_type_opt = ComboBoxSettingCard(
+            icon=FluentIcon.GAME, title='手柄类型',
+            content='需先安装虚拟手柄依赖，参考文档或使用安装器。仅在闪避助手生效。',
+            options_enum=GamepadTypeEnum
         )
+        self.gamepad_type_opt.value_changed.connect(self._on_gamepad_type_changed)
+        gamepad_group.addSettingCard(self.gamepad_type_opt)
+
+        # xbox
+        self.xbox_key_press_time_opt = TextSettingCard(icon=FluentIcon.GAME, title='单次按键持续时间(秒)',
+                                                       content='自行调整，过小可能按键被吞，过大可能影响操作')
+        self.xbox_key_press_time_opt.value_changed.connect(self._on_xbox_key_press_time_changed)
+        gamepad_group.addSettingCard(self.xbox_key_press_time_opt)
+
+        self.xbox_key_normal_attack_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='普通攻击', options_enum=XboxButtonEnum)
+        self.xbox_key_normal_attack_opt.value_changed.connect(self._on_xbox_key_normal_attack_changed)
+        gamepad_group.addSettingCard(self.xbox_key_normal_attack_opt)
+
+        self.xbox_key_dodge_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='闪避', options_enum=XboxButtonEnum)
+        self.xbox_key_dodge_opt.value_changed.connect(self._on_xbox_key_dodge_changed)
+        gamepad_group.addSettingCard(self.xbox_key_dodge_opt)
+
+        self.xbox_key_switch_next_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='角色切换-下一个', options_enum=XboxButtonEnum)
+        self.xbox_key_switch_next_opt.value_changed.connect(self._on_xbox_key_switch_next_changed)
+        gamepad_group.addSettingCard(self.xbox_key_switch_next_opt)
+
+        self.xbox_key_switch_prev_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='角色切换-上一个', options_enum=XboxButtonEnum)
+        self.xbox_key_switch_prev_opt.value_changed.connect(self._on_xbox_key_switch_prev_changed)
+        gamepad_group.addSettingCard(self.xbox_key_switch_prev_opt)
+
+        self.xbox_key_special_attack_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='特殊攻击', options_enum=XboxButtonEnum)
+        self.xbox_key_special_attack_opt.value_changed.connect(self._on_xbox_key_special_attack_changed)
+        gamepad_group.addSettingCard(self.xbox_key_special_attack_opt)
+
+        self.xbox_key_ultimate_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='终结技', options_enum=XboxButtonEnum)
+        self.xbox_key_ultimate_opt.value_changed.connect(self._on_xbox_key_ultimate_changed)
+        gamepad_group.addSettingCard(self.xbox_key_ultimate_opt)
+
+        self.xbox_key_interact_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='交互', options_enum=XboxButtonEnum)
+        self.xbox_key_interact_opt.value_changed.connect(self._on_xbox_key_interact_changed)
+        gamepad_group.addSettingCard(self.xbox_key_interact_opt)
+
+        # ds4
+        self.ds4_key_press_time_opt = TextSettingCard(icon=FluentIcon.GAME, title='单次按键持续时间(秒)',
+                                                      content='自行调整，过小可能按键被吞，过大可能影响操作')
+        self.ds4_key_press_time_opt.value_changed.connect(self._on_ds4_key_press_time_changed)
+        gamepad_group.addSettingCard(self.ds4_key_press_time_opt)
+
+        self.ds4_key_normal_attack_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='普通攻击', options_enum=XboxButtonEnum)
+        self.ds4_key_normal_attack_opt.value_changed.connect(self._on_ds4_key_normal_attack_changed)
+        gamepad_group.addSettingCard(self.ds4_key_normal_attack_opt)
+
+        self.ds4_key_dodge_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='闪避', options_enum=XboxButtonEnum)
+        self.ds4_key_dodge_opt.value_changed.connect(self._on_ds4_key_dodge_changed)
+        gamepad_group.addSettingCard(self.ds4_key_dodge_opt)
+
+        self.ds4_key_switch_next_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='角色切换-下一个', options_enum=XboxButtonEnum)
+        self.ds4_key_switch_next_opt.value_changed.connect(self._on_ds4_key_switch_next_changed)
+        gamepad_group.addSettingCard(self.ds4_key_switch_next_opt)
+
+        self.ds4_key_switch_prev_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='角色切换-上一个', options_enum=XboxButtonEnum)
+        self.ds4_key_switch_prev_opt.value_changed.connect(self._on_ds4_key_switch_prev_changed)
+        gamepad_group.addSettingCard(self.ds4_key_switch_prev_opt)
+
+        self.ds4_key_special_attack_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='特殊攻击', options_enum=XboxButtonEnum)
+        self.ds4_key_special_attack_opt.value_changed.connect(self._on_ds4_key_special_attack_changed)
+        gamepad_group.addSettingCard(self.ds4_key_special_attack_opt)
+
+        self.ds4_key_ultimate_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='终结技', options_enum=XboxButtonEnum)
+        self.ds4_key_ultimate_opt.value_changed.connect(self._on_ds4_key_ultimate_changed)
+        gamepad_group.addSettingCard(self.ds4_key_ultimate_opt)
+
+        self.ds4_key_interact_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='交互', options_enum=XboxButtonEnum)
+        self.ds4_key_interact_opt.value_changed.connect(self._on_ds4_key_interact_changed)
+        gamepad_group.addSettingCard(self.ds4_key_interact_opt)
+
+        return gamepad_group
 
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)
@@ -78,6 +173,55 @@ class SettingGameInterface(VerticalScrollInterface):
         self.key_special_attack_opt.setValue(self.ctx.game_config.key_special_attack)
         self.key_ultimate_opt.setValue(self.ctx.game_config.key_ultimate)
         self.key_interact_opt.setValue(self.ctx.game_config.key_interact)
+
+        self._update_gamepad_part()
+
+    def _update_gamepad_part(self) -> None:
+        """
+        手柄部分更新显示
+        :return:
+        """
+        self.gamepad_type_opt.setValue(self.ctx.game_config.gamepad_type)
+
+        is_xbox = self.ctx.game_config.gamepad_type == GamepadTypeEnum.XBOX.value.value
+
+        self.xbox_key_press_time_opt.setValue(str(self.ctx.game_config.xbox_key_press_time))
+        self.xbox_key_normal_attack_opt.setValue(self.ctx.game_config.xbox_key_normal_attack)
+        self.xbox_key_dodge_opt.setValue(self.ctx.game_config.xbox_key_dodge)
+        self.xbox_key_switch_next_opt.setValue(self.ctx.game_config.xbox_key_switch_next)
+        self.xbox_key_switch_prev_opt.setValue(self.ctx.game_config.xbox_key_switch_prev)
+        self.xbox_key_special_attack_opt.setValue(self.ctx.game_config.xbox_key_special_attack)
+        self.xbox_key_ultimate_opt.setValue(self.ctx.game_config.xbox_key_ultimate)
+        self.xbox_key_interact_opt.setValue(self.ctx.game_config.xbox_key_interact)
+
+        self.xbox_key_press_time_opt.setVisible(is_xbox)
+        self.xbox_key_normal_attack_opt.setVisible(is_xbox)
+        self.xbox_key_dodge_opt.setVisible(is_xbox)
+        self.xbox_key_switch_next_opt.setVisible(is_xbox)
+        self.xbox_key_switch_prev_opt.setVisible(is_xbox)
+        self.xbox_key_special_attack_opt.setVisible(is_xbox)
+        self.xbox_key_ultimate_opt.setVisible(is_xbox)
+        self.xbox_key_interact_opt.setVisible(is_xbox)
+
+        is_ds4 = self.ctx.game_config.gamepad_type == GamepadTypeEnum.DS4.value.value
+
+        self.ds4_key_press_time_opt.setValue(str(self.ctx.game_config.ds4_key_press_time))
+        self.ds4_key_normal_attack_opt.setValue(self.ctx.game_config.ds4_key_normal_attack)
+        self.ds4_key_dodge_opt.setValue(self.ctx.game_config.ds4_key_dodge)
+        self.ds4_key_switch_next_opt.setValue(self.ctx.game_config.ds4_key_switch_next)
+        self.ds4_key_switch_prev_opt.setValue(self.ctx.game_config.ds4_key_switch_prev)
+        self.ds4_key_special_attack_opt.setValue(self.ctx.game_config.ds4_key_special_attack)
+        self.ds4_key_ultimate_opt.setValue(self.ctx.game_config.ds4_key_ultimate)
+        self.ds4_key_interact_opt.setValue(self.ctx.game_config.ds4_key_interact)
+
+        self.ds4_key_press_time_opt.setVisible(is_ds4)
+        self.ds4_key_normal_attack_opt.setVisible(is_ds4)
+        self.ds4_key_dodge_opt.setVisible(is_ds4)
+        self.ds4_key_switch_next_opt.setVisible(is_ds4)
+        self.ds4_key_switch_prev_opt.setVisible(is_ds4)
+        self.ds4_key_special_attack_opt.setVisible(is_ds4)
+        self.ds4_key_ultimate_opt.setVisible(is_ds4)
+        self.ds4_key_interact_opt.setVisible(is_ds4)
 
     def _on_game_region_changed(self, index, value):
         self.ctx.game_config.game_region = value
@@ -103,3 +247,55 @@ class SettingGameInterface(VerticalScrollInterface):
 
     def _on_key_interact_changed(self, key: str) -> None:
         self.ctx.game_config.key_interact = key
+
+    def _on_gamepad_type_changed(self, idx: int, value: str) -> None:
+        self.ctx.game_config.gamepad_type = value
+        self._update_gamepad_part()
+
+    def _on_xbox_key_press_time_changed(self, value: str) -> None:
+        self.ctx.game_config.xbox_key_press_time = float(value)
+
+    def _on_xbox_key_normal_attack_changed(self, idx: int, key: str) -> None:
+        self.ctx.game_config.xbox_key_normal_attack = key
+
+    def _on_xbox_key_dodge_changed(self, idx: int, key: str) -> None:
+        self.ctx.game_config.xbox_key_dodge = key
+
+    def _on_xbox_key_switch_next_changed(self, idx: int, key: str) -> None:
+        self.ctx.game_config.xbox_key_switch_next = key
+
+    def _on_xbox_key_switch_prev_changed(self, idx: int, key: str) -> None:
+        self.ctx.game_config.xbox_key_switch_prev = key
+
+    def _on_xbox_key_special_attack_changed(self, idx: int, key: str) -> None:
+        self.ctx.game_config.xbox_key_special_attack = key
+
+    def _on_xbox_key_ultimate_changed(self, idx: int, key: str) -> None:
+        self.ctx.game_config.xbox_key_ultimate = key
+
+    def _on_xbox_key_interact_changed(self, idx: int, key: str) -> None:
+        self.ctx.game_config.xbox_key_interact = key
+
+    def _on_ds4_key_press_time_changed(self, value: str) -> None:
+        self.ctx.game_config.ds4_key_press_time = float(value)
+
+    def _on_ds4_key_normal_attack_changed(self, idx: int, key: str) -> None:
+        self.ctx.game_config.ds4_key_normal_attack = key
+
+    def _on_ds4_key_dodge_changed(self, idx: int, key: str) -> None:
+        self.ctx.game_config.ds4_key_dodge = key
+
+    def _on_ds4_key_switch_next_changed(self, idx: int, key: str) -> None:
+        self.ctx.game_config.ds4_key_switch_next = key
+
+    def _on_ds4_key_switch_prev_changed(self, idx: int, key: str) -> None:
+        self.ctx.game_config.ds4_key_switch_prev = key
+
+    def _on_ds4_key_special_attack_changed(self, idx: int, key: str) -> None:
+        self.ctx.game_config.ds4_key_special_attack = key
+
+    def _on_ds4_key_ultimate_changed(self, idx: int, key: str) -> None:
+        self.ctx.game_config.ds4_key_ultimate = key
+
+    def _on_ds4_key_interact_changed(self, idx: int, key: str) -> None:
+        self.ctx.game_config.ds4_key_interact = key

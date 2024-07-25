@@ -21,6 +21,11 @@ class ZPcController(PcControllerBase):
                                   standard_height=standard_height)
 
         self.game_config: GameConfig = game_config
+        self.key_dodge: str = self.game_config.key_dodge
+        self.key_switch_next: str = self.game_config.key_switch_next
+        self.key_switch_prev: str = self.game_config.key_switch_prev
+        self.key_normal_attack: str = self.game_config.key_normal_attack
+        self.key_special_attack: str = self.game_config.key_special_attack
 
     def fill_uid_black(self, screen: MatLike) -> MatLike:
         """
@@ -35,35 +40,62 @@ class ZPcController(PcControllerBase):
             new_image=True
         )
 
+    def enable_keyboard(self):
+        PcControllerBase.enable_keyboard(self)
+
+        self.key_dodge = self.game_config.key_dodge
+        self.key_switch_next = self.game_config.key_switch_next
+        self.key_switch_prev = self.game_config.key_switch_prev
+        self.key_normal_attack = self.game_config.key_normal_attack
+        self.key_special_attack = self.game_config.key_special_attack
+
+    def enable_xbox(self):
+        PcControllerBase.enable_xbox(self)
+
+        self.key_dodge = self.game_config.xbox_key_dodge
+        self.key_switch_next = self.game_config.xbox_key_switch_next
+        self.key_switch_prev = self.game_config.xbox_key_switch_prev
+        self.key_normal_attack = self.game_config.xbox_key_normal_attack
+        self.key_special_attack = self.game_config.xbox_key_special_attack
+
+    def enable_ds4(self):
+        PcControllerBase.enable_ds4(self)
+
+        self.key_dodge = self.game_config.ds4_key_dodge
+        self.key_switch_next = self.game_config.ds4_key_switch_next
+        self.key_switch_prev = self.game_config.ds4_key_switch_prev
+        self.key_normal_attack = self.game_config.ds4_key_normal_attack
+        self.key_special_attack = self.game_config.ds4_key_special_attack
+
     def dodge(self) -> None:
         """
         闪避
         :return:
         """
-        self.btn_controller.tap(self.game_config.key_dodge)
+        self.btn_controller.tap(self.key_dodge)
 
     def switch_next(self) -> None:
         """
         切换下一个人
         :return:
         """
-        self.btn_controller.tap(self.game_config.key_switch_next)
+        self.btn_controller.tap(self.key_switch_next)
 
     def switch_prev(self) -> None:
         """
         切换上一个人
         :return:
         """
-        self.btn_controller.tap(self.game_config.key_switch_prev)
+        self.btn_controller.tap(self.key_switch_prev)
 
     def normal_attack(self) -> None:
         """
         普通攻击
         """
-        self.btn_controller.tap(self.game_config.key_normal_attack)
+        self.btn_controller.tap(self.key_normal_attack)
 
     def special_attack(self) -> None:
         """
         特殊攻击
         """
-        self.btn_controller.tap(self.game_config.key_special_attack)
+        self.btn_controller.tap(self.key_special_attack)

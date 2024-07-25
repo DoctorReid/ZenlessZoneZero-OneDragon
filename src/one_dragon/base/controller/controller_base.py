@@ -16,14 +16,12 @@ class ScreenshotWithTime:
 class ControllerBase:
 
     def __init__(self,
-                 screenshot_mss:bool = False,
                  screenshot_alive_seconds: float = 5,
                  max_screenshot_cnt: int = 10):
         """
         基础控制器的定义
         """
         self.screenshot_history: List[ScreenshotWithTime] = []
-        self.screenshot_mss:bool = screenshot_mss # 截图的方式，0为原来截图，1为mss截图
         self.screenshot_alive_seconds: float = screenshot_alive_seconds  # 截图在内存的存活时间
         self.max_screenshot_cnt: int = max_screenshot_cnt  # 内存中最多保持的截图数量
 

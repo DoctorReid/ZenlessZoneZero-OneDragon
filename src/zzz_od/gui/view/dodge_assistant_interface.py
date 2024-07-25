@@ -3,7 +3,6 @@ import os.path
 from PySide6.QtCore import Qt
 from qfluentwidgets import FluentIcon, PushButton
 
-from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.gui.component.app_event_log_display_card import AppEventLogDisplayCard
 from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
@@ -14,8 +13,9 @@ from zzz_od.application.dodge_assistant.dodge_assistant_config import get_dodge_
     get_dodge_config_file_path
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.auto_battle.auto_battle_loader import AutoBattleLoader
+from zzz_od.config.game_config import GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
-from zzz_od.gui.view.app_run_interface import AppRunInterface
+from one_dragon.gui.view.app_run_interface import AppRunInterface
 
 
 class DodgeAssistantInterface(AppRunInterface):
@@ -51,6 +51,14 @@ class DodgeAssistantInterface(AppRunInterface):
         self.screenshot_interval_opt.value_changed.connect(self._on_screenshot_interval_changed)
         top_widget.add_widget(self.screenshot_interval_opt)
 
+        self.gamepad_type_opt = ComboBoxSettingCard(
+            icon=FluentIcon.GAME, title='手柄类型',
+            content='需先安装虚拟手柄依赖，参考文档或使用安装器。仅在闪避助手生效。',
+            options_enum=GamepadTypeEnum
+        )
+        self.gamepad_type_opt.value_changed.connect(self._on_gamepad_type_changed)
+        top_widget.add_widget(self.gamepad_type_opt)
+
         app_event_log_card = AppEventLogDisplayCard(ctx, AutoBattleLoader.get_all_state_event_ids())
 
         AppRunInterface.__init__(
@@ -58,7 +66,7 @@ class DodgeAssistantInterface(AppRunInterface):
             ctx=ctx,
             object_name='dodge_assistant_interface',
             nav_text_cn='闪避助手',
-            nav_icon=FluentIcon.PLAY,
+            nav_icon=FluentIcon.GAME,
             parent=parent,
             widget_at_top=top_widget,
             app_event_log_card=app_event_log_card
@@ -74,6 +82,7 @@ class DodgeAssistantInterface(AppRunInterface):
         self.dodge_opt.setValue(self.ctx.dodge_assistant_config.dodge_way)
         self.gpu_opt.setValue(self.ctx.dodge_assistant_config.use_gpu)
         self.screenshot_interval_opt.setValue(str(self.ctx.dodge_assistant_config.screenshot_interval))
+        self.gamepad_type_opt.setValue(self.ctx.dodge_assistant_config.gamepad_type)
 
     def _update_dodge_way_opts(self) -> None:
         """
@@ -116,3 +125,6 @@ class DodgeAssistantInterface(AppRunInterface):
             os.remove(path)
 
         self._update_dodge_way_opts()
+
+    def _on_gamepad_type_changed(self, idx: int, value: str) -> None:
+        self.ctx.dodge_assistant_config.gamepad_type = value
