@@ -102,23 +102,3 @@ class MapAreaService:
             return area.tp_list[idx]
         else:
             return None
-
-    def get_direction_to_target_tp(self, area: MapArea, current_tp: str, target_tp: str) -> int:
-        """
-        获取从 当前传送点 到 目标传送点 需要往哪个方向点击多少次可到达
-        :param area: 当前区域
-        :param current_tp: 当前传送点
-        :param target_tp: 目标传送点
-        :return: 正数向右 负数向左
-        """
-        current_idx = area.tp_list.index(current_tp)
-        target_idx = area.tp_list.index(target_tp)
-
-        result = target_idx - current_idx
-        length = len(area.tp_list)
-        if result > 0 and length - result < result:  # 右边走太远了 走左边
-            result = -(length - result)
-        elif result < 0 and length - (-result) < (-result):  # 左边走太远了 走右边
-            result = length - (-result)
-
-        return result

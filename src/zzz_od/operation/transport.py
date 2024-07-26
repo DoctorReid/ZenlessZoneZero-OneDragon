@@ -1,7 +1,8 @@
 import time
 
-from typing import ClassVar
+from typing import ClassVar, List
 
+from one_dragon.base.geometry.point import Point
 from one_dragon.base.operation.operation import OperationNode, OperationRoundResult
 from one_dragon.utils import cv2_utils
 from one_dragon.utils.i18_utils import gt
@@ -99,7 +100,7 @@ class Transport(ZOperation):
         current_area: MapArea = self.ctx.map_service.get_best_match_area(ocr_area_name)
 
         if current_area is None:
-            return self.round_retry('无法识别当前区域')
+            return self.round_retry('无法识别当前区域', wait_round_time=1)
 
         if current_area == target_area:
             return self.round_success()
@@ -127,27 +128,39 @@ class Transport(ZOperation):
         area = self.ctx.screen_loader.get_area('地图', '传送点名称')
         part = cv2_utils.crop_image_only(screen, area.rect)
 
-        ocr_tp_name = self.ctx.ocr.run_ocr_single_line(part)
-        current_area: MapArea = self.ctx.map_service.area_name_map[self.area_name]
-        current_tp: str = self.ctx.map_service.get_best_match_tp(self.area_name, ocr_tp_name)
-        target_tp: str = self.tp_name
+        ocr_map = self.ctx.ocr.run_ocr(part)
 
-        if current_tp is None:
-            return self.round_retry('无法识别当前传送点')
+        if len(ocr_map) == 0:
+            return self.round_retry('未识别到传送点', wait_round_time=1)
 
-        if current_tp == target_tp:
-            return self.round_success()
+        target_ocr_str = None
+        display_tp_list: List[str] = []  # 当前显示的传送点名称
+        for ocr_str in ocr_map.keys():
+            ocr_tp_name = self.ctx.map_service.get_best_match_tp(self.area_name, ocr_str)
+            display_tp_list.append(ocr_tp_name)
+            if self.tp_name == ocr_tp_name:
+                target_ocr_str = ocr_str
 
-        # 尝试点击换到目标区域
-        direction = self.ctx.map_service.get_direction_to_target_area(current_area, current_tp, target_tp)
-        if direction > 0:
-            click_area = self.ctx.screen_loader.get_area('地图', '下一个传送点')
-        else:
-            click_area = self.ctx.screen_loader.get_area('地图', '上一个传送点')
+        if target_ocr_str is not None:
+            mrl = ocr_map[target_ocr_str]
+            self.ctx.controller.click(mrl.max.center + area.left_top)
+            return self.round_success(wait=1)
 
-        for i in range(abs(direction)):
-            self.ctx.controller.click(click_area.center)
-            time.sleep(0.5)
+        area_tp_list: List[str] = self.ctx.map_service.area_name_map[self.area_name].tp_list  # 当前区域的传送点名称
+        left_cnt: int = 0  # 当前出现在画面上的 在目标传送点左方的传送点数量
+        for area_tp in area_tp_list:
+            if area_tp == self.tp_name:
+                break
+            left_cnt += 1
+
+        if left_cnt > 0:  # 往右滑
+            from_point = area.center
+            end_point = from_point + Point(-200, 0)
+            self.ctx.controller.drag_to(start=from_point, end=end_point)
+        else:  # 往左滑
+            from_point = area.center
+            end_point = from_point + Point(150, 0)  # 跟上面滑动距离稍微不一样 防止一直重复左右都找不到
+            self.ctx.controller.drag_to(start=from_point, end=end_point)
 
         return self.round_retry(wait=0.5)
 
