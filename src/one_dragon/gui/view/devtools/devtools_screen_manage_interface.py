@@ -2,6 +2,7 @@ import os
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QWidget, QFileDialog, QTableWidgetItem
 from qfluentwidgets import FluentIcon, PushButton, TableWidget, ToolButton, ComboBox
+from typing import Optional
 
 from one_dragon.base.geometry.rectangle import Rect
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
@@ -30,21 +31,17 @@ class ScreenInfoWorker(QObject):
 class DevtoolsScreenManageInterface(VerticalScrollInterface):
 
     def __init__(self, ctx: OneDragonContext, parent=None):
-        content_widget = RowWidget()
-
         VerticalScrollInterface.__init__(
             self,
             ctx=ctx,
-            content_widget=content_widget,
+            content_widget=None,
             object_name='devtools_screen_manage_interface',
             parent=parent,
             nav_text_cn='画面管理'
         )
 
-        content_widget.add_widget(self._init_left_part())
-        content_widget.add_widget(self._init_right_part())
-
-        self.chosen_screen: ScreenInfo = None
+        self.chosen_screen: Optional[ScreenInfo] = None
+        self.last_screen_dir: Optional[str] = None  # 上一次选择的图片路径
 
         self._whole_update = ScreenInfoWorker()
         self._whole_update.signal.connect(self._update_display_by_screen)
@@ -57,6 +54,12 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
 
         self._existed_yml_update = ScreenInfoWorker()
         self._existed_yml_update.signal.connect(self._update_existed_yml_options)
+
+    def get_content_widget(self) -> QWidget:
+        content_widget = RowWidget()
+        content_widget.add_widget(self._init_left_part())
+        content_widget.add_widget(self._init_right_part())
+        return content_widget
 
     def _init_left_part(self) -> QWidget:
         widget = ColumnWidget()
@@ -334,7 +337,10 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
         选择已有的环图片
         :return:
         """
-        default_dir = os_utils.get_path_under_work_dir('.debug', 'images')
+        if self.last_screen_dir is not None:
+            default_dir = self.last_screen_dir
+        else:
+            default_dir = os_utils.get_path_under_work_dir('.debug', 'images')
         file_path, _ = QFileDialog.getOpenFileName(
             self,
             gt('选择图片', 'ui'),
@@ -344,6 +350,7 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
         if file_path is not None and file_path.endswith('.png'):
             fix_file_path = os.path.normpath(file_path)
             log.info('选择路径 %s', fix_file_path)
+            self.last_screen_dir = os.path.dirname(fix_file_path)
             self._on_image_chosen(fix_file_path)
 
     def _on_image_chosen(self, image_file_path: str) -> None:

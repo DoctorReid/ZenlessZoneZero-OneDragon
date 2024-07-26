@@ -23,22 +23,26 @@ from one_dragon.utils.log_utils import log
 class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
 
     def __init__(self, ctx: OneDragonContext, parent=None):
+        VerticalScrollInterface.__init__(
+            self,
+            ctx=ctx,
+            object_name='devtools_template_helper_interface',
+            parent=parent,
+            content_widget=None,
+            nav_text_cn='模板管理'
+        )
+
+        self.chosen_template: Optional[TemplateInfo] = None
+        self.last_screen_dir: Optional[str] = None  # 上一次选择的图片路径
+
+    def get_content_widget(self) -> QWidget:
         content_widget = RowWidget()
 
         content_widget.add_widget(self._init_left_part())
         content_widget.add_widget(self._init_mid_part())
         content_widget.add_widget(self._init_right_part())
 
-        self.chosen_template: Optional[TemplateInfo] = None
-
-        VerticalScrollInterface.__init__(
-            self,
-            ctx=ctx,
-            object_name='devtools_template_helper_interface',
-            parent=parent,
-            content_widget=content_widget,
-            nav_text_cn='模板管理'
-        )
+        return content_widget
 
     def _init_left_part(self) -> QWidget:
         widget = ColumnWidget()
@@ -432,7 +436,11 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
         选择已有的环图片
         :return:
         """
-        default_dir = os_utils.get_path_under_work_dir('.debug', 'images')
+        if self.last_screen_dir is not None:
+            default_dir = self.last_screen_dir
+        else:
+            default_dir = os_utils.get_path_under_work_dir('.debug', 'images')
+
         file_path, _ = QFileDialog.getOpenFileName(
             self,
             gt('选择图片', 'ui'),
@@ -442,6 +450,7 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
         if file_path is not None and file_path.endswith('.png'):
             fix_file_path = os.path.normpath(file_path)
             log.info('选择路径 %s', fix_file_path)
+            self.last_screen_dir = os.path.dirname(fix_file_path)
             self._on_image_chosen(fix_file_path)
 
     def _on_image_chosen(self, image_file_path: str) -> None:
