@@ -5,9 +5,10 @@ from typing import Optional, List, Callable
 
 from one_dragon.base.conditional_operation.atomic_op import AtomicOp
 from one_dragon.base.conditional_operation.operation_template import OperationTemplate
-from one_dragon.base.conditional_operation.scene_handler import SceneHandler, construct_scene_handler
-from one_dragon.base.conditional_operation.scene_handler_template import SceneHandlerTemplate
+from one_dragon.base.conditional_operation.scene_handler import SceneHandler
+from one_dragon.base.conditional_operation.state_handler_template import StateHandlerTemplate
 from one_dragon.base.conditional_operation.state_recorder import StateRecorder
+from one_dragon.base.conditional_operation.utils import construct_scene_handler
 from one_dragon.base.config.yaml_config import YamlConfig
 from one_dragon.base.operation.context_event_bus import ContextEventBus, ContextEventItem
 from one_dragon.utils.log_utils import log
@@ -39,7 +40,7 @@ class ConditionalOperator(YamlConfig):
             event_bus: ContextEventBus,
             state_recorders: List[StateRecorder],
             op_getter: Callable[[str, List[str]], AtomicOp],
-            scene_handler_getter: Callable[[str], SceneHandlerTemplate],
+            scene_handler_getter: Callable[[str], StateHandlerTemplate],
             operation_template_getter: Callable[[str], OperationTemplate],
     ) -> None:
         """

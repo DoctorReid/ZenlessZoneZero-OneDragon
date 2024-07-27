@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from one_dragon.base.conditional_operation.atomic_op import AtomicOp
 from one_dragon.base.conditional_operation.operation_template import OperationTemplate
-from one_dragon.base.conditional_operation.scene_handler_template import SceneHandlerTemplate
+from one_dragon.base.conditional_operation.state_handler_template import StateHandlerTemplate
 from one_dragon.base.conditional_operation.state_recorder import StateRecorder
 from one_dragon.utils import os_utils
 from zzz_od.auto_battle.atomic_op.dodge import AtomicDodge
@@ -94,13 +94,13 @@ class AutoBattleLoader:
         else:
             raise ValueError('非法的指令 %s' % op_name)
 
-    def get_scene_handler_template(self, template_name: str) -> Optional[SceneHandlerTemplate]:
+    def get_state_handler_template(self, template_name: str) -> Optional[StateHandlerTemplate]:
         """
         获取场景处理器模板
         :param template_name: 模板名称
         :return:
         """
-        sub_dir = 'auto_battle_scene_handler'
+        sub_dir = 'auto_battle_state_handler'
         template_dir = os_utils.get_path_under_work_dir('config', sub_dir)
         file_list = os.listdir(template_dir)
         for file_name in file_list:
@@ -109,7 +109,7 @@ class AutoBattleLoader:
             else:
                 template_id = file_name[0:-4]
 
-            template = SceneHandlerTemplate(sub_dir, template_id)
+            template = StateHandlerTemplate(sub_dir, template_id)
             if template.template_name == template_name:
                 return template
 

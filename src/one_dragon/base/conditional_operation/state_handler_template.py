@@ -3,7 +3,7 @@ from typing import Optional
 from one_dragon.base.config.yaml_config import YamlConfig
 
 
-class SceneHandlerTemplate(YamlConfig):
+class StateHandlerTemplate(YamlConfig):
 
     def __init__(self, sub_dir: str, template_id: str, instance_idx: Optional[int] = None):
         YamlConfig.__init__(

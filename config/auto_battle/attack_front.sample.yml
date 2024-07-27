@@ -1,4 +1,4 @@
-name: "闪避"
+name: "强攻站场-强攻输出"
 scenes:
 - triggers: ["闪避识别-黄光", "闪避识别-红光"]
   interval: 0.5
@@ -14,4 +14,4 @@ scenes:
 - triggers: []
   interval: 0.5
   handlers:
-  - handler_template: "强攻站场模板"
+  - state_template: "强攻站场模板"

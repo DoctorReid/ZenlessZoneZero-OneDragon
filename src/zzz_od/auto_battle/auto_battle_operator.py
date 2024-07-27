@@ -21,13 +21,13 @@ class AutoBattleOperator(ConditionalOperator):
             event_bus=self.ctx,
             state_recorders=self.config_loader.get_all_state_recorders(),
             op_getter=self.config_loader.get_atomic_op,
-            scene_handler_getter=self.config_loader.get_scene_handler_template,
+            scene_handler_getter=self.config_loader.get_state_handler_template,
             operation_template_getter=self.config_loader.get_operation_template
         )
 
 
 if __name__ == '__main__':
     ctx = ZContext()
-    op = AutoBattleOperator(ctx, 'auto_battle', 'attack_front')
+    op = AutoBattleOperator(ctx, 'auto_battle', 'front_stun')
     op.init_operator()
     pass
