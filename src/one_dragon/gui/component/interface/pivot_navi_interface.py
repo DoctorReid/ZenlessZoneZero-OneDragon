@@ -28,9 +28,9 @@ class PivotNavigatorInterface(BaseInterface):
         self.v_box_layout.addWidget(self.stacked_widget)
         self.v_box_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.stacked_widget.currentChanged.connect(self.on_current_index_changed)
         self.create_sub_interface()
         qrouter.setDefaultRouteKey(self.stacked_widget, self.stacked_widget.currentWidget().objectName())
+        self.stacked_widget.currentChanged.connect(self.on_current_index_changed)
 
     def add_sub_interface(self, sub_interface: BaseInterface):
         self.stacked_widget.addWidget(sub_interface)

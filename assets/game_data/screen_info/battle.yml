@@ -46,3 +46,25 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 按键-特殊攻击
+  pc_rect:
+  - 1620
+  - 917
+  - 1720
+  - 1017
+  text: ''
+  lcs_percent: 0.1
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.9
+- area_name: 按键-终结技
+  pc_rect:
+  - 1728
+  - 778
+  - 1826
+  - 876
+  text: ''
+  lcs_percent: 0.1
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

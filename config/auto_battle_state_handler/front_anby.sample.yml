@@ -1,22 +1,5 @@
 template_name: "安比站场模板"
 handlers:
-  - states: "[前台-安比, 0, 2]"
+  - states: "[按键可用-特殊攻击, 0, 2]"
     operations:
-      - op_name: '按键-普通攻击'
-        data: []
-      - op_name: "等待秒数"
-        data: ["0.2"]
-      - op_name: '按键-普通攻击'
-        data: []
-      - op_name: "等待秒数"
-        data: ["0.2"]
-      - op_name: '按键-普通攻击'
-        data: []
-      - op_name: "等待秒数"
-        data: ["0.2"]
-      - op_name: '按键-普通攻击'
-        data: ["1"]
-      - op_name: "等待秒数"
-        data: ["0.2"]
-      - op_name: '按键-普通攻击'
-        data: []
+      - operation_template: "安比3A重击"

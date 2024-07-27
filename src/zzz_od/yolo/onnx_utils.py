@@ -7,12 +7,11 @@ def scale_input_image_u(image: MatLike, onnx_input_width: int, onnx_input_height
     """
     按照 ultralytics 的方式，将图片缩放至模型使用的大小
     参考 https://github.com/orgs/ultralytics/discussions/6994?sort=new#discussioncomment-8382661
-    :param image: 输入的图片 BGR通道
+    :param image: 输入的图片 RBG通道
     :param onnx_input_width: 模型需要的图片宽度
     :param onnx_input_height: 模型需要的图片高度
     :return: 缩放后的图片 RGB通道
     """
-    rgb_img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     img_height, img_width = image.shape[:2]
 
     # 将图像缩放到模型的输入尺寸中较短的一边
@@ -26,10 +25,10 @@ def scale_input_image_u(image: MatLike, onnx_input_width: int, onnx_input_height
     if onnx_input_height != img_height or onnx_input_width != img_width:  # 需要缩放
         input_img = np.full(shape=(onnx_input_height, onnx_input_width, 3),
                             fill_value=114, dtype=np.uint8)
-        scale_img = cv2.resize(rgb_img, (scale_width, scale_height), interpolation=cv2.INTER_LINEAR)
+        scale_img = cv2.resize(image, (scale_width, scale_height), interpolation=cv2.INTER_LINEAR)
         input_img[0:scale_height, 0:scale_width, :] = scale_img
     else:
-        input_img = rgb_img
+        input_img = image
 
     # 缩放后最后的处理
     input_img = input_img / 255.0

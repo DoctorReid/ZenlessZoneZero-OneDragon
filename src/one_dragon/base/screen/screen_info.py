@@ -92,7 +92,7 @@ class ScreenInfo(YamlOperator):
             cv2.rectangle(image,
                           (area.pc_rect.x1, area.pc_rect.y1),
                           (area.pc_rect.x2, area.pc_rect.y2),
-                          (0, 0, 255), 2)
+                          (255, 0, 0), 2)
 
         return image
 

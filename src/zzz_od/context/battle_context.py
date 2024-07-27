@@ -22,6 +22,9 @@ class BattleEventEnum(Enum):
     BTN_SWITCH_NORMAL_ATTACK = '按键-普通攻击'
     BTN_SWITCH_SPECIAL_ATTACK = '按键-特殊攻击'
 
+    STATUS_SPECIAL_READY = '按键可用-特殊攻击'
+    STATUS_ULTIMATE_READY = '按键可用-终结技'
+
 
 class BattleContext:
 
@@ -78,17 +81,21 @@ class BattleContext:
                     self.agent_list.append(agent_enum.value)
                     break
 
-        self.area_agent_3_1: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '角色头像_3_1')
-        self.area_agent_3_2: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '角色头像_3_2')
-        self.area_agent_3_3: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '角色头像_3_3')
-        self.area_agent_2_2: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '角色头像_2_2')
+        self.area_agent_3_1: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '头像-3-1')
+        self.area_agent_3_2: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '头像-3-2')
+        self.area_agent_3_3: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '头像-3-3')
+        self.area_agent_2_2: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '头像-2-2')
 
-    def check_agent_related_async(self, screen: MatLike, screenshot_time: float) -> None:
+        self.area_btn_special: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '按键-特殊攻击')
+        self.area_btn_ultimate: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '按键-终结技')
+
+    def check_battle_screen(self, screen: MatLike, screenshot_time: float) -> None:
         """
-        异步判断角色相关内容 并发送事件
+        异步判断角战斗画面 并发送世界
         :return:
         """
         _battle_check_executor.submit(self.check_agent_related, screen, screenshot_time)
+        _battle_check_executor.submit(self.check_special_attack_btn, screen, screenshot_time)
 
     def check_agent_related(self, screen: MatLike, screenshot_time: float) -> None:
         """
@@ -172,3 +179,21 @@ class BattleContext:
             if agent not in self.agent_list:
                 return False
         return True
+
+    def check_special_attack_btn(self, screen: MatLike, screenshot_time: float) -> None:
+        """
+        识别特殊攻击按钮 看是否可用
+        """
+        part = cv2_utils.crop_image_only(screen, self.area_btn_special.rect)
+        mrl = self.ctx.tm.match_template(part, 'battle', 'btn_special_attack_2',
+                                         threshold=0.9)
+        self.ctx.dispatch_event(BattleEventEnum.STATUS_SPECIAL_READY.value, screenshot_time if mrl is not None else 0)
+
+    def check_ultimate_btn(self, screen: MatLike, screenshot_time: float) -> None:
+        """
+        识别终结技按钮 看是否可用
+        """
+        part = cv2_utils.crop_image_only(screen, self.area_btn_special.rect)
+        mrl = self.ctx.tm.match_template(part, 'battle', 'btn_ultimate_2',
+                                         threshold=0.9)
+        self.ctx.dispatch_event(BattleEventEnum.STATUS_ULTIMATE_READY.value, screenshot_time if mrl is not None else 0)

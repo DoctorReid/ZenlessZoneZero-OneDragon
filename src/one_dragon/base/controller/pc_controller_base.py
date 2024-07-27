@@ -45,13 +45,16 @@ class PcControllerBase(ControllerBase):
         self.sct = None
 
     def init(self) -> bool:
-        import mss
         if self.sct is not None:  # 每次初始化前先关闭上一个
             try:
                 self.sct.close()
             except Exception:
                 pass
-        self.sct = mss.mss()
+        try:
+            import mss
+            self.sct = mss.mss()
+        except Exception:
+            pass
         self.game_win.init_win()
         return self.game_win.active()
 
@@ -111,8 +114,24 @@ class PcControllerBase(ControllerBase):
         :return: 截图
         """
         rect: Rect = self.game_win.win_rect
-        img = screenshot(self.sct,self.screenshot_mss,rect.x1, rect.y1, rect.width, rect.height) 
-        result = cv2.resize(img, (self.standard_width, self.standard_height)) if self.game_win.is_win_scale else img
+
+        left = rect.x1
+        top = rect.y1
+        width = rect.width
+        height = rect.height
+
+        if self.sct is not None:
+            monitor = {"top": top, "left": left, "width": width, "height": height}
+            screenshot = np.array(self.sct.grab(monitor))
+        else:
+            img: Image = pyautogui.screenshot(region=(left, top, width, height))
+            screenshot = np.array(img)
+
+        if self.game_win.is_win_scale:
+            result = cv2.resize(screenshot, (self.standard_width, self.standard_height))
+        else:
+            result = screenshot
+
         return result
 
     def scroll(self, down: int, pos: Point = None):
@@ -224,22 +243,3 @@ def get_current_mouse_pos() -> Point:
     """
     pos = pyautogui.position()
     return Point(pos.x, pos.y)
-
-
-def screenshot(sct,screenshot_mss,left, top, width, height) -> MatLike:
-    """
-    对屏幕区域截图
-    :param left:
-    :param top:
-    :param width:
-    :param height:
-    :return:
-    """
-    if screenshot_mss:
-        monitor = {"top": top, "left": left, "width": width, "height": height}
-        img = sct.grab(monitor)
-        result = cv2.cvtColor(np.array(img), cv2.COLOR_BGRA2GRAY)
-    else:
-        img: Image = pyautogui.screenshot(region=(left, top, width, height))
-        result = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
-    return result

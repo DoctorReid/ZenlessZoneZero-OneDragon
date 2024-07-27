@@ -29,16 +29,13 @@ class AutoBattleLoader:
         目前可用的状态事件ID
         :return:
         """
-        event_ids = [
-            YoloStateEventEnum.DODGE_YELLOW.value,
-            YoloStateEventEnum.DODGE_RED.value,
+        event_ids = []
 
-            BattleEventEnum.BTN_DODGE.value,
-            BattleEventEnum.BTN_SWITCH_NEXT.value,
-            BattleEventEnum.BTN_SWITCH_PREV.value,
-            BattleEventEnum.BTN_SWITCH_NORMAL_ATTACK.value,
-            BattleEventEnum.BTN_SWITCH_SPECIAL_ATTACK.value,
-        ]
+        for event_enum in YoloStateEventEnum:
+            event_ids.append(event_enum.value)
+
+        for event_enum in BattleEventEnum:
+            event_ids.append(event_enum.value)
 
         for agent_enum in AgentEnum:
             event_ids.append('前台-' + agent_enum.value.agent_name)

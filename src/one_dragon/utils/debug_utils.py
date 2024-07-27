@@ -33,5 +33,5 @@ def save_debug_image(image, file_name: Optional[str] = None, prefix: str = '') -
         file_name = '%s_%d' % (prefix, round(time.time() * 1000))
     path = get_debug_image_path(file_name)
     log.debug('临时图片保存 %s', path)
-    cv2.imwrite(path, image)
+    cv2.imwrite(path, cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
     return file_name

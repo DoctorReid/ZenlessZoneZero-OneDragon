@@ -1,7 +1,7 @@
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils import i18_utils
 from zzz_od.application.devtools.screenshot_helper.screenshot_helper_config import ScreenshotHelperConfig
-from zzz_od.application.dodge_assistant.dodge_assistant_config import DodgeAssistantConfig
+from zzz_od.application.battle_assistant.battle_assistant_config import BattleAssistantConfig
 from zzz_od.application.email.email_run_record import EmailRunRecord
 from zzz_od.config.game_config import GameConfig, GamePlatformEnum
 from zzz_od.controller.zzz_pc_controller import ZPcController
@@ -30,7 +30,7 @@ class ZContext(OneDragonContext):
 
         # 应用配置
         self.screenshot_helper_config: ScreenshotHelperConfig = ScreenshotHelperConfig(instance_idx)
-        self.dodge_assistant_config: DodgeAssistantConfig = DodgeAssistantConfig(instance_idx)
+        self.dodge_assistant_config: BattleAssistantConfig = BattleAssistantConfig(instance_idx)
 
         # 运行记录
         self.email_run_record: EmailRunRecord = EmailRunRecord(instance_idx)

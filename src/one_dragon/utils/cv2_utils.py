@@ -21,7 +21,14 @@ def read_image(file_path: str) -> Optional[MatLike]:
     if not os.path.exists(file_path):
         return None
     image = cv2.imread(file_path, cv2.IMREAD_UNCHANGED)
-    return image
+    if image.ndim == 2:
+        return image
+    elif image.ndim == 3:
+        return cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    elif image.ndim == 4:
+        return cv2.cvtColor(image, cv2.COLOR_BGRA2RGB)
+    else:
+        return image
 
 
 def show_image(img: MatLike,

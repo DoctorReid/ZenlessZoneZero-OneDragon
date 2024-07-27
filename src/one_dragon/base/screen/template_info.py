@@ -225,7 +225,7 @@ class TemplateInfo(YamlOperator):
         :return:
         """
         rect = self.get_template_rect_by_point()
-        return cv2_utils.crop_image_only(self.screen_image, rect) if rect is not None else None
+        return cv2_utils.crop_image_only(self.screen_image, rect, copy=True) if rect is not None else None
 
     def get_template_raw_to_display(self) -> Optional[MatLike]:
         """
@@ -311,20 +311,20 @@ class TemplateInfo(YamlOperator):
             cv2.rectangle(image_to_show,
                           (left_top.x, left_top.y),
                           (right_bottom.x, right_bottom.y),
-                          (0, 0, 255), 2)
+                          (255, 0, 0), 2)
         elif (self.template_shape == TemplateShapeEnum.CIRCLE.value.value
                 and len(self.point_list) == 2):
             center = self.point_list[0]
             r = cal_utils.distance_between(center, self.point_list[1])
-            cv2.circle(image_to_show, (center.x, center.y), int(r), (0, 0, 255), 2)
+            cv2.circle(image_to_show, (center.x, center.y), int(r), (255, 0, 0), 2)
         elif (self.template_shape == TemplateShapeEnum.QUADRILATERAL.value.value
                 and len(self.point_list) == 4):
             points = np.array([[p.x, p.y] for p in self.point_list], dtype=np.int32)
-            cv2.polylines(image_to_show, [points], isClosed=True, color=(0, 0, 255), thickness=2)
+            cv2.polylines(image_to_show, [points], isClosed=True, color=(255, 0, 0), thickness=2)
         elif (self.template_shape == TemplateShapeEnum.POLYGON.value.value
                 and len(self.point_list) > 2):
             points = np.array([[p.x, p.y] for p in self.point_list], dtype=np.int32)
-            cv2.polylines(image_to_show, [points], isClosed=True, color=(0, 0, 255), thickness=2)
+            cv2.polylines(image_to_show, [points], isClosed=True, color=(255, 0, 0), thickness=2)
 
         return image_to_show
 

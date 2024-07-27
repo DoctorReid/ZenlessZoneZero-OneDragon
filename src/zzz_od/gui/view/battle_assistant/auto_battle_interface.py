@@ -10,8 +10,8 @@ from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
-from zzz_od.application.dodge_assistant.dodge_assistant_app import DodgeAssistantApp
-from zzz_od.application.dodge_assistant.dodge_assistant_config import get_dodge_op_config_list, \
+from zzz_od.application.battle_assistant.dodge_assistant_app import DodgeAssistantApp
+from zzz_od.application.battle_assistant.battle_assistant_config import get_dodge_op_config_list, \
     get_dodge_config_file_path
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.auto_battle.auto_battle_loader import AutoBattleLoader
@@ -39,24 +39,19 @@ class DodgeAssistantInterface(AppRunInterface):
     def get_widget_at_top(self) -> QWidget:
         top_widget = ColumnWidget()
 
-        self.dodge_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='闪避方式',
-                                             content='配置文件在 config/dodge 文件夹，删除会恢复默认配置')
-        top_widget.add_widget(self.dodge_opt)
+        self.config_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='闪避方式',
+                                              content='配置文件在 config/auto_battle 文件夹，删除会恢复默认配置')
+        top_widget.add_widget(self.config_opt)
 
         self.del_btn = PushButton(text='删除')
-        self.dodge_opt.hBoxLayout.addWidget(self.del_btn, alignment=Qt.AlignmentFlag.AlignRight)
-        self.dodge_opt.hBoxLayout.addSpacing(16)
+        self.config_opt.hBoxLayout.addWidget(self.del_btn, alignment=Qt.AlignmentFlag.AlignRight)
+        self.config_opt.hBoxLayout.addSpacing(16)
         self.del_btn.clicked.connect(self._on_del_clicked)
 
         self.gpu_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='GPU运算',
                                          content='游戏画面掉帧的话 可以不启用 保证截图间隔+推理耗时在50ms内即可')
         self.gpu_opt.value_changed.connect(self._on_gpu_changed)
         top_widget.add_widget(self.gpu_opt)
-
-        self.screenshot_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='MSS截图',
-                                         content='实验性截图机制，约减少10~20ms的截图处理时间')
-        self.screenshot_opt.value_changed.connect(self._on_screenshot_changed)
-        top_widget.add_widget(self.screenshot_opt)
 
         self.screenshot_interval_opt = TextSettingCard(icon=FluentIcon.GAME, title='截图间隔(秒)',
                                                        content='游戏画面掉帧的话 可以适当加大截图间隔 保证截图间隔+推理耗时在50ms内即可')
@@ -83,7 +78,7 @@ class DodgeAssistantInterface(AppRunInterface):
         """
         AppRunInterface.on_interface_shown(self)
         self._update_dodge_way_opts()
-        self.dodge_opt.setValue(self.ctx.dodge_assistant_config.dodge_way)
+        self.config_opt.setValue(self.ctx.dodge_assistant_config.dodge_assistant_config)
         self.gpu_opt.setValue(self.ctx.dodge_assistant_config.use_gpu)
         self.screenshot_interval_opt.setValue(str(self.ctx.dodge_assistant_config.screenshot_interval))
         self.gamepad_type_opt.setValue(self.ctx.dodge_assistant_config.gamepad_type)
@@ -94,20 +89,17 @@ class DodgeAssistantInterface(AppRunInterface):
         :return:
         """
         try:
-            self.dodge_opt.value_changed.disconnect(self._on_dodge_way_changed)
+            self.config_opt.value_changed.disconnect(self._on_dodge_way_changed)
         except:
             pass
-        self.dodge_opt.set_options_by_list(get_dodge_op_config_list())
-        self.dodge_opt.value_changed.connect(self._on_dodge_way_changed)
+        self.config_opt.set_options_by_list(get_dodge_op_config_list())
+        self.config_opt.value_changed.connect(self._on_dodge_way_changed)
 
     def _on_dodge_way_changed(self, index, value):
-        self.ctx.dodge_assistant_config.dodge_way = value
+        self.ctx.dodge_assistant_config.dodge_assistant_config = value
 
     def _on_gpu_changed(self, value: bool):
         self.ctx.dodge_assistant_config.use_gpu = value
-
-    def _on_screenshot_changed(self, value: bool):
-        self.ctx.controller.screenshot_mss =value
 
     def _on_screenshot_interval_changed(self, value: str) -> None:
         self.ctx.dodge_assistant_config.screenshot_interval = float(value)
@@ -117,10 +109,10 @@ class DodgeAssistantInterface(AppRunInterface):
 
     def _on_del_clicked(self) -> None:
         """
-        删除配置
+        删除配置 只删除非 sample 的
         :return:
         """
-        item: str = self.dodge_opt.getValue()
+        item: str = self.config_opt.getValue()
         if item is None:
             return
 

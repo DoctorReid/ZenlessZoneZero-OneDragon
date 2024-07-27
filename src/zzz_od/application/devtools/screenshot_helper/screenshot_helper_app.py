@@ -54,7 +54,7 @@ class ScreenshotHelperApp(ZApplication):
         screen = self.screenshot()
 
         if self.ctx.screenshot_helper_config.dodge_detect:
-            if self.ctx.should_dodge(screen, now, use_gpu=True):
+            if self.ctx.yolo.should_dodge(screen, now, use_gpu=True):
                 debug_utils.save_debug_image(screen, prefix='dodge_wrong')
 
         if self.to_save_screenshot:

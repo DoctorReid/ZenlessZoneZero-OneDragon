@@ -8,18 +8,18 @@ from one_dragon.utils import os_utils
 from zzz_od.config.game_config import GamepadTypeEnum
 
 
-class DodgeAssistantConfig(YamlConfig):
+class BattleAssistantConfig(YamlConfig):
 
     def __init__(self, instance_idx: int):
-        YamlConfig.__init__(self, 'dodge_assistant', instance_idx=instance_idx)
+        YamlConfig.__init__(self, 'battle_assistant', instance_idx=instance_idx)
 
     @property
-    def dodge_way(self) -> str:
-        return self.get('dodge_way', 'default_dodge')
+    def dodge_assistant_config(self) -> str:
+        return self.get('dodge_assistant_config', '闪避')
 
-    @dodge_way.setter
-    def dodge_way(self, new_value: str) -> None:
-        self.update('dodge_way', new_value)
+    @dodge_assistant_config.setter
+    def dodge_assistant_config(self, new_value: str) -> None:
+        self.update('dodge_assistant_config', new_value)
 
     @property
     def use_gpu(self) -> bool:
@@ -44,6 +44,14 @@ class DodgeAssistantConfig(YamlConfig):
     @gamepad_type.setter
     def gamepad_type(self, new_value: str) -> None:
         self.update('gamepad_type', new_value)
+
+    @property
+    def auto_battle_config(self) -> str:
+        return self.get('auto_battle_config', '突破站场-强攻速切')
+
+    @auto_battle_config.setter
+    def auto_battle_config(self, new_value: str) -> None:
+        self.update('auto_battle_config', new_value)
 
 
 def get_dodge_op_config_list() -> List[ConfigItem]:
