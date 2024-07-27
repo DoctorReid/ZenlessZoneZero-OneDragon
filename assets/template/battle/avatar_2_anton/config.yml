@@ -1,0 +1,10 @@
+sub_dir: battle
+template_id: avatar_2_anton
+template_name: 战斗-头像-3-3
+template_shape: quadrilateral
+auto_mask: true
+point_list:
+- 673, 50
+- 660, 81
+- 730, 81
+- 743, 50

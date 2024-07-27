@@ -1,0 +1,10 @@
+sub_dir: battle
+template_id: avatar_2_piper
+template_name: 战斗-头像-2-2
+template_shape: quadrilateral
+auto_mask: true
+point_list:
+- 580, 50
+- 567, 81
+- 637, 81
+- 650, 50
