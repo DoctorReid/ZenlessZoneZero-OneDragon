@@ -42,8 +42,10 @@ class PcControllerBase(ControllerBase):
         self.ds4_controller: Optional[Ds4ButtonController] = None
 
         self.btn_controller: PcButtonController = self.keyboard_controller
+        self.sct = None
 
     def init(self) -> bool:
+        self.sct = mss.mss()
         self.game_win.init_win()
         return self.game_win.active()
 
@@ -103,7 +105,7 @@ class PcControllerBase(ControllerBase):
         :return: 截图
         """
         rect: Rect = self.game_win.win_rect
-        img = screenshot(rect.x1, rect.y1, rect.width, rect.height)
+        img = screenshot(self.sct,self.screenshot_mss,rect.x1, rect.y1, rect.width, rect.height) 
         result = cv2.resize(img, (self.standard_width, self.standard_height)) if self.game_win.is_win_scale else img
         return result
 
@@ -226,7 +228,7 @@ def get_current_mouse_pos() -> Point:
     return Point(pos.x, pos.y)
 
 
-def screenshot(left, top, width, height) -> MatLike:
+def screenshot(sct,screenshot_mss,left, top, width, height) -> MatLike:
     """
     对屏幕区域截图
     :param left:
@@ -235,5 +237,11 @@ def screenshot(left, top, width, height) -> MatLike:
     :param height:
     :return:
     """
-    img: Image = pyautogui.screenshot(region=(left, top, width, height))
-    return cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+    if screenshot_mss:
+        monitor = {"top": top, "left": left, "width": width, "height": height}
+        img = sct.grab(monitor)
+        result = cv2.cvtColor(np.array(img), cv2.COLOR_BGRA2GRAY)
+    else:
+        img: Image = pyautogui.screenshot(region=(left, top, width, height))
+        result = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+    return result
