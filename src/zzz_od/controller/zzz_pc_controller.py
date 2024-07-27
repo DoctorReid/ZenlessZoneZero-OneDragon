@@ -25,6 +25,7 @@ class ZPcController(PcControllerBase):
         self.key_switch_prev: str = self.game_config.key_switch_prev
         self.key_normal_attack: str = self.game_config.key_normal_attack
         self.key_special_attack: str = self.game_config.key_special_attack
+        self.key_ultimate: str = self.game_config.key_ultimate
 
     def fill_uid_black(self, screen: MatLike) -> MatLike:
         """
@@ -47,6 +48,7 @@ class ZPcController(PcControllerBase):
         self.key_switch_prev = self.game_config.key_switch_prev
         self.key_normal_attack = self.game_config.key_normal_attack
         self.key_special_attack = self.game_config.key_special_attack
+        self.key_ultimate: str = self.game_config.key_ultimate
 
     def enable_xbox(self):
         PcControllerBase.enable_xbox(self)
@@ -56,6 +58,7 @@ class ZPcController(PcControllerBase):
         self.key_switch_prev = self.game_config.xbox_key_switch_prev
         self.key_normal_attack = self.game_config.xbox_key_normal_attack
         self.key_special_attack = self.game_config.xbox_key_special_attack
+        self.key_ultimate: str = self.game_config.xbox_key_ultimate
 
     def enable_ds4(self):
         PcControllerBase.enable_ds4(self)
@@ -65,6 +68,7 @@ class ZPcController(PcControllerBase):
         self.key_switch_prev = self.game_config.ds4_key_switch_prev
         self.key_normal_attack = self.game_config.ds4_key_normal_attack
         self.key_special_attack = self.game_config.ds4_key_special_attack
+        self.key_ultimate: str = self.game_config.ds4_key_ultimate
 
     def dodge(self) -> None:
         """
@@ -104,3 +108,9 @@ class ZPcController(PcControllerBase):
             self.btn_controller.tap(self.key_special_attack)
         else:
             self.btn_controller.press(self.key_special_attack, press_time)
+
+    def ultimate(self) -> None:
+        """
+        终结技
+        """
+        self.btn_controller.tap(self.key_ultimate)

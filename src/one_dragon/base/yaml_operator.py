@@ -30,7 +30,6 @@ class YamlOperator:
         if self.file_path is None:
             return
         if not os.path.exists(self.file_path):
-            log.warn(f'配置文件不存在 将使用默认值 {self.file_path}')
             return
 
         try:

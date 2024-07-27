@@ -11,9 +11,10 @@ from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBo
 from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.gui.view.app_run_interface import AppRunInterface
+from zzz_od.application.battle_assistant.auto_battle_app import AutoBattleApp
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_config_file_path, \
     get_auto_battle_op_config_list
-from zzz_od.application.battle_assistant.dodge_assistant_app import DodgeAssistantApp
+from zzz_od.application.battle_assistant.auto_battle_debug_app import AutoBattleDebugApp
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.auto_battle.auto_battle_loader import AutoBattleLoader
 from zzz_od.config.game_config import GamepadTypeEnum
@@ -26,6 +27,7 @@ class AutoBattleInterface(AppRunInterface):
                  ctx: ZContext,
                  parent=None):
         self.ctx: ZContext = ctx
+        self.app: Optional[ZApplication] = None
 
         AppRunInterface.__init__(
             self,
@@ -39,10 +41,16 @@ class AutoBattleInterface(AppRunInterface):
     def get_widget_at_top(self) -> QWidget:
         top_widget = ColumnWidget()
 
-        self.config_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='战斗配置',
-                                              content='配置文件在 config/auto_battle 文件夹，删除会恢复默认配置')
+        self.config_opt = ComboBoxSettingCard(
+            icon=FluentIcon.GAME, title='战斗配置',
+            content='调试为以当前画面做一次判断执行。配置文件在 config/auto_battle 文件夹，删除会恢复默认配置')
         self.config_opt.value_changed.connect(self._on_auto_battle_config_changed)
         top_widget.add_widget(self.config_opt)
+
+        self.debug_btn = PushButton(text='调试')
+        self.config_opt.hBoxLayout.addWidget(self.debug_btn, alignment=Qt.AlignmentFlag.AlignRight)
+        self.config_opt.hBoxLayout.addSpacing(16)
+        self.debug_btn.clicked.connect(self._on_debug_clicked)
 
         self.del_btn = PushButton(text='删除')
         self.config_opt.hBoxLayout.addWidget(self.del_btn, alignment=Qt.AlignmentFlag.AlignRight)
@@ -61,7 +69,7 @@ class AutoBattleInterface(AppRunInterface):
 
         self.gamepad_type_opt = ComboBoxSettingCard(
             icon=FluentIcon.GAME, title='手柄类型',
-            content='需先安装虚拟手柄依赖，参考文档或使用安装器。仅在闪避助手生效。',
+            content='需先安装虚拟手柄依赖，参考文档或使用安装器。仅在战斗助手生效。',
             options_enum=GamepadTypeEnum
         )
         self.gamepad_type_opt.value_changed.connect(self._on_gamepad_type_changed)
@@ -79,7 +87,7 @@ class AutoBattleInterface(AppRunInterface):
         """
         AppRunInterface.on_interface_shown(self)
         self._update_auto_battle_config_opts()
-        self.config_opt.setValue(self.ctx.battle_assistant_config.dodge_assistant_config)
+        self.config_opt.setValue(self.ctx.battle_assistant_config.auto_battle_config)
         self.gpu_opt.setValue(self.ctx.battle_assistant_config.use_gpu)
         self.screenshot_interval_opt.setValue(str(self.ctx.battle_assistant_config.screenshot_interval))
         self.gamepad_type_opt.setValue(self.ctx.battle_assistant_config.gamepad_type)
@@ -106,7 +114,21 @@ class AutoBattleInterface(AppRunInterface):
         self.ctx.battle_assistant_config.screenshot_interval = float(value)
 
     def get_app(self) -> ZApplication:
-        return DodgeAssistantApp(self.ctx)
+        return self.app
+
+    def _on_start_clicked(self) -> None:
+        """
+        正常运行
+        """
+        self.app = AutoBattleApp(self.ctx)
+        AppRunInterface._on_start_clicked(self)
+
+    def _on_debug_clicked(self) -> None:
+        """
+        调试
+        """
+        self.app = AutoBattleDebugApp(self.ctx)
+        AppRunInterface._on_start_clicked(self)
 
     def _on_del_clicked(self) -> None:
         """

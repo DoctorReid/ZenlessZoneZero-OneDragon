@@ -6,11 +6,12 @@ from one_dragon.base.conditional_operation.operation_template import OperationTe
 from one_dragon.base.conditional_operation.state_handler_template import StateHandlerTemplate
 from one_dragon.base.conditional_operation.state_recorder import StateRecorder
 from one_dragon.utils import os_utils
-from zzz_od.auto_battle.atomic_op.dodge import AtomicDodge
-from zzz_od.auto_battle.atomic_op.normal_attack import AtomicNormalAttack
-from zzz_od.auto_battle.atomic_op.special_attack import AtomicSpecialAttack
-from zzz_od.auto_battle.atomic_op.switch_next import AtomicSwitchNext
-from zzz_od.auto_battle.atomic_op.switch_prev import AtomicSwitchPrev
+from zzz_od.auto_battle.atomic_op.btn_ultimate import AtomicBtnUltimate
+from zzz_od.auto_battle.atomic_op.btn_dodge import AtomicBtnDodge
+from zzz_od.auto_battle.atomic_op.btn_normal_attack import AtomicBtnNormalAttack
+from zzz_od.auto_battle.atomic_op.btn_special_attack import AtomicBtnSpecialAttack
+from zzz_od.auto_battle.atomic_op.btn_switch_next import AtomicBtnSwitchNext
+from zzz_od.auto_battle.atomic_op.btn_switch_prev import AtomicBtnSwitchPrev
 from zzz_od.auto_battle.atomic_op.wait import AtomicWait
 from zzz_od.context.battle_context import BattleEventEnum
 from zzz_od.context.yolo_context import YoloStateEventEnum
@@ -64,11 +65,11 @@ class AutoBattleLoader:
         :return:
         """
         if op_name == BattleEventEnum.BTN_DODGE.value:
-            return AtomicDodge(self.ctx)
+            return AtomicBtnDodge(self.ctx)
         elif op_name == BattleEventEnum.BTN_SWITCH_NEXT.value:
-            return AtomicSwitchNext(self.ctx)
+            return AtomicBtnSwitchNext(self.ctx)
         elif op_name == BattleEventEnum.BTN_SWITCH_PREV.value:
-            return AtomicSwitchPrev(self.ctx)
+            return AtomicBtnSwitchPrev(self.ctx)
         elif op_name == AtomicWait.OP_NAME:
             return AtomicWait(float(op_data[0]))
         elif op_name == BattleEventEnum.BTN_SWITCH_NORMAL_ATTACK.value:
@@ -76,13 +77,15 @@ class AutoBattleLoader:
                 press_time = float(op_data[0])
             else:
                 press_time = None
-            return AtomicNormalAttack(self.ctx, press_time)
+            return AtomicBtnNormalAttack(self.ctx, press_time)
         elif op_name == BattleEventEnum.BTN_SWITCH_SPECIAL_ATTACK.value:
             if len(op_data) > 0:
                 press_time = float(op_data[0])
             else:
                 press_time = None
-            return AtomicSpecialAttack(self.ctx, press_time)
+            return AtomicBtnSpecialAttack(self.ctx, press_time)
+        elif op_name == BattleEventEnum.BTN_ULTIMATE.value:
+            return AtomicBtnUltimate(self.ctx)
         else:
             raise ValueError('非法的指令 %s' % op_name)
 

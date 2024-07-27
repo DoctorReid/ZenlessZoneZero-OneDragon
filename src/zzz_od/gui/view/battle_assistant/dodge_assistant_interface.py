@@ -60,7 +60,7 @@ class DodgeAssistantInterface(AppRunInterface):
 
         self.gamepad_type_opt = ComboBoxSettingCard(
             icon=FluentIcon.GAME, title='手柄类型',
-            content='需先安装虚拟手柄依赖，参考文档或使用安装器。仅在闪避助手生效。',
+            content='需先安装虚拟手柄依赖，参考文档或使用安装器。仅在战斗助手生效。',
             options_enum=GamepadTypeEnum
         )
         self.gamepad_type_opt.value_changed.connect(self._on_gamepad_type_changed)

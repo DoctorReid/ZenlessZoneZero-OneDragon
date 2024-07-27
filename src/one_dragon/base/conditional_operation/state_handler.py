@@ -2,11 +2,13 @@ from typing import List, Optional
 
 from one_dragon.base.conditional_operation.atomic_op import AtomicOp
 from one_dragon.base.conditional_operation.state_cal_tree import StateCalNode
+from one_dragon.utils.log_utils import log
 
 
 class StateHandler:
 
     def __init__(self,
+                 expr: str,
                  state_cal_tree: StateCalNode,
                  sub_states: Optional[List] = None,
                  operations: Optional[List[AtomicOp]] = None
@@ -16,6 +18,7 @@ class StateHandler:
         :param state_cal_tree: 状态判断树
         :param operations: 执行指令
         """
+        self.expr: str = expr
         self.state_cal_tree: StateCalNode = state_cal_tree
         self.sub_states: List[StateHandler] = sub_states
         self.operations: List[AtomicOp] = operations
@@ -34,6 +37,7 @@ class StateHandler:
         elif self.state_cal_tree.in_time_range(now):
             self.running = True
             self._execute()
+            log.debug('触发条件 %s', self.expr)
             return True
         else:
             return False

@@ -1,6 +1,5 @@
-from enum import Enum
-
 from cv2.typing import MatLike
+from enum import Enum
 
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.base.screen.screen_area import ScreenArea
@@ -40,7 +39,6 @@ def find_area(ctx: OneDragonContext, screen: MatLike, screen_name: str, area_nam
     if area.is_text_area:
         rect = area.rect
         part = cv2_utils.crop_image_only(screen, rect)
-        cv2_utils.show_image(part, win_name='part')
 
         ocr_result = ctx.ocr.run_ocr_single_line(part, strict_one_line=True)
 

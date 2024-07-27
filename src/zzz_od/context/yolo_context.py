@@ -1,8 +1,8 @@
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, Future
 
 from cv2.typing import MatLike
 from enum import Enum
-from typing import Optional
+from typing import Optional, List
 
 from one_dragon.utils import os_utils
 from one_dragon.utils.log_utils import log
@@ -39,12 +39,17 @@ class YoloContext:
         # 识别运行状态 保证每种类型只有1实例在进行识别
         self._checking_dodge_flash: bool = False
 
-    def check_screen_async(self, screen: MatLike, screenshot_time: float) -> None:
+    def check_screen(self, screen: MatLike, screenshot_time: float, sync: bool = False) -> None:
         """
         异步识别画面
         :return:
         """
-        _yolo_check_executor.submit(self.check_dodge_flash, screen, screenshot_time)
+        future_list: List[Future] = []
+        future_list.append(_yolo_check_executor.submit(self.check_dodge_flash, screen, screenshot_time))
+
+        if sync:
+            for future in future_list:
+                future.result()
 
     def check_dodge_flash(self, screen: MatLike, screenshot_time: float) -> bool:
         """

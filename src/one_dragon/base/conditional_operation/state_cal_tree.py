@@ -65,9 +65,11 @@ class StateCalNode:
                 return not self.left_child.in_time_range(now)
         elif self.node_type == StateCalNodeType.STATE:
             diff = now - self.state_recorder.last_record_time
-            log.debug('状态 [ %s ] 距离上次 %.2f' % (
+            log.debug('状态 [ %s ] 距离上次 %.2f, 要求区间 [%.2f, %.2f]' % (
                 self.state_recorder.state_name,
-                999 if diff > 999 else diff
+                999 if diff > 999 else diff,
+                self.state_time_range_min,
+                self.state_time_range_max
             ))
             return self.state_time_range_min <= diff <= self.state_time_range_max
         elif self.node_type == StateCalNodeType.TRUE:
@@ -97,6 +99,7 @@ def construct_state_cal_tree(expr_str: str, state_recorders: List[StateRecorder]
     """
     if len(expr_str.strip()) == 0:
         return StateCalNode(StateCalNodeType.TRUE)
+    log.info('构造状态判断树 ' + expr_str)
 
     op_stack = []  # 运算符的压栈
     op_idx_stack = []  # 运算符下标

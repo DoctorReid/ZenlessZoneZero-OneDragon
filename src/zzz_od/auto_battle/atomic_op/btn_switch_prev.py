@@ -3,7 +3,7 @@ from zzz_od.context.battle_context import BattleEventEnum
 from zzz_od.context.zzz_context import ZContext
 
 
-class AtomicSwitchPrev(AtomicOp):
+class AtomicBtnSwitchPrev(AtomicOp):
 
     def __init__(self, ctx: ZContext):
         AtomicOp.__init__(self, op_name=BattleEventEnum.BTN_SWITCH_PREV.value)

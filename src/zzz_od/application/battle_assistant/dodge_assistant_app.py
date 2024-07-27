@@ -34,11 +34,8 @@ class DodgeAssistantApp(ZApplication):
         """
         check_gamepad = OperationNode('手柄检测', self.check_gamepad)
 
-        load_model = OperationNode('加载判断模型', self.load_model)
-        self.add_edge(check_gamepad, load_model)
-
         load_op = OperationNode('加载闪避指令', self.load_op)
-        self.add_edge(load_model, load_op)
+        self.add_edge(check_gamepad, load_op)
 
         init_context = OperationNode('初始化上下文', self.init_context)
         self.add_edge(load_op, init_context)
@@ -77,7 +74,7 @@ class DodgeAssistantApp(ZApplication):
         加载模型
         :return:
         """
-        self.ctx.yolo.init_dodge_model(use_gpu=self.ctx.battle_assistant_config.use_gpu)
+        self.ctx.yolo.init_context(use_gpu=self.ctx.battle_assistant_config.use_gpu)
         return self.round_success()
 
     def load_op(self) -> OperationRoundResult:

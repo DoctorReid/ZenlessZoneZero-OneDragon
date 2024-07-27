@@ -6,7 +6,7 @@ from one_dragon.utils.i18_utils import gt
 class AgentTypeEnum(Enum):
 
     ATTACK = '强攻'
-    STUN = '突破'
+    STUN = '击破'
     SUPPORT = '支援'
     DEFENSE = '防护'
     ANOMALY = '异常'
@@ -90,3 +90,4 @@ class AgentEnum(Enum):
     RINA = Agent('rina', '丽娜', RareTypeEnum.S, AgentTypeEnum.SUPPORT, DmgTypeEnum.ELECTRIC)
     SOLDIER_11 = Agent('soldier_11', '11号', RareTypeEnum.S, AgentTypeEnum.ATTACK, DmgTypeEnum.FIRE)
     SOUKAKU = Agent('soukaku', '苍角', RareTypeEnum.A, AgentTypeEnum.SUPPORT, DmgTypeEnum.ICE)
+    ZHU_YUAN = Agent('zhu_yuan', '朱鸢', RareTypeEnum.S, AgentTypeEnum.ATTACK, DmgTypeEnum.ETHER)

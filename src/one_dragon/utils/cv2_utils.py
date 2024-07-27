@@ -31,6 +31,17 @@ def read_image(file_path: str) -> Optional[MatLike]:
         return image
 
 
+def save_image(img: MatLike, file_path: str) -> None:
+    """
+    保存图片
+    :param img: RBG格式的图片
+    :param file_path: 保存路径
+    """
+    if img.ndim == 3:
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+    cv2.imwrite(file_path, img)
+
+
 def show_image(img: MatLike,
                rects: Union[MatchResult, MatchResultList] = None,
                win_name: str = 'DEBUG', wait: Optional[int] = None, destroy_after: bool = False):
@@ -43,10 +54,9 @@ def show_image(img: MatLike,
     :param destroy_after: 显示后销毁窗口
     :return:
     """
-    to_show = img
+    to_show = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
     if rects is not None:
-        to_show = img.copy()
         if type(rects) == MatchResult:
             cv2.rectangle(to_show, (rects.x, rects.y), (rects.x + rects.w, rects.y + rects.h), (255, 0, 0), 1)
         elif type(rects) == MatchResultList:
@@ -120,6 +130,8 @@ def match_template(source: MatLike, template: MatLike, threshold,
     """
     tx, ty = template.shape[1], template.shape[0]
     # 进行模板匹配
+    # show_image(template, win_name='template')
+    # show_image(mask, win_name='mask')
     result = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED, mask=mask)
 
     match_result_list = MatchResultList(only_best=only_best)
@@ -150,8 +162,6 @@ def concat_vertically(img: MatLike, next_img: MatLike, decision_height: int = 15
         for dh in range(decision_height, next_img.shape[0] // 2, 10):
             cy = next_img.shape[0] // 2
             next_part = next_img[:-dh, :]
-            show_image(img, win_name='img')
-            show_image(next_part, win_name='next_part', wait=0)
             r = match_template(img, next_part, threshold / 100.0).max
             if r is None:
                 continue

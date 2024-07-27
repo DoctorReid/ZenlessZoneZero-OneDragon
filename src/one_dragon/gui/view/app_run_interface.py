@@ -147,7 +147,7 @@ class AppRunInterface(VerticalScrollInterface):
         """
         key: str = event.data
         if key == self.ctx.key_start_running and self.ctx.is_context_stop:
-            self.run_app()
+            self._on_start_clicked()
 
     def run_app(self) -> None:
         """

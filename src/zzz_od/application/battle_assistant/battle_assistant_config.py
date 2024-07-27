@@ -46,3 +46,19 @@ class BattleAssistantConfig(YamlConfig):
     @auto_battle_config.setter
     def auto_battle_config(self, new_value: str) -> None:
         self.update('auto_battle_config', new_value)
+
+    @property
+    def debug_operation_config(self) -> str:
+        return self.get('debug_operation_config', '安比-3A特殊攻击')
+
+    @debug_operation_config.setter
+    def debug_operation_config(self, new_value: str) -> None:
+        self.update('debug_operation_config', new_value)
+
+    @property
+    def debug_operation_repeat(self) -> bool:
+        return self.get('debug_operation_repeat', True)
+
+    @debug_operation_repeat.setter
+    def debug_operation_repeat(self, new_value: bool) -> None:
+        self.update('debug_operation_repeat', new_value)

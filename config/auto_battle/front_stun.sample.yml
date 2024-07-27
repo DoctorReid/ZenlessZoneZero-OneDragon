@@ -18,7 +18,7 @@ scenes:
   handlers:
   - states: "[前台-击破]"
     sub_states:
-      - state_template: "全角色站场模板"
+      - state_template: "站场模板-全角色"
   - states: "![前台-击破]"
     operation:
       - op_name: "按键-切换角色-下一个"

@@ -13,7 +13,7 @@ from zzz_od.config.game_config import GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
 
 
-class AutoBattleApp(ZApplication):
+class AutoBattleDebugApp(ZApplication):
 
     def __init__(self, ctx: ZContext):
         """
@@ -22,7 +22,7 @@ class AutoBattleApp(ZApplication):
         ZApplication.__init__(
             self,
             ctx=ctx, app_id='auto_battle',
-            op_name=gt('自动战斗', 'ui')
+            op_name=gt('自动战斗调试', 'ui')
         )
 
         self.auto_op: Optional[ConditionalOperator] = None
@@ -89,7 +89,6 @@ class AutoBattleApp(ZApplication):
             return self.round_fail('无效的自动战斗指令 请重新选择')
         self.auto_op = AutoBattleOperator(self.ctx, 'auto_battle', config.module_name)
         self.auto_op.init_operator()
-        self.auto_op.start_running_async()
 
         return self.round_success()
 
@@ -111,10 +110,12 @@ class AutoBattleApp(ZApplication):
         now = time.time()
 
         screen = self.screenshot()
-        self.ctx.yolo.check_screen(screen, now)
-        self.ctx.battle.check_screen(screen, now)
+        self.ctx.yolo.check_screen(screen, now, sync=True)
+        self.ctx.battle.check_screen(screen, now, sync=True)
 
-        return self.round_wait(wait_round_time=self.ctx.battle_assistant_config.screenshot_interval)
+        self.auto_op.normal_scene_handler.execute(time.time())
+
+        return self.round_success()
 
     def _on_pause(self, e=None):
         ZApplication._on_pause(self, e)

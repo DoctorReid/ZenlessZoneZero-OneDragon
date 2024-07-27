@@ -112,7 +112,7 @@ class GameConfig(YamlConfig):
     @property
     def key_ultimate(self) -> str:
         """爆发技"""
-        return self.get('key_ultimate', 'e')
+        return self.get('key_ultimate', 'q')
 
     @key_ultimate.setter
     def key_ultimate(self, new_value: str) -> None:

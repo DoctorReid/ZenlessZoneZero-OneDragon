@@ -44,7 +44,6 @@ class OpenMenu(ZOperation):
         :return:
         """
         screen = self.screenshot()
-        cv2_utils.show_image(screen, win_name='debug')
 
         result = self.round_by_find_area(screen, '菜单', '更多')
         if result.is_success:

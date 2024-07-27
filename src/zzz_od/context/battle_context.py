@@ -6,7 +6,7 @@ from enum import Enum
 from typing import Optional, List
 
 from one_dragon.base.screen.screen_area import ScreenArea
-from one_dragon.utils import cv2_utils
+from one_dragon.utils import cv2_utils, os_utils, debug_utils
 from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import Agent, AgentEnum
@@ -21,11 +21,10 @@ class BattleEventEnum(Enum):
     BTN_SWITCH_PREV = '按键-切换角色-上一个'
     BTN_SWITCH_NORMAL_ATTACK = '按键-普通攻击'
     BTN_SWITCH_SPECIAL_ATTACK = '按键-特殊攻击'
+    BTN_ULTIMATE = '按键-终结技'
 
     STATUS_SPECIAL_READY = '按键可用-特殊攻击'
     STATUS_ULTIMATE_READY = '按键可用-终结技'
-
-    ALLOW_ULTIMATE = '允许使用终结技'
 
 
 class BattleContext:
@@ -68,6 +67,12 @@ class BattleContext:
         self.ctx.controller.special_attack(press_time)
         self.ctx.dispatch_event(e, time.time())
 
+    def ultimate(self):
+        e = BattleEventEnum.BTN_ULTIMATE.value
+        log.info(e)
+        self.ctx.controller.ultimate()
+        self.ctx.dispatch_event(e, time.time())
+
     def init_context(self, agent_names: Optional[List[str]] = None) -> None:
         """
         重置上下文
@@ -77,11 +82,12 @@ class BattleContext:
         self.should_check_all_agents = agent_names is None
         self.check_agent_same_times = 0
 
-        for agent_name in agent_names:
-            for agent_enum in AgentEnum:
-                if agent_name == agent_enum.value.agent_name:
-                    self.agent_list.append(agent_enum.value)
-                    break
+        if agent_names is not None:
+            for agent_name in agent_names:
+                for agent_enum in AgentEnum:
+                    if agent_name == agent_enum.value.agent_name:
+                        self.agent_list.append(agent_enum.value)
+                        break
 
         # 画面区域 先读取出来 不要每次用的时候再读取
         self.area_agent_3_1: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '头像-3-1')
@@ -97,15 +103,22 @@ class BattleContext:
         self._checking_special_attack_btn: bool = False
         self._checking_ultimate_btn: bool = False
 
-    def check_screen_async(self, screen: MatLike, screenshot_time: float,
-                           allow_ultimate_list: Optional[List[dict[str, str]]] = None) -> None:
+    def check_screen(self, screen: MatLike, screenshot_time: float,
+                     allow_ultimate_list: Optional[List[dict[str, str]]] = None,
+                     sync: bool = False) -> None:
         """
         异步判断角战斗画面 并发送世界
         :return:
         """
-        _battle_check_executor.submit(self.check_agent_related, screen, screenshot_time)
-        _battle_check_executor.submit(self.check_special_attack_btn, screen, screenshot_time)
-        _battle_check_executor.submit(self.check_ultimate_btn, screen, screenshot_time, allow_ultimate_list)
+        future_list: List[Future] = []
+
+        future_list.append(_battle_check_executor.submit(self.check_agent_related, screen, screenshot_time))
+        future_list.append(_battle_check_executor.submit(self.check_special_attack_btn, screen, screenshot_time))
+        future_list.append(_battle_check_executor.submit(self.check_ultimate_btn, screen, screenshot_time, allow_ultimate_list))
+
+        if sync:
+            for future in future_list:
+                future.result()
 
     def check_agent_related(self, screen: MatLike, screenshot_time: float) -> None:
         """
@@ -199,6 +212,7 @@ class BattleContext:
         :return:
         """
         self.agent_list = current_agent_list
+        log.debug('当前角色列表 %s', [agent.agent_name for agent in self.agent_list])
 
         for i in range(len(self.agent_list)):
             agent = self.agent_list[i]
@@ -219,9 +233,13 @@ class BattleContext:
 
         try:
             part = cv2_utils.crop_image_only(screen, self.area_btn_special.rect)
-            mrl = self.ctx.tm.match_template(part, 'battle', 'btn_special_attack_2',
+            # 判断灰色按钮比较容易
+            mrl = self.ctx.tm.match_template(part, 'battle', 'btn_special_attack_1',
                                              threshold=0.9)
-            self.ctx.dispatch_event(BattleEventEnum.STATUS_SPECIAL_READY.value, screenshot_time if mrl is not None else 0)
+            is_ready = mrl.max is None
+            self.ctx.dispatch_event(BattleEventEnum.STATUS_SPECIAL_READY.value,
+                                    screenshot_time if is_ready else 0,
+                                    output_log=is_ready)
         except Exception:
             log.error('识别特殊攻击按键出错', exc_info=True)
 
@@ -256,11 +274,29 @@ class BattleContext:
                 return
 
         try:
-            part = cv2_utils.crop_image_only(screen, self.area_btn_special.rect)
-            mrl = self.ctx.tm.match_template(part, 'battle', 'btn_ultimate_2',
+            part = cv2_utils.crop_image_only(screen, self.area_btn_ultimate.rect)
+            # 判断灰色按钮比较容易 发光时颜色会变
+            mrl = self.ctx.tm.match_template(part, 'battle', 'btn_ultimate_1',
                                              threshold=0.9)
-            self.ctx.dispatch_event(BattleEventEnum.STATUS_ULTIMATE_READY.value, screenshot_time if mrl is not None else 0)
+            is_ready = mrl.max is None
+            # cv2_utils.show_image(part, win_name='part', wait=0)
+            self.ctx.dispatch_event(BattleEventEnum.STATUS_ULTIMATE_READY.value,
+                                    screenshot_time if is_ready else 0,
+                                    output_log=is_ready)
         except Exception:
             log.error('识别终结技按键出错', exc_info=True)
 
         self._checking_ultimate_btn = False
+
+
+def __debug():
+    ctx = ZContext()
+    battle = BattleContext(ctx)
+    battle.init_context()
+    screen = debug_utils.get_debug_image('_1722074592984')
+    # battle.check_agent(screen, 0)
+    # battle.check_special_attack_btn(screen, 0)
+    battle.check_ultimate_btn(screen, 0)
+
+if __name__ == '__main__':
+    __debug()

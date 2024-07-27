@@ -115,16 +115,16 @@ def construct_state_handler(
             operation_template_getter,
             usage_scene_templates
         )
-        return StateHandler(state_cal_tree, sub_states=sub_handler_list)
+        return StateHandler(states_expr, state_cal_tree, sub_states=sub_handler_list)
     else:
         ops = _get_ops_from_data(
             state_data.get('operations', []),
             op_getter, operation_template_getter,
             set())
-        return StateHandler(state_cal_tree, operations=ops)
+        return StateHandler(states_expr, state_cal_tree, operations=ops)
 
 
-def _get_ops_by_template(
+def get_ops_by_template(
         template_name: str,
         op_getter: Callable[[str, List[str]], AtomicOp],
         operation_template_getter: Callable[[str], OperationTemplate],
@@ -157,7 +157,7 @@ def _get_ops_from_data(
     ops = []
     for operation_data_item in operation_data_list:
         if 'operation_template' in operation_data_item:
-            template_ops = _get_ops_by_template(
+            template_ops = get_ops_by_template(
                 operation_data_item['operation_template'],
                 op_getter, operation_template_getter,
                 usage_templates

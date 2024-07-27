@@ -1,19 +1,20 @@
 import time
 
-from typing import Optional
+from typing import Optional, List
 
-from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
+from one_dragon.base.conditional_operation.atomic_op import AtomicOp
+from one_dragon.base.conditional_operation.utils import get_ops_by_template
 from one_dragon.base.controller.pc_button import pc_button_utils
 from one_dragon.base.operation.operation import OperationNode, OperationRoundResult
 from one_dragon.utils.i18_utils import gt
-from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_op_by_name
+from one_dragon.utils.log_utils import log
 from zzz_od.application.zzz_application import ZApplication
-from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
+from zzz_od.auto_battle.auto_battle_loader import AutoBattleLoader
 from zzz_od.config.game_config import GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
 
 
-class AutoBattleApp(ZApplication):
+class OperationDebugApp(ZApplication):
 
     def __init__(self, ctx: ZContext):
         """
@@ -22,10 +23,11 @@ class AutoBattleApp(ZApplication):
         ZApplication.__init__(
             self,
             ctx=ctx, app_id='auto_battle',
-            op_name=gt('自动战斗', 'ui')
+            op_name=gt('指令调试', 'ui')
         )
 
-        self.auto_op: Optional[ConditionalOperator] = None
+        self.ops: Optional[List[AtomicOp]] = None
+        self.op_idx: int = 0
 
     def add_edges_and_nodes(self) -> None:
         """
@@ -34,14 +36,14 @@ class AutoBattleApp(ZApplication):
         """
         check_gamepad = OperationNode('手柄检测', self.check_gamepad)
 
-        load_op = OperationNode('加载自动战斗指令', self.load_op)
+        load_op = OperationNode('加载动作指令', self.load_op)
         self.add_edge(check_gamepad, load_op)
 
         init_context = OperationNode('初始化上下文', self.init_context)
         self.add_edge(load_op, init_context)
 
-        check = OperationNode('画面识别', self.check_screen)
-        self.add_edge(init_context, check)
+        run_operations = OperationNode('执行指令', self.run_operations)
+        self.add_edge(init_context, run_operations)
 
     def handle_init(self) -> None:
         """
@@ -82,46 +84,52 @@ class AutoBattleApp(ZApplication):
         加载战斗指令
         :return:
         """
-        if self.auto_op is not None:  # 如果有上一个 先销毁
-            self.auto_op.dispose()
-        config = get_auto_battle_op_by_name(self.ctx.battle_assistant_config.auto_battle_config)
-        if config is None:
+        config_loader = AutoBattleLoader(self.ctx)
+        template_name = self.ctx.battle_assistant_config.debug_operation_config
+        operation_template = config_loader.get_operation_template(template_name)
+        if operation_template is None:
             return self.round_fail('无效的自动战斗指令 请重新选择')
-        self.auto_op = AutoBattleOperator(self.ctx, 'auto_battle', config.module_name)
-        self.auto_op.init_operator()
-        self.auto_op.start_running_async()
 
-        return self.round_success()
+        try:
+            self.ops = get_ops_by_template(
+                template_name,
+                config_loader.get_atomic_op,
+                config_loader.get_operation_template,
+                set()
+            )
+            self.op_idx = 0
+            return self.round_success()
+        except Exception:
+            log.error('指令模板加载失败', exc_info=True)
+            return self.round_fail()
 
     def init_context(self) -> OperationRoundResult:
         """
         初始初始化上下文
         :return:
         """
-        self.ctx.yolo.init_context(self.ctx.battle_assistant_config.use_gpu)
-        self.ctx.battle.init_context()
-
         return self.round_success()
 
-    def check_screen(self) -> OperationRoundResult:
+    def run_operations(self) -> OperationRoundResult:
         """
-        识别当前画面 并进行点击
+        执行指令
         :return:
         """
         now = time.time()
 
-        screen = self.screenshot()
-        self.ctx.yolo.check_screen(screen, now)
-        self.ctx.battle.check_screen(screen, now)
-
-        return self.round_wait(wait_round_time=self.ctx.battle_assistant_config.screenshot_interval)
+        self.ops[self.op_idx].execute()
+        self.op_idx += 1
+        if self.op_idx >= len(self.ops):
+            if self.ctx.battle_assistant_config.debug_operation_repeat:
+                self.op_idx = 0
+                return self.round_wait()
+            else:
+                return self.round_success()
+        else:
+            return self.round_wait()
 
     def _on_pause(self, e=None):
         ZApplication._on_pause(self, e)
-        if self.auto_op is not None:
-            self.auto_op.stop_running()
 
     def _on_resume(self, e=None):
         ZApplication._on_resume(self, e)
-        if self.auto_op is not None:
-            self.auto_op.start_running_async()

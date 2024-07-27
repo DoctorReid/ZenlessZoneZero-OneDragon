@@ -165,7 +165,7 @@ class TemplateInfo(YamlOperator):
         self.make_template_dir()
         raw = self.get_template_raw_by_screen_point()
         if raw is not None:
-            cv2.imwrite(get_template_raw_path(self.sub_dir, self.template_id), raw)
+            cv2_utils.save_image(raw, get_template_raw_path(self.sub_dir, self.template_id))
 
     def save_mask(self) -> None:
         """
@@ -175,7 +175,7 @@ class TemplateInfo(YamlOperator):
         self.make_template_dir()
         mask = self.get_template_mask_by_screen_point() if self.auto_mask else None
         if mask is not None:
-            cv2.imwrite(get_template_mask_path(self.sub_dir, self.template_id), mask)
+            cv2_utils.save_image(mask, get_template_mask_path(self.sub_dir, self.template_id))
 
     def delete(self) -> None:
         pass

@@ -35,7 +35,9 @@ class ConditionalOperator(YamlConfig):
         self.event_bus: Optional[ContextEventBus] = None
         self.event_to_scene_handler: dict[str, SceneHandler] = {}  # 需要状态触发的场景处理
         self.normal_scene_handler: Optional[SceneHandler] = None  # 不需要状态触发的场景处理
-        self.running: bool = False  # 是否正在运行
+        self.running: bool = False  # 整体是否正在运行
+        self.normal_scene_running: bool = False  # 不需要状态触发的场景是否在执行
+        self.special_scene_running: bool = False  # 需要状态触发的场景是否在执行
 
     def init(
             self,
@@ -112,7 +114,12 @@ class ConditionalOperator(YamlConfig):
 
         if self.normal_scene_handler is not None:
             while self.running:
-                self.normal_scene_handler.execute(time.time())
+                if self.special_scene_running:
+                    time.sleep(0.5)
+                else:
+                    self.normal_scene_running = True
+                    self.normal_scene_handler.execute(time.time(), sleep_until_next=True)
+                    self.normal_scene_running = False
 
     def _on_event(self, event: ContextEventItem):
         event_id = event.event_id
@@ -129,9 +136,9 @@ class ConditionalOperator(YamlConfig):
             if another_handler != handler:
                 another_handler.stop_running()
 
-        self.running = True
+        self.special_scene_running = True
         handler.execute(event.data)
-        self.running = False
+        self.special_scene_running = False
 
     def stop_running(self) -> None:
         """

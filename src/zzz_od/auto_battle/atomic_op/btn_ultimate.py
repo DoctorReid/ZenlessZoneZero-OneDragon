@@ -3,11 +3,11 @@ from zzz_od.context.battle_context import BattleEventEnum
 from zzz_od.context.zzz_context import ZContext
 
 
-class AtomicSwitchNext(AtomicOp):
+class AtomicBtnUltimate(AtomicOp):
 
     def __init__(self, ctx: ZContext):
-        AtomicOp.__init__(self, op_name=BattleEventEnum.BTN_SWITCH_NEXT.value)
+        AtomicOp.__init__(self, op_name=BattleEventEnum.BTN_ULTIMATE.value)
         self.ctx: ZContext = ctx
 
     def execute(self):
-        self.ctx.battle.switch_next()
+        self.ctx.battle.ultimate()

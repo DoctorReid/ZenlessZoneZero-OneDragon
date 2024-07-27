@@ -9,6 +9,7 @@ from zzz_od.gui.view.setting.setting_game_interface import SettingGameInterface
 class AppSettingInterface(PivotNavigatorInterface):
 
     def __init__(self, ctx: ZContext, parent=None):
+        self.ctx: ZContext = ctx
         PivotNavigatorInterface.__init__(self, ctx=ctx, object_name='app_setting_interface', parent=parent,
                                          nav_text_cn='设置', nav_icon=FluentIcon.SETTING)
 
