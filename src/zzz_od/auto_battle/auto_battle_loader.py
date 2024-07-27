@@ -67,8 +67,16 @@ class AutoBattleLoader:
         elif op_name == AtomicWait.OP_NAME:
             return AtomicWait(float(op_data[0]))
         elif op_name == BattleEventEnum.BTN_SWITCH_NORMAL_ATTACK.value:
-            return AtomicNormalAttack(self.ctx)
+            if len(op_data) > 0:
+                press_time = float(op_data[0])
+            else:
+                press_time = None
+            return AtomicNormalAttack(self.ctx, press_time)
         elif op_name == BattleEventEnum.BTN_SWITCH_SPECIAL_ATTACK.value:
-            return AtomicSpecialAttack(self.ctx)
+            if len(op_data) > 0:
+                press_time = float(op_data[0])
+            else:
+                press_time = None
+            return AtomicSpecialAttack(self.ctx, press_time)
         else:
             raise ValueError('非法的指令 %s' % op_name)

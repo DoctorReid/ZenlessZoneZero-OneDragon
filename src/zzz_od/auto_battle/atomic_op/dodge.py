@@ -10,4 +10,4 @@ class AtomicDodge(AtomicOp):
         self.ctx: ZContext = ctx
 
     def execute(self):
-        self.ctx.dodge()
+        self.ctx.battle.dodge()

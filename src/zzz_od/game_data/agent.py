@@ -1,10 +1,5 @@
-import os
 from enum import Enum
-from functools import lru_cache
-from typing import Optional, List
 
-from one_dragon.base.yaml_operator import YamlOperator
-from one_dragon.utils import os_utils
 from one_dragon.utils.i18_utils import gt
 
 
@@ -56,71 +51,42 @@ class RareTypeEnum(Enum):
             return cls.UNKNOWN
 
 
-class Agent(YamlOperator):
+class Agent:
 
-    def __init__(self, agent_id: str):
+    def __init__(self, agent_id: str, agent_name: str,
+                 rare_type: RareTypeEnum,
+                 agent_type: AgentTypeEnum,
+                 dmg_type: DmgTypeEnum):
         """
         代理人
         """
-        YamlOperator.__init__(self, get_agent_yml_path(agent_id))
         self.agent_id: str = agent_id  # 代理人的英文名称
-        self.agent_name: str = self.get('agent_name', '')  # 代理人的中文名称
+        self.agent_name: str = agent_name  # 代理人的中文名称
+        self.rare_type: RareTypeEnum = rare_type  # 稀有等级
 
-        self.agent_type: AgentTypeEnum = AgentTypeEnum.from_name(self.get('agent_type', ''))  #
-        self.dmg_type: DmgTypeEnum = DmgTypeEnum.from_name(self.get('dmg_type', ''))  # 伤害类型
-        self.rare_type: RareTypeEnum = RareTypeEnum.from_name(self.get('rare_type', ''))
+        self.agent_type: AgentTypeEnum = agent_type  # 角色类型
+        self.dmg_type: DmgTypeEnum = dmg_type  # 伤害类型
 
     @property
     def agent_type_str(self) -> str:
         return gt(self.agent_type.value)
 
 
-class AgentLoader:
+class AgentEnum(Enum):
 
-    def __init__(self):
-        self.agent_name_map: dict[str, Agent] = {}
-        self.load_all_agents()
-
-    def get_agent(self, agent_name: str) -> Optional[Agent]:
-        """
-        根据中文名称获取
-        :param agent_name:
-        :return:
-        """
-        return self.agent_name_map.get(agent_name, None)
-
-    def load_all_agents(self) -> List[Agent]:
-        """
-        加载所有代理人的信息
-        :return:
-        """
-        agent_list: List[Agent] = []
-        root_dir_path = get_agent_root_dir_path()
-        agent_files = os.listdir(root_dir_path)
-        for agent_file_name in agent_files:
-            if not agent_file_name.endswith('yml'):
-                continue
-            agent = Agent(agent_file_name[:-4])
-            agent_list.append(agent)
-            self.agent_name_map[agent.agent_name] = agent
-
-        return agent_list
-
-
-@lru_cache
-def get_agent_root_dir_path() -> str:
-    """
-    代理人配置
-    :return:
-    """
-    return os_utils.get_path_under_work_dir('assets', 'game_data', 'agent')
-
-
-@lru_cache
-def get_agent_yml_path(agent_id: str) -> str:
-    """
-    获取代理人配置文件路径
-    :param agent_id:
-    :return:
-    """
-    return os.path.join(get_agent_root_dir_path(), f'{agent_id}.yml')
+    ANBY = Agent('anby', '安比', RareTypeEnum.A, AgentTypeEnum.STUN, DmgTypeEnum.ELECTRIC)
+    ANTON = Agent('anton', '安东', RareTypeEnum.A, AgentTypeEnum.ATTACK, DmgTypeEnum.ELECTRIC)
+    BEN = Agent('ben', '本', RareTypeEnum.A, AgentTypeEnum.DEFENSE, DmgTypeEnum.FIRE)
+    BILLY = Agent('billy', '比利', RareTypeEnum.A, AgentTypeEnum.ATTACK, DmgTypeEnum.ELECTRIC)
+    CORIN = Agent('corin', '可琳', RareTypeEnum.A, AgentTypeEnum.ATTACK, DmgTypeEnum.PHYSICAL)
+    ELLEN = Agent('ellen', '艾莲', RareTypeEnum.S, AgentTypeEnum.ATTACK, DmgTypeEnum.ICE)
+    GRACE = Agent('grace', '格莉丝', RareTypeEnum.S, AgentTypeEnum.ATTACK, DmgTypeEnum.ELECTRIC)
+    KOLEDA = Agent('koleda', '珂蕾妲', RareTypeEnum.S, AgentTypeEnum.STUN, DmgTypeEnum.FIRE)
+    LUCY = Agent('lucy', '露西', RareTypeEnum.A, AgentTypeEnum.SUPPORT, DmgTypeEnum.FIRE)
+    LYCAON = Agent('lycaon', '莱卡恩', RareTypeEnum.S, AgentTypeEnum.STUN, DmgTypeEnum.ICE)
+    NEKOMATA = Agent('nekomata', '猫又', RareTypeEnum.S, AgentTypeEnum.ATTACK, DmgTypeEnum.PHYSICAL)
+    NICOLE = Agent('nicole', '妮可', RareTypeEnum.A, AgentTypeEnum.SUPPORT, DmgTypeEnum.ETHER)
+    PIPER = Agent('piper', '派派', RareTypeEnum.A, AgentTypeEnum.ATTACK, DmgTypeEnum.PHYSICAL)
+    RINA = Agent('rina', '丽娜', RareTypeEnum.S, AgentTypeEnum.SUPPORT, DmgTypeEnum.ELECTRIC)
+    SOLDIER_11 = Agent('soldier_11', '11号', RareTypeEnum.S, AgentTypeEnum.ATTACK, DmgTypeEnum.FIRE)
+    SOUKAKU = Agent('soukaku', '苍角', RareTypeEnum.A, AgentTypeEnum.SUPPORT, DmgTypeEnum.ICE)

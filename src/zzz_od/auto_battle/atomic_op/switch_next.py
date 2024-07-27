@@ -10,4 +10,4 @@ class AtomicSwitchNext(AtomicOp):
         self.ctx: ZContext = ctx
 
     def execute(self):
-        self.ctx.switch_next()
+        self.ctx.battle.switch_next()

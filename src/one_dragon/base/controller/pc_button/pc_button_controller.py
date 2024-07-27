@@ -9,6 +9,14 @@ class PcButtonController:
         """
         pass
 
+    def press(self, key: str, press_time: float) -> None:
+        """
+        :param key: 按键
+        :param press_time: 持续按键时间
+        :return:
+        """
+        pass
+
     def reset(self) -> None:
         """
         重置状态

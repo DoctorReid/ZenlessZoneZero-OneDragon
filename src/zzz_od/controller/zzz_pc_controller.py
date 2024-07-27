@@ -1,6 +1,5 @@
-import pyautogui
 from cv2.typing import MatLike
-from pynput.keyboard import Controller
+from typing import Optional
 
 from one_dragon.base.controller.pc_controller_base import PcControllerBase
 from one_dragon.utils import cv2_utils
@@ -88,14 +87,20 @@ class ZPcController(PcControllerBase):
         """
         self.btn_controller.tap(self.key_switch_prev)
 
-    def normal_attack(self) -> None:
+    def normal_attack(self, press_time: Optional[float] = None) -> None:
         """
         普通攻击
         """
-        self.btn_controller.tap(self.key_normal_attack)
+        if press_time is None:
+            self.btn_controller.tap(self.key_normal_attack)
+        else:
+            self.btn_controller.press(self.key_normal_attack, press_time)
 
-    def special_attack(self) -> None:
+    def special_attack(self, press_time: Optional[float] = None) -> None:
         """
         特殊攻击
         """
-        self.btn_controller.tap(self.key_special_attack)
+        if press_time is None:
+            self.btn_controller.tap(self.key_special_attack)
+        else:
+            self.btn_controller.press(self.key_special_attack, press_time)

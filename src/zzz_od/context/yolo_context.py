@@ -1,9 +1,10 @@
 from cv2.typing import MatLike
 from enum import Enum
+from typing import Optional
 
-from one_dragon.base.operation.context_event_bus import ContextEventBus
 from one_dragon.utils import os_utils
 from one_dragon.utils.log_utils import log
+from zzz_od.context.zzz_context import ZContext
 from zzz_od.yolo.dodge_classifier import DodgeClassifier
 
 
@@ -15,9 +16,9 @@ class YoloStateEventEnum(Enum):
 
 class YoloContext:
 
-    def __init__(self, event_bus: ContextEventBus):
-        self._event_bus = event_bus
-        self._dodge_model: DodgeClassifier = None
+    def __init__(self, ctx: ZContext):
+        self.ctx: ZContext = ctx
+        self._dodge_model: Optional[DodgeClassifier] = None
 
     def init_dodge_model(self, use_gpu: bool = True):
         self._dodge_model = DodgeClassifier(
@@ -32,12 +33,12 @@ class YoloContext:
         if result.class_idx == 1:
             e = YoloStateEventEnum.DODGE_RED.value
             log.info(e)
-            self._event_bus.dispatch_event(e, screenshot_time)
+            self.ctx.dispatch_event(e, screenshot_time)
             return True
         elif result.class_idx == 2:
             e = YoloStateEventEnum.DODGE_YELLOW.value
             log.info(e)
-            self._event_bus.dispatch_event(e, screenshot_time)
+            self.ctx.dispatch_event(e, screenshot_time)
             return True
         else:
             return False

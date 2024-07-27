@@ -218,11 +218,11 @@ def get_state_recorder(state_name: str, state_recorders: List[StateRecorder]) ->
 def __debug():
     expr = "( [闪避识别-黄光, 0, 1] | [闪避识别-红光, 0, 1] ) & ![按键-闪避, 0, 1]"
     ctx = None
-    sr1 = StateRecorder(ctx, '1', '闪避识别-黄光')
+    sr1 = StateRecorder(ctx, '闪避识别-黄光')
     sr1.last_record_time = 1
-    sr2 = StateRecorder(ctx, '2', '闪避识别-红光')
+    sr2 = StateRecorder(ctx, '闪避识别-红光')
     sr2.last_record_time = 2
-    sr3 = StateRecorder(ctx, '3', '按键-闪避')
+    sr3 = StateRecorder(ctx, '按键-闪避')
     sr3.last_record_time = 1
     node = construct_state_cal_tree(expr, [sr1, sr2, sr3])
     print(node.in_time_range(2))  # False

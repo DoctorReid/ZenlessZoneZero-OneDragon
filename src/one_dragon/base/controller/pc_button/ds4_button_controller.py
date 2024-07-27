@@ -1,7 +1,7 @@
 import time
 
 from enum import Enum
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.controller.pc_button import pc_button_utils
@@ -30,15 +30,15 @@ class Ds4ButtonController(PcButtonController):
             self.pad = vg.VDS4Gamepad()
             self._btn = vg.DS4_BUTTONS
 
-        self.handler: List[Callable[[], None]] = [
-            self.tap_a,
-            self.tap_b,
-            self.tap_x,
-            self.tap_y,
-            self.tap_lt,
-            self.tap_rt,
-            self.tap_lb,
-            self.tap_rb,
+        self.handler: List[Callable[[Optional[float]], None]] = [
+            self.press_a,
+            self.press_b,
+            self.press_x,
+            self.press_y,
+            self.press_lt,
+            self.press_rt,
+            self.press_lb,
+            self.press_rb,
         ]
 
     def tap(self, key: str) -> None:
@@ -47,47 +47,55 @@ class Ds4ButtonController(PcButtonController):
         :param key:
         :return:
         """
-        self.handler[int(key[-1])]()
+        self.handler[int(key[-1])](None)
 
-    def tap_a(self) -> None:
-        self._tap_button(self._btn.DS4_BUTTON_CROSS)
+    def press_a(self, press_time: Optional[float] = None) -> None:
+        self._press_button(self._btn.DS4_BUTTON_CROSS, press_time)
 
-    def tap_b(self) -> None:
-        self._tap_button(self._btn.DS4_BUTTON_CIRCLE)
+    def press_b(self, press_time: Optional[float] = None) -> None:
+        self._press_button(self._btn.DS4_BUTTON_CIRCLE, press_time)
 
-    def tap_x(self) -> None:
-        self._tap_button(self._btn.DS4_BUTTON_SQUARE)
+    def press_x(self, press_time: Optional[float] = None) -> None:
+        self._press_button(self._btn.DS4_BUTTON_SQUARE, press_time)
 
-    def tap_y(self) -> None:
-        self._tap_button(self._btn.DS4_BUTTON_TRIANGLE)
+    def press_y(self, press_time: Optional[float] = None) -> None:
+        self._press_button(self._btn.DS4_BUTTON_TRIANGLE, press_time)
 
-    def tap_lt(self) -> None:
+    def press_lt(self, press_time: Optional[float] = None) -> None:
         self.pad.left_trigger(value=255)
         self.pad.update()
-        time.sleep(self.key_press_time)
+        time.sleep(max(self.key_press_time, press_time))
         self.pad.left_trigger(value=0)
         self.pad.update()
 
-    def tap_rt(self) -> None:
+    def press_rt(self, press_time: Optional[float] = None) -> None:
         self.pad.right_trigger(value=255)
         self.pad.update()
-        time.sleep(self.key_press_time)
+        time.sleep(max(self.key_press_time, press_time))
         self.pad.right_trigger(value=0)
         self.pad.update()
 
-    def tap_lb(self) -> None:
-        self._tap_button(self._btn.DS4_BUTTON_SHOULDER_LEFT)
+    def press_lb(self, press_time: Optional[float] = None) -> None:
+        self._press_button(self._btn.DS4_BUTTON_SHOULDER_LEFT, press_time)
 
-    def tap_rb(self) -> None:
-        self._tap_button(self._btn.DS4_BUTTON_SHOULDER_RIGHT)
+    def press_rb(self, press_time: Optional[float] = None) -> None:
+        self._press_button(self._btn.DS4_BUTTON_SHOULDER_RIGHT, press_time)
 
-    def _tap_button(self, btn):
+    def _press_button(self, btn, press_time: Optional[float] = None):
         self.pad.press_button(btn)
         self.pad.update()
-        time.sleep(self.key_press_time)
+        time.sleep(max(self.key_press_time, press_time))
         self.pad.release_button(btn)
         self.pad.update()
 
     def reset(self):
         self.pad.reset()
         self.pad.update()
+
+    def press(self, key: str, press_time: float) -> None:
+        """
+        :param key: 按键
+        :param press_time: 持续按键时间
+        :return:
+        """
+        self.handler[int(key[-1])](press_time)

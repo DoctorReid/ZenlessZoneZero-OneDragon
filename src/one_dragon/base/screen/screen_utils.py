@@ -49,8 +49,7 @@ def find_area(ctx: OneDragonContext, screen: MatLike, screen_name: str, area_nam
         rect = area.rect
         part = cv2_utils.crop_image_only(screen, rect)
 
-        mrl = ctx.tm.match_template(part, area.template_id,
-                                    template_sub_dir=area.template_sub_dir,
+        mrl = ctx.tm.match_template(part, area.template_sub_dir, area.template_id,
                                     threshold=area.template_match_threshold)
         find = mrl.max is not None
 
@@ -86,8 +85,7 @@ def find_and_click_area(ctx: OneDragonContext, screen: MatLike, screen_name: str
         rect = area.rect
         part = cv2_utils.crop_image_only(screen, rect)
 
-        mrl = ctx.tm.match_template(part, area.template_id,
-                                    template_sub_dir=area.template_sub_dir,
+        mrl = ctx.tm.match_template(part, area.template_sub_dir, area.template_id,
                                     threshold=area.template_match_threshold)
         if mrl.max is None:
             return OcrClickResultEnum.OCR_CLICK_NOT_FOUND

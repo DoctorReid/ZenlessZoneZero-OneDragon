@@ -14,8 +14,9 @@ class TemplateMatcher:
     def __init__(self, template_loader: TemplateLoader):
         self.template_loader: TemplateLoader = template_loader
 
-    def match_template(self, source: MatLike, template_id: str,
-                       template_sub_dir: Optional[str] = None,
+    def match_template(self, source: MatLike,
+                       template_sub_dir: str,
+                       template_id: str,
                        template_type: str = 'raw',
                        threshold: float = 0.5,
                        mask: MatLike = None,
@@ -25,8 +26,8 @@ class TemplateMatcher:
         """
         在原图中 匹配模板 如果模板图中有掩码图 会自动使用
         :param source: 原图
-        :param template_id: 模板id
         :param template_sub_dir: 模板的子文件夹
+        :param template_id: 模板id
         :param template_type: 模板类型
         :param threshold: 匹配阈值
         :param mask: 额外使用的掩码 与原模板掩码叠加

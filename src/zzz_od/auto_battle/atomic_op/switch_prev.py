@@ -10,4 +10,4 @@ class AtomicSwitchPrev(AtomicOp):
         self.ctx: ZContext = ctx
 
     def execute(self):
-        self.ctx.switch_prev()
+        self.ctx.battle.switch_prev()
