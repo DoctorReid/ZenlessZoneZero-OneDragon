@@ -6,6 +6,7 @@ from one_dragon.base.conditional_operation.conditional_operator import Condition
 from one_dragon.base.controller.pc_button import pc_button_utils
 from one_dragon.base.operation.operation import OperationNode, OperationRoundResult
 from one_dragon.utils.i18_utils import gt
+from zzz_od.application.dodge_assistant.dodge_assistant_config import get_dodge_op_by_name
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.config.game_config import GamepadTypeEnum
@@ -83,7 +84,10 @@ class DodgeAssistantApp(ZApplication):
         """
         if self.auto_op is not None:  # 如果有上一个 先销毁
             self.auto_op.dispose()
-        self.auto_op = AutoBattleOperator(self.ctx, 'dodge', self.ctx.dodge_assistant_config.dodge_way)
+        config = get_dodge_op_by_name(self.ctx.dodge_assistant_config.dodge_way)
+        if config is None:
+            return self.round_fail('无效的闪避指令 请重新选择')
+        self.auto_op = AutoBattleOperator(self.ctx, 'dodge', config.module_name)
         self.auto_op.init_operator()
         self.auto_op.start_running_async()
         return self.round_success()

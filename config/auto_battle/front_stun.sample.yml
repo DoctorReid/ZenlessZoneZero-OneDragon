@@ -14,4 +14,4 @@ scenes:
 - triggers: []
   interval: 0.5
   handlers:
-  - state_template: "强攻站场模板"
+  - state_template: "击破站场模板"

@@ -11,7 +11,7 @@ class StateHandlerTemplate(YamlConfig):
             module_name=template_id,
             sub_dir=[sub_dir],
             instance_idx=instance_idx,
-            sample=True
+            sample=False
         )
 
         self.template_name: str = self.get('template_name', '')

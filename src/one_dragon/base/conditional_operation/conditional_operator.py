@@ -18,13 +18,15 @@ _od_conditional_op_executor = ThreadPoolExecutor(thread_name_prefix='od_conditio
 
 class ConditionalOperator(YamlConfig):
 
-    def __init__(self, module_name: str, sub_dir: Optional[str] = None, instance_idx: Optional[int] = None):
+    def __init__(self, module_name: str,
+                 sub_dir: Optional[str] = None,
+                 instance_idx: Optional[int] = None):
         YamlConfig.__init__(
             self,
             module_name=module_name,
             sub_dir=[sub_dir],
             instance_idx=instance_idx,
-            sample=True
+            sample=False
         )
 
         self.name: str = self.get('name', '')  # 名称

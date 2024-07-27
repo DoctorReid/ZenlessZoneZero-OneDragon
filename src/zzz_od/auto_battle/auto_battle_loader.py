@@ -29,7 +29,7 @@ class AutoBattleLoader:
         目前可用的状态事件ID
         :return:
         """
-        return [
+        event_ids = [
             YoloStateEventEnum.DODGE_YELLOW.value,
             YoloStateEventEnum.DODGE_RED.value,
 
@@ -40,29 +40,24 @@ class AutoBattleLoader:
             BattleEventEnum.BTN_SWITCH_SPECIAL_ATTACK.value,
         ]
 
+        for agent_enum in AgentEnum:
+            event_ids.append('前台-' + agent_enum.value.agent_name)
+            event_ids.append('后台-' + agent_enum.value.agent_name)
+        for agent_type_enum in AgentTypeEnum:
+            event_ids.append('前台-' + agent_type_enum.value)
+            event_ids.append('后台-' + agent_type_enum.value)
+
+        return event_ids
+
     def get_all_state_recorders(self) -> List[StateRecorder]:
         """
         获取所有的状态记录器
         :return:
         """
-        recorders = [
-            StateRecorder(self.ctx, YoloStateEventEnum.DODGE_YELLOW.value),
-            StateRecorder(self.ctx, YoloStateEventEnum.DODGE_RED.value),
-
-            StateRecorder(self.ctx, BattleEventEnum.BTN_DODGE.value),
-            StateRecorder(self.ctx, BattleEventEnum.BTN_SWITCH_NEXT.value),
-            StateRecorder(self.ctx, BattleEventEnum.BTN_SWITCH_PREV.value),
-            StateRecorder(self.ctx, BattleEventEnum.BTN_SWITCH_NORMAL_ATTACK.value),
-            StateRecorder(self.ctx, BattleEventEnum.BTN_SWITCH_SPECIAL_ATTACK.value),
+        return [
+            StateRecorder(self.ctx, event_id)
+            for event_id in self.get_all_state_event_ids()
         ]
-        for agent_enum in AgentEnum:
-            recorders.append(StateRecorder(self.ctx, '前台-' + agent_enum.value.agent_name))
-            recorders.append(StateRecorder(self.ctx, '后台-' + agent_enum.value.agent_name))
-        for agent_type_enum in AgentTypeEnum:
-            recorders.append(StateRecorder(self.ctx, '前台-' + agent_type_enum.value))
-            recorders.append(StateRecorder(self.ctx, '后台-' + agent_type_enum.value))
-
-        return recorders
 
     def get_atomic_op(self, op_name: str, op_data: List[str]) -> AtomicOp:
         """
@@ -103,17 +98,27 @@ class AutoBattleLoader:
         sub_dir = 'auto_battle_state_handler'
         template_dir = os_utils.get_path_under_work_dir('config', sub_dir)
         file_list = os.listdir(template_dir)
+
+        target_template: Optional[StateHandlerTemplate] = None
+        target_template_sample: Optional[StateHandlerTemplate] = None
         for file_name in file_list:
             if file_name.endswith('.sample.yml'):
-                template_id = file_name[0:-11]
-            else:
                 template_id = file_name[0:-4]
+                is_sample = True
+            elif file_name.endswith('.yml'):
+                template_id = file_name[0:-4]
+                is_sample = False
+            else:
+                continue
 
             template = StateHandlerTemplate(sub_dir, template_id)
             if template.template_name == template_name:
-                return template
+                if is_sample:
+                    target_template_sample = template
+                else:
+                    target_template = template
 
-        return None
+        return target_template if target_template is not None else target_template_sample
 
     def get_operation_template(self, template_name: str) -> Optional[OperationTemplate]:
         """
@@ -124,14 +129,24 @@ class AutoBattleLoader:
         sub_dir = 'auto_battle_operation'
         template_dir = os_utils.get_path_under_work_dir('config', sub_dir)
         file_list = os.listdir(template_dir)
+
+        target_template: Optional[OperationTemplate] = None
+        target_template_sample: Optional[OperationTemplate] = None
         for file_name in file_list:
             if file_name.endswith('.sample.yml'):
-                template_id = file_name[0:-11]
-            else:
                 template_id = file_name[0:-4]
+                is_sample = True
+            elif file_name.endswith('.yml'):
+                template_id = file_name[0:-4]
+                is_sample = False
+            else:
+                continue
 
             template = OperationTemplate(sub_dir, template_id)
             if template.template_name == template_name:
-                return template
+                if is_sample:
+                    target_template_sample = template
+                else:
+                    target_template = template
 
-        return None
+        return target_template if target_template is not None else target_template_sample
