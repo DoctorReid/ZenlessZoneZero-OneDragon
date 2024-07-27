@@ -10,14 +10,14 @@ from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
+from one_dragon.gui.view.app_run_interface import AppRunInterface
 from zzz_od.application.battle_assistant.dodge_assistant_app import DodgeAssistantApp
-from zzz_od.application.battle_assistant.battle_assistant_config import get_dodge_op_config_list, \
+from zzz_od.application.battle_assistant.dodge_assitant_config import get_dodge_op_config_list, \
     get_dodge_config_file_path
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.auto_battle.auto_battle_loader import AutoBattleLoader
 from zzz_od.config.game_config import GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
-from one_dragon.gui.view.app_run_interface import AppRunInterface
 
 
 class DodgeAssistantInterface(AppRunInterface):
@@ -53,11 +53,6 @@ class DodgeAssistantInterface(AppRunInterface):
         self.gpu_opt.value_changed.connect(self._on_gpu_changed)
         top_widget.add_widget(self.gpu_opt)
 
-        self.screenshot_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='MSS截图',
-                                         content='实验性截图机制，约减少10~20ms的截图处理时间')
-        self.screenshot_opt.value_changed.connect(self._on_screenshot_changed)
-        top_widget.add_widget(self.screenshot_opt)
-
         self.screenshot_interval_opt = TextSettingCard(icon=FluentIcon.GAME, title='截图间隔(秒)',
                                                        content='游戏画面掉帧的话 可以适当加大截图间隔 保证截图间隔+推理耗时在50ms内即可')
         self.screenshot_interval_opt.value_changed.connect(self._on_screenshot_interval_changed)
@@ -83,10 +78,10 @@ class DodgeAssistantInterface(AppRunInterface):
         """
         AppRunInterface.on_interface_shown(self)
         self._update_dodge_way_opts()
-        self.dodge_opt.setValue(self.ctx.dodge_assistant_config.dodge_assistant_config)
-        self.gpu_opt.setValue(self.ctx.dodge_assistant_config.use_gpu)
-        self.screenshot_interval_opt.setValue(str(self.ctx.dodge_assistant_config.screenshot_interval))
-        self.gamepad_type_opt.setValue(self.ctx.dodge_assistant_config.gamepad_type)
+        self.dodge_opt.setValue(self.ctx.battle_assistant_config.dodge_assistant_config)
+        self.gpu_opt.setValue(self.ctx.battle_assistant_config.use_gpu)
+        self.screenshot_interval_opt.setValue(str(self.ctx.battle_assistant_config.screenshot_interval))
+        self.gamepad_type_opt.setValue(self.ctx.battle_assistant_config.gamepad_type)
 
     def _update_dodge_way_opts(self) -> None:
         """
@@ -101,16 +96,16 @@ class DodgeAssistantInterface(AppRunInterface):
         self.dodge_opt.value_changed.connect(self._on_dodge_way_changed)
 
     def _on_dodge_way_changed(self, index, value):
-        self.ctx.dodge_assistant_config.dodge_assistant_config = value
+        self.ctx.battle_assistant_config.dodge_assistant_config = value
 
     def _on_gpu_changed(self, value: bool):
-        self.ctx.dodge_assistant_config.use_gpu = value
+        self.ctx.battle_assistant_config.use_gpu = value
 
     def _on_screenshot_changed(self, value: bool):
         self.ctx.controller.screenshot_mss =value
 
     def _on_screenshot_interval_changed(self, value: str) -> None:
-        self.ctx.dodge_assistant_config.screenshot_interval = float(value)
+        self.ctx.battle_assistant_config.screenshot_interval = float(value)
 
     def get_app(self) -> ZApplication:
         return DodgeAssistantApp(self.ctx)
@@ -131,4 +126,4 @@ class DodgeAssistantInterface(AppRunInterface):
         self._update_dodge_way_opts()
 
     def _on_gamepad_type_changed(self, idx: int, value: str) -> None:
-        self.ctx.dodge_assistant_config.gamepad_type = value
+        self.ctx.battle_assistant_config.gamepad_type = value

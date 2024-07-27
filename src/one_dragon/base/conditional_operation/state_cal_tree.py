@@ -9,6 +9,7 @@ class StateCalNodeType(Enum):
 
     OP: int = 0
     STATE: int = 1
+    TRUE: int =2
 
 
 class StateCalOpType(Enum):
@@ -69,6 +70,8 @@ class StateCalNode:
                 999 if diff > 999 else diff
             ))
             return self.state_time_range_min <= diff <= self.state_time_range_max
+        elif self.node_type == StateCalNodeType.TRUE:
+            return True
 
     def dispose(self) -> None:
         """
@@ -92,6 +95,9 @@ def construct_state_cal_tree(expr_str: str, state_recorders: List[StateRecorder]
     :param state_recorders: 可用的状态记录器列表
     :return: 构造成功时，返回状态判断树的根节点；构造失败时，返回原因
     """
+    if len(expr_str.strip()) == 0:
+        return StateCalNode(StateCalNodeType.TRUE)
+
     op_stack = []  # 运算符的压栈
     op_idx_stack = []  # 运算符下标
     node_stack = []  # 状态判断节点的压栈
@@ -127,14 +133,17 @@ def construct_state_cal_tree(expr_str: str, state_recorders: List[StateRecorder]
                 raise ValueError('位置 %d 的左中括号 找不到对应的右中括号' % display_idx)
             state_str = expr_str[idx + 1:right_idx]
             state_split_arr = state_str.split(',')
-            if len(state_split_arr) != 3:
-                raise ValueError('位置 %d 的左中括号 后方状态参数个数不等于3' % display_idx)
-            try:
+            if len(state_split_arr) < 3:
                 state_name = state_split_arr[0].strip()
-                time_min = float(state_split_arr[1].strip())
-                time_max = float(state_split_arr[2].strip())
-            except Exception as e:
-                raise ValueError('位置 %d 的左中括号 后方状态无法解析 %s' % (display_idx, e))
+                time_min = float(0)
+                time_max = float(1)
+            else:
+                try:
+                    state_name = state_split_arr[0].strip()
+                    time_min = float(state_split_arr[1].strip())
+                    time_max = float(state_split_arr[2].strip())
+                except Exception as e:
+                    raise ValueError('位置 %d 的左中括号 后方状态无法解析 %s' % (display_idx, e))
 
             state_recorder: StateRecorder = get_state_recorder(state_name, state_recorders)
             if state_recorder is None:

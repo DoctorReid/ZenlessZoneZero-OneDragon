@@ -1,5 +1,0 @@
-template_name: "击破站场模板"
-handlers:
-  - states: "[前台-强攻, 0, 2]"
-    sub_states:
-      - state_template: "安比站场模板"

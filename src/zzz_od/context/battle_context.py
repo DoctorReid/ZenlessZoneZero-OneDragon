@@ -25,6 +25,8 @@ class BattleEventEnum(Enum):
     STATUS_SPECIAL_READY = '按键可用-特殊攻击'
     STATUS_ULTIMATE_READY = '按键可用-终结技'
 
+    ALLOW_ULTIMATE = '允许使用终结技'
+
 
 class BattleContext:
 
@@ -81,6 +83,7 @@ class BattleContext:
                     self.agent_list.append(agent_enum.value)
                     break
 
+        # 画面区域 先读取出来 不要每次用的时候再读取
         self.area_agent_3_1: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '头像-3-1')
         self.area_agent_3_2: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '头像-3-2')
         self.area_agent_3_3: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '头像-3-3')
@@ -89,20 +92,33 @@ class BattleContext:
         self.area_btn_special: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '按键-特殊攻击')
         self.area_btn_ultimate: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '按键-终结技')
 
-    def check_battle_screen(self, screen: MatLike, screenshot_time: float) -> None:
+        # 识别运行状态 保证每种类型只有1实例在进行识别
+        self._checking_agent: bool = False
+        self._checking_special_attack_btn: bool = False
+        self._checking_ultimate_btn: bool = False
+
+    def check_screen_async(self, screen: MatLike, screenshot_time: float,
+                           allow_ultimate_list: Optional[List[dict[str, str]]] = None) -> None:
         """
         异步判断角战斗画面 并发送世界
         :return:
         """
         _battle_check_executor.submit(self.check_agent_related, screen, screenshot_time)
         _battle_check_executor.submit(self.check_special_attack_btn, screen, screenshot_time)
+        _battle_check_executor.submit(self.check_ultimate_btn, screen, screenshot_time, allow_ultimate_list)
 
     def check_agent_related(self, screen: MatLike, screenshot_time: float) -> None:
         """
         判断角色相关内容 并发送事件
         :return:
         """
+        if self._checking_agent:
+            return
+        self._checking_agent = True
+
         self.check_agent(screen, screenshot_time)
+
+        self._checking_agent = False
 
     def check_agent(self, screen: MatLike, screenshot_time: float) -> None:
         """
@@ -139,18 +155,14 @@ class BattleContext:
             result_agent_list = [result_agent_list[0]]
 
         if self.should_check_all_agents:
-            if self.is_same_agent_list(result_agent_list):
+            if self._is_same_agent_list(result_agent_list):
                 self.check_agent_same_times += 1
                 if self.check_agent_same_times >= 5:  # 连续5次一致时 就不验证了
                     self.should_check_all_agents = False
             else:
                 self.check_agent_same_times = 0
 
-        self.agent_list = result_agent_list
-        for i in range(len(self.agent_list)):
-            prefix = '前台-' if i == 0 else '后台-'
-            self.ctx.dispatch_event(prefix + self.agent_list[i].agent_name, screenshot_time)
-            self.ctx.dispatch_event(prefix + self.agent_list[i].agent_type.value)
+        self._update_agent_list(result_agent_list, screenshot_time)
 
     def _match_agent_in(self, img: MatLike, is_front: bool,
                         possible_agents: Optional[List[Agent]] = None) -> Optional[Agent]:
@@ -169,7 +181,7 @@ class BattleContext:
 
         return None
 
-    def is_same_agent_list(self, current_agent_list: List[Agent]) -> bool:
+    def _is_same_agent_list(self, current_agent_list: List[Agent]) -> bool:
         """
         是否跟原来的角色列表一致
         :param current_agent_list:
@@ -180,20 +192,75 @@ class BattleContext:
                 return False
         return True
 
+    def _update_agent_list(self, current_agent_list: List[Agent], update_time: float) -> None:
+        """
+        更新角色列表
+        :param current_agent_list: 新的角色列表
+        :return:
+        """
+        self.agent_list = current_agent_list
+
+        for i in range(len(self.agent_list)):
+            agent = self.agent_list[i]
+            if agent is None:
+                continue
+            prefix = '前台-' if i == 0 else '后台-'
+            self.ctx.dispatch_event(prefix + self.agent_list[i].agent_name, update_time)
+            self.ctx.dispatch_event(prefix + self.agent_list[i].agent_type.value, update_time)
+
     def check_special_attack_btn(self, screen: MatLike, screenshot_time: float) -> None:
         """
         识别特殊攻击按钮 看是否可用
         """
-        part = cv2_utils.crop_image_only(screen, self.area_btn_special.rect)
-        mrl = self.ctx.tm.match_template(part, 'battle', 'btn_special_attack_2',
-                                         threshold=0.9)
-        self.ctx.dispatch_event(BattleEventEnum.STATUS_SPECIAL_READY.value, screenshot_time if mrl is not None else 0)
+        if self._checking_special_attack_btn:
+            return
 
-    def check_ultimate_btn(self, screen: MatLike, screenshot_time: float) -> None:
+        self._checking_special_attack_btn = True
+
+        try:
+            part = cv2_utils.crop_image_only(screen, self.area_btn_special.rect)
+            mrl = self.ctx.tm.match_template(part, 'battle', 'btn_special_attack_2',
+                                             threshold=0.9)
+            self.ctx.dispatch_event(BattleEventEnum.STATUS_SPECIAL_READY.value, screenshot_time if mrl is not None else 0)
+        except Exception:
+            log.error('识别特殊攻击按键出错', exc_info=True)
+
+        self._checking_special_attack_btn = False
+
+    def check_ultimate_btn(self, screen: MatLike, screenshot_time: float,
+                           allow_ultimate_list: Optional[List[dict[str, str]]] = None) -> None:
         """
         识别终结技按钮 看是否可用
         """
-        part = cv2_utils.crop_image_only(screen, self.area_btn_special.rect)
-        mrl = self.ctx.tm.match_template(part, 'battle', 'btn_ultimate_2',
-                                         threshold=0.9)
-        self.ctx.dispatch_event(BattleEventEnum.STATUS_ULTIMATE_READY.value, screenshot_time if mrl is not None else 0)
+        if self._checking_ultimate_btn:
+            return
+
+        self._checking_ultimate_btn = True
+
+        if allow_ultimate_list is not None:  # 如何配置了终结技
+            if len(self.agent_list) == 0 or self.agent_list[0] is None:  # 未识别到角色时 不允许使用
+                return None
+
+            allow: bool = False
+            for allow_ultimate_item in allow_ultimate_list:
+                if 'agent_name' in allow_ultimate_item:
+                    if allow_ultimate_item.get('agent_name', '') == self.agent_list[0].agent_name:
+                        allow = True
+                        break
+                elif 'agent_type' in allow_ultimate_item:
+                    if allow_ultimate_item.get('agent_type', '') == self.agent_list[0].agent_type.value:
+                        allow = True
+                        break
+
+            if not allow:  # 当前角色不允许使用终结技
+                return
+
+        try:
+            part = cv2_utils.crop_image_only(screen, self.area_btn_special.rect)
+            mrl = self.ctx.tm.match_template(part, 'battle', 'btn_ultimate_2',
+                                             threshold=0.9)
+            self.ctx.dispatch_event(BattleEventEnum.STATUS_ULTIMATE_READY.value, screenshot_time if mrl is not None else 0)
+        except Exception:
+            log.error('识别终结技按键出错', exc_info=True)
+
+        self._checking_ultimate_btn = False

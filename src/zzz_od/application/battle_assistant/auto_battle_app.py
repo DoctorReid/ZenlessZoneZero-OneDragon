@@ -13,7 +13,7 @@ from zzz_od.config.game_config import GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
 
 
-class DodgeAssistantApp(ZApplication):
+class AutoBattleApp(ZApplication):
 
     def __init__(self, ctx: ZContext):
         """
@@ -21,8 +21,8 @@ class DodgeAssistantApp(ZApplication):
         """
         ZApplication.__init__(
             self,
-            ctx=ctx, app_id='dodge_assistant',
-            op_name=gt('闪避助手', 'ui')
+            ctx=ctx, app_id='auto_battle',
+            op_name=gt('自动战斗', 'ui')
         )
 
         self.auto_op: Optional[ConditionalOperator] = None
@@ -37,13 +37,13 @@ class DodgeAssistantApp(ZApplication):
         load_model = OperationNode('加载判断模型', self.load_model)
         self.add_edge(check_gamepad, load_model)
 
-        load_op = OperationNode('加载闪避指令', self.load_op)
+        load_op = OperationNode('加载自动战斗指令', self.load_op)
         self.add_edge(load_model, load_op)
 
         init_context = OperationNode('初始化上下文', self.init_context)
         self.add_edge(load_op, init_context)
 
-        check = OperationNode('闪避判断', self.check_dodge)
+        check = OperationNode('画面识别', self.check_screen)
         self.add_edge(init_context, check)
 
     def handle_init(self) -> None:
@@ -87,10 +87,10 @@ class DodgeAssistantApp(ZApplication):
         """
         if self.auto_op is not None:  # 如果有上一个 先销毁
             self.auto_op.dispose()
-        config = get_dodge_op_by_name(self.ctx.battle_assistant_config.dodge_assistant_config)
+        config = get_dodge_op_by_name(self.ctx.battle_assistant_config.auto_battle_config)
         if config is None:
-            return self.round_fail('无效的闪避指令 请重新选择')
-        self.auto_op = AutoBattleOperator(self.ctx, 'dodge', config.module_name)
+            return self.round_fail('无效的自动战斗指令 请重新选择')
+        self.auto_op = AutoBattleOperator(self.ctx, 'auto_battle', config.module_name)
         self.auto_op.init_operator()
         self.auto_op.start_running_async()
 
@@ -106,7 +106,7 @@ class DodgeAssistantApp(ZApplication):
 
         return self.round_success()
 
-    def check_dodge(self) -> OperationRoundResult:
+    def check_screen(self) -> OperationRoundResult:
         """
         识别当前画面 并进行点击
         :return:
@@ -114,7 +114,8 @@ class DodgeAssistantApp(ZApplication):
         now = time.time()
 
         screen = self.screenshot()
-        self.ctx.yolo.check_dodge_flash(screen, now, self.ctx.battle_assistant_config.use_gpu)
+        self.ctx.yolo.check_screen_async(screen, now)
+        self.ctx.battle.check_screen_async(screen, now)
 
         return self.round_wait(wait_round_time=self.ctx.battle_assistant_config.screenshot_interval)
 

@@ -30,7 +30,7 @@ class ZContext(OneDragonContext):
 
         # 应用配置
         self.screenshot_helper_config: ScreenshotHelperConfig = ScreenshotHelperConfig(instance_idx)
-        self.dodge_assistant_config: BattleAssistantConfig = BattleAssistantConfig(instance_idx)
+        self.battle_assistant_config: BattleAssistantConfig = BattleAssistantConfig(instance_idx)
 
         # 运行记录
         self.email_run_record: EmailRunRecord = EmailRunRecord(instance_idx)

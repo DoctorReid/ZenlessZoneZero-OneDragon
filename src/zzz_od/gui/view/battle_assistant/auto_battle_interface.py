@@ -10,17 +10,17 @@ from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
+from one_dragon.gui.view.app_run_interface import AppRunInterface
+from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_config_file_path, \
+    get_auto_battle_op_config_list
 from zzz_od.application.battle_assistant.dodge_assistant_app import DodgeAssistantApp
-from zzz_od.application.battle_assistant.battle_assistant_config import get_dodge_op_config_list, \
-    get_dodge_config_file_path
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.auto_battle.auto_battle_loader import AutoBattleLoader
 from zzz_od.config.game_config import GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
-from one_dragon.gui.view.app_run_interface import AppRunInterface
 
 
-class DodgeAssistantInterface(AppRunInterface):
+class AutoBattleInterface(AppRunInterface):
 
     def __init__(self,
                  ctx: ZContext,
@@ -30,8 +30,8 @@ class DodgeAssistantInterface(AppRunInterface):
         AppRunInterface.__init__(
             self,
             ctx=ctx,
-            object_name='dodge_assistant_interface',
-            nav_text_cn='闪避助手',
+            object_name='auto_battle_interface',
+            nav_text_cn='自动战斗',
             nav_icon=FluentIcon.GAME,
             parent=parent,
         )
@@ -39,8 +39,9 @@ class DodgeAssistantInterface(AppRunInterface):
     def get_widget_at_top(self) -> QWidget:
         top_widget = ColumnWidget()
 
-        self.config_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='闪避方式',
+        self.config_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='战斗配置',
                                               content='配置文件在 config/auto_battle 文件夹，删除会恢复默认配置')
+        self.config_opt.value_changed.connect(self._on_auto_battle_config_changed)
         top_widget.add_widget(self.config_opt)
 
         self.del_btn = PushButton(text='删除')
@@ -77,32 +78,32 @@ class DodgeAssistantInterface(AppRunInterface):
         :return:
         """
         AppRunInterface.on_interface_shown(self)
-        self._update_dodge_way_opts()
-        self.config_opt.setValue(self.ctx.dodge_assistant_config.dodge_assistant_config)
-        self.gpu_opt.setValue(self.ctx.dodge_assistant_config.use_gpu)
-        self.screenshot_interval_opt.setValue(str(self.ctx.dodge_assistant_config.screenshot_interval))
-        self.gamepad_type_opt.setValue(self.ctx.dodge_assistant_config.gamepad_type)
+        self._update_auto_battle_config_opts()
+        self.config_opt.setValue(self.ctx.battle_assistant_config.dodge_assistant_config)
+        self.gpu_opt.setValue(self.ctx.battle_assistant_config.use_gpu)
+        self.screenshot_interval_opt.setValue(str(self.ctx.battle_assistant_config.screenshot_interval))
+        self.gamepad_type_opt.setValue(self.ctx.battle_assistant_config.gamepad_type)
 
-    def _update_dodge_way_opts(self) -> None:
+    def _update_auto_battle_config_opts(self) -> None:
         """
         更新闪避指令
         :return:
         """
         try:
-            self.config_opt.value_changed.disconnect(self._on_dodge_way_changed)
+            self.config_opt.value_changed.disconnect(self._on_auto_battle_config_changed)
         except:
             pass
-        self.config_opt.set_options_by_list(get_dodge_op_config_list())
-        self.config_opt.value_changed.connect(self._on_dodge_way_changed)
+        self.config_opt.set_options_by_list(get_auto_battle_op_config_list())
+        self.config_opt.value_changed.connect(self._on_auto_battle_config_changed)
 
-    def _on_dodge_way_changed(self, index, value):
-        self.ctx.dodge_assistant_config.dodge_assistant_config = value
+    def _on_auto_battle_config_changed(self, index, value):
+        self.ctx.battle_assistant_config.auto_battle_config = value
 
     def _on_gpu_changed(self, value: bool):
-        self.ctx.dodge_assistant_config.use_gpu = value
+        self.ctx.battle_assistant_config.use_gpu = value
 
     def _on_screenshot_interval_changed(self, value: str) -> None:
-        self.ctx.dodge_assistant_config.screenshot_interval = float(value)
+        self.ctx.battle_assistant_config.screenshot_interval = float(value)
 
     def get_app(self) -> ZApplication:
         return DodgeAssistantApp(self.ctx)
@@ -116,11 +117,11 @@ class DodgeAssistantInterface(AppRunInterface):
         if item is None:
             return
 
-        path = get_dodge_config_file_path(item)
+        path = get_auto_battle_config_file_path(item)
         if os.path.exists(path):
             os.remove(path)
 
-        self._update_dodge_way_opts()
+        self._update_auto_battle_config_opts()
 
     def _on_gamepad_type_changed(self, idx: int, value: str) -> None:
-        self.ctx.dodge_assistant_config.gamepad_type = value
+        self.ctx.battle_assistant_config.gamepad_type = value

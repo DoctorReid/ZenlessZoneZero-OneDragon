@@ -4,7 +4,7 @@ from one_dragon.base.conditional_operation.atomic_op import AtomicOp
 from one_dragon.base.conditional_operation.operation_template import OperationTemplate
 from one_dragon.base.conditional_operation.scene_handler import SceneHandler
 from one_dragon.base.conditional_operation.state_handler_template import StateHandlerTemplate
-from one_dragon.base.conditional_operation.state_cal_tree import construct_state_cal_tree
+from one_dragon.base.conditional_operation.state_cal_tree import construct_state_cal_tree, StateCalNode
 from one_dragon.base.conditional_operation.state_handler import StateHandler
 from one_dragon.base.conditional_operation.state_recorder import StateRecorder
 
@@ -103,7 +103,8 @@ def construct_state_handler(
     :param operation_template_getter: 指令模板获取器
     :return:
     """
-    state_cal_tree = construct_state_cal_tree(state_data.get("states", ''), state_recorders)
+    states_expr = state_data.get("states", '')
+    state_cal_tree = construct_state_cal_tree(states_expr, state_recorders)
     if 'sub_states' in state_data:
         sub_state_data_list = state_data.get('sub_states', [])
         sub_handler_list: List[StateHandler] = _get_state_handlers(
