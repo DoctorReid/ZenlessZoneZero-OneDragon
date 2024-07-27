@@ -1,0 +1,5 @@
+template_name: "强攻站场模板"
+handlers:
+  - states: "[前台-强攻, 0, 2]"
+    operations:
+      - operation_template: "安比3A重击"

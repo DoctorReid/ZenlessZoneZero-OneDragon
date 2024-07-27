@@ -7,7 +7,7 @@ from one_dragon.base.controller.pc_button import pc_button_utils
 from one_dragon.base.operation.operation import OperationNode, OperationRoundResult
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.zzz_application import ZApplication
-from zzz_od.auto_battle.auto_battle_loader import AutoBattleLoader
+from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.config.game_config import GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
 
@@ -73,7 +73,7 @@ class DodgeAssistantApp(ZApplication):
         加载模型
         :return:
         """
-        self.ctx.init_dodge_model(use_gpu=self.ctx.dodge_assistant_config.use_gpu)
+        self.ctx.yolo.init_dodge_model(use_gpu=self.ctx.dodge_assistant_config.use_gpu)
         return self.round_success()
 
     def load_op(self) -> OperationRoundResult:
@@ -83,11 +83,8 @@ class DodgeAssistantApp(ZApplication):
         """
         if self.auto_op is not None:  # 如果有上一个 先销毁
             self.auto_op.dispose()
-        auto_battle_loader = AutoBattleLoader(self.ctx)
-        self.auto_op = ConditionalOperator(module_name=self.ctx.dodge_assistant_config.dodge_way, sub_dir='dodge')
-        self.auto_op.init(event_bus=self.ctx,
-                          state_recorders=auto_battle_loader.get_all_state_recorders(),
-                          op_constructor=auto_battle_loader.get_atomic_op)
+        self.auto_op = AutoBattleOperator(self.ctx, 'dodge', self.ctx.dodge_assistant_config.dodge_way)
+        self.auto_op.init_operator()
         self.auto_op.start_running_async()
         return self.round_success()
 
@@ -99,7 +96,7 @@ class DodgeAssistantApp(ZApplication):
         now = time.time()
 
         screen = self.screenshot()
-        self.ctx.should_dodge(screen, now, self.ctx.dodge_assistant_config.use_gpu)
+        self.ctx.yolo.should_dodge(screen, now, self.ctx.dodge_assistant_config.use_gpu)
 
         return self.round_wait(wait_round_time=self.ctx.dodge_assistant_config.screenshot_interval)
 

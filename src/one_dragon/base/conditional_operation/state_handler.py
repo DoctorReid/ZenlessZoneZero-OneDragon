@@ -1,6 +1,7 @@
-from typing import List, Callable
+from typing import List, Callable, Set
 
 from one_dragon.base.conditional_operation.atomic_op import AtomicOp
+from one_dragon.base.conditional_operation.operation_template import OperationTemplate
 from one_dragon.base.conditional_operation.state_cal_tree import construct_state_cal_tree, StateCalNode
 from one_dragon.base.conditional_operation.state_recorder import StateRecorder
 
@@ -68,23 +69,70 @@ class StateHandler:
 def construct_state_handler(
         state_data: dict,
         state_recorders: List[StateRecorder],
-        op_constructor: Callable[[str, List[str]], AtomicOp]
+        op_getter: Callable[[str, List[str]], AtomicOp],
+        operation_template_getter: Callable[[str], OperationTemplate],
 ) -> StateHandler:
     """
     构造一个场景处理器
     包含状态判断 + 对应指令
     :param state_data: 场景配置数据
     :param state_recorders: 状态记录器
-    :param op_constructor: 指令构造器
+    :param op_getter: 指令获取器
+    :param operation_template_getter: 指令模板获取器
     :return:
     """
     state_cal_tree = construct_state_cal_tree(state_data.get("states", ''), state_recorders)
 
-    ops = []  # 真正用于执行的指令
-    for op_item in state_data.get("operations", []):
-        op_name = op_item.get('op_name', '')
-        op_data = op_item.get('data', [])
-        op = op_constructor(op_name, op_data)
-        ops.append(op)
+    ops = _get_ops_from_data(state_data.get('operations', []),
+                             op_getter, operation_template_getter,
+                             set())
 
     return StateHandler(state_cal_tree, ops)
+
+
+def construct_op_by_template(
+        template_name: str,
+        op_getter: Callable[[str, List[str]], AtomicOp],
+        operation_template_getter: Callable[[str], OperationTemplate],
+        usage_templates: Set[str]
+) -> List[AtomicOp]:
+    if template_name in usage_templates:
+        raise ValueError('循环引入指令模板 ' + template_name)
+    if template_name is None or len(template_name) == 0:
+        raise ValueError('指令模板名称为空 handler_template')
+    template: OperationTemplate = operation_template_getter(template_name)
+    if template is None:
+        raise ValueError('找不到指令模板 ' + template_name)
+
+    usage_templates.add(template_name)
+    ops = _get_ops_from_data(template.get('operations', []),
+                             op_getter, operation_template_getter,
+                             usage_templates)
+
+    usage_templates.remove(template_name)
+
+    return ops
+
+
+def _get_ops_from_data(
+        operation_data_list: List[dict],
+        op_getter: Callable[[str, List[str]], AtomicOp],
+        operation_template_getter: Callable[[str], OperationTemplate],
+        usage_templates: Set[str]
+):
+    ops = []
+    for operation_data_item in operation_data_list:
+        if 'operation_template' in operation_data_item:
+            template_ops = construct_op_by_template(
+                operation_data_item['operation_template'],
+                op_getter, operation_template_getter,
+                usage_templates
+            )
+            for op in template_ops:
+                ops.append(op)
+        else:
+            op_name = operation_data_item.get('op_name', '')
+            op_data = operation_data_item.get('data', [])
+            op = op_getter(op_name, op_data)
+            ops.append(op)
+    return ops

@@ -45,6 +45,12 @@ class PcControllerBase(ControllerBase):
         self.sct = None
 
     def init(self) -> bool:
+        import mss
+        if self.sct is not None:  # 每次初始化前先关闭上一个
+            try:
+                self.sct.close()
+            except Exception:
+                pass
         self.sct = mss.mss()
         self.game_win.init_win()
         return self.game_win.active()
@@ -149,17 +155,9 @@ class PcControllerBase(ControllerBase):
         """
         输入文本 需要自己先选择好输入框
         :param to_input: 文本
-        :param interval: 输入间隙 秒
         :return:
         """
-        pyautogui.typewrite(to_input, interval)
-
-    def delete_all_input(self):
-        """
-        删除所有输入文本
-        :return:
-        """
-        pyautogui.press('delete')
+        self.keyboard_controller.keyboard.type(to_input)
 
 
 def win_click(pos: Point = None, press_time: float = 0, primary: bool = True):

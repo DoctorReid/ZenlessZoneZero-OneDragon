@@ -11,7 +11,7 @@ scenes:
         data: ["0.01"]
       - op_name: "按键-普通攻击"
         data: []
-- triggers: ["闪避识别-黄光", "闪避识别-红光"]
+- triggers: []
   interval: 0.5
   handlers:
-  - handler_template: "站场-击破"
+  - handler_template: "强攻站场模板"

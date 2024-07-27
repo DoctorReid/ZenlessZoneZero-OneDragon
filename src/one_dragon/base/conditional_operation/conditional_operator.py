@@ -4,7 +4,9 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Optional, List, Callable
 
 from one_dragon.base.conditional_operation.atomic_op import AtomicOp
+from one_dragon.base.conditional_operation.operation_template import OperationTemplate
 from one_dragon.base.conditional_operation.scene_handler import SceneHandler, construct_scene_handler
+from one_dragon.base.conditional_operation.scene_handler_template import SceneHandlerTemplate
 from one_dragon.base.conditional_operation.state_recorder import StateRecorder
 from one_dragon.base.config.yaml_config import YamlConfig
 from one_dragon.base.operation.context_event_bus import ContextEventBus, ContextEventItem
@@ -32,10 +34,14 @@ class ConditionalOperator(YamlConfig):
         self.normal_scene_handler: Optional[SceneHandler] = None  # 不需要状态触发的场景处理
         self.running: bool = False  # 是否正在运行
 
-    def init(self,
-             event_bus: ContextEventBus,
-             state_recorders: List[StateRecorder],
-             op_constructor: Callable[[str, List[str]], AtomicOp]) -> None:
+    def init(
+            self,
+            event_bus: ContextEventBus,
+            state_recorders: List[StateRecorder],
+            op_getter: Callable[[str, List[str]], AtomicOp],
+            scene_handler_getter: Callable[[str], SceneHandlerTemplate],
+            operation_template_getter: Callable[[str], OperationTemplate],
+    ) -> None:
         """
         初始化 在需要执行之前再使用
         """
@@ -51,7 +57,8 @@ class ConditionalOperator(YamlConfig):
         usage_states = []  # 已经监听的状态变更
 
         for scene_data in scenes:
-            handler = construct_scene_handler(scene_data, state_recorders, op_constructor)
+            handler = construct_scene_handler(scene_data, state_recorders,
+                                              op_getter, scene_handler_getter, operation_template_getter)
             states = scene_data.get('triggers', [])
             if len(states) > 0:
                 for state in states:

@@ -50,5 +50,3 @@ class ZContext(OneDragonContext):
                 standard_width=self.project_config.screen_standard_width,
                 standard_height=self.project_config.screen_standard_height
             )
-
-        self.battle.init_context()

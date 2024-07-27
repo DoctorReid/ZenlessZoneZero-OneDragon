@@ -1,10 +1,12 @@
 import time
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, Future
 
 from cv2.typing import MatLike
 from enum import Enum
 from typing import Optional, List
 
+from one_dragon.base.screen.screen_area import ScreenArea
+from one_dragon.utils import cv2_utils
 from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import Agent, AgentEnum
@@ -20,54 +22,6 @@ class BattleEventEnum(Enum):
     BTN_SWITCH_NORMAL_ATTACK = '按键-普通攻击'
     BTN_SWITCH_SPECIAL_ATTACK = '按键-特殊攻击'
 
-    FRONT_ANBY = '前台角色-安比'
-    BACK_ANBY = '后台角色-安比'
-
-    FRONT_ANTON = '前台角色-安东'
-    BACK_ANTON = '后台角色-安东'
-
-    FRONT_BEN = '前台角色-本'
-    BACK_BEN = '后台角色-本'
-
-    FRONT_BILLY = '前台角色-比利'
-    BACK_BILLY = '后台角色-比利'
-
-    FRONT_CORIN = '前台角色-可琳'
-    BACK_CORIN = '后台角色-可琳'
-
-    FRONT_ELLEN = '前台角色-艾莲'
-    BACK_ELLEN = '后台角色-艾莲'
-
-    FRONT_GRACE = '前台角色-格莉丝'
-    BACK_GRACE = '后台角色-格莉丝'
-
-    FRONT_KOLEDA = '前台角色-珂蕾妲'
-    BACK_KOLEDA = '后台角色-珂蕾妲'
-
-    FRONT_LUCY = '前台角色-露西'
-    BACK_LUCY = '后台角色-露西'
-
-    FRONT_LYCAON = '前台角色-莱卡恩'
-    BACK_LYCAON = '后台角色-莱卡恩'
-
-    FRONT_NEKOMATA = '前台角色-猫又'
-    BACK_NEKOMATA = '后台角色-猫又'
-
-    FRONT_NICOLE = '前台角色-妮可'
-    BACK_NICOLE = '后台角色-妮可'
-
-    FRONT_PIPER = '前台角色-派派'
-    BACK_PIPER = '后台角色-派派'
-
-    FRONT_RINA = '前台角色-丽娜'
-    BACK_RINA = '后台角色-丽娜'
-
-    FRONT_SOLDIER_11 = '前台角色-11号'
-    BACK_SOLDIER_11 = '后台角色-11号'
-
-    FRONT_SOUKAKU = '前台角色-苍角'
-    BACK_SOUKAKU = '后台角色-苍角'
-
 
 class BattleContext:
 
@@ -77,7 +31,7 @@ class BattleContext:
         # 角色列表
         self.agent_list: List[Agent] = []
         self.should_check_all_agents: bool = True  # 是否应该检查所有角色
-        self.last_agent_diff_time: Optional[float] = None  # 上一次识别角色不同的时间
+        self.check_agent_same_times: int = 0  # 识别角色的相同次数
 
     def dodge(self):
         e = BattleEventEnum.BTN_DODGE.value
@@ -115,8 +69,8 @@ class BattleContext:
         :return:
         """
         self.agent_list = []
-        self.should_check_all_agents = True
-        self.last_agent_diff_time = None
+        self.should_check_all_agents = agent_names is None
+        self.check_agent_same_times = 0
 
         for agent_name in agent_names:
             for agent_enum in AgentEnum:
@@ -124,30 +78,72 @@ class BattleContext:
                     self.agent_list.append(agent_enum.value)
                     break
 
-    def check_agent_related_async(self) -> None:
+        self.area_agent_3_1: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '角色头像_3_1')
+        self.area_agent_3_2: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '角色头像_3_2')
+        self.area_agent_3_3: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '角色头像_3_3')
+        self.area_agent_2_2: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '角色头像_2_2')
+
+    def check_agent_related_async(self, screen: MatLike, screenshot_time: float) -> None:
         """
         异步判断角色相关内容 并发送事件
         :return:
         """
+        _battle_check_executor.submit(self.check_agent_related, screen, screenshot_time)
 
-        pass
-
-    def check_agent_related(self) -> None:
+    def check_agent_related(self, screen: MatLike, screenshot_time: float) -> None:
         """
         判断角色相关内容 并发送事件
         :return:
         """
-        pass
+        self.check_agent(screen, screenshot_time)
 
-    def check_agent(self) -> None:
+    def check_agent(self, screen: MatLike, screenshot_time: float) -> None:
         """
         识别角色
         :return:
         """
+        a31: MatLike = cv2_utils.crop_image_only(screen, self.area_agent_3_1.rect)
+        a32: MatLike = cv2_utils.crop_image_only(screen, self.area_agent_3_2.rect)
+        a33: MatLike = cv2_utils.crop_image_only(screen, self.area_agent_3_3.rect)
+        a22: MatLike = cv2_utils.crop_image_only(screen, self.area_agent_2_2.rect)
+
         if self.should_check_all_agents:
-            pass
+            possible_agents = None
         else:
-            pass
+            possible_agents = self.agent_list
+
+        result_agent_list: List[Agent] = []
+        future_list: List[Future] = []
+        if possible_agents is None:
+            future_list.append(_battle_check_executor.submit(self._match_agent_in, a31, True, None))
+            future_list.append(_battle_check_executor.submit(self._match_agent_in, a32, False, None))
+            future_list.append(_battle_check_executor.submit(self._match_agent_in, a33, False, None))
+            future_list.append(_battle_check_executor.submit(self._match_agent_in, a22, False, None))
+
+        for future in future_list:
+            result_agent_list.append(future.result())
+
+        if result_agent_list[1] is not None and result_agent_list[2] is not None:  # 3人
+            result_agent_list.pop(-1)
+        elif result_agent_list[3] is not None:  # 2人
+            result_agent_list.pop(1)
+            result_agent_list.pop(1)
+        else:  # 1人
+            result_agent_list = [result_agent_list[0]]
+
+        if self.should_check_all_agents:
+            if self.is_same_agent_list(result_agent_list):
+                self.check_agent_same_times += 1
+                if self.check_agent_same_times >= 5:  # 连续5次一致时 就不验证了
+                    self.should_check_all_agents = False
+            else:
+                self.check_agent_same_times = 0
+
+        self.agent_list = result_agent_list
+        for i in range(len(self.agent_list)):
+            prefix = '前台-' if i == 0 else '后台-'
+            self.ctx.dispatch_event(prefix + self.agent_list[i].agent_name, screenshot_time)
+            self.ctx.dispatch_event(prefix + self.agent_list[i].agent_type.value)
 
     def _match_agent_in(self, img: MatLike, is_front: bool,
                         possible_agents: Optional[List[Agent]] = None) -> Optional[Agent]:
@@ -165,3 +161,14 @@ class BattleContext:
                 return agent
 
         return None
+
+    def is_same_agent_list(self, current_agent_list: List[Agent]) -> bool:
+        """
+        是否跟原来的角色列表一致
+        :param current_agent_list:
+        :return:
+        """
+        for agent in current_agent_list:
+            if agent not in self.agent_list:
+                return False
+        return True
