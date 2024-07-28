@@ -8,9 +8,9 @@ from functools import lru_cache
 from typing import List, Optional
 
 from one_dragon.base.config.config_item import ConfigItem
+from one_dragon.base.config.yaml_operator import YamlOperator
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.geometry.rectangle import Rect
-from one_dragon.base.yaml_operator import YamlOperator
 from one_dragon.utils import os_utils, cal_utils, cv2_utils
 
 TEMPLATE_RAW_FILE_NAME = 'raw.png'
