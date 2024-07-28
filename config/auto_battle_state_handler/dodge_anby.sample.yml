@@ -1,0 +1,12 @@
+template_name: "自动战斗闪避模板-安比"
+handlers:
+  - states: "[前台-安比]"
+    operations:
+      - op_name: "按键-闪避"
+        data: []
+      - op_name: "等待秒数"
+        data: ["0.2"]
+      - op_name: "按键-普通攻击"
+        data: []
+      - op_name: "等待秒数"
+        data: ["1"]

@@ -8,13 +8,8 @@ scenes:
   interval: 0.5
   handlers:
   - states: "( [闪避识别-黄光, 0, 1] | [闪避识别-红光, 0, 1] ) & ![按键-闪避, 0, 1]"
-    operations:
-      - op_name: "按键-闪避"
-        data: []
-      - op_name: "等待秒数"
-        data: ["0.01"]
-      - op_name: "按键-普通攻击"
-        data: []
+    sub_states:
+      - state_template: "自动战斗闪避模板-全角色"
 
 - triggers: ["按键可用-快速支援"]
   interval: 1
