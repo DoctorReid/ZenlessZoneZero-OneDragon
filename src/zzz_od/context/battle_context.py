@@ -480,11 +480,12 @@ def __debug():
     ctx = ZContext()
     battle = BattleContext(ctx)
     battle.init_context()
-    screen = debug_utils.get_debug_image('_1722135490234')
+    screen = debug_utils.get_debug_image('_1722146684408')
     # battle.check_agent(screen, 0)
     # battle.check_special_attack_btn(screen, 0)
     # battle.check_ultimate_btn(screen, 0)
-    battle.check_chain_attack(screen, 0)
+    # battle.check_chain_attack(screen, 0)
+    battle.check_quick_assist(screen, 0)
 
 
 if __name__ == '__main__':

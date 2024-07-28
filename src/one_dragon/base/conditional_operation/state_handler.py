@@ -27,6 +27,7 @@ class StateHandler:
     def check_and_run(self, now: float) -> bool:
         """
         判断是否符合条件 符合的话就执行指令
+
         :param now: 当前判断时间
         :return: 是否运行
         """
@@ -61,6 +62,9 @@ class StateHandler:
         :return:
         """
         self.running = False
+        if self.sub_states is not None and len(self.sub_states) > 0:
+            for sub_state in self.sub_states:
+                sub_state.stop_running()
 
     def dispose(self) -> None:
         """
