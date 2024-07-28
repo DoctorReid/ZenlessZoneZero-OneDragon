@@ -145,8 +145,6 @@ class OneDragonContext(ContextEventBus):
             self.stop_running()
         elif key == self.key_screenshot:
             self.screenshot_and_save_debug()
-        elif key == self.key_mouse_pos:
-            self.log_mouse_position()
 
         self.dispatch_event(ContextKeyboardEventEnum.PRESS.value, key)
 
@@ -171,8 +169,8 @@ class OneDragonContext(ContextEventBus):
         return self.env_config.key_screenshot
 
     @property
-    def key_mouse_pos(self) -> str:
-        return self.env_config.key_mouse_pos
+    def key_debug(self) -> str:
+        return self.env_config.key_debug
 
     def screenshot_and_save_debug(self) -> None:
         """
@@ -183,11 +181,3 @@ class OneDragonContext(ContextEventBus):
         self.controller.init()
         img = self.controller.screenshot()
         debug_utils.save_debug_image(img)
-
-    def log_mouse_position(self):
-        if self.controller is None or not self.controller.is_game_window_ready:
-            return
-
-        rect: Rect = self.controller.game_win.win_rect
-        pos = self.mouse_controller.position
-        log.info('当前鼠标坐标 %s', (pos[0] - rect.x1, pos[1] - rect.y1))

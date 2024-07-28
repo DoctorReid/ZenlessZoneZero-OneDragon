@@ -6,12 +6,14 @@ from one_dragon.base.conditional_operation.operation_template import OperationTe
 from one_dragon.base.conditional_operation.state_handler_template import StateHandlerTemplate
 from one_dragon.base.conditional_operation.state_recorder import StateRecorder
 from one_dragon.utils import os_utils
-from zzz_od.auto_battle.atomic_op.btn_ultimate import AtomicBtnUltimate
+from zzz_od.auto_battle.atomic_op.btn_chain_left import AtomicBtnChainLeft
+from zzz_od.auto_battle.atomic_op.btn_chain_right import AtomicBtnChainRight
 from zzz_od.auto_battle.atomic_op.btn_dodge import AtomicBtnDodge
 from zzz_od.auto_battle.atomic_op.btn_normal_attack import AtomicBtnNormalAttack
 from zzz_od.auto_battle.atomic_op.btn_special_attack import AtomicBtnSpecialAttack
 from zzz_od.auto_battle.atomic_op.btn_switch_next import AtomicBtnSwitchNext
 from zzz_od.auto_battle.atomic_op.btn_switch_prev import AtomicBtnSwitchPrev
+from zzz_od.auto_battle.atomic_op.btn_ultimate import AtomicBtnUltimate
 from zzz_od.auto_battle.atomic_op.wait import AtomicWait
 from zzz_od.context.battle_context import BattleEventEnum
 from zzz_od.context.yolo_context import YoloStateEventEnum
@@ -43,11 +45,13 @@ class AutoBattleLoader:
             event_ids.append('后台-' + agent_enum.value.agent_name)
             event_ids.append('连携技-1-' + agent_enum.value.agent_name)
             event_ids.append('连携技-2-' + agent_enum.value.agent_name)
+            event_ids.append('快速支援-' + agent_enum.value.agent_name)
         for agent_type_enum in AgentTypeEnum:
             event_ids.append('前台-' + agent_type_enum.value)
             event_ids.append('后台-' + agent_type_enum.value)
             event_ids.append('连携技-1-' + agent_type_enum.value)
             event_ids.append('连携技-2-' + agent_type_enum.value)
+            event_ids.append('快速支援-' + agent_type_enum.value)
 
         return event_ids
 
@@ -90,6 +94,10 @@ class AutoBattleLoader:
             return AtomicBtnSpecialAttack(self.ctx, press_time)
         elif op_name == BattleEventEnum.BTN_ULTIMATE.value:
             return AtomicBtnUltimate(self.ctx)
+        elif op_name == BattleEventEnum.BTN_CHAIN_LEFT.value:
+            return AtomicBtnChainLeft(self.ctx)
+        elif op_name == BattleEventEnum.BTN_CHAIN_RIGHT.value:
+            return AtomicBtnChainRight(self.ctx)
         else:
             raise ValueError('非法的指令 %s' % op_name)
 

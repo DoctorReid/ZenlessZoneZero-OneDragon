@@ -121,11 +121,11 @@ class SettingEnvInterface(VerticalScrollInterface):
         self.key_screenshot_input.value_changed.connect(self._on_key_screenshot_changed)
         key_group.addSettingCard(self.key_screenshot_input)
 
-        self.key_mouse_pos_input = KeySettingCard(
-            icon=FluentIcon.MOVE, title='鼠标位置', content='日志中输出当前鼠标位置，用于开发'
+        self.key_debug_input = KeySettingCard(
+            icon=FluentIcon.MOVE, title='调试按钮', content='用于开发，部分应用开始调试'
         )
-        self.key_mouse_pos_input.value_changed.connect(self._on_key_mouse_position_changed)
-        key_group.addSettingCard(self.key_mouse_pos_input)
+        self.key_debug_input.value_changed.connect(self._on_key_debug_changed)
+        key_group.addSettingCard(self.key_debug_input)
 
         return key_group
 
@@ -144,7 +144,7 @@ class SettingEnvInterface(VerticalScrollInterface):
         self.key_start_running_input.setValue(self.ctx.env_config.key_start_running)
         self.key_stop_running_input.setValue(self.ctx.env_config.key_stop_running)
         self.key_screenshot_input.setValue(self.ctx.env_config.key_screenshot)
-        self.key_mouse_pos_input.setValue(self.ctx.env_config.key_mouse_pos)
+        self.key_debug_input.setValue(self.ctx.env_config.key_debug)
 
         repo_type = get_config_item_from_enum(RepositoryTypeEnum, self.ctx.env_config.repository_type)
         if repo_type is not None:
@@ -246,5 +246,5 @@ class SettingEnvInterface(VerticalScrollInterface):
     def _on_key_screenshot_changed(self, value: str) -> None:
         self.ctx.env_config.key_screenshot = value
 
-    def _on_key_mouse_position_changed(self, value: str) -> None:
-        self.ctx.env_config.key_mouse_pos = value
+    def _on_key_debug_changed(self, value: str) -> None:
+        self.ctx.env_config.key_debug = value

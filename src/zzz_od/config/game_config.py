@@ -128,6 +128,24 @@ class GameConfig(YamlConfig):
         self.update('key_interact', new_value)
 
     @property
+    def key_chain_left(self) -> str:
+        """交互"""
+        return self.get('key_chain_left', 'q')
+
+    @key_chain_left.setter
+    def key_chain_left(self, new_value: str) -> None:
+        self.update('key_chain_left', new_value)
+
+    @property
+    def key_chain_right(self) -> str:
+        """交互"""
+        return self.get('key_chain_right', 'e')
+
+    @key_chain_right.setter
+    def key_chain_right(self, new_value: str) -> None:
+        self.update('key_chain_right', new_value)
+
+    @property
     def gamepad_type(self) -> str:
         return self.get('gamepad_type', GamepadTypeEnum.NONE.value.value)
 
@@ -202,6 +220,22 @@ class GameConfig(YamlConfig):
         self.update('xbox_key_interact', new_value)
 
     @property
+    def xbox_key_chain_left(self) -> str:
+        return self.get('xbox_key_chain_left', XboxButtonEnum.LB.value.value)
+
+    @xbox_key_chain_left.setter
+    def xbox_key_chain_left(self, new_value: str) -> None:
+        self.update('xbox_key_chain_left', new_value)
+
+    @property
+    def xbox_key_chain_right(self) -> str:
+        return self.get('xbox_key_chain_right', XboxButtonEnum.RB.value.value)
+
+    @xbox_key_chain_right.setter
+    def xbox_key_chain_right(self, new_value: str) -> None:
+        self.update('xbox_key_chain_right', new_value)
+
+    @property
     def ds4_key_press_time(self) -> float:
         return self.get('ds4_key_press_time', 0.02)
 
@@ -267,6 +301,21 @@ class GameConfig(YamlConfig):
     def ds4_key_interact(self, new_value: str) -> None:
         self.update('ds4_key_interact', new_value)
 
+    @property
+    def ds4_key_chain_left(self) -> str:
+        return self.get('ds4_key_chain_left', Ds4ButtonEnum.L1.value.value)
+
+    @ds4_key_chain_left.setter
+    def ds4_key_chain_left(self, new_value: str) -> None:
+        self.update('ds4_key_chain_left', new_value)
+
+    @property
+    def ds4_key_chain_right(self) -> str:
+        return self.get('ds4_key_chain_right', Ds4ButtonEnum.R1.value.value)
+
+    @ds4_key_chain_right.setter
+    def ds4_key_chain_right(self, new_value: str) -> None:
+        self.update('ds4_key_chain_right', new_value)
 
     @property
     def gamepad_requirement_time(self) -> str:

@@ -23,10 +23,13 @@ class BattleEventEnum(Enum):
     BTN_SWITCH_NORMAL_ATTACK = '按键-普通攻击'
     BTN_SWITCH_SPECIAL_ATTACK = '按键-特殊攻击'
     BTN_ULTIMATE = '按键-终结技'
+    BTN_CHAIN_LEFT = '按键-连携技-左'
+    BTN_CHAIN_RIGHT = '按键-连携技-右'
 
     STATUS_SPECIAL_READY = '按键可用-特殊攻击'
     STATUS_ULTIMATE_READY = '按键可用-终结技'
     STATUS_CHAIN_READY = '按键可用-连携技'
+    STATUS_QUICK_ASSIST_READY = '按键可用-快速支援'
 
 
 class BattleContext:
@@ -45,7 +48,7 @@ class BattleContext:
         self._check_special_attack_lock = threading.Lock()
         self._check_ultimate_lock = threading.Lock()
         self._check_chain_lock = threading.Lock()
-        self._check_fast_lock = threading.Lock()
+        self._check_quick_lock = threading.Lock()
 
     def dodge(self):
         e = BattleEventEnum.BTN_DODGE.value
@@ -60,14 +63,7 @@ class BattleContext:
         press_time = time.time()
         self.ctx.dispatch_event(e, press_time)
 
-        if self.agent_list is None:
-            return
-        current_agent_list = self.agent_list
-        next_agent_list = []
-        for i in range(1, len(current_agent_list)):
-            next_agent_list.append(current_agent_list[i])
-        next_agent_list.append(current_agent_list[0])
-        self._update_agent_list(next_agent_list, press_time)
+        self._agent_list_next(press_time)
 
     def switch_prev(self):
         e = BattleEventEnum.BTN_SWITCH_PREV.value
@@ -76,14 +72,7 @@ class BattleContext:
         press_time = time.time()
         self.ctx.dispatch_event(e, press_time)
 
-        if self.agent_list is None:
-            return
-        current_agent_list = self.agent_list
-        next_agent_list = []
-        next_agent_list.append(current_agent_list[-1])
-        for i in range(0, len(current_agent_list)-1):
-            next_agent_list.append(current_agent_list[i])
-        self._update_agent_list(next_agent_list, press_time)
+        self._agent_list_prev(press_time)
 
     def normal_attack(self, press_time: Optional[float] = None):
         e = BattleEventEnum.BTN_SWITCH_NORMAL_ATTACK.value
@@ -102,6 +91,24 @@ class BattleContext:
         log.info(e)
         self.ctx.controller.ultimate()
         self.ctx.dispatch_event(e, time.time())
+
+    def chain_left(self):
+        e = BattleEventEnum.BTN_CHAIN_LEFT.value
+        log.info(e)
+        self.ctx.controller.chain_left()
+        press_time = time.time()
+        self.ctx.dispatch_event(e, press_time)
+
+        self._agent_list_prev(press_time)
+
+    def chain_right(self):
+        e = BattleEventEnum.BTN_CHAIN_RIGHT.value
+        log.info(e)
+        self.ctx.controller.chain_right()
+        press_time = time.time()
+        self.ctx.dispatch_event(e, press_time)
+
+        self._agent_list_next(press_time)
 
     def init_context(self, agent_names: Optional[List[str]] = None) -> None:
         """
@@ -145,6 +152,7 @@ class BattleContext:
         future_list.append(_battle_check_executor.submit(self.check_special_attack_btn, screen, screenshot_time))
         future_list.append(_battle_check_executor.submit(self.check_ultimate_btn, screen, screenshot_time, allow_ultimate_list))
         future_list.append(_battle_check_executor.submit(self.check_chain_attack, screen, screenshot_time))
+        future_list.append(_battle_check_executor.submit(self.check_quick_assist, screen, screenshot_time))
 
         if sync:
             for future in future_list:
@@ -175,10 +183,7 @@ class BattleContext:
         a33: MatLike = cv2_utils.crop_image_only(screen, self.area_agent_3_3.rect)
         a22: MatLike = cv2_utils.crop_image_only(screen, self.area_agent_2_2.rect)
 
-        if self.should_check_all_agents:
-            possible_agents = None
-        else:
-            possible_agents = self.agent_list
+        possible_agents = self._get_possible_agent_list()
 
         result_agent_list: List[Agent] = []
         future_list: List[Future] = []
@@ -226,9 +231,6 @@ class BattleContext:
         在候选列表重匹配角色 TODO 待优化
         :return:
         """
-        if possible_agents is None:
-            possible_agents = [enum.value for enum in AgentEnum]
-
         prefix = 'avatar_1_' if is_front else 'avatar_2_'
         for agent in possible_agents:
             mrl = self.ctx.tm.match_template(img, 'battle', prefix + agent.agent_id, threshold=0.9)
@@ -247,6 +249,32 @@ class BattleContext:
             if agent not in self.agent_list:
                 return False
         return True
+
+    def _agent_list_next(self, update_time: float) -> None:
+        """
+        代理人列表 切换下一个
+        """
+        if self.agent_list is None:
+            return
+        current_agent_list = self.agent_list
+        next_agent_list = []
+        for i in range(1, len(current_agent_list)):
+            next_agent_list.append(current_agent_list[i])
+        next_agent_list.append(current_agent_list[0])
+        self._update_agent_list(next_agent_list, update_time)
+
+    def _agent_list_prev(self, update_time: float) -> None:
+        """
+        代理人列表 切换上一个
+        """
+        if self.agent_list is None:
+            return
+        current_agent_list = self.agent_list
+        next_agent_list = []
+        next_agent_list.append(current_agent_list[-1])
+        for i in range(0, len(current_agent_list)-1):
+            next_agent_list.append(current_agent_list[i])
+        self._update_agent_list(next_agent_list, update_time)
 
     def _update_agent_list(self, current_agent_list: List[Agent], update_time: float) -> None:
         """
@@ -356,10 +384,7 @@ class BattleContext:
         c1 = cv2_utils.crop_image_only(screen, self.area_chain_1.rect)
         c2 = cv2_utils.crop_image_only(screen, self.area_chain_2.rect)
 
-        if self.should_check_all_agents:
-            possible_agents = None
-        else:
-            possible_agents = self.agent_list
+        possible_agents = self._get_possible_agent_list()
 
         result_agent_list: List[Agent] = []
         future_list: List[Future] = []
@@ -390,33 +415,77 @@ class BattleContext:
         在候选列表重匹配角色 TODO 待优化
         :return:
         """
-        if possible_agents is None:
-            possible_agents = [enum.value for enum in AgentEnum]
-
         for agent in possible_agents:
-            mrl = self.ctx.tm.match_template(img, 'battle', 'avatar_chain_' + agent.agent_id, threshold=0.6)
+            mrl = self.ctx.tm.match_template(img, 'battle', 'avatar_chain_' + agent.agent_id, threshold=0.8)
             if mrl.max is not None:
                 return agent
 
         return None
 
-    def check_fast_support(self, screen: MatLike, screenshot_time: float) -> None:
+    def check_quick_assist(self, screen: MatLike, screenshot_time: float) -> None:
         """
         识别快速支援
         """
-        pass
+        if not self._check_quick_lock.acquire(blocking=False):
+            return
 
+        try:
+            part = cv2_utils.crop_image_only(screen, self.area_btn_switch.rect)
 
+            possible_agents = self._get_possible_agent_list()
+
+            agent = self._match_quick_assist_agent_in(part, possible_agents)
+
+            if agent is not None:
+                self.ctx.dispatch_event(f'快速支援-{agent.agent_name}', screenshot_time)
+                self.ctx.dispatch_event(f'快速支援-{agent.agent_type.value}', screenshot_time)
+                self.ctx.dispatch_event(BattleEventEnum.STATUS_QUICK_ASSIST_READY.value, screenshot_time)
+        except Exception:
+            log.error('识别快速支援失败', exc_info=True)
+        finally:
+            self._check_quick_lock.release()
+
+    def _match_quick_assist_agent_in(self, img: MatLike, possible_agents: Optional[List[Agent]] = None) -> Optional[Agent]:
+        """
+        在候选列表重匹配角色 TODO 待优化
+        :return:
+        """
+        for agent in possible_agents:
+            mrl = self.ctx.tm.match_template(img, 'battle', 'avatar_quick_' + agent.agent_id, threshold=0.9)
+            if mrl.max is not None:
+                return agent
+
+        return None
+
+    def _get_possible_agent_list(self) -> Optional[List[Agent]]:
+        """
+        获取用于匹配的候选角色列表
+        """
+        all: bool = False
+        if self.should_check_all_agents:
+            all = True
+        elif self.agent_list is None or len(self.agent_list) == 0:
+            all = True
+        else:
+            for agent in self.agent_list:
+                if agent is None:
+                    all = True
+                    break
+        if all:
+            return [agent_enum.value for agent_enum in AgentEnum]
+        else:
+            return self.agent_list
 
 def __debug():
     ctx = ZContext()
     battle = BattleContext(ctx)
     battle.init_context()
-    screen = debug_utils.get_debug_image('_1722095760030')
+    screen = debug_utils.get_debug_image('_1722135490234')
     # battle.check_agent(screen, 0)
     # battle.check_special_attack_btn(screen, 0)
     # battle.check_ultimate_btn(screen, 0)
     battle.check_chain_attack(screen, 0)
+
 
 if __name__ == '__main__':
     __debug()

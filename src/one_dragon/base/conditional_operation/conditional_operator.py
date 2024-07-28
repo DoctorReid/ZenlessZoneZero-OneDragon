@@ -126,6 +126,7 @@ class ConditionalOperator(YamlConfig):
         if event_id not in self.event_to_scene_handler:
             return
 
+        log.debug('场景触发 %s', event.event_id)
         handler = self.event_to_scene_handler[event_id]
 
         # 中断当前在执行的指令

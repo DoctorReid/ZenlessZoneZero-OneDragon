@@ -90,3 +90,14 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 按键-切换角色
+  pc_rect:
+  - 1731
+  - 920
+  - 1827
+  - 1016
+  text: ''
+  lcs_percent: 0.1
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

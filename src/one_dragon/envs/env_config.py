@@ -304,16 +304,16 @@ class EnvConfig(YamlConfig):
         self.update('key_screenshot', new_value)
 
     @property
-    def key_mouse_pos(self) -> str:
+    def key_debug(self) -> str:
         """
-        鼠标位置的按钮
+        调试的按钮
         """
-        return self.get('key_mouse_pos', 'f12')
+        return self.get('key_debug', 'f12')
 
-    @key_mouse_pos.setter
-    def key_mouse_pos(self, new_value: str) -> None:
+    @key_debug.setter
+    def key_debug(self, new_value: str) -> None:
         """
-        鼠标位置的按钮
+        调试的按钮
         :return:
         """
-        self.update('key_mouse_pos', new_value)
+        self.update('key_debug', new_value)

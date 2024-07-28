@@ -5,6 +5,7 @@ from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, PushButton
 from typing import Optional
 
+from one_dragon.base.operation.context_event_bus import ContextEventItem
 from one_dragon.gui.component.app_event_log_display_card import AppEventLogDisplayCard
 from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
@@ -91,6 +92,7 @@ class AutoBattleInterface(AppRunInterface):
         self.gpu_opt.setValue(self.ctx.battle_assistant_config.use_gpu)
         self.screenshot_interval_opt.setValue(str(self.ctx.battle_assistant_config.screenshot_interval))
         self.gamepad_type_opt.setValue(self.ctx.battle_assistant_config.gamepad_type)
+        self.debug_btn.setText('%s %s' % (self.ctx.key_debug.upper(), '调试'))
 
     def _update_auto_battle_config_opts(self) -> None:
         """
@@ -147,3 +149,13 @@ class AutoBattleInterface(AppRunInterface):
 
     def _on_gamepad_type_changed(self, idx: int, value: str) -> None:
         self.ctx.battle_assistant_config.gamepad_type = value
+
+    def _on_key_press(self, event: ContextEventItem) -> None:
+        """
+        按键监听
+        """
+        key: str = event.data
+        if key == self.ctx.key_start_running and self.ctx.is_context_stop:
+            self._on_start_clicked()
+        elif key == self.ctx.key_debug and self.ctx.is_context_stop:
+            self._on_debug_clicked()

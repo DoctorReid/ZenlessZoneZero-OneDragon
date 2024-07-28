@@ -64,7 +64,8 @@ class TemplateInfo(YamlOperator):
         :return:
         """
         if idx < 0 or idx >= len(self.point_list):
-            self.point_list.pop(idx)
+            return
+        self.point_list.pop(idx)
 
     def add_point(self, point: Point) -> None:
         """
@@ -454,6 +455,7 @@ class TemplateInfo(YamlOperator):
         for point in self.point_list:
             point.x = point.x + dx
             point.y = point.y + dy
+        self.point_updated = True
 
 
 @lru_cache

@@ -28,6 +28,8 @@ class ZPcController(PcControllerBase):
         self.key_normal_attack: str = self.game_config.key_normal_attack
         self.key_special_attack: str = self.game_config.key_special_attack
         self.key_ultimate: str = self.game_config.key_ultimate
+        self.key_chain_left: str = self.game_config.key_chain_left
+        self.key_chain_right: str = self.game_config.key_chain_right
 
     def fill_uid_black(self, screen: MatLike) -> MatLike:
         """
@@ -51,6 +53,8 @@ class ZPcController(PcControllerBase):
         self.key_normal_attack = self.game_config.key_normal_attack
         self.key_special_attack = self.game_config.key_special_attack
         self.key_ultimate: str = self.game_config.key_ultimate
+        self.key_chain_left: str = self.game_config.key_chain_left
+        self.key_chain_right: str = self.game_config.key_chain_right
 
     def enable_xbox(self):
         PcControllerBase.enable_xbox(self)
@@ -61,6 +65,8 @@ class ZPcController(PcControllerBase):
         self.key_normal_attack = self.game_config.xbox_key_normal_attack
         self.key_special_attack = self.game_config.xbox_key_special_attack
         self.key_ultimate: str = self.game_config.xbox_key_ultimate
+        self.key_chain_left: str = self.game_config.xbox_key_chain_left
+        self.key_chain_right: str = self.game_config.xbox_key_chain_right
 
     def enable_ds4(self):
         PcControllerBase.enable_ds4(self)
@@ -71,6 +77,8 @@ class ZPcController(PcControllerBase):
         self.key_normal_attack = self.game_config.ds4_key_normal_attack
         self.key_special_attack = self.game_config.ds4_key_special_attack
         self.key_ultimate: str = self.game_config.ds4_key_ultimate
+        self.key_chain_left: str = self.game_config.ds4_key_chain_left
+        self.key_chain_right: str = self.game_config.ds4_key_chain_right
 
     def dodge(self) -> None:
         """
@@ -116,3 +124,15 @@ class ZPcController(PcControllerBase):
         终结技
         """
         self.btn_controller.tap(self.key_ultimate)
+
+    def chain_left(self) -> None:
+        """
+        连携技-左
+        """
+        self.btn_controller.tap(self.key_chain_left)
+
+    def chain_right(self) -> None:
+        """
+        连携技-右
+        """
+        self.btn_controller.tap(self.key_chain_right)

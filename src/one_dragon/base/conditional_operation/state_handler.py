@@ -36,8 +36,8 @@ class StateHandler:
                     if sub_state.check_and_run(now):
                         return True
             else:
-                self._execute()
                 log.debug('触发条件 %s', self.expr)
+                self._execute()
                 return True
         else:
             return False
