@@ -113,6 +113,7 @@ class AutoBattleDebugApp(ZApplication):
         self.ctx.yolo.check_screen(screen, now, sync=True)
         self.ctx.battle.check_screen(screen, now, sync=True)
 
+        time.sleep(0.2)
         self.auto_op.normal_scene_handler.execute(time.time())
 
         return self.round_success()

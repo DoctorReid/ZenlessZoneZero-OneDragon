@@ -122,7 +122,7 @@ class PcControllerBase(ControllerBase):
 
         if self.sct is not None:
             monitor = {"top": top, "left": left, "width": width, "height": height}
-            screenshot = np.array(self.sct.grab(monitor))
+            screenshot = cv2.cvtColor(np.array(self.sct.grab(monitor)), cv2.COLOR_BGRA2RGB)
         else:
             img: Image = pyautogui.screenshot(region=(left, top, width, height))
             screenshot = np.array(img)

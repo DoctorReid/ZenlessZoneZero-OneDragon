@@ -1,3 +1,5 @@
+import time
+
 from cv2.typing import MatLike
 from typing import Optional
 

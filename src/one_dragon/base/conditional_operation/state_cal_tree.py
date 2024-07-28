@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional, List, Tuple
+from typing import Optional, List
 
 from one_dragon.base.conditional_operation.state_recorder import StateRecorder
 from one_dragon.utils.log_utils import log

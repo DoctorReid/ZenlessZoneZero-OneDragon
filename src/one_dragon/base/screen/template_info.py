@@ -447,6 +447,14 @@ class TemplateInfo(YamlOperator):
 
         self.file_path = self.get_yml_file_path()
 
+    def update_all_points(self, dx: int, dy: int) -> None:
+        """
+        所有坐标移动
+        """
+        for point in self.point_list:
+            point.x = point.x + dx
+            point.y = point.y + dy
+
 
 @lru_cache
 def get_template_root_dir_path() -> str:

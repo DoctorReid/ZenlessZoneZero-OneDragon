@@ -107,6 +107,8 @@ def construct_state_handler(
     state_cal_tree = construct_state_cal_tree(states_expr, state_recorders)
     if 'sub_states' in state_data:
         sub_state_data_list = state_data.get('sub_states', [])
+        if len(sub_state_data_list) == 0:
+            raise ValueError('状态( %s )下子状态为空', states_expr)
         sub_handler_list: List[StateHandler] = _get_state_handlers(
             sub_state_data_list,
             state_recorders,
@@ -121,6 +123,8 @@ def construct_state_handler(
             state_data.get('operations', []),
             op_getter, operation_template_getter,
             set())
+        if len(ops) == 0:
+            raise ValueError('状态( %s )下指令为空', states_expr)
         return StateHandler(states_expr, state_cal_tree, operations=ops)
 
 

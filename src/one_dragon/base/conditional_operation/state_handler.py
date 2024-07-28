@@ -30,15 +30,15 @@ class StateHandler:
         :param now: 当前判断时间
         :return: 是否运行
         """
-        if self.sub_states is not None and len(self.sub_states) > 0:
-            for sub_state in self.sub_states:
-                if sub_state.check_and_run(now):
-                    return True
-        elif self.state_cal_tree.in_time_range(now):
-            self.running = True
-            self._execute()
-            log.debug('触发条件 %s', self.expr)
-            return True
+        if self.state_cal_tree.in_time_range(now):
+            if self.sub_states is not None and len(self.sub_states) > 0:
+                for sub_state in self.sub_states:
+                    if sub_state.check_and_run(now):
+                        return True
+            else:
+                self._execute()
+                log.debug('触发条件 %s', self.expr)
+                return True
         else:
             return False
 
@@ -47,6 +47,7 @@ class StateHandler:
         执行具体的指令
         :return:
         """
+        self.running = True
         for op in self.operations:
             if not self.running:
                 break

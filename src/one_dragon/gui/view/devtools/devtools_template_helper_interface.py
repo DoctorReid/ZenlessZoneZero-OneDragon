@@ -1,7 +1,7 @@
 import os
 from PySide6.QtWidgets import QWidget, QFileDialog, QTableWidgetItem
 from cv2.typing import MatLike
-from qfluentwidgets import FluentIcon, PushButton, TableWidget, ToolButton, ComboBox, ImageLabel, CaptionLabel
+from qfluentwidgets import FluentIcon, PushButton, TableWidget, ToolButton, ComboBox, ImageLabel, CaptionLabel, LineEdit
 from typing import List, Optional
 
 from one_dragon.base.geometry.point import Point
@@ -13,6 +13,7 @@ from one_dragon.gui.component.interface.vertical_scroll_interface import Vertica
 from one_dragon.gui.component.label.click_image_label import ClickImageLabel, ImageScaleEnum
 from one_dragon.gui.component.row_widget import RowWidget
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiPushSettingCard
 from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils import os_utils, cv2_utils
@@ -75,6 +76,10 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
         save_row = RowWidget()
         widget.add_widget(save_row)
 
+        self.choose_image_btn = PushButton(text=gt('选择图片', 'ui'))
+        self.choose_image_btn.clicked.connect(self.choose_existed_image)
+        save_row.add_widget(self.choose_image_btn)
+
         self.save_config_btn = PushButton(text=gt('保存配置', 'ui'))
         self.save_config_btn.clicked.connect(self._on_save_config_clicked)
         save_row.add_widget(self.save_config_btn)
@@ -89,9 +94,19 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
 
         save_row.add_stretch(1)
 
-        self.choose_image_btn = PushButton(text=gt('选择图片', 'ui'))
-        self.choose_image_btn.clicked.connect(self.choose_existed_image)
-        widget.add_widget(self.choose_image_btn)
+        self.h_move_input = LineEdit()
+        self.h_btn = PushButton(text='移动')
+        self.h_btn.clicked.connect(self._on_h_move_clicked)
+        self.h_move_opt = MultiPushSettingCard(icon=FluentIcon.MOVE, title='横移',
+                                               btn_list=[self.h_move_input, self.h_btn])
+        widget.add_widget(self.h_move_opt)
+
+        self.v_move_input = LineEdit()
+        self.v_btn = PushButton(text='移动')
+        self.v_btn.clicked.connect(self._on_v_move_clicked)
+        self.v_move_opt = MultiPushSettingCard(icon=FluentIcon.MOVE, title='纵移',
+                                               btn_list=[self.v_move_input, self.v_btn])
+        widget.add_widget(self.v_move_opt)
 
         self.template_sub_dir_opt = TextSettingCard(icon=FluentIcon.HOME, title='画面')
         self.template_sub_dir_opt.line_edit.setFixedWidth(240)
@@ -203,11 +218,18 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
         self.delete_btn.setDisabled(not chosen)
         self.cancel_btn.setDisabled(not chosen)
 
+        self.choose_image_btn.setDisabled(not chosen)
         self.save_config_btn.setDisabled(not chosen)
         self.save_raw_btn.setDisabled(not chosen)
         self.save_mask_btn.setDisabled(not chosen)
 
-        self.choose_image_btn.setDisabled(not chosen)
+        self.h_move_input.setDisabled(not chosen)
+        self.h_btn.setDisabled(not chosen)
+        self.h_move_opt.setDisabled(not chosen)
+        self.v_move_input.setDisabled(not chosen)
+        self.v_btn.setDisabled(not chosen)
+        self.v_move_opt.setDisabled(not chosen)
+
         self.template_sub_dir_opt.setDisabled(not chosen)
         self.template_id_opt.setDisabled(not chosen)
         self.template_name_opt.setDisabled(not chosen)
@@ -551,3 +573,35 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
 
         self._update_point_table_display()
         self._update_all_image_display()
+
+    def _on_h_move_clicked(self) -> None:
+        """
+        所有点为的横坐标改变
+        """
+        if self.chosen_template is None:
+            return
+
+        input = self.h_move_input.text()
+        try:
+            dx = int(input)
+            self.chosen_template.update_all_points(dx, 0)
+            self._update_point_table_display()
+            self._update_all_image_display()
+        except Exception:
+            pass
+
+    def _on_v_move_clicked(self) -> None:
+        """
+        所有点为的纵坐标改变
+        """
+        if self.chosen_template is None:
+            return
+
+        input = self.v_move_input.text()
+        try:
+            dy = int(input)
+            self.chosen_template.update_all_points(0, dy)
+            self._update_point_table_display()
+            self._update_all_image_display()
+        except Exception:
+            pass

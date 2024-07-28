@@ -2,11 +2,11 @@ import os
 import shutil
 from typing import Optional, List
 
-from one_dragon.base.config.yaml_operator import YamlOperator
+from one_dragon.base.config.json_operator import JsonOperator
 from one_dragon.utils import os_utils
 
 
-class YamlConfig(YamlOperator):
+class JsonConfig(JsonOperator):
 
     def __init__(self,
                  module_name: str,
@@ -26,9 +26,9 @@ class YamlConfig(YamlOperator):
         self.mock: bool = mock
         """mock情况下 不读取文件 也不会实际保存 用于测试"""
 
-        YamlOperator.__init__(self, self._get_yaml_file_path(sample))
+        JsonOperator.__init__(self, self._get_json_file_path(sample))
 
-    def _get_yaml_file_path(self, sample: bool = False) -> Optional[str]:
+    def _get_json_file_path(self, sample: bool = False) -> Optional[str]:
         """
         获取配置文件的路径
         如果只有sample文件，就复制一个到实例文件夹下
@@ -43,8 +43,8 @@ class YamlConfig(YamlOperator):
         if self.sub_dir is not None:
             sub_dir = sub_dir + self.sub_dir
 
-        yml_path = os.path.join(os_utils.get_path_under_work_dir(*sub_dir), f'{self.module_name}.yml')
-        sample_yml_path = os.path.join(os_utils.get_path_under_work_dir(*sub_dir), f'{self.module_name}.sample.yml')
+        yml_path = os.path.join(os_utils.get_path_under_work_dir(*sub_dir), f'{self.module_name}.json')
+        sample_yml_path = os.path.join(os_utils.get_path_under_work_dir(*sub_dir), f'{self.module_name}.sample.json')
         path = sample_yml_path if sample and not os.path.exists(yml_path) else yml_path
         use_sample = sample and not os.path.exists(yml_path)
 

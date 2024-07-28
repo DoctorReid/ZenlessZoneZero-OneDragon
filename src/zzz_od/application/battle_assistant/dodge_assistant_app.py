@@ -111,7 +111,7 @@ class DodgeAssistantApp(ZApplication):
         now = time.time()
 
         screen = self.screenshot()
-        self.ctx.yolo.check_dodge_flash(screen, now, self.ctx.battle_assistant_config.use_gpu)
+        self.ctx.yolo.check_screen(screen, now)
 
         return self.round_wait(wait_round_time=self.ctx.battle_assistant_config.screenshot_interval)
 
