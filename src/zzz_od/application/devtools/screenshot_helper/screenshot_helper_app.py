@@ -32,11 +32,11 @@ class ScreenshotHelperApp(ZApplication):
         init_context = OperationNode('初始化上下文', self.init_context)
 
         screenshot = OperationNode('持续截图', self.repeat_screenshot)
+        self.add_edge(init_context, screenshot)
+
         save = OperationNode('保存截图', self.do_save_screenshot)
         self.add_edge(screenshot, save)
         self.add_edge(save, screenshot)
-
-        self.param_start_node = screenshot
 
     def handle_init(self) -> None:
         """
