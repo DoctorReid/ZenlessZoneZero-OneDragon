@@ -102,7 +102,7 @@ class ConditionalOperator(YamlConfig):
             return False
         self.running = True
         future: Future = _od_conditional_op_executor.submit(self._execute)
-        future.add_done_callback(thread_utils.handle_future_result(future))
+        future.add_done_callback(thread_utils.handle_future_result)
         return True
 
     def _execute(self) -> None:
