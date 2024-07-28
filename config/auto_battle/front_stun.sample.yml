@@ -1,6 +1,7 @@
 name: "击破站场-强攻速切"
 allow_ultimate:
   - agent_type: "强攻"
+
 scenes:
 
 - triggers: ["闪避识别-黄光", "闪避识别-红光"]
@@ -33,12 +34,7 @@ scenes:
 - triggers: []
   interval: 0.5
   handlers:
-  - states: "[前台-击破]"
+  - states: "[按键-连携技-左, 0, 10] | [按键-连携技-右, 0, 10]"
     sub_states:
-      - state_template: "站场模板-全角色"
-  - states: "[前台-强攻] | [前台-支援] | [前台-异常] | [前台-防护]"
-    operations:
-      - op_name: "按键-切换角色-下一个"
-        data: []
-      - op_name: "等待秒数"
-        data: [ "0.5" ]
+      - state_template: "站场模板-强攻站场"
+  - state_template: "站场模板-击破站场"

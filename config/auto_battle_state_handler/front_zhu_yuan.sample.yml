@@ -1,6 +1,10 @@
 template_name: "站场模板-朱鸢"
 handlers:
-  - states: "[按键可用-终结技]"
+  - states: "[按键-连携技-左, 0, 5] | [按键-连携技-右, 0, 5] | [按键可用-特殊攻击] | [按键-终结技]"
+    operations:
+      - op_name: "按键-普通攻击"
+        data: [ "1" ]
+  - states: "[按键-终结技]"
     operations:
       - op_name: "按键-终结技"
         data: []
@@ -12,5 +16,4 @@ handlers:
         data: []
   - states: ""
     operations:
-      - op_name: "按键-普通攻击"
-        data: []
+      - operation_template: "朱鸢-普通攻击"

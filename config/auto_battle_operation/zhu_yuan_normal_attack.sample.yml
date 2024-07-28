@@ -1,9 +1,5 @@
-template_name: "安比-3A重击"
+template_name: "朱鸢-普通攻击"
 operations:
-  - op_name: "按键-普通攻击"
-    data: []
-  - op_name: "等待秒数"
-    data: [ "0.3" ]
   - op_name: "按键-普通攻击"
     data: []
   - op_name: "等待秒数"
@@ -11,6 +7,14 @@ operations:
   - op_name: "按键-普通攻击"
     data: []
   - op_name: "等待秒数"
-    data: [ "0.2" ]
+    data: [ "1" ]
   - op_name: "按键-普通攻击"
-    data: [ "2" ]
+    data: []
+  - op_name: "等待秒数"
+    data: [ "1" ]
+  - op_name: "按键-普通攻击"
+    data: []
+  - op_name: "等待秒数"
+    data: [ "1" ]
+  - op_name: "按键-普通攻击"
+    data: []

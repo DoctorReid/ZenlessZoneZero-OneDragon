@@ -118,6 +118,7 @@ class BattleContext:
         self.agent_list = []
         self.should_check_all_agents = agent_names is None
         self.check_agent_same_times = 0
+        self.check_agent_diff_times = 0
 
         if agent_names is not None:
             for agent_name in agent_names:
@@ -213,6 +214,7 @@ class BattleContext:
                 self.check_agent_same_times += 1
                 if self.check_agent_same_times >= 5:  # 连续5次一致时 就不验证了
                     self.should_check_all_agents = False
+                    log.debug("停止识别新角色")
             else:
                 self.check_agent_same_times = 0
         else:
@@ -220,6 +222,7 @@ class BattleContext:
                 self.check_agent_diff_times += 1
                 if self.check_agent_diff_times >= 1000:  # 0.02秒1次 大概20s不一致就重新识别 基本不可能出现
                     self.should_check_all_agents = True
+                    log.debug("重新识别新角色")
             else:
                 self.check_agent_diff_times = 0
 
@@ -480,12 +483,12 @@ def __debug():
     ctx = ZContext()
     battle = BattleContext(ctx)
     battle.init_context()
-    screen = debug_utils.get_debug_image('_1722146684408')
+    screen = debug_utils.get_debug_image('_1722153425984')
     # battle.check_agent(screen, 0)
-    # battle.check_special_attack_btn(screen, 0)
-    # battle.check_ultimate_btn(screen, 0)
+    battle.check_special_attack_btn(screen, 0)
+    battle.check_ultimate_btn(screen, 0)
     # battle.check_chain_attack(screen, 0)
-    battle.check_quick_assist(screen, 0)
+    # battle.check_quick_assist(screen, 0)
 
 
 if __name__ == '__main__':

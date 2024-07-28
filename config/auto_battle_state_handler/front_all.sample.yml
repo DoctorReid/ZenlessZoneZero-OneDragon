@@ -3,3 +3,4 @@ handlers:
   - state_template: "站场模板-安比"
   - state_template: "站场模板-妮可"
   - state_template: "站场模板-朱鸢"
+  - state_template: "站场模板-通用"

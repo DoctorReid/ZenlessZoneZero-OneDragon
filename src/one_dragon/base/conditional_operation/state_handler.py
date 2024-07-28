@@ -32,12 +32,12 @@ class StateHandler:
         :return: 是否运行
         """
         if self.state_cal_tree.in_time_range(now):
+            log.debug('触发条件 %s', self.expr)
             if self.sub_states is not None and len(self.sub_states) > 0:
                 for sub_state in self.sub_states:
                     if sub_state.check_and_run(now):
                         return True
             else:
-                log.debug('触发条件 %s', self.expr)
                 self._execute()
                 return True
         else:

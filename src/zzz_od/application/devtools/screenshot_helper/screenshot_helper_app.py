@@ -29,6 +29,8 @@ class ScreenshotHelperApp(ZApplication):
         初始化前 添加边和节点 由子类实行
         :return:
         """
+        init_context = OperationNode('初始化上下文', self.init_context)
+
         screenshot = OperationNode('持续截图', self.repeat_screenshot)
         save = OperationNode('保存截图', self.do_save_screenshot)
         self.add_edge(screenshot, save)
@@ -46,6 +48,10 @@ class ScreenshotHelperApp(ZApplication):
 
         self.ctx.listen_event(ContextKeyboardEventEnum.PRESS.value, self._on_key_press)
 
+    def init_context(self) -> OperationRoundResult:
+        self.ctx.yolo.init_context(self.ctx.battle_assistant_config.use_gpu)
+        return self.round_success()
+
     def repeat_screenshot(self) -> OperationRoundResult:
         """
         持续截图
@@ -54,7 +60,7 @@ class ScreenshotHelperApp(ZApplication):
         screen = self.screenshot()
 
         if self.ctx.screenshot_helper_config.dodge_detect:
-            if self.ctx.yolo.check_dodge_flash(screen, now, use_gpu=True):
+            if self.ctx.yolo.check_dodge_flash(screen, now):
                 debug_utils.save_debug_image(screen, prefix='dodge_wrong')
 
         if self.to_save_screenshot:
