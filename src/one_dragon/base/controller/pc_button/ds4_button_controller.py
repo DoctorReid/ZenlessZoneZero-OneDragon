@@ -64,6 +64,8 @@ class Ds4ButtonController(PcButtonController):
     def press_lt(self, press_time: Optional[float] = None) -> None:
         self.pad.left_trigger(value=255)
         self.pad.update()
+        if press_time is None:
+            press_time = 0
         time.sleep(max(self.key_press_time, press_time))
         self.pad.left_trigger(value=0)
         self.pad.update()
@@ -71,6 +73,8 @@ class Ds4ButtonController(PcButtonController):
     def press_rt(self, press_time: Optional[float] = None) -> None:
         self.pad.right_trigger(value=255)
         self.pad.update()
+        if press_time is None:
+            press_time = 0
         time.sleep(max(self.key_press_time, press_time))
         self.pad.right_trigger(value=0)
         self.pad.update()
@@ -84,6 +88,8 @@ class Ds4ButtonController(PcButtonController):
     def _press_button(self, btn, press_time: Optional[float] = None):
         self.pad.press_button(btn)
         self.pad.update()
+        if press_time is None:
+            press_time = 0
         time.sleep(max(self.key_press_time, press_time))
         self.pad.release_button(btn)
         self.pad.update()
