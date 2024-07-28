@@ -19,3 +19,9 @@ class AtomicOp:
         :return:
         """
         pass
+
+    def stop(self) -> None:
+        """
+        停止运行
+        """
+        pass

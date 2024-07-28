@@ -42,3 +42,10 @@ class KeyboardMouseController(PcButtonController):
             self.mouse.release(pc_button_utils.get_mouse_button(key))
         else:
             self.keyboard.release(pc_button_utils.get_keyboard_button(key))
+
+    def release(self, key: str) -> None:
+        is_mouse = pc_button_utils.is_mouse_button(key)
+        if is_mouse:
+            self.mouse.release(pc_button_utils.get_mouse_button(key))
+        else:
+            self.keyboard.release(pc_button_utils.get_keyboard_button(key))

@@ -11,3 +11,6 @@ class AtomicBtnDodge(AtomicOp):
 
     def execute(self):
         self.ctx.battle.dodge()
+
+    def stop(self) -> None:
+        self.ctx.controller.release_dodge()

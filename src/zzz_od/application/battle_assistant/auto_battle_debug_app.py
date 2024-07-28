@@ -111,7 +111,7 @@ class AutoBattleDebugApp(ZApplication):
 
         screen = self.screenshot()
         self.ctx.yolo.check_screen(screen, now, sync=True)
-        self.ctx.battle.check_screen(screen, now, sync=True)
+        self.ctx.battle.check_screen(screen, now, self.auto_op.get('allow_ultimate_list', None), sync=True)
 
         time.sleep(0.2)
         self.auto_op.normal_scene_handler.execute(time.time())

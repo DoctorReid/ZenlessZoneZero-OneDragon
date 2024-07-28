@@ -1,26 +1,38 @@
-from typing import Optional
+from typing import Optional, List
 
 from one_dragon.base.operation.context_event_bus import ContextEventBus, ContextEventItem
 
 
 class StateRecorder:
 
-    def __init__(self, event_bus: Optional[ContextEventBus], state_name: str):
+    def __init__(self, event_bus: Optional[ContextEventBus],
+                 state_name: str, mutex_list: Optional[List[str]] = None):
         self.event_bus: ContextEventBus = event_bus
         self.state_name: str = state_name
+        self.mutex_list: List[str] = mutex_list  # 互斥的状态 这种状态出现的时候 就会将自身状态清空
 
         self.last_record_time: float = 0  # 上次记录这个状态的时间
 
         if self.event_bus is not None:
             self.event_bus.listen_event(state_name, self._on_state_event)
 
-    def _on_state_event(self, event: ContextEventItem):
+            if self.mutex_list is not None:
+                for mutex in self.mutex_list:
+                    self.event_bus.listen_event(mutex, self._on_mutex_state_event)
+
+    def _on_state_event(self, event: ContextEventItem) -> None:
         """
         状态事件被触发时 记录触发的时间
         :param event:
         :return:
         """
         self.last_record_time = event.data
+
+    def _on_mutex_state_event(self, event: ContextEventItem) -> None:
+        """
+        互斥事件发生时 清空
+        """
+        self.last_record_time = 0
 
     def dispose(self) -> None:
         """

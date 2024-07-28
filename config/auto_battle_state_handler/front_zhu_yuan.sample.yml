@@ -2,11 +2,10 @@ template_name: "站场模板-朱鸢"
 handlers:
   - states: "[前台-朱鸢]"
     sub_states:
-    - states: "[按键-连携技-左, 0, 5] | [按键-连携技-右, 0, 5] | [按键可用-特殊攻击] | [按键-终结技]"
+    - states: "[按键-连携技-左, 0, 5] | [按键-连携技-右, 0, 5] | [按键-特殊攻击, 2, 5] | [按键-终结技, 3, 8]"
       operations:
-        - op_name: "按键-普通攻击"
-          data: [ "1" ]
-    - states: "[按键-终结技]"
+        - operation_template: "朱鸢-清空弹匣"
+    - states: "[按键可用-终结技]"
       operations:
         - op_name: "按键-终结技"
           data: []
@@ -16,6 +15,8 @@ handlers:
       operations:
         - op_name: "按键-特殊攻击"
           data: []
+        - op_name: "等待秒数"
+          data: [ "2" ]
     - states: ""
       operations:
         - operation_template: "朱鸢-普通攻击"

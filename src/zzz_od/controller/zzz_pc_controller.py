@@ -87,6 +87,13 @@ class ZPcController(PcControllerBase):
         """
         self.btn_controller.tap(self.key_dodge)
 
+    def release_dodge(self) -> None:
+        """
+        松开按键-闪避
+        :return:
+        """
+        self.btn_controller.release(self.key_dodge)
+
     def switch_next(self) -> None:
         """
         切换下一个人
@@ -94,12 +101,26 @@ class ZPcController(PcControllerBase):
         """
         self.btn_controller.tap(self.key_switch_next)
 
+    def release_switch_next(self) -> None:
+        """
+        松开按键-切换下一个人
+        :return:
+        """
+        self.btn_controller.release(self.key_switch_next)
+
     def switch_prev(self) -> None:
         """
         切换上一个人
         :return:
         """
         self.btn_controller.tap(self.key_switch_prev)
+
+    def release_switch_prev(self) -> None:
+        """
+        松开按键-切换上一个人
+        :return:
+        """
+        self.btn_controller.release(self.key_switch_prev)
 
     def normal_attack(self, press_time: Optional[float] = None) -> None:
         """
@@ -110,6 +131,12 @@ class ZPcController(PcControllerBase):
         else:
             self.btn_controller.press(self.key_normal_attack, press_time)
 
+    def release_normal_attack(self) -> None:
+        """
+        松开按键-普通攻击
+        """
+        self.btn_controller.release(self.key_normal_attack)
+
     def special_attack(self, press_time: Optional[float] = None) -> None:
         """
         特殊攻击
@@ -119,11 +146,23 @@ class ZPcController(PcControllerBase):
         else:
             self.btn_controller.press(self.key_special_attack, press_time)
 
+    def release_special_attack(self) -> None:
+        """
+        松开按键-特殊攻击
+        """
+        self.btn_controller.release(self.key_special_attack)
+
     def ultimate(self) -> None:
         """
         终结技
         """
         self.btn_controller.tap(self.key_ultimate)
+
+    def release_ultimate(self) -> None:
+        """
+        松开按键-终结技
+        """
+        self.btn_controller.release(self.key_ultimate)
 
     def chain_left(self) -> None:
         """
@@ -131,8 +170,20 @@ class ZPcController(PcControllerBase):
         """
         self.btn_controller.tap(self.key_chain_left)
 
+    def release_chain_left(self) -> None:
+        """
+        松开按键-连携技-左
+        """
+        self.btn_controller.release(self.key_chain_left)
+
     def chain_right(self) -> None:
         """
         连携技-右
         """
         self.btn_controller.tap(self.key_chain_right)
+
+    def release_chain_right(self) -> None:
+        """
+        松开按键-连携技-右
+        """
+        self.btn_controller.release(self.key_chain_right)

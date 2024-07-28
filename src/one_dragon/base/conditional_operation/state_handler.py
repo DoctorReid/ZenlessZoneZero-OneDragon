@@ -23,6 +23,7 @@ class StateHandler:
         self.sub_states: List[StateHandler] = sub_states
         self.operations: List[AtomicOp] = operations
         self.running: bool = False  # 当前是否在执行指令
+        self.running_op: Optional[AtomicOp] = None  # 正在执行的操作
 
     def check_and_run(self, now: float) -> bool:
         """
@@ -52,8 +53,9 @@ class StateHandler:
         for op in self.operations:
             if not self.running:
                 break
-
+            self.running_op = op
             op.execute()
+        self.running_op = None
         self.running = False
 
     def stop_running(self) -> None:
@@ -65,6 +67,8 @@ class StateHandler:
         if self.sub_states is not None and len(self.sub_states) > 0:
             for sub_state in self.sub_states:
                 sub_state.stop_running()
+        if self.running_op is not None:
+            self.running_op.stop()
 
     def dispose(self) -> None:
         """

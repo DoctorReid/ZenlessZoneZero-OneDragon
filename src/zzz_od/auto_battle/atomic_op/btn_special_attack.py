@@ -14,3 +14,6 @@ class AtomicBtnSpecialAttack(AtomicOp):
 
     def execute(self):
         self.ctx.battle.special_attack(self.press_time)
+
+    def stop(self) -> None:
+        self.ctx.controller.release_special_attack()

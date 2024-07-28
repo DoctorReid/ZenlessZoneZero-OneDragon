@@ -11,3 +11,6 @@ class AtomicBtnSwitchPrev(AtomicOp):
 
     def execute(self):
         self.ctx.battle.switch_prev()
+
+    def stop(self) -> None:
+        self.ctx.controller.release_switch_prev()

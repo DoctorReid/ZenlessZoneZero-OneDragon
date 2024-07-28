@@ -15,3 +15,6 @@ class AtomicBtnNormalAttack(AtomicOp):
     def execute(self):
         self.ctx.battle.normal_attack(self.press_time)
 
+    def stop(self) -> None:
+        self.ctx.controller.release_normal_attack()
+

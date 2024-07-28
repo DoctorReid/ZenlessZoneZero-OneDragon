@@ -11,3 +11,6 @@ class AtomicBtnChainRight(AtomicOp):
 
     def execute(self):
         self.ctx.battle.chain_right()
+
+    def stop(self) -> None:
+        self.ctx.controller.release_chain_right()

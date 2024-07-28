@@ -75,10 +75,13 @@ class BattleContext:
         self._agent_list_prev(press_time)
 
     def normal_attack(self, press_time: Optional[float] = None):
+        t1 = time.time()
         e = BattleEventEnum.BTN_SWITCH_NORMAL_ATTACK.value
         log.info(e)
         self.ctx.controller.normal_attack(press_time)
-        self.ctx.dispatch_event(e, time.time())
+        t2 = time.time()
+        self.ctx.dispatch_event(e, t2)
+        log.debug('普通攻击耗时 %.2f', (t2-t1))
 
     def special_attack(self, press_time: Optional[float] = None):
         e = BattleEventEnum.BTN_SWITCH_SPECIAL_ATTACK.value
@@ -288,11 +291,15 @@ class BattleContext:
         :param current_agent_list: 新的角色列表
         :return:
         """
+        any_none: bool = False
+        for agent in current_agent_list:
+            if agent is None:
+                any_none = True
         if not self.should_check_all_agents and not self._is_same_agent_list(current_agent_list):
             # 如果已经确定角色列表了 那识别出来的应该是一样的
             # 不一样的话 就不更新了
             pass
-        else:
+        elif not any_none:  # 需要都识别到才可以更新
             self.agent_list = current_agent_list
 
         log.debug('当前角色列表 %s', [

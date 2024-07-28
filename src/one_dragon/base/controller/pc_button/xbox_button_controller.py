@@ -41,6 +41,17 @@ class XboxButtonController(PcButtonController):
             self.press_rb,
         ]
 
+        self.release_handler: List[Callable[[], None]] = [
+            self.release_a,
+            self.release_b,
+            self.release_x,
+            self.release_y,
+            self.release_lt,
+            self.release_rt,
+            self.release_lb,
+            self.release_rb,
+        ]
+
     def tap(self, key: str) -> None:
         """
         触发按键
@@ -105,3 +116,39 @@ class XboxButtonController(PcButtonController):
         :return:
         """
         self.handler[int(key[-1])](press_time)
+
+    def release(self, key: str) -> None:
+        self.release_handler[int(key[-1])]()
+
+    def release_a(self) -> None:
+        self._release_btn(self._btn.XUSB_GAMEPAD_A)
+
+    def release_b(self) -> None:
+        self._release_btn(self._btn.XUSB_GAMEPAD_B)
+
+    def release_x(self) -> None:
+        self._release_btn(self._btn.XUSB_GAMEPAD_X)
+
+    def release_y(self) -> None:
+        self._release_btn(self._btn.XUSB_GAMEPAD_Y)
+
+    def release_lt(self) -> None:
+        self.pad.left_trigger(value=0)
+        self.pad.update()
+
+    def release_rt(self) -> None:
+        self.pad.right_trigger(value=0)
+        self.pad.update()
+
+    def release_lb(self) -> None:
+        self._release_btn(self._btn.XUSB_GAMEPAD_LEFT_SHOULDER)
+
+    def release_rb(self) -> None:
+        self._release_btn(self._btn.XUSB_GAMEPAD_RIGHT_SHOULDER)
+
+    def _release_btn(self, btn) -> None:
+        """
+        释放具体按键
+        """
+        self.pad.release_button(btn)
+        self.pad.update()

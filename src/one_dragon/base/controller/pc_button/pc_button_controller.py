@@ -23,5 +23,11 @@ class PcButtonController:
         """
         pass
 
+    def release(self, key: str) -> None:
+        """
+        施释放按键
+        """
+        pass
+
     def set_key_press_time(self, key_press_time: float) -> None:
         self.key_press_time = key_press_time

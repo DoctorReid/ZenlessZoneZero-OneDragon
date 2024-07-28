@@ -46,6 +46,7 @@ class AutoBattleLoader:
             event_ids.append('连携技-1-' + agent_enum.value.agent_name)
             event_ids.append('连携技-2-' + agent_enum.value.agent_name)
             event_ids.append('快速支援-' + agent_enum.value.agent_name)
+
         for agent_type_enum in AgentTypeEnum:
             event_ids.append('前台-' + agent_type_enum.value)
             event_ids.append('后台-' + agent_type_enum.value)
@@ -60,10 +61,43 @@ class AutoBattleLoader:
         获取所有的状态记录器
         :return:
         """
-        return [
-            StateRecorder(self.ctx, event_id)
-            for event_id in self.get_all_state_event_ids()
-        ]
+        recorders: List[StateRecorder] = []
+
+        for event_enum in YoloStateEventEnum:
+            recorders.append(StateRecorder(self.ctx, event_enum.value))
+
+        for event_enum in BattleEventEnum:
+            recorders.append(StateRecorder(self.ctx, event_enum.value))
+
+        for agent_enum in AgentEnum:
+            mutex_list: List[str] = []
+            for mutex_agent_enum in AgentEnum:
+                if mutex_agent_enum == agent_enum:
+                    continue
+                mutex_list.append(mutex_agent_enum.value.agent_name)
+
+            recorders.append(StateRecorder(self.ctx, '前台-' + agent_enum.value.agent_name,
+                                           mutex_list=['前台-' + i for i in mutex_list]))
+            recorders.append(StateRecorder(self.ctx, '后台-' + agent_enum.value.agent_name))
+            recorders.append(StateRecorder(self.ctx, '连携技-1-' + agent_enum.value.agent_name))
+            recorders.append(StateRecorder(self.ctx, '连携技-2-' + agent_enum.value.agent_name))
+            recorders.append(StateRecorder(self.ctx, '快速支援-' + agent_enum.value.agent_name))
+
+        for agent_type_enum in AgentTypeEnum:
+            mutex_list: List[str] = []
+            for mutex_agent_type_enum in AgentTypeEnum:
+                if mutex_agent_type_enum == agent_type_enum:
+                    continue
+                mutex_list.append(mutex_agent_type_enum.value)
+
+            recorders.append(StateRecorder(self.ctx, '前台-' + agent_type_enum.value,
+                                           mutex_list=['前台-' + i for i in mutex_list]))
+            recorders.append(StateRecorder(self.ctx, '后台-' + agent_type_enum.value))
+            recorders.append(StateRecorder(self.ctx, '连携技-1-' + agent_type_enum.value))
+            recorders.append(StateRecorder(self.ctx, '连携技-2-' + agent_type_enum.value))
+            recorders.append(StateRecorder(self.ctx, '快速支援-' + agent_type_enum.value))
+
+        return recorders
 
     def get_atomic_op(self, op_name: str, op_data: List[str]) -> AtomicOp:
         """

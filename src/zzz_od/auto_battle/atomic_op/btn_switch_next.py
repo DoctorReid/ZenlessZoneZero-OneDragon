@@ -11,3 +11,6 @@ class AtomicBtnSwitchNext(AtomicOp):
 
     def execute(self):
         self.ctx.battle.switch_next()
+
+    def stop(self) -> None:
+        self.ctx.controller.release_switch_next()

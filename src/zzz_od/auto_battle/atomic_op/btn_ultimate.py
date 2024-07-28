@@ -11,3 +11,6 @@ class AtomicBtnUltimate(AtomicOp):
 
     def execute(self):
         self.ctx.battle.ultimate()
+
+    def stop(self) -> None:
+        self.ctx.controller.release_ultimate()
