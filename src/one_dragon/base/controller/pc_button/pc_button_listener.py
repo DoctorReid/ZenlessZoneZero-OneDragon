@@ -1,7 +1,9 @@
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, Future
 
 from pynput import keyboard, mouse
 from typing import Callable
+
+from one_dragon.utils import thread_utils
 
 _key_mouse_btn_listener_executor = ThreadPoolExecutor(thread_name_prefix='od_key_mouse_btn_listener', max_workers=8)
 
@@ -40,7 +42,8 @@ class PcButtonListener:
 
     def _call_button_tap_callback(self, key: str) -> None:
         if self.on_button_tap is not None:
-            _key_mouse_btn_listener_executor.submit(self.on_button_tap, key)
+            future: Future = _key_mouse_btn_listener_executor.submit(self.on_button_tap, key)
+            future.add_done_callback(thread_utils.handle_future_result)
 
     def start(self):
         if self.listen_keyboard:

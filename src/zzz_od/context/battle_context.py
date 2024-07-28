@@ -7,7 +7,7 @@ from enum import Enum
 from typing import Optional, List
 
 from one_dragon.base.screen.screen_area import ScreenArea
-from one_dragon.utils import cv2_utils, debug_utils
+from one_dragon.utils import cv2_utils, debug_utils, thread_utils
 from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import Agent, AgentEnum
@@ -154,6 +154,9 @@ class BattleContext:
         future_list.append(_battle_check_executor.submit(self.check_ultimate_btn, screen, screenshot_time, allow_ultimate_list))
         future_list.append(_battle_check_executor.submit(self.check_chain_attack, screen, screenshot_time))
         future_list.append(_battle_check_executor.submit(self.check_quick_assist, screen, screenshot_time))
+
+        for future in future_list:
+            future.add_done_callback(thread_utils.handle_future_result)
 
         if sync:
             for future in future_list:

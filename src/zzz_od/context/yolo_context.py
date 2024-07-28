@@ -5,7 +5,7 @@ from cv2.typing import MatLike
 from enum import Enum
 from typing import Optional, List
 
-from one_dragon.utils import os_utils
+from one_dragon.utils import os_utils, thread_utils
 from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.yolo.dodge_classifier import DodgeClassifier
@@ -46,6 +46,9 @@ class YoloContext:
         """
         future_list: List[Future] = []
         future_list.append(_yolo_check_executor.submit(self.check_dodge_flash, screen, screenshot_time))
+
+        for future in future_list:
+            future.add_done_callback(thread_utils.handle_future_result)
 
         if sync:
             for future in future_list:

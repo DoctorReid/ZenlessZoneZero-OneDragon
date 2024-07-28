@@ -1,5 +1,5 @@
 import time
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, Future
 
 from typing import Optional, List, Callable
 
@@ -11,6 +11,7 @@ from one_dragon.base.conditional_operation.state_recorder import StateRecorder
 from one_dragon.base.conditional_operation.utils import construct_scene_handler
 from one_dragon.base.config.yaml_config import YamlConfig
 from one_dragon.base.operation.context_event_bus import ContextEventBus, ContextEventItem
+from one_dragon.utils import thread_utils
 from one_dragon.utils.log_utils import log
 
 _od_conditional_op_executor = ThreadPoolExecutor(thread_name_prefix='od_conditional_op', max_workers=8)
@@ -100,7 +101,8 @@ class ConditionalOperator(YamlConfig):
         if self.running:
             return False
         self.running = True
-        _od_conditional_op_executor.submit(self._execute)
+        future: Future = _od_conditional_op_executor.submit(self._execute)
+        future.add_done_callback(thread_utils.handle_future_result(future))
         return True
 
     def _execute(self) -> None:
