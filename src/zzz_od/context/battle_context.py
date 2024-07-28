@@ -45,6 +45,7 @@ class BattleContext:
         self._check_special_attack_lock = threading.Lock()
         self._check_ultimate_lock = threading.Lock()
         self._check_chain_lock = threading.Lock()
+        self._check_fast_lock = threading.Lock()
 
     def dodge(self):
         e = BattleEventEnum.BTN_DODGE.value
@@ -126,6 +127,7 @@ class BattleContext:
 
         self.area_btn_special: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '按键-特殊攻击')
         self.area_btn_ultimate: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '按键-终结技')
+        self.area_btn_switch: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '按键-切换角色')
 
         self.area_chain_1: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '连携技-1')
         self.area_chain_2: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '连携技-2')
@@ -397,6 +399,12 @@ class BattleContext:
                 return agent
 
         return None
+
+    def check_fast_support(self, screen: MatLike, screenshot_time: float) -> None:
+        """
+        识别快速支援
+        """
+        pass
 
 
 

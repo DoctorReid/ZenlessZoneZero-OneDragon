@@ -36,7 +36,7 @@ class LogDisplayCard(PlainTextEdit):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         _ = QVBoxLayout(self)  # 创建内部的 QVBoxLayout 以允许高度自动扩展
-        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        # self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         self.update_on_log: bool = False  # 在接收到log的时候更新
 

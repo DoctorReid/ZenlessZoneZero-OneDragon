@@ -266,3 +266,20 @@ class GameConfig(YamlConfig):
     @ds4_key_interact.setter
     def ds4_key_interact(self, new_value: str) -> None:
         self.update('ds4_key_interact', new_value)
+
+
+    @property
+    def gamepad_requirement_time(self) -> str:
+        """
+        安装依赖时 使用的 requirement-gamepad.txt 的最后修改时间
+        :return:
+        """
+        return self.get('gamepad_requirement_time', '')
+
+    @gamepad_requirement_time.setter
+    def gamepad_requirement_time(self, new_value: str) -> None:
+        """
+        安装依赖时 使用的 requirement-gamepad.txt 的最后修改时间
+        :return:
+        """
+        self.update('gamepad_requirement_time', new_value)

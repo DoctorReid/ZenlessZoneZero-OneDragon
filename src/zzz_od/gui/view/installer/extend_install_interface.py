@@ -2,23 +2,20 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout
 from qfluentwidgets import ProgressBar, IndeterminateProgressBar, SettingCardGroup, \
     FluentIcon
 
-from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.log_display_card import LogDisplayCard
-from one_dragon.gui.install_card.all_install_card import AllInstallCard
-from one_dragon.gui.install_card.code_install_card import CodeInstallCard
-from one_dragon.gui.install_card.git_install_card import GitInstallCard
-from one_dragon.gui.install_card.python_install_card import PythonInstallCard
-from one_dragon.gui.install_card.venv_install_card import VenvInstallCard
 from one_dragon.utils.i18_utils import gt
+from zzz_od.context.zzz_context import ZContext
+from zzz_od.gui.view.installer.gamepad_install_card import GamepadInstallCard
 
 
-class InstallerInterface(VerticalScrollInterface):
+class ExtendInstallInterface(VerticalScrollInterface):
 
-    def __init__(self, ctx: OneDragonContext, parent=None):
-        VerticalScrollInterface.__init__(self, ctx=ctx, object_name='install_interface',
+    def __init__(self, ctx: ZContext, parent=None):
+        self.ctx: ZContext = ctx
+        VerticalScrollInterface.__init__(self, ctx=ctx, object_name='extend_install_interface',
                                          parent=parent, content_widget=None,
-                                         nav_text_cn='一键安装', nav_icon=FluentIcon.CLOUD_DOWNLOAD)
+                                         nav_text_cn='扩展安装', nav_icon=FluentIcon.DEVELOPER_TOOLS)
 
     def get_content_widget(self) -> QWidget:
         content_widget = QWidget()
@@ -33,27 +30,10 @@ class InstallerInterface(VerticalScrollInterface):
         self.progress_bar_2.setVisible(False)
         v_layout.addWidget(self.progress_bar_2)
 
-        self.git_opt = GitInstallCard(self.ctx)
-        self.git_opt.progress_changed.connect(self.update_progress)
-
-        self.code_opt = CodeInstallCard(self.ctx)
-        self.code_opt.progress_changed.connect(self.update_progress)
-        self.code_opt.finished.connect(self._on_code_updated)
-
-        self.python_opt = PythonInstallCard(self.ctx)
-        self.python_opt.progress_changed.connect(self.update_progress)
-
-        self.venv_opt = VenvInstallCard(self.ctx)
-        self.venv_opt.progress_changed.connect(self.update_progress)
-
-        self.all_opt = AllInstallCard(self.ctx, [self.git_opt, self.code_opt, self.python_opt, self.venv_opt])
+        self.gamepad_opt = GamepadInstallCard(self.ctx)
 
         update_group = SettingCardGroup(gt('运行环境', 'ui'))
-        update_group.addSettingCard(self.all_opt)
-        update_group.addSettingCard(self.git_opt)
-        update_group.addSettingCard(self.code_opt)
-        update_group.addSettingCard(self.python_opt)
-        update_group.addSettingCard(self.venv_opt)
+        update_group.addSettingCard(self.gamepad_opt)
 
         v_layout.addWidget(update_group)
 
@@ -70,10 +50,7 @@ class InstallerInterface(VerticalScrollInterface):
         :return:
         """
         VerticalScrollInterface.on_interface_shown(self)
-        self.git_opt.check_and_update_display()
-        self.code_opt.check_and_update_display()
-        self.python_opt.check_and_update_display()
-        self.venv_opt.check_and_update_display()
+        self.gamepad_opt.check_and_update_display()
         self.log_card.update_on_log = True
 
     def on_interface_hidden(self) -> None:
@@ -101,12 +78,3 @@ class InstallerInterface(VerticalScrollInterface):
             self.progress_bar_2.setVisible(False)
             self.progress_bar_2.stop()
 
-    def _on_code_updated(self, success: bool, msg: str) -> None:
-        """
-        代码更新后
-        :param success:
-        :param msg:
-        :return:
-        """
-        if success:
-            self.venv_opt.check_and_update_display()

@@ -232,3 +232,18 @@ class PythonService:
         success = result is not None
         msg = '运行依赖安装成功' if success else '运行依赖安装失败'
         return success, msg
+
+    def get_module_version(self) -> Optional[str]:
+        """
+        :return: 当前使用的pip版本
+        """
+        log.info('检测当前pip版本')
+        python_path = self.env_config.python_path
+        if python_path == '' or not os.path.exists(python_path):
+            return None
+
+        version = cmd_utils.run_command([python_path, '-m', 'pip', '--version'])  # Ex: pip 24.0 from xxxx
+        if version is not None:
+            return version[4: version.find('from') - 1]
+        else:
+            return None
