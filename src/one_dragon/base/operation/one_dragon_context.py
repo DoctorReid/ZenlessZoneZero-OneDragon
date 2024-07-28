@@ -89,7 +89,7 @@ class OneDragonContext(ContextEventBus):
             return False
 
         self.context_running_state = ContextRunStateEnum.RUN
-        self.controller.init()
+        self.controller.init_before_context_run()
         self.dispatch_event(ContextRunningStateEventEnum.START_RUNNING.value, self.context_running_state)
         return True
 
@@ -178,6 +178,6 @@ class OneDragonContext(ContextEventBus):
         """
         if self.controller is None or not self.controller.is_game_window_ready:
             return
-        self.controller.init()
+        self.controller.init_before_context_run()
         img = self.controller.screenshot()
         debug_utils.save_debug_image(img)

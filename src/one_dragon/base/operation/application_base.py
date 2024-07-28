@@ -59,7 +59,7 @@ class Application(Operation):
         恢复运行后的处理 由子类实现
         :return:
         """
-        self.ctx.controller.init()
+        pass
 
     def _after_operation_done(self, result: OperationResult):
         """

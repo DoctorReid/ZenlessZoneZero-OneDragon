@@ -32,3 +32,6 @@ class ZApplication(Application):
                              stop_context_after_stop=stop_context_after_stop,
                              run_record=run_record
                              )
+
+    def handle_resume(self) -> None:
+        self.ctx.controller.active_window()

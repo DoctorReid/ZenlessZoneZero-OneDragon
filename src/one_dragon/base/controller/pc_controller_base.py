@@ -44,19 +44,27 @@ class PcControllerBase(ControllerBase):
         self.btn_controller: PcButtonController = self.keyboard_controller
         self.sct = None
 
-    def init(self) -> bool:
-        if self.sct is not None:  # 每次初始化前先关闭上一个
+    def init_before_context_run(self) -> bool:
+        if self.sct is not None:  # 新一次app前 先关闭上一个
             try:
                 self.sct.close()
             except Exception:
-                pass
+                log.error('关闭mss出错', exc_info=True)
         try:
             import mss
             self.sct = mss.mss()
         except Exception:
             pass
+        self.active_window()
+
+        return True
+
+    def active_window(self) -> None:
+        """
+        前置窗口
+        """
         self.game_win.init_win()
-        return self.game_win.active()
+        self.game_win.active()
 
     def enable_xbox(self):
         if pc_button_utils.is_vgamepad_installed():
