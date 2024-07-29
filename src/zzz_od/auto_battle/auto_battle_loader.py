@@ -9,6 +9,10 @@ from one_dragon.utils import os_utils
 from zzz_od.auto_battle.atomic_op.btn_chain_left import AtomicBtnChainLeft
 from zzz_od.auto_battle.atomic_op.btn_chain_right import AtomicBtnChainRight
 from zzz_od.auto_battle.atomic_op.btn_dodge import AtomicBtnDodge
+from zzz_od.auto_battle.atomic_op.btn_move_a import AtomicBtnMoveA
+from zzz_od.auto_battle.atomic_op.btn_move_d import AtomicBtnMoveD
+from zzz_od.auto_battle.atomic_op.btn_move_s import AtomicBtnMoveS
+from zzz_od.auto_battle.atomic_op.btn_move_w import AtomicBtnMoveW
 from zzz_od.auto_battle.atomic_op.btn_normal_attack import AtomicBtnNormalAttack
 from zzz_od.auto_battle.atomic_op.btn_special_attack import AtomicBtnSpecialAttack
 from zzz_od.auto_battle.atomic_op.btn_switch_next import AtomicBtnSwitchNext
@@ -42,14 +46,16 @@ class AutoBattleLoader:
 
         for agent_enum in AgentEnum:
             event_ids.append('前台-' + agent_enum.value.agent_name)
-            event_ids.append('后台-' + agent_enum.value.agent_name)
+            event_ids.append('后台-1-' + agent_enum.value.agent_name)
+            event_ids.append('后台-2-' + agent_enum.value.agent_name)
             event_ids.append('连携技-1-' + agent_enum.value.agent_name)
             event_ids.append('连携技-2-' + agent_enum.value.agent_name)
             event_ids.append('快速支援-' + agent_enum.value.agent_name)
 
         for agent_type_enum in AgentTypeEnum:
             event_ids.append('前台-' + agent_type_enum.value)
-            event_ids.append('后台-' + agent_type_enum.value)
+            event_ids.append('后台-1-' + agent_type_enum.value)
+            event_ids.append('后台-2-' + agent_type_enum.value)
             event_ids.append('连携技-1-' + agent_type_enum.value)
             event_ids.append('连携技-2-' + agent_type_enum.value)
             event_ids.append('快速支援-' + agent_type_enum.value)
@@ -78,7 +84,8 @@ class AutoBattleLoader:
 
             recorders.append(StateRecorder(self.ctx, '前台-' + agent_enum.value.agent_name,
                                            mutex_list=['前台-' + i for i in mutex_list]))
-            recorders.append(StateRecorder(self.ctx, '后台-' + agent_enum.value.agent_name))
+            recorders.append(StateRecorder(self.ctx, '后台-1-' + agent_enum.value.agent_name))
+            recorders.append(StateRecorder(self.ctx, '后台-2-' + agent_enum.value.agent_name))
             recorders.append(StateRecorder(self.ctx, '连携技-1-' + agent_enum.value.agent_name))
             recorders.append(StateRecorder(self.ctx, '连携技-2-' + agent_enum.value.agent_name))
             recorders.append(StateRecorder(self.ctx, '快速支援-' + agent_enum.value.agent_name))
@@ -92,7 +99,8 @@ class AutoBattleLoader:
 
             recorders.append(StateRecorder(self.ctx, '前台-' + agent_type_enum.value,
                                            mutex_list=['前台-' + i for i in mutex_list]))
-            recorders.append(StateRecorder(self.ctx, '后台-' + agent_type_enum.value))
+            recorders.append(StateRecorder(self.ctx, '后台-1-' + agent_type_enum.value))
+            recorders.append(StateRecorder(self.ctx, '后台-2-' + agent_type_enum.value))
             recorders.append(StateRecorder(self.ctx, '连携技-1-' + agent_type_enum.value))
             recorders.append(StateRecorder(self.ctx, '连携技-2-' + agent_type_enum.value))
             recorders.append(StateRecorder(self.ctx, '快速支援-' + agent_type_enum.value))
@@ -106,32 +114,37 @@ class AutoBattleLoader:
         :param op_data:
         :return:
         """
-        if op_name == BattleEventEnum.BTN_DODGE.value:
-            return AtomicBtnDodge(self.ctx)
-        elif op_name == BattleEventEnum.BTN_SWITCH_NEXT.value:
-            return AtomicBtnSwitchNext(self.ctx)
-        elif op_name == BattleEventEnum.BTN_SWITCH_PREV.value:
-            return AtomicBtnSwitchPrev(self.ctx)
+        # 有几个特殊参数 在这里统一提取
+        press: bool = op_name.endswith('-按下')
+        release: bool = op_name.endswith('-松开')
+        press_time = float(op_data[0]) if len(op_data) > 0 else None
+
+        if op_name.startswith(BattleEventEnum.BTN_DODGE.value):
+            return AtomicBtnDodge(self.ctx, press=press, press_time=press_time, release=release)
+        elif op_name.startswith(BattleEventEnum.BTN_SWITCH_NEXT.value):
+            return AtomicBtnSwitchNext(self.ctx, press=press, press_time=press_time, release=release)
+        elif op_name.startswith(BattleEventEnum.BTN_SWITCH_PREV.value):
+            return AtomicBtnSwitchPrev(self.ctx, press=press, press_time=press_time, release=release)
+        elif op_name.startswith(BattleEventEnum.BTN_SWITCH_NORMAL_ATTACK.value):
+            return AtomicBtnNormalAttack(self.ctx, press=press, press_time=press_time, release=release)
+        elif op_name.startswith(BattleEventEnum.BTN_SWITCH_SPECIAL_ATTACK.value):
+            return AtomicBtnSpecialAttack(self.ctx, press=press, press_time=press_time, release=release)
+        elif op_name.startswith(BattleEventEnum.BTN_ULTIMATE.value):
+            return AtomicBtnUltimate(self.ctx, press=press, press_time=press_time, release=release)
+        elif op_name.startswith(BattleEventEnum.BTN_CHAIN_LEFT.value):
+            return AtomicBtnChainLeft(self.ctx, press=press, press_time=press_time, release=release)
+        elif op_name.startswith(BattleEventEnum.BTN_CHAIN_RIGHT.value):
+            return AtomicBtnChainRight(self.ctx, press=press, press_time=press_time, release=release)
+        elif op_name.startswith(BattleEventEnum.BTN_MOVE_W.value):
+            return AtomicBtnMoveW(self.ctx, press=press, press_time=press_time, release=release)
+        elif op_name.startswith(BattleEventEnum.BTN_MOVE_S.value):
+            return AtomicBtnMoveS(self.ctx, press=press, press_time=press_time, release=release)
+        elif op_name.startswith(BattleEventEnum.BTN_MOVE_A.value):
+            return AtomicBtnMoveA(self.ctx, press=press, press_time=press_time, release=release)
+        elif op_name.startswith(BattleEventEnum.BTN_MOVE_D.value):
+            return AtomicBtnMoveD(self.ctx, press=press, press_time=press_time, release=release)
         elif op_name == AtomicWait.OP_NAME:
             return AtomicWait(float(op_data[0]))
-        elif op_name == BattleEventEnum.BTN_SWITCH_NORMAL_ATTACK.value:
-            if len(op_data) > 0:
-                press_time = float(op_data[0])
-            else:
-                press_time = None
-            return AtomicBtnNormalAttack(self.ctx, press_time)
-        elif op_name == BattleEventEnum.BTN_SWITCH_SPECIAL_ATTACK.value:
-            if len(op_data) > 0:
-                press_time = float(op_data[0])
-            else:
-                press_time = None
-            return AtomicBtnSpecialAttack(self.ctx, press_time)
-        elif op_name == BattleEventEnum.BTN_ULTIMATE.value:
-            return AtomicBtnUltimate(self.ctx)
-        elif op_name == BattleEventEnum.BTN_CHAIN_LEFT.value:
-            return AtomicBtnChainLeft(self.ctx)
-        elif op_name == BattleEventEnum.BTN_CHAIN_RIGHT.value:
-            return AtomicBtnChainRight(self.ctx)
         else:
             raise ValueError('非法的指令 %s' % op_name)
 

@@ -78,12 +78,28 @@ class SettingGameInterface(VerticalScrollInterface):
         key_group.addSettingCard(self.key_interact_opt)
 
         self.key_chain_left_opt = KeySettingCard(icon=FluentIcon.GAME, title='连携技-左')
-        self.key_interact_opt.value_changed.connect(self._on_key_chain_left_changed)
+        self.key_chain_left_opt.value_changed.connect(self._on_key_chain_left_changed)
         key_group.addSettingCard(self.key_chain_left_opt)
 
         self.key_chain_right_opt = KeySettingCard(icon=FluentIcon.GAME, title='连携技-右')
-        self.key_interact_opt.value_changed.connect(self._on_key_chain_right_changed)
+        self.key_chain_right_opt.value_changed.connect(self._on_key_chain_right_changed)
         key_group.addSettingCard(self.key_chain_right_opt)
+
+        self.key_move_w_opt = KeySettingCard(icon=FluentIcon.GAME, title='移动-前')
+        self.key_move_w_opt.value_changed.connect(self._on_key_move_w_changed)
+        key_group.addSettingCard(self.key_move_w_opt)
+
+        self.key_move_s_opt = KeySettingCard(icon=FluentIcon.GAME, title='移动-后')
+        self.key_move_s_opt.value_changed.connect(self._on_key_move_s_changed)
+        key_group.addSettingCard(self.key_move_s_opt)
+
+        self.key_move_a_opt = KeySettingCard(icon=FluentIcon.GAME, title='移动-左')
+        self.key_move_a_opt.value_changed.connect(self._on_key_move_a_changed)
+        key_group.addSettingCard(self.key_move_a_opt)
+
+        self.key_move_d_opt = KeySettingCard(icon=FluentIcon.GAME, title='移动-右')
+        self.key_move_d_opt.value_changed.connect(self._on_key_move_d_changed)
+        key_group.addSettingCard(self.key_move_d_opt)
 
         return key_group
 
@@ -132,13 +148,29 @@ class SettingGameInterface(VerticalScrollInterface):
         self.xbox_key_interact_opt.value_changed.connect(self._on_xbox_key_interact_changed)
         gamepad_group.addSettingCard(self.xbox_key_interact_opt)
 
-        self.xbox_key_chain_left_opt = KeySettingCard(icon=FluentIcon.GAME, title='连携技-左')
+        self.xbox_key_chain_left_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='连携技-左', options_enum=XboxButtonEnum)
         self.xbox_key_interact_opt.value_changed.connect(self._on_xbox_key_chain_left_changed)
         gamepad_group.addSettingCard(self.xbox_key_chain_left_opt)
 
-        self.xbox_key_chain_right_opt = KeySettingCard(icon=FluentIcon.GAME, title='连携技-右')
+        self.xbox_key_chain_right_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='连携技-右', options_enum=XboxButtonEnum)
         self.xbox_key_interact_opt.value_changed.connect(self._on_xbox_key_chain_right_changed)
         gamepad_group.addSettingCard(self.xbox_key_chain_right_opt)
+
+        self.xbox_key_move_w_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='移动-前', options_enum=XboxButtonEnum)
+        self.xbox_key_move_w_opt.value_changed.connect(self._on_xbox_key_move_w_changed)
+        gamepad_group.addSettingCard(self.xbox_key_move_w_opt)
+
+        self.xbox_key_move_s_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='移动-后', options_enum=XboxButtonEnum)
+        self.xbox_key_move_s_opt.value_changed.connect(self._on_xbox_key_move_s_changed)
+        gamepad_group.addSettingCard(self.xbox_key_move_s_opt)
+
+        self.xbox_key_move_a_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='移动-左', options_enum=XboxButtonEnum)
+        self.xbox_key_move_a_opt.value_changed.connect(self._on_xbox_key_move_a_changed)
+        gamepad_group.addSettingCard(self.xbox_key_move_a_opt)
+
+        self.xbox_key_move_d_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='移动-右', options_enum=XboxButtonEnum)
+        self.xbox_key_move_d_opt.value_changed.connect(self._on_xbox_key_move_d_changed)
+        gamepad_group.addSettingCard(self.xbox_key_move_d_opt)
 
         # ds4
         self.ds4_key_press_time_opt = TextSettingCard(icon=FluentIcon.GAME, title='单次按键持续时间(秒)',
@@ -174,13 +206,29 @@ class SettingGameInterface(VerticalScrollInterface):
         self.ds4_key_interact_opt.value_changed.connect(self._on_ds4_key_interact_changed)
         gamepad_group.addSettingCard(self.ds4_key_interact_opt)
 
-        self.ds4_key_chain_left_opt = KeySettingCard(icon=FluentIcon.GAME, title='连携技-左')
+        self.ds4_key_chain_left_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='连携技-左', options_enum=Ds4ButtonEnum)
         self.ds4_key_interact_opt.value_changed.connect(self._on_ds4_key_chain_left_changed)
         gamepad_group.addSettingCard(self.ds4_key_chain_left_opt)
 
-        self.ds4_key_chain_right_opt = KeySettingCard(icon=FluentIcon.GAME, title='连携技-右')
+        self.ds4_key_chain_right_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='连携技-右', options_enum=Ds4ButtonEnum)
         self.ds4_key_interact_opt.value_changed.connect(self._on_ds4_key_chain_right_changed)
         gamepad_group.addSettingCard(self.ds4_key_chain_right_opt)
+
+        self.ds4_key_move_w_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='移动-前', options_enum=Ds4ButtonEnum)
+        self.ds4_key_move_w_opt.value_changed.connect(self._on_ds4_key_move_w_changed)
+        gamepad_group.addSettingCard(self.ds4_key_move_w_opt)
+
+        self.ds4_key_move_s_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='移动-后', options_enum=Ds4ButtonEnum)
+        self.ds4_key_move_s_opt.value_changed.connect(self._on_ds4_key_move_s_changed)
+        gamepad_group.addSettingCard(self.ds4_key_move_s_opt)
+
+        self.ds4_key_move_a_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='移动-左', options_enum=Ds4ButtonEnum)
+        self.ds4_key_move_a_opt.value_changed.connect(self._on_ds4_key_move_a_changed)
+        gamepad_group.addSettingCard(self.ds4_key_move_a_opt)
+
+        self.ds4_key_move_d_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='移动-右', options_enum=Ds4ButtonEnum)
+        self.ds4_key_move_d_opt.value_changed.connect(self._on_ds4_key_move_d_changed)
+        gamepad_group.addSettingCard(self.ds4_key_move_d_opt)
 
         return gamepad_group
 
@@ -200,6 +248,10 @@ class SettingGameInterface(VerticalScrollInterface):
         self.key_interact_opt.setValue(self.ctx.game_config.key_interact)
         self.key_chain_left_opt.setValue(self.ctx.game_config.key_chain_left)
         self.key_chain_right_opt.setValue(self.ctx.game_config.key_chain_right)
+        self.key_move_w_opt.setValue(self.ctx.game_config.key_move_w)
+        self.key_move_s_opt.setValue(self.ctx.game_config.key_move_s)
+        self.key_move_a_opt.setValue(self.ctx.game_config.key_move_a)
+        self.key_move_d_opt.setValue(self.ctx.game_config.key_move_d)
 
         self._update_gamepad_part()
 
@@ -222,6 +274,10 @@ class SettingGameInterface(VerticalScrollInterface):
         self.xbox_key_interact_opt.setValue(self.ctx.game_config.xbox_key_interact)
         self.xbox_key_chain_left_opt.setValue(self.ctx.game_config.xbox_key_chain_left)
         self.xbox_key_chain_right_opt.setValue(self.ctx.game_config.xbox_key_chain_right)
+        self.xbox_key_move_w_opt.setValue(self.ctx.game_config.xbox_key_move_w)
+        self.xbox_key_move_s_opt.setValue(self.ctx.game_config.xbox_key_move_s)
+        self.xbox_key_move_a_opt.setValue(self.ctx.game_config.xbox_key_move_a)
+        self.xbox_key_move_d_opt.setValue(self.ctx.game_config.xbox_key_move_d)
 
         self.xbox_key_press_time_opt.setVisible(is_xbox)
         self.xbox_key_normal_attack_opt.setVisible(is_xbox)
@@ -233,6 +289,10 @@ class SettingGameInterface(VerticalScrollInterface):
         self.xbox_key_interact_opt.setVisible(is_xbox)
         self.xbox_key_chain_left_opt.setVisible(is_xbox)
         self.xbox_key_chain_right_opt.setVisible(is_xbox)
+        self.xbox_key_move_w_opt.setVisible(is_xbox)
+        self.xbox_key_move_s_opt.setVisible(is_xbox)
+        self.xbox_key_move_a_opt.setVisible(is_xbox)
+        self.xbox_key_move_d_opt.setVisible(is_xbox)
 
         is_ds4 = self.ctx.game_config.gamepad_type == GamepadTypeEnum.DS4.value.value
 
@@ -246,6 +306,10 @@ class SettingGameInterface(VerticalScrollInterface):
         self.ds4_key_interact_opt.setValue(self.ctx.game_config.ds4_key_interact)
         self.ds4_key_chain_left_opt.setValue(self.ctx.game_config.ds4_key_chain_left)
         self.ds4_key_chain_right_opt.setValue(self.ctx.game_config.ds4_key_chain_right)
+        self.ds4_key_move_w_opt.setValue(self.ctx.game_config.ds4_key_move_w)
+        self.ds4_key_move_s_opt.setValue(self.ctx.game_config.ds4_key_move_s)
+        self.ds4_key_move_a_opt.setValue(self.ctx.game_config.ds4_key_move_a)
+        self.ds4_key_move_d_opt.setValue(self.ctx.game_config.ds4_key_move_d)
 
         self.ds4_key_press_time_opt.setVisible(is_ds4)
         self.ds4_key_normal_attack_opt.setVisible(is_ds4)
@@ -255,8 +319,12 @@ class SettingGameInterface(VerticalScrollInterface):
         self.ds4_key_special_attack_opt.setVisible(is_ds4)
         self.ds4_key_ultimate_opt.setVisible(is_ds4)
         self.ds4_key_interact_opt.setVisible(is_ds4)
-        self.ds4_key_chain_left_opt.setVisible(is_xbox)
-        self.ds4_key_chain_right_opt.setVisible(is_xbox)
+        self.ds4_key_chain_left_opt.setVisible(is_ds4)
+        self.ds4_key_chain_right_opt.setVisible(is_ds4)
+        self.ds4_key_move_w_opt.setVisible(is_ds4)
+        self.ds4_key_move_s_opt.setVisible(is_ds4)
+        self.ds4_key_move_a_opt.setVisible(is_ds4)
+        self.ds4_key_move_d_opt.setVisible(is_ds4)
 
     def _on_game_region_changed(self, index, value):
         self.ctx.game_config.game_region = value
@@ -288,6 +356,18 @@ class SettingGameInterface(VerticalScrollInterface):
 
     def _on_key_chain_right_changed(self, key: str) -> None:
         self.ctx.game_config.key_chain_right = key
+
+    def _on_key_move_w_changed(self, key: str) -> None:
+        self.ctx.game_config.key_move_w = key
+
+    def _on_key_move_s_changed(self, key: str) -> None:
+        self.ctx.game_config.key_move_s = key
+
+    def _on_key_move_a_changed(self, key: str) -> None:
+        self.ctx.game_config.key_move_a = key
+
+    def _on_key_move_d_changed(self, key: str) -> None:
+        self.ctx.game_config.key_move_d = key
 
     def _on_gamepad_type_changed(self, idx: int, value: str) -> None:
         self.ctx.game_config.gamepad_type = value
@@ -323,6 +403,18 @@ class SettingGameInterface(VerticalScrollInterface):
     def _on_xbox_key_chain_right_changed(self, key: str) -> None:
         self.ctx.game_config.xbox_key_chain_right = key
 
+    def _on_xbox_key_move_w_changed(self, key: str) -> None:
+        self.ctx.game_config.xbox_key_move_w = key
+
+    def _on_xbox_key_move_s_changed(self, key: str) -> None:
+        self.ctx.game_config.xbox_key_move_s = key
+
+    def _on_xbox_key_move_a_changed(self, key: str) -> None:
+        self.ctx.game_config.xbox_key_move_a = key
+
+    def _on_xbox_key_move_d_changed(self, key: str) -> None:
+        self.ctx.game_config.xbox_key_move_d = key
+
     def _on_ds4_key_press_time_changed(self, value: str) -> None:
         self.ctx.game_config.ds4_key_press_time = float(value)
 
@@ -352,3 +444,15 @@ class SettingGameInterface(VerticalScrollInterface):
 
     def _on_ds4_key_chain_right_changed(self, key: str) -> None:
         self.ctx.game_config.ds4_key_chain_right = key
+
+    def _on_ds4_key_move_w_changed(self, key: str) -> None:
+        self.ctx.game_config.ds4_key_move_w = key
+
+    def _on_ds4_key_move_s_changed(self, key: str) -> None:
+        self.ctx.game_config.ds4_key_move_s = key
+
+    def _on_ds4_key_move_a_changed(self, key: str) -> None:
+        self.ctx.game_config.ds4_key_move_a = key
+
+    def _on_ds4_key_move_d_changed(self, key: str) -> None:
+        self.ctx.game_config.ds4_key_move_d = key

@@ -25,6 +25,10 @@ class BattleEventEnum(Enum):
     BTN_ULTIMATE = '按键-终结技'
     BTN_CHAIN_LEFT = '按键-连携技-左'
     BTN_CHAIN_RIGHT = '按键-连携技-右'
+    BTN_MOVE_W = '按键-移动-前'
+    BTN_MOVE_S = '按键-移动-前'
+    BTN_MOVE_A = '按键-移动-左'
+    BTN_MOVE_D = '按键-移动-右'
 
     STATUS_SPECIAL_READY = '按键可用-特殊攻击'
     STATUS_ULTIMATE_READY = '按键可用-终结技'
@@ -50,68 +54,166 @@ class BattleContext:
         self._check_chain_lock = threading.Lock()
         self._check_quick_lock = threading.Lock()
 
-    def dodge(self):
-        e = BattleEventEnum.BTN_DODGE.value
+    def dodge(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
+        if press:
+            e = BattleEventEnum.BTN_DODGE.value + '-按下'
+        elif release:
+            e = BattleEventEnum.BTN_DODGE.value + '-松开'
+        else:
+            e = BattleEventEnum.BTN_DODGE.value
         log.info(e)
-        self.ctx.controller.dodge()
+        self.ctx.controller.dodge(press=press, press_time=press_time, release=release)
         self.ctx.dispatch_event(e, time.time())
 
-    def switch_next(self):
-        e = BattleEventEnum.BTN_SWITCH_NEXT.value
+    def switch_next(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
+        update_agent = False
+        if press:
+            e = BattleEventEnum.BTN_SWITCH_NEXT.value + '-按下'
+            update_agent = True
+        elif release:
+            e = BattleEventEnum.BTN_SWITCH_NEXT.value + '-松开'
+        else:
+            e = BattleEventEnum.BTN_SWITCH_NEXT.value
+            update_agent = True
+
         log.info(e)
-        self.ctx.controller.switch_next()
+        self.ctx.controller.switch_next(press=press, press_time=press_time, release=release)
         press_time = time.time()
         self.ctx.dispatch_event(e, press_time)
 
-        self._agent_list_next(press_time)
+        if update_agent:
+            self._agent_list_next(press_time)
 
-    def switch_prev(self):
-        e = BattleEventEnum.BTN_SWITCH_PREV.value
+    def switch_prev(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
+        update_agent = False
+        if press:
+            e = BattleEventEnum.BTN_SWITCH_PREV.value + '-按下'
+            update_agent = True
+        elif release:
+            e = BattleEventEnum.BTN_SWITCH_PREV.value + '-松开'
+        else:
+            e = BattleEventEnum.BTN_SWITCH_PREV.value
+            update_agent = True
         log.info(e)
-        self.ctx.controller.switch_prev()
+        self.ctx.controller.switch_prev(press=press, press_time=press_time, release=release)
         press_time = time.time()
         self.ctx.dispatch_event(e, press_time)
 
-        self._agent_list_prev(press_time)
+        if update_agent:
+            self._agent_list_prev(press_time)
 
-    def normal_attack(self, press_time: Optional[float] = None):
-        t1 = time.time()
-        e = BattleEventEnum.BTN_SWITCH_NORMAL_ATTACK.value
+    def normal_attack(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
+        if press:
+            e = BattleEventEnum.BTN_SWITCH_NORMAL_ATTACK.value + '-按下'
+        elif release:
+            e = BattleEventEnum.BTN_SWITCH_NORMAL_ATTACK.value + '-松开'
+        else:
+            e = BattleEventEnum.BTN_SWITCH_NORMAL_ATTACK.value
         log.info(e)
-        self.ctx.controller.normal_attack(press_time)
-        t2 = time.time()
-        self.ctx.dispatch_event(e, t2)
-        log.debug('普通攻击耗时 %.2f', (t2-t1))
-
-    def special_attack(self, press_time: Optional[float] = None):
-        e = BattleEventEnum.BTN_SWITCH_SPECIAL_ATTACK.value
-        log.info(e)
-        self.ctx.controller.special_attack(press_time)
+        self.ctx.controller.normal_attack(press=press, press_time=press_time, release=release)
         self.ctx.dispatch_event(e, time.time())
 
-    def ultimate(self):
-        e = BattleEventEnum.BTN_ULTIMATE.value
+    def special_attack(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
+        if press:
+            e = BattleEventEnum.BTN_SWITCH_SPECIAL_ATTACK.value + '-按下'
+        elif release:
+            e = BattleEventEnum.BTN_SWITCH_SPECIAL_ATTACK.value + '-松开'
+        else:
+            e = BattleEventEnum.BTN_SWITCH_SPECIAL_ATTACK.value
         log.info(e)
-        self.ctx.controller.ultimate()
+        self.ctx.controller.special_attack(press=press, press_time=press_time, release=release)
         self.ctx.dispatch_event(e, time.time())
 
-    def chain_left(self):
-        e = BattleEventEnum.BTN_CHAIN_LEFT.value
+    def ultimate(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
+        if press:
+            e = BattleEventEnum.BTN_ULTIMATE.value + '-按下'
+        elif release:
+            e = BattleEventEnum.BTN_ULTIMATE.value + '-松开'
+        else:
+            e = BattleEventEnum.BTN_ULTIMATE.value
         log.info(e)
-        self.ctx.controller.chain_left()
+        self.ctx.controller.ultimate(press=press, press_time=press_time, release=release)
+        self.ctx.dispatch_event(e, time.time())
+
+    def chain_left(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
+        update_agent = False
+        if press:
+            e = BattleEventEnum.BTN_CHAIN_LEFT.value + '-按下'
+            update_agent = True
+        elif release:
+            e = BattleEventEnum.BTN_CHAIN_LEFT.value + '-松开'
+        else:
+            e = BattleEventEnum.BTN_CHAIN_LEFT.value
+            update_agent = True
+        log.info(e)
+        self.ctx.controller.chain_left(press=press, press_time=press_time, release=release)
         press_time = time.time()
         self.ctx.dispatch_event(e, press_time)
 
-        self._agent_list_prev(press_time)
+        if update_agent:
+            self._agent_list_prev(press_time)
 
-    def chain_right(self):
-        e = BattleEventEnum.BTN_CHAIN_RIGHT.value
+    def chain_right(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
+        update_agent = False
+        if press:
+            e = BattleEventEnum.BTN_CHAIN_RIGHT.value + '-按下'
+            update_agent = True
+        elif release:
+            e = BattleEventEnum.BTN_CHAIN_RIGHT.value + '-松开'
+        else:
+            e = BattleEventEnum.BTN_CHAIN_RIGHT.value
+            update_agent = True
         log.info(e)
-        self.ctx.controller.chain_right()
+        self.ctx.controller.chain_right(press=press, press_time=press_time, release=release)
         press_time = time.time()
         self.ctx.dispatch_event(e, press_time)
 
-        self._agent_list_next(press_time)
+        if update_agent:
+            self._agent_list_next(press_time)
+
+    def move_w(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
+        if press:
+            e = BattleEventEnum.BTN_MOVE_W.value + '-按下'
+        elif release:
+            e = BattleEventEnum.BTN_MOVE_W.value + '-松开'
+        else:
+            e = BattleEventEnum.BTN_MOVE_W.value
+        log.info(e)
+        self.ctx.controller.move_w(press=press, press_time=press_time, release=release)
+        self.ctx.dispatch_event(e, time.time())
+
+    def move_s(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
+        if press:
+            e = BattleEventEnum.BTN_MOVE_S.value + '-按下'
+        elif release:
+            e = BattleEventEnum.BTN_MOVE_S.value + '-松开'
+        else:
+            e = BattleEventEnum.BTN_MOVE_S.value
+        log.info(e)
+        self.ctx.controller.move_s(press=press, press_time=press_time, release=release)
+        self.ctx.dispatch_event(e, time.time())
+
+    def move_a(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
+        if press:
+            e = BattleEventEnum.BTN_MOVE_A.value + '-按下'
+        elif release:
+            e = BattleEventEnum.BTN_MOVE_A.value + '-松开'
+        else:
+            e = BattleEventEnum.BTN_MOVE_A.value
+        log.info(e)
+        self.ctx.controller.move_a(press=press, press_time=press_time, release=release)
+        self.ctx.dispatch_event(e, time.time())
+
+    def move_d(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
+        if press:
+            e = BattleEventEnum.BTN_MOVE_D.value + '-按下'
+        elif release:
+            e = BattleEventEnum.BTN_MOVE_D.value + '-松开'
+        else:
+            e = BattleEventEnum.BTN_MOVE_D.value
+        log.info(e)
+        self.ctx.controller.move_d(press=press, press_time=press_time, release=release)
+        self.ctx.dispatch_event(e, time.time())
 
     def init_context(self, agent_names: Optional[List[str]] = None) -> None:
         """
@@ -317,7 +419,7 @@ class BattleContext:
             agent = self.agent_list[i]
             if agent is None:
                 continue
-            prefix = '前台-' if i == 0 else '后台-'
+            prefix = '前台-' if i == 0 else ('后台-%d-' % i)
             self.ctx.dispatch_event(prefix + self.agent_list[i].agent_name, update_time)
             self.ctx.dispatch_event(prefix + self.agent_list[i].agent_type.value, update_time)
 

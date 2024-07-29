@@ -18,6 +18,10 @@ class Ds4ButtonEnum(Enum):
     R2 = ConfigItem('R2', 'ds4_5')
     L1 = ConfigItem('L1', 'ds4_6')
     R1 = ConfigItem('R1', 'ds4_7')
+    L_STICK_W = ConfigItem('左摇杆-上', 'ds4_8')
+    L_STICK_S = ConfigItem('左摇杆-下', 'ds4_9')
+    L_STICK_A = ConfigItem('左摇杆-左', 'ds4_10')
+    L_STICK_D = ConfigItem('左摇杆-右', 'ds4_11')
 
 
 class Ds4ButtonController(PcButtonController):
@@ -30,16 +34,21 @@ class Ds4ButtonController(PcButtonController):
             self.pad = vg.VDS4Gamepad()
             self._btn = vg.DS4_BUTTONS
 
-        self.handler: List[Callable[[Optional[float]], None]] = [
-            self.press_a,
-            self.press_b,
-            self.press_x,
-            self.press_y,
-            self.press_lt,
-            self.press_rt,
-            self.press_lb,
-            self.press_rb,
+        self._tab_handler: List[Callable[[Optional[float]], None]] = [
+            self.tab_a,
+            self.tab_b,
+            self.tab_x,
+            self.tab_y,
+            self.tab_lt,
+            self.tab_rt,
+            self.tab_lb,
+            self.tab_rb,
+            self.tab_l_stick_w,
+            self.tab_l_stick_s,
+            self.tab_l_stick_a,
+            self.tab_l_stick_d,
         ]
+
         self.release_handler: List[Callable[[], None]] = [
             self.release_a,
             self.release_b,
@@ -49,6 +58,10 @@ class Ds4ButtonController(PcButtonController):
             self.release_rt,
             self.release_lb,
             self.release_rb,
+            self.release_l_stick,
+            self.release_l_stick,
+            self.release_l_stick,
+            self.release_l_stick,
         ]
 
     def tap(self, key: str) -> None:
@@ -57,21 +70,21 @@ class Ds4ButtonController(PcButtonController):
         :param key:
         :return:
         """
-        self.handler[int(key[-1])](None)
+        self._tab_handler[int(key[-1])](None)
 
-    def press_a(self, press_time: Optional[float] = None) -> None:
-        self._press_button(self._btn.DS4_BUTTON_CROSS, press_time)
+    def tab_a(self, press_time: Optional[float] = None) -> None:
+        self._tab_button(self._btn.DS4_BUTTON_CROSS, press_time)
 
-    def press_b(self, press_time: Optional[float] = None) -> None:
-        self._press_button(self._btn.DS4_BUTTON_CIRCLE, press_time)
+    def tab_b(self, press_time: Optional[float] = None) -> None:
+        self._tab_button(self._btn.DS4_BUTTON_CIRCLE, press_time)
 
-    def press_x(self, press_time: Optional[float] = None) -> None:
-        self._press_button(self._btn.DS4_BUTTON_SQUARE, press_time)
+    def tab_x(self, press_time: Optional[float] = None) -> None:
+        self._tab_button(self._btn.DS4_BUTTON_SQUARE, press_time)
 
-    def press_y(self, press_time: Optional[float] = None) -> None:
-        self._press_button(self._btn.DS4_BUTTON_TRIANGLE, press_time)
+    def tab_y(self, press_time: Optional[float] = None) -> None:
+        self._tab_button(self._btn.DS4_BUTTON_TRIANGLE, press_time)
 
-    def press_lt(self, press_time: Optional[float] = None) -> None:
+    def tab_lt(self, press_time: Optional[float] = None) -> None:
         self.pad.left_trigger(value=255)
         self.pad.update()
         if press_time is None:
@@ -80,7 +93,7 @@ class Ds4ButtonController(PcButtonController):
         self.pad.left_trigger(value=0)
         self.pad.update()
 
-    def press_rt(self, press_time: Optional[float] = None) -> None:
+    def tab_rt(self, press_time: Optional[float] = None) -> None:
         self.pad.right_trigger(value=255)
         self.pad.update()
         if press_time is None:
@@ -89,13 +102,49 @@ class Ds4ButtonController(PcButtonController):
         self.pad.right_trigger(value=0)
         self.pad.update()
 
-    def press_lb(self, press_time: Optional[float] = None) -> None:
-        self._press_button(self._btn.DS4_BUTTON_SHOULDER_LEFT, press_time)
+    def tab_lb(self, press_time: Optional[float] = None) -> None:
+        self._tab_button(self._btn.DS4_BUTTON_SHOULDER_LEFT, press_time)
 
-    def press_rb(self, press_time: Optional[float] = None) -> None:
-        self._press_button(self._btn.DS4_BUTTON_SHOULDER_RIGHT, press_time)
+    def tab_rb(self, press_time: Optional[float] = None) -> None:
+        self._tab_button(self._btn.DS4_BUTTON_SHOULDER_RIGHT, press_time)
 
-    def _press_button(self, btn, press_time: Optional[float] = None):
+    def tab_l_stick_w(self, press_time: Optional[float] = None) -> None:
+        self.pad.left_joystick_float(0, -1)
+        self.pad.update()
+        if press_time is None:
+            press_time = 0
+        time.sleep(max(self.key_press_time, press_time))
+        self.pad.left_joystick_float(0, 0)
+        self.pad.update()
+
+    def tab_l_stick_s(self, press_time: Optional[float] = None) -> None:
+        self.pad.left_joystick_float(0, 1)
+        self.pad.update()
+        if press_time is None:
+            press_time = 0
+        time.sleep(max(self.key_press_time, press_time))
+        self.pad.left_joystick_float(0, 0)
+        self.pad.update()
+
+    def tab_l_stick_a(self, press_time: Optional[float] = None) -> None:
+        self.pad.left_joystick_float(-1, 0)
+        self.pad.update()
+        if press_time is None:
+            press_time = 0
+        time.sleep(max(self.key_press_time, press_time))
+        self.pad.left_joystick_float(0, 0)
+        self.pad.update()
+
+    def tab_l_stick_d(self, press_time: Optional[float] = None) -> None:
+        self.pad.left_joystick_float(1, 0)
+        self.pad.update()
+        if press_time is None:
+            press_time = 0
+        time.sleep(max(self.key_press_time, press_time))
+        self.pad.left_joystick_float(0, 0)
+        self.pad.update()
+
+    def _tab_button(self, btn, press_time: Optional[float] = None):
         self.pad.press_button(btn)
         self.pad.update()
         if press_time is None:
@@ -114,7 +163,7 @@ class Ds4ButtonController(PcButtonController):
         :param press_time: 持续按键时间
         :return:
         """
-        self.handler[int(key[-1])](press_time)
+        self._tab_handler[int(key[-1])](press_time)
 
     def release(self, key: str) -> None:
         self.release_handler[int(key[-1])]()
@@ -144,6 +193,10 @@ class Ds4ButtonController(PcButtonController):
 
     def release_rb(self) -> None:
         self._release_btn(self._btn.DS4_BUTTON_SHOULDER_RIGHT)
+
+    def release_l_stick(self) -> None:
+        self.pad.left_joystick_float(0, 0)
+        self.pad.update()
 
     def _release_btn(self, btn) -> None:
         """

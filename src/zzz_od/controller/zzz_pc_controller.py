@@ -1,5 +1,3 @@
-import time
-
 from cv2.typing import MatLike
 from typing import Optional
 
@@ -30,6 +28,10 @@ class ZPcController(PcControllerBase):
         self.key_ultimate: str = self.game_config.key_ultimate
         self.key_chain_left: str = self.game_config.key_chain_left
         self.key_chain_right: str = self.game_config.key_chain_right
+        self.key_move_w: str = self.game_config.key_move_w
+        self.key_move_s: str = self.game_config.key_move_s
+        self.key_move_a: str = self.game_config.key_move_a
+        self.key_move_d: str = self.game_config.key_move_d
 
     def fill_uid_black(self, screen: MatLike) -> MatLike:
         """
@@ -55,6 +57,10 @@ class ZPcController(PcControllerBase):
         self.key_ultimate: str = self.game_config.key_ultimate
         self.key_chain_left: str = self.game_config.key_chain_left
         self.key_chain_right: str = self.game_config.key_chain_right
+        self.key_move_w: str = self.game_config.key_move_w
+        self.key_move_s: str = self.game_config.key_move_s
+        self.key_move_a: str = self.game_config.key_move_a
+        self.key_move_d: str = self.game_config.key_move_d
 
     def enable_xbox(self):
         PcControllerBase.enable_xbox(self)
@@ -67,6 +73,10 @@ class ZPcController(PcControllerBase):
         self.key_ultimate: str = self.game_config.xbox_key_ultimate
         self.key_chain_left: str = self.game_config.xbox_key_chain_left
         self.key_chain_right: str = self.game_config.xbox_key_chain_right
+        self.key_move_w: str = self.game_config.xbox_key_move_w
+        self.key_move_s: str = self.game_config.xbox_key_move_s
+        self.key_move_a: str = self.game_config.xbox_key_move_a
+        self.key_move_d: str = self.game_config.xbox_key_move_d
 
     def enable_ds4(self):
         PcControllerBase.enable_ds4(self)
@@ -79,111 +89,143 @@ class ZPcController(PcControllerBase):
         self.key_ultimate: str = self.game_config.ds4_key_ultimate
         self.key_chain_left: str = self.game_config.ds4_key_chain_left
         self.key_chain_right: str = self.game_config.ds4_key_chain_right
+        self.key_move_w: str = self.game_config.ds4_key_move_w
+        self.key_move_s: str = self.game_config.ds4_key_move_s
+        self.key_move_a: str = self.game_config.ds4_key_move_a
+        self.key_move_d: str = self.game_config.ds4_key_move_d
 
-    def dodge(self) -> None:
+    def dodge(self, press: bool = False, press_time: Optional[float] = None, release: bool = False) -> None:
         """
         闪避
         :return:
         """
-        self.btn_controller.tap(self.key_dodge)
+        if press:
+            self.btn_controller.press(self.key_dodge, press_time)
+        elif release:
+            self.btn_controller.release(self.key_dodge)
+        else:
+            self.btn_controller.tap(self.key_dodge)
 
-    def release_dodge(self) -> None:
+    def switch_next(self, press: bool = False, press_time: Optional[float] = None, release: bool = False) -> None:
         """
-        松开按键-闪避
+        切换角色-下一个
         :return:
         """
-        self.btn_controller.release(self.key_dodge)
+        if press:
+            self.btn_controller.press(self.key_switch_next, press_time)
+        elif release:
+            self.btn_controller.release(self.key_switch_next)
+        else:
+            self.btn_controller.tap(self.key_switch_next)
 
-    def switch_next(self) -> None:
+    def switch_prev(self, press: bool = False, press_time: Optional[float] = None, release: bool = False) -> None:
         """
-        切换下一个人
+        切换角色-上一个
         :return:
         """
-        self.btn_controller.tap(self.key_switch_next)
+        if press:
+            self.btn_controller.press(self.key_switch_prev, press_time)
+        elif release:
+            self.btn_controller.release(self.key_switch_prev)
+        else:
+            self.btn_controller.tap(self.key_switch_prev)
 
-    def release_switch_next(self) -> None:
-        """
-        松开按键-切换下一个人
-        :return:
-        """
-        self.btn_controller.release(self.key_switch_next)
-
-    def switch_prev(self) -> None:
-        """
-        切换上一个人
-        :return:
-        """
-        self.btn_controller.tap(self.key_switch_prev)
-
-    def release_switch_prev(self) -> None:
-        """
-        松开按键-切换上一个人
-        :return:
-        """
-        self.btn_controller.release(self.key_switch_prev)
-
-    def normal_attack(self, press_time: Optional[float] = None) -> None:
+    def normal_attack(self, press: bool = False, press_time: Optional[float] = None, release: bool = False) -> None:
         """
         普通攻击
         """
-        if press_time is None:
-            self.btn_controller.tap(self.key_normal_attack)
-        else:
+        if press:
             self.btn_controller.press(self.key_normal_attack, press_time)
+        elif release:
+            self.btn_controller.release(self.key_normal_attack)
+        else:
+            self.btn_controller.tap(self.key_normal_attack)
 
-    def release_normal_attack(self) -> None:
-        """
-        松开按键-普通攻击
-        """
-        self.btn_controller.release(self.key_normal_attack)
-
-    def special_attack(self, press_time: Optional[float] = None) -> None:
+    def special_attack(self, press: bool = False, press_time: Optional[float] = None, release: bool = False) -> None:
         """
         特殊攻击
         """
-        if press_time is None:
-            self.btn_controller.tap(self.key_special_attack)
-        else:
+        if press:
             self.btn_controller.press(self.key_special_attack, press_time)
+        elif release:
+            self.btn_controller.release(self.key_special_attack)
+        else:
+            self.btn_controller.tap(self.key_special_attack)
 
-    def release_special_attack(self) -> None:
-        """
-        松开按键-特殊攻击
-        """
-        self.btn_controller.release(self.key_special_attack)
-
-    def ultimate(self) -> None:
+    def ultimate(self, press: bool = False, press_time: Optional[float] = None, release: bool = False) -> None:
         """
         终结技
         """
-        self.btn_controller.tap(self.key_ultimate)
+        if press:
+            self.btn_controller.press(self.key_ultimate, press_time)
+        elif release:
+            self.btn_controller.release(self.key_ultimate)
+        else:
+            self.btn_controller.tap(self.key_ultimate)
 
-    def release_ultimate(self) -> None:
-        """
-        松开按键-终结技
-        """
-        self.btn_controller.release(self.key_ultimate)
-
-    def chain_left(self) -> None:
+    def chain_left(self, press: bool = False, press_time: Optional[float] = None, release: bool = False) -> None:
         """
         连携技-左
         """
-        self.btn_controller.tap(self.key_chain_left)
+        if press:
+            self.btn_controller.press(self.key_chain_left, press_time)
+        elif release:
+            self.btn_controller.release(self.key_chain_left)
+        else:
+            self.btn_controller.tap(self.key_chain_left)
 
-    def release_chain_left(self) -> None:
-        """
-        松开按键-连携技-左
-        """
-        self.btn_controller.release(self.key_chain_left)
-
-    def chain_right(self) -> None:
+    def chain_right(self, press: bool = False, press_time: Optional[float] = None, release: bool = False) -> None:
         """
         连携技-右
         """
-        self.btn_controller.tap(self.key_chain_right)
+        if press:
+            self.btn_controller.press(self.key_chain_right, press_time)
+        elif release:
+            self.btn_controller.release(self.key_chain_right)
+        else:
+            self.btn_controller.tap(self.key_chain_right)
 
-    def release_chain_right(self) -> None:
+    def move_w(self, press: bool = False, press_time: Optional[float] = None, release: bool = False) -> None:
         """
-        松开按键-连携技-右
+        向前移动
+        :return:
         """
-        self.btn_controller.release(self.key_chain_right)
+        if press:
+            self.btn_controller.press(self.key_move_w, press_time)
+        elif release:
+            self.btn_controller.release(self.key_move_w)
+        else:
+            self.btn_controller.tap(self.key_move_w)
+
+    def move_s(self, press: bool = False, press_time: Optional[float] = None, release: bool = False) -> None:
+        """
+        向后移动
+        """
+        if press:
+            self.btn_controller.press(self.key_move_s, press_time)
+        elif release:
+            self.btn_controller.release(self.key_move_s)
+        else:
+            self.btn_controller.tap(self.key_move_s)
+
+    def move_a(self, press: bool = False, press_time: Optional[float] = None, release: bool = False) -> None:
+        """
+        向左移动
+        """
+        if press:
+            self.btn_controller.press(self.key_move_a, press_time)
+        elif release:
+            self.btn_controller.release(self.key_move_a)
+        else:
+            self.btn_controller.tap(self.key_move_a)
+
+    def move_d(self, press: bool = False, press_time: Optional[float] = None, release: bool = False) -> None:
+        """
+        向右移动
+        """
+        if press:
+            self.btn_controller.press(self.key_move_d, press_time)
+        elif release:
+            self.btn_controller.release(self.key_move_d)
+        else:
+            self.btn_controller.tap(self.key_move_d)

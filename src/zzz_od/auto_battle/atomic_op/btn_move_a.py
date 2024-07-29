@@ -5,15 +5,15 @@ from zzz_od.context.battle_context import BattleEventEnum
 from zzz_od.context.zzz_context import ZContext
 
 
-class AtomicBtnSwitchPrev(AtomicOp):
+class AtomicBtnMoveA(AtomicOp):
 
     def __init__(self, ctx: ZContext, press: bool = False, press_time: Optional[float] = None, release: bool = False):
         if press:
-            op_name = BattleEventEnum.BTN_SWITCH_PREV.value + '按下'
+            op_name = BattleEventEnum.BTN_MOVE_A.value + '按下'
         elif release:
-            op_name = BattleEventEnum.BTN_SWITCH_PREV.value + '松开'
+            op_name = BattleEventEnum.BTN_MOVE_A.value + '松开'
         else:
-            op_name = BattleEventEnum.BTN_SWITCH_PREV.value
+            op_name = BattleEventEnum.BTN_MOVE_A.value
         AtomicOp.__init__(self, op_name=op_name)
         self.ctx: ZContext = ctx
         self.press: bool = press
@@ -21,7 +21,7 @@ class AtomicBtnSwitchPrev(AtomicOp):
         self.release: bool = release
 
     def execute(self):
-        self.ctx.battle.switch_prev(self.press, self.press_time, self.release)
+        self.ctx.battle.move_a(self.press, self.press_time, self.release)
 
     def stop(self) -> None:
-        self.ctx.battle.switch_prev(release=True)
+        self.ctx.battle.move_a(release=True)

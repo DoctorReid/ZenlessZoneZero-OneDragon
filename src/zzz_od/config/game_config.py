@@ -129,7 +129,6 @@ class GameConfig(YamlConfig):
 
     @property
     def key_chain_left(self) -> str:
-        """交互"""
         return self.get('key_chain_left', 'q')
 
     @key_chain_left.setter
@@ -138,12 +137,43 @@ class GameConfig(YamlConfig):
 
     @property
     def key_chain_right(self) -> str:
-        """交互"""
         return self.get('key_chain_right', 'e')
 
     @key_chain_right.setter
     def key_chain_right(self, new_value: str) -> None:
         self.update('key_chain_right', new_value)
+
+    @property
+    def key_move_w(self) -> str:
+        return self.get('key_move_w', 'w')
+
+    @key_move_w.setter
+    def key_move_w(self, new_value: str) -> None:
+        self.update('key_move_w', new_value)
+
+    @property
+    def key_move_s(self) -> str:
+        return self.get('key_move_s', 's')
+
+    @key_move_s.setter
+    def key_move_s(self, new_value: str) -> None:
+        self.update('key_move_s', new_value)
+
+    @property
+    def key_move_a(self) -> str:
+        return self.get('key_move_a', 'a')
+
+    @key_move_a.setter
+    def key_move_a(self, new_value: str) -> None:
+        self.update('key_move_a', new_value)
+
+    @property
+    def key_move_d(self) -> str:
+        return self.get('key_move_d', 'd')
+
+    @key_move_d.setter
+    def key_move_d(self, new_value: str) -> None:
+        self.update('key_move_d', new_value)
 
     @property
     def gamepad_type(self) -> str:
@@ -236,6 +266,38 @@ class GameConfig(YamlConfig):
         self.update('xbox_key_chain_right', new_value)
 
     @property
+    def xbox_key_move_w(self) -> str:
+        return self.get('xbox_key_move_w', XboxButtonEnum.L_STICK_W.value.value)
+
+    @xbox_key_move_w.setter
+    def xbox_key_move_w(self, new_value: str) -> None:
+        self.update('xbox_key_move_w', new_value)
+
+    @property
+    def xbox_key_move_s(self) -> str:
+        return self.get('xbox_key_move_s', XboxButtonEnum.L_STICK_S.value.value)
+
+    @xbox_key_move_s.setter
+    def xbox_key_move_s(self, new_value: str) -> None:
+        self.update('xbox_key_move_s', new_value)
+
+    @property
+    def xbox_key_move_a(self) -> str:
+        return self.get('xbox_key_move_a', XboxButtonEnum.L_STICK_A.value.value)
+
+    @xbox_key_move_a.setter
+    def xbox_key_move_a(self, new_value: str) -> None:
+        self.update('xbox_key_move_a', new_value)
+
+    @property
+    def xbox_key_move_d(self) -> str:
+        return self.get('xbox_key_move_d', XboxButtonEnum.L_STICK_D.value.value)
+
+    @xbox_key_move_d.setter
+    def xbox_key_move_d(self, new_value: str) -> None:
+        self.update('xbox_key_move_d', new_value)
+
+    @property
     def ds4_key_press_time(self) -> float:
         return self.get('ds4_key_press_time', 0.02)
 
@@ -316,6 +378,38 @@ class GameConfig(YamlConfig):
     @ds4_key_chain_right.setter
     def ds4_key_chain_right(self, new_value: str) -> None:
         self.update('ds4_key_chain_right', new_value)
+
+    @property
+    def ds4_key_move_w(self) -> str:
+        return self.get('ds4_key_move_w', Ds4ButtonEnum.L_STICK_W.value.value)
+
+    @ds4_key_move_w.setter
+    def ds4_key_move_w(self, new_value: str) -> None:
+        self.update('ds4_key_move_w', new_value)
+
+    @property
+    def ds4_key_move_s(self) -> str:
+        return self.get('ds4_key_move_s', Ds4ButtonEnum.L_STICK_S.value.value)
+
+    @ds4_key_move_s.setter
+    def ds4_key_move_s(self, new_value: str) -> None:
+        self.update('ds4_key_move_s', new_value)
+
+    @property
+    def ds4_key_move_a(self) -> str:
+        return self.get('ds4_key_move_a', Ds4ButtonEnum.L_STICK_A.value.value)
+
+    @ds4_key_move_a.setter
+    def ds4_key_move_a(self, new_value: str) -> None:
+        self.update('ds4_key_move_a', new_value)
+
+    @property
+    def ds4_key_move_d(self) -> str:
+        return self.get('ds4_key_move_d', Ds4ButtonEnum.L_STICK_D.value.value)
+
+    @ds4_key_move_d.setter
+    def ds4_key_move_d(self, new_value: str) -> None:
+        self.update('ds4_key_move_d', new_value)
 
     @property
     def gamepad_requirement_time(self) -> str:

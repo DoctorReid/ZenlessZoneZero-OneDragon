@@ -1,3 +1,6 @@
+from typing import Optional
+
+
 class PcButtonController:
 
     def __init__(self):
@@ -9,10 +12,10 @@ class PcButtonController:
         """
         pass
 
-    def press(self, key: str, press_time: float) -> None:
+    def press(self, key: str, press_time: Optional[float] = None) -> None:
         """
         :param key: 按键
-        :param press_time: 持续按键时间
+        :param press_time: 持续按键时间。不传入时 代表不松开
         :return:
         """
         pass

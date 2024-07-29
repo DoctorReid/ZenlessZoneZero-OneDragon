@@ -29,7 +29,7 @@ scenes:
 - triggers: []
   interval: 0.5
   handlers:
-  - states: "[按键-连携技-左, 0, 10] | [按键-连携技-右, 0, 10]"
+  - states: "[按键-连携技-左, 0, 12] | [按键-连携技-右, 0, 12]"
     sub_states:
       - state_template: "站场模板-强攻站场"
   - state_template: "站场模板-击破站场"
