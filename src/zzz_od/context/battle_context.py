@@ -208,15 +208,14 @@ class BattleContext:
                 result_agent_list.append(None)
 
         if result_agent_list[1] is not None and result_agent_list[2] is not None:  # 3人
-            result_agent_list.pop(-1)
+            current_agent_list = result_agent_list[:3]
         elif result_agent_list[3] is not None:  # 2人
-            result_agent_list.pop(1)
-            result_agent_list.pop(1)
+            current_agent_list = [result_agent_list[0], result_agent_list[3]]
         else:  # 1人
-            result_agent_list = [result_agent_list[0]]
+            current_agent_list = [result_agent_list[0]]
 
         if self.should_check_all_agents:
-            if self._is_same_agent_list(result_agent_list):
+            if self._is_same_agent_list(current_agent_list):
                 self.check_agent_same_times += 1
                 if self.check_agent_same_times >= 5:  # 连续5次一致时 就不验证了
                     self.should_check_all_agents = False
@@ -224,7 +223,7 @@ class BattleContext:
             else:
                 self.check_agent_same_times = 0
         else:
-            if not self._is_same_agent_list(result_agent_list):
+            if not self._is_same_agent_list(current_agent_list):
                 self.check_agent_diff_times += 1
                 if self.check_agent_diff_times >= 1000:  # 0.02秒1次 大概20s不一致就重新识别 基本不可能出现
                     self.should_check_all_agents = True
@@ -232,7 +231,7 @@ class BattleContext:
             else:
                 self.check_agent_diff_times = 0
 
-        self._update_agent_list(result_agent_list, screenshot_time)
+        self._update_agent_list(current_agent_list, screenshot_time)
 
     def _match_agent_in(self, img: MatLike, is_front: bool,
                         possible_agents: Optional[List[Agent]] = None) -> Optional[Agent]:
@@ -254,7 +253,14 @@ class BattleContext:
         :param current_agent_list:
         :return:
         """
+        if self.agent_list is None or current_agent_list is None:
+            return False
+        if len(self.agent_list) != len(current_agent_list):
+            return False
+
         for agent in current_agent_list:
+            if agent is None:
+                return False
             if agent not in self.agent_list:
                 return False
         return True
@@ -263,7 +269,7 @@ class BattleContext:
         """
         代理人列表 切换下一个
         """
-        if self.agent_list is None:
+        if self.agent_list is None or len(self.agent_list) == 0:
             return
         current_agent_list = self.agent_list
         next_agent_list = []
@@ -276,7 +282,7 @@ class BattleContext:
         """
         代理人列表 切换上一个
         """
-        if self.agent_list is None:
+        if self.agent_list is None or len(self.agent_list) == 0:
             return
         current_agent_list = self.agent_list
         next_agent_list = []
