@@ -23,4 +23,4 @@ operations:
   - op_name: "按键-普通攻击"
     data: []
   - op_name: "等待秒数"
-    data: [ "1.8" ]
+    data: [ "1.0" ]

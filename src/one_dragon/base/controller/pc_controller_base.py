@@ -49,7 +49,7 @@ class PcControllerBase(ControllerBase):
             try:
                 self.sct.close()
             except Exception:
-                log.error('关闭mss出错', exc_info=True)
+                pass
         try:
             import mss
             self.sct = mss.mss()
