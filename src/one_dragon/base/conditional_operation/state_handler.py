@@ -24,6 +24,7 @@ class StateHandler:
         self.operations: List[AtomicOp] = operations
         self.running: bool = False  # 当前是否在执行指令
         self.running_op: Optional[AtomicOp] = None  # 正在执行的操作
+        self.async_ops: List[AtomicOp] = []  # 当前轮执行时 已经开始执行的异步操作
 
     def check_and_run(self, now: float) -> bool:
         """
@@ -50,12 +51,16 @@ class StateHandler:
         :return:
         """
         self.running = True
+        self.async_ops = []
         for op in self.operations:
             if not self.running:
                 break
             self.running_op = op
+            if op.async_op:
+                self.async_ops.append(op)
             op.execute()
         self.running_op = None
+        self.async_ops = []
         self.running = False
 
     def stop_running(self) -> None:
@@ -69,6 +74,9 @@ class StateHandler:
                 sub_state.stop_running()
         if self.running_op is not None:
             self.running_op.stop()
+        async_ops = self.async_ops  # 异步的操作 需要额外停止
+        for op in async_ops:
+            op.stop()
 
     def dispose(self) -> None:
         """

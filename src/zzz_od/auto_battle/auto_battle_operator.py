@@ -28,6 +28,6 @@ class AutoBattleOperator(ConditionalOperator):
 
 if __name__ == '__main__':
     ctx = ZContext()
-    op = AutoBattleOperator(ctx, 'auto_battle', 'front_stun.sample')
+    op = AutoBattleOperator(ctx, 'auto_battle', 'wiki.sample')
     op.init_operator()
     pass

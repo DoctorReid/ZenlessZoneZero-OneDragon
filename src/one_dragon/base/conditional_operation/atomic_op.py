@@ -1,11 +1,13 @@
 class AtomicOp:
 
-    def __init__(self, op_name: str):
+    def __init__(self, op_name: str, async_op: bool = False):
         """
         一个原子指令，没有任何判断，执行后上抛事件
         :param op_name: 指令名称
+        :param async_op: 是否一个异步操作。
         """
         self.op_name: str = op_name
+        self.async_op: bool = async_op
 
     def execute(self):
         """
