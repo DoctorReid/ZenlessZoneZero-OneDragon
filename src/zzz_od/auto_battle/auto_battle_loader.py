@@ -179,10 +179,10 @@ class AutoBattleLoader:
 
         return target_template if target_template is not None else target_template_sample
 
-    def get_operation_template(self, template_name: str) -> Optional[OperationTemplate]:
+    def get_operation_template(self, target_template_name: str) -> Optional[OperationTemplate]:
         """
         获取操作模板
-        :param template_name: 模板名称
+        :param target_template_name: 模板名称
         :return:
         """
         sub_dir = 'auto_battle_operation'
@@ -204,7 +204,7 @@ class AutoBattleLoader:
                 continue
 
             template = OperationTemplate(sub_dir, module_name, template_name)
-            if template.template_name == template_name:
+            if template.template_name == target_template_name:
                 if is_sample:
                     target_template_sample = template
                 else:
