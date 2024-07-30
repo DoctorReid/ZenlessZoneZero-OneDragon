@@ -22,7 +22,7 @@ class OperationTask:
         self._async_ops: List[AtomicOp] = []  # 执行过异步操作
         self._op_lock: Lock = Lock()  # 操作锁 用于保证stop里的一定是最后执行的op
 
-    def run_async(self) -> None:
+    def run_async(self) -> Future:
         """
         异步执行
         :return:
@@ -30,6 +30,7 @@ class OperationTask:
         self._running = True
         future: Future = _od_op_task_executor.submit(self._run)
         future.add_done_callback(thread_utils.handle_future_result)
+        return future
 
     def _run(self) -> None:
         """
@@ -40,7 +41,7 @@ class OperationTask:
             with self._op_lock:
                 self._current_op = op
                 self._async_ops.append(op)
-                if self._running:
+                if not self._running:
                     break
             op.execute()
             with self._op_lock:

@@ -133,6 +133,7 @@ class ConditionalOperator(YamlConfig):
             else:
                 trigger_time = time.time()
                 to_sleep: Optional[float] = None
+                future: Optional[Future] = None
                 with self._task_lock:
                     if not self._running:
                         break
@@ -145,10 +146,15 @@ class ConditionalOperator(YamlConfig):
                         if ops is not None:
                             self._running_task = OperationTask(ops)
                             self._event_trigger_time[''] = trigger_time
-                            self._running_task.run_async()
+                            future = self._running_task.run_async()
 
                 if to_sleep is not None:
                     time.sleep(to_sleep)
+                elif future is not None:
+                    try:
+                        future.result()
+                    except Exception:
+                        pass
 
     def _on_event(self, event: ContextEventItem):
         event_id = event.event_id
@@ -183,8 +189,7 @@ class ConditionalOperator(YamlConfig):
                 self._running_trigger_cnt.dec()
 
             if ops is not None:
-                new_task = OperationTask(ops)
-                self._running_task = new_task
+                self._running_task = OperationTask(ops)
                 self._event_trigger_time[event_id] = trigger_time
                 self._running_task.run_async()
 

@@ -35,6 +35,8 @@ class BattleEventEnum(Enum):
     STATUS_CHAIN_READY = '按键可用-连携技'
     STATUS_QUICK_ASSIST_READY = '按键可用-快速支援'
 
+    STATUS_SWITCH = '运行状态-切换角色'
+
 
 class BattleContext:
 
@@ -46,8 +48,10 @@ class BattleContext:
         self.should_check_all_agents: bool = True  # 是否应该检查所有角色
         self.check_agent_same_times: int = 0  # 识别角色的相同次数
         self.check_agent_diff_times: int = 0  # 识别角色的不同次数
+        self._agent_update_time: float = 0  # 识别角色的更新时间
 
         # 识别锁 保证每种类型只有1实例在进行识别
+        self._update_agent_lock = threading.Lock()
         self._check_agent_lock = threading.Lock()
         self._check_special_attack_lock = threading.Lock()
         self._check_ultimate_lock = threading.Lock()
@@ -77,10 +81,10 @@ class BattleContext:
             update_agent = True
 
         log.info(e)
+
         self.ctx.controller.switch_next(press=press, press_time=press_time, release=release)
         press_time = time.time()
         self.ctx.dispatch_event(e, press_time)
-
         if update_agent:
             self._agent_list_next(press_time)
 
@@ -399,29 +403,32 @@ class BattleContext:
         :param current_agent_list: 新的角色列表
         :return:
         """
-        any_none: bool = False
-        for agent in current_agent_list:
-            if agent is None:
-                any_none = True
-        if not self.should_check_all_agents and not self._is_same_agent_list(current_agent_list):
-            # 如果已经确定角色列表了 那识别出来的应该是一样的
-            # 不一样的话 就不更新了
-            pass
-        elif not any_none:  # 需要都识别到才可以更新
-            self.agent_list = current_agent_list
+        with self._update_agent_lock:
+            if update_time < self._agent_update_time:  # 可能是过时的截图 这时候不更新
+                return
+            any_none: bool = False
+            for agent in current_agent_list:
+                if agent is None:
+                    any_none = True
+            if not self.should_check_all_agents and not self._is_same_agent_list(current_agent_list):
+                # 如果已经确定角色列表了 那识别出来的应该是一样的
+                # 不一样的话 就不更新了
+                pass
+            elif not any_none:  # 需要都识别到才可以更新
+                self.agent_list = current_agent_list
 
-        log.debug('当前角色列表 %s', [
-            agent.agent_name if agent is not None else 'none'
-            for agent in self.agent_list
-        ])
+            log.debug('当前角色列表 %s', [
+                agent.agent_name if agent is not None else 'none'
+                for agent in self.agent_list
+            ])
 
-        for i in range(len(self.agent_list)):
-            agent = self.agent_list[i]
-            if agent is None:
-                continue
-            prefix = '前台-' if i == 0 else ('后台-%d-' % i)
-            self.ctx.dispatch_event(prefix + self.agent_list[i].agent_name, update_time)
-            self.ctx.dispatch_event(prefix + self.agent_list[i].agent_type.value, update_time)
+            for i in range(len(self.agent_list)):
+                agent = self.agent_list[i]
+                if agent is None:
+                    continue
+                prefix = '前台-' if i == 0 else ('后台-%d-' % i)
+                self.ctx.dispatch_event(prefix + self.agent_list[i].agent_name, update_time)
+                self.ctx.dispatch_event(prefix + self.agent_list[i].agent_type.value, update_time)
 
     def check_special_attack_btn(self, screen: MatLike, screenshot_time: float) -> None:
         """

@@ -3,6 +3,7 @@ import time
 from typing import Optional
 
 from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
+from one_dragon.base.conditional_operation.operation_task import OperationTask
 from one_dragon.base.controller.pc_button import pc_button_utils
 from one_dragon.base.operation.operation import OperationNode, OperationRoundResult
 from one_dragon.utils.i18_utils import gt
@@ -114,7 +115,10 @@ class AutoBattleDebugApp(ZApplication):
         self.ctx.battle.check_screen(screen, now, self.auto_op.get('allow_ultimate_list', None), sync=True)
 
         time.sleep(0.2)
-        self.auto_op.normal_scene_handler.execute(time.time())
+        ops = self.auto_op._normal_scene_handler.get_operations(time.time())
+        if ops is not None:
+            task = OperationTask(ops)
+            task.run_async().result()
 
         return self.round_success()
 
