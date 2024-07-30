@@ -24,7 +24,7 @@ scenes:
 - triggers: ["闪避识别-红光"]
   interval: 0.5
   handlers:
-  - states: "[闪避识别-红光] & ![按键-闪避]"
+  - states: "[闪避识别-红光]"
     operations:
       - op_name: "按键-闪避"
         data: []

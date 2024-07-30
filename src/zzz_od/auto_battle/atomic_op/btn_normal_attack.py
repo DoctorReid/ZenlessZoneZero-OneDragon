@@ -14,7 +14,7 @@ class AtomicBtnNormalAttack(AtomicOp):
             op_name = BattleEventEnum.BTN_SWITCH_NORMAL_ATTACK.value + '松开'
         else:
             op_name = BattleEventEnum.BTN_SWITCH_NORMAL_ATTACK.value
-        AtomicOp.__init__(self, op_name=op_name)
+        AtomicOp.__init__(self, op_name=op_name, async_op=press and press_time is None)
         self.ctx: ZContext = ctx
         self.press: bool = press
         self.press_time: Optional[float] = press_time
@@ -24,4 +24,5 @@ class AtomicBtnNormalAttack(AtomicOp):
         self.ctx.battle.normal_attack(self.press, self.press_time, self.release)
 
     def stop(self) -> None:
-        self.ctx.battle.normal_attack(release=True)
+        if self.press:
+            self.ctx.battle.normal_attack(release=True)

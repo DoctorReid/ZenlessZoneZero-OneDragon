@@ -1,7 +1,6 @@
-import time
+from typing import List, Optional
 
-from typing import List
-
+from one_dragon.base.conditional_operation.atomic_op import AtomicOp
 from one_dragon.base.conditional_operation.state_handler import StateHandler
 
 
@@ -10,31 +9,18 @@ class SceneHandler:
     def __init__(self, interval_seconds: float, state_handlers: List[StateHandler]):
         self.interval_seconds: float = interval_seconds
         self.state_handlers: List[StateHandler] = state_handlers
-        self.last_trigger_time: float = 0
 
-    def execute(self, now: float, sleep_until_next: bool = False) -> None:
+    def get_operations(self, trigger_time: float) -> Optional[List[AtomicOp]]:
         """
-        按优先级判断状态 找到需要执行的执行并执行
-        :param now:
-        :return:
-        """
-        pass_time = now - self.last_trigger_time
-        if pass_time <= self.interval_seconds:
-            if sleep_until_next:
-                time.sleep(self.interval_seconds - pass_time)
-            return
-        self.last_trigger_time = now
-        for sh in self.state_handlers:
-            if sh.check_and_run(now):
-                return
-
-    def stop_running(self) -> None:
-        """
-        停止运行
+        根据触发时间 和优先级 获取符合条件的场景下的指令
+        :param trigger_time: 触发时间
         :return:
         """
         for sh in self.state_handlers:
-            sh.stop_running()
+            ops = sh.get_operations(trigger_time)
+            if ops is not None:
+                return ops
+        return None
 
     def dispose(self) -> None:
         """

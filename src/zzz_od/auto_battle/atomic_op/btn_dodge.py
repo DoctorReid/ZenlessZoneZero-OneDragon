@@ -14,7 +14,7 @@ class AtomicBtnDodge(AtomicOp):
             op_name = BattleEventEnum.BTN_DODGE.value + '松开'
         else:
             op_name = BattleEventEnum.BTN_DODGE.value
-        AtomicOp.__init__(self, op_name=op_name)
+        AtomicOp.__init__(self, op_name=op_name, async_op=press and press_time is None)
         self.ctx: ZContext = ctx
         self.press: bool = press
         self.press_time: Optional[float] = press_time
@@ -24,4 +24,5 @@ class AtomicBtnDodge(AtomicOp):
         self.ctx.battle.dodge(self.press, self.press_time, self.release)
 
     def stop(self) -> None:
-        self.ctx.battle.dodge(release=True)
+        if self.press:
+            self.ctx.battle.dodge(release=True)

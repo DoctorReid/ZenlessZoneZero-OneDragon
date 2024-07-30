@@ -17,7 +17,7 @@ class AtomicOp:
 
     def dispose(self) -> None:
         """
-        销毁时 解出事件监听
+        销毁时 解除事件监听
         :return:
         """
         pass

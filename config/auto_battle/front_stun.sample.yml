@@ -7,7 +7,7 @@ scenes:
 - triggers: ["闪避识别-黄光", "闪避识别-红光"]
   interval: 0.5
   handlers:
-  - states: "( [闪避识别-黄光, 0, 1] | [闪避识别-红光, 0, 1] ) & ![按键-闪避, 0, 1]"
+  - states: "[闪避识别-红光]"
     sub_states:
       - state_template: "自动战斗闪避模板-全角色"
 

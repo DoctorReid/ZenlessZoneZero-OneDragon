@@ -3,7 +3,7 @@ scenes:
 - triggers: ["闪避识别-黄光", "闪避识别-红光"]
   interval: 0.5
   handlers:
-  - states: "( [闪避识别-黄光, 0, 1] | [闪避识别-红光, 0, 1] ) & ![按键-闪避, 0, 1]"
+  - states: "[闪避识别-黄光] | [闪避识别-红光]"
     operations:
       - op_name: "按键-闪避"
         data: []
