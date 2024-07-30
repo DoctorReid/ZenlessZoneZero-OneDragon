@@ -26,7 +26,7 @@ class BattleEventEnum(Enum):
     BTN_CHAIN_LEFT = '按键-连携技-左'
     BTN_CHAIN_RIGHT = '按键-连携技-右'
     BTN_MOVE_W = '按键-移动-前'
-    BTN_MOVE_S = '按键-移动-前'
+    BTN_MOVE_S = '按键-移动-后'
     BTN_MOVE_A = '按键-移动-左'
     BTN_MOVE_D = '按键-移动-右'
 
