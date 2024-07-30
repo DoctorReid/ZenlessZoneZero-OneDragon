@@ -30,6 +30,7 @@ scenes:
   handlers:
   - state_template: "连携模板-优先支援"
 
+# TODO： 测下来，有时鲨鱼似乎会被击破或支援前台触发扔了个e立马切人了
 - triggers: ["前台-击破"]
   interval: 0.7
   handlers:
