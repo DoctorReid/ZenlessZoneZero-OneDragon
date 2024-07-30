@@ -24,7 +24,7 @@ scenes:
       - op_name: "等待秒数"
         data: [ "0.1" ]
 
-# TODO: 目前识别不了
+# TODO: 貌似没触发
 - triggers: ["按键可用-连携技"]
   interval: 1
   handlers:
@@ -40,109 +40,160 @@ scenes:
   handlers:
   - state_template: "支援速切模板-全角色"
 
-# TODO: 加了这个trigger，哪怕设置了8秒interval，依旧会反复trigger打断最下边trigger""
-#- triggers: ["按键可用-特殊攻击"]
-#  interval: 8
-#  handlers:
-#    - states: ""
-#      operations:
-#        - op_name: "按键-闪避"
-#          data: []
-#        - op_name: "等待秒数"
-#          data: [ "0.1" ]
-#
-#        - op_name: "按键-特殊攻击"
-#          data: []
-#        - op_name: "等待秒数"
-#          data: [ "1.5" ]
-#        - op_name: "按键-普通攻击-按下"
-#          data: [ "1.5" ]
-#        - op_name: "等待秒数"
-#          data: [ "0.2" ]
-#
-#        - op_name: "按键-特殊攻击"
-#          data: []
-#        - op_name: "等待秒数"
-#          data: [ "1.5" ]
-#        - op_name: "按键-普通攻击-按下"
-#          data: [ "1.5" ]
-#        - op_name: "等待秒数"
-#          data: [ "0.2" ]
-#
-#        - op_name: "按键-特殊攻击"
-#          data: []
-#        - op_name: "等待秒数"
-#          data: [ "1.5" ]
-
 - triggers: []
   interval: 0.35
   handlers:
     - states: "[前台-艾莲]"
       sub_states:
-      # TODO: 精英或Boss怪物处于失衡状态, 使用eaeae; 目前触发不了
-      - states: "[按键可用-连携技, 1, 3] & [按键可用-连携技, 3.01, 5]"
+      - states: "([按键-连携技-左, 0, 10] | [按键-连携技-右, 0, 10]) & [按键可用-终结技]"
         operations:
           - op_name: "按键-闪避"
             data: []
           - op_name: "等待秒数"
             data: [ "0.1" ]
-
-          - op_name: "按键-特殊攻击"
-            data: []
-          - op_name: "等待秒数"
-            data: [ "1.5" ]
-          - op_name: "按键-普通攻击-按下"
-            data: [ "1.5" ]
-          - op_name: "等待秒数"
-            data: [ "0.2" ]
-
-          - op_name: "按键-特殊攻击"
-            data: []
-          - op_name: "等待秒数"
-            data: [ "1.5" ]
-          - op_name: "按键-普通攻击-按下"
-            data: [ "1.5" ]
-          - op_name: "等待秒数"
-            data: [ "0.2" ]
-
-          - op_name: "按键-特殊攻击"
-            data: []
-          - op_name: "等待秒数"
-            data: [ "1.5" ]
-
           - op_name: "按键-终结技"
             data: []
 
-      # TODO: e可用10秒后，打eaeae连招; 目前触发不了
-      - states: "[按键可用-特殊攻击, 10, 11]"
+      - states: "([按键-连携技-左, 0, 10] | [按键-连携技-右, 0, 10]) & [按键可用-特殊攻击]"
         operations:
           - op_name: "按键-闪避"
             data: []
           - op_name: "等待秒数"
             data: [ "0.1" ]
 
+          # 第一次 ea
           - op_name: "按键-特殊攻击"
             data: []
           - op_name: "等待秒数"
-            data: [ "1.5" ]
-          - op_name: "按键-普通攻击-按下"
-            data: [ "1.5" ]
+            data: [ "0.2" ]
+          # 再按一次e防止没按到
+          - op_name: "按键-特殊攻击"
+            data: []
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+          # 接第3段a；不停a，防止e没按出来待在原地
+          - op_name: "按键-普通攻击"
+            data: []
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+          - op_name: "按键-普通攻击"
+            data: []
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+          - op_name: "按键-普通攻击"
+            data: []
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+          - op_name: "按键-普通攻击"
+            data: []
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+          - op_name: "按键-普通攻击"
+            data: [ ]
           - op_name: "等待秒数"
             data: [ "0.2" ]
 
-          - op_name: "按键-特殊攻击"
-            data: []
+          - op_name: "按键-普通攻击"
+            data: [ ]
           - op_name: "等待秒数"
-            data: [ "1.5" ]
-          - op_name: "按键-普通攻击-按下"
-            data: [ "1.5" ]
+            data: [ "0.2" ]
+          - op_name: "按键-普通攻击"
+            data: [ ]
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+          - op_name: "按键-普通攻击"
+            data: [ ]
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+          - op_name: "按键-普通攻击"
+            data: [ ]
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+          - op_name: "按键-普通攻击"
+            data: [ ]
           - op_name: "等待秒数"
             data: [ "0.2" ]
 
+          - op_name: "按键-普通攻击"
+            data: [ ]
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+          - op_name: "按键-普通攻击"
+            data: [ ]
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+
+          # 第二次 ea
           - op_name: "按键-特殊攻击"
             data: []
           - op_name: "等待秒数"
-            data: [ "1.5" ]
+            data: [ "0.2" ]
+          # 再按一次e防止没按到
+          - op_name: "按键-特殊攻击"
+            data: []
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+          # 接第3段a；不停a，防止e没按出来待在原地
+          - op_name: "按键-普通攻击"
+            data: []
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+          - op_name: "按键-普通攻击"
+            data: []
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+          - op_name: "按键-普通攻击"
+            data: []
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+          - op_name: "按键-普通攻击"
+            data: []
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+          - op_name: "按键-普通攻击"
+            data: [ ]
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+
+          - op_name: "按键-普通攻击"
+            data: [ ]
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+          - op_name: "按键-普通攻击"
+            data: [ ]
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+          - op_name: "按键-普通攻击"
+            data: [ ]
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+          - op_name: "按键-普通攻击"
+            data: [ ]
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+          - op_name: "按键-普通攻击"
+            data: [ ]
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+
+          - op_name: "按键-普通攻击"
+            data: [ ]
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+          - op_name: "按键-普通攻击"
+            data: [ ]
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+
+#          # ea，不稳定
+#          - op_name: "按键-特殊攻击"
+#            data: []
+#          - op_name: "等待秒数"
+#            data: [ "1.5" ]
+#          - op_name: "按键-普通攻击-按下"
+#            data: [ "1.5" ]
+#          - op_name: "等待秒数"
+#            data: [ "0.2" ]
 
       - states: ""
         operations:
