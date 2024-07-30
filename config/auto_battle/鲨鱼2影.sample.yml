@@ -1,0 +1,204 @@
+name: "鲨鱼2影站场"
+allow_ultimate:
+  - agent_type: "强攻"
+
+scenes:
+
+- triggers: ["闪避识别-黄光", "闪避识别-红光"]
+  interval: 0.5
+  handlers:
+  # 黄光使用双反，因此判定是否闪避过
+  - states: "[闪避识别-黄光, 0, 1]"
+    sub_states:
+      - state_template: "自动战斗黄光模板-全角色"
+  - states: "[闪避识别-红光, 0, 1]"
+    sub_states:
+      - state_template: "自动战斗闪避模板-全角色"
+
+- triggers: ["按键可用-快速支援"]
+  interval: 1
+  handlers:
+  - states: "[按键可用-快速支援]"
+    operations:
+      - op_name: "按键-切换角色-下一个"
+        data: []
+      - op_name: "等待秒数"
+        data: [ "0.1" ]
+
+# 目前识别不了
+- triggers: ["按键可用-连携技"]
+  interval: 1
+  handlers:
+  - state_template: "连携模板-优先支援"
+
+- triggers: ["前台-击破"]
+  interval: 0.7
+  handlers:
+  - state_template: "击破速切模板-全角色"
+
+- triggers: ["前台-支援"]
+  interval: 0.7
+  handlers:
+  - state_template: "支援速切模板-全角色"
+
+#- triggers: ["按键可用-特殊攻击"]
+#  interval: 8
+#  handlers:
+#    - states: ""
+#      operations:
+#        - op_name: "按键-闪避"
+#          data: []
+#        - op_name: "等待秒数"
+#          data: [ "0.1" ]
+#
+#        - op_name: "按键-特殊攻击"
+#          data: []
+#        - op_name: "等待秒数"
+#          data: [ "1.5" ]
+#        - op_name: "按键-普通攻击-按下"
+#          data: [ "1.5" ]
+#        - op_name: "等待秒数"
+#          data: [ "0.2" ]
+#
+#        - op_name: "按键-特殊攻击"
+#          data: []
+#        - op_name: "等待秒数"
+#          data: [ "1.5" ]
+#        - op_name: "按键-普通攻击-按下"
+#          data: [ "1.5" ]
+#        - op_name: "等待秒数"
+#          data: [ "0.2" ]
+#
+#        - op_name: "按键-特殊攻击"
+#          data: []
+#        - op_name: "等待秒数"
+#          data: [ "1.5" ]
+
+- triggers: []
+  interval: 0.35
+  handlers:
+    - states: "[前台-艾莲]"
+      sub_states:
+      # 精英或Boss怪物处于失衡状态, 使用eaeae; 目前触发不了
+      - states: "[按键可用-连携技, 1, 3] & [按键可用-连携技, 3.01, 5]"
+        operations:
+          - op_name: "按键-闪避"
+            data: []
+          - op_name: "等待秒数"
+            data: [ "0.1" ]
+
+          - op_name: "按键-特殊攻击"
+            data: []
+          - op_name: "等待秒数"
+            data: [ "1.5" ]
+          - op_name: "按键-普通攻击-按下"
+            data: [ "1.5" ]
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+
+          - op_name: "按键-特殊攻击"
+            data: []
+          - op_name: "等待秒数"
+            data: [ "1.5" ]
+          - op_name: "按键-普通攻击-按下"
+            data: [ "1.5" ]
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+
+          - op_name: "按键-特殊攻击"
+            data: []
+          - op_name: "等待秒数"
+            data: [ "1.5" ]
+
+          - op_name: "按键-终结技"
+            data: []
+
+      # e可用10秒后，打eaeae连招; 目前触发不了
+      - states: "[按键可用-特殊攻击, 10, 11]"
+        operations:
+          - op_name: "按键-闪避"
+            data: []
+          - op_name: "等待秒数"
+            data: [ "0.1" ]
+
+          - op_name: "按键-特殊攻击"
+            data: []
+          - op_name: "等待秒数"
+            data: [ "1.5" ]
+          - op_name: "按键-普通攻击-按下"
+            data: [ "1.5" ]
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+
+          - op_name: "按键-特殊攻击"
+            data: []
+          - op_name: "等待秒数"
+            data: [ "1.5" ]
+          - op_name: "按键-普通攻击-按下"
+            data: [ "1.5" ]
+          - op_name: "等待秒数"
+            data: [ "0.2" ]
+
+          - op_name: "按键-特殊攻击"
+            data: []
+          - op_name: "等待秒数"
+            data: [ "1.5" ]
+
+      - states: ""
+        operations:
+          - op_name: "按键-移动-前-按下"
+            data: ["0.1"]
+          - op_name: "按键-移动-前-按下"
+            data: []
+          - op_name: "按键-闪避-按下"
+            data: ["0.3"]
+          - op_name: "按键-普通攻击-按下"
+            data: ["1.2"]
+          - op_name: "按键-移动-前-松开"
+            data: []
+          - op_name: "按键-移动-前-按下"
+            data: ["0.1"]
+          - op_name: "按键-闪避-按下"
+            data: ["0.1"]
+          - op_name: "按键-移动-前-按下"
+            data: ["0.1"]
+          - op_name: "按键-普通攻击"
+            data: []
+          - op_name: "按键-移动-前-按下"
+            data: ["0.5"]
+          - op_name: "按键-普通攻击"
+            data: []
+          - op_name: "按键-移动-前-按下"
+            data: ["0.2"]
+          - op_name: "按键-普通攻击"
+            data: []
+          - op_name: "按键-移动-前-按下"
+            data: ["0.2"]
+          - op_name: "按键-普通攻击"
+            data: []
+          - op_name: "按键-移动-前-按下"
+            data: ["0.2"]
+          - op_name: "按键-普通攻击"
+            data: []
+          - op_name: "按键-移动-前-按下"
+            data: ["0.2"]
+          - op_name: "按键-普通攻击"
+            data: []
+          - op_name: "按键-移动-前-按下"
+            data: ["0.5"]
+          - op_name: "按键-普通攻击"
+            data: []
+          - op_name: "按键-移动-前-按下"
+            data: ["0.5"]
+          - op_name: "按键-普通攻击"
+            data: []
+          - op_name: "按键-移动-前-按下"
+            data: ["0.2"]
+          - op_name: "按键-普通攻击"
+            data: []
+          - op_name: "按键-移动-前-按下"
+            data: ["0.2"]
+          - op_name: "按键-普通攻击"
+            data: []
+          - op_name: "按键-移动-前-按下"
+            data: ["0.2"]

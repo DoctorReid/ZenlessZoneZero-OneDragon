@@ -1,0 +1,32 @@
+template_name: "支援速切模板-苍角"
+handlers:
+  - states: "[前台-苍角]"
+    sub_states:
+    - states: "[按键可用-特殊攻击] & [后台-1-强攻]"
+      operations:
+        - op_name: "按键-特殊攻击"
+          data: []
+        - op_name: "等待秒数"
+          data: [ "0.2" ]
+        - op_name: "按键-特殊攻击-按下"
+          data: [ "0.6" ]
+        - op_name: "按键-切换角色-下一个"
+          data: []
+    - states: "[按键可用-特殊攻击] & [后台-2-强攻]"
+      operations:
+        - op_name: "按键-特殊攻击"
+          data: []
+        - op_name: "等待秒数"
+          data: [ "0.2" ]
+        - op_name: "按键-特殊攻击-按下"
+          data: [ "0.6" ]
+        - op_name: "按键-切换角色-上一个"
+          data: []
+    - states: "[后台-1-强攻]"
+      operations:
+        - op_name: "按键-切换角色-下一个"
+          data: []
+    - states: "[后台-2-强攻]"
+      operations:
+        - op_name: "按键-切换角色-上一个"
+          data: []
