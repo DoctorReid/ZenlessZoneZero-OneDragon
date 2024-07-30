@@ -193,15 +193,17 @@ class AutoBattleLoader:
         target_template_sample: Optional[OperationTemplate] = None
         for file_name in file_list:
             if file_name.endswith('.sample.yml'):
-                template_id = file_name[0:-4]
+                module_name = file_name[0:-4]
+                template_name = file_name[0:-11]
                 is_sample = True
             elif file_name.endswith('.yml'):
-                template_id = file_name[0:-4]
+                module_name = file_name[0:-4]
+                template_name = file_name[0:-4]
                 is_sample = False
             else:
                 continue
 
-            template = OperationTemplate(sub_dir, template_id)
+            template = OperationTemplate(sub_dir, module_name, template_name)
             if template.template_name == template_name:
                 if is_sample:
                     target_template_sample = template

@@ -23,43 +23,45 @@ def get_all_operation_template() -> List[OperationTemplate]:
     """
     auto_battle_dir_path = os_utils.get_path_under_work_dir('config', 'auto_battle_operation')
 
-    op_name_set = set()
-    op_name_map = {}
-    op_name_sample_map = {}
+    template_name_set = set()
+    template_name_map = {}
+    template_name_sample_map = {}
     for file_name in os.listdir(auto_battle_dir_path):
         if file_name.endswith('.sample.yml'):
             is_sample = True
             module_name = file_name[:-4]
+            template_name = file_name[:-11]
         elif file_name.endswith('.yml'):
             is_sample = False
             module_name = file_name[:-4]
+            template_name = file_name[:-4]
         else:
             continue
 
-        op = OperationTemplate('auto_battle_operation', module_name)
-        op_name_set.add(op.template_name)
+        op = OperationTemplate('auto_battle_operation', module_name, template_name)
+        template_name_set.add(template_name)
         if is_sample:
-            op_name_sample_map[op.template_name] = op
+            template_name_sample_map[template_name] = op
         else:
-            op_name_map[op.template_name] = op
+            template_name_map[template_name] = op
 
     result_op_list = []
-    for op_name in op_name_set:
-        if op_name in op_name_map:
-            result_op_list.append(op_name_map[op_name])
+    for template_name in template_name_set:
+        if template_name in template_name_map:
+            result_op_list.append(template_name_map[template_name])
         else:
-            result_op_list.append(op_name_sample_map[op_name])
+            result_op_list.append(template_name_sample_map[template_name])
 
     return result_op_list
 
 
-def get_operation_template_config_file_path(module_name: str) -> str:
+def get_operation_template_config_file_path(template_name: str) -> str:
     """
     自动战斗配置文件路径
-    :param module_name:
+    :param template_name:
     :return:
     """
     return os.path.join(
         os_utils.get_path_under_work_dir('config', 'auto_battle_operation'),
-        f'{module_name}.yml'
+        f'{template_name}.yml'
     )
