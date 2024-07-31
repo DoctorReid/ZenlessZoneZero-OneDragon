@@ -7,7 +7,7 @@ from one_dragon.base.conditional_operation.atomic_op import AtomicOp
 from one_dragon.utils import thread_utils
 from one_dragon.utils.log_utils import log
 
-_od_op_task_executor = ThreadPoolExecutor(thread_name_prefix='_od_op_task_executor', max_workers=4)
+_od_op_task_executor = ThreadPoolExecutor(thread_name_prefix='_od_op_task_executor', max_workers=32)
 
 
 class OperationTask:

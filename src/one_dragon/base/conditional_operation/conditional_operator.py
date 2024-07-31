@@ -17,7 +17,7 @@ from one_dragon.thread.atomic_int import AtomicInt
 from one_dragon.utils import thread_utils
 from one_dragon.utils.log_utils import log
 
-_od_conditional_op_executor = ThreadPoolExecutor(thread_name_prefix='od_conditional_op', max_workers=4)
+_od_conditional_op_executor = ThreadPoolExecutor(thread_name_prefix='od_conditional_op', max_workers=32)
 
 
 class ConditionalOperator(YamlConfig):

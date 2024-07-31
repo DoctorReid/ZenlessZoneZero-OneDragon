@@ -4,7 +4,7 @@ from typing import Callable, Any, List
 from one_dragon.utils import thread_utils
 from one_dragon.utils.log_utils import log
 
-_od_event_bus_executor = ThreadPoolExecutor(thread_name_prefix='od_event_bus', max_workers=8)
+_od_event_bus_executor = ThreadPoolExecutor(thread_name_prefix='od_event_bus', max_workers=32)
 
 
 class ContextEventItem:
