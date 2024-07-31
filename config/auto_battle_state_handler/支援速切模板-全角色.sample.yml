@@ -1,0 +1,4 @@
+template_name: "支援速切模板-全角色"
+handlers:
+  - state_template: "支援速切模板-苍角"
+  - state_template: "支援速切模板-通用"
