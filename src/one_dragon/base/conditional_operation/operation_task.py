@@ -40,7 +40,8 @@ class OperationTask:
         for op in self.op_list:
             with self._op_lock:
                 self._current_op = op
-                self._async_ops.append(op)
+                if op.async_op:
+                    self._async_ops.append(op)
                 if not self._running:
                     break
             op.execute()
