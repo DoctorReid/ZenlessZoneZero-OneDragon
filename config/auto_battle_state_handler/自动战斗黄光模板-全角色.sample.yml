@@ -1,0 +1,3 @@
+template_name: "自动战斗黄光模板-全角色"
+handlers:
+  - state_template: "自动战斗黄光模板-通用"
