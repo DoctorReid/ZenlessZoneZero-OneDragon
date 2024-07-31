@@ -1,4 +1,3 @@
-name: "闪避"
 scenes:
 - triggers: ["闪避识别-黄光", "闪避识别-红光"]
   interval: 0.5

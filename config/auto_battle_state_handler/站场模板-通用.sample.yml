@@ -1,4 +1,3 @@
-template_name: "站场模板-通用"
 handlers:
   - states: "[按键可用-终结技]"
     operations:

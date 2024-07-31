@@ -12,7 +12,7 @@ def get_operation_template_config_list() -> List[ConfigItem]:
     :return:
     """
     op_list: List[OperationTemplate] = get_all_operation_template()
-    return [ConfigItem(label=op.template_name, value=op.template_name)
+    return [ConfigItem(label=op.module_name, value=op.module_name)
             for op in op_list]
 
 
@@ -29,16 +29,14 @@ def get_all_operation_template() -> List[OperationTemplate]:
     for file_name in os.listdir(auto_battle_dir_path):
         if file_name.endswith('.sample.yml'):
             is_sample = True
-            module_name = file_name[:-4]
             template_name = file_name[:-11]
         elif file_name.endswith('.yml'):
             is_sample = False
-            module_name = file_name[:-4]
             template_name = file_name[:-4]
         else:
             continue
 
-        op = OperationTemplate('auto_battle_operation', module_name, template_name)
+        op = OperationTemplate('auto_battle_operation', template_name)
         template_name_set.add(template_name)
         if is_sample:
             template_name_sample_map[template_name] = op

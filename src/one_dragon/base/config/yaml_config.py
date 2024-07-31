@@ -12,7 +12,7 @@ class YamlConfig(YamlOperator):
                  module_name: str,
                  instance_idx: Optional[int] = None,
                  sub_dir: Optional[List[str]] = None,
-                 sample: bool = False,
+                 sample: bool = False, copy_from_sample: bool = False,
                  mock: bool = False):
         self.instance_idx: Optional[int] = instance_idx
         """传入时 该配置为一个的脚本实例独有的配置"""
@@ -26,13 +26,18 @@ class YamlConfig(YamlOperator):
         self.mock: bool = mock
         """mock情况下 不读取文件 也不会实际保存 用于测试"""
 
-        YamlOperator.__init__(self, self._get_yaml_file_path(sample))
+        self._sample: bool = sample
+        """是否有sample文件"""
 
-    def _get_yaml_file_path(self, sample: bool = False) -> Optional[str]:
+        self._copy_from_sample: bool = copy_from_sample
+        """配置文件不存在时 是否从sample文件中读取"""
+
+        YamlOperator.__init__(self, self._get_yaml_file_path())
+
+    def _get_yaml_file_path(self) -> Optional[str]:
         """
         获取配置文件的路径
         如果只有sample文件，就复制一个到实例文件夹下
-        :param sample: 是否有sample文件
         :return:
         """
         if self.mock:
@@ -45,10 +50,11 @@ class YamlConfig(YamlOperator):
 
         yml_path = os.path.join(os_utils.get_path_under_work_dir(*sub_dir), f'{self.module_name}.yml')
         sample_yml_path = os.path.join(os_utils.get_path_under_work_dir(*sub_dir), f'{self.module_name}.sample.yml')
-        path = sample_yml_path if sample and not os.path.exists(yml_path) else yml_path
-        use_sample = sample and not os.path.exists(yml_path)
+        usage_yml_path = sample_yml_path if self._sample and not os.path.exists(yml_path) else yml_path
+        use_sample = self._sample and not os.path.exists(yml_path)
 
-        if use_sample:
+        if use_sample and self._copy_from_sample:
             shutil.copyfile(sample_yml_path, yml_path)
+            usage_yml_path = yml_path
 
-        return yml_path
+        return usage_yml_path

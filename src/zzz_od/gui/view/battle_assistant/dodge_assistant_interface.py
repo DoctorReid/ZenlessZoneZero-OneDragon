@@ -11,9 +11,9 @@ from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBo
 from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.gui.view.app_run_interface import AppRunInterface
+from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_config_file_path, \
+    get_auto_battle_op_config_list
 from zzz_od.application.battle_assistant.dodge_assistant_app import DodgeAssistantApp
-from zzz_od.application.battle_assistant.dodge_assitant_config import get_dodge_op_config_list, \
-    get_dodge_config_file_path
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.auto_battle.auto_battle_loader import AutoBattleLoader
 from zzz_od.config.game_config import GamepadTypeEnum
@@ -92,7 +92,7 @@ class DodgeAssistantInterface(AppRunInterface):
             self.dodge_opt.value_changed.disconnect(self._on_dodge_way_changed)
         except:
             pass
-        self.dodge_opt.set_options_by_list(get_dodge_op_config_list())
+        self.dodge_opt.set_options_by_list(get_auto_battle_op_config_list('dodge'))
         self.dodge_opt.value_changed.connect(self._on_dodge_way_changed)
 
     def _on_dodge_way_changed(self, index, value):
@@ -119,7 +119,7 @@ class DodgeAssistantInterface(AppRunInterface):
         if item is None:
             return
 
-        path = get_dodge_config_file_path(item)
+        path = get_auto_battle_config_file_path('dodge', item)
         if os.path.exists(path):
             os.remove(path)
 

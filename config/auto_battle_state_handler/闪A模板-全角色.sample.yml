@@ -1,0 +1,4 @@
+description: "目标是闪A后 可以让角色连接上普通攻击连招"
+handlers:
+  - state_template: "闪A模板-安比"
+  - state_template: "闪A模板-通用"

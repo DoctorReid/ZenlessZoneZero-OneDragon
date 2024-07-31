@@ -78,3 +78,10 @@ class YamlOperator:
         """
         if os.path.exists(self.file_path):
             os.remove(self.file_path)
+
+    def is_file_exists(self) -> bool:
+        """
+        配置文件是否存在
+        :return:
+        """
+        return os.path.exists(self.file_path)

@@ -1,4 +1,3 @@
-template_name: "站场模板-妮可"
 handlers:
   - states: "[前台-妮可]"
     sub_states:

@@ -1,4 +1,3 @@
-template_name: "站场模板-安比"
 handlers:
   - states: "[前台-安比]"
     sub_states:

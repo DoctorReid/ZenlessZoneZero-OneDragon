@@ -5,7 +5,8 @@ from one_dragon.base.config.yaml_config import YamlConfig
 
 class StateHandlerTemplate(YamlConfig):
 
-    def __init__(self, sub_dir: str, template_id: str, instance_idx: Optional[int] = None):
+    def __init__(self, sub_dir: str, template_id: str, template_name: str,
+                 instance_idx: Optional[int] = None):
         YamlConfig.__init__(
             self,
             module_name=template_id,
@@ -14,4 +15,4 @@ class StateHandlerTemplate(YamlConfig):
             sample=False
         )
 
-        self.template_name: str = self.get('template_name', '')
+        self.template_name: str = template_name

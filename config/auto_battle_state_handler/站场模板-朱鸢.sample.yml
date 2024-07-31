@@ -1,4 +1,3 @@
-template_name: "站场模板-朱鸢"
 handlers:
   - states: "[前台-朱鸢]"
     sub_states:

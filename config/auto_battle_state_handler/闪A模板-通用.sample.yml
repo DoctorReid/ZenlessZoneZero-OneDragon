@@ -1,4 +1,3 @@
-template_name: "自动战斗闪避模板-通用"
 handlers:
   - states: ""
     operations:

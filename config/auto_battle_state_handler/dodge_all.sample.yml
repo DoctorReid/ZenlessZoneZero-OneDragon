@@ -1,4 +1,0 @@
-template_name: "自动战斗闪避模板-全角色"
-handlers:
-  - state_template: "自动战斗闪避模板-安比"
-  - state_template: "自动战斗闪避模板-通用"

@@ -1,0 +1,21 @@
+description: "希望由防护站场 不是防护时切换角色"
+handlers:
+  - states: "[前台-防护]"
+    sub_states:
+      - state_template: "站场模板-全角色"
+  - states: "[后台-2-防护]"
+    operations:
+      - op_name: "按键-切换角色-上一个"
+        data: [ ]
+      - op_name: "等待秒数"
+        data: [ "0.1" ]
+  - states: "[后台-1-防护]"
+    operations:
+      - op_name: "按键-切换角色-下一个"
+        data: [ ]
+      - op_name: "等待秒数"
+        data: [ "0.1" ]
+  - states: ""
+    sub_states:
+      - state_template: "站场模板-全角色"
+

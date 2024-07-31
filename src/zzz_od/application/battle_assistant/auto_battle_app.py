@@ -6,7 +6,6 @@ from one_dragon.base.conditional_operation.conditional_operator import Condition
 from one_dragon.base.controller.pc_button import pc_button_utils
 from one_dragon.base.operation.operation import OperationNode, OperationRoundResult
 from one_dragon.utils.i18_utils import gt
-from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_op_by_name
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.config.game_config import GamepadTypeEnum
@@ -84,10 +83,9 @@ class AutoBattleApp(ZApplication):
         """
         if self.auto_op is not None:  # 如果有上一个 先销毁
             self.auto_op.dispose()
-        config = get_auto_battle_op_by_name(self.ctx.battle_assistant_config.auto_battle_config)
-        if config is None:
+        self.auto_op = AutoBattleOperator(self.ctx, 'auto_battle', self.ctx.battle_assistant_config.auto_battle_config)
+        if not self.auto_op.is_file_exists():
             return self.round_fail('无效的自动战斗指令 请重新选择')
-        self.auto_op = AutoBattleOperator(self.ctx, 'auto_battle', config.module_name)
         self.auto_op.init_operator()
         self.auto_op.start_running_async()
 

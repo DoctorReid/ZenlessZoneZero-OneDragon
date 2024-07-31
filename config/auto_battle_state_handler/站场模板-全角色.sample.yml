@@ -1,4 +1,4 @@
-template_name: "站场模板-全角色"
+description: "希望站场角色可以流畅连贯完成动作"
 handlers:
   - state_template: "站场模板-安比"
   - state_template: "站场模板-妮可"

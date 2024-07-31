@@ -1,0 +1,8 @@
+description: "黄光时 尽量使用双反 并优先切换到异常角色 需额外处理兜底情况"
+handlers:
+  - states: "[后台-2-异常]"
+    operations:
+      - operation_template: "双反-上一个"
+  - states: "[后台-1-异常]"
+    operations:
+      - operation_template: "双反-下一个"

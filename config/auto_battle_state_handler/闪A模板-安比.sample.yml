@@ -1,4 +1,3 @@
-template_name: "自动战斗闪避模板-安比"
 handlers:
   - states: "[前台-安比]"
     operations:

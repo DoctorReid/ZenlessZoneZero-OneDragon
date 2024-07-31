@@ -22,18 +22,16 @@ _od_conditional_op_executor = ThreadPoolExecutor(thread_name_prefix='od_conditio
 
 class ConditionalOperator(YamlConfig):
 
-    def __init__(self, module_name: str,
-                 sub_dir: Optional[str] = None,
+    def __init__(self, sub_dir: str, template_name: str,
                  instance_idx: Optional[int] = None):
         YamlConfig.__init__(
             self,
-            module_name=module_name,
+            module_name=template_name,
             sub_dir=[sub_dir],
             instance_idx=instance_idx,
-            sample=False
+            sample=True, copy_from_sample=False
         )
 
-        self.name: str = self.get('name', '')  # 名称
         self._inited: bool = False  # 是否已经完成初始化
 
         self.event_bus: Optional[ContextEventBus] = None

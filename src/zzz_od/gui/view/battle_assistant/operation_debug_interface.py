@@ -110,7 +110,7 @@ class OperationDebugInterface(AppRunInterface):
         if item is None:
             return
 
-        path = get_auto_battle_config_file_path(item)
+        path = get_auto_battle_config_file_path('auto_battle', item)
         if os.path.exists(path):
             os.remove(path)
 

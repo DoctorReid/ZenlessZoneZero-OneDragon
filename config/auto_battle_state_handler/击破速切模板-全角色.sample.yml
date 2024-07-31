@@ -1,4 +1,0 @@
-template_name: "击破速切模板-全角色"
-handlers:
-  - state_template: "击破速切模板-莱卡恩"
-  - state_template: "击破速切模板-通用"

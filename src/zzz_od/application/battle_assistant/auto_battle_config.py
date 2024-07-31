@@ -6,68 +6,69 @@ from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.utils import os_utils
 
 
-def get_auto_battle_op_config_list() -> List[ConfigItem]:
+def get_auto_battle_op_config_list(sub_dir: str) -> List[ConfigItem]:
     """
     获取用于配置页面显示的指令列表
     :return:
     """
-    op_list: List[ConditionalOperator] = get_all_auto_battle_op()
-    return [ConfigItem(label=op.name, value=op.name)
+    op_list: List[ConditionalOperator] = get_all_auto_battle_op(sub_dir)
+    return [ConfigItem(label=op.module_name, value=op.module_name)
             for op in op_list]
 
 
-def get_all_auto_battle_op() -> List[ConditionalOperator]:
+def get_all_auto_battle_op(sub_dir: str) -> List[ConditionalOperator]:
     """
     加载所有的自动战斗指令
     :return:
     """
-    auto_battle_dir_path = os_utils.get_path_under_work_dir('config', 'auto_battle')
+    auto_battle_dir_path = os_utils.get_path_under_work_dir('config', sub_dir)
 
-    op_name_set = set()
-    op_name_map = {}
-    op_name_sample_map = {}
+    template_name_set = set()
+    template_name_map = {}
+    template_name_sample_map = {}
     for file_name in os.listdir(auto_battle_dir_path):
         if file_name.endswith('.sample.yml'):
             is_sample = True
-            module_name = file_name[:-4]
+            template_name = file_name[:-11]
         elif file_name.endswith('.yml'):
             is_sample = False
-            module_name = file_name[:-4]
+            template_name = file_name[:-4]
         else:
             continue
 
-        op = ConditionalOperator(module_name=module_name, sub_dir='auto_battle')
-        op_name_set.add(op.name)
+        op = ConditionalOperator('auto_battle', template_name)
+        template_name_set.add(op.module_name)
         if is_sample:
-            op_name_sample_map[op.name] = op
+            template_name_sample_map[op.module_name] = op
         else:
-            op_name_map[op.name] = op
+            template_name_map[op.module_name] = op
 
     result_op_list = []
-    for op_name in op_name_set:
-        if op_name in op_name_map:
-            result_op_list.append(op_name_map[op_name])
+    for template_name in template_name_set:
+        if template_name in template_name_map:
+            result_op_list.append(template_name_map[template_name])
         else:
-            result_op_list.append(op_name_sample_map[op_name])
+            result_op_list.append(template_name_sample_map[template_name])
 
     return result_op_list
 
 
-def get_auto_battle_op_by_name(op_name: str) -> Optional[ConditionalOperator]:
-    all_op = get_all_auto_battle_op()
+def get_auto_battle_op_by_name(sub_dir: str, template_name: str) -> Optional[ConditionalOperator]:
+    all_op = get_all_auto_battle_op(sub_dir)
     for op in all_op:
-        if op.name == op_name:
+        if op.module_name == template_name:
             return op
     return None
 
 
-def get_auto_battle_config_file_path(module_name: str) -> str:
+def get_auto_battle_config_file_path(sub_dir: str, template_name: str) -> str:
     """
     自动战斗配置文件路径
-    :param module_name:
+    :param sub_dir: 目录名称
+    :param template_name: 模板名称
     :return:
     """
     return os.path.join(
-        os_utils.get_path_under_work_dir('config', 'auto_battle'),
-        f'{module_name}.yml'
+        os_utils.get_path_under_work_dir('config', sub_dir),
+        f'{template_name}.yml'
     )

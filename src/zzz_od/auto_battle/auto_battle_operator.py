@@ -7,14 +7,14 @@ from zzz_od.context.zzz_context import ZContext
 
 class AutoBattleOperator(ConditionalOperator):
 
-    def __init__(self, ctx: ZContext, sub_dir: str, config_name: str):
+    def __init__(self, ctx: ZContext, sub_dir: str, template_name: str):
         self.ctx: ZContext = ctx
         self.config_loader = AutoBattleLoader(self.ctx)
 
         ConditionalOperator.__init__(
             self,
             sub_dir=sub_dir,
-            module_name=config_name
+            template_name=template_name
         )
 
     def init_operator(self):
@@ -31,11 +31,6 @@ class AutoBattleOperator(ConditionalOperator):
 if __name__ == '__main__':
     ctx = ZContext()
     ctx.init_by_config()
-    op = AutoBattleOperator(ctx, 'auto_battle', 'test')
+    op = AutoBattleOperator(ctx, 'auto_battle', '击破站场-强攻速切')
     op.init_operator()
-    ctx.dispatch_event('前台-艾莲', time.time())
-    op.start_running_async()
-    time.sleep(5)
-    op.stop_running()
-    time.sleep(1)
     pass
