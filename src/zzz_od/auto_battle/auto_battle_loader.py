@@ -148,38 +148,29 @@ class AutoBattleLoader:
         else:
             raise ValueError('非法的指令 %s' % op_name)
 
-    def get_state_handler_template(self, template_name: str) -> Optional[StateHandlerTemplate]:
+    def get_state_handler_template(self, target_template_name: str) -> Optional[StateHandlerTemplate]:
         """
         获取场景处理器模板
-        :param template_name: 模板名称
+        :param target_template_name: 模板名称
         :return:
         """
         sub_dir = 'auto_battle_state_handler'
         template_dir = os_utils.get_path_under_work_dir('config', sub_dir)
         file_list = os.listdir(template_dir)
 
-        target_template: Optional[StateHandlerTemplate] = None
-        target_template_sample: Optional[StateHandlerTemplate] = None
         for file_name in file_list:
             if file_name.endswith('.sample.yml'):
-                template_id = file_name[0:-4]
                 template_name = file_name[0:-11]
-                is_sample = True
             elif file_name.endswith('.yml'):
-                template_id = file_name[0:-4]
-                template_name = file_name[0:-11]
-                is_sample = False
+                template_name = file_name[0:-4]
             else:
                 continue
+            if template_name != target_template_name:
+                continue
 
-            template = StateHandlerTemplate(sub_dir, template_id, template_name)
-            if template.template_name == template_name:
-                if is_sample:
-                    target_template_sample = template
-                else:
-                    target_template = template
+            return StateHandlerTemplate(sub_dir, template_name)
 
-        return target_template if target_template is not None else target_template_sample
+        return None
 
     def get_operation_template(self, target_template_name: str) -> Optional[OperationTemplate]:
         """
@@ -191,25 +182,17 @@ class AutoBattleLoader:
         template_dir = os_utils.get_path_under_work_dir('config', sub_dir)
         file_list = os.listdir(template_dir)
 
-        target_template: Optional[OperationTemplate] = None
-        target_template_sample: Optional[OperationTemplate] = None
         for file_name in file_list:
             if file_name.endswith('.sample.yml'):
-                module_name = file_name[0:-4]
                 template_name = file_name[0:-11]
-                is_sample = True
             elif file_name.endswith('.yml'):
-                module_name = file_name[0:-4]
                 template_name = file_name[0:-4]
-                is_sample = False
             else:
                 continue
 
-            template = OperationTemplate(sub_dir, module_name, template_name)
-            if template.template_name == target_template_name:
-                if is_sample:
-                    target_template_sample = template
-                else:
-                    target_template = template
+            if target_template_name != template_name:
+                continue
 
-        return target_template if target_template is not None else target_template_sample
+            return OperationTemplate(sub_dir, template_name)
+
+        return None

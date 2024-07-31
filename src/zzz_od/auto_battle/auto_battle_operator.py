@@ -31,6 +31,6 @@ class AutoBattleOperator(ConditionalOperator):
 if __name__ == '__main__':
     ctx = ZContext()
     ctx.init_by_config()
-    op = AutoBattleOperator(ctx, 'auto_battle', '击破站场-强攻速切')
+    op = AutoBattleOperator(ctx, 'auto_battle', '测试')
     op.init_operator()
     pass

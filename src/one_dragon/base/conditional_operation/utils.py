@@ -103,7 +103,9 @@ def construct_state_handler(
     :param operation_template_getter: 指令模板获取器
     :return:
     """
-    states_expr = state_data.get("states", '')
+    if 'states' not in state_data:
+        raise ValueError('未有状态表达式字段 %s', state_data)
+    states_expr = state_data.get('states', '')
     state_cal_tree = construct_state_cal_tree(states_expr, state_recorders)
     if 'sub_states' in state_data:
         sub_state_data_list = state_data.get('sub_states', [])
