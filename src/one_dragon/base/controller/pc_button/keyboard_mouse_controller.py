@@ -52,3 +52,11 @@ class KeyboardMouseController(PcButtonController):
             self.mouse.release(pc_button_utils.get_mouse_button(key))
         else:
             self.keyboard.release(pc_button_utils.get_keyboard_button(key))
+
+
+if __name__ == '__main__':
+    _c = KeyboardMouseController()
+    t1 = time.time()
+    _c.press('a')
+    _c.release('a')
+    print('%.4f' % (time.time() - t1))
