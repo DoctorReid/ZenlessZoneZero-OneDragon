@@ -134,6 +134,8 @@ class ConditionalOperator(YamlConfig):
                 trigger_time = time.time()
                 to_sleep: Optional[float] = None
                 future: Optional[Future] = None
+
+                # 上锁后判断是否新建任务
                 with self._task_lock:
                     if not self._running:
                         break
@@ -177,7 +179,10 @@ class ConditionalOperator(YamlConfig):
         log.debug('场景触发 %s', event.event_id)
         handler = self._event_to_scene_handler[event_id]
 
+        # 上锁后判断是否新建任务
         with self._task_lock:
+            if not self._running:
+                return
             last_trigger_time = self._event_trigger_time.get(event_id, 0)
             if trigger_time - last_trigger_time <= handler.interval_seconds:  # 冷却时间没过 不触发
                 return
@@ -203,6 +208,7 @@ class ConditionalOperator(YamlConfig):
         if self.event_bus is not None:
             self.event_bus.unlisten_all_event(self)
 
+        # 上锁后停止 防止依然有新建任务
         with self._task_lock:
             self._running = False
             if self._running_task is not None:
