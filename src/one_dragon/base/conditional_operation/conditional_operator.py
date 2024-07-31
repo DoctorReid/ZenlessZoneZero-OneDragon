@@ -144,7 +144,7 @@ class ConditionalOperator(YamlConfig):
                     else:
                         ops = self._normal_scene_handler.get_operations(trigger_time)
                         if ops is not None:
-                            self._running_task = OperationTask(ops)
+                            self._running_task = OperationTask(False, ops)
                             self._event_trigger_time[''] = trigger_time
                             future = self._running_task.run_async()
 
@@ -190,13 +190,15 @@ class ConditionalOperator(YamlConfig):
                 self._running_trigger_cnt.inc()
 
             if self._running_task is not None:
-                self._running_task.stop()
-                self._running_trigger_cnt.dec()
+                finish = self._running_task.stop()
+                if self._running_task.is_trigger and not finish:
+                    self._running_trigger_cnt.dec()
 
             if ops is not None:
-                self._running_task = OperationTask(ops)
+                self._running_task = OperationTask(True, ops)
                 self._event_trigger_time[event_id] = trigger_time
-                self._running_task.run_async()
+                future = self._running_task.run_async()
+                future.add_done_callback(self._on_trigger_done)
 
     def stop_running(self) -> None:
         """
@@ -211,3 +213,15 @@ class ConditionalOperator(YamlConfig):
             self._running = False
             if self._running_task is not None:
                 self._running_task.stop()
+
+    def _on_trigger_done(self, future: Future) -> None:
+        """
+        触发器完成后
+        """
+        with self._task_lock:
+            try:
+                result = future.result()
+                if result:  # 顺利执行完毕
+                    self._running_trigger_cnt.dec()
+            except Exception:  # run_async里有callback打印日志
+                pass
