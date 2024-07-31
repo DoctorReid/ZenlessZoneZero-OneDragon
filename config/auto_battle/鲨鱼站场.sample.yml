@@ -24,11 +24,15 @@ scenes:
       - op_name: "等待秒数"
         data: [ "0.1" ]
 
-# TODO: 貌似没触发
+# 狼哥第一次触发，先支援、再强攻；艾莲第一次触发，先支援、再强攻；苍角不太会触发
 - triggers: ["按键可用-连携技"]
   interval: 1
   handlers:
-  - state_template: "连携模板-优先支援"
+  - states: "[按键可用-连携技]"
+    sub_states:
+      - state_template: "连携模板-支援"
+      - state_template: "连携模板-强攻"
+      - state_template: "连携模板-跳过"
 
 # TODO： 测下来，有时鲨鱼似乎会被击破或支援前台触发扔了个e立马切人了
 - triggers: ["前台-击破"]
