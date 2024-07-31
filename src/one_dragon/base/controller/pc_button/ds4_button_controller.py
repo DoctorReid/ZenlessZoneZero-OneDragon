@@ -70,7 +70,7 @@ class Ds4ButtonController(PcButtonController):
         :param key:
         :return:
         """
-        self._tab_handler[int(key[-1])](None)
+        self._tab_handler[int(key.split('_')[-1])](None)
 
     def tab_a(self, press_time: Optional[float] = None) -> None:
         self._tab_button(self._btn.DS4_BUTTON_CROSS, press_time)
@@ -163,10 +163,10 @@ class Ds4ButtonController(PcButtonController):
         :param press_time: 持续按键时间
         :return:
         """
-        self._tab_handler[int(key[-1])](press_time)
+        self._tab_handler[int(key.split('_')[-1])](press_time)
 
     def release(self, key: str) -> None:
-        self.release_handler[int(key[-1])]()
+        self.release_handler[int(key.split('_')[-1])]()
 
     def release_a(self) -> None:
         self._release_btn(self._btn.DS4_BUTTON_CROSS)
