@@ -1,3 +1,5 @@
+import time
+
 from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
 from zzz_od.auto_battle.auto_battle_loader import AutoBattleLoader
 from zzz_od.context.zzz_context import ZContext
@@ -28,6 +30,12 @@ class AutoBattleOperator(ConditionalOperator):
 
 if __name__ == '__main__':
     ctx = ZContext()
-    op = AutoBattleOperator(ctx, 'auto_battle', 'wiki.sample')
+    ctx.init_by_config()
+    op = AutoBattleOperator(ctx, 'auto_battle', 'test')
     op.init_operator()
+    ctx.dispatch_event('前台-艾莲', time.time())
+    op.start_running_async()
+    time.sleep(5)
+    op.stop_running()
+    time.sleep(1)
     pass

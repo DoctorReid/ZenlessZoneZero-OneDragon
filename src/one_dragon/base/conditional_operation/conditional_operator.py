@@ -153,8 +153,10 @@ class ConditionalOperator(YamlConfig):
                 elif future is not None:
                     try:
                         future.result()
-                    except Exception:
+                    except Exception:  # run_async里有callback打印日志
                         pass
+                else:
+                    time.sleep(0.02)
 
     def _on_event(self, event: ContextEventItem):
         event_id = event.event_id
