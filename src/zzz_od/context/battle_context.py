@@ -291,21 +291,38 @@ class BattleContext:
         并发识别角色
         :return:
         """
-        a31: MatLike = cv2_utils.crop_image_only(screen, self.area_agent_3_1.rect)
-        a32: MatLike = cv2_utils.crop_image_only(screen, self.area_agent_3_2.rect)
-        a33: MatLike = cv2_utils.crop_image_only(screen, self.area_agent_3_3.rect)
-        a22: MatLike = cv2_utils.crop_image_only(screen, self.area_agent_2_2.rect)
+        area_img = [
+            cv2_utils.crop_image_only(screen, self.area_agent_3_1.rect),
+            cv2_utils.crop_image_only(screen, self.area_agent_3_2.rect),
+            cv2_utils.crop_image_only(screen, self.area_agent_3_3.rect),
+            cv2_utils.crop_image_only(screen, self.area_agent_2_2.rect)
+        ]
 
         possible_agents = self._get_possible_agent_list()
 
-        result_agent_list: List[Agent] = []
-        future_list: List[Future] = []
-        future_list.append(_battle_check_executor.submit(self._match_agent_in, a31, True, possible_agents))
-        future_list.append(_battle_check_executor.submit(self._match_agent_in, a32, False, possible_agents))
-        future_list.append(_battle_check_executor.submit(self._match_agent_in, a33, False, possible_agents))
-        future_list.append(_battle_check_executor.submit(self._match_agent_in, a22, False, possible_agents))
+        result_agent_list: List[Optional[Agent]] = []
+        future_list: List[Optional[Future]] = []
+        should_check: List[bool] = [True, False, False, False]
+
+        if not self.should_check_all_agents:
+            if len(self.agent_list) == 3:
+                should_check[1] = True
+                should_check[2] = True
+            elif len(self.agent_list) == 2:
+                should_check[3] = True
+        else:
+            for i in range(4):
+                should_check[i] = True
+
+        for i in range(4):
+            if should_check[i]:
+                future_list.append(_battle_check_executor.submit(self._match_agent_in, area_img[i], i == 0, possible_agents))
+            else:
+                future_list.append(None)
 
         for future in future_list:
+            if future is None:
+                result_agent_list.append(None)
             try:
                 result = future.result()
                 result_agent_list.append(result)
