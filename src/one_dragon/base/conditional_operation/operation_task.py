@@ -41,11 +41,12 @@ class OperationTask:
         """
         for idx in range(len(self.op_list)):
             with self._op_lock:
+                if not self._running:
+                    # 被stop中断了 不继续后续的操作
+                    break
                 self._current_op = self.op_list[idx]
                 if self._current_op.async_op:
                     self._async_ops.append(self._current_op)
-                if not self._running:
-                    break
                 future: Future = _od_op_task_executor.submit(self._current_op.execute)
 
             try:
@@ -54,6 +55,9 @@ class OperationTask:
                 log.error('指令执行出错', exc_info=True)
 
             with self._op_lock:
+                if not self._running:
+                    # 被stop中断了 那么应该认为这个op没有执行完 不进行后续判断
+                    break
                 self._current_op = None
                 if self._running and idx == len(self.op_list) - 1:
                     self._running = False
@@ -68,6 +72,9 @@ class OperationTask:
         """
         with self._op_lock:
             if not self._running:
+                # _run里面已经把op执行完了 就不需要额外的停止操作了
+                self._current_op = None
+                self._async_ops.clear()
                 return True
 
             self._running = False

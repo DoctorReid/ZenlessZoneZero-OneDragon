@@ -39,8 +39,6 @@ class ConditionalOperator(YamlConfig):
         self._event_trigger_time: dict[str, float] = {}  # 触发时间
         self._normal_scene_handler: Optional[SceneHandler] = None  # 不需要状态触发的场景处理
         self._running: bool = False  # 整体是否正在运行
-        self.normal_scene_running: bool = False  # 不需要状态触发的场景是否在执行
-        self.special_scene_running: bool = False  # 需要状态触发的场景是否在执行
 
         self._task_lock: Lock = Lock()
         self._running_task: Optional[OperationTask] = None  # 正在运行的任务
@@ -103,11 +101,12 @@ class ConditionalOperator(YamlConfig):
         :return:
         """
         if not self._inited:
-            log.error('自动指令 [ %s ] 未完成初始化 无法运行', self.name)
+            log.error('自动指令 [ %s ] 未完成初始化 无法运行', self.module_name)
             return False
         if self._running:
             return False
         self._running = True
+        self._running_trigger_cnt.set(0)  # 每次重置计数器 防止有bug导致无法正常运行
 
         if self._event_to_scene_handler is not None and self.event_bus is not None:
             self.event_bus.unlisten_all_event(self)
@@ -125,18 +124,21 @@ class ConditionalOperator(YamlConfig):
         主循环
         :return:
         """
-        while True:
+        while self._running:
             if self._running_trigger_cnt.get() > 0:
+                # 有触发器的场景在运行 等待
                 time.sleep(0.02)
             else:
-                trigger_time = time.time()
                 to_sleep: Optional[float] = None
                 future: Optional[Future] = None
 
-                # 上锁后判断是否新建任务
+                # 上锁后确保运行状态不会被篡改
                 with self._task_lock:
                     if not self._running:
+                        # 已经被stop_running中断了 不继续
                         break
+
+                    trigger_time = time.time()
                     last_trigger_time = self._event_trigger_time.get('', 0)
                     past_time = trigger_time - last_trigger_time
                     if past_time < self._normal_scene_handler.interval_seconds:
@@ -149,20 +151,27 @@ class ConditionalOperator(YamlConfig):
                             future = self._running_task.run_async()
 
                 if to_sleep is not None:
+                    # 等待时间不能写在锁里 要尽快释放锁
                     time.sleep(to_sleep)
                 elif future is not None:
                     try:
-                        future.result()
+                        future.result()  # 无触发器场景需要等待结束后再开始下轮循环
                     except Exception:  # run_async里有callback打印日志
                         pass
-                else:
+                else:  # 没有命中的状态 那就自旋等待
                     time.sleep(0.02)
 
     def _on_event(self, event: ContextEventItem):
+        """
+        事件触发
+        :param event:
+        :return:
+        """
         event_id = event.event_id
         if event_id not in self._event_to_scene_handler:
             return
 
+        # 由自己的线程处理事件 避免卡住事件线程
         future: Future = _od_conditional_op_executor.submit(self._handle_trigger_event, event)
         future.add_done_callback(thread_utils.handle_future_result)
 
@@ -173,16 +182,18 @@ class ConditionalOperator(YamlConfig):
         :return:
         """
         event_id = event.event_id
-        trigger_time: float = event.data
         log.debug('场景触发 %s', event.event_id)
         handler = self._event_to_scene_handler[event_id]
 
-        # 上锁后判断是否新建任务
+        # 上锁后确保运行状态不会被篡改
         with self._task_lock:
             if not self._running:
+                # 已经被stop_running中断了 不继续
                 return
+
+            trigger_time: float = time.time()  # 这里不应该使用事件发生时间 而是应该使用当前的实际操作时间
             last_trigger_time = self._event_trigger_time.get(event_id, 0)
-            if trigger_time - last_trigger_time <= handler.interval_seconds:  # 冷却时间没过 不触发
+            if trigger_time - last_trigger_time < handler.interval_seconds:  # 冷却时间没过 不触发
                 return
 
             ops = handler.get_operations(trigger_time)
@@ -190,8 +201,10 @@ class ConditionalOperator(YamlConfig):
                 self._running_trigger_cnt.inc()
 
             if self._running_task is not None:
-                finish = self._running_task.stop()
+                finish = self._running_task.stop()  # stop之前是否已经完成所有op
                 if self._running_task.is_trigger and not finish:
+                    # 如果 finish=True 则计数器已经在 _on_trigger_done 减少了 这里就不减了
+                    # 如果 finish=False 则代表还有操作在继续。在这里要减少计数器而不是等_on_trigger_done 让无触发器场景尽早运行
                     self._running_trigger_cnt.dec()
 
             if ops is not None:
@@ -208,17 +221,18 @@ class ConditionalOperator(YamlConfig):
         if self.event_bus is not None:
             self.event_bus.unlisten_all_event(self)
 
-        # 上锁后停止 防止依然有新建任务
+        # 上锁后停止 上锁后确保运行状态不会被篡改
         with self._task_lock:
             self._running = False
             if self._running_task is not None:
                 self._running_task.stop()
+                self._running_task = None
 
     def _on_trigger_done(self, future: Future) -> None:
         """
         触发器完成后
         """
-        with self._task_lock:
+        with self._task_lock:  # 上锁 保证_running_trigger_cnt安全
             try:
                 result = future.result()
                 if result:  # 顺利执行完毕

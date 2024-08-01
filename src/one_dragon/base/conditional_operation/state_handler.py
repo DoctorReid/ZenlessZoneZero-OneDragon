@@ -38,8 +38,8 @@ class StateHandler:
                         return ops
             else:
                 return self.operations
-        else:
-            return None
+
+        return None
 
     def dispose(self) -> None:
         """
