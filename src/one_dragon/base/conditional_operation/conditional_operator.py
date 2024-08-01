@@ -197,8 +197,9 @@ class ConditionalOperator(YamlConfig):
                 return
 
             ops = handler.get_operations(trigger_time)
-            if ops is not None:  # 必须要先增加计算器 避免无触发场景的循环进行
-                self._running_trigger_cnt.inc()
+            # 若ops为空，即无匹配state，则不打断当前task
+            if ops is not None:
+                self._running_trigger_cnt.inc() # 必须要先增加计算器 避免无触发场景的循环进行
 
                 if self._running_task is not None:
                     finish = self._running_task.stop()  # stop之前是否已经完成所有op
