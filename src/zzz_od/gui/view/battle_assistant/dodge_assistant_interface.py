@@ -101,14 +101,13 @@ class DodgeAssistantInterface(AppRunInterface):
     def _on_gpu_changed(self, value: bool):
         self.ctx.battle_assistant_config.use_gpu = value
 
-    def _on_screenshot_changed(self, value: bool):
-        self.ctx.controller.screenshot_mss =value
-
     def _on_screenshot_interval_changed(self, value: str) -> None:
         self.ctx.battle_assistant_config.screenshot_interval = float(value)
 
     def get_app(self) -> ZApplication:
         return DodgeAssistantApp(self.ctx)
+        # from zzz_od.application.battle_assistant.log_app import LogTestApp
+        # return LogTestApp(self.ctx)
 
     def _on_del_clicked(self) -> None:
         """

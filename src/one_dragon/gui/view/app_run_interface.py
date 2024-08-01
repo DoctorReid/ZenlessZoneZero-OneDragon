@@ -133,12 +133,12 @@ class AppRunInterface(VerticalScrollInterface):
 
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)
-        self.log_card.update_on_log = True
+        self.log_card.set_update_log(True)
         self.ctx.listen_event(ContextKeyboardEventEnum.PRESS.value, self._on_key_press)
 
     def on_interface_hidden(self) -> None:
         VerticalScrollInterface.on_interface_hidden(self)
-        self.log_card.update_on_log = False
+        self.log_card.set_update_log(False)
         self.ctx.unlisten_all_event(self)
 
     def _on_key_press(self, event: ContextEventItem) -> None:
@@ -161,7 +161,7 @@ class AppRunInterface(VerticalScrollInterface):
             log.error('未提供对应应用')
             return
         if self.app_event_log_card is not None:
-            self.app_event_log_card.start_listen()
+            self.app_event_log_card.set_update_log(True)
         self.app_runner.app = app
         self.app_runner.start()
 
@@ -193,10 +193,7 @@ class AppRunInterface(VerticalScrollInterface):
         self.state_text.setText('%s %s' % (gt('当前状态', 'ui'), self.ctx.context_running_status_text))
 
         if self.app_event_log_card is not None:
-            if self.ctx.is_context_stop:
-                self.app_event_log_card.stop_listen()
-            else:
-                self.app_event_log_card.start_listen()
+            self.app_event_log_card.set_update_log(not self.ctx.is_context_stop)
 
     def _on_start_clicked(self) -> None:
         self.run_app()
