@@ -3,4 +3,4 @@ handlers:
   - states: ""
     operations:
       - op_name: "等待秒数"
-        data: [ "3" ]
+        data: [ "2.5" ]
