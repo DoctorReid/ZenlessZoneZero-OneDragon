@@ -18,4 +18,4 @@ handlers:
           data: [ "2" ]
     - states: ""
       operations:
-        - operation_template: "朱鸢-普通攻击"
+        - operation_template: "朱鸢-5A"
