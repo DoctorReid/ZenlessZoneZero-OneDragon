@@ -323,6 +323,7 @@ class BattleContext:
         for future in future_list:
             if future is None:
                 result_agent_list.append(None)
+                continue
             try:
                 result = future.result()
                 result_agent_list.append(result)

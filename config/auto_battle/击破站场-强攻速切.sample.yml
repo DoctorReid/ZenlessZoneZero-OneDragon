@@ -42,6 +42,9 @@ scenes:
     handlers:
       # 刚开始未识别到角色时候不要乱切
       - state_template: "站场模板-未识别角色"
+      - states: "[按键-切换角色-下一个] | [按键-切换角色-上一个]"
+        sub_states:
+          - state_template: "站场模板-全角色"
       - states: "[按键-连携技-左, 0, 12] | [按键-连携技-右, 0, 12]"
         sub_states:
           - state_template: "站场模板-强攻站场"
