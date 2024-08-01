@@ -105,6 +105,7 @@ class ConditionalOperator(YamlConfig):
             return False
         if self._running:
             return False
+
         self._running = True
         self._running_trigger_cnt.set(0)  # 每次重置计数器 防止有bug导致无法正常运行
 
@@ -198,20 +199,18 @@ class ConditionalOperator(YamlConfig):
 
             ops = handler.get_operations(trigger_time)
             # 若ops为空，即无匹配state，则不打断当前task
-            if ops is not None:
-                self._running_trigger_cnt.inc() # 必须要先增加计算器 避免无触发场景的循环进行
+            if ops is None:
+                return
 
-                if self._running_task is not None:
-                    finish = self._running_task.stop()  # stop之前是否已经完成所有op
-                    if self._running_task.is_trigger and not finish:
-                        # 如果 finish=True 则计数器已经在 _on_trigger_done 减少了 这里就不减了
-                        # 如果 finish=False 则代表还有操作在继续。在这里要减少计数器而不是等_on_trigger_done 让无触发器场景尽早运行
-                        self._running_trigger_cnt.dec()
+            # 必须要先增加计算器 避免无触发场景的循环进行
+            self._running_trigger_cnt.inc()
+            # 停止已有的操作
+            self._stop_running_task()
 
-                self._running_task = OperationTask(True, ops)
-                self._event_trigger_time[event_id] = trigger_time
-                future = self._running_task.run_async()
-                future.add_done_callback(self._on_trigger_done)
+            self._running_task = OperationTask(True, ops)
+            self._event_trigger_time[event_id] = trigger_time
+            future = self._running_task.run_async()
+            future.add_done_callback(self._on_trigger_done)
 
     def stop_running(self) -> None:
         """
@@ -224,9 +223,19 @@ class ConditionalOperator(YamlConfig):
         # 上锁后停止 上锁后确保运行状态不会被篡改
         with self._task_lock:
             self._running = False
-            if self._running_task is not None:
-                self._running_task.stop()
-                self._running_task = None
+            self._stop_running_task()
+
+    def _stop_running_task(self) -> None:
+        """
+        停止正在运行的任务
+        :return:
+        """
+        if self._running_task is not None:
+            finish = self._running_task.stop()  # stop之前是否已经完成所有op
+            if self._running_task.is_trigger and not finish:
+                # 如果 finish=True 则计数器已经在 _on_trigger_done 减少了 这里就不减了
+                # 如果 finish=False 则代表还有操作在继续。在这里要减少计数器而不是等_on_trigger_done 让无触发器场景尽早运行
+                self._running_trigger_cnt.dec()
 
     def _on_trigger_done(self, future: Future) -> None:
         """
