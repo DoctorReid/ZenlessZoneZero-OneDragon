@@ -1,25 +1,15 @@
 operations:
   # 闪a起手打以太伤害（直接蓄力是物理伤害）
   - op_name: "按键-移动-前-按下"
-    data: []
+    data: [ ]
   - op_name: "按键-闪避"
-    data: []
+    data: [ ]
   - op_name: "等待秒数"
     data: [ "0.1" ]
   - op_name: "按键-移动-前-松开"
-    data: []
-  - op_name: "按键-普通攻击"
-    data: []
-  - op_name: "等待秒数"
-    data: [ "0.1" ]
-  # 接蓄力攻击
+    data: [ ]
   - op_name: "按键-普通攻击-按下"
-    data: [ "1" ]
-  - op_name: "按键-普通攻击-按下"
-    data: [ "0.5" ]
-  - op_name: "按键-普通攻击-按下"
-    data: [ "0.5" ]
-  - op_name: "按键-普通攻击-按下"
-    data: [ "0.5" ]
-  - op_name: "等待秒数"
-    data: [ "1" ]
+    data: [ "0.4" ]
+  - operation_template: "朱鸢-蓄力3A"
+  - operation_template: "朱鸢-蓄力3A"
+  - operation_template: "朱鸢-蓄力3A"
