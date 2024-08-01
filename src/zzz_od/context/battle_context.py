@@ -347,7 +347,7 @@ class BattleContext:
         """
         prefix = 'avatar_1_' if is_front else 'avatar_2_'
         for agent in possible_agents:
-            mrl = self.ctx.tm.match_template(img, 'battle', prefix + agent.agent_id, threshold=0.9)
+            mrl = self.ctx.tm.match_template(img, 'battle', prefix + agent.agent_id, threshold=0.8)
             if mrl.max is not None:
                 return agent
 
@@ -416,6 +416,11 @@ class BattleContext:
                 pass
             elif not any_none:  # 需要都识别到才可以更新
                 self.agent_list = current_agent_list
+
+            log.debug('更新角色列表 %s', [
+                agent.agent_name if agent is not None else 'none'
+                for agent in current_agent_list
+            ])
 
             log.debug('当前角色列表 %s', [
                 agent.agent_name if agent is not None else 'none'
