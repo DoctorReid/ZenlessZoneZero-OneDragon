@@ -197,17 +197,17 @@ class ConditionalOperator(YamlConfig):
                 return
 
             ops = handler.get_operations(trigger_time)
-            if ops is not None:  # 必须要先增加计算器 避免无触发场景的循环进行
-                self._running_trigger_cnt.inc()
-
-            if self._running_task is not None:
-                finish = self._running_task.stop()  # stop之前是否已经完成所有op
-                if self._running_task.is_trigger and not finish:
-                    # 如果 finish=True 则计数器已经在 _on_trigger_done 减少了 这里就不减了
-                    # 如果 finish=False 则代表还有操作在继续。在这里要减少计数器而不是等_on_trigger_done 让无触发器场景尽早运行
-                    self._running_trigger_cnt.dec()
-
+            # 若ops为空，即无匹配state，则不打断当前task
             if ops is not None:
+                self._running_trigger_cnt.inc() # 必须要先增加计算器 避免无触发场景的循环进行
+
+                if self._running_task is not None:
+                    finish = self._running_task.stop()  # stop之前是否已经完成所有op
+                    if self._running_task.is_trigger and not finish:
+                        # 如果 finish=True 则计数器已经在 _on_trigger_done 减少了 这里就不减了
+                        # 如果 finish=False 则代表还有操作在继续。在这里要减少计数器而不是等_on_trigger_done 让无触发器场景尽早运行
+                        self._running_trigger_cnt.dec()
+
                 self._running_task = OperationTask(True, ops)
                 self._event_trigger_time[event_id] = trigger_time
                 future = self._running_task.run_async()
