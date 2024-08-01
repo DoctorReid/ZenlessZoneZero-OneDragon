@@ -1,5 +1,5 @@
 operations:
-  # 闪a起手
+  # 闪a起手打以太伤害（直接蓄力是物理伤害）
   - op_name: "按键-闪避"
     data: []
   - op_name: "等待秒数"
@@ -18,4 +18,4 @@ operations:
   - op_name: "按键-普通攻击-按下"
     data: [ "0.5" ]
   - op_name: "等待秒数"
-    data: [ "2" ]
+    data: [ "1" ]
