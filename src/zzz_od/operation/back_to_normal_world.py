@@ -1,4 +1,5 @@
-from one_dragon.base.operation.operation import OperationRoundResult, OperationNode
+from one_dragon.base.operation.operation_round_result import OperationRoundResult
+from one_dragon.base.operation.operation_node import OperationNode
 from one_dragon.base.screen.screen_utils import FindAreaResultEnum
 from one_dragon.utils.i18_utils import gt
 from zzz_od.context.zzz_context import ZContext

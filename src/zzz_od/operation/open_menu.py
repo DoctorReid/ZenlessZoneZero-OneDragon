@@ -1,8 +1,8 @@
 from typing import ClassVar
 
-from one_dragon.base.operation.operation import OperationRoundResult, OperationNode
-from one_dragon.base.screen.screen_utils import FindAreaResultEnum
-from one_dragon.utils import cv2_utils
+from one_dragon.base.operation.operation_edge import node_from
+from one_dragon.base.operation.operation_node import operation_node
+from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils.i18_utils import gt
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.back_to_normal_world import BackToNormalWorld
@@ -23,21 +23,8 @@ class OpenMenu(ZOperation):
                             op_name=gt('打开菜单', 'ui')
                             )
 
-    def add_edges_and_nodes(self) -> None:
-        """
-        初始化前 添加边和节点 由子类实行
-        :return:
-        """
-        check_menu = OperationNode('画面识别', self.check_menu)
-        back_to_world = OperationNode('返回大世界', op=BackToNormalWorld(self.ctx))
-        self.add_edge(check_menu, back_to_world, status=OpenMenu.STATUS_NOT_IN_MENU)
-
-        click_menu = OperationNode('点击菜单', self.click_menu)
-        self.add_edge(back_to_world, click_menu)
-        self.add_edge(click_menu, check_menu)
-
-        self.param_start_node = check_menu
-
+    @node_from(from_name='点击菜单')
+    @operation_node(name='画面识别', is_start_node=True)
     def check_menu(self) -> OperationRoundResult:
         """
         识别画面
@@ -51,6 +38,14 @@ class OpenMenu(ZOperation):
         else:
             return self.round_success(status=OpenMenu.STATUS_NOT_IN_MENU)
 
+    @node_from(from_name='画面识别', status=STATUS_NOT_IN_MENU)
+    @operation_node(name='返回大世界')
+    def back_to_world(self) -> OperationRoundResult:
+        op = BackToNormalWorld(self.ctx)
+        return self.round_by_op(op.execute())
+
+    @node_from(from_name='返回大世界')
+    @operation_node(name='点击菜单')
     def click_menu(self) -> OperationRoundResult:
         """
         在大世界画面 点击菜单的按钮
@@ -61,3 +56,10 @@ class OpenMenu(ZOperation):
             return self.round_success(wait=2)
         else:
             return self.round_retry(wait=1)
+
+
+if __name__ == '__main__':
+    ctx = ZContext()
+    op = OpenMenu(ctx)
+    op._init_before_execute()
+    pass

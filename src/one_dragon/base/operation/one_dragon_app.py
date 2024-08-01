@@ -3,7 +3,8 @@ from typing import List, Optional, ClassVar
 from one_dragon.base.operation.application_base import Application
 from one_dragon.base.operation.application_run_record import AppRunRecord
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
-from one_dragon.base.operation.operation import OperationRoundResult, OperationNode
+from one_dragon.base.operation.operation_round_result import OperationRoundResult
+from one_dragon.base.operation.operation_node import OperationNode
 from one_dragon.utils.i18_utils import gt
 
 

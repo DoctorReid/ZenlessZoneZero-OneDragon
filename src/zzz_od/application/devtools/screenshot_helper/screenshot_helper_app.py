@@ -2,7 +2,8 @@ import time
 
 from one_dragon.base.operation.context_event_bus import ContextEventItem
 from one_dragon.base.operation.one_dragon_context import ContextKeyboardEventEnum
-from one_dragon.base.operation.operation import OperationRoundResult, OperationNode
+from one_dragon.base.operation.operation_round_result import OperationRoundResult
+from one_dragon.base.operation.operation_node import OperationNode
 from one_dragon.utils import debug_utils
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.zzz_application import ZApplication

@@ -5,7 +5,8 @@ from typing import Optional, List
 from one_dragon.base.conditional_operation.atomic_op import AtomicOp
 from one_dragon.base.conditional_operation.utils import get_ops_by_template
 from one_dragon.base.controller.pc_button import pc_button_utils
-from one_dragon.base.operation.operation import OperationNode, OperationRoundResult
+from one_dragon.base.operation.operation_round_result import OperationRoundResult
+from one_dragon.base.operation.operation_node import OperationNode
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from zzz_od.application.zzz_application import ZApplication
