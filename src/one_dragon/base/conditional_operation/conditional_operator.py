@@ -202,12 +202,26 @@ class ConditionalOperator(YamlConfig):
             if ops is None:
                 return
 
+            can_interrupt: bool = False
+            if self._running_task is not None:
+                old_priority = self._running_task.priority
+                new_priority = handler.priority
+                if old_priority is None:  # 当前运行场景可随意打断
+                    can_interrupt = True
+                elif new_priority is not None and new_priority > old_priority:  # 新触发场景优先级更高
+                    can_interrupt = True
+            else:
+                can_interrupt = True
+
+            if not can_interrupt:  # 当前运行场景无法被打断
+                return
+
             # 必须要先增加计算器 避免无触发场景的循环进行
             self._running_trigger_cnt.inc()
             # 停止已有的操作
             self._stop_running_task()
 
-            self._running_task = OperationTask(True, ops)
+            self._running_task = OperationTask(True, ops, priority=handler.priority)
             self._event_trigger_time[event_id] = trigger_time
             future = self._running_task.run_async()
             future.add_done_callback(self._on_trigger_done)

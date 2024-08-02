@@ -12,7 +12,7 @@ _od_op_task_executor = ThreadPoolExecutor(thread_name_prefix='_od_op_task_execut
 
 class OperationTask:
 
-    def __init__(self, is_trigger: bool, op_list: List[AtomicOp]):
+    def __init__(self, is_trigger: bool, op_list: List[AtomicOp], priority: Optional[int] = None):
         """
         包含一串指令的任务
         :param op_list:
@@ -23,6 +23,7 @@ class OperationTask:
         self._current_op: Optional[AtomicOp] = None  # 当前执行的指令
         self._async_ops: List[AtomicOp] = []  # 执行过异步操作
         self._op_lock: Lock = Lock()  # 操作锁 用于保证stop里的一定是最后执行的op
+        self.priority: Optional[int] = priority  # 优先级 只能被高等级的打断；为None时可以被随意打断
 
     def run_async(self) -> Future:
         """

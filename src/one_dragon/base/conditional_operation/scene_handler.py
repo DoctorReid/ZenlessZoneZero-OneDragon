@@ -6,9 +6,10 @@ from one_dragon.base.conditional_operation.state_handler import StateHandler
 
 class SceneHandler:
 
-    def __init__(self, interval_seconds: float, state_handlers: List[StateHandler]):
+    def __init__(self, interval_seconds: float, state_handlers: List[StateHandler], priority: Optional[int] = None):
         self.interval_seconds: float = interval_seconds
         self.state_handlers: List[StateHandler] = state_handlers
+        self.priority: Optional[int] = priority  # 优先级 只能被高等级的打断；为None时可以被随意打断
 
     def get_operations(self, trigger_time: float) -> Optional[List[AtomicOp]]:
         """

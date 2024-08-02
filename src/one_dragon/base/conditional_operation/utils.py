@@ -3,9 +3,9 @@ from typing import List, Callable, Set
 from one_dragon.base.conditional_operation.atomic_op import AtomicOp
 from one_dragon.base.conditional_operation.operation_template import OperationTemplate
 from one_dragon.base.conditional_operation.scene_handler import SceneHandler
-from one_dragon.base.conditional_operation.state_handler_template import StateHandlerTemplate
-from one_dragon.base.conditional_operation.state_cal_tree import construct_state_cal_tree, StateCalNode
+from one_dragon.base.conditional_operation.state_cal_tree import construct_state_cal_tree
 from one_dragon.base.conditional_operation.state_handler import StateHandler
+from one_dragon.base.conditional_operation.state_handler_template import StateHandlerTemplate
 from one_dragon.base.conditional_operation.state_recorder import StateRecorder
 
 
@@ -24,7 +24,9 @@ def construct_scene_handler(
         set()
     )
 
-    return SceneHandler(interval_seconds, state_handlers)
+    priority = scene_data.get('priority', None)
+
+    return SceneHandler(interval_seconds, state_handlers, priority)
 
 
 def _get_state_handlers_by_template(
