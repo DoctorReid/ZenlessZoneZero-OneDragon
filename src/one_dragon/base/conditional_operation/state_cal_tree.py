@@ -27,7 +27,10 @@ class StateCalNode:
                  right_child: Optional = None,
                  state_recorder: Optional[StateRecorder] = None,
                  state_time_range_min: float = None,
-                 state_time_range_max: float = None):
+                 state_time_range_max: float = None,
+                 state_value_range_min: int = None,
+                 state_value_range_max: int = None,
+                 ):
         """
         状态计算树的一个节点
         叶子节点为具体的状态记录器
@@ -49,6 +52,8 @@ class StateCalNode:
         self.state_recorder: StateRecorder = state_recorder
         self.state_time_range_min: float = state_time_range_min
         self.state_time_range_max: float = state_time_range_max
+        self.state_value_range_min: int = state_value_range_min
+        self.state_value_range_max: int = state_value_range_max
 
     def in_time_range(self, now: float) -> bool:
         """
@@ -58,11 +63,11 @@ class StateCalNode:
         """
         if self.node_type == StateCalNodeType.OP:
             if self.op_type == StateCalOpType.AND:
-                return self.left_child.in_time_range(now) and self.right_child.in_time_range(now)
+                return self.left_child.in_time_range(now, value) and self.right_child.in_time_range(now, value)
             elif self.op_type == StateCalOpType.OR:
-                return self.left_child.in_time_range(now) or self.right_child.in_time_range(now)
+                return self.left_child.in_time_range(now, value) or self.right_child.in_time_range(now, value)
             elif self.op_type == StateCalOpType.NOT:
-                return not self.left_child.in_time_range(now)
+                return not self.left_child.in_time_range(now, value)
         elif self.node_type == StateCalNodeType.STATE:
             diff = now - self.state_recorder.last_record_time
             log.debug('状态 [ %s ] 距离上次 %.2f, 要求区间 [%.2f, %.2f]' % (
@@ -71,7 +76,21 @@ class StateCalNode:
                 self.state_time_range_min,
                 self.state_time_range_max
             ))
-            return self.state_time_range_min <= diff <= self.state_time_range_max
+            time_valid = self.state_time_range_min <= diff <= self.state_time_range_max
+            value_valid = True
+            if self.state_value_range_min is not None and self.state_value_range_max is not None:
+                log.debug('状态 [ %s ] 当前值 %d, 值要求区间 [%d, %d]' % (
+                    self.state_recorder.state_name,
+                    self.state_recorder,
+                    self.state_time_range_min,
+                    self.state_time_range_max
+                ))
+                if value is None:
+                    value_valid = False
+                else:
+                    value_valid = self.state_value_range_min <= value <= self.state_value_range_max
+
+            return time_valid and value_valid
         elif self.node_type == StateCalNodeType.TRUE:
             return True
 
@@ -97,7 +116,7 @@ def construct_state_cal_tree(expr_str: str, state_recorders: List[StateRecorder]
     :param state_recorders: 可用的状态记录器列表
     :return: 构造成功时，返回状态判断树的根节点；构造失败时，返回原因
     """
-    if len(expr_str.strip()) == 0:
+    if len(expr_str) == 0:
         return StateCalNode(StateCalNodeType.TRUE)
     log.info('构造状态判断树 ' + expr_str)
 
@@ -136,6 +155,7 @@ def construct_state_cal_tree(expr_str: str, state_recorders: List[StateRecorder]
                 raise ValueError('位置 %d 的左中括号 找不到对应的右中括号' % display_idx)
             state_str = expr_str[idx + 1:right_idx]
             state_split_arr = state_str.split(',')
+
             if len(state_split_arr) < 3:
                 state_name = state_split_arr[0].strip()
                 time_min = float(0)
@@ -147,6 +167,26 @@ def construct_state_cal_tree(expr_str: str, state_recorders: List[StateRecorder]
                     time_max = float(state_split_arr[2].strip())
                 except Exception as e:
                     raise ValueError('位置 %d 的左中括号 后方状态无法解析 %s' % (display_idx, e))
+
+            value_min: Optional[int] = None
+            value_max: Optional[int] = None
+            brace_left_idx = right_idx + 1
+            if brace_left_idx < expr_len:  # 有大括号
+                brace_right_idx = expr_str.find('}', brace_left_idx + 1)
+                if brace_right_idx == -1:
+                    raise ValueError('位置 %d 的左大括号 找不到对应的大中括号' % (brace_left_idx + 1))
+                value_range_str = expr_str[brace_left_idx + 1:brace_right_idx]
+                value_split_arr = value_range_str.split(',')
+                try:
+                    value_min = int(value_split_arr[0])
+                    if len(value_split_arr) > 1:
+                        value_max = int(value_split_arr[1])
+                    else:
+                        value_max = value_min
+                except Exception as e:
+                    raise ValueError('位置 %d 的左大括号 后方状态无法解析 %s' % (brace_left_idx + 1, e))
+
+                right_idx = brace_right_idx
 
             state_recorder: StateRecorder = get_state_recorder(state_name, state_recorders)
             if state_recorder is None:
@@ -237,8 +277,8 @@ def __debug():
     sr3 = StateRecorder(ctx, '按键-闪避')
     sr3.last_record_time = 1
     node = construct_state_cal_tree(expr, [sr1, sr2, sr3])
-    print(node.in_time_range(2))  # False
-    print(node.in_time_range(2.5))  # True
+    print(node.in_time_range(2, None))  # False
+    print(node.in_time_range(2.5, None))  # True
 
 
 if __name__ == '__main__':
