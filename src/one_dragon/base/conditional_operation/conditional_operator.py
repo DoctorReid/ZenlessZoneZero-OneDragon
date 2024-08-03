@@ -42,7 +42,7 @@ class ConditionalOperator(YamlConfig):
 
         self._task_lock: Lock = Lock()
         self._running_task: Optional[OperationTask] = None  # 正在运行的任务
-        self._running_trigger_cnt: AtomicInt = AtomicInt()
+        self._running_task_cnt: AtomicInt = AtomicInt()
 
     def init(
             self,
@@ -107,7 +107,7 @@ class ConditionalOperator(YamlConfig):
             return False
 
         self._running = True
-        self._running_trigger_cnt.set(0)  # 每次重置计数器 防止有bug导致无法正常运行
+        self._running_task_cnt.set(0)  # 每次重置计数器 防止有bug导致无法正常运行
 
         if self._event_to_scene_handler is not None and self.event_bus is not None:
             self.event_bus.unlisten_all_event(self)
@@ -126,12 +126,11 @@ class ConditionalOperator(YamlConfig):
         :return:
         """
         while self._running:
-            if self._running_trigger_cnt.get() > 0:
-                # 有触发器的场景在运行 等待
+            if self._running_task_cnt.get() > 0:
+                # 有其它场景在运行 等待
                 time.sleep(0.02)
             else:
                 to_sleep: Optional[float] = None
-                future: Optional[Future] = None
 
                 # 上锁后确保运行状态不会被篡改
                 with self._task_lock:
@@ -149,17 +148,14 @@ class ConditionalOperator(YamlConfig):
                         if ops is not None:
                             self._running_task = OperationTask(False, ops)
                             self._event_trigger_time[''] = trigger_time
+                            self._running_task_cnt.inc()
                             future = self._running_task.run_async()
+                            future.add_done_callback(self._on_task_done)
 
                 if to_sleep is not None:
                     # 等待时间不能写在锁里 要尽快释放锁
                     time.sleep(to_sleep)
-                elif future is not None:
-                    try:
-                        future.result()  # 无触发器场景需要等待结束后再开始下轮循环
-                    except Exception:  # run_async里有callback打印日志
-                        pass
-                else:  # 没有命中的状态 那就自旋等待
+                else:  # 没有命中的状态 或者 提交执行了 那就自旋等待
                     time.sleep(0.02)
 
     def _on_event(self, event: ContextEventItem):
@@ -217,14 +213,14 @@ class ConditionalOperator(YamlConfig):
                 return
 
             # 必须要先增加计算器 避免无触发场景的循环进行
-            self._running_trigger_cnt.inc()
+            self._running_task_cnt.inc()
             # 停止已有的操作
             self._stop_running_task()
 
             self._running_task = OperationTask(True, ops, priority=handler.priority)
             self._event_trigger_time[event_id] = trigger_time
             future = self._running_task.run_async()
-            future.add_done_callback(self._on_trigger_done)
+            future.add_done_callback(self._on_task_done)
 
     def stop_running(self) -> None:
         """
@@ -246,20 +242,20 @@ class ConditionalOperator(YamlConfig):
         """
         if self._running_task is not None:
             finish = self._running_task.stop()  # stop之前是否已经完成所有op
-            if self._running_task.is_trigger and not finish:
-                # 如果 finish=True 则计数器已经在 _on_trigger_done 减少了 这里就不减了
-                # 如果 finish=False 则代表还有操作在继续。在这里要减少计数器而不是等_on_trigger_done 让无触发器场景尽早运行
-                self._running_trigger_cnt.dec()
+            if not finish:
+                # 如果 finish=True 则计数器已经在 _on_task_done 减少了 这里就不减了
+                # 如果 finish=False 则代表还有操作在继续。在这里要减少计数器而不是等_on_task_done 让无触发器场景尽早运行
+                self._running_task_cnt.dec()
 
-    def _on_trigger_done(self, future: Future) -> None:
+    def _on_task_done(self, future: Future) -> None:
         """
-        触发器完成后
+        一系列指令任务完成后
         """
         with self._task_lock:  # 上锁 保证_running_trigger_cnt安全
             try:
                 result = future.result()
                 if result:  # 顺利执行完毕
-                    self._running_trigger_cnt.dec()
+                    self._running_task_cnt.dec()
             except Exception:  # run_async里有callback打印日志
                 pass
 

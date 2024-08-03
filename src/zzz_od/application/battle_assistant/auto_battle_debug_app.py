@@ -116,7 +116,7 @@ class AutoBattleDebugApp(ZApplication):
         time.sleep(0.2)
         ops = self.auto_op._normal_scene_handler.get_operations(time.time())
         if ops is not None:
-            task = OperationTask(ops)
+            task = OperationTask(False, ops)
             task.run_async().result()
 
         return self.round_success()

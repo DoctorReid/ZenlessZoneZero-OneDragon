@@ -137,7 +137,6 @@ class Operation(OperationBase):
                           success=edge_desc.success,
                           status=edge_desc.status,
                           ignore_status=edge_desc.ignore_status)
-        print('%.4f' % (time.time() - t1))
 
     def _init_edge_list(self) -> None:
         """
