@@ -6,6 +6,7 @@ from cv2.typing import MatLike
 from enum import Enum
 from typing import Optional, List
 
+from one_dragon.base.conditional_operation.state_event import StateEvent
 from one_dragon.base.screen.screen_area import ScreenArea
 from one_dragon.utils import cv2_utils, debug_utils, thread_utils
 from one_dragon.utils.log_utils import log
@@ -67,7 +68,7 @@ class BattleContext:
             e = BattleEventEnum.BTN_DODGE.value
         log.info(e)
         self.ctx.controller.dodge(press=press, press_time=press_time, release=release)
-        self.ctx.dispatch_event(e, time.time())
+        self.ctx.dispatch_event(e, StateEvent(time.time()))
 
     def switch_next(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
         update_agent = False
@@ -84,7 +85,7 @@ class BattleContext:
 
         self.ctx.controller.switch_next(press=press, press_time=press_time, release=release)
         press_time = time.time()
-        self.ctx.dispatch_event(e, press_time)
+        self.ctx.dispatch_event(e, StateEvent(press_time))
         if update_agent:
             self._agent_list_next(press_time)
 
@@ -101,7 +102,7 @@ class BattleContext:
         log.info(e)
         self.ctx.controller.switch_prev(press=press, press_time=press_time, release=release)
         press_time = time.time()
-        self.ctx.dispatch_event(e, press_time)
+        self.ctx.dispatch_event(e, StateEvent(press_time))
 
         if update_agent:
             self._agent_list_prev(press_time)
@@ -115,7 +116,7 @@ class BattleContext:
             e = BattleEventEnum.BTN_SWITCH_NORMAL_ATTACK.value
         log.info(e)
         self.ctx.controller.normal_attack(press=press, press_time=press_time, release=release)
-        self.ctx.dispatch_event(e, time.time())
+        self.ctx.dispatch_event(e, StateEvent(time.time()))
 
     def special_attack(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
         if press:
@@ -126,7 +127,7 @@ class BattleContext:
             e = BattleEventEnum.BTN_SWITCH_SPECIAL_ATTACK.value
         log.info(e)
         self.ctx.controller.special_attack(press=press, press_time=press_time, release=release)
-        self.ctx.dispatch_event(e, time.time())
+        self.ctx.dispatch_event(e, StateEvent(time.time()))
 
     def ultimate(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
         if press:
@@ -137,7 +138,7 @@ class BattleContext:
             e = BattleEventEnum.BTN_ULTIMATE.value
         log.info(e)
         self.ctx.controller.ultimate(press=press, press_time=press_time, release=release)
-        self.ctx.dispatch_event(e, time.time())
+        self.ctx.dispatch_event(e, StateEvent(time.time()))
 
     def chain_left(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
         update_agent = False
@@ -152,7 +153,7 @@ class BattleContext:
         log.info(e)
         self.ctx.controller.chain_left(press=press, press_time=press_time, release=release)
         press_time = time.time()
-        self.ctx.dispatch_event(e, press_time)
+        self.ctx.dispatch_event(e, StateEvent(press_time))
 
         if update_agent:
             self._agent_list_prev(press_time)
@@ -170,7 +171,7 @@ class BattleContext:
         log.info(e)
         self.ctx.controller.chain_right(press=press, press_time=press_time, release=release)
         press_time = time.time()
-        self.ctx.dispatch_event(e, press_time)
+        self.ctx.dispatch_event(e, StateEvent(press_time))
 
         if update_agent:
             self._agent_list_next(press_time)
@@ -184,7 +185,7 @@ class BattleContext:
             e = BattleEventEnum.BTN_MOVE_W.value
         log.info(e)
         self.ctx.controller.move_w(press=press, press_time=press_time, release=release)
-        self.ctx.dispatch_event(e, time.time())
+        self.ctx.dispatch_event(e, StateEvent(time.time()))
 
     def move_s(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
         if press:
@@ -195,7 +196,7 @@ class BattleContext:
             e = BattleEventEnum.BTN_MOVE_S.value
         log.info(e)
         self.ctx.controller.move_s(press=press, press_time=press_time, release=release)
-        self.ctx.dispatch_event(e, time.time())
+        self.ctx.dispatch_event(e, StateEvent(time.time()))
 
     def move_a(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
         if press:
@@ -206,7 +207,7 @@ class BattleContext:
             e = BattleEventEnum.BTN_MOVE_A.value
         log.info(e)
         self.ctx.controller.move_a(press=press, press_time=press_time, release=release)
-        self.ctx.dispatch_event(e, time.time())
+        self.ctx.dispatch_event(e, StateEvent(time.time()))
 
     def move_d(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
         if press:
@@ -217,7 +218,7 @@ class BattleContext:
             e = BattleEventEnum.BTN_MOVE_D.value
         log.info(e)
         self.ctx.controller.move_d(press=press, press_time=press_time, release=release)
-        self.ctx.dispatch_event(e, time.time())
+        self.ctx.dispatch_event(e, StateEvent(time.time()))
 
     def init_context(self, agent_names: Optional[List[str]] = None) -> None:
         """
@@ -450,8 +451,8 @@ class BattleContext:
                 if agent is None:
                     continue
                 prefix = '前台-' if i == 0 else ('后台-%d-' % i)
-                self.ctx.dispatch_event(prefix + self.agent_list[i].agent_name, update_time)
-                self.ctx.dispatch_event(prefix + self.agent_list[i].agent_type.value, update_time)
+                self.ctx.dispatch_event(prefix + self.agent_list[i].agent_name, StateEvent(update_time))
+                self.ctx.dispatch_event(prefix + self.agent_list[i].agent_type.value, StateEvent(update_time))
 
     def check_special_attack_btn(self, screen: MatLike, screenshot_time: float) -> None:
         """
@@ -466,7 +467,7 @@ class BattleContext:
                                              threshold=0.9)
             is_ready = mrl.max is None
             self.ctx.dispatch_event(BattleEventEnum.STATUS_SPECIAL_READY.value,
-                                    screenshot_time if is_ready else 0,
+                                    StateEvent(screenshot_time if is_ready else 0),
                                     output_log=is_ready)
         except Exception:
             log.error('识别特殊攻击按键出错', exc_info=True)
@@ -507,7 +508,7 @@ class BattleContext:
             is_ready = mrl.max is None
             # cv2_utils.show_image(part, win_name='part', wait=0)
             self.ctx.dispatch_event(BattleEventEnum.STATUS_ULTIMATE_READY.value,
-                                    screenshot_time if is_ready else 0,
+                                    StateEvent(screenshot_time if is_ready else 0),
                                     output_log=is_ready)
         except Exception:
             log.error('识别终结技按键出错', exc_info=True)
@@ -554,12 +555,12 @@ class BattleContext:
         for i in range(len(result_agent_list)):
             if result_agent_list[i] is None:
                 continue
-            self.ctx.dispatch_event(f'连携技-{i + 1}-{result_agent_list[i].agent_name}', screenshot_time)
-            self.ctx.dispatch_event(f'连携技-{i + 1}-{result_agent_list[i].agent_type.value}', screenshot_time)
+            self.ctx.dispatch_event(f'连携技-{i + 1}-{result_agent_list[i].agent_name}', StateEvent(screenshot_time))
+            self.ctx.dispatch_event(f'连携技-{i + 1}-{result_agent_list[i].agent_type.value}', StateEvent(screenshot_time))
             chain = True
 
         if chain:
-            self.ctx.dispatch_event(BattleEventEnum.STATUS_CHAIN_READY.value, screenshot_time)
+            self.ctx.dispatch_event(BattleEventEnum.STATUS_CHAIN_READY.value, StateEvent(screenshot_time))
 
     def _match_chain_agent_in(self, img: MatLike, possible_agents: Optional[List[Agent]] = None) -> Optional[Agent]:
         """
@@ -588,9 +589,9 @@ class BattleContext:
             agent = self._match_quick_assist_agent_in(part, possible_agents)
 
             if agent is not None:
-                self.ctx.dispatch_event(f'快速支援-{agent.agent_name}', screenshot_time)
-                self.ctx.dispatch_event(f'快速支援-{agent.agent_type.value}', screenshot_time)
-                self.ctx.dispatch_event(BattleEventEnum.STATUS_QUICK_ASSIST_READY.value, screenshot_time)
+                self.ctx.dispatch_event(f'快速支援-{agent.agent_name}', StateEvent(screenshot_time))
+                self.ctx.dispatch_event(f'快速支援-{agent.agent_type.value}', StateEvent(screenshot_time))
+                self.ctx.dispatch_event(BattleEventEnum.STATUS_QUICK_ASSIST_READY.value, StateEvent(screenshot_time))
         except Exception:
             log.error('识别快速支援失败', exc_info=True)
         finally:

@@ -42,6 +42,8 @@ class StateCalNode:
         :param state_recorder: 状态记录器节点的情况下有值 代表状态记录器
         :param state_time_range_min: 状态记录器节点的情况下有值 代表状态生效的时间区间最小值
         :param state_time_range_max: 状态记录器节点的情况下有值 代表状态生效的时间区间最大值
+        :param state_value_range_min: 状态记录器节点的情况下有值 代表状态生效的值区间最小值
+        :param state_value_range_max: 状态记录器节点的情况下有值 代表状态生效的值区间最大值
         """
         self.node_type: StateCalNodeType = node_type
 
@@ -63,11 +65,11 @@ class StateCalNode:
         """
         if self.node_type == StateCalNodeType.OP:
             if self.op_type == StateCalOpType.AND:
-                return self.left_child.in_time_range(now, value) and self.right_child.in_time_range(now, value)
+                return self.left_child.in_time_range(now) and self.right_child.in_time_range(now)
             elif self.op_type == StateCalOpType.OR:
-                return self.left_child.in_time_range(now, value) or self.right_child.in_time_range(now, value)
+                return self.left_child.in_time_range(now) or self.right_child.in_time_range(now)
             elif self.op_type == StateCalOpType.NOT:
-                return not self.left_child.in_time_range(now, value)
+                return not self.left_child.in_time_range(now)
         elif self.node_type == StateCalNodeType.STATE:
             diff = now - self.state_recorder.last_record_time
             log.debug('状态 [ %s ] 距离上次 %.2f, 要求区间 [%.2f, %.2f]' % (
@@ -79,16 +81,16 @@ class StateCalNode:
             time_valid = self.state_time_range_min <= diff <= self.state_time_range_max
             value_valid = True
             if self.state_value_range_min is not None and self.state_value_range_max is not None:
-                log.debug('状态 [ %s ] 当前值 %d, 值要求区间 [%d, %d]' % (
+                log.debug('状态 [ %s ] 当前值 %s, 值要求区间 [%d, %d]' % (
                     self.state_recorder.state_name,
-                    self.state_recorder,
+                    self.state_recorder.last_value,
                     self.state_time_range_min,
                     self.state_time_range_max
                 ))
-                if value is None:
+                if self.state_recorder.last_value is None:
                     value_valid = False
                 else:
-                    value_valid = self.state_value_range_min <= value <= self.state_value_range_max
+                    value_valid = self.state_value_range_min <= self.state_recorder.last_value <= self.state_value_range_max
 
             return time_valid and value_valid
         elif self.node_type == StateCalNodeType.TRUE:
@@ -171,7 +173,7 @@ def construct_state_cal_tree(expr_str: str, state_recorders: List[StateRecorder]
             value_min: Optional[int] = None
             value_max: Optional[int] = None
             brace_left_idx = right_idx + 1
-            if brace_left_idx < expr_len:  # 有大括号
+            if brace_left_idx < expr_len and expr_str[brace_left_idx] == '{':  # 有大括号
                 brace_right_idx = expr_str.find('}', brace_left_idx + 1)
                 if brace_right_idx == -1:
                     raise ValueError('位置 %d 的左大括号 找不到对应的大中括号' % (brace_left_idx + 1))
@@ -196,7 +198,9 @@ def construct_state_cal_tree(expr_str: str, state_recorders: List[StateRecorder]
                 node_type=StateCalNodeType.STATE,
                 state_recorder=state_recorder,
                 state_time_range_min=time_min,
-                state_time_range_max=time_max
+                state_time_range_max=time_max,
+                state_value_range_min=value_min,
+                state_value_range_max=value_max,
             )
             node_stack.append(node)
             pop_op = True  # 有新的状态节点压入 可以尝试
@@ -268,7 +272,7 @@ def get_state_recorder(state_name: str, state_recorders: List[StateRecorder]) ->
 
 
 def __debug():
-    expr = "( [闪避识别-黄光, 0, 1] | [闪避识别-红光, 0, 1] ) & ![按键-闪避, 0, 1]"
+    expr = "( [闪避识别-黄光, 0, 1] | [闪避识别-红光, 0, 1] ) & ![按键-闪避, 0, 1]{0, 1}"
     ctx = None
     sr1 = StateRecorder(ctx, '闪避识别-黄光')
     sr1.last_record_time = 1
@@ -277,8 +281,9 @@ def __debug():
     sr3 = StateRecorder(ctx, '按键-闪避')
     sr3.last_record_time = 1
     node = construct_state_cal_tree(expr, [sr1, sr2, sr3])
-    print(node.in_time_range(2, None))  # False
-    print(node.in_time_range(2.5, None))  # True
+    assert node.in_time_range(2)  # True
+    sr3.last_value = 1
+    assert not node.in_time_range(2)  # False
 
 
 if __name__ == '__main__':

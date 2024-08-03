@@ -5,6 +5,7 @@ from cv2.typing import MatLike
 from enum import Enum
 from typing import Optional, List
 
+from one_dragon.base.conditional_operation.state_event import StateEvent
 from one_dragon.utils import os_utils, thread_utils
 from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
@@ -70,12 +71,12 @@ class YoloContext:
             if result.class_idx == 1:
                 e = YoloStateEventEnum.DODGE_RED.value
                 log.info(e)
-                self.ctx.dispatch_event(e, screenshot_time)
+                self.ctx.dispatch_event(e, StateEvent(screenshot_time))
                 with_flash = True
             elif result.class_idx == 2:
                 e = YoloStateEventEnum.DODGE_YELLOW.value
                 log.info(e)
-                self.ctx.dispatch_event(e, screenshot_time)
+                self.ctx.dispatch_event(e, StateEvent(screenshot_time))
                 with_flash = True
 
             return with_flash

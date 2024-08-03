@@ -1,5 +1,6 @@
 from typing import Optional, List
 
+from one_dragon.base.conditional_operation.state_event import StateEvent
 from one_dragon.base.operation.context_event_bus import ContextEventBus, ContextEventItem
 
 
@@ -12,6 +13,7 @@ class StateRecorder:
         self.mutex_list: List[str] = mutex_list  # 互斥的状态 这种状态出现的时候 就会将自身状态清空
 
         self.last_record_time: float = 0  # 上次记录这个状态的时间
+        self.last_value: Optional[int] = None  # 上一次记录的值
 
         if self.event_bus is not None:
             self.event_bus.listen_event(state_name, self._on_state_event)
@@ -26,13 +28,16 @@ class StateRecorder:
         :param event:
         :return:
         """
-        self.last_record_time = event.data
+        data: StateEvent = event.data
+        self.last_record_time = data.trigger_time
+        self.last_value = data.value
 
     def _on_mutex_state_event(self, event: ContextEventItem) -> None:
         """
         互斥事件发生时 清空
         """
         self.last_record_time = 0
+        self.last_value = None
 
     def dispose(self) -> None:
         """
