@@ -23,6 +23,16 @@ class SceneHandler:
                 return ops
         return None
 
+    def get_usage_states(self) -> set[str]:
+        """
+        获取使用的状态
+        :return:
+        """
+        states: set[str] = set()
+        for sh in self.state_handlers:
+            states = states.union(sh.get_usage_states())
+        return states
+
     def dispose(self) -> None:
         """
         销毁

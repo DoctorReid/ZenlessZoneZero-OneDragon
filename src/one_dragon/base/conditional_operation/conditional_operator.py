@@ -262,3 +262,16 @@ class ConditionalOperator(YamlConfig):
                     self._running_trigger_cnt.dec()
             except Exception:  # run_async里有callback打印日志
                 pass
+
+    def get_usage_states(self) -> set[str]:
+        """
+        获取使用的状态 需要init之后使用
+        :return:
+        """
+        states: set[str] = set()
+        if self._normal_scene_handler is not None:
+            states = states.union(self._normal_scene_handler.get_usage_states())
+        if self._event_to_scene_handler is not None:
+            for handler in self._event_to_scene_handler.values():
+                states = states.union(handler.get_usage_states())
+        return states

@@ -96,6 +96,20 @@ class StateCalNode:
         elif self.node_type == StateCalNodeType.TRUE:
             return True
 
+    def get_usage_states(self) -> set[str]:
+        """
+        获取使用的状态
+        :return:
+        """
+        states: set[str] = set()
+        if self.state_recorder is not None:
+            states.add(self.state_recorder.state_name)
+        if self.left_child is not None:
+            states = states.union(self.left_child.get_usage_states())
+        if self.right_child is not None:
+            states = states.union(self.right_child.get_usage_states())
+        return states
+
     def dispose(self) -> None:
         """
         销毁时 将子节点都销毁了

@@ -41,6 +41,20 @@ class StateHandler:
 
         return None
 
+    def get_usage_states(self) -> set[str]:
+        """
+        获取使用的状态
+        :return:
+        """
+        states: set[str] = set()
+        if self.state_cal_tree is not None:
+            states = states.union(self.state_cal_tree.get_usage_states())
+        if self.sub_states is not None:
+            for sub in self.sub_states:
+                states = states.union(sub.get_usage_states())
+        return states
+
+
     def dispose(self) -> None:
         """
         销毁
