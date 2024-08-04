@@ -13,7 +13,7 @@ class WaitNormalWorld(ZOperation):
         :param ctx:
         """
         ZOperation.__init__(self, ctx,
-                            timeout_seconds=60,
+                            node_max_retry_times=60,
                             op_name=gt('等待大世界画面', 'ui')
                             )
 

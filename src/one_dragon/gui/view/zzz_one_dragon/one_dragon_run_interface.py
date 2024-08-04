@@ -7,7 +7,7 @@ from qfluentwidgets import FluentIcon, SettingCardGroup, SubtitleLabel, PrimaryP
 from typing import List
 
 from one_dragon.base.config.config_item import ConfigItem
-from one_dragon.base.operation.application_base import Application
+from one_dragon.base.operation.application_base import Application, ApplicationEventId
 from one_dragon.base.operation.context_event_bus import ContextEventItem
 from one_dragon.base.operation.one_dragon_app import OneDragonApp
 from one_dragon.base.operation.one_dragon_context import OneDragonContext, ContextRunningStateEventEnum, \
@@ -156,6 +156,8 @@ class OneDragonRunInterface(VerticalScrollInterface):
         self._init_app_list()
         self.log_card.set_update_log(True)
         self.ctx.listen_event(ContextKeyboardEventEnum.PRESS.value, self._on_key_press)
+        self.ctx.listen_event(ApplicationEventId.APPLICATION_START.value, self._on_app_state_changed)
+        self.ctx.listen_event(ApplicationEventId.APPLICATION_STOP.value, self._on_app_state_changed)
 
     def on_interface_hidden(self) -> None:
         VerticalScrollInterface.on_interface_hidden(self)
@@ -208,6 +210,13 @@ class OneDragonRunInterface(VerticalScrollInterface):
         self.start_btn.setText('%s %s' % (text, self.ctx.key_start_running.upper()))
         self.start_btn.setIcon(icon)
         self.state_text.setText('%s %s' % (gt('当前状态', 'ui'), self.ctx.context_running_status_text))
+
+        for app_card in self._app_run_cards:
+            app_card.update_display()
+
+    def _on_app_state_changed(self, event) -> None:
+        for app_card in self._app_run_cards:
+            app_card.update_display()
 
     def _on_app_card_move_up(self, app_id: str) -> None:
         """

@@ -1,13 +1,10 @@
 import time
 
-import difflib
-from typing import List, ClassVar
+from typing import ClassVar
 
-from one_dragon.base.geometry.point import Point
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
-from one_dragon.utils import cv2_utils
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
@@ -29,7 +26,7 @@ class ScratchCardApp(ZApplication):
             ctx=ctx, app_id='scratch_card',
             node_max_retry_times=10,
             op_name=gt('刮刮卡', 'ui'),
-            run_record=ctx.email_run_record
+            run_record=ctx.scratch_card_run_record
         )
 
     def handle_init(self) -> None:

@@ -14,6 +14,7 @@ _app_preheat_executor = ThreadPoolExecutor(thread_name_prefix='od_app_preheat', 
 class ApplicationEventId(Enum):
 
     APPLICATION_START: str = '应用开始运行'
+    APPLICATION_STOP: str = '应用停止运行'
 
 
 class Application(Operation):
@@ -58,7 +59,7 @@ class Application(Operation):
 
         self.init_for_application()
         self.ctx.start_running()
-        self.ctx.dispatch_event(ApplicationEventId.APPLICATION_START.value)
+        self.ctx.dispatch_event(ApplicationEventId.APPLICATION_START.value, self.app_id)
 
     def handle_resume(self) -> None:
         """
@@ -76,6 +77,7 @@ class Application(Operation):
         self._update_record_after_stop(result)
         if self.stop_context_after_stop:
             self.ctx.stop_running()
+        self.ctx.dispatch_event(ApplicationEventId.APPLICATION_STOP.value, self.app_id)
 
     def _update_record_after_stop(self, result: OperationResult):
         """

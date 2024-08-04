@@ -19,6 +19,7 @@ from zzz_od.operation.wait_normal_world import WaitNormalWorld
 class RandomPlayApp(ZApplication):
 
     STATUS_ALL_VIDEO_CHOOSE: ClassVar[str] = '已选择全部录像带'
+    STATUS_ALREADY_RUNNING: ClassVar[str] = '正在营业'
 
     def __init__(self, ctx: ZContext):
         """
@@ -94,6 +95,16 @@ class RandomPlayApp(ZApplication):
             return self.round_retry(status='未识别当前画面')
 
     @node_from(from_name='识别画面')
+    @operation_node(name='识别营业状态')
+    def check_running(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        result = self.round_by_find_area(screen, '影像店营业', '正在营业')
+        if result.is_success:
+            return self.round_success(RandomPlayApp.STATUS_ALREADY_RUNNING)
+        else:
+            return self.round_success()
+
+    @node_from(from_name='识别营业状态')
     @operation_node(name='点击宣传员入口')
     def click_promoter_entry(self) -> OperationRoundResult:
         """
@@ -270,6 +281,7 @@ class RandomPlayApp(ZApplication):
                                                  success_wait=1, retry_wait=1)
 
     @node_from(from_name='开始营业确认')
+    @node_from(from_name='识别营业状态', status=STATUS_ALREADY_RUNNING)
     @operation_node(name='返回大世界')
     def back_to_world(self) -> OperationRoundResult:
         op = BackToNormalWorld(self.ctx)

@@ -24,6 +24,8 @@ class AppRunRecord(YamlConfig):
         self.game_refresh_hour_offset: int = game_refresh_hour_offset  # 游戏内每天刷新的偏移小时数 以凌晨12点为界限
         super().__init__(app_id, instance_idx=instance_idx, sub_dir=['app_run_record'], sample=False)
 
+        self._init_after_read_file()
+
     def _init_after_read_file(self):
         self.dt = self.get('dt', self.get_current_dt())
         self.run_time = self.get('run_time', '-')
