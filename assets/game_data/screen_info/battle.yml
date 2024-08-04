@@ -101,3 +101,36 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 按钮-普通攻击
+  pc_rect:
+  - 1403
+  - 916
+  - 1505
+  - 1017
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: battle
+  template_id: btn_normal_attack
+  template_match_threshold: 0.7
+- area_name: 战斗结果-完成
+  pc_rect:
+  - 1566
+  - 1004
+  - 1832
+  - 1056
+  text: 完成
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 战斗结果-再来一次
+  pc_rect:
+  - 1232
+  - 1006
+  - 1508
+  - 1052
+  text: 再来一次
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

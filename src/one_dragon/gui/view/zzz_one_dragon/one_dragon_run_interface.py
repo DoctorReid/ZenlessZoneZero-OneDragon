@@ -39,9 +39,9 @@ class OneDragonRunInterface(VerticalScrollInterface):
             ctx=ctx,
             content_widget=None,
             nav_icon=FluentIcon.BUS,
-            object_name='one_dragon_interface',
+            object_name='one_dragon_run_interface',
             parent=parent,
-            nav_text_cn='一条龙'
+            nav_text_cn='一条龙运行'
         )
 
         self._app_run_cards: List[AppRunCard] = []
@@ -154,12 +154,12 @@ class OneDragonRunInterface(VerticalScrollInterface):
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)
         self._init_app_list()
-        self.log_card.update_on_log = True
+        self.log_card.set_update_log(True)
         self.ctx.listen_event(ContextKeyboardEventEnum.PRESS.value, self._on_key_press)
 
     def on_interface_hidden(self) -> None:
         VerticalScrollInterface.on_interface_hidden(self)
-        self.log_card.update_on_log = False
+        self.log_card.set_update_log(False)
         self.ctx.unlisten_all_event(self)
 
     def _on_after_done_changed(self, value: str) -> None:

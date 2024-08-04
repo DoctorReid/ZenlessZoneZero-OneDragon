@@ -14,3 +14,9 @@ class ColumnWidget(QWidget):
 
     def add_stretch(self, stretch: int):
         self.row_layout.addStretch(stretch)
+
+    def clear_widgets(self) -> None:
+        while self.row_layout.count():
+            child = self.row_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()

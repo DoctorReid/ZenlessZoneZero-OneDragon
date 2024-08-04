@@ -44,7 +44,7 @@ scenes:
 - triggers: ["按键可用-连携技"]
   interval: 1
   handlers:
-  - state_template: "连携模板-优先支援"
+  - state_template: "连携模板-支援"
 
 - triggers: []
   interval: 1

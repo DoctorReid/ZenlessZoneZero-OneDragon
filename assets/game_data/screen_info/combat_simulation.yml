@@ -1,0 +1,70 @@
+screen_id: combat_simulation
+screen_name: 实战模拟室
+pc_alt: false
+area_list:
+- area_name: 挑战奖励
+  pc_rect:
+  - 84
+  - 1006
+  - 308
+  - 1054
+  text: 挑战奖励
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 副本名称列表
+  pc_rect:
+  - 128
+  - 724
+  - 1796
+  - 782
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 剩余体力
+  pc_rect:
+  - 1450
+  - 1016
+  - 1494
+  - 1045
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 需要体力
+  pc_rect:
+  - 1506
+  - 1016
+  - 1556
+  - 1045
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 下一步
+  pc_rect:
+  - 1600
+  - 1008
+  - 1834
+  - 1048
+  text: 下一步
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 出战
+  pc_rect:
+  - 1600
+  - 1008
+  - 1834
+  - 1048
+  text: 出战
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

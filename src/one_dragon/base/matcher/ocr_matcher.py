@@ -31,6 +31,7 @@ class OcrMatcher:
         self.ocr = None
 
     def init_model(self) -> bool:
+        log.info('正在加载OCR模型')
         from paddleocr import PaddleOCR
 
         if self.ocr is None:
@@ -39,7 +40,6 @@ class OcrMatcher:
             try:
                 self.ocr = PaddleOCR(
                     use_angle_cls=False, use_gpu=False, drop_score=0.5,
-                    #lang="ch",
                     det_model_dir=os.path.join(models_dir, 'ch_PP-OCRv4_det_infer'),
                     rec_model_dir=os.path.join(models_dir, 'ch_PP-OCRv4_rec_infer'),
                     cls_model_dir=os.path.join(models_dir, 'ch_ppocr_mobile_v2.0_cls_slim_infer')

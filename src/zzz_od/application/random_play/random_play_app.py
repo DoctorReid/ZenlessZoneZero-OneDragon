@@ -29,7 +29,7 @@ class RandomPlayApp(ZApplication):
             ctx=ctx, app_id='random_play',
             node_max_retry_times=10,
             op_name=gt('影像店营业', 'ui'),
-            run_record=ctx.email_run_record
+            run_record=ctx.random_play_run_record
         )
 
     def handle_init(self) -> None:

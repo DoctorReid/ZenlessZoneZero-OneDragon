@@ -90,7 +90,7 @@ class DodgeAssistantInterface(AppRunInterface):
         """
         try:
             self.dodge_opt.value_changed.disconnect(self._on_dodge_way_changed)
-        except:
+        except Exception:
             pass
         self.dodge_opt.set_options_by_list(get_auto_battle_op_config_list('dodge'))
         self.dodge_opt.value_changed.connect(self._on_dodge_way_changed)

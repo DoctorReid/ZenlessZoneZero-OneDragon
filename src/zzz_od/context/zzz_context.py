@@ -1,10 +1,15 @@
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils import i18_utils
+from zzz_od.application.charge_plan.charge_plan_run_record import ChargePlanRunRecord
 from zzz_od.application.devtools.screenshot_helper.screenshot_helper_config import ScreenshotHelperConfig
 from zzz_od.application.battle_assistant.battle_assistant_config import BattleAssistantConfig
 from zzz_od.application.email.email_run_record import EmailRunRecord
+from zzz_od.application.random_play.random_play_run_record import RandomPlayRunRecord
+from zzz_od.application.scratch_card.scratch_card_run_record import ScratchCardRunRecord
+from zzz_od.config.charge_plan_config import ChargePlanConfig
 from zzz_od.config.game_config import GameConfig, GamePlatformEnum
 from zzz_od.controller.zzz_pc_controller import ZPcController
+from zzz_od.game_data.compendium import CompendiumService
 from zzz_od.game_data.map_area import MapAreaService
 
 
@@ -27,13 +32,18 @@ class ZContext(OneDragonContext):
 
         # 游戏数据
         self.map_service: MapAreaService = MapAreaService()
+        self.compendium_service: CompendiumService = CompendiumService()
 
         # 应用配置
         self.screenshot_helper_config: ScreenshotHelperConfig = ScreenshotHelperConfig(instance_idx)
         self.battle_assistant_config: BattleAssistantConfig = BattleAssistantConfig(instance_idx)
+        self.charge_plan_config: ChargePlanConfig = ChargePlanConfig(instance_idx)
 
         # 运行记录
         self.email_run_record: EmailRunRecord = EmailRunRecord(instance_idx)
+        self.random_play_run_record: RandomPlayRunRecord = RandomPlayRunRecord(instance_idx)
+        self.scratch_card_run_record: ScratchCardRunRecord = ScratchCardRunRecord(instance_idx)
+        self.charge_plan_run_record: ChargePlanRunRecord = ChargePlanRunRecord(instance_idx)
 
     def init_by_config(self) -> None:
         """

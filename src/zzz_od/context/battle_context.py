@@ -7,7 +7,9 @@ from enum import Enum
 from typing import Optional, List
 
 from one_dragon.base.conditional_operation.state_event import StateEvent
+from one_dragon.base.screen import screen_utils
 from one_dragon.base.screen.screen_area import ScreenArea
+from one_dragon.base.screen.screen_utils import FindAreaResultEnum
 from one_dragon.utils import cv2_utils, debug_utils, thread_utils
 from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
@@ -50,6 +52,8 @@ class BattleContext:
         self.check_agent_same_times: int = 0  # 识别角色的相同次数
         self.check_agent_diff_times: int = 0  # 识别角色的不同次数
         self._agent_update_time: float = 0  # 识别角色的更新时间
+        self._last_check_end_time: float = 0  # 上一次识别结束的时间
+        self._last_check_end_result: Optional[FindAreaResultEnum] = None  # 上一次识别结束的结果
 
         # 识别锁 保证每种类型只有1实例在进行识别
         self._update_agent_lock = threading.Lock()
@@ -58,6 +62,7 @@ class BattleContext:
         self._check_ultimate_lock = threading.Lock()
         self._check_chain_lock = threading.Lock()
         self._check_quick_lock = threading.Lock()
+        self._check_end_lock = threading.Lock()
 
     def dodge(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
         if press:
@@ -229,6 +234,8 @@ class BattleContext:
         self.should_check_all_agents = agent_names is None
         self.check_agent_same_times = 0
         self.check_agent_diff_times = 0
+        self._last_check_end_time = 0
+        self._last_check_end_result = None
 
         if agent_names is not None:
             for agent_name in agent_names:
@@ -264,6 +271,7 @@ class BattleContext:
         future_list.append(_battle_check_executor.submit(self.check_ultimate_btn, screen, screenshot_time, allow_ultimate_list))
         future_list.append(_battle_check_executor.submit(self.check_chain_attack, screen, screenshot_time))
         future_list.append(_battle_check_executor.submit(self.check_quick_assist, screen, screenshot_time))
+        future_list.append(_battle_check_executor.submit(self._check_battle_end, screen, screenshot_time))
 
         for future in future_list:
             future.add_done_callback(thread_utils.handle_future_result)
@@ -627,6 +635,26 @@ class BattleContext:
             return [agent_enum.value for agent_enum in AgentEnum]
         else:
             return self.agent_list
+
+    def _check_battle_end(self, screen: MatLike, screenshot_time: float) -> None:
+        if not self._check_end_lock.acquire(blocking=False):
+            return
+
+        try:
+            if screenshot_time - self._last_check_end_time < 5:  # 每5秒识别一次
+                return
+
+            self._last_check_end_result = screen_utils.find_area(ctx=self.ctx, screen=screen, screen_name='战斗画面', area_name='战斗结果-完成')
+            self._last_check_end_time = screenshot_time
+
+        except Exception:
+            log.error('识别战斗结束失败', exc_info=True)
+        finally:
+            self._check_end_lock.release()
+
+    def is_battle_end(self) -> bool:
+        return self._last_check_end_result == FindAreaResultEnum.TRUE
+
 
 def __debug():
     ctx = ZContext()
