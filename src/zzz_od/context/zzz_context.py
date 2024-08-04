@@ -4,6 +4,7 @@ from zzz_od.application.charge_plan.charge_plan_run_record import ChargePlanRunR
 from zzz_od.application.devtools.screenshot_helper.screenshot_helper_config import ScreenshotHelperConfig
 from zzz_od.application.battle_assistant.battle_assistant_config import BattleAssistantConfig
 from zzz_od.application.email.email_run_record import EmailRunRecord
+from zzz_od.application.engagement_reward.engagement_reward_run_record import EngagementRewardRunRecord
 from zzz_od.application.random_play.random_play_run_record import RandomPlayRunRecord
 from zzz_od.application.scratch_card.scratch_card_run_record import ScratchCardRunRecord
 from zzz_od.config.charge_plan_config import ChargePlanConfig
@@ -44,6 +45,7 @@ class ZContext(OneDragonContext):
         self.random_play_run_record: RandomPlayRunRecord = RandomPlayRunRecord(instance_idx)
         self.scratch_card_run_record: ScratchCardRunRecord = ScratchCardRunRecord(instance_idx)
         self.charge_plan_run_record: ChargePlanRunRecord = ChargePlanRunRecord(instance_idx)
+        self.engagement_reward_run_record: EngagementRewardRunRecord = EngagementRewardRunRecord(instance_idx)
 
     def init_by_config(self) -> None:
         """

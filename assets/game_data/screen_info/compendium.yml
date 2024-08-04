@@ -46,3 +46,91 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 活跃度奖励-4
+  pc_rect:
+  - 1512
+  - 246
+  - 1578
+  - 312
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 活跃度奖励-3
+  pc_rect:
+  - 1248
+  - 252
+  - 1312
+  - 310
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 活跃度奖励-2
+  pc_rect:
+  - 992
+  - 254
+  - 1052
+  - 306
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 活跃度奖励-1
+  pc_rect:
+  - 730
+  - 248
+  - 792
+  - 308
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 活跃度奖励-确认
+  pc_rect:
+  - 882
+  - 704
+  - 1086
+  - 754
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 今日最大活跃度
+  pc_rect:
+  - 522
+  - 282
+  - 602
+  - 322
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: TAB-挑战
+  pc_rect:
+  - 1430
+  - 140
+  - 1604
+  - 192
+  text: 挑战
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 退出
+  pc_rect:
+  - 1694
+  - 220
+  - 1764
+  - 280
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

@@ -42,6 +42,12 @@ class BackToNormalWorld(ZOperation):
         if result.is_success:
             return self.round_success()
 
+        result = self.round_by_find_area(screen, '快捷手册', 'TAB-挑战')
+
+        if result.is_success:
+            self.click_area('快捷手册', '退出')
+            return self.round_retry(wait=1)
+
         click_back = self.click_area('菜单', '返回')
         if click_back:
             return self.round_retry(wait_round_time=1)
