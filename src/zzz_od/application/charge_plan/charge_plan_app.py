@@ -16,7 +16,7 @@ from zzz_od.operation.compendium.tp_by_compendium import TransportByCompendium
 
 class ChargePlanApp(ZApplication):
 
-    STATUS_NO_PLAN: ClassVar[str] = '未配置电量计划'
+    STATUS_NO_PLAN: ClassVar[str] = '未配置体力计划'
 
     def __init__(self, ctx: ZContext):
         """
@@ -26,7 +26,7 @@ class ChargePlanApp(ZApplication):
             self,
             ctx=ctx, app_id='charge_plan',
             node_max_retry_times=10,
-            op_name=gt('电量刷本', 'ui'),
+            op_name=gt('体力刷本', 'ui'),
             run_record=ctx.charge_plan_run_record
         )
 

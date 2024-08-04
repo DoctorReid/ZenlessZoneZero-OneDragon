@@ -213,7 +213,7 @@ class ChargePlanInterface(VerticalScrollInterface):
             ctx=ctx,
             object_name='zzz_charge_plan_interface',
             content_widget=None, parent=parent,
-            nav_text_cn='电量计划'
+            nav_text_cn='体力计划'
         )
 
     def get_content_widget(self) -> QWidget:
