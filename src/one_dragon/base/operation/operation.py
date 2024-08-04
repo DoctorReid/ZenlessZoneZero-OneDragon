@@ -634,3 +634,13 @@ class Operation(OperationBase):
         if area is None:
             return False
         return self.ctx.controller.click(pos=area.center, pc_alt=area.pc_alt)
+
+    def round_by_click_area(
+            self, screen_name: str, area_name: str,
+            success_wait: Optional[float] = None, success_wait_round: Optional[float] = None,
+            retry_wait: Optional[float] = None, retry_wait_round: Optional[float] = None
+    ) -> OperationRoundResult:
+        if self.click_area(screen_name, area_name):
+            return self.round_success(wait=success_wait, wait_round_time=success_wait_round)
+        else:
+            return self.round_retry(status=f'点击{area_name}失败', wait=retry_wait, wait_round_time=retry_wait_round)

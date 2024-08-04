@@ -65,12 +65,16 @@ def node_from(
         @wraps(func)
         def wrapper(*args, **kwargs):
             return func(*args, **kwargs)
-        wrapper.__annotations__['operation_edge_annotation'] = OperationEdgeDesc(
+        if 'operation_edge_annotation' not in wrapper.__annotations__:
+            wrapper.__annotations__['operation_edge_annotation'] = []
+
+        wrapper.__annotations__['operation_edge_annotation'].append(
+            OperationEdgeDesc(
             node_from_name=from_name,
             node_to_name=None,
             success=success,
             status=status,
             ignore_status=ignore_status,
-        )
+        ))
         return wrapper
     return decorator
