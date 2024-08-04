@@ -3,7 +3,6 @@ import time
 from typing import Optional, ClassVar
 
 from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
-from one_dragon.base.geometry.point import Point
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
@@ -15,7 +14,7 @@ from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.zzz_operation import ZOperation
 
 
-class CombatSimulation(ZOperation):
+class ExpertChallenge(ZOperation):
 
     STATUS_CHARGE_NOT_ENOUGH: ClassVar[str] = '电量不足'
     STATUS_CHARGE_ENOUGH: ClassVar[str] = '电量充足'
@@ -31,8 +30,8 @@ class CombatSimulation(ZOperation):
             self, ctx,
             node_max_retry_times=5,
             op_name='%s %s' % (
-                gt('实战模拟室'),
-                gt(plan.mission_name)
+                gt('专业挑战室'),
+                gt(plan.mission_type_name)
             )
         )
 
@@ -58,42 +57,18 @@ class CombatSimulation(ZOperation):
         )
 
     @node_from(from_name='等待入口加载')
-    @operation_node(name='选择副本')
-    def choose_mission(self) -> OperationRoundResult:
-        self.node_max_retry_times = 5
-
-        screen = self.screenshot()
-        area = self.ctx.screen_loader.get_area('实战模拟室', '副本名称列表')
-        part = cv2_utils.crop_image_only(screen, area.rect)
-
-        target_point: Optional[Point] = None
-        ocr_result_map = self.ctx.ocr.run_ocr(part, merge_line_distance=40)
-        for ocr_result, mrl in ocr_result_map.items():
-            if not str_utils.find_by_lcs(gt(self.plan.mission_name), ocr_result, percent=0.5):
-                continue
-
-            target_point = area.left_top + mrl.max + Point(0, 50)
-            break
-
-        if target_point is None:
-            return self.round_retry(status='找不到 %s' % self.plan.mission_name, wait=1)
-
-        click = self.ctx.controller.click(target_point)
-        return self.round_success(wait=1)
-
-    @node_from(from_name='选择副本')
     @operation_node(name='识别电量')
     def check_charge(self) -> OperationRoundResult:
         screen = self.screenshot()
 
-        area = self.ctx.screen_loader.get_area('实战模拟室', '剩余体力')
+        area = self.ctx.screen_loader.get_area('专业挑战室', '剩余体力')
         part = cv2_utils.crop_image_only(screen, area.rect)
         ocr_result = self.ctx.ocr.run_ocr_single_line(part)
         self.charge_left = str_utils.get_positive_digits(ocr_result, None)
         if self.charge_left is None:
             return self.round_retry(status='识别 %s 失败' % '剩余体力', wait=1)
 
-        area = self.ctx.screen_loader.get_area('实战模拟室', '需要体力')
+        area = self.ctx.screen_loader.get_area('专业挑战室', '需要体力')
         part = cv2_utils.crop_image_only(screen, area.rect)
         ocr_result = self.ctx.ocr.run_ocr_single_line(part)
         self.charge_need = str_utils.get_positive_digits(ocr_result, None)
@@ -101,7 +76,7 @@ class CombatSimulation(ZOperation):
             return self.round_retry(status='识别 %s 失败' % '需要体力', wait=1)
 
         if self.charge_need > self.charge_left:
-            return self.round_success(CombatSimulation.STATUS_CHARGE_NOT_ENOUGH)
+            return self.round_success(ExpertChallenge.STATUS_CHARGE_NOT_ENOUGH)
 
         self.can_run_times = self.charge_left // self.charge_need
         max_need_run_times = self.plan.plan_times - self.plan.run_times
@@ -109,7 +84,7 @@ class CombatSimulation(ZOperation):
         if self.can_run_times > max_need_run_times:
             self.can_run_times = max_need_run_times
 
-        return self.round_success(CombatSimulation.STATUS_CHARGE_ENOUGH)
+        return self.round_success(ExpertChallenge.STATUS_CHARGE_ENOUGH)
 
     @node_from(from_name='识别电量', status=STATUS_CHARGE_ENOUGH)
     @operation_node(name='下一步')
@@ -189,13 +164,16 @@ class CombatSimulation(ZOperation):
             return self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-再来一次',
                                                      success_wait=1, retry_wait_round=1)
 
+
 def __debug():
     ctx = ZContext()
     ctx.init_by_config()
     ctx.ocr.init_model()
     ctx.start_running()
-    op = CombatSimulation(ctx, ChargePlanItem())
-    op.can_run_times = 1
+    op = ExpertChallenge(ctx, ChargePlanItem(
+        category_name='专业挑战室',
+        mission_type_name='恶名·杜拉罕'
+    ))
     op.execute()
 
 

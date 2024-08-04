@@ -1,0 +1,37 @@
+screen_id: routine_cleanup
+screen_name: 定期清剿
+pc_alt: false
+area_list:
+- area_name: 副本名称列表
+  pc_rect:
+  - 148
+  - 714
+  - 1660
+  - 782
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 剩余体力
+  pc_rect:
+  - 1465
+  - 1016
+  - 1508
+  - 1045
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 需要体力
+  pc_rect:
+  - 1516
+  - 1016
+  - 1556
+  - 1045
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

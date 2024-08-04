@@ -1,0 +1,26 @@
+screen_id: expert_challenge
+screen_name: 专业挑战室
+pc_alt: false
+area_list:
+- area_name: 剩余体力
+  pc_rect:
+  - 1486
+  - 1016
+  - 1520
+  - 1045
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 需要体力
+  pc_rect:
+  - 1530
+  - 1016
+  - 1580
+  - 1045
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

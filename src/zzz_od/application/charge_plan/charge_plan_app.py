@@ -7,7 +7,10 @@ from one_dragon.utils.i18_utils import gt
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.config.charge_plan_config import ChargePlanItem
 from zzz_od.context.zzz_context import ZContext
+from zzz_od.operation.back_to_normal_world import BackToNormalWorld
 from zzz_od.operation.compendium.combat_simulation import CombatSimulation
+from zzz_od.operation.compendium.expert_challenge import ExpertChallenge
+from zzz_od.operation.compendium.routine_cleanup import RoutineCleanup
 from zzz_od.operation.compendium.tp_by_compendium import TransportByCompendium
 
 
@@ -64,9 +67,19 @@ class ChargePlanApp(ZApplication):
     @node_from(from_name='识别副本分类', status='定期清剿')
     @operation_node(name='定期清剿')
     def routine_cleanup(self) -> OperationRoundResult:
-        return self.round_fail('未支持')
+        op = RoutineCleanup(self.ctx, self.next_plan)
+        return self.round_by_op(op.execute())
 
     @node_from(from_name='识别副本分类', status='专业挑战室')
     @operation_node(name='专业挑战室')
     def expert_challenge(self) -> OperationRoundResult:
-        return self.round_fail('未支持')
+        op = ExpertChallenge(self.ctx, self.next_plan)
+        return self.round_by_op(op.execute())
+
+    @node_from(from_name='实战模拟室', status=CombatSimulation.STATUS_CHARGE_NOT_ENOUGH)
+    @node_from(from_name='定期清剿', status=RoutineCleanup.STATUS_CHARGE_NOT_ENOUGH)
+    @node_from(from_name='专业挑战室', status=ExpertChallenge.STATUS_CHARGE_NOT_ENOUGH)
+    @operation_node(name='返回大世界', is_start_node=True)
+    def back_to_world(self) -> OperationRoundResult:
+        op = BackToNormalWorld(self.ctx)
+        return self.round_by_op(op.execute())
