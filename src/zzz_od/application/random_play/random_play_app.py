@@ -44,7 +44,7 @@ class RandomPlayApp(ZApplication):
         self._need_video_themes: List[str] = []
         self._current_idx: int = 0
 
-    @operation_node(name='传送', is_start_node=False)
+    @operation_node(name='传送', is_start_node=True)
     def transport(self) -> OperationRoundResult:
         op = Transport(self.ctx, 'Random Play', '柜台')
         return self.round_by_op(op.execute())
@@ -270,7 +270,7 @@ class RandomPlayApp(ZApplication):
                                                  success_wait=1, retry_wait=1)
 
     @node_from(from_name='开始营业确认')
-    @operation_node(name='返回大世界', is_start_node=True)
+    @operation_node(name='返回大世界')
     def back_to_world(self) -> OperationRoundResult:
         op = BackToNormalWorld(self.ctx)
         return self.round_by_op(op.execute())

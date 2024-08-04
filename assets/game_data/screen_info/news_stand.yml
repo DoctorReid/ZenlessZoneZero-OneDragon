@@ -1,0 +1,59 @@
+screen_id: news_stand
+screen_name: 报刊亭
+pc_alt: false
+area_list:
+- area_name: 刮刮卡
+  pc_rect:
+  - 94
+  - 996
+  - 172
+  - 1020
+  text: 刮刮卡
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 每日可刮取一次
+  pc_rect:
+  - 704
+  - 656
+  - 1132
+  - 692
+  text: 每日可刮取一次
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 刮层-1
+  pc_rect:
+  - 780
+  - 522
+  - 1134
+  - 556
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 刮层-2
+  pc_rect:
+  - 782
+  - 556
+  - 1138
+  - 588
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 刮层-3
+  pc_rect:
+  - 788
+  - 590
+  - 1134
+  - 632
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

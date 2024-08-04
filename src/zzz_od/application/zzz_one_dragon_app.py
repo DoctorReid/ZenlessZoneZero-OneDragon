@@ -1,6 +1,7 @@
 from one_dragon.base.operation.one_dragon_app import OneDragonApp
 from zzz_od.application.email.email_app import EmailApp
 from zzz_od.application.random_play.random_play_app import RandomPlayApp
+from zzz_od.application.scratch_card.scratch_card_app import ScratchCardApp
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 
@@ -13,7 +14,8 @@ class ZOneDragonApp(OneDragonApp, ZApplication):
 
         app_list = [
             EmailApp(self.ctx),
-            RandomPlayApp(self.ctx)
+            RandomPlayApp(self.ctx),
+            ScratchCardApp(self.ctx),
         ]
 
         OneDragonApp.__init__(self, ctx, app_id, app_list)
