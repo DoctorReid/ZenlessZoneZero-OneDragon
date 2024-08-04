@@ -67,6 +67,8 @@ def node_from(
             return func(*args, **kwargs)
         if 'operation_edge_annotation' not in wrapper.__annotations__:
             wrapper.__annotations__['operation_edge_annotation'] = []
+        else:
+            pass
 
         wrapper.__annotations__['operation_edge_annotation'].append(
             OperationEdgeDesc(

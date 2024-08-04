@@ -8,6 +8,7 @@ from cv2.typing import MatLike
 
 from one_dragon.utils import os_utils
 from one_dragon.utils.log_utils import log
+from one_dragon.utils.performance_recorder import record_performance
 from zzz_od.yolo import onnx_utils
 from zzz_od.yolo.onnx_model_loader import OnnxModelLoader
 
@@ -81,6 +82,7 @@ class DodgeClassifier(OnnxModelLoader):
         self.keep_result_seconds: float = keep_result_seconds  # 保留识别结果的秒数
         self.run_result_history: List[ClassificationResult] = []  # 历史识别结果
 
+    @record_performance
     def run(self, image: MatLike, conf: float = 0.9, run_time: Optional[float] = None) -> ClassificationResult:
         """
         对图片进行识别

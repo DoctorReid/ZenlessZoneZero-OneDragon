@@ -13,7 +13,7 @@ class ZOperation(Operation):
                  op_name: str = '',
                  timeout_seconds: float = -1,
                  op_callback: Optional[Callable[[OperationResult], None]] = None,
-                 check_game_win: bool = True
+                 need_check_game_win: bool = True
                  ):
         self.ctx: ZContext = ctx
         op_to_enter_game = OpenAndEnterGame(ctx)
@@ -23,5 +23,5 @@ class ZOperation(Operation):
                            op_name=op_name,
                            timeout_seconds=timeout_seconds,
                            op_callback=op_callback,
-                           check_game_win=check_game_win,
+                           need_check_game_win=need_check_game_win,
                            op_to_enter_game=op_to_enter_game)

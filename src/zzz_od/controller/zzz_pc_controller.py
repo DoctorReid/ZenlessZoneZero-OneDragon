@@ -234,5 +234,13 @@ class ZPcController(PcControllerBase):
         else:
             self.btn_controller.tap(self.key_move_d)
 
-    def interact(self) -> None:
-        self.btn_controller.press(self.key_move_w)
+    def interact(self, press: bool = False, press_time: Optional[float] = None, release: bool = False) -> None:
+        """
+        交互
+        """
+        if press:
+            self.btn_controller.press(self.key_interact, press_time)
+        elif release:
+            self.btn_controller.release(self.key_interact)
+        else:
+            self.btn_controller.tap(self.key_interact)

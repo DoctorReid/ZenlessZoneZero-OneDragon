@@ -23,15 +23,17 @@ class Application(Operation):
                  op_name: str = None,
                  timeout_seconds: float = -1,
                  op_callback: Optional[Callable[[OperationResult], None]] = None,
-                 check_game_win: bool = True,
+                 need_check_game_win: bool = True,
                  op_to_enter_game: Optional[Operation] = None,
                  init_context_before_start: bool = True,
                  stop_context_after_stop: bool = True,
-                 run_record: Optional[AppRunRecord] = None):
+                 run_record: Optional[AppRunRecord] = None,
+                 need_ocr: bool = True
+                 ):
         super().__init__(ctx, node_max_retry_times=node_max_retry_times, op_name=op_name,
                          timeout_seconds=timeout_seconds,
                          op_callback=op_callback,
-                         check_game_win=check_game_win,
+                         need_check_game_win=need_check_game_win,
                          op_to_enter_game=op_to_enter_game)
 
         self.app_id: str = app_id
@@ -46,11 +48,15 @@ class Application(Operation):
         self.stop_context_after_stop: bool = stop_context_after_stop
         """运行后是否停止上下文 一条龙只有最后一个应用需要"""
 
+        self.need_ocr: bool = need_ocr
+        """需要OCR"""
+
     def _init_before_execute(self) -> None:
         Operation._init_before_execute(self)
         if self.run_record is not None:
             self.run_record.update_status(AppRunRecord.STATUS_RUNNING)
 
+        self.init_for_application()
         self.ctx.start_running()
         self.ctx.dispatch_event(ApplicationEventId.APPLICATION_START.value)
 
@@ -102,3 +108,11 @@ class Application(Operation):
     @staticmethod
     def get_preheat_executor() -> ThreadPoolExecutor:
         return _app_preheat_executor
+
+    def init_for_application(self) -> bool:
+        """
+        初始化
+        """
+        if self.need_ocr:
+            self.ctx.ocr.init_model()
+        return True

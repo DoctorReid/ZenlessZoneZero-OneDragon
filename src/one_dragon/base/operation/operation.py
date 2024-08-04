@@ -27,7 +27,7 @@ class Operation(OperationBase):
                  op_name: str = '',
                  timeout_seconds: float = -1,
                  op_callback: Optional[Callable[[OperationResult], None]] = None,
-                 check_game_win: bool = True,
+                 need_check_game_win: bool = True,
                  op_to_enter_game:  Optional[OperationBase] = None
                  ):
         OperationBase.__init__(self)
@@ -47,7 +47,7 @@ class Operation(OperationBase):
         self.op_callback: Optional[Callable[[OperationResult], None]] = op_callback
         """指令结束后的回调"""
 
-        self.check_game_win: bool = check_game_win
+        self.need_check_game_win: bool = need_check_game_win
         """是否检测游戏窗口"""
 
         self.op_to_enter_game: OperationBase = op_to_enter_game
@@ -112,7 +112,6 @@ class Operation(OperationBase):
         node_name_map: dict[str, OperationNode] = {}
         edge_desc_list: List[OperationEdgeDesc] = []
 
-        t1 = time.time()
         for name, method in inspect.getmembers(self, predicate=inspect.ismethod):
             node: OperationNode = method.__annotations__.get('operation_node_annotation')
             if node is not None:
@@ -121,10 +120,11 @@ class Operation(OperationBase):
                 continue
             if node.is_start_node:
                 self.param_start_node = node
-            edge_desc: OperationEdgeDesc = method.__annotations__.get('operation_edge_annotation')
-            if edge_desc is not None:
-                edge_desc.node_to_name = node.cn
-                edge_desc_list.append(edge_desc)
+            edges: List[OperationEdgeDesc] = method.__annotations__.get('operation_edge_annotation')
+            if edges is not None:
+                for edge in edges:
+                    edge.node_to_name = node.cn
+                    edge_desc_list.append(edge)
 
         for edge_desc in edge_desc_list:
             node_from = node_name_map.get(edge_desc.node_from_name, None)
@@ -214,7 +214,7 @@ class Operation(OperationBase):
         else:
             start_node = self.param_start_node
 
-        if self.check_game_win and start_node is not None:
+        if self.need_check_game_win and start_node is not None:
             check_game_window = OperationNode('检测游戏窗口', self.check_game_window)
             self._node_map[check_game_window.cn] = check_game_window
 
@@ -342,6 +342,8 @@ class Operation(OperationBase):
         if self._current_node.func is not None:
             current_op = self._current_node.func
             current_round_result: OperationRoundResult = current_op()
+        elif self._current_node.op_method is not None:
+            current_round_result: OperationRoundResult = self._current_node.op_method(self)
         elif self._current_node.op is not None:
             op_result = self._current_node.op.execute()
             current_round_result = self.round_by_op(op_result,

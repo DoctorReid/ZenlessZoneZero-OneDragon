@@ -1,10 +1,9 @@
+import time
+
 import logging
 import os
-import time
-from typing import Optional, List
-
 from cv2.typing import MatLike
-from paddleocr import PaddleOCR
+from typing import List
 
 from one_dragon.base.matcher.match_result import MatchResult, MatchResultList
 from one_dragon.utils import os_utils
@@ -29,19 +28,28 @@ class OcrMatcher:
     """
 
     def __init__(self):
-        self.ocr: Optional[PaddleOCR] = None
-        try:
-            # 不使用方向检测, CPU推理, drop_score控制识别模型的精度,模型默认0.5 (rec)
-            # 不启用空格识别 (rec) 文字空间结构交给 det 处理
+        self.ocr = None
+
+    def init_model(self) -> bool:
+        from paddleocr import PaddleOCR
+
+        if self.ocr is None:
             models_dir = os_utils.get_path_under_work_dir('assets', 'models', 'ocr')
 
-            self.ocr = PaddleOCR(use_angle_cls=False, lang="ch", use_gpu=False, use_space_char=False, drop_score=0.5,
-                                 det_model_dir=os.path.join(models_dir, 'ch_PP-OCRv4_det_infer'),
-                                 rec_model_dir=os.path.join(models_dir, 'ch_PP-OCRv4_rec_infer'),
-                                 cls_model_dir=os.path.join(models_dir, 'ch_ppocr_mobile_v2.0_cls_slim_infer')
-                                 )
-        except Exception:
-            log.error('OCR模型加载出错', exc_info=True)
+            try:
+                self.ocr = PaddleOCR(
+                    use_angle_cls=False, use_gpu=False, drop_score=0.5,
+                    #lang="ch",
+                    det_model_dir=os.path.join(models_dir, 'ch_PP-OCRv4_det_infer'),
+                    rec_model_dir=os.path.join(models_dir, 'ch_PP-OCRv4_rec_infer'),
+                    cls_model_dir=os.path.join(models_dir, 'ch_ppocr_mobile_v2.0_cls_slim_infer')
+                )
+                return True
+            except Exception:
+                log.error('OCR模型加载出错', exc_info=True)
+                return False
+
+        return True
 
     def run_ocr_single_line(self, image: MatLike, threshold: float = None, strict_one_line: bool = True) -> str:
         """
@@ -69,9 +77,13 @@ class OcrMatcher:
         :return: {key_word: []}
         """
         start_time = time.time()
-        scan_result: list = self.ocr.ocr(image, cls=False)
-
         result_map: dict = {}
+        scan_result_list: list = self.ocr.ocr(image, cls=False)
+        if len(scan_result_list) == 0:
+            log.debug('OCR结果 %s 耗时 %.2f', result_map.keys(), time.time() - start_time)
+            return result_map
+
+        scan_result = scan_result_list[0]
         for anchor in scan_result:
             anchor_position = anchor[0]
             anchor_text = anchor[1][0]
@@ -138,11 +150,11 @@ def merge_ocr_result_to_single_line(ocr_map, join_space: bool = True) -> str:
             else:
                 lines[in_line].append(result)
 
-    result_str: str = None
+    result_str: str = ''
     for line in lines:
         sorted_line = sorted(line, key=lambda x: x.center.x)
         for result_item in sorted_line:
-            if result_str is None:
+            if len(result_str) == 0:
                 result_str = result_item.data
             else:
                 result_str += (' ' if join_space else '') + result_item.data

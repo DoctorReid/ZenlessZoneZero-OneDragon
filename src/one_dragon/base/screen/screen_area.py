@@ -12,7 +12,7 @@ class ScreenArea:
                  area_name: str = '',
                  pc_rect: Rect = Rect(0, 0, 0, 0),
                  text: Optional[str] = '',
-                 lcs_percent: float = 0.1,
+                 lcs_percent: float = 0.5,
                  template_id: Optional[str] = '',
                  template_sub_dir: Optional[str] = '',
                  template_match_threshold: float = 0.7,

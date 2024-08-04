@@ -14,10 +14,12 @@ class ZApplication(Application):
                  op_name: str = None,
                  timeout_seconds: float = -1,
                  op_callback: Optional[Callable[[OperationResult], None]] = None,
-                 check_game_win: bool = True,
+                 need_check_game_win: bool = True,
                  init_context_before_start: bool = True,
                  stop_context_after_stop: bool = True,
-                 run_record: Optional[AppRunRecord] = None):
+                 run_record: Optional[AppRunRecord] = None,
+                 need_ocr: bool = True,
+                 ):
         self.ctx: ZContext = ctx
         op_to_enter_game = OpenAndEnterGame(ctx)
         Application.__init__(self,
@@ -26,11 +28,12 @@ class ZApplication(Application):
                              op_name=op_name,
                              timeout_seconds=timeout_seconds,
                              op_callback=op_callback,
-                             check_game_win=check_game_win,
+                             need_check_game_win=need_check_game_win,
                              op_to_enter_game=op_to_enter_game,
                              init_context_before_start=init_context_before_start,
                              stop_context_after_stop=stop_context_after_stop,
-                             run_record=run_record
+                             run_record=run_record,
+                             need_ocr=need_ocr
                              )
 
     def handle_resume(self) -> None:

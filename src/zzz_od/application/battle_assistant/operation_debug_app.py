@@ -24,7 +24,8 @@ class OperationDebugApp(ZApplication):
         ZApplication.__init__(
             self,
             ctx=ctx, app_id='auto_battle',
-            op_name=gt('指令调试', 'ui')
+            op_name=gt('指令调试', 'ui'),
+            need_ocr=False
         )
 
         self.ops: Optional[List[AtomicOp]] = None

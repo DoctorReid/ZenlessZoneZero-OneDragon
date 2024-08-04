@@ -3,8 +3,9 @@ import time
 from typing import ClassVar, List
 
 from one_dragon.base.geometry.point import Point
+from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
-from one_dragon.base.operation.operation_node import OperationNode
+from one_dragon.base.operation.operation_node import OperationNode, operation_node
 from one_dragon.utils import cv2_utils
 from one_dragon.utils.i18_utils import gt
 from zzz_od.context.zzz_context import ZContext
@@ -36,34 +37,10 @@ class Transport(ZOperation):
         self.area_name: str = area_name
         self.tp_name: str = tp_name
 
-    def add_edges_and_nodes(self) -> None:
-        """
-        初始化前 添加边和节点 由子类实行
-        :return:
-        """
-        check_screen = OperationNode('画面识别', self.check_screen)
-        back_to_world = OperationNode('返回大世界', op=BackToNormalWorld(self.ctx))
-        self.add_edge(check_screen, back_to_world, status=Transport.STATUS_NOT_IN_MAP)
-
-        open_map = OperationNode('打开地图', self.open_map)
-        self.add_edge(back_to_world, open_map)
-
-        choose_area = OperationNode('选择区域', self.choose_area)
-        self.add_edge(choose_area, choose_area)  # 开始可能就在地图画面
-        self.add_edge(open_map, choose_area)
-
-        choose_tp = OperationNode('选择传送点', self.choose_tp)
-        self.add_edge(choose_area, choose_tp)
-
-        click_tp = OperationNode('点击传送', self.click_tp)
-        self.add_edge(choose_tp, click_tp)
-
-        wait = OperationNode('等待加载', op=WaitNormalWorld(self.ctx))
-        self.add_edge(click_tp, wait)
-
     def handle_init(self):
         pass
 
+    @operation_node(name='画面识别', is_start_node=True)
     def check_screen(self) -> OperationRoundResult:
         """
         画面识别
@@ -77,6 +54,14 @@ class Transport(ZOperation):
         else:
             return self.round_success(status=Transport.STATUS_NOT_IN_MAP)
 
+    @node_from(from_name='画面识别', status=STATUS_NOT_IN_MAP)
+    @operation_node(name='返回大世界')
+    def back_to_world(self) -> OperationRoundResult:
+        op = BackToNormalWorld(self.ctx)
+        return self.round_by_op(op.execute())
+
+    @node_from(from_name='返回大世界')
+    @operation_node(name='打开地图')
     def open_map(self) -> OperationRoundResult:
         """
         在大世界画面 点击
@@ -86,6 +71,9 @@ class Transport(ZOperation):
         return self.round_by_find_and_click_area(screen, '大世界', '地图',
                                                  success_wait=2, retry_wait_round=1)
 
+    @node_from(from_name='打开地图')
+    @node_from(from_name='画面识别')
+    @operation_node(name='选择区域')
     def choose_area(self) -> OperationRoundResult:
         """
         在地图画面 选择上方的区域
@@ -119,6 +107,8 @@ class Transport(ZOperation):
 
         return self.round_retry(wait=0.5)
 
+    @node_from(from_name='选择区域')
+    @operation_node(name='选择传送点')
     def choose_tp(self) -> OperationRoundResult:
         """
         在地图画面 已经选择好区域了 选择传送点
@@ -165,11 +155,19 @@ class Transport(ZOperation):
 
         return self.round_retry(wait=0.5)
 
+    @node_from(from_name='选择传送点')
+    @operation_node(name='点击传送')
     def click_tp(self) -> OperationRoundResult:
         """
         在地图画面 已经选好传送点了 点击传送
         :return:
         """
         screen = self.screenshot()
-        return self.round_by_find_and_click_area(screen, '地图', '传送',
+        return self.round_by_find_and_click_area(screen, '地图', '确认',
                                                  retry_wait_round=1)
+
+    @node_from(from_name='点击传送')
+    @operation_node(name='等待加载')
+    def wait_in_world(self) -> OperationRoundResult:
+        op = WaitNormalWorld(self.ctx)
+        return self.round_by_op(op.execute())

@@ -43,7 +43,7 @@ class EmailApp(ZApplication):
                                                  success_wait=1, retry_wait_round=1)
 
     @node_from(from_name='点击更多')
-    @operation_node(name='')
+    @operation_node(name='点击邮件')
     def click_email(self) -> OperationRoundResult:
         """
         在菜单页面 点击邮件

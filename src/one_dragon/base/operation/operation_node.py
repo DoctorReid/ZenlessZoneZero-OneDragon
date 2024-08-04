@@ -9,6 +9,7 @@ class OperationNode:
 
     def __init__(self, cn: str,
                  func: Optional[Callable[[], OperationRoundResult]] = None,
+                 op_method: Optional[Callable[[OperationBase], OperationRoundResult]] = None,
                  op: Optional[OperationBase] = None,
                  retry_on_op_fail: bool = False,
                  wait_after_op: Optional[float] = None,
@@ -30,6 +31,9 @@ class OperationNode:
 
         self.func: Callable[[], OperationRoundResult] = func
         """节点处理函数"""
+
+        self.op_method: Optional[Callable[[OperationBase], OperationRoundResult]] = op_method
+        """节点处理函数 这个是类方法 需要自己传入self"""
 
         self.op: Optional[OperationBase] = op
         """节点操作指令"""
@@ -60,7 +64,7 @@ def operation_node(
             return func(*args, **kwargs)
         wrapper.__annotations__['operation_node_annotation'] = OperationNode(
             cn=name,
-            func=func,
+            op_method=func,
             retry_on_op_fail=retry_on_op_fail,
             wait_after_op=wait_after_op,
             timeout_seconds=timeout_seconds,

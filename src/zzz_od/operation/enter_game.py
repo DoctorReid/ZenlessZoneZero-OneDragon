@@ -9,7 +9,7 @@ class OpenAndEnterGame(Operation):
 
     def __init__(self, ctx: ZContext):
         Operation.__init__(self, ctx, op_name=gt('打开并登录游戏', 'ui'),
-                           check_game_win=False)
+                           need_check_game_win=False)
 
     def handle_init(self):
         """

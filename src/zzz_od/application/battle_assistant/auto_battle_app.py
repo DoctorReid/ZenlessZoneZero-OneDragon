@@ -8,6 +8,7 @@ from one_dragon.base.operation.operation_round_result import OperationRoundResul
 from one_dragon.base.operation.operation_node import OperationNode
 from one_dragon.base.operation.operation_base import OperationResult
 from one_dragon.utils.i18_utils import gt
+from one_dragon.utils.performance_recorder import log_all_performance
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.config.game_config import GamepadTypeEnum
@@ -23,7 +24,8 @@ class AutoBattleApp(ZApplication):
         ZApplication.__init__(
             self,
             ctx=ctx, app_id='auto_battle',
-            op_name=gt('自动战斗', 'ui')
+            op_name=gt('自动战斗', 'ui'),
+            need_ocr=False
         )
 
         self.auto_op: Optional[ConditionalOperator] = None
@@ -132,3 +134,4 @@ class AutoBattleApp(ZApplication):
             self.auto_op.stop_running()
             self.auto_op.dispose()
             self.auto_op = None
+        log_all_performance()

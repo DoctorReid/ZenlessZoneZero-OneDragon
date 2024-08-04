@@ -23,7 +23,8 @@ class AutoBattleDebugApp(ZApplication):
         ZApplication.__init__(
             self,
             ctx=ctx, app_id='auto_battle',
-            op_name=gt('自动战斗调试', 'ui')
+            op_name=gt('自动战斗调试', 'ui'),
+            need_ocr=False
         )
 
         self.auto_op: Optional[ConditionalOperator] = None
