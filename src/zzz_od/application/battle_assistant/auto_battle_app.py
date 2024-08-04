@@ -114,7 +114,9 @@ class AutoBattleApp(ZApplication):
 
         screen = self.screenshot()
         self.ctx.yolo.check_screen(screen, now)
-        self.ctx.battle.check_screen(screen, now, self.auto_op.get('allow_ultimate', None))
+        self.ctx.battle.check_screen(screen, now,
+                                     allow_ultimate_list=self.auto_op.get('allow_ultimate', None),
+                                     check_battle_end=False)
 
         return self.round_wait(wait_round_time=self.ctx.battle_assistant_config.screenshot_interval)
 

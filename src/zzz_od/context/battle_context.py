@@ -52,8 +52,6 @@ class BattleContext:
         self.check_agent_same_times: int = 0  # 识别角色的相同次数
         self.check_agent_diff_times: int = 0  # 识别角色的不同次数
         self._agent_update_time: float = 0  # 识别角色的更新时间
-        self._last_check_end_time: float = 0  # 上一次识别结束的时间
-        self._last_check_end_result: Optional[FindAreaResultEnum] = None  # 上一次识别结束的结果
 
         # 识别锁 保证每种类型只有1实例在进行识别
         self._update_agent_lock = threading.Lock()
@@ -63,6 +61,13 @@ class BattleContext:
         self._check_chain_lock = threading.Lock()
         self._check_quick_lock = threading.Lock()
         self._check_end_lock = threading.Lock()
+
+        # 识别间隔
+        self._check_agent_interval: float = 0.5
+        self._check_agent_interval: float = 0.5
+
+        self._last_check_end_time: float = 0  # 上一次识别结束的时间
+        self._last_check_end_result: Optional[FindAreaResultEnum] = None  # 上一次识别结束的结果
 
     def dodge(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
         if press:
@@ -259,6 +264,7 @@ class BattleContext:
 
     def check_screen(self, screen: MatLike, screenshot_time: float,
                      allow_ultimate_list: Optional[List[dict[str, str]]] = None,
+                     check_battle_end: bool = True,
                      sync: bool = False) -> None:
         """o
         异步判断角战斗画面 并发送世界
@@ -271,7 +277,8 @@ class BattleContext:
         future_list.append(_battle_check_executor.submit(self.check_ultimate_btn, screen, screenshot_time, allow_ultimate_list))
         future_list.append(_battle_check_executor.submit(self.check_chain_attack, screen, screenshot_time))
         future_list.append(_battle_check_executor.submit(self.check_quick_assist, screen, screenshot_time))
-        future_list.append(_battle_check_executor.submit(self._check_battle_end, screen, screenshot_time))
+        if check_battle_end:
+            future_list.append(_battle_check_executor.submit(self._check_battle_end, screen, screenshot_time))
 
         for future in future_list:
             future.add_done_callback(thread_utils.handle_future_result)
