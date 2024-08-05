@@ -41,11 +41,12 @@ class ZContext(OneDragonContext):
         self.charge_plan_config: ChargePlanConfig = ChargePlanConfig(instance_idx)
 
         # 运行记录
-        self.email_run_record: EmailRunRecord = EmailRunRecord(instance_idx)
-        self.random_play_run_record: RandomPlayRunRecord = RandomPlayRunRecord(instance_idx)
-        self.scratch_card_run_record: ScratchCardRunRecord = ScratchCardRunRecord(instance_idx)
-        self.charge_plan_run_record: ChargePlanRunRecord = ChargePlanRunRecord(instance_idx)
-        self.engagement_reward_run_record: EngagementRewardRunRecord = EngagementRewardRunRecord(instance_idx)
+        game_refresh_hour_offset = self.game_config.game_refresh_hour_offset
+        self.email_run_record: EmailRunRecord = EmailRunRecord(instance_idx, game_refresh_hour_offset)
+        self.random_play_run_record: RandomPlayRunRecord = RandomPlayRunRecord(instance_idx, game_refresh_hour_offset)
+        self.scratch_card_run_record: ScratchCardRunRecord = ScratchCardRunRecord(instance_idx, game_refresh_hour_offset)
+        self.charge_plan_run_record: ChargePlanRunRecord = ChargePlanRunRecord(instance_idx, game_refresh_hour_offset)
+        self.engagement_reward_run_record: EngagementRewardRunRecord = EngagementRewardRunRecord(instance_idx, game_refresh_hour_offset)
 
     def init_by_config(self) -> None:
         """

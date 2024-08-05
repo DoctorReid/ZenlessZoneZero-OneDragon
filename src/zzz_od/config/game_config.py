@@ -60,6 +60,14 @@ class GameConfig(YamlConfig):
         self.update('game_region', new_value)
 
     @property
+    def game_refresh_hour_offset(self) -> int:
+        if self.game_region == GameRegionEnum.CN.value.value:
+            return 4
+        elif self.game_region == GameRegionEnum.INTERNATIONAL.value.value:
+            return 4
+        return 4
+
+    @property
     def win_title(self) -> str:
         """
         游戏窗口名称 只有区服有关
