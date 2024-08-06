@@ -3,6 +3,7 @@ from typing import List, Optional, ClassVar
 from one_dragon.base.operation.application_base import Application
 from one_dragon.base.operation.application_run_record import AppRunRecord
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
+from one_dragon.base.operation.operation_base import OperationResult
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.base.operation.operation_node import OperationNode
 from one_dragon.utils.i18_utils import gt
@@ -40,7 +41,9 @@ class OneDragonApp(Application):
         执行前的初始化 由子类实现
         注意初始化要全面 方便一个指令重复使用
         """
-        pass
+        for app in self.app_list:  # 运行一条龙时 各app不需要改变上下文
+            app.init_context_before_start = False
+            app.stop_context_after_stop = False
 
     def get_one_dragon_apps_in_order(self) -> List[Application]:
         """
@@ -110,3 +113,9 @@ class OneDragonApp(Application):
         self._current_app_idx += 1
 
         return self.round_success(status=OneDragonApp.STATUS_NEXT)
+
+    def _after_operation_done(self, result: OperationResult):
+        Application._after_operation_done(self, result)
+        for app in self.app_list:   # 一条龙结束后 各app恢复
+            app.init_context_before_start = True
+            app.stop_context_after_stop = True
