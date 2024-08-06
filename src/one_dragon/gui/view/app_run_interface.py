@@ -196,7 +196,12 @@ class AppRunInterface(VerticalScrollInterface):
             self.app_event_log_card.set_update_log(not self.ctx.is_context_stop)
 
     def _on_start_clicked(self) -> None:
-        self.run_app()
+        if self.ctx.is_context_stop:
+            self.run_app()
+        elif self.ctx.is_context_running:
+            self.ctx.switch_context_pause_and_run()
+        elif self.ctx.is_context_pause:
+            self.ctx.switch_context_pause_and_run()
 
     def _on_stop_clicked(self) -> None:
         self.ctx.stop_running()
