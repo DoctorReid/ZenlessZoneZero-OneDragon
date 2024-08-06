@@ -1,3 +1,5 @@
+import time
+
 from one_dragon.base.conditional_operation.state_event import StateEvent
 from zzz_od.context.zzz_context import ZContext
 
@@ -15,7 +17,8 @@ class CustomBattleContext:
         :param value:
         :return:
         """
-        self.ctx.dispatch_event(event_id, StateEvent(time_diff, value))
+        now = time.time()
+        self.ctx.dispatch_event(event_id, StateEvent(now + time_diff, value))
 
     def clear_state(self, event_id: str) -> None:
         """
