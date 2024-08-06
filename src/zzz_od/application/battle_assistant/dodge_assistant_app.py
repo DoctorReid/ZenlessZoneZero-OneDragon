@@ -4,9 +4,10 @@ from typing import Optional
 
 from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
 from one_dragon.base.controller.pc_button import pc_button_utils
-from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.base.operation.operation_node import OperationNode
+from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils.i18_utils import gt
+from zzz_od.application.battle_assistant.auto_battle_app import AutoBattleApp
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.config.game_config import GamepadTypeEnum
@@ -89,6 +90,12 @@ class DodgeAssistantApp(ZApplication):
         if not self.auto_op.is_file_exists():
             return self.round_fail('无效的闪避指令 请重新选择')
         self.auto_op.init_operator()
+
+        self.ctx.dispatch_event(
+            AutoBattleApp.EVENT_OP_LOADED,
+            self.auto_op.get_usage_states(),
+        )
+
         self.auto_op.start_running_async()
 
         return self.round_success()

@@ -23,13 +23,13 @@ _od_conditional_op_executor = ThreadPoolExecutor(thread_name_prefix='od_conditio
 class ConditionalOperator(YamlConfig):
 
     def __init__(self, sub_dir: str, template_name: str,
-                 instance_idx: Optional[int] = None):
+                 instance_idx: Optional[int] = None, is_mock: bool = False):
         YamlConfig.__init__(
             self,
             module_name=template_name,
             sub_dir=[sub_dir],
             instance_idx=instance_idx,
-            sample=True, copy_from_sample=False
+            sample=True, copy_from_sample=False, is_mock=is_mock
         )
 
         self._inited: bool = False  # 是否已经完成初始化
@@ -47,7 +47,7 @@ class ConditionalOperator(YamlConfig):
     def init(
             self,
             event_bus: ContextEventBus,
-            state_recorders: List[StateRecorder],
+            state_getter: Callable[[str], StateRecorder],
             op_getter: Callable[[str, List[str]], AtomicOp],
             scene_handler_getter: Callable[[str], StateHandlerTemplate],
             operation_template_getter: Callable[[str], OperationTemplate],
@@ -68,7 +68,7 @@ class ConditionalOperator(YamlConfig):
         usage_states = []  # 已经监听的状态变更
 
         for scene_data in scenes:
-            handler = construct_scene_handler(scene_data, state_recorders,
+            handler = construct_scene_handler(scene_data, state_getter,
                                               op_getter, scene_handler_getter, operation_template_getter)
             states = scene_data.get('triggers', [])
             if len(states) > 0:

@@ -17,7 +17,7 @@ from zzz_od.application.battle_assistant.auto_battle_config import get_auto_batt
     get_auto_battle_op_config_list
 from zzz_od.application.battle_assistant.auto_battle_debug_app import AutoBattleDebugApp
 from zzz_od.application.zzz_application import ZApplication
-from zzz_od.auto_battle.auto_battle_loader import AutoBattleLoader
+from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.config.game_config import GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
 
@@ -79,7 +79,7 @@ class AutoBattleInterface(AppRunInterface):
         return top_widget
 
     def get_app_event_log_card(self) -> Optional[AppEventLogDisplayCard]:
-        return AppEventLogDisplayCard(self.ctx, AutoBattleLoader.get_all_state_event_ids())
+        return AppEventLogDisplayCard(self.ctx, AutoBattleOperator.get_all_state_event_ids())
 
     def on_interface_shown(self) -> None:
         """
@@ -93,6 +93,7 @@ class AutoBattleInterface(AppRunInterface):
         self.screenshot_interval_opt.setValue(str(self.ctx.battle_assistant_config.screenshot_interval))
         self.gamepad_type_opt.setValue(self.ctx.battle_assistant_config.gamepad_type)
         self.debug_btn.setText('%s %s' % (self.ctx.key_debug.upper(), '调试'))
+        self.ctx.listen_event(AutoBattleApp.EVENT_OP_LOADED, self._on_op_loaded)
 
     def _update_auto_battle_config_opts(self) -> None:
         """
@@ -159,3 +160,13 @@ class AutoBattleInterface(AppRunInterface):
             self._on_start_clicked()
         elif key == self.ctx.key_debug and self.ctx.is_context_stop:
             self._on_debug_clicked()
+
+    def _on_op_loaded(self, event: ContextEventItem) -> None:
+        """
+        指令加载之后 更新需要监听的事件
+        :param event:
+        :return:
+        """
+        if self.app_event_log_card is None:
+            return
+        self.app_event_log_card.set_target_event_ids(event.data)

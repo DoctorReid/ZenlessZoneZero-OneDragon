@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional, List
+from typing import Optional, List, Callable
 
 from one_dragon.base.conditional_operation.state_recorder import StateRecorder
 from one_dragon.utils.log_utils import log
@@ -125,11 +125,11 @@ class StateCalNode:
             self.state_recorder.dispose()
 
 
-def construct_state_cal_tree(expr_str: str, state_recorders: List[StateRecorder]) -> StateCalNode:
+def construct_state_cal_tree(expr_str: str, state_getter: Callable[[str], StateRecorder]) -> StateCalNode:
     """
     根据表达式 构造出状态判断树
     :param expr_str:  表达式字符串
-    :param state_recorders: 可用的状态记录器列表
+    :param state_getter: 状态记录器获取方法
     :return: 构造成功时，返回状态判断树的根节点；构造失败时，返回原因
     """
     if len(expr_str) == 0:
@@ -204,7 +204,7 @@ def construct_state_cal_tree(expr_str: str, state_recorders: List[StateRecorder]
 
                 right_idx = brace_right_idx
 
-            state_recorder: StateRecorder = get_state_recorder(state_name, state_recorders)
+            state_recorder: StateRecorder = state_getter(state_name)
             if state_recorder is None:
                 raise ValueError('位置 %d 的左中括号 后方状态不合法 %s' % (display_idx, state_name))
             
@@ -272,19 +272,6 @@ def construct_state_cal_tree(expr_str: str, state_recorders: List[StateRecorder]
         return node_stack[0]
 
             
-def get_state_recorder(state_name: str, state_recorders: List[StateRecorder]) -> Optional[StateRecorder]:
-    """
-    使用状态名称匹配对应的状态记录器
-    :param state_name: 状态名称
-    :param state_recorders: 状态记录器
-    :return: 
-    """
-    for i in state_recorders:
-        if i.state_name == state_name:
-            return i
-    return None
-
-
 def __debug():
     expr = "( [闪避识别-黄光, 0, 1] | [闪避识别-红光, 0, 1] ) & ![按键-闪避, 0, 1]{0, 1}"
     ctx = None

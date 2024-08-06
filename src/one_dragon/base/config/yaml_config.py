@@ -13,7 +13,7 @@ class YamlConfig(YamlOperator):
                  instance_idx: Optional[int] = None,
                  sub_dir: Optional[List[str]] = None,
                  sample: bool = False, copy_from_sample: bool = False,
-                 mock: bool = False):
+                 is_mock: bool = False):
         self.instance_idx: Optional[int] = instance_idx
         """传入时 该配置为一个的脚本实例独有的配置"""
 
@@ -23,7 +23,7 @@ class YamlConfig(YamlOperator):
         self.module_name: str = module_name
         """配置文件名称"""
 
-        self.mock: bool = mock
+        self.is_mock: bool = is_mock
         """mock情况下 不读取文件 也不会实际保存 用于测试"""
 
         self._sample: bool = sample
@@ -40,7 +40,7 @@ class YamlConfig(YamlOperator):
         如果只有sample文件，就复制一个到实例文件夹下
         :return:
         """
-        if self.mock:
+        if self.is_mock:
             return None
         sub_dir = ['config']
         if self.instance_idx is not None:

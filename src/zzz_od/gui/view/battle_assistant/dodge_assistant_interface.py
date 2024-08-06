@@ -15,7 +15,7 @@ from zzz_od.application.battle_assistant.auto_battle_config import get_auto_batt
     get_auto_battle_op_config_list
 from zzz_od.application.battle_assistant.dodge_assistant_app import DodgeAssistantApp
 from zzz_od.application.zzz_application import ZApplication
-from zzz_od.auto_battle.auto_battle_loader import AutoBattleLoader
+from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.config.game_config import GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
 
@@ -69,7 +69,7 @@ class DodgeAssistantInterface(AppRunInterface):
         return top_widget
 
     def get_app_event_log_card(self) -> Optional[AppEventLogDisplayCard]:
-        return AppEventLogDisplayCard(self.ctx, AutoBattleLoader.get_all_state_event_ids())
+        return AppEventLogDisplayCard(self.ctx, AutoBattleOperator.get_all_state_event_ids())
 
     def on_interface_shown(self) -> None:
         """

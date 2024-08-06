@@ -5,9 +5,11 @@ from typing import Optional
 from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
 from one_dragon.base.conditional_operation.operation_task import OperationTask
 from one_dragon.base.controller.pc_button import pc_button_utils
-from one_dragon.base.operation.operation_round_result import OperationRoundResult
+from one_dragon.base.operation.operation_base import OperationResult
 from one_dragon.base.operation.operation_node import OperationNode
+from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils.i18_utils import gt
+from zzz_od.application.battle_assistant.auto_battle_app import AutoBattleApp
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.config.game_config import GamepadTypeEnum
@@ -22,7 +24,7 @@ class AutoBattleDebugApp(ZApplication):
         """
         ZApplication.__init__(
             self,
-            ctx=ctx, app_id='auto_battle',
+            ctx=ctx, app_id='auto_battle_debug',
             op_name=gt('自动战斗调试', 'ui'),
             need_ocr=False
         )
@@ -91,6 +93,11 @@ class AutoBattleDebugApp(ZApplication):
             return self.round_fail('无效的自动战斗指令 请重新选择')
         self.auto_op.init_operator()
 
+        self.ctx.dispatch_event(
+            AutoBattleApp.EVENT_OP_LOADED,
+            self.auto_op.get_usage_states(),
+        )
+
         return self.round_success()
 
     def init_context(self) -> OperationRoundResult:
@@ -131,3 +138,9 @@ class AutoBattleDebugApp(ZApplication):
         ZApplication._on_resume(self, e)
         if self.auto_op is not None:
             self.auto_op.start_running_async()
+
+    def _after_operation_done(self, result: OperationResult):
+        ZApplication._after_operation_done(self, result)
+        if self.auto_op is not None:
+            self.auto_op.dispose()
+            self.auto_op = None

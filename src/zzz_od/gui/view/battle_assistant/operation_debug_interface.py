@@ -14,7 +14,7 @@ from zzz_od.application.battle_assistant.auto_battle_config import get_auto_batt
 from zzz_od.application.battle_assistant.operation_debug_app import OperationDebugApp
 from zzz_od.application.battle_assistant.operation_template_config import get_operation_template_config_list
 from zzz_od.application.zzz_application import ZApplication
-from zzz_od.auto_battle.auto_battle_loader import AutoBattleLoader
+from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.config.game_config import GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
 
@@ -67,7 +67,7 @@ class OperationDebugInterface(AppRunInterface):
         return top_widget
 
     def get_app_event_log_card(self) -> Optional[AppEventLogDisplayCard]:
-        return AppEventLogDisplayCard(self.ctx, AutoBattleLoader.get_all_state_event_ids())
+        return AppEventLogDisplayCard(self.ctx, AutoBattleOperator.get_all_state_event_ids())
 
     def on_interface_shown(self) -> None:
         """

@@ -11,7 +11,7 @@ from one_dragon.base.conditional_operation.state_recorder import StateRecorder
 
 def construct_scene_handler(
         scene_data: dict,
-        state_recorders: List[StateRecorder],
+        state_getter: Callable[[str], StateRecorder],
         op_getter: Callable[[str, List[str]], AtomicOp],
         scene_handler_getter: Callable[[str], StateHandlerTemplate],
         operation_template_getter: Callable[[str], OperationTemplate],
@@ -20,7 +20,7 @@ def construct_scene_handler(
 
     state_handlers = _get_state_handlers(
         scene_data.get('handlers', []),
-        state_recorders, op_getter, scene_handler_getter, operation_template_getter,
+        state_getter, op_getter, scene_handler_getter, operation_template_getter,
         set()
     )
 
@@ -31,7 +31,7 @@ def construct_scene_handler(
 
 def _get_state_handlers_by_template(
         template_name: str,
-        state_recorders: List[StateRecorder],
+        state_getter: Callable[[str], StateRecorder],
         op_getter: Callable[[str, List[str]], AtomicOp],
         scene_handler_getter: Callable[[str], StateHandlerTemplate],
         operation_template_getter: Callable[[str], OperationTemplate],
@@ -52,7 +52,7 @@ def _get_state_handlers_by_template(
     usage_states_handler_templates.add(template_name)
     state_handlers = _get_state_handlers(
         template.get('handlers', []),
-        state_recorders, op_getter, scene_handler_getter, operation_template_getter,
+        state_getter, op_getter, scene_handler_getter, operation_template_getter,
         usage_states_handler_templates
     )
     usage_states_handler_templates.remove(template_name)
@@ -62,7 +62,7 @@ def _get_state_handlers_by_template(
 
 def _get_state_handlers(
         handler_data_list: List[dict],
-        state_recorders: List[StateRecorder],
+        state_getter: Callable[[str], StateRecorder],
         op_getter: Callable[[str, List[str]], AtomicOp],
         scene_handler_getter: Callable[[str], StateHandlerTemplate],
         operation_template_getter: Callable[[str], OperationTemplate],
@@ -74,13 +74,13 @@ def _get_state_handlers(
         if 'state_template' in handler_data_item:
             template_state_handlers = _get_state_handlers_by_template(
                 handler_data_item.get('state_template', ''),
-                state_recorders, op_getter, scene_handler_getter, operation_template_getter,
+                state_getter, op_getter, scene_handler_getter, operation_template_getter,
                 usage_states_handler_templates)
             for i in template_state_handlers:
                 state_handlers.append(i)
         else:
             state_handlers.append(construct_state_handler(
-                handler_data_item, state_recorders,
+                handler_data_item, state_getter,
                 op_getter, scene_handler_getter, operation_template_getter,
                 usage_states_handler_templates
             ))
@@ -90,7 +90,7 @@ def _get_state_handlers(
 
 def construct_state_handler(
         state_data: dict,
-        state_recorders: List[StateRecorder],
+        state_getter: Callable[[str], StateRecorder],
         op_getter: Callable[[str, List[str]], AtomicOp],
         scene_handler_getter: Callable[[str], StateHandlerTemplate],
         operation_template_getter: Callable[[str], OperationTemplate],
@@ -100,7 +100,7 @@ def construct_state_handler(
     构造一个场景处理器
     包含状态判断 + 对应指令
     :param state_data: 场景配置数据
-    :param state_recorders: 状态记录器
+    :param state_getter: 状态记录获取器
     :param op_getter: 指令获取器
     :param operation_template_getter: 指令模板获取器
     :return:
@@ -108,14 +108,14 @@ def construct_state_handler(
     if 'states' not in state_data:
         raise ValueError('未有状态表达式字段 %s', state_data)
     states_expr = state_data.get('states', '')
-    state_cal_tree = construct_state_cal_tree(states_expr, state_recorders)
+    state_cal_tree = construct_state_cal_tree(states_expr, state_getter)
     if 'sub_states' in state_data:
         sub_state_data_list = state_data.get('sub_states', [])
         if len(sub_state_data_list) == 0:
             raise ValueError('状态( %s )下子状态为空', states_expr)
         sub_handler_list: List[StateHandler] = _get_state_handlers(
             sub_state_data_list,
-            state_recorders,
+            state_getter,
             op_getter,
             scene_handler_getter,
             operation_template_getter,

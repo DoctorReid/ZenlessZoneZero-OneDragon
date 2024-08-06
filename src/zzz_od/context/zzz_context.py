@@ -1,8 +1,8 @@
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils import i18_utils
+from zzz_od.application.battle_assistant.battle_assistant_config import BattleAssistantConfig
 from zzz_od.application.charge_plan.charge_plan_run_record import ChargePlanRunRecord
 from zzz_od.application.devtools.screenshot_helper.screenshot_helper_config import ScreenshotHelperConfig
-from zzz_od.application.battle_assistant.battle_assistant_config import BattleAssistantConfig
 from zzz_od.application.email.email_run_record import EmailRunRecord
 from zzz_od.application.engagement_reward.engagement_reward_run_record import EngagementRewardRunRecord
 from zzz_od.application.random_play.random_play_run_record import RandomPlayRunRecord
@@ -27,6 +27,9 @@ class ZContext(OneDragonContext):
 
         from zzz_od.context.yolo_context import YoloContext
         self.yolo: YoloContext = YoloContext(self)
+
+        from zzz_od.context.custom_battle_context import CustomBattleContext
+        self.custom_battle: CustomBattleContext = CustomBattleContext(self)
 
         # 基础配置
         self.game_config: GameConfig = GameConfig(instance_idx)

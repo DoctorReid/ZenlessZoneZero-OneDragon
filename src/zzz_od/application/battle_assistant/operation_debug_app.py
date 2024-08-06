@@ -5,12 +5,12 @@ from typing import Optional, List
 from one_dragon.base.conditional_operation.atomic_op import AtomicOp
 from one_dragon.base.conditional_operation.utils import get_ops_by_template
 from one_dragon.base.controller.pc_button import pc_button_utils
-from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.base.operation.operation_node import OperationNode
+from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from zzz_od.application.zzz_application import ZApplication
-from zzz_od.auto_battle.auto_battle_loader import AutoBattleLoader
+from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.config.game_config import GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
 
@@ -86,17 +86,17 @@ class OperationDebugApp(ZApplication):
         加载战斗指令
         :return:
         """
-        config_loader = AutoBattleLoader(self.ctx)
+        op = AutoBattleOperator(self.ctx, '', '', is_mock=True)
         template_name = self.ctx.battle_assistant_config.debug_operation_config
-        operation_template = config_loader.get_operation_template(template_name)
+        operation_template = AutoBattleOperator.get_operation_template(template_name)
         if operation_template is None:
             return self.round_fail('无效的自动战斗指令 请重新选择')
 
         try:
             self.ops = get_ops_by_template(
                 template_name,
-                config_loader.get_atomic_op,
-                config_loader.get_operation_template,
+                op.get_atomic_op,
+                AutoBattleOperator.get_operation_template,
                 set()
             )
             self.op_idx = 0

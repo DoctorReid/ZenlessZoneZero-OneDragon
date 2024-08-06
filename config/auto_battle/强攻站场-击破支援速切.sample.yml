@@ -1,52 +1,72 @@
+# 推荐配队: 强攻-击破-支援
+# 战斗逻辑: 由强攻站场打输出，优先使用击破格挡，格挡后有E放E，然后切换回强攻继续，失衡后切支援再切强攻进行爆发输出
 allow_ultimate:
   - agent_type: "强攻"
 
 scenes:
 
-- triggers: ["闪避识别-黄光", "闪避识别-红光"]
-  interval: 1.2
-  handlers:
-  - states: "[闪避识别-黄光, 0, 0.5]"
-    sub_states:
-      - state_template: "双反模板-击破"
-      - state_template: "双反模板-强攻"
-      - state_template: "双反模板-下一个"
-  - states: "[闪避识别-红光, 0, 0.5]"
-    sub_states:
-      - state_template: "闪A模板-全角色"
+  - triggers: [ "闪避识别-黄光", "闪避识别-红光" ]
+    interval: 1.2
+    handlers:
+      - states: "[闪避识别-黄光, 0, 0.5]"
+        sub_states:
+          - state_template: "双反模板-击破"
+          - state_template: "双反模板-强攻"
+          - state_template: "双反模板-下一个"
+      - states: "[闪避识别-红光, 0, 0.5]"
+        sub_states:
+          - state_template: "闪A模板-全角色"
 
-- triggers: ["按键可用-快速支援"]
-  interval: 1
-  handlers:
-  - states: "[按键可用-快速支援]"
-    operations:
-      - op_name: "按键-切换角色-下一个"
-        data: []
-      - op_name: "等待秒数"
-        data: [ "0.1" ]
+  - triggers: [ "按键可用-快速支援" ]
+    interval: 1
+    handlers:
+      - states: "[按键可用-快速支援]"
+        operations:
+          - op_name: "按键-切换角色-下一个"
+            data: [ ]
+          - op_name: "等待秒数"
+            data: [ "0.1" ]
 
-# 强攻第一次触发，先支援、再强攻；击破第一次触发，先支援、再强攻；支援不太会触发
-- triggers: ["按键可用-连携技"]
-  interval: 1
-  handlers:
-  - states: "[按键可用-连携技]"
-    sub_states:
-      - state_template: "连携模板-支援"
-      - state_template: "连携模板-强攻"
-      - state_template: "连携模板-跳过"
+  # 强攻第一次触发，先支援、再强攻；击破第一次触发，先支援、再强攻；支援不太会触发
+  - triggers: [ "按键可用-连携技" ]
+    interval: 1
+    handlers:
+      - states: "[按键可用-连携技]"
+        sub_states:
+          - state_template: "连携模板-支援"
+          - state_template: "连携模板-强攻"
+          - state_template: "连携模板-跳过"
 
-- triggers: ["前台-击破"]
-  interval: 1
-  handlers:
-  - state_template: "速切模板-全角色"
+  - triggers: [ "前台-击破" ]
+    interval: 1
+    handlers:
+      - state_template: "速切模板-全角色"
 
-- triggers: ["前台-支援"]
-  interval: 1
-  handlers:
-  - state_template: "速切模板-全角色"
+  - triggers: [ "前台-支援" ]
+    interval: 1
+    handlers:
+      - state_template: "速切模板-全角色"
 
-- triggers: []
-  interval: 0.35
-  handlers:
-  - state_template: "站场模板-艾莲"
-  - state_template: "站场模板-朱鸢"
+  - triggers: [ ]
+    interval: 0.35
+    handlers:
+      # 速切之后 切换回强攻角色
+      - states: "[自定义-速切结束]"
+        sub_states:
+          - states: "[后台-2-强攻]"
+            operations:
+              - op_name: "按键-切换角色-上一个"
+                data: [ ]
+              - op_name: "等待秒数"
+                data: [ "0.1" ]
+              - op_name: "清除状态"
+                data: [ "自定义-速切结束" ]
+          - states: ""
+            operations:
+              - op_name: "按键-切换角色-下一个"
+                data: [ ]
+              - op_name: "等待秒数"
+                data: [ "0.1" ]
+              - op_name: "清除状态"
+                data: [ "自定义-速切结束" ]
+      - state_template: "站场模板-全角色"

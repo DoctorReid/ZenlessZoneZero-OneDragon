@@ -24,6 +24,7 @@ class ContextEventBus:
         下发事件
         :param event_id: 事件ID
         :param event_obj: 事件体
+        :param output_log: 输出日志
         :return:
         """
         if output_log:
