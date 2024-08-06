@@ -93,8 +93,11 @@ class OneDragonApp(Application):
 
         self._to_run_app_list = []
         for app in order_app_list:
-            if app.run_record.run_status_under_now != AppRunRecord.STATUS_SUCCESS:
-                self._to_run_app_list.append(app)
+            if app.app_id not in self.ctx.one_dragon_config.app_run_list:
+                continue
+            if app.run_record.run_status_under_now == AppRunRecord.STATUS_SUCCESS:
+                continue
+            self._to_run_app_list.append(app)
 
         self._current_app_idx = 0
 

@@ -137,19 +137,21 @@ class OneDragonRunInterface(VerticalScrollInterface):
         if not self.ctx.is_context_stop:  # 不是停止状态不更新
             return
         self.app_list = self.one_dragon_app.get_one_dragon_apps_in_order()
+        app_run_list = self.ctx.one_dragon_config.app_run_list
 
         if len(self._app_run_cards) > 0:  # 之前已经添加了组件了 这次只是调整顺序
             for idx, app in enumerate(self.app_list):
                 self._app_run_cards[idx].set_app(app)
         else:
             for app in self.app_list:
-                app_run_card = AppRunCard(app)
+                app_run_card = AppRunCard(app, switch_on=app.app_id in app_run_list)
                 self._app_run_cards.append(app_run_card)
                 self.app_card_group.addSettingCard(app_run_card)
                 app_run_card.update_display()
 
                 app_run_card.move_up.connect(self._on_app_card_move_up)
                 app_run_card.run.connect(self._on_app_card_run)
+                app_run_card.switched.connect(self._on_app_switch_run)
 
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)
@@ -236,3 +238,12 @@ class OneDragonRunInterface(VerticalScrollInterface):
         for app in self.app_list:
             if app.app_id == app_id:
                 self.run_app(app)
+
+    def _on_app_switch_run(self, app_id: str, value: bool) -> None:
+        """
+        应用运行状态切换
+        :param app_id:
+        :param value:
+        :return:
+        """
+        self.ctx.one_dragon_config.set_app_run(app_id, value)

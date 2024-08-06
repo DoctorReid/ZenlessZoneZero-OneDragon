@@ -168,3 +168,23 @@ class OneDragonConfig(YamlConfig):
         old_app_orders[idx] = temp
 
         self.app_order = old_app_orders
+
+    @property
+    def app_run_list(self) -> List[str]:
+        """
+        运行顺序
+        :return:
+        """
+        return self.get("app_run_list", [])
+
+    @app_run_list.setter
+    def app_run_list(self, new_list: List[str]):
+        self.update('app_run_list', new_list)
+
+    def set_app_run(self, app_id: str, to_run: bool) -> None:
+        app_run_list = self.app_run_list
+        if to_run and app_id not in app_run_list:
+            app_run_list.append(app_id)
+        elif not to_run:
+            app_run_list.remove(app_id)
+        self.app_run_list = app_run_list
