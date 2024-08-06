@@ -1,0 +1,70 @@
+screen_id: notorious_hunt
+screen_name: 恶名狩猎
+pc_alt: false
+area_list:
+- area_name: 副本名称列表
+  pc_rect:
+  - 372
+  - 216
+  - 1560
+  - 260
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 剩余次数
+  pc_rect:
+  - 382
+  - 996
+  - 404
+  - 1025
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 当期剩余奖励次数
+  pc_rect:
+  - 192
+  - 992
+  - 366
+  - 1024
+  text: 当期剩余奖励次数
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 选择
+  pc_rect:
+  - 860
+  - 772
+  - 1050
+  - 820
+  text: 选择
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 重新开始
+  pc_rect:
+  - 1228
+  - 1008
+  - 1508
+  - 1058
+  text: 重新开始
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 重新开始-确认
+  pc_rect:
+  - 1030
+  - 602
+  - 1226
+  - 652
+  text: 确认
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

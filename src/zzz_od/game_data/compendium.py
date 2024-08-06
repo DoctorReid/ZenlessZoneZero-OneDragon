@@ -3,7 +3,6 @@ import yaml
 from typing import List, Optional
 
 from one_dragon.base.config.config_item import ConfigItem
-from one_dragon.base.config.yaml_config import YamlConfig
 from one_dragon.utils import os_utils
 from one_dragon.utils.log_utils import log
 
@@ -161,3 +160,15 @@ class CompendiumService:
                         return category.mission_type_list
 
         return None
+
+    def get_notorious_hunt_plan_mission_type_list(self, category_name: str) -> List[ConfigItem]:
+        config_list: List[ConfigItem] = []
+
+        mission_type_list = self.get_mission_type_list_data('挑战', category_name)
+        for mission_type_item in mission_type_list:
+            config_list.append(ConfigItem(
+                label=mission_type_item.mission_type_name_display,
+                value=mission_type_item.mission_type_name
+            ))
+
+        return config_list

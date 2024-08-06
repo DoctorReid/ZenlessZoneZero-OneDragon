@@ -1,9 +1,16 @@
 import time
 from datetime import datetime
+from enum import Enum
 from typing import Optional
 
 from one_dragon.base.config.yaml_config import YamlConfig
 from one_dragon.utils import os_utils
+
+
+class AppRunRecordPeriod(Enum):
+
+    DAILY = 1
+    WEEKLY = 2
 
 
 class AppRunRecord(YamlConfig):
@@ -13,15 +20,19 @@ class AppRunRecord(YamlConfig):
     STATUS_FAIL = 2
     STATUS_RUNNING = 3
 
-    def __init__(self, app_id: str,
-                 instance_idx: Optional[int] = None,
-                 game_refresh_hour_offset: int = 0):
+    def __init__(
+            self, app_id: str,
+            instance_idx: Optional[int] = None,
+            game_refresh_hour_offset: int = 0,
+            record_period: AppRunRecordPeriod = AppRunRecordPeriod.DAILY
+    ):
         self.app_id: str = app_id
         self.dt: str = ''
         self.run_time: str = ''
         self.run_time_float: float = 0
         self.run_status: int = AppRunRecord.STATUS_WAIT  # 0=未运行 1=成功 2=失败 3=运行中
         self.game_refresh_hour_offset: int = game_refresh_hour_offset  # 游戏内每天刷新的偏移小时数 以凌晨12点为界限
+        self.record_period: AppRunRecordPeriod = record_period
         super().__init__(app_id, instance_idx=instance_idx, sub_dir=['app_run_record'], sample=False)
 
         self._init_after_read_file()
@@ -83,7 +94,12 @@ class AppRunRecord(YamlConfig):
         :return:
         """
         current_dt = self.get_current_dt()
-        return self.dt != current_dt
+        if self.record_period == AppRunRecordPeriod.DAILY:
+            return self.dt != current_dt
+        elif self.record_period == AppRunRecordPeriod.WEEKLY:
+            return os_utils.get_sunday_dt(self.dt) != os_utils.get_sunday_dt(current_dt)
+        else:
+            return True
 
     def get_current_dt(self) -> str:
         """

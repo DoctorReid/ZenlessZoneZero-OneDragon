@@ -3,6 +3,7 @@ import time
 from typing import Optional, ClassVar
 
 from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
+from one_dragon.base.geometry.point import Point
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
@@ -14,10 +15,9 @@ from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.zzz_operation import ZOperation
 
 
-class ExpertChallenge(ZOperation):
+class NotoriousHunt(ZOperation):
 
-    STATUS_CHARGE_NOT_ENOUGH: ClassVar[str] = '电量不足'
-    STATUS_CHARGE_ENOUGH: ClassVar[str] = '电量充足'
+    STATUS_NO_LEFT_TIMES: ClassVar[str] = '没有剩余次数'
 
     def __init__(self, ctx: ZContext, plan: ChargePlanItem,
                  ):
@@ -30,7 +30,7 @@ class ExpertChallenge(ZOperation):
             self, ctx,
             node_max_retry_times=5,
             op_name='%s %s' % (
-                gt('专业挑战室'),
+                gt('恶名狩猎'),
                 gt(plan.mission_type_name)
             )
         )
@@ -47,46 +47,54 @@ class ExpertChallenge(ZOperation):
 
         self.auto_op: Optional[ConditionalOperator] = None
 
-    @operation_node(name='等待入口加载', is_start_node=True)
+    @operation_node(name='等待入口加载', is_start_node=False)
     def wait_entry_load(self) -> OperationRoundResult:
         self.node_max_retry_times = 60  # 一开始等待加载要久一点
         screen = self.screenshot()
         return self.round_by_find_area(
-            screen, '实战模拟室', '挑战等级',
+            screen, '恶名狩猎', '当期剩余奖励次数',
             success_wait=1, retry_wait=1
         )
 
     @node_from(from_name='等待入口加载')
-    @operation_node(name='识别电量')
-    def check_charge(self) -> OperationRoundResult:
+    @operation_node(name='识别剩余次数')
+    def check_left_times(self) -> OperationRoundResult:
         screen = self.screenshot()
-
-        area = self.ctx.screen_loader.get_area('专业挑战室', '剩余体力')
+        area = self.ctx.screen_loader.get_area('恶名狩猎', '剩余次数')
         part = cv2_utils.crop_image_only(screen, area.rect)
-        ocr_result = self.ctx.ocr.run_ocr_single_line(part)
-        self.charge_left = str_utils.get_positive_digits(ocr_result, None)
-        if self.charge_left is None:
-            return self.round_retry(status='识别 %s 失败' % '剩余体力', wait=1)
 
-        area = self.ctx.screen_loader.get_area('专业挑战室', '需要体力')
+        ocr_result = self.ctx.ocr.run_ocr_single_line(part)
+        left_times = str_utils.get_positive_digits(ocr_result, None)
+
+        if left_times is None:
+            return self.round_retry('未能识别剩余次数', wait_round_time=1)
+        elif left_times == 0:
+            self.ctx.notorious_hunt_record.left_times = 0
+            return self.round_success(NotoriousHunt.STATUS_NO_LEFT_TIMES)
+        else:
+            self.ctx.notorious_hunt_record.left_times = left_times
+            self.can_run_times = min(left_times, self.plan.plan_times - self.plan.run_times)
+            return self.round_success()
+
+    @node_from(from_name='识别剩余次数')
+    @operation_node(name='选择副本')
+    def choose_mission(self) -> OperationRoundResult:
+        self.node_max_retry_times = 5
+
+        screen = self.screenshot()
+        area = self.ctx.screen_loader.get_area('恶名狩猎', '副本名称列表')
         part = cv2_utils.crop_image_only(screen, area.rect)
-        ocr_result = self.ctx.ocr.run_ocr_single_line(part)
-        self.charge_need = str_utils.get_positive_digits(ocr_result, None)
-        if self.charge_need is None:
-            return self.round_retry(status='识别 %s 失败' % '需要体力', wait=1)
 
-        if self.charge_need > self.charge_left:
-            return self.round_success(ExpertChallenge.STATUS_CHARGE_NOT_ENOUGH)
+        ocr_result_map = self.ctx.ocr.run_ocr(part)
+        for ocr_result, mrl in ocr_result_map.items():
+            if str_utils.find_by_lcs(gt(self.plan.mission_type_name), ocr_result, percent=0.5):
+                to_click = mrl.max.center + area.left_top + Point(0, 100)
+                if self.ctx.controller.click(to_click):
+                    return self.round_success(wait=2)
 
-        self.can_run_times = self.charge_left // self.charge_need
-        max_need_run_times = self.plan.plan_times - self.plan.run_times
+        return self.round_retry(f'未能识别{self.plan.mission_type_name}', wait_round_time=1)
 
-        if self.can_run_times > max_need_run_times:
-            self.can_run_times = max_need_run_times
-
-        return self.round_success(ExpertChallenge.STATUS_CHARGE_ENOUGH)
-
-    @node_from(from_name='识别电量', status=STATUS_CHARGE_ENOUGH)
+    @node_from(from_name='选择副本')
     @operation_node(name='下一步')
     def click_next(self) -> OperationRoundResult:
         screen = self.screenshot()
@@ -105,7 +113,7 @@ class ExpertChallenge(ZOperation):
         )
 
     @node_from(from_name='出战')
-    @node_from(from_name='判断下一次', status='战斗结果-再来一次')
+    @node_from(from_name='重新开始-确认')
     @operation_node(name='自动战斗初始化')
     def init_auto_battle(self) -> OperationRoundResult:
         if self.auto_op is not None:  # 如果有上一个 先销毁
@@ -125,12 +133,37 @@ class ExpertChallenge(ZOperation):
     def wait_battle_screen(self) -> OperationRoundResult:
         self.node_max_retry_times = 60  # 战斗加载的等待时间较长
         screen = self.screenshot()
-        result = self.round_by_find_area(screen, '战斗画面', '按钮-普通攻击', retry_wait_round=1)
-        if result.is_success:
-            self.auto_op.start_running_async()
-        return result
+        return self.round_by_find_area(screen, '战斗画面', '按钮-普通攻击', retry_wait_round=1)
 
     @node_from(from_name='等待战斗画面加载')
+    @operation_node(name='移动交互')
+    def move_and_interact(self) -> OperationRoundResult:
+        self.ctx.controller.move_w(press=True, press_time=1.5, release=True)
+
+        time.sleep(1)
+
+        self.ctx.controller.interact(press=True, press_time=0.2, release=True)
+        time.sleep(2)
+
+        return self.round_success()
+
+    @node_from(from_name='移动交互')
+    @operation_node(name='选择')
+    def choose_buff(self) -> OperationRoundResult:
+        screen = self.screenshot()
+
+        return self.round_by_find_and_click_area(screen, '恶名狩猎', '选择',
+                                                 success_wait=1, retry_wait_round=1)
+
+    @node_from(from_name='选择')
+    @operation_node(name='向前移动准备战斗')
+    def move_to_battle(self) -> OperationRoundResult:
+        self.ctx.controller.move_w(press=True, press_time=3, release=True)
+
+        self.auto_op.start_running_async()
+        return self.round_success()
+
+    @node_from(from_name='向前移动准备战斗')
     @operation_node(name='自动战斗')
     def auto_battle(self) -> OperationRoundResult:
         if self.ctx.battle.is_battle_end():
@@ -150,7 +183,8 @@ class ExpertChallenge(ZOperation):
         self.node_max_retry_times = 5  # 战斗结束恢复重试次数
         # TODO 还没有判断战斗失败
         self.can_run_times -= 1
-        self.ctx.charge_plan_config.add_plan_run_times(self.plan)
+        self.ctx.notorious_hunt_record.left_times = self.ctx.notorious_hunt_record.left_times - 1
+        self.ctx.notorious_hunt_config.add_plan_run_times(self.plan)
         return self.round_success()
 
     @node_from(from_name='战斗结束')
@@ -161,19 +195,26 @@ class ExpertChallenge(ZOperation):
             return self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-完成',
                                                      success_wait=5, retry_wait_round=1)
         else:
-            return self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-再来一次',
+            return self.round_by_find_and_click_area(screen, '恶名狩猎', '重新开始',
                                                      success_wait=1, retry_wait_round=1)
 
+    @node_from(from_name='判断下一次')
+    @operation_node(name='重新开始-确认')
+    def restart_confirm(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        return self.round_by_find_and_click_area(screen, '恶名狩猎', '重新开始-确认',
+                                                 success_wait=1, retry_wait_round=1)
 
 def __debug():
     ctx = ZContext()
     ctx.init_by_config()
     ctx.ocr.init_model()
     ctx.start_running()
-    op = ExpertChallenge(ctx, ChargePlanItem(
-        category_name='专业挑战室',
-        mission_type_name='恶名·杜拉罕'
+    op = NotoriousHunt(ctx, ChargePlanItem(
+        category_name='恶名狩猎',
+        mission_type_name='初生死路屠夫'
     ))
+    op.can_run_times = 1
     op.execute()
 
 

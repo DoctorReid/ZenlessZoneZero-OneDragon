@@ -5,9 +5,11 @@ from zzz_od.application.charge_plan.charge_plan_run_record import ChargePlanRunR
 from zzz_od.application.devtools.screenshot_helper.screenshot_helper_config import ScreenshotHelperConfig
 from zzz_od.application.email.email_run_record import EmailRunRecord
 from zzz_od.application.engagement_reward.engagement_reward_run_record import EngagementRewardRunRecord
+from zzz_od.application.notorious_hunt.notorious_hunt_config import NotoriousHuntConfig
+from zzz_od.application.notorious_hunt.notorious_hunt_run_record import NotoriousHuntRunRecord
 from zzz_od.application.random_play.random_play_run_record import RandomPlayRunRecord
 from zzz_od.application.scratch_card.scratch_card_run_record import ScratchCardRunRecord
-from zzz_od.config.charge_plan_config import ChargePlanConfig
+from zzz_od.application.charge_plan.charge_plan_config import ChargePlanConfig
 from zzz_od.config.game_config import GameConfig, GamePlatformEnum
 from zzz_od.controller.zzz_pc_controller import ZPcController
 from zzz_od.game_data.compendium import CompendiumService
@@ -42,6 +44,7 @@ class ZContext(OneDragonContext):
         self.screenshot_helper_config: ScreenshotHelperConfig = ScreenshotHelperConfig(instance_idx)
         self.battle_assistant_config: BattleAssistantConfig = BattleAssistantConfig(instance_idx)
         self.charge_plan_config: ChargePlanConfig = ChargePlanConfig(instance_idx)
+        self.notorious_hunt_config: NotoriousHuntConfig = NotoriousHuntConfig(instance_idx)
 
         # 运行记录
         game_refresh_hour_offset = self.game_config.game_refresh_hour_offset
@@ -50,6 +53,7 @@ class ZContext(OneDragonContext):
         self.scratch_card_run_record: ScratchCardRunRecord = ScratchCardRunRecord(instance_idx, game_refresh_hour_offset)
         self.charge_plan_run_record: ChargePlanRunRecord = ChargePlanRunRecord(instance_idx, game_refresh_hour_offset)
         self.engagement_reward_run_record: EngagementRewardRunRecord = EngagementRewardRunRecord(instance_idx, game_refresh_hour_offset)
+        self.notorious_hunt_record: NotoriousHuntRunRecord = NotoriousHuntRunRecord(instance_idx, game_refresh_hour_offset)
 
     def init_by_config(self) -> None:
         """

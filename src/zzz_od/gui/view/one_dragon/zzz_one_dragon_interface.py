@@ -8,6 +8,7 @@ from one_dragon.gui.view.zzz_one_dragon.one_dragon_run_interface import OneDrago
 from zzz_od.application.zzz_one_dragon_app import ZOneDragonApp
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.one_dragon.charge_plan_interface import ChargePlanInterface
+from zzz_od.gui.view.one_dragon.notorious_hunt_interface import NotoriousHuntPlanInterface
 
 
 class ZOneDragonInterface(PivotNavigatorInterface):
@@ -28,3 +29,4 @@ class ZOneDragonInterface(PivotNavigatorInterface):
     def create_sub_interface(self):
         self.add_sub_interface(OneDragonRunInterface(self.ctx, ZOneDragonApp(self.ctx)))
         self.add_sub_interface(ChargePlanInterface(self.ctx))
+        self.add_sub_interface(NotoriousHuntPlanInterface(self.ctx))
