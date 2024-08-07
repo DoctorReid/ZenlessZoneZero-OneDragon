@@ -144,6 +144,7 @@ class OneDragonContext(ContextEventBus):
         elif key == self.key_stop_running:
             self.stop_running()
         elif key == self.key_screenshot:
+            self.stop_running()
             self.screenshot_and_save_debug()
 
         self.dispatch_event(ContextKeyboardEventEnum.PRESS.value, key)
