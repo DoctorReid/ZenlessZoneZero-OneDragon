@@ -72,32 +72,29 @@ class RandomPlayApp(ZApplication):
         return self.round_success()
 
     @node_from(from_name='移动交互')
-    @operation_node(name='识别画面')
-    def check_yesterday(self) -> OperationRoundResult:
-        """
-        判断有没有昨日账本并点击
-        :return:
-        """
+    @operation_node(name='等待经营画面加载')
+    def wait_run(self) -> OperationRoundResult:
         screen = self.screenshot()
 
         result = self.round_by_find_area(screen, '影像店营业', '昨日账本')
         if result.is_success:
-            if self.click_area('影像店营业', '返回'):
-                return self.round_success(wait=1)
-            else:
-                return self.round_retry(status='点击关闭失败')
-
+            return self.round_by_click_area('影像店营业', '返回',
+                                            success_wait=1, retry_wait=1)
         # 看看经营状况
-        result = self.round_by_find_area(screen, '影像店营业', '经营状况')
-        if result.is_success:
-            return self.round_success()
-        else:
-            return self.round_retry(status='未识别当前画面')
+        return self.round_by_find_area(screen, '影像店营业', '经营状况',
+                                       success_wait=1, retry_wait=1)
 
-    @node_from(from_name='识别画面')
+    @node_from(from_name='等待经营画面加载')
     @operation_node(name='识别营业状态')
     def check_running(self) -> OperationRoundResult:
         screen = self.screenshot()
+
+        # 防止上一步跳过了昨日账本
+        result = self.round_by_find_area(screen, '影像店营业', '昨日账本')
+        if result.is_success:
+            self.round_by_click_area('影像店营业', '返回')
+            return self.round_retry(wait=1)
+
         result = self.round_by_find_area(screen, '影像店营业', '正在营业')
         if result.is_success:
             return self.round_success(RandomPlayApp.STATUS_ALREADY_RUNNING)
