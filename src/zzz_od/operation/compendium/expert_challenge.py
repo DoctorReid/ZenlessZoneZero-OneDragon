@@ -99,12 +99,18 @@ class ExpertChallenge(ZOperation):
     @operation_node(name='出战')
     def click_start(self) -> OperationRoundResult:
         screen = self.screenshot()
+
+        # 防止前面电量识别错误
+        result = self.round_by_find_area(screen, '实战模拟室', '恢复电量')
+        if result.is_success:
+            return self.round_success(status=ExpertChallenge.STATUS_CHARGE_NOT_ENOUGH)
+
         return self.round_by_find_and_click_area(
             screen, '实战模拟室', '出战',
             success_wait=1, retry_wait_round=1
         )
 
-    @node_from(from_name='出战')
+    @node_from(from_name='出战', status='出战')
     @node_from(from_name='判断下一次', status='战斗结果-再来一次')
     @operation_node(name='自动战斗初始化')
     def init_auto_battle(self) -> OperationRoundResult:
