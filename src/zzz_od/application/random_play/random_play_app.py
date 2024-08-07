@@ -171,6 +171,17 @@ class RandomPlayApp(ZApplication):
                                         success_wait=1, retry_wait=1)
 
     @node_from(from_name='点击录像带入口')
+    @operation_node(name='识别推荐上架')
+    def check_recommended(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        result = self.round_by_find_and_click_area(screen, '影像店营业', '推荐上架')
+
+        if result.is_success:
+            return self.round_success(status=result.status, wait=1)
+
+        return self.round_by_find_area(screen, '影像店营业', '上架筛选')
+
+    @node_from(from_name='识别推荐上架', status='上架筛选')
     @node_from(from_name='上架')
     @operation_node(name='上架筛选')
     def click_filter(self) -> OperationRoundResult:
@@ -253,6 +264,7 @@ class RandomPlayApp(ZApplication):
         else:
             return self.round_retry(status=click1.status, wait_round_time=1)
 
+    @node_from(from_name='识别推荐上架', status='推荐上架')
     @node_from(from_name='上架筛选', status=STATUS_ALL_VIDEO_CHOOSE)
     @operation_node(name='返回')
     def back(self) -> OperationRoundResult:

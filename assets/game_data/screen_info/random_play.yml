@@ -211,3 +211,14 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 推荐上架
+  pc_rect:
+  - 1320
+  - 1002
+  - 1516
+  - 1052
+  text: 推荐上架
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
