@@ -4,10 +4,10 @@ allow_ultimate:
 
 check_dodge_interval: 0.02
 check_agent_interval: 0.5
-check_special_attack_interval: 0.1
-check_ultimate_interval: 0.1
-check_chain_attack_interval: 1
-check_quick_assist_interval: 0.1
+check_special_attack_interval: [0.5, 0.6]
+check_ultimate_interval: 0.5
+check_chain_interval: 1
+check_quick_interval: 0.5
 
 
 scenes:

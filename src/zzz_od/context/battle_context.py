@@ -4,13 +4,13 @@ from concurrent.futures import ThreadPoolExecutor, Future
 import threading
 from cv2.typing import MatLike
 from enum import Enum
-from typing import Optional, List
+from typing import Optional, List, Union
 
 from one_dragon.base.conditional_operation.state_event import StateEvent
 from one_dragon.base.screen import screen_utils
 from one_dragon.base.screen.screen_area import ScreenArea
 from one_dragon.base.screen.screen_utils import FindAreaResultEnum
-from one_dragon.utils import cv2_utils, debug_utils, thread_utils
+from one_dragon.utils import cv2_utils, debug_utils, thread_utils, cal_utils
 from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import Agent, AgentEnum
@@ -48,6 +48,7 @@ class BattleContext:
 
         # 角色列表
         self.agent_list: List[Agent] = []
+        self._allow_ultimate_list: Optional[List[dict[str, str]]] = None  # 允许使用终结技的角色
         self.should_check_all_agents: bool = True  # 是否应该检查所有角色
         self.check_agent_same_times: int = 0  # 识别角色的相同次数
         self.check_agent_diff_times: int = 0  # 识别角色的不同次数
@@ -63,10 +64,21 @@ class BattleContext:
         self._check_end_lock = threading.Lock()
 
         # 识别间隔
-        self._check_agent_interval: float = 0.5
-        self._check_agent_interval: float = 0.5
+        self._check_agent_interval: Union[float, List[float]] = 0
+        self._check_special_attack_interval: Union[float, List[float]] = 0
+        self._check_ultimate_interval: Union[float, List[float]] = 0
+        self._check_chain_interval: Union[float, List[float]] = 0
+        self._check_quick_interval: Union[float, List[float]] = 0
+        self._check_end_interval: Union[float, List[float]] = 5
 
-        self._last_check_end_time: float = 0  # 上一次识别结束的时间
+        # 上一次识别的时间
+        self._last_check_agent_time: float = 0
+        self._last_check_special_attack_time: float = 0
+        self._last_check_ultimate_time: float = 0
+        self._last_check_chain_time: float = 0
+        self._last_check_quick_time: float = 0
+        self._last_check_end_time: float = 0
+
         self._last_check_end_result: Optional[FindAreaResultEnum] = None  # 上一次识别结束的结果
 
     def dodge(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
@@ -230,16 +242,25 @@ class BattleContext:
         self.ctx.controller.move_d(press=press, press_time=press_time, release=release)
         self.ctx.dispatch_event(e, StateEvent(time.time()))
 
-    def init_context(self, agent_names: Optional[List[str]] = None) -> None:
+    def init_context(self,
+                     agent_names: Optional[List[str]] = None,
+                     allow_ultimate_list: Optional[List[dict[str, str]]] = None,
+                     check_agent_interval: Union[float, List[float]] = 0,
+                     check_special_attack_interval: Union[float, List[float]] = 0,
+                     check_ultimate_interval: Union[float, List[float]] = 0,
+                     check_chain_interval: Union[float, List[float]] = 0,
+                     check_quick_interval: Union[float, List[float]] = 0,
+                     check_end_interval: Union[float, List[float]] = 5,
+                     ) -> None:
         """
         重置上下文
         :return:
         """
         self.agent_list = []
+        self._allow_ultimate_list = allow_ultimate_list
         self.should_check_all_agents = agent_names is None
         self.check_agent_same_times = 0
         self.check_agent_diff_times = 0
-        self._last_check_end_time = 0
         self._last_check_end_result = None
 
         if agent_names is not None:
@@ -248,6 +269,22 @@ class BattleContext:
                     if agent_name == agent_enum.value.agent_name:
                         self.agent_list.append(agent_enum.value)
                         break
+
+        # 识别间隔
+        self._check_agent_interval = check_agent_interval
+        self._check_special_attack_interval = check_special_attack_interval
+        self._check_ultimate_interval = check_ultimate_interval
+        self._check_chain_interval = check_chain_interval
+        self._check_quick_interval = check_quick_interval
+        self._check_end_interval = check_end_interval
+
+        # 上一次识别的时间
+        self._last_check_agent_time: float = 0
+        self._last_check_special_attack_time: float = 0
+        self._last_check_ultimate_time: float = 0
+        self._last_check_chain_time: float = 0
+        self._last_check_quick_time: float = 0
+        self._last_check_end_time: float = 0
 
         # 画面区域 先读取出来 不要每次用的时候再读取
         self.area_agent_3_1: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '头像-3-1')
@@ -263,7 +300,6 @@ class BattleContext:
         self.area_chain_2: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '连携技-2')
 
     def check_screen(self, screen: MatLike, screenshot_time: float,
-                     allow_ultimate_list: Optional[List[dict[str, str]]] = None,
                      check_battle_end: bool = True,
                      sync: bool = False) -> None:
         """o
@@ -274,7 +310,7 @@ class BattleContext:
 
         future_list.append(_battle_check_executor.submit(self.check_agent_related, screen, screenshot_time))
         future_list.append(_battle_check_executor.submit(self.check_special_attack_btn, screen, screenshot_time))
-        future_list.append(_battle_check_executor.submit(self.check_ultimate_btn, screen, screenshot_time, allow_ultimate_list))
+        future_list.append(_battle_check_executor.submit(self.check_ultimate_btn, screen, screenshot_time))
         future_list.append(_battle_check_executor.submit(self.check_chain_attack, screen, screenshot_time))
         future_list.append(_battle_check_executor.submit(self.check_quick_assist, screen, screenshot_time))
         if check_battle_end:
@@ -296,6 +332,11 @@ class BattleContext:
             return
 
         try:
+            if screenshot_time - self._last_check_agent_time < cal_utils.random_in_range(self._check_agent_interval):
+                # 还没有达到识别间隔
+                return
+            self._last_check_agent_time = screenshot_time
+
             self._check_agent_in_parallel(screen, screenshot_time)
         except Exception:
             log.error('识别画面角色失败', exc_info=True)
@@ -469,6 +510,9 @@ class BattleContext:
                 self.ctx.dispatch_event(prefix + self.agent_list[i].agent_name, StateEvent(update_time))
                 self.ctx.dispatch_event(prefix + self.agent_list[i].agent_type.value, StateEvent(update_time))
 
+            if not self._allow_to_use_ultimate():  # 清除可用终结技的状态
+                self.ctx.dispatch_event(BattleEventEnum.STATUS_ULTIMATE_READY.value, 0, output_log=False)
+
     def check_special_attack_btn(self, screen: MatLike, screenshot_time: float) -> None:
         """
         识别特殊攻击按钮 看是否可用
@@ -476,6 +520,11 @@ class BattleContext:
         if not self._check_special_attack_lock.acquire(blocking=False):
             return
         try:
+            if screenshot_time - self._last_check_special_attack_time < cal_utils.random_in_range(self._check_special_attack_interval):
+                # 还没有达到识别间隔
+                return
+            self._last_check_special_attack_time = screenshot_time
+
             part = cv2_utils.crop_image_only(screen, self.area_btn_special.rect)
             # 判断灰色按钮比较容易
             mrl = self.ctx.tm.match_template(part, 'battle', 'btn_special_attack_1',
@@ -489,8 +538,7 @@ class BattleContext:
         finally:
             self._check_special_attack_lock.release()
 
-    def check_ultimate_btn(self, screen: MatLike, screenshot_time: float,
-                           allow_ultimate_list: Optional[List[dict[str, str]]] = None) -> None:
+    def check_ultimate_btn(self, screen: MatLike, screenshot_time: float) -> None:
         """
         识别终结技按钮 看是否可用
         """
@@ -498,23 +546,13 @@ class BattleContext:
             return
 
         try:
-            if allow_ultimate_list is not None:  # 如何配置了终结技
-                if len(self.agent_list) == 0 or self.agent_list[0] is None:  # 未识别到角色时 不允许使用
-                    return None
+            if not self._allow_to_use_ultimate():
+                return
 
-                allow: bool = False
-                for allow_ultimate_item in allow_ultimate_list:
-                    if 'agent_name' in allow_ultimate_item:
-                        if allow_ultimate_item.get('agent_name', '') == self.agent_list[0].agent_name:
-                            allow = True
-                            break
-                    elif 'agent_type' in allow_ultimate_item:
-                        if allow_ultimate_item.get('agent_type', '') == self.agent_list[0].agent_type.value:
-                            allow = True
-                            break
-
-                if not allow:  # 当前角色不允许使用终结技
-                    return
+            if screenshot_time - self._last_check_ultimate_time < cal_utils.random_in_range(self._check_ultimate_interval):
+                # 还没有达到识别间隔
+                return
+            self._last_check_ultimate_time = screenshot_time
 
             part = cv2_utils.crop_image_only(screen, self.area_btn_ultimate.rect)
             # 判断灰色按钮比较容易 发光时颜色会变
@@ -530,6 +568,27 @@ class BattleContext:
         finally:
             self._check_ultimate_lock.release()
 
+    def _allow_to_use_ultimate(self) -> bool:
+        """
+        当前角色是否允许使用终结技
+        :return:
+        """
+        if self._allow_ultimate_list is not None:  # 如果配置了终结技
+            if len(self.agent_list) == 0 or self.agent_list[0] is None:  # 未识别到角色时 不允许使用
+                return False
+
+            for allow_ultimate_item in self._allow_ultimate_list:
+                if 'agent_name' in allow_ultimate_item:
+                    if allow_ultimate_item.get('agent_name', '') == self.agent_list[0].agent_name:
+                        return True
+                elif 'agent_type' in allow_ultimate_item:
+                    if allow_ultimate_item.get('agent_type', '') == self.agent_list[0].agent_type.value:
+                        return True
+
+            return False
+
+        return True
+
     def check_chain_attack(self, screen: MatLike, screenshot_time: float) -> None:
         """
         识别连携技
@@ -538,6 +597,11 @@ class BattleContext:
             return
 
         try:
+            if screenshot_time - self._last_check_chain_time < cal_utils.random_in_range(self._check_chain_interval):
+                # 还没有达到识别间隔
+                return
+            self._last_check_chain_time = screenshot_time
+
             self._check_chain_attack_in_parallel(screen, screenshot_time)
         except Exception:
             log.error('识别连携技出错', exc_info=True)
@@ -597,6 +661,11 @@ class BattleContext:
             return
 
         try:
+            if screenshot_time - self._last_check_quick_time < cal_utils.random_in_range(self._check_quick_interval):
+                # 还没有达到识别间隔
+                return
+            self._last_check_quick_time = screenshot_time
+
             part = cv2_utils.crop_image_only(screen, self.area_btn_switch.rect)
 
             possible_agents = self._get_possible_agent_list()
@@ -648,12 +717,12 @@ class BattleContext:
             return
 
         try:
-            if screenshot_time - self._last_check_end_time < 5:  # 每5秒识别一次
+            if screenshot_time - self._last_check_end_time < cal_utils.random_in_range(self._check_end_interval):
+                # 还没有达到识别间隔
                 return
-
-            self._last_check_end_result = screen_utils.find_area(ctx=self.ctx, screen=screen, screen_name='战斗画面', area_name='战斗结果-完成')
             self._last_check_end_time = screenshot_time
 
+            self._last_check_end_result = screen_utils.find_area(ctx=self.ctx, screen=screen, screen_name='战斗画面', area_name='战斗结果-完成')
         except Exception:
             log.error('识别战斗结束失败', exc_info=True)
         finally:

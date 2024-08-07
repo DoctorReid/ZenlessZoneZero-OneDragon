@@ -9,7 +9,7 @@ from one_dragon.base.operation.operation_round_result import OperationRoundResul
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.battle_assistant.auto_battle_app import AutoBattleApp
 from zzz_od.application.zzz_application import ZApplication
-from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
+from zzz_od.auto_battle import auto_battle_utils
 from zzz_od.config.game_config import GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
 
@@ -84,19 +84,15 @@ class DodgeAssistantApp(ZApplication):
         加载战斗指令
         :return:
         """
-        if self.auto_op is not None:  # 如果有上一个 先销毁
-            self.auto_op.dispose()
-        self.auto_op = AutoBattleOperator(self.ctx, 'dodge', self.ctx.battle_assistant_config.dodge_assistant_config)
-        if not self.auto_op.is_file_exists():
-            return self.round_fail('无效的闪避指令 请重新选择')
-        self.auto_op.init_operator()
+        result = auto_battle_utils.load_auto_op(self, 'dodge',
+                                                self.ctx.battle_assistant_config.auto_battle_config)
 
-        self.ctx.dispatch_event(
-            AutoBattleApp.EVENT_OP_LOADED,
-            self.auto_op.get_usage_states(),
-        )
-
-        self.auto_op.start_running_async()
+        if result.is_success:
+            self.ctx.dispatch_event(
+                AutoBattleApp.EVENT_OP_LOADED,
+                self.auto_op.get_usage_states(),
+            )
+            self.auto_op.start_running_async()
 
         return self.round_success()
 
@@ -105,8 +101,7 @@ class DodgeAssistantApp(ZApplication):
         初始初始化上下文
         :return:
         """
-        self.ctx.yolo.init_context(self.ctx.battle_assistant_config.use_gpu)
-        self.ctx.battle.init_context()
+        auto_battle_utils.init_context(self)
 
         return self.round_success()
 
@@ -118,8 +113,7 @@ class DodgeAssistantApp(ZApplication):
         now = time.time()
 
         screen = self.screenshot()
-        self.ctx.yolo.check_screen(screen, now)
-        self.ctx.battle.check_screen(screen, now, check_battle_end=False)
+        auto_battle_utils.run_screen_check(self, screen, now, check_battle_end=False)
 
         return self.round_wait(wait_round_time=self.ctx.battle_assistant_config.screenshot_interval)
 

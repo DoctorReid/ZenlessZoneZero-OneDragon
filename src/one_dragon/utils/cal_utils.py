@@ -1,4 +1,7 @@
 import math
+from random import random
+
+from typing import List, Union
 
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.geometry.rectangle import Rect
@@ -145,3 +148,23 @@ def distance_to_line(target: Point, p1: Point, p2: Point) -> float:
         distance = abs(A * x0 + B * y0 + C) / (A ** 2 + B ** 2) ** 0.5
 
     return distance
+
+
+def random_in_range(r: Union[List[float], float]) -> float:
+    """
+    在范围内随机一个数
+    :param r:
+    :return:
+    """
+    if r is None:
+        return 0
+    elif not isinstance(r, list):
+        return r
+    elif len(r) == 0:
+        return 0
+    elif len(r) == 1:
+        return r[0]
+    elif len(r) > 1 and r[0] == r[1]:
+        return r[0]
+    else:
+        return r[0] + (r[1] - r[0]) * random()

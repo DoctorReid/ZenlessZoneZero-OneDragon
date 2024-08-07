@@ -9,8 +9,8 @@ from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
-from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem
+from zzz_od.auto_battle import auto_battle_utils
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.zzz_operation import ZOperation
 
@@ -137,31 +137,28 @@ class CombatSimulation(ZOperation):
 
     @node_from(from_name='出战', status='出战')
     @node_from(from_name='判断下一次', status='战斗结果-再来一次')
-    @operation_node(name='自动战斗初始化')
+    @operation_node(name='加载自动战斗指令')
     def init_auto_battle(self) -> OperationRoundResult:
-        if self.auto_op is not None:  # 如果有上一个 先销毁
-            self.auto_op.dispose()
-        self.auto_op = AutoBattleOperator(self.ctx, 'auto_battle', self.plan.auto_battle_config)
-        if not self.auto_op.is_file_exists():
-            return self.round_fail('无效的自动战斗指令 请重新选择')
-        self.auto_op.init_operator()
+        return auto_battle_utils.load_auto_op(self, 'auto_battle',
+                                              self.plan.auto_battle_config)
 
-        self.ctx.yolo.init_context(True)
-        self.ctx.battle.init_context()
-
-        return self.round_success()
-
-    @node_from(from_name='自动战斗初始化')
+    @node_from(from_name='加载自动战斗指令')
     @operation_node(name='等待战斗画面加载')
     def wait_battle_screen(self) -> OperationRoundResult:
         self.node_max_retry_times = 60  # 战斗加载的等待时间较长
         screen = self.screenshot()
         result = self.round_by_find_area(screen, '战斗画面', '按钮-普通攻击', retry_wait_round=1)
-        if result.is_success:
-            self.auto_op.start_running_async()
         return result
 
     @node_from(from_name='等待战斗画面加载')
+    @operation_node(name='向前移动准备战斗')
+    def move_to_battle(self) -> OperationRoundResult:
+        self.ctx.controller.move_w(press=True, press_time=1, release=True)
+        auto_battle_utils.init_context(self)
+        self.auto_op.start_running_async()
+        return self.round_success()
+
+    @node_from(from_name='向前移动准备战斗')
     @operation_node(name='自动战斗')
     def auto_battle(self) -> OperationRoundResult:
         if self.ctx.battle.is_battle_end():
@@ -170,8 +167,7 @@ class CombatSimulation(ZOperation):
         now = time.time()
         screen = self.screenshot()
 
-        self.ctx.yolo.check_screen(screen, now)
-        self.ctx.battle.check_screen(screen, now, self.auto_op.get('allow_ultimate', None))
+        auto_battle_utils.run_screen_check(self, screen, now)
 
         return self.round_wait(wait=self.ctx.battle_assistant_config.screenshot_interval)
 

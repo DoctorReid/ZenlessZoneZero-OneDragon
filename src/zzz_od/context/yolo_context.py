@@ -3,10 +3,10 @@ from concurrent.futures import ThreadPoolExecutor, Future
 import threading
 from cv2.typing import MatLike
 from enum import Enum
-from typing import Optional, List
+from typing import Optional, List, Union
 
 from one_dragon.base.conditional_operation.state_event import StateEvent
-from one_dragon.utils import os_utils, thread_utils
+from one_dragon.utils import os_utils, thread_utils, cal_utils
 from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.yolo.dodge_classifier import DodgeClassifier
@@ -29,7 +29,16 @@ class YoloContext:
         # 识别锁 保证每种类型只有1实例在进行识别
         self._check_dodge_flash_lock = threading.Lock()
 
-    def init_context(self, use_gpu: bool = True) -> None:
+        # 识别间隔
+        self._check_dodge_interval: Union[float, List[float]] = 0
+
+        # 上一次识别的时间
+        self._last_check_dodge_time: float = 0
+
+    def init_context(self,
+                     use_gpu: bool = True,
+                     check_dodge_interval: Union[float, List[float]] = 0,
+                     ) -> None:
         """
         运行前 初始化上下文
         :return:
@@ -39,6 +48,12 @@ class YoloContext:
                 model_parent_dir_path=os_utils.get_path_under_work_dir('assets', 'models', 'yolo'),
                 gpu=use_gpu
             )
+
+        # 识别间隔
+        self._check_dodge_interval = check_dodge_interval
+
+        # 上一次识别的时间
+        self._last_check_dodge_time = 0
 
     def check_screen(self, screen: MatLike, screenshot_time: float, sync: bool = False) -> None:
         """
@@ -66,6 +81,11 @@ class YoloContext:
             return False
 
         try:
+            if screenshot_time - self._last_check_dodge_time < cal_utils.random_in_range(self._check_dodge_interval):
+                # 还没有达到识别间隔
+                return False
+            self._last_check_dodge_time = screenshot_time
+
             result = self._dodge_model.run(screen)
             with_flash: bool = False
             if result.class_idx == 1:
