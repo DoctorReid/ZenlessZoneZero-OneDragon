@@ -12,7 +12,6 @@ from one_dragon.utils.i18_utils import gt
 from zzz_od.application.battle_assistant.auto_battle_app import AutoBattleApp
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.auto_battle import auto_battle_utils
-from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.config.game_config import GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
 
@@ -96,7 +95,7 @@ class AutoBattleDebugApp(ZApplication):
                 self.auto_op.get_usage_states(),
             )
 
-        return self.round_success()
+        return result
 
     def init_context(self) -> OperationRoundResult:
         """

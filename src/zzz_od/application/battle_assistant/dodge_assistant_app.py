@@ -85,7 +85,7 @@ class DodgeAssistantApp(ZApplication):
         :return:
         """
         result = auto_battle_utils.load_auto_op(self, 'dodge',
-                                                self.ctx.battle_assistant_config.auto_battle_config)
+                                                self.ctx.battle_assistant_config.dodge_assistant_config)
 
         if result.is_success:
             self.ctx.dispatch_event(
@@ -94,7 +94,7 @@ class DodgeAssistantApp(ZApplication):
             )
             self.auto_op.start_running_async()
 
-        return self.round_success()
+        return result
 
     def init_context(self) -> OperationRoundResult:
         """

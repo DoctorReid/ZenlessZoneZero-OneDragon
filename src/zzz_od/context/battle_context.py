@@ -511,7 +511,7 @@ class BattleContext:
                 self.ctx.dispatch_event(prefix + self.agent_list[i].agent_type.value, StateEvent(update_time))
 
             if not self._allow_to_use_ultimate():  # 清除可用终结技的状态
-                self.ctx.dispatch_event(BattleEventEnum.STATUS_ULTIMATE_READY.value, 0, output_log=False)
+                self.ctx.dispatch_event(BattleEventEnum.STATUS_ULTIMATE_READY.value, StateEvent(0), output_log=False)
 
     def check_special_attack_btn(self, screen: MatLike, screenshot_time: float) -> None:
         """
