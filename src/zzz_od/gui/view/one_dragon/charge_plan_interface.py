@@ -82,7 +82,7 @@ class ChargePlanCard(MultiPushSettingCard):
             if category.value == self.plan.category_name:
                 target_category_text = category.ui_text
 
-        self.category_combo_box.setText(target_category_text)
+        self.category_combo_box.setCurrentText(target_category_text)
 
         self.category_combo_box.currentIndexChanged.connect(self._on_category_changed)
 
@@ -105,7 +105,7 @@ class ChargePlanCard(MultiPushSettingCard):
             self.mission_type_combo_box.setCurrentIndex(0)
             self.plan.mission_type_name = self.mission_type_combo_box.itemData(0)
         else:
-            self.mission_type_combo_box.setText(target_text)
+            self.mission_type_combo_box.setCurrentText(target_text)
 
         self.mission_type_combo_box.currentIndexChanged.connect(self._on_mission_type_changed)
 
@@ -129,7 +129,7 @@ class ChargePlanCard(MultiPushSettingCard):
             self.mission_combo_box.setCurrentIndex(0)
             self.plan.mission_name = self.mission_combo_box.itemData(0)
         else:
-            self.mission_combo_box.setText(target_text)
+            self.mission_combo_box.setCurrentText(target_text)
 
         self.mission_combo_box.currentIndexChanged.connect(self._on_mission_changed)
 
@@ -152,7 +152,7 @@ class ChargePlanCard(MultiPushSettingCard):
             self.auto_battle_combo_box.setCurrentIndex(0)
             self.plan.auto_battle_config = self.auto_battle_combo_box.itemData(0)
         else:
-            self.auto_battle_combo_box.setText(target_text)
+            self.auto_battle_combo_box.setCurrentText(target_text)
 
         self.auto_battle_combo_box.currentIndexChanged.connect(self._on_auto_battle_changed)
 

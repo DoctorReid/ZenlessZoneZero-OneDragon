@@ -3,6 +3,7 @@ import time
 from typing import Optional, ClassVar
 
 from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
+from one_dragon.base.operation.operation_base import OperationResult
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
@@ -166,6 +167,22 @@ class ExpertChallenge(ZOperation):
             return self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-再来一次',
                                                      success_wait=1, retry_wait_round=1)
 
+    def _on_pause(self, e=None):
+        ZOperation._on_pause(self, e)
+        if self.auto_op is not None:
+            self.auto_op.stop_running()
+
+    def _on_resume(self, e=None):
+        ZOperation._on_resume(self, e)
+        if self.auto_op is not None:
+            self.auto_op.start_running_async()
+
+    def _after_operation_done(self, result: OperationResult):
+        ZOperation._after_operation_done(self, result)
+        if self.auto_op is not None:
+            self.auto_op.stop_running()
+            self.auto_op.dispose()
+            self.auto_op = None
 
 def __debug():
     ctx = ZContext()
