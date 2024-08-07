@@ -5,10 +5,10 @@ handlers:
       - op_name: "按键-连携技-左"
         data: []
       - op_name: "等待秒数"
-        data: [ "1" ]
+        data: [ "0.5" ]
   - states: "[连携技-2-强攻]"
     operations:
       - op_name: "按键-连携技-右"
         data: []
       - op_name: "等待秒数"
-        data: [ "1" ]
+        data: [ "0.5" ]
