@@ -34,7 +34,7 @@ def init_context(op: Union[ZOperation, ZApplication]):
     """
     op.ctx.yolo.init_context(
         use_gpu=op.ctx.battle_assistant_config.use_gpu,
-        check_dodge_interval=op.auto_op.get('check_agent_interval', 0.02),
+        check_dodge_interval=op.auto_op.get('check_dodge_interval', 0.02),
     )
     op.ctx.battle.init_context(
         check_agent_interval=op.auto_op.get('check_agent_interval', 0.5),
