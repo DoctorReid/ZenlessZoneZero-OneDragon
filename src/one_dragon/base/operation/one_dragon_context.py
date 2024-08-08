@@ -6,7 +6,8 @@ from typing import Optional
 from one_dragon.base.config.one_dragon_config import OneDragonConfig
 from one_dragon.base.controller.controller_base import ControllerBase
 from one_dragon.base.controller.pc_button.pc_button_listener import PcButtonListener
-from one_dragon.base.geometry.rectangle import Rect
+from one_dragon.base.matcher.ocr.ocr_matcher import OcrMatcher
+from one_dragon.base.matcher.ocr.onnx_ocr_matcher import OnnxOcrMatcher
 from one_dragon.base.matcher.template_matcher import TemplateMatcher
 from one_dragon.base.operation.context_event_bus import ContextEventBus
 from one_dragon.base.screen.screen_loader import ScreenLoader
@@ -59,11 +60,7 @@ class OneDragonContext(ContextEventBus):
         self.screen_loader: ScreenLoader = ScreenLoader()
         self.template_loader: TemplateLoader = TemplateLoader()
         self.tm: TemplateMatcher = TemplateMatcher(self.template_loader)
-        try:
-            from one_dragon.base.matcher.ocr_matcher import OcrMatcher
-            self.ocr: OcrMatcher = OcrMatcher()
-        except Exception:
-            pass
+        self.ocr: OcrMatcher = OnnxOcrMatcher()
         self.controller: ControllerBase = controller
 
         self.keyboard_controller = keyboard.Controller()
