@@ -43,16 +43,18 @@ class PcControllerBase(ControllerBase):
 
         self.btn_controller: PcButtonController = self.keyboard_controller
         self.sct = None
+        self.use_gpu = False #我不知道怎么把gpu参数传到这里，你自己看着办（叉腰）
 
     def init_before_context_run(self) -> bool:
         if self.sct is not None:  # 新一次app前 先关闭上一个
             try:
-                self.sct.close()
+                del self.sct
+                self.sct = None
             except Exception:
                 pass
         try:
-            import mss
-            self.sct = mss.mss()
+            import bettercam
+            self.sct = bettercam.create(output_idx=0, output_color="BGRA",nvidia_gpu=self.use_gpu)
         except Exception:
             pass
         self.active_window()
@@ -129,8 +131,7 @@ class PcControllerBase(ControllerBase):
         height = rect.height
 
         if self.sct is not None:
-            monitor = {"top": top, "left": left, "width": width, "height": height}
-            screenshot = cv2.cvtColor(np.array(self.sct.grab(monitor)), cv2.COLOR_BGRA2RGB)
+            screenshot = cv2.cvtColor(np.array(self.sct.grab(region=(left, top, width, height))), cv2.COLOR_BGRA2RGB)
         else:
             img: Image = pyautogui.screenshot(region=(left, top, width, height))
             screenshot = np.array(img)
