@@ -3,12 +3,11 @@ allow_ultimate:
   - agent_name: "安比"
 
 check_dodge_interval: 0.02
-check_agent_interval: 0.5
-check_special_attack_interval: [0.5, 0.6]
-check_ultimate_interval: 0.5
-check_chain_interval: 1
-check_quick_interval: 0.5
-
+check_agent_interval: [0.4, 0.6]
+check_special_attack_interval: [0.4, 0.6]
+check_ultimate_interval: [0.4, 0.6]
+check_chain_interval: [0.9, 1.1]
+check_quick_interval: [0.9, 1.1]
 
 scenes:
 

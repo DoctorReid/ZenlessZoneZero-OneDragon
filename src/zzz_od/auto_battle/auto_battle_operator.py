@@ -41,8 +41,29 @@ class AutoBattleOperator(ConditionalOperator):
         )
 
         self._state_recorders: dict[str, StateRecorder] = {}
+        self._mutex_list: dict[str, List[str]] = {}
 
     def init_operator(self):
+        self._mutex_list: dict[str, List[str]] = {}
+
+        for agent_enum in AgentEnum:
+            mutex_list: List[str] = []
+            for mutex_agent_enum in AgentEnum:
+                if mutex_agent_enum == agent_enum:
+                    continue
+                mutex_list.append(mutex_agent_enum.value.agent_name)
+
+            self._mutex_list['前台-' + agent_enum.value.agent_name] = ['前台-' + i for i in mutex_list]
+
+        for agent_type_enum in AgentTypeEnum:
+            mutex_list: List[str] = []
+            for mutex_agent_type_enum in AgentTypeEnum:
+                if mutex_agent_type_enum == agent_type_enum:
+                    continue
+                mutex_list.append(mutex_agent_type_enum.value)
+
+            self._mutex_list['前台-' + agent_type_enum.value] = ['前台-' + i for i in mutex_list]
+            
         ConditionalOperator.init(
             self,
             event_bus=self.ctx,
@@ -94,7 +115,7 @@ class AutoBattleOperator(ConditionalOperator):
             if state_name in self._state_recorders:
                 return self._state_recorders[state_name]
             else:
-                r = StateRecorder(self.ctx, state_name)
+                r = StateRecorder(self.ctx, state_name, mutex_list=self._mutex_list.get(state_name, None))
                 self._state_recorders[state_name] = r
                 return r
         else:

@@ -1,6 +1,38 @@
 handlers:
   - states: "[前台-朱鸢]"
     sub_states:
+    # 格挡出场后
+    - states: "[前台-朱鸢] & [自定义-黄光切人]"
+      operations:
+        - op_name: "等待秒数"
+          data: [ "0.2" ]
+        - op_name: "按键-普通攻击"
+          data: []
+        - op_name: "等待秒数"
+          data: [ "1.5" ]
+        - op_name: "清除状态"
+          data: [ "自定义-黄光切人" ]
+
+    # 闪避后
+    - states: "[自定义-红光闪避]"
+      operations:
+        - op_name: "等待秒数"
+          data: [ "0.8" ]
+        - op_name: "按键-普通攻击"
+          data: []
+        - op_name: "等待秒数"
+          data: [ "1" ]
+        - op_name: "按键-普通攻击"
+          data: [ ]
+        - op_name: "等待秒数"
+          data: [ "1" ]
+        - op_name: "按键-普通攻击"
+          data: [ ]
+        - op_name: "等待秒数"
+          data: [ "1" ]
+        - op_name: "清除状态"
+          data: [ "自定义-红光闪避" ]
+
     # 失衡阶段：AQ
     - states: "([按键-连携技-左, 0, 12] | [按键-连携技-右, 0, 12]) & [按键可用-终结技]"
       operations:
@@ -62,3 +94,4 @@ handlers:
         - op_name: "等待秒数"
           data: [ "0.6" ]
         - operation_template: "朱鸢-5A接4A"
+
