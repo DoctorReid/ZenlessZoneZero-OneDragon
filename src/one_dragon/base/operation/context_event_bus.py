@@ -28,7 +28,7 @@ class ContextEventBus:
         :return:
         """
         if output_log:
-            log.debug("事件触发 %s", event_id)
+            log.debug("事件触发 %s %s", event_id, event_obj)
         if event_id not in self.callbacks:
             return
         for callback in self.callbacks[event_id]:

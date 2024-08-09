@@ -2,7 +2,7 @@ handlers:
   - states: "[前台-朱鸢]"
     sub_states:
     # 格挡出场后
-    - states: "[前台-朱鸢] & [自定义-黄光切人]"
+    - states: "[自定义-黄光切人]"
       operations:
         - op_name: "等待秒数"
           data: [ "0.2" ]
@@ -32,6 +32,20 @@ handlers:
           data: [ "1" ]
         - op_name: "清除状态"
           data: [ "自定义-红光闪避" ]
+
+    - states: "[自定义-连携换人]"
+      operations:
+        - op_name: "等待秒数"
+          data: [ "1.5" ]
+        - op_name: "清除状态"
+          data: [ "自定义-连携换人" ]
+
+    - states: "[自定义-快速支援换人]"
+      operations:
+        - op_name: "等待秒数"
+          data: [ "0.5" ]
+        - op_name: "清除状态"
+          data: [ "自定义-快速支援换人" ]
 
     # 失衡阶段：AQ
     - states: "([按键-连携技-左, 0, 12] | [按键-连携技-右, 0, 12]) & [按键可用-终结技]"

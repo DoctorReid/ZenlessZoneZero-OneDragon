@@ -526,10 +526,9 @@ class BattleContext:
             self._last_check_special_attack_time = screenshot_time
 
             part = cv2_utils.crop_image_only(screen, self.area_btn_special.rect)
-            # 判断灰色按钮比较容易
-            mrl = self.ctx.tm.match_template(part, 'battle', 'btn_special_attack_1',
+            mrl = self.ctx.tm.match_template(part, 'battle', 'btn_special_attack_2',
                                              threshold=0.9)
-            is_ready = mrl.max is None
+            is_ready = mrl.max is not None
             self.ctx.dispatch_event(BattleEventEnum.STATUS_SPECIAL_READY.value,
                                     StateEvent(screenshot_time if is_ready else 0),
                                     output_log=is_ready)
@@ -556,9 +555,9 @@ class BattleContext:
 
             part = cv2_utils.crop_image_only(screen, self.area_btn_ultimate.rect)
             # 判断灰色按钮比较容易 发光时颜色会变
-            mrl = self.ctx.tm.match_template(part, 'battle', 'btn_ultimate_1',
+            mrl = self.ctx.tm.match_template(part, 'battle', 'btn_ultimate_2',
                                              threshold=0.9)
-            is_ready = mrl.max is None
+            is_ready = mrl.max is not None
             # cv2_utils.show_image(part, win_name='part', wait=0)
             self.ctx.dispatch_event(BattleEventEnum.STATUS_ULTIMATE_READY.value,
                                     StateEvent(screenshot_time if is_ready else 0),
@@ -736,9 +735,9 @@ def __debug():
     ctx = ZContext()
     battle = BattleContext(ctx)
     battle.init_context()
-    screen = debug_utils.get_debug_image('_1722153425984')
+    screen = debug_utils.get_debug_image('_1723213187935')
     # battle.check_agent(screen, 0)
-    battle.check_special_attack_btn(screen, 0)
+    # battle.check_special_attack_btn(screen, 0)
     battle.check_ultimate_btn(screen, 0)
     # battle.check_chain_attack(screen, 0)
     # battle.check_quick_assist(screen, 0)
