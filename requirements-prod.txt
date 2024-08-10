@@ -13,7 +13,7 @@ humanfriendly==10.0       # via coloredlogs
 mouseinfo==0.1.3          # via pyautogui
 mpmath==1.3.0             # via sympy
 mss==9.0.1                # via -r requirements-dev.txt
-numpy==1.26.4             # via onnxruntime-directml, opencv-python
+numpy==1.26.4             # via onnxruntime-directml, opencv-python, shapely
 onnxruntime-directml==1.18.0  # via -r requirements-dev.txt
 opencv-python==4.10.0.84  # via -r requirements-dev.txt
 packaging==24.1           # via onnxruntime-directml
@@ -35,6 +35,7 @@ pysidesix-frameless-window==0.3.12  # via pyside6-fluent-widgets
 pytweening==1.2.0         # via pyautogui
 pywin32==306              # via pysidesix-frameless-window
 pyyaml==6.0.1             # via -r requirements-dev.txt
+shapely==2.0.4            # via -r requirements-dev.txt
 shiboken6==6.7.2          # via pyside6, pyside6-addons, pyside6-essentials
 six==1.16.0               # via pynput
 sympy==1.13.0             # via onnxruntime-directml

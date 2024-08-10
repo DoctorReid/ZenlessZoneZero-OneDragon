@@ -7,3 +7,4 @@ pyautogui==0.9.54
 pynput==1.7.7
 onnxruntime-directml==1.18.0
 mss==9.0.1
+shapely==2.0.4
