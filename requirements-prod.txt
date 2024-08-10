@@ -20,6 +20,7 @@ packaging==24.1           # via onnxruntime-directml
 pillow==10.4.0            # via pyscreeze
 protobuf==3.20.2          # via onnxruntime-directml
 pyautogui==0.9.54         # via -r requirements-dev.txt
+pyclipper==1.3.0.post5    # via -r requirements-dev.txt
 pygetwindow==0.0.9        # via pyautogui
 pymsgbox==1.0.9           # via pyautogui
 pynput==1.7.7             # via -r requirements-dev.txt
