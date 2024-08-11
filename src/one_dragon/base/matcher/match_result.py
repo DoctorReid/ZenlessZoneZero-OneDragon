@@ -95,3 +95,11 @@ class MatchResultList:
 
     def __getitem__(self, item):
         return self.arr[item]
+
+    def add_offset(self, lt: Point) -> None:
+        """
+        给所有结果增加一个左上角的偏移
+        用于截取区域后
+        """
+        for mr in self.arr:
+            mr.add_offset(lt)

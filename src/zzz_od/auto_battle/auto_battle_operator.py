@@ -54,6 +54,11 @@ class AutoBattleOperator(ConditionalOperator):
                 mutex_list.append(mutex_agent_enum.value.agent_name)
 
             self._mutex_list['前台-' + agent_enum.value.agent_name] = ['前台-' + i for i in mutex_list]
+            self._mutex_list['后台-1-' + agent_enum.value.agent_name] = ['后台-1-' + i for i in mutex_list]
+            self._mutex_list['后台-2-' + agent_enum.value.agent_name] = ['后台-2-' + i for i in mutex_list]
+            self._mutex_list['连携技-1-' + agent_enum.value.agent_name] = ['连携技-1-' + i for i in mutex_list]
+            self._mutex_list['连携技-2-' + agent_enum.value.agent_name] = ['连携技-2-' + i for i in mutex_list]
+            self._mutex_list['快速支援-' + agent_enum.value.agent_name] = ['快速支援-' + i for i in mutex_list]
 
         for agent_type_enum in AgentTypeEnum:
             mutex_list: List[str] = []
@@ -63,6 +68,11 @@ class AutoBattleOperator(ConditionalOperator):
                 mutex_list.append(mutex_agent_type_enum.value)
 
             self._mutex_list['前台-' + agent_type_enum.value] = ['前台-' + i for i in mutex_list]
+            self._mutex_list['后台-1-' + agent_type_enum.value] = ['后台-1-' + i for i in mutex_list]
+            self._mutex_list['后台-2-' + agent_type_enum.value] = ['后台-2-' + i for i in mutex_list]
+            self._mutex_list['连携技-1-' + agent_type_enum.value] = ['连携技-1-' + i for i in mutex_list]
+            self._mutex_list['连携技-2-' + agent_type_enum.value] = ['连携技-2-' + i for i in mutex_list]
+            self._mutex_list['快速支援-' + agent_type_enum.value] = ['快速支援-' + i for i in mutex_list]
             
         ConditionalOperator.init(
             self,

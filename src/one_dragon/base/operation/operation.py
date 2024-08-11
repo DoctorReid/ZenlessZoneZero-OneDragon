@@ -1,18 +1,21 @@
 import time
 
+import cv2
 import inspect
 from cv2.typing import MatLike
 from typing import Optional, ClassVar, Callable, List, Any
 
+from one_dragon.base.geometry.point import Point
 from one_dragon.base.operation.one_dragon_context import OneDragonContext, ContextRunningStateEventEnum
 from one_dragon.base.operation.operation_base import OperationBase, OperationResult
 from one_dragon.base.operation.operation_edge import OperationEdge, OperationEdgeDesc
 from one_dragon.base.operation.operation_node import OperationNode
 from one_dragon.base.operation.operation_round_result import OperationRoundResultEnum, OperationRoundResult
 from one_dragon.base.screen import screen_utils
+from one_dragon.base.screen.screen_area import ScreenArea
 from one_dragon.base.screen.screen_utils import OcrClickResultEnum, FindAreaResultEnum
-from one_dragon.utils import debug_utils
-from one_dragon.utils.i18_utils import coalesce_gt
+from one_dragon.utils import debug_utils, cv2_utils, str_utils
+from one_dragon.utils.i18_utils import coalesce_gt, gt
 from one_dragon.utils.log_utils import log
 
 
@@ -305,7 +308,10 @@ class Operation(OperationBase):
                     continue
                 else:
                     round_result.result = OperationRoundResultEnum.FAIL
-            elif round_result.result == OperationRoundResultEnum.WAIT:
+            else:
+                self.node_retry_times = 0
+
+            if round_result.result == OperationRoundResultEnum.WAIT:
                 continue
 
             # 成功或者失败的 找下一个节点
@@ -576,8 +582,8 @@ class Operation(OperationBase):
         return self.round_fail(status=op_result.status, data=op_result.data)
 
     def round_by_find_and_click_area(self, screen: MatLike, screen_name: str, area_name: str,
-                                     success_wait: Optional[float] = None, success_wait_round: Optional[float] = None,
-                                     retry_wait: Optional[float] = None, retry_wait_round: Optional[float] = None,
+                                     success_wait: Optional[float] = 1, success_wait_round: Optional[float] = None,
+                                     retry_wait: Optional[float] = 1, retry_wait_round: Optional[float] = None,
                                      ) -> OperationRoundResult:
         """
         是否能找到目标区域 并进行点击
@@ -621,28 +627,65 @@ class Operation(OperationBase):
         if result == FindAreaResultEnum.AREA_NO_CONFIG:
             return self.round_fail(status=f'区域{area_name}未配置')
         elif result == FindAreaResultEnum.TRUE:
-            return self.round_success(wait=success_wait, wait_round_time=success_wait_round)
+            return self.round_success(status=area_name, wait=success_wait, wait_round_time=success_wait_round)
         else:
-            return self.round_retry(wait=retry_wait, wait_round_time=retry_wait_round)
+            return self.round_retry(status=f'未找到 {area_name}', wait=retry_wait, wait_round_time=retry_wait_round)
 
-    def click_area(self, screen_name: str, area_name: str) -> bool:
+    def click_area(self, screen_name: str, area_name: str, click_left_top: bool = False) -> bool:
         """
         无脑点击某个区域一次
         :param screen_name:
         :param area_name:
+        :param click_left_top: 点击左上方
         :return: 是否点击成功
         """
         area = self.ctx.screen_loader.get_area(screen_name, area_name)
         if area is None:
             return False
-        return self.ctx.controller.click(pos=area.center, pc_alt=area.pc_alt)
+        if click_left_top:
+            to_click = area.left_top
+        else:
+            to_click = area.center
+        return self.ctx.controller.click(pos=to_click, pc_alt=area.pc_alt)
 
     def round_by_click_area(
-            self, screen_name: str, area_name: str,
+            self, screen_name: str, area_name: str, click_left_top: bool = False,
             success_wait: Optional[float] = None, success_wait_round: Optional[float] = None,
             retry_wait: Optional[float] = None, retry_wait_round: Optional[float] = None
     ) -> OperationRoundResult:
-        if self.click_area(screen_name, area_name):
+        if self.click_area(screen_name, area_name, click_left_top=click_left_top):
             return self.round_success(wait=success_wait, wait_round_time=success_wait_round)
         else:
             return self.round_retry(status=f'点击{area_name}失败', wait=retry_wait, wait_round_time=retry_wait_round)
+
+    def round_by_ocr_and_click(self, screen: MatLike, target_cn: str,
+                               area: Optional[ScreenArea] = None, lcs_percent: float = 0.5,
+                               success_wait: Optional[float] = None, success_wait_round: Optional[float] = None,
+                               retry_wait: Optional[float] = None, retry_wait_round: Optional[float] = None,
+                               color_range: Optional[List] = None
+                               ):
+        to_ocr_part = screen if area is None else cv2_utils.crop_image_only(screen, area.rect)
+        if color_range is not None:
+            mask = cv2.inRange(to_ocr_part, color_range[0], color_range[1])
+            to_ocr_part = cv2.bitwise_and(to_ocr_part, to_ocr_part, mask=mask)
+        ocr_result_map = self.ctx.ocr.run_ocr(to_ocr_part)
+
+        to_click: Optional[Point] = None
+        for ocr_result, mrl in ocr_result_map.items():
+            if mrl.max is None:
+                continue
+            if str_utils.find_by_lcs(gt(target_cn), ocr_result, percent=lcs_percent):
+                to_click = mrl.max.center
+                break
+
+        if to_click is None:
+            return self.round_retry(f'找不到 {target_cn}', wait=retry_wait, wait_round_time=retry_wait_round)
+
+        if area is not None:
+            to_click = to_click + area.left_top
+
+        click = self.ctx.controller.click(to_click)
+        if click:
+            return self.round_success(target_cn, wait=success_wait, wait_round_time=success_wait_round)
+        else:
+            return self.round_retry(f'点击 {target_cn} 失败', wait=retry_wait, wait_round_time=retry_wait_round)

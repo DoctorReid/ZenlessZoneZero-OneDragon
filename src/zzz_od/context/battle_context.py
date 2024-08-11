@@ -302,8 +302,8 @@ class BattleContext:
     def check_screen(self, screen: MatLike, screenshot_time: float,
                      check_battle_end: bool = True,
                      sync: bool = False) -> None:
-        """o
-        异步判断角战斗画面 并发送世界
+        """
+        异步判断角战斗画面 并发送事件
         :return:
         """
         future_list: List[Future] = []

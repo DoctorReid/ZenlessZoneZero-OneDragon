@@ -76,6 +76,20 @@ def get_positive_digits(v: str, err: Optional[int] = None) -> Optional[int]:
         return err
 
 
+def get_positive_float(v: str, err: Optional[int] = None) -> Optional[float]:
+    """
+    返回字符串中的数字部分 不包含符号
+    :param v: 字符串
+    :param err: 原字符串中没有数字的话返回的值
+    :return: 字符串中的数字
+    """
+    try:
+        fix = re.sub(r'[^\d.]+', '', v)
+        return float(fix)
+    except Exception:
+        return err
+
+
 def remove_not_digit(v: str) -> str:
     """
     移除字符串中的非数字部分

@@ -33,6 +33,9 @@ class ZContext(OneDragonContext):
         from zzz_od.context.custom_battle_context import CustomBattleContext
         self.custom_battle: CustomBattleContext = CustomBattleContext(self)
 
+        from zzz_od.context.hollow_context import HollowContext
+        self.hollow: HollowContext = HollowContext(self)
+
         # 基础配置
         self.game_config: GameConfig = GameConfig(instance_idx)
 
@@ -70,3 +73,5 @@ class ZContext(OneDragonContext):
                 standard_width=self.project_config.screen_standard_width,
                 standard_height=self.project_config.screen_standard_height
             )
+
+        self.hollow.event_service.reload()

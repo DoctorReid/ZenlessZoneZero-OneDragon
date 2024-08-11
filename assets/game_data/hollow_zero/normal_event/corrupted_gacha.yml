@@ -1,0 +1,5 @@
+- entry_name: "侵蚀扭蛋机"
+  event_name: "古怪装置"
+  options:
+    - option_name: "选择1枚诡术鸣徽"
+    - option_name: "离开"

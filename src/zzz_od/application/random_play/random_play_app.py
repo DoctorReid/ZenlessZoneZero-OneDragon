@@ -130,7 +130,7 @@ class RandomPlayApp(ZApplication):
         self.click_area('影像店营业', '宣传员-%d' % idx)
         time.sleep(0.5)
 
-        return self.round_by_find_and_click_area(screen, '影像店营业', '确认')
+        return self.round_by_find_and_click_area(screen, '影像店营业', '确认', success_wait=1, retry_wait=1)
 
     @node_from(from_name='选择宣传员')
     @operation_node(name='识别录像带主题')
@@ -179,7 +179,7 @@ class RandomPlayApp(ZApplication):
         if result.is_success:
             return self.round_success(status=result.status, wait=1)
 
-        return self.round_by_find_area(screen, '影像店营业', '上架筛选')
+        return self.round_by_find_area(screen, '影像店营业', '上架筛选', retry_wait=1)
 
     @node_from(from_name='识别推荐上架', status='上架筛选')
     @node_from(from_name='上架')
@@ -193,8 +193,7 @@ class RandomPlayApp(ZApplication):
             return self.round_success(status=RandomPlayApp.STATUS_ALL_VIDEO_CHOOSE)
 
         screen = self.screenshot()
-        return self.round_by_find_and_click_area(screen, '影像店营业', '上架筛选',
-                                                 success_wait=0.5, retry_wait=1)
+        return self.round_by_find_and_click_area(screen, '影像店营业', '上架筛选', success_wait=1, retry_wait=1)
 
     @node_from(from_name='上架筛选')
     @operation_node(name='选择主题')
@@ -245,7 +244,7 @@ class RandomPlayApp(ZApplication):
         """
         screen = self.screenshot()
 
-        result = self.round_by_find_area(screen, '影像店营业', '下架')
+        result = self.round_by_find_area(screen, '影像店营业', '下架',)
         if result.is_success:  # 已经上架了
             self._current_idx += 1
             return self.round_success()
@@ -279,15 +278,13 @@ class RandomPlayApp(ZApplication):
     @operation_node(name='开始营业')
     def start(self) -> OperationRoundResult:
         screen = self.screenshot()
-        return self.round_by_find_and_click_area(screen, '影像店营业', '开始营业',
-                                                 success_wait=1, retry_wait=1)
+        return self.round_by_find_and_click_area(screen, '影像店营业', '开始营业', success_wait=1, retry_wait=1)
 
     @node_from(from_name='开始营业')
     @operation_node(name='开始营业确认')
     def confirm(self) -> OperationRoundResult:
         screen = self.screenshot()
-        return self.round_by_find_and_click_area(screen, '影像店营业', '开始营业-确认',
-                                                 success_wait=1, retry_wait=1)
+        return self.round_by_find_and_click_area(screen, '影像店营业', '开始营业-确认', success_wait=1, retry_wait=1)
 
     @node_from(from_name='开始营业确认')
     @node_from(from_name='识别营业状态', status=STATUS_ALREADY_RUNNING)

@@ -1,0 +1,13 @@
+- entry_name: "有偿休息站"
+  event_name: "热闹的休息站"
+  options:
+    - option_name: "随性的打听消息"
+    - option_name: "跟其他独立调查员沟通"
+
+- entry_name: "有偿休息站"
+  event_name: "救助伤员"
+  options:
+    - option_name: "救助伤势最重的人"
+      ocr_word: "最重"
+    - option_name: "救助伤势比较轻的人"
+      ocr_word: "比较轻"

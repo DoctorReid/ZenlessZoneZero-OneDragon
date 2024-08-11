@@ -67,8 +67,7 @@ class ScratchCardApp(ZApplication):
     def click_scratch_card(self) -> OperationRoundResult:
         screen = self.screenshot()
 
-        return self.round_by_find_and_click_area(screen, '报刊亭', '刮刮卡',
-                                                 success_wait=1, retry_wait=1)
+        return self.round_by_find_and_click_area(screen, '报刊亭', '刮刮卡', success_wait=1, retry_wait=1)
 
     @node_from(from_name='点击刮刮卡')
     @operation_node(name='刮刮')

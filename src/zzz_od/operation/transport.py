@@ -69,7 +69,7 @@ class Transport(ZOperation):
         """
         screen = self.screenshot()
         return self.round_by_find_and_click_area(screen, '大世界', '地图',
-                                                 success_wait=2, retry_wait_round=1)
+                                                 success_wait=2, retry_wait=1)
 
     @node_from(from_name='打开地图')
     @node_from(from_name='画面识别')
@@ -163,8 +163,7 @@ class Transport(ZOperation):
         :return:
         """
         screen = self.screenshot()
-        return self.round_by_find_and_click_area(screen, '地图', '确认',
-                                                 retry_wait_round=1)
+        return self.round_by_find_and_click_area(screen, '地图', '确认', success_wait=1, retry_wait=1)
 
     @node_from(from_name='点击传送')
     @operation_node(name='等待加载')

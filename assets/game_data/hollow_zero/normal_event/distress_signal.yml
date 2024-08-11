@@ -1,0 +1,10 @@
+- entry_name: "求救信号"
+  event_name: "事件求救信号"
+  options:
+    - option_name: "进行信号源分析"
+    - option_name: "直接进入"
+    - option_name: "无视信号"
+
+    - option_name: "给他们一些物资"
+    - option_name: "接受有代价的馈赠"
+    - option_name: "抱歉下次一定"

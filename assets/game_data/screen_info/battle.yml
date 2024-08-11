@@ -134,3 +134,14 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 距离显示区域
+  pc_rect:
+  - 432
+  - 132
+  - 1640
+  - 842
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

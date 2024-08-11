@@ -1,0 +1,7 @@
+- entry_name: "盲盒区域"
+  event_name: "特殊区域播报"
+
+- entry_name: "不宜久留"
+  event_name: "特殊区域"
+  options:
+    - option_name: "确认继续"

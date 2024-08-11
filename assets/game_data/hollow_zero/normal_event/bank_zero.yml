@@ -1,0 +1,14 @@
+- entry_name: "零号银行"
+  event_name: "零号银行"
+  options:
+    - option_name: "领取鸣徽"
+
+    - option_name: "存款"
+    - option_name: "离开"
+      # 有可能识别错误
+    - option_name: "密开"
+
+    - option_name: "存入齿轮硬币"
+    - option_name: "血样"
+    - option_name: "接受压力债务"
+    - option_name: "不存了"

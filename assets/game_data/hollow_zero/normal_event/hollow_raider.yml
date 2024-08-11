@@ -1,0 +1,6 @@
+- entry_name: "盗洞客"
+  event_name: "盗洞客"
+  options:
+    - option_name: "需要缓解侵蚀症状的物资"
+    - option_name: "我不喜欢合作"
+    - option_name: "跟随他前进"

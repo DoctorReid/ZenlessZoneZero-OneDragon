@@ -1,3 +1,4 @@
+import ctypes
 from cv2.typing import MatLike
 from typing import Optional
 
@@ -244,3 +245,11 @@ class ZPcController(PcControllerBase):
             self.btn_controller.release(self.key_interact)
         else:
             self.btn_controller.tap(self.key_interact)
+
+    def turn_by_distance(self, d: float):
+        """
+        横向转向 按距离转
+        :param d: 正数往右转 负数往左转
+        :return:
+        """
+        ctypes.windll.user32.mouse_event(0x0001, int(d), 0)

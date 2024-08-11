@@ -1,0 +1,6 @@
+- entry_name: "门扉禁闭-侵蚀"
+  event_name: "异化检疫门"
+  options:
+    - option_name: "接受检疫扫描"
+    - option_name: "强行闯入通道"
+      wait: 5

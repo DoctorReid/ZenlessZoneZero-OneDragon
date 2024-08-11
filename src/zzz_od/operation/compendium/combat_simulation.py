@@ -17,7 +17,6 @@ from zzz_od.operation.zzz_operation import ZOperation
 
 
 class CombatSimulation(ZOperation):
-
     STATUS_CHARGE_NOT_ENOUGH: ClassVar[str] = '电量不足'
     STATUS_CHARGE_ENOUGH: ClassVar[str] = '电量充足'
 
@@ -118,7 +117,7 @@ class CombatSimulation(ZOperation):
         screen = self.screenshot()
         return self.round_by_find_and_click_area(
             screen, '实战模拟室', '下一步',
-            success_wait=1, retry_wait_round=1
+            success_wait=1, retry_wait=1
         )
 
     @node_from(from_name='下一步')
@@ -133,7 +132,7 @@ class CombatSimulation(ZOperation):
 
         return self.round_by_find_and_click_area(
             screen, '实战模拟室', '出战',
-            success_wait=1, retry_wait_round=1
+            success_wait=1, retry_wait=1
         )
 
     @node_from(from_name='出战', status='出战')
@@ -187,10 +186,10 @@ class CombatSimulation(ZOperation):
         screen = self.screenshot()
         if self.can_run_times == 0:
             return self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-完成',
-                                                     success_wait=5, retry_wait_round=1)
+                                                     success_wait=5, retry_wait=1)
         else:
-            return self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-再来一次',
-                                                     success_wait=1, retry_wait_round=1)
+            return self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-再来一次', success_wait=1,
+                                                     retry_wait=1)
 
     def _on_pause(self, e=None):
         ZOperation._on_pause(self, e)

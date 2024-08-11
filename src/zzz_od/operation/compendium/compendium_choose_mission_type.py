@@ -81,7 +81,9 @@ class CompendiumChooseMissionType(ZOperation):
 
         go_lt = target_point + Point(758, 50)
         go_bt = target_point + Point(1010, 100)
+        area = self.ctx.screen_loader.get_area('快捷手册', '前往列表')
         go_rect = Rect(go_lt.x, go_lt.y, go_bt.x, go_bt.y)
+        go_rect = area.rect
         part = cv2_utils.crop_image_only(screen, go_rect)
         ocr_results = self.ctx.ocr.run_ocr(part)
 

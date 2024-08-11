@@ -1,0 +1,27 @@
+- entry_name: "邂逅"
+  event_name: "篝火如家般温暖"
+  lcs_percent: 0.5
+
+- entry_name: "邂逅"
+  event_name: "体系的力量"
+  options:
+    - option_name: "恭敬不如从命"
+
+- entry_name: "邂逅"
+  event_name: "面子的力量"
+  options:
+    - option_name: "告知实情"
+
+- entry_name: "邂逅"
+  event_name: "篝火如家般温暖"
+  lcs_percent: 0.5
+
+- entry_name: "邂逅"
+  event_name: "体系的力量"
+  options:
+    - option_name: "恭敬不如从命"
+
+- entry_name: "邂逅"
+  event_name: "面子的力量"
+  options:
+    - option_name: "告知实情"

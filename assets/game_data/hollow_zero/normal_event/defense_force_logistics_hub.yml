@@ -1,0 +1,6 @@
+- entry_name: "防卫军后勤站"
+  event_name: "防卫军后勤站"
+  options:
+    - option_name: "公平交易"
+    - option_name: "热情夸赞他们空手套物资"
+    - option_name: "稍作休息"

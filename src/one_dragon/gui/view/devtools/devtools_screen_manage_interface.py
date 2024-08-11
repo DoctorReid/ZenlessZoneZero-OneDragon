@@ -337,10 +337,14 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
         选择已有的环图片
         :return:
         """
+        default_dir = os_utils.get_path_under_work_dir('.debug', 'images')
         if self.last_screen_dir is not None:
             default_dir = self.last_screen_dir
-        else:
-            default_dir = os_utils.get_path_under_work_dir('.debug', 'images')
+        elif self.chosen_screen is not None:
+            screen_dir = os_utils.get_path_under_work_dir('.debug', 'devtools', 'screen', self.chosen_screen.screen_id)
+            if os.path.exists(screen_dir):
+                default_dir = screen_dir
+
         file_path, _ = QFileDialog.getOpenFileName(
             self,
             gt('选择图片', 'ui'),
