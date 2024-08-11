@@ -64,6 +64,7 @@ class HollowBattle(ZOperation):
     @node_from(from_name='初始化上下文')
     @operation_node(name='副本特殊移动')
     def special_move(self):
+        # TODO 双重危机里也有不规则的移动
         if (self.ctx.hollow.level_info.is_mission_type('旧都列车', 2)
             and self.ctx.hollow.level_info.level == 2):
             self.ctx.controller.move_w(press=True, press_time=1.5)
@@ -115,9 +116,10 @@ class HollowBattle(ZOperation):
     @node_from(from_name='向前移动准备战斗')
     @operation_node(name='自动战斗')
     def auto_battle(self) -> OperationRoundResult:
-        if self.ctx.hollow.is_battle_end():
+        # TODO 战斗中途可能需要移动
+        if self.ctx.hollow.last_check_end_result is not None:
             self.auto_op.stop_running()
-            return self.round_success()
+            return self.round_success(status=self.ctx.hollow.last_check_end_result)
         now = time.time()
         screen = self.screenshot()
 
@@ -127,13 +129,14 @@ class HollowBattle(ZOperation):
 
         return self.round_wait(wait=self.ctx.battle_assistant_config.screenshot_interval)
 
-    @node_from(from_name='自动战斗')
+    @node_from(from_name='自动战斗', status='挑战结果')
     @operation_node(name='战斗结束')
     def after_battle(self) -> OperationRoundResult:
         self.node_max_retry_times = 5  # 战斗结束恢复重试次数
         screen = self.screenshot()
-        return self.round_by_find_and_click_area(screen, screen_name='零号空洞-事件', area_name='战斗结果-确定',
-                                                 success_wait=1, retry_wait=1)
+        area = self.ctx.screen_loader.get_area('零号空洞-事件', '战斗结果-确定')
+        return self.round_by_ocr_and_click(screen, '确定', area=area,
+                                           success_wait=1, retry_wait=1)
 
     def _on_pause(self, e=None):
         ZOperation._on_pause(self, e)

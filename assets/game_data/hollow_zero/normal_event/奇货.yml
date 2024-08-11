@@ -1,0 +1,15 @@
+- entry_name: "奇货"
+  event_name: "事件人工自动贩卖机"
+  lcs_percent: 0.6
+  options:
+    - option_name: "拆开贩卖机一探究竞"
+      desc: "获得1个稀有邦布插件"
+
+    - option_name: "大量投币"
+      desc: "花费1000齿轮硬币，获得1个稀有邦布插件"
+
+    - option_name: "正常投币"
+      desc: "花费500齿轮硬币，获得1个普通邦布插件"
+
+    - option_name: "恐吓贩卖机"
+      desc: "压力值+50，获得2个稀有邦布插件"

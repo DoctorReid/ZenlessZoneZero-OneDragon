@@ -35,7 +35,7 @@ class CallForSupport(ZOperation):
         )
 
         self._handlers: List[EventOcrResultHandler] = [
-            EventOcrResultHandler(CallForSupport.STATUS_ACCEPT, self.check_team),
+            EventOcrResultHandler(CallForSupport.STATUS_ACCEPT, method=self.check_team, lcs_percent=1),
             EventOcrResultHandler(CallForSupport.OPT_3, self.check_team),
             EventOcrResultHandler(event_name, is_event_mark=True)
         ]

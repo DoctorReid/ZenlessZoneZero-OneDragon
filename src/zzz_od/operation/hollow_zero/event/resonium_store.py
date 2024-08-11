@@ -33,7 +33,15 @@ class ResoniumStore(ZOperation):
         screen = self.screenshot()
         area = event_utils.get_event_text_area(self)
 
-        return self.round_by_ocr_and_click(screen, '鸣徽交易', area=area, success_wait=1, retry_wait=1)
+        result = self.round_by_ocr_and_click(screen, '鸣徽交易', area=area)
+        if result.is_success:
+            return self.round_success(result.status, wait=1)
+
+        result = self.round_by_ocr_and_click(screen, '特价折扣', area=area)
+        if result.is_success:
+            return self.round_success(result.status, wait=1)
+
+        return self.round_retry(wait=1)
 
     @node_from(from_name='鸣徽交易')
     @node_from(from_name='购买后确定')

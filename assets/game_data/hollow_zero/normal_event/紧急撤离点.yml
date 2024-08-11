@@ -1,0 +1,8 @@
+- entry_name: "紧急撤离点"
+  event_name: "事件紧急撤离点"
+  lcs_percent: 0.5
+  options:
+    - option_name: "不需要按下按钮"
+    - option_name: "让3号队员离队体整"
+    - option_name: "让2号队员离队体整"
+    - option_name: "让1号队员离队体整"

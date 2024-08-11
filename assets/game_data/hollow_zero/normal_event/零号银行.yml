@@ -1,7 +1,7 @@
 - entry_name: "零号银行"
   event_name: "零号银行"
   options:
-    - option_name: "领取鸣徽"
+    - option_name: "领取存款返利"
 
     - option_name: "存款"
     - option_name: "离开"

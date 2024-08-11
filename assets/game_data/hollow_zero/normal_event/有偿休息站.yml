@@ -1,0 +1,29 @@
+- entry_name: "有偿休息站"
+  event_name: "热闹的休息站"
+  options:
+    - option_name: "随性的打听消息"
+    - option_name: "跟其他独立调查员沟通"
+
+- entry_name: "有偿休息站"
+  event_name: "救助伤员"
+  options:
+    - option_name: "救助伤势最重的人"
+    - option_name: "救助伤势比较轻的人"
+
+- entry_name: "有偿休息站"
+  event_name: "互通有无"
+  options:
+    - option_name: "大额交易"
+    - option_name: "适度消费"
+    - option_name: "离开"
+
+- entry_name: "有偿休息站"
+  event_name: "有偿实验"
+  options:
+    - option_name: "提供充足的血液样本"
+      desc: "消耗全队30%生命值，换取1枚S级[空洞】鸣徽"
+
+    - option_name: "提供少量的血液样本"
+      desc: "消耗全队15%生命值，换取1枚A级[空洞】鸣徽"
+
+    - option_name: "离开"

@@ -1,0 +1,13 @@
+- entry_name: "调查员"
+  event_name: "事件老练的调查员"
+  options:
+    - option_name: "购买"
+      desc: "花费400齿轮硬币，获得1枚鸣徽"
+
+    - option_name: "交换"
+      desc: "失去1枚B级鸣徽，获得1枚鸣徽"
+
+    - option_name: "稍微被侵蚀的物资也可以"
+      desc: "压力值+30，获得1枚A级鸣徽"
+
+    - option_name: "不用了"

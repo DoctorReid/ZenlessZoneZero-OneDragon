@@ -35,7 +35,7 @@ class HollowContext:
         self._last_check_end_time: float = 0
 
         # 上一次识别的结果
-        self._last_check_end_result: bool = False
+        self.last_check_end_result: Optional[str] = None
 
     def init_context(self,
                      check_end_interval: Union[float, List[float]] = 5,):
@@ -46,7 +46,7 @@ class HollowContext:
         self._last_check_end_time = 0
 
         # 上一次识别的结果
-        self._last_check_end_result = False
+        self.last_check_end_result = None
 
     def check_agent_list(self, screen: MatLike) -> Optional[List[Agent]]:
         """
@@ -127,24 +127,30 @@ class HollowContext:
                 return
             self._last_check_end_time = screenshot_time
 
-            result1 = screen_utils.find_area(ctx=self.ctx, screen=screen,
-                                             screen_name='零号空洞-事件', area_name='战斗结果-确定')
-            result2 = screen_utils.find_area(ctx=self.ctx, screen=screen,
-                                             screen_name='零号空洞-事件', area_name='背包')
-            result3 = screen_utils.find_area(ctx=self.ctx, screen=screen,
-                                             screen_name='零号空洞-事件', area_name='通关-完成')
-            self._last_check_end_result = ((result1 == FindAreaResultEnum.TRUE)
-                                           or (result2 == FindAreaResultEnum.TRUE)
-                                           or (result3 == FindAreaResultEnum.TRUE)
-                                           )
+            result = screen_utils.find_area(ctx=self.ctx, screen=screen,
+                                            screen_name='零号空洞-事件', area_name='挑战结果')
+            if result == FindAreaResultEnum.TRUE:
+                self.last_check_end_result = '挑战结果'
+                return
+
+            result = screen_utils.find_area(ctx=self.ctx, screen=screen,
+                                            screen_name='零号空洞-事件', area_name='背包')
+            if result == FindAreaResultEnum.TRUE:
+                self.last_check_end_result = '背包'
+                return
+
+            result = screen_utils.find_area(ctx=self.ctx, screen=screen,
+                                            screen_name='零号空洞-事件', area_name='通关-完成')
+            if result == FindAreaResultEnum.TRUE:
+                self.last_check_end_result = '完成'
+                return
+
+            self.last_check_end_result = None
 
         except Exception:
             log.error('识别战斗结束失败', exc_info=True)
         finally:
             self._check_end_lock.release()
-
-    def is_battle_end(self) -> bool:
-        return self._last_check_end_result
 
 
 def __debug():

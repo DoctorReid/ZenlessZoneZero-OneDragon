@@ -101,17 +101,6 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: 战斗结果-确定
-  pc_rect:
-  - 1056
-  - 928
-  - 1276
-  - 988
-  text: ''
-  lcs_percent: 0.5
-  template_sub_dir: ''
-  template_id: ''
-  template_match_threshold: 0.7
 - area_name: 背包
   pc_rect:
   - 1448
@@ -130,6 +119,28 @@ area_list:
   - 1832
   - 1052
   text: 完成
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 挑战结果
+  pc_rect:
+  - 556
+  - 8
+  - 1368
+  - 236
+  text: 挑战结果
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 战斗结果-确定
+  pc_rect:
+  - 1048
+  - 910
+  - 1268
+  - 1032
+  text: ''
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''

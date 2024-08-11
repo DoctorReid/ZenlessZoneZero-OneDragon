@@ -2,9 +2,10 @@
   event_name: "假面研究者"
   options:
     - option_name: "接受他的好意"
-      ocr_word: "接受"
     - option_name: "拒绝他的好意"
-      ocr_word: "拒绝"
+
+    - option_name: "拿点垃圾物资"
+      desc: "获得2枚B级鸣徽"
 
     - option_name: "减缓侵蚀"
     - option_name: "战斗物资"
@@ -13,3 +14,9 @@
     - option_name: "呼叫邦布"
     - option_name: "减缓侵蚀"
     - option_name: "邦布插件"
+
+    - option_name: "恢复身体"
+      desc: "回复30%生命值"
+
+    - option_name: "我要购物"
+      desc: "获得1000齿轮硬币，产生1个商店"

@@ -1,0 +1,5 @@
+- entry_name: "奇怪的学生"
+  event_name: "旧都失物奇怪的少女"
+  options:
+    - option_name: "离开"
+    - option_name: "攻击以骸"
