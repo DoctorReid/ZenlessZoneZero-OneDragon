@@ -7,6 +7,14 @@ from one_dragon.utils import os_utils
 from one_dragon.utils.log_utils import log
 
 
+class HollowZeroEntry:
+
+    def __init__(self, entry_name: str, is_benefit: bool = True, need_step: int = 1):
+        self.entry_name: str = entry_name
+        self.is_benefit: bool = is_benefit
+        self.need_step: int = need_step
+
+
 class HallowZeroNormalEventOption:
 
     def __init__(self,
@@ -48,10 +56,13 @@ class HallowZeroEventService:
 
     def __init__(self):
         self.normal_events: List[HallowZeroEvent] = []
+        self.entry_list: List[HollowZeroEntry] = []
+        self.name_2_entry: dict[str, HollowZeroEntry] = {}
         self.reload()
 
     def reload(self):
         self._load_normal_events()
+        self._load_entry_list()
 
     def _load_normal_events(self):
         dir_path = os_utils.get_path_under_work_dir('assets', 'game_data', 'hollow_zero', 'normal_event')
@@ -79,6 +90,27 @@ class HallowZeroEventService:
         for event in self.normal_events:
             if event.event_name == event_name:
                 return event
+
+    def _load_entry_list(self):
+        self.entry_list = []
+        self.name_2_entry = {}
+
+        file_path = os_utils.get_path_under_work_dir('assets', 'game_data', 'hollow_zero', 'entry_list.yml')
+        if not os.path.exists(file_path):
+            return
+
+        try:
+            with open(file_path, 'r', encoding='utf-8') as file:
+                entry_list: List[dict] = yaml.safe_load(file)
+                for i in entry_list:
+                    entry = HollowZeroEntry(**i)
+                    self.entry_list.append(entry)
+                    self.name_2_entry[entry.entry_name] = entry
+        except Exception:
+            log.error(f'文件读取失败 {file_path}', exc_info=True)
+
+    def get_entry_by_name(self, entry_name: str) -> Optional[HollowZeroEntry]:
+        return self.name_2_entry.get(entry_name, None)
 
 
 class HollowZeroSpecialEvent(Enum):

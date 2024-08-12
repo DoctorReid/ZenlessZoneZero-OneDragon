@@ -155,7 +155,7 @@ class HollowEventDetector(OnnxModelLoader):
         )
         self.run_result_history.append(new_frame)
         self.run_result_history = [i for i in self.run_result_history
-                                   if context.run_time - i.run_time > self.keep_result_seconds]
+                                   if context.run_time - i.run_time <= self.keep_result_seconds]
 
         return new_frame
 
@@ -174,10 +174,7 @@ class HollowEventDetector(OnnxModelLoader):
         """
         csv_path = os.path.join(model_dir_path, 'labels.csv')
         with open(csv_path, mode='r', encoding='utf-8') as file:
-            # 创建一个CSV阅读器
             csv_reader = csv.reader(file)
-
-            # 读取并打印每一行
             for row in csv_reader:
                 if row[0] != 'idx':
                     c = DetectClass(int(row[0]), row[1])

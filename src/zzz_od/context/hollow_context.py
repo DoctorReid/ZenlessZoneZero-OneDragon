@@ -9,9 +9,11 @@ from one_dragon.base.screen import screen_utils
 from one_dragon.base.screen.screen_utils import FindAreaResultEnum
 from one_dragon.utils import cv2_utils, thread_utils, cal_utils, os_utils
 from one_dragon.utils.log_utils import log
-from zzz_od.context.hollow_level_info import HollowLevelInfo
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import Agent, AgentEnum
+from zzz_od.hollow_zero.hollow_level_info import HollowLevelInfo
+from zzz_od.hollow_zero.hollow_map import hollow_map_utils
+from zzz_od.hollow_zero.hollow_map.hollow_zero_map import HollowZeroMap, HollowZeroMapNode
 from zzz_od.operation.hollow_zero.hollow_zero_event import HallowZeroEventService
 from zzz_od.yolo.hollow_event_detector import HollowEventDetector
 
@@ -22,7 +24,7 @@ class HollowContext:
 
     def __init__(self, ctx: ZContext):
         self.ctx: ZContext = ctx
-        self.agent_list: List[Agent]
+        self.agent_list: Optional[List[Agent]] = None
 
         self.event_service: HallowZeroEventService = HallowZeroEventService()
         self.level_info: HollowLevelInfo = HollowLevelInfo()
@@ -160,11 +162,93 @@ class HollowContext:
         if self._event_model is None or self._event_model.gpu != use_gpu:
             self._event_model = HollowEventDetector(
                 model_parent_dir_path=os_utils.get_path_under_work_dir('assets', 'models', 'yolo'),
-                gpu=use_gpu
+                gpu=use_gpu,
             )
 
+    def clear_detect_history(self) -> None:
+        """
+        清除识别记录
+        :return:
+        """
+        if self._event_model is None:
+            return
+        self._event_model.run_result_history.clear()
 
-def __debug():
+    def check_current_map(self, screen: MatLike) -> Optional[HollowZeroMap]:
+        if self._event_model is None:
+            return None
+        result = self._event_model.run(screen)
+        if result is None:
+            return None
+
+        current_map = hollow_map_utils.construct_map_from_yolo_result(self._event_model.run_result_history)
+
+        # 填充类型相关信息
+        for node in current_map.nodes:
+            node.entry = self.event_service.get_entry_by_name(node.node_name)
+        return current_map
+
+    def check_before_move(self, screen: MatLike) -> None:
+        """
+        移动前 进行识别
+        :param screen:
+        :return:
+        """
+        if self.agent_list is None:
+            self.check_agent_list(screen)
+
+    def get_next_to_move(self, current_map: HollowZeroMap) -> Optional[HollowZeroMapNode]:
+        """
+        获取下一步的移动方向
+        :param current_map:
+        :return:
+        """
+        idx_2_route = hollow_map_utils.search_map(current_map)
+
+        # 1步可到的奖励 都先领取了
+        route = hollow_map_utils.get_route_in_1_step_benefit(idx_2_route)
+        if route is not None:
+            return current_map.nodes[route.first_step]
+
+        # 队员不满的时候 优先去增援
+        if self.ctx.hollow.agent_list is None or len(self.ctx.hollow.agent_list) < 3:
+            route = hollow_map_utils.get_route_by_entry(idx_2_route, '呼叫增援')
+            if route is not None:
+                return current_map.nodes[route.first_step]
+
+        # 有业绩的时候 去拿业绩
+        route = hollow_map_utils.get_route_by_entry(idx_2_route, '业绩考察点')
+        if route is not None:
+            return current_map.nodes[route.first_step]
+
+        # 有银行的时候 去银行
+        route = hollow_map_utils.get_route_by_entry(idx_2_route, '零号银行')
+        if route is not None:
+            return current_map.nodes[route.first_step]
+
+        # 有出口的时候 去出口
+        route = hollow_map_utils.get_route_by_entry(idx_2_route, '守门人')
+        if route is not None:
+            return current_map.nodes[route.first_step]
+
+        # 没有特殊点的时候 按副本类型走特定方向
+        if self.level_info.level == 2:  # 第2层往上走
+            route = hollow_map_utils.get_route_by_direction(idx_2_route, 'w')
+            if route is not None:
+                return current_map.nodes[route.first_step]
+
+        return None
+
+    def update_context_after_move(self, node: HollowZeroMapNode) -> None:
+        """
+        点击后 更新
+        :param node:
+        :return:
+        """
+        pass
+
+
+def __debug_draw_detect():
     ctx = ZContext()
     ctx.init_by_config()
 
@@ -179,5 +263,21 @@ def __debug():
     cv2.destroyAllWindows()
 
 
+def __debug_get_map():
+    ctx = ZContext()
+    ctx.init_by_config()
+
+    from one_dragon.utils import debug_utils
+    img = debug_utils.get_debug_image('event_1')
+
+    ctx.hollow.init_event_yolo()
+    current_map = ctx.hollow.check_current_map(img)
+    target = ctx.hollow.get_next_to_move(current_map)
+    result_img = hollow_map_utils.draw_map(img, current_map, next_node=target)
+    cv2_utils.show_image(result_img, wait=0)
+    cv2.destroyAllWindows()
+
+
 if __name__ == '__main__':
-    __debug()
+    __debug_get_map()
+
