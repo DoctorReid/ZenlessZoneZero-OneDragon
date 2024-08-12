@@ -4,4 +4,6 @@ handlers:
   - state_template: "站场模板-莱卡恩"
   - state_template: "站场模板-妮可"
   - state_template: "站场模板-朱鸢"
+  - state_template: "站场模板-可琳"
+  - state_template: "站场模板-格莉丝"
   - state_template: "站场模板-通用"

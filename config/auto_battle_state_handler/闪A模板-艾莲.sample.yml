@@ -1,0 +1,15 @@
+handlers:
+  - states: "[前台-艾莲]"
+    operations:
+      - op_name: "按键-闪避"
+      - op_name: "等待秒数"
+        data: ["0.6"]
+      - op_name: "按键-移动-前-按下"
+      - op_name: "按键-闪避-按下"
+      - op_name: "等待秒数"
+        data: ["0.3"]
+      - op_name: "按键-普通攻击-按下"
+        data: ["1.2"]
+      - op_name: "按键-闪避-松开"
+      - op_name: "设置状态"
+        data: ["自定义-红光闪避"]
