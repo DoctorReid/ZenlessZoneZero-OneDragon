@@ -93,11 +93,12 @@ class CompendiumChooseMissionType(ZOperation):
                 continue
             if not str_utils.find_by_lcs(gt('前往'), ocr_result, percent=0.5):
                 continue
-            go_point = go_rect.left_top + mrl.max
-            if go_point.y <= target_point.y:
-                continue
-            if target_go_point is None or go_point.y < target_go_point.y:
-                target_go_point = go_point
+            for mr in mrl:
+                go_point = go_rect.left_top + mr.center
+                if go_point.y <= target_point.y:
+                    continue
+                if target_go_point is None or go_point.y < target_go_point.y:
+                    target_go_point = go_point
 
         if target_go_point is None:
             return self.round_retry(status='找不到 %s' % '前往', wait=1)
