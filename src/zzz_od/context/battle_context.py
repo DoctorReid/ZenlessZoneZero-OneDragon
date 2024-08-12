@@ -86,7 +86,7 @@ class BattleContext:
         self._last_check_distance_time: float = 0
 
         # 识别结果
-        self._last_check_end_result: Optional[FindAreaResultEnum] = None
+        self.last_check_end_result: Optional[str] = None
         self.without_distance_times: int = 0  # 没有显示距离的次数
         self.with_distance_times: int = 0  # 有显示距离的次数
 
@@ -281,7 +281,6 @@ class BattleContext:
         self.should_check_all_agents = agent_names is None
         self.check_agent_same_times = 0
         self.check_agent_diff_times = 0
-        self._last_check_end_result = None
 
         if agent_names is not None:
             for agent_name in agent_names:
@@ -324,7 +323,7 @@ class BattleContext:
         self._last_check_distance_time: float = 0
 
         # 识别结果
-        self._last_check_end_result: Optional[str] = None
+        self.last_check_end_result: Optional[str] = None
         self.without_distance_times: int = 0  # 没有显示距离的次数
         self.with_distance_times: int = 0  # 有显示距离的次数
 
@@ -750,9 +749,9 @@ class BattleContext:
             return self.agent_list
 
     def _check_battle_end(self, screen: MatLike, screenshot_time: float,
+                          check_battle_end_normal_result: bool,
                           check_battle_end_hollow_result: bool,
-                          check_battle_end_hollow_bag: bool,
-                          check_battle_end_normal_result: bool) -> None:
+                          check_battle_end_hollow_bag: bool) -> None:
         if not self._check_end_lock.acquire(blocking=False):
             return
 
@@ -763,7 +762,7 @@ class BattleContext:
             self._last_check_end_time = screenshot_time
 
             agent = self._check_agent_1(screen)
-            if agent is None:  # 有显示角色 就一定没有结束
+            if agent is not None:  # 有显示角色 就一定没有结束
                 self.last_check_end_result = None
                 return
 

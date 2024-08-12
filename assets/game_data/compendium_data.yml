@@ -76,15 +76,10 @@
     - category_name: "专业挑战室"
       mission_type_list:
         - mission_type_name: "恶名·杜拉罕"
-          mission_type_name_display: "强攻"
         - mission_type_name: "祸首·通缉打手"
-          mission_type_name_display: "击破"
         - mission_type_name: "恶名·装甲哈提"
-          mission_type_name_display: "异常"
         - mission_type_name: "汉斯·蓄能型"
-          mission_type_name_display: "支援"
         - mission_type_name: "「提丰·重击者型」"
-          mission_type_name_display: "防护"
 
 - tab_name: "挑战"
   category_list:

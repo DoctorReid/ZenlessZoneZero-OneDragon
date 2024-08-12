@@ -162,7 +162,8 @@ class CombatSimulation(ZOperation):
     @operation_node(name='自动战斗')
     def auto_battle(self) -> OperationRoundResult:
         if self.ctx.battle.last_check_end_result is not None:
-            self.auto_op.stop_running()
+            if self.auto_op is not None:
+                self.auto_op.stop_running()
             return self.round_success(status=self.ctx.battle.last_check_end_result)
         now = time.time()
         screen = self.screenshot()
@@ -216,6 +217,10 @@ def __debug():
     ctx.start_running()
     op = CombatSimulation(ctx, ChargePlanItem())
     op.can_run_times = 1
+    op.handle_init()
+    op.init_auto_battle()
+    auto_battle_utils.init_context(op)
+    op.auto_op.start_running_async()
     op.execute()
 
 
