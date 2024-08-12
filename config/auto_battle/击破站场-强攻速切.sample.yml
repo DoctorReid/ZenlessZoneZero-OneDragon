@@ -51,7 +51,7 @@ scenes:
           - state_template: "连携模板-跳过"
 
   - triggers: [ ]
-    interval: 0.5
+    interval: 0.02
     handlers:
       # 刚开始未识别到角色时候不要乱切
       - state_template: "站场模板-未识别角色"

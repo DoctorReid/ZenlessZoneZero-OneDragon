@@ -33,13 +33,12 @@ class BattleEventEnum(Enum):
     BTN_MOVE_S = '按键-移动-后'
     BTN_MOVE_A = '按键-移动-左'
     BTN_MOVE_D = '按键-移动-右'
+    BTN_LOCK = '按键-锁定敌人'
 
     STATUS_SPECIAL_READY = '按键可用-特殊攻击'
     STATUS_ULTIMATE_READY = '按键可用-终结技'
     STATUS_CHAIN_READY = '按键可用-连携技'
     STATUS_QUICK_ASSIST_READY = '按键可用-快速支援'
-
-    STATUS_SWITCH = '运行状态-切换角色'
 
 
 class BattleContext:
@@ -250,6 +249,17 @@ class BattleContext:
             e = BattleEventEnum.BTN_MOVE_D.value
         log.info(e)
         self.ctx.controller.move_d(press=press, press_time=press_time, release=release)
+        self.ctx.dispatch_event(e, StateEvent(time.time()))
+
+    def lock(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
+        if press:
+            e = BattleEventEnum.BTN_LOCK.value + '-按下'
+        elif release:
+            e = BattleEventEnum.BTN_LOCK.value + '-松开'
+        else:
+            e = BattleEventEnum.BTN_LOCK.value
+        log.info(e)
+        self.ctx.controller.lock(press=press, press_time=press_time, release=release)
         self.ctx.dispatch_event(e, StateEvent(time.time()))
 
     def init_context(self,

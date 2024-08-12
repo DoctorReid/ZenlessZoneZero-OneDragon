@@ -10,6 +10,7 @@ from one_dragon.utils import os_utils
 from zzz_od.auto_battle.atomic_op.btn_chain_left import AtomicBtnChainLeft
 from zzz_od.auto_battle.atomic_op.btn_chain_right import AtomicBtnChainRight
 from zzz_od.auto_battle.atomic_op.btn_dodge import AtomicBtnDodge
+from zzz_od.auto_battle.atomic_op.btn_lock import AtomicBtnLock
 from zzz_od.auto_battle.atomic_op.btn_move_a import AtomicBtnMoveA
 from zzz_od.auto_battle.atomic_op.btn_move_d import AtomicBtnMoveD
 from zzz_od.auto_battle.atomic_op.btn_move_s import AtomicBtnMoveS
@@ -184,6 +185,8 @@ class AutoBattleOperator(ConditionalOperator):
             return AtomicBtnMoveA(self.ctx, press=press, press_time=press_time, release=release)
         elif op_name.startswith(BattleEventEnum.BTN_MOVE_D.value):
             return AtomicBtnMoveD(self.ctx, press=press, press_time=press_time, release=release)
+        elif op_name.startswith(BattleEventEnum.BTN_LOCK.value):
+            return AtomicBtnLock(self.ctx, press=press, press_time=press_time, release=release)
         elif op_name == AtomicWait.OP_NAME:
             if len(op_data) == 0:
                 raise ValueError(f'{AtomicWait.OP_NAME} 未填入参数 data')
@@ -263,12 +266,3 @@ class AutoBattleOperator(ConditionalOperator):
         for sr in self._state_recorders.values():
             sr.dispose()
         self._state_recorders.clear()
-
-
-if __name__ == '__main__':
-    ctx = ZContext()
-    ctx.init_by_config()
-    op = AutoBattleOperator(ctx, 'auto_battle', '强攻站场-击破支援速切')
-    op.init_operator()
-    print(op.get_usage_states())
-    pass

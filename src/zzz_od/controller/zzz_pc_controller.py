@@ -34,6 +34,7 @@ class ZPcController(PcControllerBase):
         self.key_move_a: str = self.game_config.key_move_a
         self.key_move_d: str = self.game_config.key_move_d
         self.key_interact: str = self.game_config.key_interact
+        self.key_lock: str = self.game_config.key_lock
 
     def fill_uid_black(self, screen: MatLike) -> MatLike:
         """
@@ -62,8 +63,9 @@ class ZPcController(PcControllerBase):
         self.key_move_w: str = self.game_config.key_move_w
         self.key_move_s: str = self.game_config.key_move_s
         self.key_move_a: str = self.game_config.key_move_a
-        self.key_move_d: str = self.game_config.key_move_d
+        self.key_lock: str = self.game_config.key_lock
         self.key_interact: str = self.game_config.key_interact
+        self.key_lock: str = self.game_config.key_lock
 
     def enable_xbox(self):
         PcControllerBase.enable_xbox(self)
@@ -81,6 +83,7 @@ class ZPcController(PcControllerBase):
         self.key_move_a: str = self.game_config.xbox_key_move_a
         self.key_move_d: str = self.game_config.xbox_key_move_d
         self.key_interact: str = self.game_config.xbox_key_interact
+        self.key_lock: str = self.game_config.xbox_key_lock
 
     def enable_ds4(self):
         PcControllerBase.enable_ds4(self)
@@ -98,6 +101,7 @@ class ZPcController(PcControllerBase):
         self.key_move_a: str = self.game_config.ds4_key_move_a
         self.key_move_d: str = self.game_config.ds4_key_move_d
         self.key_interact: str = self.game_config.ds4_key_interact
+        self.key_lock: str = self.game_config.ds4_key_lock
 
     def dodge(self, press: bool = False, press_time: Optional[float] = None, release: bool = False) -> None:
         """
@@ -253,3 +257,14 @@ class ZPcController(PcControllerBase):
         :return:
         """
         ctypes.windll.user32.mouse_event(0x0001, int(d), 0)
+
+    def lock(self, press: bool = False, press_time: Optional[float] = None, release: bool = False) -> None:
+        """
+        向右移动
+        """
+        if press:
+            self.btn_controller.press(self.key_lock, press_time)
+        elif release:
+            self.btn_controller.release(self.key_lock)
+        else:
+            self.btn_controller.tap(self.key_lock)
