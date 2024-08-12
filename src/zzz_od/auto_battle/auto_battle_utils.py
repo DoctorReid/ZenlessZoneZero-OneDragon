@@ -49,19 +49,24 @@ def init_context(op: Union[ZOperation, ZApplication]):
 
 
 def run_screen_check(op: Union[ZOperation, ZApplication], screen: MatLike, screenshot_time: float,
-                     check_battle_end: bool = True,
+                     check_battle_end_normal_result: bool = False,
+                     check_battle_end_hollow_result: bool = False,
+                     check_battle_end_hollow_bag: bool = False,
+                     check_distance: bool = False,
                      sync: bool = False) -> None:
     """
     运行画面识别
     :param op: 当前指令
     :param screen: 游戏画面
     :param screenshot_time: 截图时间
-    :param check_battle_end: 是否需要识别战斗结束
     :param sync: 是否同步
     :return:
     """
     op.ctx.yolo.check_screen(screen, screenshot_time, sync=sync)
     op.ctx.battle.check_screen(screen, screenshot_time,
-                               check_battle_end=check_battle_end,
+                               check_battle_end_normal_result=check_battle_end_normal_result,
+                               check_battle_end_hollow_result=check_battle_end_hollow_result,
+                               check_battle_end_hollow_bag=check_battle_end_hollow_bag,
+                               check_distance=check_distance,
                                sync=sync)
 

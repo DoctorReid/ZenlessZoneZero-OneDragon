@@ -166,13 +166,13 @@ class RoutineCleanup(ZOperation):
     @node_from(from_name='向前移动准备战斗')
     @operation_node(name='自动战斗')
     def auto_battle(self) -> OperationRoundResult:
-        if self.ctx.battle.is_battle_end():
+        if self.ctx.battle.last_check_end_result is not None:
             self.auto_op.stop_running()
-            return self.round_success()
+            return self.round_success(status=self.ctx.battle.last_check_end_result)
         now = time.time()
         screen = self.screenshot()
 
-        auto_battle_utils.run_screen_check(self, screen, now)
+        auto_battle_utils.run_screen_check(self, screen, now, check_battle_end_normal_result=True)
 
         return self.round_wait(wait=self.ctx.battle_assistant_config.screenshot_interval)
 

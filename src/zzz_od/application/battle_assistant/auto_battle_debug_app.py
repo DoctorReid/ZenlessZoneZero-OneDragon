@@ -114,7 +114,7 @@ class AutoBattleDebugApp(ZApplication):
         now = time.time()
 
         screen = self.screenshot()
-        auto_battle_utils.run_screen_check(self, screen, now, check_battle_end=False, sync=True)
+        auto_battle_utils.run_screen_check(self, screen, now, sync=True)
 
         time.sleep(0.2)
         ops = self.auto_op._normal_scene_handler.get_operations(time.time())

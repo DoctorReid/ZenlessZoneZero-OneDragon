@@ -7,10 +7,11 @@ from enum import Enum
 from typing import Optional, List, Union
 
 from one_dragon.base.conditional_operation.state_event import StateEvent
+from one_dragon.base.matcher.match_result import MatchResult
 from one_dragon.base.screen import screen_utils
 from one_dragon.base.screen.screen_area import ScreenArea
 from one_dragon.base.screen.screen_utils import FindAreaResultEnum
-from one_dragon.utils import cv2_utils, debug_utils, thread_utils, cal_utils
+from one_dragon.utils import cv2_utils, debug_utils, thread_utils, cal_utils, str_utils
 from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import Agent, AgentEnum
@@ -54,6 +55,9 @@ class BattleContext:
         self.check_agent_diff_times: int = 0  # 识别角色的不同次数
         self._agent_update_time: float = 0  # 识别角色的更新时间
 
+        # 识别区域
+        self._check_distance_area: Optional[ScreenArea] = None
+
         # 识别锁 保证每种类型只有1实例在进行识别
         self._update_agent_lock = threading.Lock()
         self._check_agent_lock = threading.Lock()
@@ -62,6 +66,7 @@ class BattleContext:
         self._check_chain_lock = threading.Lock()
         self._check_quick_lock = threading.Lock()
         self._check_end_lock = threading.Lock()
+        self._check_distance_lock = threading.Lock()
 
         # 识别间隔
         self._check_agent_interval: Union[float, List[float]] = 0
@@ -70,6 +75,7 @@ class BattleContext:
         self._check_chain_interval: Union[float, List[float]] = 0
         self._check_quick_interval: Union[float, List[float]] = 0
         self._check_end_interval: Union[float, List[float]] = 5
+        self._check_distance_interval: Union[float, List[float]] = 5
 
         # 上一次识别的时间
         self._last_check_agent_time: float = 0
@@ -78,8 +84,12 @@ class BattleContext:
         self._last_check_chain_time: float = 0
         self._last_check_quick_time: float = 0
         self._last_check_end_time: float = 0
+        self._last_check_distance_time: float = 0
 
-        self._last_check_end_result: Optional[FindAreaResultEnum] = None  # 上一次识别结束的结果
+        # 识别结果
+        self._last_check_end_result: Optional[FindAreaResultEnum] = None
+        self.without_distance_times: int = 0  # 没有显示距离的次数
+        self.with_distance_times: int = 0  # 有显示距离的次数
 
     def dodge(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
         if press:
@@ -270,23 +280,9 @@ class BattleContext:
                         self.agent_list.append(agent_enum.value)
                         break
 
-        # 识别间隔
-        self._check_agent_interval = check_agent_interval
-        self._check_special_attack_interval = check_special_attack_interval
-        self._check_ultimate_interval = check_ultimate_interval
-        self._check_chain_interval = check_chain_interval
-        self._check_quick_interval = check_quick_interval
-        self._check_end_interval = check_end_interval
+        # 识别区域 先读取出来 不要每次用的时候再读取
+        self._check_distance_area = self.ctx.screen_loader.get_area('战斗画面', '距离显示区域')
 
-        # 上一次识别的时间
-        self._last_check_agent_time: float = 0
-        self._last_check_special_attack_time: float = 0
-        self._last_check_ultimate_time: float = 0
-        self._last_check_chain_time: float = 0
-        self._last_check_quick_time: float = 0
-        self._last_check_end_time: float = 0
-
-        # 画面区域 先读取出来 不要每次用的时候再读取
         self.area_agent_3_1: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '头像-3-1')
         self.area_agent_3_2: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '头像-3-2')
         self.area_agent_3_3: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '头像-3-3')
@@ -299,8 +295,34 @@ class BattleContext:
         self.area_chain_1: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '连携技-1')
         self.area_chain_2: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '连携技-2')
 
+        # 识别间隔
+        self._check_agent_interval = check_agent_interval
+        self._check_special_attack_interval = check_special_attack_interval
+        self._check_ultimate_interval = check_ultimate_interval
+        self._check_chain_interval = check_chain_interval
+        self._check_quick_interval = check_quick_interval
+        self._check_end_interval = check_end_interval
+        self._check_distance_interval = 5
+
+        # 上一次识别的时间
+        self._last_check_agent_time: float = 0
+        self._last_check_special_attack_time: float = 0
+        self._last_check_ultimate_time: float = 0
+        self._last_check_chain_time: float = 0
+        self._last_check_quick_time: float = 0
+        self._last_check_end_time: float = 0
+        self._last_check_distance_time: float = 0
+
+        # 识别结果
+        self._last_check_end_result: Optional[str] = None
+        self.without_distance_times: int = 0  # 没有显示距离的次数
+        self.with_distance_times: int = 0  # 有显示距离的次数
+
     def check_screen(self, screen: MatLike, screenshot_time: float,
-                     check_battle_end: bool = True,
+                     check_battle_end_normal_result: bool = False,
+                     check_battle_end_hollow_result: bool = False,
+                     check_battle_end_hollow_bag: bool = False,
+                     check_distance: bool = False,
                      sync: bool = False) -> None:
         """
         异步判断角战斗画面 并发送事件
@@ -313,8 +335,14 @@ class BattleContext:
         future_list.append(_battle_check_executor.submit(self.check_ultimate_btn, screen, screenshot_time))
         future_list.append(_battle_check_executor.submit(self.check_chain_attack, screen, screenshot_time))
         future_list.append(_battle_check_executor.submit(self.check_quick_assist, screen, screenshot_time))
+        check_battle_end = check_battle_end_normal_result or check_battle_end_hollow_result or check_battle_end_hollow_bag
         if check_battle_end:
-            future_list.append(_battle_check_executor.submit(self._check_battle_end, screen, screenshot_time))
+            future_list.append(_battle_check_executor.submit(
+                self._check_battle_end, screen, screenshot_time,
+                check_battle_end_normal_result, check_battle_end_hollow_result, check_battle_end_hollow_bag
+            ))
+        if check_distance:
+            future_list.append(_battle_check_executor.submit(self._check_distance_with_lock, screen, screenshot_time))
 
         for future in future_list:
             future.add_done_callback(thread_utils.handle_future_result)
@@ -711,7 +739,10 @@ class BattleContext:
         else:
             return self.agent_list
 
-    def _check_battle_end(self, screen: MatLike, screenshot_time: float) -> None:
+    def _check_battle_end(self, screen: MatLike, screenshot_time: float,
+                          check_battle_end_hollow_result: bool,
+                          check_battle_end_hollow_bag: bool,
+                          check_battle_end_normal_result: bool) -> None:
         if not self._check_end_lock.acquire(blocking=False):
             return
 
@@ -721,14 +752,103 @@ class BattleContext:
                 return
             self._last_check_end_time = screenshot_time
 
-            self._last_check_end_result = screen_utils.find_area(ctx=self.ctx, screen=screen, screen_name='战斗画面', area_name='战斗结果-完成')
+            agent = self._check_agent_1(screen)
+            if agent is None:  # 有显示角色 就一定没有结束
+                self.last_check_end_result = None
+                return
+
+            if check_battle_end_hollow_result:
+                result = screen_utils.find_area(ctx=self.ctx, screen=screen,
+                                                screen_name='零号空洞-事件', area_name='挑战结果')
+                if result == FindAreaResultEnum.TRUE:
+                    self.last_check_end_result = '零号空洞-挑战结果'
+                    return
+
+            if check_battle_end_hollow_bag:
+                result = screen_utils.find_area(ctx=self.ctx, screen=screen,
+                                                screen_name='零号空洞-事件', area_name='背包')
+                if result == FindAreaResultEnum.TRUE:
+                    self.last_check_end_result = '零号空洞-背包'
+                    return
+
+            if check_battle_end_normal_result:
+                result = screen_utils.find_area(ctx=self.ctx, screen=screen,
+                                                screen_name='战斗画面', area_name='战斗结果-完成')
+                if result == FindAreaResultEnum.TRUE:
+                    self.last_check_end_result = '普通战斗-完成'
+                    return
+
+            self.last_check_end_result = None
         except Exception:
             log.error('识别战斗结束失败', exc_info=True)
         finally:
             self._check_end_lock.release()
 
-    def is_battle_end(self) -> bool:
-        return self._last_check_end_result == FindAreaResultEnum.TRUE
+    def _check_distance_with_lock(self, screen: MatLike, screenshot_time: float) -> None:
+        if not self._check_distance_lock.acquire(blocking=False):
+            return
+
+        try:
+            if screenshot_time - self._last_check_distance_time < cal_utils.random_in_range(self._check_end_interval):
+                # 还没有达到识别间隔
+                return
+
+            self._last_check_distance_time = screenshot_time
+
+            agent = self._check_agent_1(screen)
+            if agent is None:  # 没有显示角色 就一定没有距离
+                self.without_distance_times += 1
+                self.with_distance_times = 0
+                self._check_distance_interval = 5
+                return
+
+            self.check_battle_distance(screen)
+        except Exception:
+            log.error('识别距离失败', exc_info=True)
+        finally:
+            self._check_distance_lock.release()
+
+    def check_battle_distance(self, screen: MatLike) -> MatchResult:
+        """
+        识别画面上显示的距离
+        :param screen:
+        :return:
+        """
+        area = self._check_distance_area
+        part = cv2_utils.crop_image_only(screen, area.rect)
+        ocr_result_map = self.ctx.ocr.run_ocr(part)
+
+        distance: Optional[float] = None
+        mr: Optional[MatchResult] = None
+        for ocr_result, mrl in ocr_result_map.items():
+            if not ocr_result.endswith('m'):
+                continue
+            pre_str = ocr_result[:-1]
+            distance = str_utils.get_positive_float(pre_str, None)
+            if distance is None:
+                continue
+            mr = mrl.max
+
+        if mr is not None:
+            mr.add_offset(area.left_top)
+            mr.data = distance
+            self.without_distance_times = 0
+            self.with_distance_times += 1
+            self._check_distance_interval = 1  # 识别到距离的话 减少识别间隔
+        else:
+            self.without_distance_times += 1
+            self.with_distance_times = 0
+            self._check_distance_interval = 5
+
+        return mr
+
+    def _check_agent_1(self, screen: MatLike) -> Optional[Agent]:
+        """
+        识别第一个角色
+        :return:
+        """
+        img = cv2_utils.crop_image_only(screen, self.area_agent_3_1.rect)
+        return self._match_agent_in(img, True, self._get_possible_agent_list())
 
 
 def __debug():

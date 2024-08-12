@@ -5,9 +5,11 @@ import threading
 from cv2.typing import MatLike
 from typing import List, Optional, Union
 
+from one_dragon.base.matcher.match_result import MatchResult
 from one_dragon.base.screen import screen_utils
+from one_dragon.base.screen.screen_area import ScreenArea
 from one_dragon.base.screen.screen_utils import FindAreaResultEnum
-from one_dragon.utils import cv2_utils, thread_utils, cal_utils, os_utils
+from one_dragon.utils import cv2_utils, thread_utils, cal_utils, os_utils, str_utils
 from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import Agent, AgentEnum
@@ -31,6 +33,9 @@ class HollowContext:
 
         self._event_model: Optional[HollowEventDetector] = None
 
+        # 识别区域
+        self._check_agent_area: List[ScreenArea] = []
+
         # 识别锁 保证每种类型只有1实例在进行识别
         self._check_end_lock = threading.Lock()
 
@@ -39,12 +44,22 @@ class HollowContext:
 
         # 上一次识别的时间
         self._last_check_end_time: float = 0
+        self._last_check_distance_time: float = 0
 
         # 上一次识别的结果
         self.last_check_end_result: Optional[str] = None
+        self.without_distance_times: int = 0  # 没有显示距离的次数
+        self.with_distance_times: int = 0  # 有显示距离的次数
 
     def init_battle_context(self,
                             check_end_interval: Union[float, List[float]] = 5,):
+        # 识别区域
+        self._check_agent_area = [
+            self.ctx.screen_loader.get_area('零号空洞-事件', ('角色-%d' % i))
+            for i in range(1, 4)
+        ]
+        self._check_distance_area = self.ctx.screen_loader.get_area('战斗画面', '距离显示区域')
+
         # 识别间隔
         self._check_end_interval = check_end_interval
 
@@ -58,20 +73,16 @@ class HollowContext:
         """
         识别空洞画面里的角色列表
         """
-        area = [
-            self.ctx.screen_loader.get_area('零号空洞-事件', ('角色-%d' % i))
-            for i in range(1, 4)
-        ]
         area_img = [
             cv2_utils.crop_image_only(screen, i.rect)
-            for i in area
+            for i in self._check_agent_area
         ]
 
         result_agent_list: List[Optional[Agent]] = []
         future_list: List[Future] = []
 
         for img in area_img:
-            future_list.append(_hollow_context_executor.submit(self._match_agent_in, img, None))
+            future_list.append(_hollow_context_executor.submit(self._match_agent_in, img, self.agent_list))
 
         any_not_none: bool = False
         for future in future_list:
@@ -104,9 +115,9 @@ class HollowContext:
 
         return None
 
-    def check_screen(self, screen: MatLike, screenshot_time: float,
-                     check_battle_end: bool = True,
-                     sync: bool = False) -> None:
+    def check_battle_screen(self, screen: MatLike, screenshot_time: float,
+                            check_battle_end: bool = True,
+                            sync: bool = False) -> None:
         """
         异步判断角战斗画面
         :return:
@@ -133,30 +144,11 @@ class HollowContext:
                 return
             self._last_check_end_time = screenshot_time
 
-            result = screen_utils.find_area(ctx=self.ctx, screen=screen,
-                                            screen_name='零号空洞-事件', area_name='挑战结果')
-            if result == FindAreaResultEnum.TRUE:
-                self.last_check_end_result = '挑战结果'
-                return
-
-            result = screen_utils.find_area(ctx=self.ctx, screen=screen,
-                                            screen_name='零号空洞-事件', area_name='背包')
-            if result == FindAreaResultEnum.TRUE:
-                self.last_check_end_result = '背包'
-                return
-
-            result = screen_utils.find_area(ctx=self.ctx, screen=screen,
-                                            screen_name='零号空洞-事件', area_name='通关-完成')
-            if result == FindAreaResultEnum.TRUE:
-                self.last_check_end_result = '完成'
-                return
-
-            self.last_check_end_result = None
-
         except Exception:
             log.error('识别战斗结束失败', exc_info=True)
         finally:
             self._check_end_lock.release()
+
 
     def init_event_yolo(self, use_gpu: bool = False) -> None:
         if self._event_model is None or self._event_model.gpu != use_gpu:

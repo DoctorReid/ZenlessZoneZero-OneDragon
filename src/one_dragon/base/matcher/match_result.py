@@ -1,6 +1,7 @@
 from typing import List, Optional, Any
 
 from one_dragon.base.geometry.point import Point
+from one_dragon.base.geometry.rectangle import Rect
 
 
 class MatchResult:
@@ -31,6 +32,10 @@ class MatchResult:
     @property
     def right_bottom(self) -> Point:
         return Point(self.x + self.w, self.y + self.h)
+
+    @property
+    def rect(self) -> Rect:
+        return Rect(self.x, self.y, self.x + self.w, self.y + self.h)
 
     def add_offset(self, p: Point):
         self.x += p.x

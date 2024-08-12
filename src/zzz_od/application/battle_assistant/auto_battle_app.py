@@ -116,7 +116,7 @@ class AutoBattleApp(ZApplication):
         now = time.time()
 
         screen = self.screenshot()
-        auto_battle_utils.run_screen_check(self, screen, now, check_battle_end=False)
+        auto_battle_utils.run_screen_check(self, screen, now)
 
         return self.round_wait(wait_round_time=self.ctx.battle_assistant_config.screenshot_interval)
 

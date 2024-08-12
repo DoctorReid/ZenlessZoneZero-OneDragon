@@ -41,3 +41,9 @@ class Rect:
     @property
     def height(self) -> int:
         return self.y2 - self.y1
+
+    def add_offset(self, p: Point):
+        self.x1 += p.x
+        self.y1 += p.y
+        self.x2 += p.x
+        self.y2 += p.y
