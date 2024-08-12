@@ -31,14 +31,12 @@ class OpenMenu(ZOperation):
         :return:
         """
         screen = self.screenshot()
+        area = self.ctx.screen_loader.get_area('菜单', '底部列表')
 
-        result = self.round_by_find_area(screen, '菜单', '更多')
-        if result.is_success:
-            return self.round_success()
-        else:
-            return self.round_success(status=OpenMenu.STATUS_NOT_IN_MENU)
+        return self.round_by_ocr(screen, '更多', area=area,
+                                 retry_wait=0.5)
 
-    @node_from(from_name='画面识别', status=STATUS_NOT_IN_MENU)
+    @node_from(from_name='画面识别', success=False)
     @operation_node(name='返回大世界')
     def back_to_world(self) -> OperationRoundResult:
         op = BackToNormalWorld(self.ctx)

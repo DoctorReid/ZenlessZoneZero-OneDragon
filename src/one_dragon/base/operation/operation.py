@@ -689,3 +689,28 @@ class Operation(OperationBase):
             return self.round_success(target_cn, wait=success_wait, wait_round_time=success_wait_round)
         else:
             return self.round_retry(f'点击 {target_cn} 失败', wait=retry_wait, wait_round_time=retry_wait_round)
+
+    def round_by_ocr(self, screen: MatLike, target_cn: str,
+                     area: Optional[ScreenArea] = None, lcs_percent: float = 0.5,
+                     success_wait: Optional[float] = None, success_wait_round: Optional[float] = None,
+                     retry_wait: Optional[float] = None, retry_wait_round: Optional[float] = None,
+                     color_range: Optional[List] = None
+                     ):
+        to_ocr_part = screen if area is None else cv2_utils.crop_image_only(screen, area.rect)
+        if color_range is not None:
+            mask = cv2.inRange(to_ocr_part, color_range[0], color_range[1])
+            to_ocr_part = cv2.bitwise_and(to_ocr_part, to_ocr_part, mask=mask)
+        ocr_result_map = self.ctx.ocr.run_ocr(to_ocr_part)
+
+        to_click: Optional[Point] = None
+        for ocr_result, mrl in ocr_result_map.items():
+            if mrl.max is None:
+                continue
+            if str_utils.find_by_lcs(gt(target_cn), ocr_result, percent=lcs_percent):
+                to_click = mrl.max.center
+                break
+
+        if to_click is None:
+            return self.round_retry(f'找不到 {target_cn}', wait=retry_wait, wait_round_time=retry_wait_round)
+
+        return self.round_success(target_cn, wait=success_wait, wait_round_time=success_wait_round)

@@ -39,7 +39,9 @@ class EmailApp(ZApplication):
         点击更多
         """
         screen = self.screenshot()
-        return self.round_by_find_and_click_area(screen, '菜单', '更多', success_wait=1, retry_wait=1)
+        area = self.ctx.screen_loader.get_area('菜单', '底部列表')
+        return self.round_by_ocr_and_click(screen, '更多', area=area,
+                                           success_wait=1, retry_wait=1)
 
     @node_from(from_name='点击更多')
     @operation_node(name='点击邮件')

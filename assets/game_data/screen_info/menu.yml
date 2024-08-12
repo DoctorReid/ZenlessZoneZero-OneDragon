@@ -13,17 +13,6 @@ area_list:
   template_sub_dir: menu
   template_id: back
   template_match_threshold: 0.7
-- area_name: 更多
-  pc_rect:
-  - 368
-  - 1024
-  - 420
-  - 1054
-  text: 更多
-  lcs_percent: 0.5
-  template_sub_dir: ''
-  template_id: ''
-  template_match_threshold: 0.7
 - area_name: 邮件
   pc_rect:
   - 934
@@ -31,6 +20,17 @@ area_list:
   - 990
   - 572
   text: 邮件
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 底部列表
+  pc_rect:
+  - 368
+  - 1022
+  - 1535
+  - 1060
+  text: ''
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''
