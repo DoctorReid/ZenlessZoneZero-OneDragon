@@ -1,0 +1,16 @@
+template_name: "连携模板-艾莲"
+handlers:
+  - states: "[连携技-1-艾莲]"
+    operations:
+      - op_name: "按键-连携技-左"
+      - op_name: "等待秒数"
+        data: ["3.5"]
+      - op_name: "设置状态"
+        data: ["自定义-连携换人"]
+  - states: "[连携技-2-艾莲]"
+    operations:
+      - op_name: "按键-连携技-右"
+      - op_name: "等待秒数"
+        data: ["3.5"]
+      - op_name: "设置状态"
+        data: ["自定义-连携换人"]
