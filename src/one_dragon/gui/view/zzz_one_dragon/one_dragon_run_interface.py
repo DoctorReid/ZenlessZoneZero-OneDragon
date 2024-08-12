@@ -216,6 +216,12 @@ class OneDragonRunInterface(VerticalScrollInterface):
         for app_card in self._app_run_cards:
             app_card.update_display()
 
+        if self.ctx.is_context_stop:
+            if self.after_done_opt.getValue() == AfterDoneOpEnum.SHUTDOWN.value.value:
+                cmd_utils.shutdown_sys(60)
+            elif self.after_done_opt.getValue() == AfterDoneOpEnum.CLOSE_GAME.value.value:
+                self.ctx.controller.close_game()
+
     def _on_app_state_changed(self, event) -> None:
         for app_card in self._app_run_cards:
             app_card.update_display()

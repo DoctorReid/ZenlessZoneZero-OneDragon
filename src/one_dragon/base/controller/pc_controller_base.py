@@ -176,7 +176,11 @@ class PcControllerBase(ControllerBase):
         关闭游戏
         :return:
         """
-        pass
+        try:
+            self.game_win.win.close()
+            log.info('关闭游戏成功')
+        except:
+            log.error('关闭游戏失败', exc_info=True)
 
     def input_str(self, to_input: str, interval: float = 0.1):
         """
