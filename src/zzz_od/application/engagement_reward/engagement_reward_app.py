@@ -9,6 +9,7 @@ from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.back_to_normal_world import BackToNormalWorld
 from zzz_od.operation.compendium.compendium_choose_tab import CompendiumChooseTab
+from zzz_od.operation.compendium.open_compendium import OpenCompendium
 
 
 class EngagementRewardApp(ZApplication):
@@ -33,16 +34,10 @@ class EngagementRewardApp(ZApplication):
         """
         self.idx: int = 4
 
-    @operation_node(name='返回大世界', is_start_node=True)
-    def first_to_normal_world(self) -> OperationRoundResult:
-        op = BackToNormalWorld(self.ctx)
-        return self.round_by_op(op.execute())
-
-    @node_from(from_name='返回大世界')
-    @operation_node(name='快捷手册')
+    @operation_node(name='快捷手册', is_start_node=True)
     def open_compendium(self) -> OperationRoundResult:
-        return self.round_by_click_area('大世界', '快捷手册',
-                                        success_wait=2, retry_wait=1)
+        op = OpenCompendium(self.ctx)
+        return self.round_by_op(op.execute())
 
     @node_from(from_name='快捷手册')
     @operation_node(name='训练')
