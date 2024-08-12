@@ -112,9 +112,9 @@ class DodgeClassifier(OnnxModelLoader):
         """
         推理前的预处理
         """
-        input_tensor = onnx_utils.scale_input_image_u(context.img, self.onnx_input_width, self.onnx_input_height)
-        context.scale_height = input_tensor.shape[0]
-        context.scale_width = input_tensor.shape[1]
+        input_tensor, scale_height, scale_width = onnx_utils.scale_input_image_u(context.img, self.onnx_input_width, self.onnx_input_height)
+        context.scale_height = scale_height
+        context.scale_width = scale_width
         return input_tensor
 
     def inference(self, input_tensor: np.ndarray):

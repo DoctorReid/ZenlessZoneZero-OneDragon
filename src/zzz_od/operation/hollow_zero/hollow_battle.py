@@ -56,7 +56,7 @@ class HollowBattle(ZOperation):
     def init_context(self) -> OperationRoundResult:
         auto_battle_utils.init_context(self)
 
-        self.ctx.hollow.init_context(
+        self.ctx.hollow.init_battle_context(
             check_end_interval=self.auto_op.get('check_end_interval', 5),
         )
         return self.round_success()

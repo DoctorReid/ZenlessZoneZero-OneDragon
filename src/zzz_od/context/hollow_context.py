@@ -1,17 +1,19 @@
 from concurrent.futures import ThreadPoolExecutor, Future
 
+import cv2
 import threading
 from cv2.typing import MatLike
 from typing import List, Optional, Union
 
 from one_dragon.base.screen import screen_utils
 from one_dragon.base.screen.screen_utils import FindAreaResultEnum
-from one_dragon.utils import cv2_utils, thread_utils, cal_utils
+from one_dragon.utils import cv2_utils, thread_utils, cal_utils, os_utils
 from one_dragon.utils.log_utils import log
 from zzz_od.context.hollow_level_info import HollowLevelInfo
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import Agent, AgentEnum
 from zzz_od.operation.hollow_zero.hollow_zero_event import HallowZeroEventService
+from zzz_od.yolo.hollow_event_detector import HollowEventDetector
 
 _hollow_context_executor = ThreadPoolExecutor(thread_name_prefix='od_hollow_context', max_workers=16)
 
@@ -25,6 +27,8 @@ class HollowContext:
         self.event_service: HallowZeroEventService = HallowZeroEventService()
         self.level_info: HollowLevelInfo = HollowLevelInfo()
 
+        self._event_model: Optional[HollowEventDetector] = None
+
         # 识别锁 保证每种类型只有1实例在进行识别
         self._check_end_lock = threading.Lock()
 
@@ -37,8 +41,8 @@ class HollowContext:
         # 上一次识别的结果
         self.last_check_end_result: Optional[str] = None
 
-    def init_context(self,
-                     check_end_interval: Union[float, List[float]] = 5,):
+    def init_battle_context(self,
+                            check_end_interval: Union[float, List[float]] = 5,):
         # 识别间隔
         self._check_end_interval = check_end_interval
 
@@ -152,15 +156,27 @@ class HollowContext:
         finally:
             self._check_end_lock.release()
 
+    def init_event_yolo(self, use_gpu: bool = False) -> None:
+        if self._event_model is None or self._event_model.gpu != use_gpu:
+            self._event_model = HollowEventDetector(
+                model_parent_dir_path=os_utils.get_path_under_work_dir('assets', 'models', 'yolo'),
+                gpu=use_gpu
+            )
+
 
 def __debug():
     ctx = ZContext()
     ctx.init_by_config()
 
     from one_dragon.utils import debug_utils
-    img = debug_utils.get_debug_image('_1723263502457')
-    agents = ctx.hollow.check_agent_list(img)
-    print([i.agent_name for i in agents if i is not None])
+    img = debug_utils.get_debug_image('event_1')
+
+    ctx.hollow.init_event_yolo()
+    result = ctx.hollow._event_model.run(img)
+    from zzz_od.yolo import detect_utils
+    result_img = detect_utils.draw_detections(result)
+    cv2_utils.show_image(result_img, wait=0)
+    cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':

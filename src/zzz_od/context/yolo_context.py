@@ -104,3 +104,18 @@ class YoloContext:
             log.error('识别画面闪光失败', exc_info=True)
         finally:
             self._check_dodge_flash_lock.release()
+
+
+def __debug():
+    ctx = ZContext()
+    ctx.init_by_config()
+
+    from one_dragon.utils import debug_utils
+    img = debug_utils.get_debug_image('flash')
+
+    ctx.yolo.init_context(use_gpu=False)
+    result = ctx.yolo._dodge_model.run(img)
+
+
+if __name__ == '__main__':
+    __debug()

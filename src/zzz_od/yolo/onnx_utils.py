@@ -1,9 +1,11 @@
+from typing import Tuple
+
 import cv2
 import numpy as np
 from cv2.typing import MatLike
 
 
-def scale_input_image_u(image: MatLike, onnx_input_width: int, onnx_input_height: int) -> np.ndarray:
+def scale_input_image_u(image: MatLike, onnx_input_width: int, onnx_input_height: int) -> Tuple[np.ndarray, int, int]:
     """
     按照 ultralytics 的方式，将图片缩放至模型使用的大小
     参考 https://github.com/orgs/ultralytics/discussions/6994?sort=new#discussioncomment-8382661
@@ -35,4 +37,4 @@ def scale_input_image_u(image: MatLike, onnx_input_width: int, onnx_input_height
     input_img = input_img.transpose(2, 0, 1)
     input_tensor = input_img[np.newaxis, :, :, :].astype(np.float32)
 
-    return input_tensor
+    return input_tensor, scale_height, scale_width
