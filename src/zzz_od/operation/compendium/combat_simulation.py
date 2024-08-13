@@ -67,9 +67,9 @@ class CombatSimulation(ZOperation):
         part = cv2_utils.crop_image_only(screen, area.rect)
 
         target_point: Optional[Point] = None
-        ocr_result_map = self.ctx.ocr.run_ocr(part, merge_line_distance=40)
+        ocr_result_map = self.ctx.ocr.run_ocr(part)
         for ocr_result, mrl in ocr_result_map.items():
-            if not str_utils.find_by_lcs(gt(self.plan.mission_name), ocr_result, percent=0.5):
+            if not str_utils.find_by_lcs(gt(self.plan.mission_name), ocr_result, percent=0.55):
                 continue
 
             target_point = area.left_top + mrl.max + Point(0, 50)
