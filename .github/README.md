@@ -3,7 +3,7 @@
 
 # ZenlessZoneZero - OneDragon
 
-# **绝区零 - 一条龙**
+**绝区零 - 一条龙**
 
 <div>
     <img alt="platform" src="https://img.shields.io/badge/platform-Windows-blueviolet">
@@ -105,7 +105,7 @@
 
 - 若您遇到商家使用本软件进行代练并收费，产生的任何问题及后果与本软件无关。
 
-### 贡献/参与者
+## 贡献/参与者
 
 感谢所有参与到开发的朋友们~
 
