@@ -3,35 +3,55 @@ from typing import List, Optional
 
 from one_dragon.base.geometry.rectangle import Rect
 from one_dragon.utils import cal_utils
+from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroEntry
 from zzz_od.hollow_zero.hollow_map.hollow_zero_map import HollowZeroMap, HollowZeroMapNode
 from zzz_od.yolo.detect_utils import DetectFrameResult
 
 
-def construct_map_from_yolo_result(detect_results: List[DetectFrameResult]) -> Optional[HollowZeroMap]:
+def construct_map_from_yolo_result(detect_result: DetectFrameResult, name_2_entry: dict[str, HollowZeroEntry]) -> HollowZeroMap:
+    """
+    根据识别结果构造地图
+    """
     nodes: List[HollowZeroMapNode] = []
+    unknown = name_2_entry['未知']
 
-    for detect_result in detect_results:
-        for result in detect_result.results:
-            pos = Rect(result.x1, result.y1, result.x2, result.y2)
+    for result in detect_result.results:
+        entry_name = result.detect_class.class_name[5:]
+        if entry_name in name_2_entry:
+            entry = name_2_entry[entry_name]
+        else:
+            entry = unknown
 
-            # 先判断与已有的节点是否重复
-            is_new = True
-            for existed in nodes:
-                if cal_utils.distance_between(pos.center, existed.pos.center) < 50:
-                    is_new = False
-                    break
-            if not is_new:
-                continue
+        pos = Rect(result.x1, result.y1 + entry.y_delta, result.x2, result.y2)
 
-            node = HollowZeroMapNode(pos, result.detect_class.class_name[5:])
+        # 判断与已有的节点是否重复
+        to_merge: Optional[HollowZeroMapNode] = None
+        for existed in nodes:
+            if cal_utils.distance_between(pos.center, existed.pos.center) < 100:
+                to_merge = existed
+                break
+
+        if to_merge is not None:
+            if to_merge.entry.is_base:  # 旧的是底座 那么将新的类型赋值上去
+                to_merge.entry = entry
+            else:  # 旧的是格子类型 那么把底座的范围赋值上去
+                to_merge.pos = pos
+        else:
+            node = HollowZeroMapNode(pos, entry)
             nodes.append(node)
 
+    for node in nodes:
+        if node.entry.is_base:  # 只识别到底座的 赋值为未知
+            node.entry = unknown
+
+    return construct_map_from_nodes(nodes, detect_result.run_time)
+
+
+def construct_map_from_nodes(nodes: List[HollowZeroMapNode], check_time: float) -> HollowZeroMap:
     current_idx: Optional[int] = None
     for i in range(len(nodes)):
-        if nodes[i].node_name == '当前':
+        if nodes[i].entry.entry_name == '当前':
             current_idx = i
-    if current_idx is None:
-        return None
 
     edges: dict[int, List[int]] = {}
 
@@ -40,16 +60,16 @@ def construct_map_from_yolo_result(detect_results: List[DetectFrameResult]) -> O
             node_1 = nodes[i]
             node_2 = nodes[j]
 
-            if _at_left(node_1, node_2): # 1在2左边
+            if _at_left(node_1, node_2):  # 1在2左边
                 _add_edge(edges, i, j)
-            elif _at_right(node_1, node_2): # 1在2右边
+            elif _at_right(node_1, node_2):  # 1在2右边
                 _add_edge(edges, i, j)
-            elif _above(node_1, node_2): # 1在2上边
+            elif _above(node_1, node_2):  # 1在2上边
                 _add_edge(edges, i, j)
-            elif _under(node_1, node_2): # 1在2下边
+            elif _under(node_1, node_2):  # 1在2下边
                 _add_edge(edges, i, j)
 
-    return HollowZeroMap(nodes, current_idx, edges)
+    return HollowZeroMap(nodes, current_idx, edges, check_time=check_time)
 
 
 def _at_left(node_1: HollowZeroMapNode, node_2: HollowZeroMapNode) -> bool:
@@ -59,7 +79,8 @@ def _at_left(node_1: HollowZeroMapNode, node_2: HollowZeroMapNode) -> bool:
     :param node_2:
     :return:
     """
-    return abs(node_1.pos.x2 - node_2.pos.x1) <= 10 and _is_same_row(node_1, node_2)
+    return abs(node_1.pos.x2 - node_2.pos.x1) <= 100 and _is_same_row(node_1, node_2)
+
 
 def _at_right(node_1: HollowZeroMapNode, node_2: HollowZeroMapNode) -> bool:
     """
@@ -68,7 +89,8 @@ def _at_right(node_1: HollowZeroMapNode, node_2: HollowZeroMapNode) -> bool:
     :param node_2:
     :return:
     """
-    return abs(node_1.pos.x1 - node_2.pos.x2) <= 10 and _is_same_row(node_1, node_2)
+    return abs(node_1.pos.x1 - node_2.pos.x2) <= 100 and _is_same_row(node_1, node_2)
+
 
 def _above(node_1: HollowZeroMapNode, node_2: HollowZeroMapNode) -> bool:
     """
@@ -77,7 +99,8 @@ def _above(node_1: HollowZeroMapNode, node_2: HollowZeroMapNode) -> bool:
     :param node_2:
     :return:
     """
-    return abs(node_1.pos.y2 - node_2.pos.y1) <= 10 and _is_same_col(node_1, node_2)
+    return abs(node_1.pos.y2 - node_2.pos.y1) <= 100 and _is_same_col(node_1, node_2)
+
 
 def _under(node_1: HollowZeroMapNode, node_2: HollowZeroMapNode) -> bool:
     """
@@ -86,7 +109,8 @@ def _under(node_1: HollowZeroMapNode, node_2: HollowZeroMapNode) -> bool:
     :param node_2:
     :return:
     """
-    return abs(node_1.pos.y1 - node_2.pos.y2) <= 10 and _is_same_col(node_1, node_2)
+    return abs(node_1.pos.y1 - node_2.pos.y2) <= 100 and _is_same_col(node_1, node_2)
+
 
 def _is_same_row(node_1: HollowZeroMapNode, node_2: HollowZeroMapNode) -> bool:
     y1_close = abs(node_1.pos.y1 - node_2.pos.y1) <= 20
@@ -110,6 +134,38 @@ def _add_directed_edge(edges: dict[int, List[int]], x: int, y: int) -> None:
         edges[x] = [y]
     else:
         edges[x].append(y)
+
+
+def merge_map(map_list: List[HollowZeroMap]):
+    """
+    将多个地图合并成一个
+    """
+    nodes: List[HollowZeroMapNode] = []
+    max_check_time: Optional[float] = None
+
+    # 每个地图的节点取出来后去重合并
+    for m in map_list:
+        for node in m.nodes:
+            to_merge: Optional[HollowZeroMapNode] = None
+            for existed in nodes:
+                if cal_utils.distance_between(node.pos.center, existed.pos.center) < 100:
+                    to_merge = existed
+                    break
+
+            if to_merge is not None:
+                if to_merge.entry.is_base:  # 旧的是底座 那么将新的类型赋值上去
+                    to_merge.entry = node.entry
+                elif node.entry.is_base:  # 旧的是格子类型 新的是底座 将底座范围赋值上去
+                    to_merge.pos = node.pos
+                elif to_merge.entry.entry_name == '未知' and node.entry.entry_name != '未知':  # 旧的是格子类型 新的也是格子类型 旧的是未知 将新的类型赋值上去
+                    to_merge.entry = node.entry
+            else:
+                nodes.append(node)
+
+        if max_check_time is None or m.check_time > max_check_time:
+            max_check_time = m.check_time
+
+    return construct_map_from_nodes(nodes, max_check_time)
 
 
 def draw_map(screen: MatLike, current_map: HollowZeroMap,
@@ -187,6 +243,9 @@ def search_map(current_map: HollowZeroMap) -> dict[int, RouteSearchRoute]:
                 continue
             next_node = current_map.nodes[next_idx]
             next_entry = next_node.entry
+
+            if not next_entry.can_go:  # 无法移动
+                continue
 
             next_route = RouteSearchRoute(
                 node=next_node,

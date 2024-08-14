@@ -20,6 +20,7 @@
 - entry_name: "门扉禁闭-财富"
   is_benefit: false
 - entry_name: "顽固的障碍物"
+  can_go: false
 - entry_name: "门扉禁闭-侵蚀"
   is_benefit: false
 - entry_name: "残破的障碍物"
@@ -63,3 +64,14 @@
   need_step: 0
 - entry_name: "空白已通行"
   need_step: 0
+- entry_name: "电视底座绿"
+  is_base: true
+  y_delta: -140
+- entry_name: "电视底座红"
+  is_base: true
+  y_delta: -140
+- entry_name: "电视底座大"
+  is_base: true
+  y_delta: -280
+- entry_name: "未知"
+- entry_name: "零号银行"

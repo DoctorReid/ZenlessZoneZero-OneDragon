@@ -1,3 +1,5 @@
+import time
+
 from typing import List, Optional
 
 from one_dragon.base.geometry.rectangle import Rect
@@ -6,10 +8,9 @@ from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroEntry
 
 class HollowZeroMapNode:
 
-    def __init__(self, pos: Rect, node_name: str):
+    def __init__(self, pos: Rect, entry: HollowZeroEntry):
         self.pos: Rect = pos
-        self.node_name: str = node_name
-        self.entry: Optional[HollowZeroEntry] = None
+        self.entry: HollowZeroEntry = entry
 
 
 class HollowZeroMapEdge:
@@ -23,7 +24,9 @@ class HollowZeroMap:
 
     def __init__(self, nodes: List[HollowZeroMapNode],
                  current_idx: int,
-                 edges: dict[int, List[int]]):
+                 edges: dict[int, List[int]],
+                 check_time: Optional[float] = None):
         self.nodes: List[HollowZeroMapNode] = nodes
         self.current_idx: int = current_idx
         self.edges: dict[int, List[int]] = edges
+        self.check_time: float = time.time() if check_time is None else check_time  # 识别时间

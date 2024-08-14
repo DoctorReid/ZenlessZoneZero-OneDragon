@@ -58,10 +58,6 @@ class HollowBattle(ZOperation):
     @operation_node(name='初始化上下文')
     def init_context(self) -> OperationRoundResult:
         auto_battle_utils.init_context(self)
-
-        self.ctx.hollow.init_battle_context(
-            check_end_interval=self.auto_op.get('check_end_interval', 5),
-        )
         return self.round_success()
 
     @node_from(from_name='初始化上下文')
@@ -70,9 +66,10 @@ class HollowBattle(ZOperation):
         screen = self.screenshot()
         self._check_distance(screen)
 
-        if self.ctx.hollow.with_distance_times >= 10:
+        if self.ctx.battle.with_distance_times >= 10:
             return self.round_success(HollowBattle.STATUS_NEED_SPECIAL_MOVE)
-        if self.ctx.hollow.without_distance_times >= 10:
+        if self.ctx.battle.without_distance_times >= 10:
+            self.auto_op.start_running_async()
             return self.round_success(HollowBattle.STATUS_NO_NEED_SPECIAL_MOVE)
 
         return self.round_wait()
@@ -96,7 +93,7 @@ class HollowBattle(ZOperation):
         self._check_distance(screen)
 
         if self.distance_pos is None:
-            if self.ctx.hollow.without_distance_times >= 10:
+            if self.ctx.battle.without_distance_times >= 10:
                 self.auto_op.start_running_async()
                 return self.round_success()
             else:

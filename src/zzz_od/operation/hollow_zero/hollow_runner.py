@@ -1,3 +1,5 @@
+import time
+
 from cv2.typing import MatLike
 from typing import Type
 
@@ -53,14 +55,15 @@ class HollowRunner(ZOperation):
 
     @operation_node(name='画面识别', is_start_node=True)
     def check_screen(self) -> OperationRoundResult:
+        now = time.time()
         screen = self.screenshot()
         result = hollow_utils.check_screen(self, screen)
         if result is not None:
             return self._handle_event(screen, result)
 
         # 当前识别到地图
-        current_map = self.ctx.hollow.check_current_map(screen)
-        if current_map is not None:
+        current_map = self.ctx.hollow.check_current_map(screen, now)
+        if current_map.current_idx is not None:
             self.ctx.hollow.check_before_move(screen)
             return self._handle_map_move(screen, current_map)
 
@@ -105,7 +108,8 @@ class HollowRunner(ZOperation):
         next_to_move: HollowZeroMapNode = self.ctx.hollow.get_next_to_move(current_map)
         if next_to_move is None:
             from one_dragon.utils import debug_utils
-            file_name = debug_utils.save_debug_image(screen, prefix='pathfinding_fail_')
+            # file_name = debug_utils.save_debug_image(screen, prefix='pathfinding_fail')
+            file_name = 'fake'
             log.error('自动寻路失败 请将游戏截图反馈给作者 %s', file_name)
             return self.round_retry('自动寻路失败')
 
@@ -120,6 +124,7 @@ def __debug():
     ctx.init_by_config()
     ctx.start_running()
     ctx.ocr.init_model()
+    ctx.hollow.init_event_yolo(True)
     op = HollowRunner(ctx)
     op.execute()
 

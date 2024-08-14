@@ -1,3 +1,4 @@
+import time
 from concurrent.futures import ThreadPoolExecutor, Future
 
 import cv2
@@ -30,49 +31,19 @@ class HollowContext:
 
         self._event_model: Optional[HollowEventDetector] = None
 
-        # 识别区域
-        self._check_agent_area: List[ScreenArea] = []
-
-        # 识别锁 保证每种类型只有1实例在进行识别
-        self._check_end_lock = threading.Lock()
-
-        # 识别间隔
-        self._check_end_interval: Union[float, List[float]] = 5
-
-        # 上一次识别的时间
-        self._last_check_end_time: float = 0
-        self._last_check_distance_time: float = 0
-
-        # 上一次识别的结果
-        self.last_check_end_result: Optional[str] = None
-        self.without_distance_times: int = 0  # 没有显示距离的次数
-        self.with_distance_times: int = 0  # 有显示距离的次数
-
-    def init_battle_context(self,
-                            check_end_interval: Union[float, List[float]] = 5,):
-        # 识别区域
-        self._check_agent_area = [
-            self.ctx.screen_loader.get_area('零号空洞-事件', ('角色-%d' % i))
-            for i in range(1, 4)
-        ]
-        self._check_distance_area = self.ctx.screen_loader.get_area('战斗画面', '距离显示区域')
-
-        # 识别间隔
-        self._check_end_interval = check_end_interval
-
-        # 上一次识别的时间
-        self._last_check_end_time = 0
-
-        # 上一次识别的结果
-        self.last_check_end_result = None
+        self.map_results: List[HollowZeroMap] = []  # 识别的地图结果
 
     def check_agent_list(self, screen: MatLike) -> Optional[List[Agent]]:
         """
         识别空洞画面里的角色列表
         """
+        check_agent_area = [
+            self.ctx.screen_loader.get_area('零号空洞-事件', ('角色-%d' % i))
+            for i in range(1, 4)
+        ]
         area_img = [
             cv2_utils.crop_image_only(screen, i.rect)
-            for i in self._check_agent_area
+            for i in check_agent_area
         ]
 
         result_agent_list: List[Optional[Agent]] = []
@@ -146,7 +117,6 @@ class HollowContext:
         finally:
             self._check_end_lock.release()
 
-
     def init_event_yolo(self, use_gpu: bool = False) -> None:
         if self._event_model is None or self._event_model.gpu != use_gpu:
             self._event_model = HollowEventDetector(
@@ -163,19 +133,30 @@ class HollowContext:
             return
         self._event_model.run_result_history.clear()
 
-    def check_current_map(self, screen: MatLike) -> Optional[HollowZeroMap]:
+    def check_current_map(self, screen: MatLike, screenshot_time: float) -> Optional[HollowZeroMap]:
         if self._event_model is None:
             return None
-        result = self._event_model.run(screen)
+        result = self._event_model.run(screen, run_time=screenshot_time)
+        # from zzz_od.yolo import detect_utils
+        # cv2_utils.show_image(detect_utils.draw_detections(result), wait=0)
         if result is None:
             return None
 
-        current_map = hollow_map_utils.construct_map_from_yolo_result(self._event_model.run_result_history)
+        current_map = hollow_map_utils.construct_map_from_yolo_result(result, self.data_service.name_2_entry)
+        if current_map.current_idx is None and self.ctx.env_config.is_debug:
+            from one_dragon.utils import debug_utils
+            # file_name = debug_utils.save_debug_image(screen, prefix='map_detect_fail')
 
-        # 填充类型相关信息
-        for node in current_map.nodes:
-            node.entry = self.data_service.get_entry_by_name(node.node_name)
-        return current_map
+        self.map_results.append(current_map)
+        while len(self.map_results) > 0 and screenshot_time - self.map_results[0].check_time > 2:
+            self.map_results.pop(0)
+
+        merge_map = hollow_map_utils.merge_map(self.map_results)
+        if self.ctx.env_config.is_debug:
+            result_img = hollow_map_utils.draw_map(screen, merge_map)
+            cv2_utils.show_image(result_img)
+
+        return merge_map
 
     def check_before_move(self, screen: MatLike) -> None:
         """
@@ -257,10 +238,16 @@ def __debug_get_map():
     ctx.init_by_config()
 
     from one_dragon.utils import debug_utils
-    img = debug_utils.get_debug_image('event_1')
+    img_list = [
+        '_1723649519504',
+    ]
+    for i in img_list:
+        img = debug_utils.get_debug_image(i)
 
-    ctx.hollow.init_event_yolo()
-    current_map = ctx.hollow.check_current_map(img)
+        ctx.hollow.init_event_yolo(False)
+        current_map = ctx.hollow.check_current_map(img, time.time())
+
+    print(current_map.current_idx)
     target = ctx.hollow.get_next_to_move(current_map)
     result_img = hollow_map_utils.draw_map(img, current_map, next_node=target)
     cv2_utils.show_image(result_img, wait=0)

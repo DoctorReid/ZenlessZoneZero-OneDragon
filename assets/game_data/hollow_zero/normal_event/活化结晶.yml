@@ -1,0 +1,10 @@
+- entry_name: "活化结晶"
+  event_name: "事件活化结晶"
+  lcs_percent: 0.6
+  options:
+    - option_name: "加工为战斗物资"
+      desc: "获得6枚鸣徽，侵蚀：无法回复生命值"
+    - option_name: "加工为回复药剂"
+      desc: "回复所有生命值，侵蚀：无法获得齿轮硬币"
+    - option_name: "加工为放松神经的物品"
+      desc: "消除所有侵蚀，侵蚀：压力值增长+200%"
