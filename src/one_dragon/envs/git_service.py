@@ -159,18 +159,19 @@ class GitService:
         msg = '克隆仓库成功' if success else '克隆仓库失败'
         return success, msg
 
+    def check_remote_repo(self,git_path: str, github_https_repository: str) -> None:
+        """
+        检查是否存在远程 origin 仓库,如果不存在则添加,存在则修改
+        """
+        # 检查远程仓库是否存在
+        return_code = cmd_utils.run_command([git_path, 'remote', 'get-url', 'origin'])
+        log.info(return_code)
+
     def fetch_remote_branch(self) -> Tuple[bool, str]:
         """
         获取远程分支代码
         """
-        log.info('设置远程仓库')
-        set_result = cmd_utils.run_command([self.env_config.git_path,'remote','add','origin',self.project_config.github_https_repository])
-        if set_result is None:
-            msg = '设置远程仓库失败'
-            log.error(msg)
-        else:
-            msg = '设置远程仓库成功'
-            log.error(msg)
+        self.check_remote_repo(self.env_config.git_path, self.project_config.github_https_repository)
         log.info('获取远程代码')
         fetch_result = cmd_utils.run_command([self.env_config.git_path, 'fetch', 'origin', self.project_config.project_git_branch])
         if fetch_result is None:
@@ -266,7 +267,7 @@ class GitService:
         if not fetch:
             return fetch, msg
         log.info('检测当前代码是否最新')
-        diff_result = cmd_utils.run_command([self.env_config.git_path, 'diff', '--name-only', 'HEAD', f'{self.project_config.github_https_repository}/{self.project_config.project_git_branch}'])
+        diff_result = cmd_utils.run_command([self.env_config.git_path, 'diff', '--name-only', 'HEAD', f'origin/{self.project_config.project_git_branch}'])
         if len(diff_result.strip()) == 0:
             return True, ''
         else:
