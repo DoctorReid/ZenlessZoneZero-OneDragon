@@ -229,7 +229,7 @@ class GitService:
         if rebase_result is None or not rebase_result:
             msg = '更新本地代码失败'
             log.error(msg)
-            cmd_utils.run_command([self.env_config.git_path, 'rebase', '--abort'])  # 回滚回去
+            cmd_utils.run_command([self.env_config.git_path, 'rebase', '--strategy-option theirs'])  # 回滚回去
             return False, msg
         elif progress_callback is not None:
             progress_callback(5/5, '更新本地代码成功')
