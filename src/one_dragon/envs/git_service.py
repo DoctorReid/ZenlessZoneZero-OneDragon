@@ -180,7 +180,7 @@ class GitService:
         :return:
         """
         log.info('核对当前仓库')
-        current_repo = cmd_utils.run_command(self.env_config.git_path,'config','--get','remote.origin.url').strip()
+        current_repo = cmd_utils.run_command([self.env_config.git_path,'config','--get','remote.origin.url']).strip()
         if current_repo is None or not current_repo:
             self.update_git_remote()
         if(current_repo != self.project_config.github_ssh_repository):
