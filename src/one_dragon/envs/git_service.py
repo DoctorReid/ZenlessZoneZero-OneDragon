@@ -180,11 +180,14 @@ class GitService:
         :return:
         """
         log.info('核对当前仓库')
-        current_repo = cmd_utils.run_command([self.env_config.git_path,'config','--get','remote.origin.url']).strip()
+        current_repo = cmd_utils.run_command([self.env_config.git_path,'config','--get','remote.origin.url'])
         if current_repo is None or not current_repo:
+            log.info('未找到远程仓库')
             cmd_utils.run_command([self.env_config.git_path, 'remote', 'set-url', 'origin', self.project_config.github_https_repository])
+            log.info('添加远程仓库地址')
         if(current_repo != self.project_config.github_ssh_repository):
-            cmd_utils.run_command(f"git remote set-url origin {self.project_config.github_ssh_repository}")
+            log.info('远程仓库地址不一致')
+            cmd_utils.run_command([self.env_config.git_path,'remote','set-url','origin',self.project_config.github_ssh_repository])
             log.info('更新远程仓库地址')
 
         log.info('获取远程代码')
