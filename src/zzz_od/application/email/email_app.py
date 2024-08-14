@@ -33,25 +33,15 @@ class EmailApp(ZApplication):
         return self.round_by_op(op.execute())
 
     @node_from(from_name='打开菜单')
-    @operation_node(name='点击更多')
+    @operation_node(name='点击邮件')
     def click_more(self) -> OperationRoundResult:
         """
         点击更多
         """
         screen = self.screenshot()
         area = self.ctx.screen_loader.get_area('菜单', '底部列表')
-        return self.round_by_ocr_and_click(screen, '更多', area=area,
+        return self.round_by_ocr_and_click(screen, '邮件', area=area,
                                            success_wait=1, retry_wait=1)
-
-    @node_from(from_name='点击更多')
-    @operation_node(name='点击邮件')
-    def click_email(self) -> OperationRoundResult:
-        """
-        在菜单页面 点击邮件
-        :return:
-        """
-        screen = self.screenshot()
-        return self.round_by_find_and_click_area(screen, '菜单', '邮件', success_wait=1, retry_wait=1)
 
     @node_from(from_name='点击邮件')
     @operation_node(name='全部领取')
