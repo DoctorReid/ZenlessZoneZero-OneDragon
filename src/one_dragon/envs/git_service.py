@@ -182,6 +182,17 @@ class GitService:
         切换到最新的目标分支
         :return:
         """
+        log.info('核对当前仓库')
+        current_repo = cmd_utils.run_command([self.env_config.git_path,'config','--get','remote.origin.url'])
+        if current_repo is None or not current_repo:
+            log.info('未找到远程仓库')
+            cmd_utils.run_command([self.env_config.git_path, 'remote', 'set-url', 'origin', self.project_config.github_https_repository])
+            log.info('添加远程仓库地址')
+        if(current_repo != self.project_config.github_ssh_repository):
+            log.info('远程仓库地址不一致')
+            cmd_utils.run_command([self.env_config.git_path,'remote','set-url','origin',self.project_config.github_ssh_repository])
+            log.info('更新远程仓库地址')
+
         log.info('获取远程代码')
         fetch_result, msg = self.fetch_remote_branch()
         if not fetch_result:
@@ -214,7 +225,7 @@ class GitService:
             progress_callback(3/5, '获取当前分支成功')
 
         if current_result != self.project_config.project_git_branch:
-            checkout_result = cmd_utils.run_command([self.env_config.git_path, 'checkout', f'{self.project_config.project_git_branch}'])
+            checkout_result = cmd_utils.run_command([self.env_config.git_path, 'checkout', f'origin/{self.project_config.project_git_branch}'])
             if checkout_result is None or not checkout_result:
                 msg = '切换到目标分支失败'
                 log.error(msg)
@@ -226,7 +237,7 @@ class GitService:
         if rebase_result is None or not rebase_result:
             msg = '更新本地代码失败'
             log.error(msg)
-            cmd_utils.run_command([self.env_config.git_path, 'rebase', '--abort'])  # 回滚回去
+            cmd_utils.run_command([self.env_config.git_path, 'rebase', '--strategy-option theirs'])  # 回滚回去
             return False, msg
         elif progress_callback is not None:
             progress_callback(5/5, '更新本地代码成功')
@@ -316,6 +327,8 @@ class GitService:
         if self.env_config.repository_type == RepositoryTypeEnum.GITHUB.value.value:
             if self.env_config.git_method == ( GitMethodEnum.HTTPS.value.value or GitMethodEnum.GHPROXY.value.value):
                 return self.project_config.github_https_repository
+            elif self.env_config.git_method == GitMethodEnum.GHPROXY.value.value:
+                return GH_PROXY_URL +self.project_config.github_https_repository
             else:
                 return self.project_config.github_ssh_repository
         else:
@@ -346,4 +359,4 @@ class GitService:
         """
         if not os.path.exists(DOT_GIT_DIR_PATH):  # 未有.git文件夹
             return
-        cmd_utils.run_command([self.env_config.git_path, 'remote', 'set-url', 'origin', self.get_git_repository()])
+        cmd_utils.run_command([self.env_config.git_path, 'remote', 'set-url', 'origin', self.project_config.github_https_repository])
