@@ -35,7 +35,7 @@ class GitMethodEnum(Enum):
 
     HTTPS = ConfigItem('https')
     SSH = ConfigItem('ssh')
-
+    GHPROXY = ConfigItem('ghproxy')
 
 class ThemeEnum(Enum):
 
@@ -187,15 +187,15 @@ class EnvConfig(YamlConfig):
     @property
     def git_method(self) -> str:
         """
-        git使用https还是ssh
+        git使用ghproxy还是https还是ssh
         :return:
         """
-        return self.get('git_method', GitMethodEnum.HTTPS.value.value)
+        return self.get('git_method', GitMethodEnum.GHPROXY.value.value)
 
     @git_method.setter
     def git_method(self, new_value: str) -> None:
         """
-        git使用https还是ssh
+        git使用ghproxy还是https还是ssh
         :return:
         """
         self.update('git_method', new_value)
