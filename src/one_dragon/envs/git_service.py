@@ -143,12 +143,7 @@ class GitService:
         log.info(msg)
         if progress_callback is not None:
             progress_callback(-1, msg)
-        download_url = self.project_config.project_git_branch
-        proxy = self.env_config.proxy_address
-        if proxy == GH_PROXY_URL:
-            download_url = GH_PROXY_URL + download_url
-            proxy = None
-        result = cmd_utils.run_command([self.env_config.git_path, 'clone', '-b', download_url,
+        result = cmd_utils.run_command([self.env_config.git_path, 'clone', '-b', self.project_config.project_git_branch,
                                         self.get_git_repository(), temp_folder])
         if result is None:
             return False, '克隆仓库失败'
@@ -169,7 +164,7 @@ class GitService:
         获取远程分支代码
         """
         log.info('获取远程代码')
-        fetch_result = cmd_utils.run_command([self.env_config.git_path, 'fetch', 'origin', self.project_config.project_git_branch])
+        fetch_result = cmd_utils.run_command([self.env_config.git_path, 'fetch', self.project_config.github_ssh_repository, self.project_config.project_git_branch])
         if fetch_result is None:
             msg = '获取远程代码失败'
             log.error(msg)
