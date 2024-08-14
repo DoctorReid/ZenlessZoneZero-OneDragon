@@ -163,8 +163,16 @@ class GitService:
         """
         获取远程分支代码
         """
+        log.info('设置远程仓库')
+        set_result = cmd_utils.run_command([self.env_config.git_path,'remote','add','origin',self.project_config.github_https_repository])
+        if set_result is None:
+            msg = '设置远程仓库失败'
+            log.error(msg)
+        else:
+            msg = '设置远程仓库成功'
+            log.error(msg)
         log.info('获取远程代码')
-        fetch_result = cmd_utils.run_command([self.env_config.git_path, 'fetch', self.get_git_repository(), self.project_config.project_git_branch])
+        fetch_result = cmd_utils.run_command([self.env_config.git_path, 'fetch', 'origin', self.project_config.project_git_branch])
         if fetch_result is None:
             msg = '获取远程代码失败'
             log.error(msg)
@@ -258,7 +266,7 @@ class GitService:
         if not fetch:
             return fetch, msg
         log.info('检测当前代码是否最新')
-        diff_result = cmd_utils.run_command([self.env_config.git_path, 'diff', '--name-only', 'HEAD', f'origin/{self.project_config.project_git_branch}'])
+        diff_result = cmd_utils.run_command([self.env_config.git_path, 'diff', '--name-only', 'HEAD', f'{self.project_config.github_https_repository}/{self.project_config.project_git_branch}'])
         if len(diff_result.strip()) == 0:
             return True, ''
         else:
