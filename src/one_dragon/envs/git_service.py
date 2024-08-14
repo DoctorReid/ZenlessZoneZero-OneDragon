@@ -214,7 +214,7 @@ class GitService:
             progress_callback(3/5, '获取当前分支成功')
 
         if current_result != self.project_config.project_git_branch:
-            checkout_result = cmd_utils.run_command([self.env_config.git_path, 'checkout', f'origin/{self.project_config.project_git_branch}'])
+            checkout_result = cmd_utils.run_command([self.env_config.git_path, 'checkout', f'{self.project_config.project_git_branch}'])
             if checkout_result is None or not checkout_result:
                 msg = '切换到目标分支失败'
                 log.error(msg)
@@ -261,7 +261,7 @@ class GitService:
         if not fetch:
             return fetch, msg
         log.info('检测当前代码是否最新')
-        diff_result = cmd_utils.run_command([self.env_config.git_path, 'diff', '--name-only', 'HEAD', f'{self.project_config.project_git_branch}'])
+        diff_result = cmd_utils.run_command([self.env_config.git_path, 'diff', '--name-only', 'HEAD', f'origin/{self.project_config.project_git_branch}'])
         if len(diff_result.strip()) == 0:
             return True, ''
         else:
