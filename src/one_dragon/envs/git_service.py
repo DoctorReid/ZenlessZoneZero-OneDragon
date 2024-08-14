@@ -143,7 +143,12 @@ class GitService:
         log.info(msg)
         if progress_callback is not None:
             progress_callback(-1, msg)
-        result = cmd_utils.run_command([self.env_config.git_path, 'clone', '-b', self.project_config.project_git_branch,
+        download_url = self.project_config.project_git_branch
+        proxy = self.env_config.proxy_address
+        if proxy == GH_PROXY_URL:
+            download_url = GH_PROXY_URL + download_url
+            proxy = None
+        result = cmd_utils.run_command([self.env_config.git_path, 'clone', '-b', download_url,
                                         self.get_git_repository(), temp_folder])
         if result is None:
             return False, '克隆仓库失败'
