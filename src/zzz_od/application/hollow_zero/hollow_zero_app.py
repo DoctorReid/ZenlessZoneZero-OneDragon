@@ -27,6 +27,19 @@ class HollowZeroApp(ZApplication):
             run_record=None
         )
 
+        self.mission_name: str = '内部'
+        self.mission_type_name: str = '旧都列车'
+
+    def handle_init(self):
+        mission_name = self.ctx.hollow_zero_config.mission_name
+        idx = self.mission_name.find('-')
+        if idx != -1:
+            self.mission_name = mission_name[idx+1:]
+            self.mission_type_name = mission_name[:idx]
+        else:
+            self.mission_name = mission_name
+            self.mission_type_name = mission_name
+
     @operation_node(name='传送', is_start_node=False)
     def tp(self) -> OperationRoundResult:
         op = TransportByCompendium(self.ctx,
@@ -48,7 +61,7 @@ class HollowZeroApp(ZApplication):
     def choose_mission_type(self) -> OperationRoundResult:
         self.node_max_retry_times = 5
         screen = self.screenshot()
-        return self.round_by_ocr_and_click(screen, '旧都列车',
+        return self.round_by_ocr_and_click(screen, self.mission_type_name,
                                            success_wait=1, retry_wait=1)
 
     @node_from(from_name='选择副本类型')
@@ -56,7 +69,7 @@ class HollowZeroApp(ZApplication):
     def choose_mission(self) -> OperationRoundResult:
         screen = self.screenshot()
         area = self.ctx.screen_loader.get_area('零号空洞-入口', '副本列表')
-        return self.round_by_ocr_and_click(screen, '内部', area=area,
+        return self.round_by_ocr_and_click(screen, self.mission_name, area=area,
                                            success_wait=1, retry_wait=1)
 
     @node_from(from_name='选择副本')

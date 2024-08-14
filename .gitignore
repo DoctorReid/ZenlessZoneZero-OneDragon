@@ -19,6 +19,7 @@ config/auto_battle_state_handler/*
 !config/auto_battle_state_handler/*.sample.yml
 config/auto_battle_operation/*
 !config/auto_battle_operation/*.sample.yml
+config/hollow_zero_challenge/
 installer.exe
 
 # 用户运行时产生的文件

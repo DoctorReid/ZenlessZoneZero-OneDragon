@@ -8,6 +8,7 @@ from one_dragon.gui.view.code_interface import CodeInterface
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.battle_assistant.battle_assistant_interface import BattleAssistantInterface
 from zzz_od.gui.view.devtools.app_devtools_interface import AppDevtoolsInterface
+from zzz_od.gui.view.hollow_zero.hollow_zero_interface import HollowZeroInterface
 from zzz_od.gui.view.home_interface import HomeInterface
 from zzz_od.gui.view.one_dragon.zzz_one_dragon_interface import ZOneDragonInterface
 from zzz_od.gui.view.setting.app_setting_interface import AppSettingInterface
@@ -29,6 +30,8 @@ class AppWindow(FluentWindowBase):
         self.add_sub_interface(HomeInterface(self.ctx, parent=self))
         self.add_sub_interface(BattleAssistantInterface(self.ctx, parent=self))
         self.add_sub_interface(ZOneDragonInterface(self.ctx, parent=self))
+        if self.ctx.env_config.is_debug:
+            self.add_sub_interface(HollowZeroInterface(self.ctx, parent=self))
 
         self.add_sub_interface(AppDevtoolsInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)
         self.add_sub_interface(CodeInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)

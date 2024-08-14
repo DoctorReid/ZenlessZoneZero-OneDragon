@@ -1,3 +1,5 @@
+from typing import Optional
+
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils import i18_utils
 from zzz_od.application.battle_assistant.battle_assistant_config import BattleAssistantConfig
@@ -5,6 +7,7 @@ from zzz_od.application.charge_plan.charge_plan_run_record import ChargePlanRunR
 from zzz_od.application.devtools.screenshot_helper.screenshot_helper_config import ScreenshotHelperConfig
 from zzz_od.application.email.email_run_record import EmailRunRecord
 from zzz_od.application.engagement_reward.engagement_reward_run_record import EngagementRewardRunRecord
+from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroConfig
 from zzz_od.application.notorious_hunt.notorious_hunt_config import NotoriousHuntConfig
 from zzz_od.application.notorious_hunt.notorious_hunt_run_record import NotoriousHuntRunRecord
 from zzz_od.application.random_play.random_play_run_record import RandomPlayRunRecord
@@ -14,6 +17,7 @@ from zzz_od.config.game_config import GameConfig, GamePlatformEnum
 from zzz_od.controller.zzz_pc_controller import ZPcController
 from zzz_od.game_data.compendium import CompendiumService
 from zzz_od.game_data.map_area import MapAreaService
+from zzz_od.hollow_zero.hollow_zero_challenge_config import HollowZeroChallengeConfig
 
 
 class ZContext(OneDragonContext):
@@ -48,6 +52,8 @@ class ZContext(OneDragonContext):
         self.battle_assistant_config: BattleAssistantConfig = BattleAssistantConfig(instance_idx)
         self.charge_plan_config: ChargePlanConfig = ChargePlanConfig(instance_idx)
         self.notorious_hunt_config: NotoriousHuntConfig = NotoriousHuntConfig(instance_idx)
+        self.hollow_zero_config: HollowZeroConfig = HollowZeroConfig(instance_idx)
+        self.hollow_zero_challenge_config: Optional[HollowZeroChallengeConfig] = None
 
         # 运行记录
         game_refresh_hour_offset = self.game_config.game_refresh_hour_offset
@@ -74,4 +80,16 @@ class ZContext(OneDragonContext):
                 standard_height=self.project_config.screen_standard_height
             )
 
-        self.hollow.event_service.reload()
+        self.hollow.data_service.reload()
+        self.init_hollow_config()
+
+    def init_hollow_config(self) -> None:
+        """
+        对空洞配置进行初始化
+        :return:
+        """
+        challenge_config = self.hollow_zero_config.challenge_config
+        if challenge_config is None:
+            self.hollow_zero_challenge_config = HollowZeroChallengeConfig('', is_mock=True)
+        else:
+            self.hollow_zero_challenge_config = HollowZeroChallengeConfig(challenge_config)

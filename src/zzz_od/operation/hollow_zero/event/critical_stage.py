@@ -8,7 +8,7 @@ from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.hollow_zero.event import event_utils
 from zzz_od.operation.hollow_zero.event.event_ocr_result_handler import EventOcrResultHandler
 from zzz_od.operation.hollow_zero.hollow_battle import HollowBattle
-from zzz_od.operation.hollow_zero.hollow_zero_event import HollowZeroSpecialEvent
+from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroSpecialEvent
 from zzz_od.operation.zzz_operation import ZOperation
 
 

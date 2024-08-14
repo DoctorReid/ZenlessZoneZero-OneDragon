@@ -6,6 +6,7 @@ from one_dragon.base.operation.operation_round_result import OperationRoundResul
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
+from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroSpecialEvent
 from zzz_od.hollow_zero.hollow_map.hollow_zero_map import HollowZeroMapNode, HollowZeroMap
 from zzz_od.operation.hollow_zero import hollow_utils
 from zzz_od.operation.hollow_zero.event.call_for_support import CallForSupport
@@ -18,7 +19,6 @@ from zzz_od.operation.hollow_zero.event.resonium_store import ResoniumStore
 from zzz_od.operation.hollow_zero.event.swift_supply import SwiftSupply
 from zzz_od.operation.hollow_zero.event.upgrade_resonium import UpgradeResonium
 from zzz_od.operation.hollow_zero.hollow_battle import HollowBattle
-from zzz_od.operation.hollow_zero.hollow_zero_event import HollowZeroSpecialEvent
 from zzz_od.operation.zzz_operation import ZOperation
 
 
@@ -73,7 +73,7 @@ class HollowRunner(ZOperation):
         :param event_name:
         :return:
         """
-        normal_event = self.ctx.hollow.event_service.get_normal_event_by_name(event_name=event_name)
+        normal_event = self.ctx.hollow.data_service.get_normal_event_by_name(event_name=event_name)
         if normal_event is not None:
             op = NormalEventHandler(self.ctx, normal_event)
             op_result = op.execute()

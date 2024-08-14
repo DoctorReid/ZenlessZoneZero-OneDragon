@@ -11,7 +11,7 @@ from one_dragon.base.screen.screen_area import ScreenArea
 from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 from zzz_od.operation.hollow_zero.event.event_ocr_result_handler import EventOcrResultHandler
-from zzz_od.operation.hollow_zero.hollow_zero_event import HollowZeroSpecialEvent, HallowZeroEvent
+from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroSpecialEvent, HallowZeroEvent
 from zzz_od.operation.zzz_operation import ZOperation
 
 
@@ -23,7 +23,7 @@ def check_event_at_right(op: ZOperation, screen: MatLike) -> Optional[str]:
     part = cv2_utils.crop_image_only(screen, area.rect)
     ocr_result_map = op.ctx.ocr.run_ocr(part)
 
-    events: List[HallowZeroEvent] = [] + op.ctx.hollow.event_service.normal_events
+    events: List[HallowZeroEvent] = [] + op.ctx.hollow.data_service.normal_events
 
     for event_enum in HollowZeroSpecialEvent:
         event = event_enum.value

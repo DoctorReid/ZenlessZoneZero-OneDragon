@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from one_dragon.base.geometry.rectangle import Rect
-from zzz_od.operation.hollow_zero.hollow_zero_event import HollowZeroEntry
+from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroEntry
 
 
 class HollowZeroMapNode:

@@ -5,18 +5,15 @@ import threading
 from cv2.typing import MatLike
 from typing import List, Optional, Union
 
-from one_dragon.base.matcher.match_result import MatchResult
-from one_dragon.base.screen import screen_utils
 from one_dragon.base.screen.screen_area import ScreenArea
-from one_dragon.base.screen.screen_utils import FindAreaResultEnum
-from one_dragon.utils import cv2_utils, thread_utils, cal_utils, os_utils, str_utils
+from one_dragon.utils import cv2_utils, thread_utils, cal_utils, os_utils
 from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import Agent, AgentEnum
 from zzz_od.hollow_zero.hollow_level_info import HollowLevelInfo
 from zzz_od.hollow_zero.hollow_map import hollow_map_utils
 from zzz_od.hollow_zero.hollow_map.hollow_zero_map import HollowZeroMap, HollowZeroMapNode
-from zzz_od.operation.hollow_zero.hollow_zero_event import HallowZeroEventService
+from zzz_od.hollow_zero.hollow_zero_data_service import HallowZeroDataService
 from zzz_od.yolo.hollow_event_detector import HollowEventDetector
 
 _hollow_context_executor = ThreadPoolExecutor(thread_name_prefix='od_hollow_context', max_workers=16)
@@ -28,7 +25,7 @@ class HollowContext:
         self.ctx: ZContext = ctx
         self.agent_list: Optional[List[Agent]] = None
 
-        self.event_service: HallowZeroEventService = HallowZeroEventService()
+        self.data_service: HallowZeroDataService = HallowZeroDataService()
         self.level_info: HollowLevelInfo = HollowLevelInfo()
 
         self._event_model: Optional[HollowEventDetector] = None
@@ -177,7 +174,7 @@ class HollowContext:
 
         # 填充类型相关信息
         for node in current_map.nodes:
-            node.entry = self.event_service.get_entry_by_name(node.node_name)
+            node.entry = self.data_service.get_entry_by_name(node.node_name)
         return current_map
 
     def check_before_move(self, screen: MatLike) -> None:
