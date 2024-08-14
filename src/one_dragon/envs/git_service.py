@@ -211,7 +211,7 @@ class GitService:
             progress_callback(3/5, '获取当前分支成功')
 
         if current_result != self.project_config.project_git_branch:
-            checkout_result = cmd_utils.run_command([self.env_config.git_path, 'checkout', f'{self.project_config.project_git_branch}'])
+            checkout_result = cmd_utils.run_command([self.env_config.git_path, 'checkout', f'origin/{self.project_config.project_git_branch}'])
             if checkout_result is None or not checkout_result:
                 msg = '切换到目标分支失败'
                 log.error(msg)
