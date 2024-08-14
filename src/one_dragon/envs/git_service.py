@@ -143,8 +143,11 @@ class GitService:
         log.info(msg)
         if progress_callback is not None:
             progress_callback(-1, msg)
+        repo_url = self.get_git_repository()
+        if self.env_config.git_method == GitMethodEnum.GHPROXY.value.value:
+                 GH_PROXY_URL +self.project_config.github_https_repository
         result = cmd_utils.run_command([self.env_config.git_path, 'clone', '-b', self.project_config.project_git_branch,
-                                        self.get_git_repository(), temp_folder])
+                                        repo_url, temp_folder])
         if result is None:
             return False, '克隆仓库失败'
 
@@ -311,7 +314,7 @@ class GitService:
         :return:
         """
         if self.env_config.repository_type == RepositoryTypeEnum.GITHUB.value.value:
-            if self.env_config.git_method == GitMethodEnum.HTTPS.value.value:
+            if self.env_config.git_method == ( GitMethodEnum.HTTPS.value.value or GitMethodEnum.GHPROXY.value.value):
                 return self.project_config.github_https_repository
             else:
                 return self.project_config.github_ssh_repository
