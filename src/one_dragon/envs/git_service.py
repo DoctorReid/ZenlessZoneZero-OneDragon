@@ -219,7 +219,7 @@ class GitService:
         if progress_callback is not None:
             progress_callback(4/5, '切换到目标分支成功')
 
-        rebase_result = cmd_utils.run_command([self.env_config.git_path, 'merge','origin',f'{self.project_config.project_git_branch}'])
+        rebase_result = cmd_utils.run_command([self.env_config.git_path, 'pull', '--rebase'])
         if rebase_result is None or not rebase_result:
             msg = '更新本地代码失败'
             log.error(msg)
