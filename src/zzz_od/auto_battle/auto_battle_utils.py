@@ -32,7 +32,7 @@ def init_context(op: Union[ZOperation, ZApplication]):
     :param op:
     :return:
     """
-    op.ctx.yolo.init_context(
+    op.ctx.battle_dodge.init_context(
         use_gpu=op.ctx.battle_assistant_config.use_gpu,
         check_dodge_interval=op.auto_op.get('check_dodge_interval', 0.02),
     )
@@ -62,7 +62,7 @@ def run_screen_check(op: Union[ZOperation, ZApplication], screen: MatLike, scree
     :param sync: 是否同步
     :return:
     """
-    op.ctx.yolo.check_screen(screen, screenshot_time, sync=sync)
+    op.ctx.battle_dodge.check_screen(screen, screenshot_time, sync=sync)
     op.ctx.battle.check_screen(screen, screenshot_time,
                                check_battle_end_normal_result=check_battle_end_normal_result,
                                check_battle_end_hollow_result=check_battle_end_hollow_result,
@@ -70,3 +70,20 @@ def run_screen_check(op: Union[ZOperation, ZApplication], screen: MatLike, scree
                                check_distance=check_distance,
                                sync=sync)
 
+
+def stop_running(op: Union[ZOperation, ZApplication]) -> None:
+    """
+    停止自动战斗
+    """
+    if op.auto_op is not None:
+        op.auto_op.stop_running()
+    op.ctx.battle_dodge.stop_context()
+
+
+def resume_running(op: Union[ZOperation, ZApplication]) -> None:
+    """
+    继续自动战斗
+    """
+    if op.auto_op is not None:
+        op.auto_op.start_running_async()
+    op.ctx.battle_dodge.resume_context()

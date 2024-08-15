@@ -78,7 +78,7 @@ class OperationDebugApp(ZApplication):
         加载模型
         :return:
         """
-        self.ctx.yolo.init_dodge_model(use_gpu=self.ctx.battle_assistant_config.use_gpu)
+        self.ctx.battle_dodge.init_dodge_model(use_gpu=self.ctx.battle_assistant_config.use_gpu)
         return self.round_success()
 
     def load_op(self) -> OperationRoundResult:

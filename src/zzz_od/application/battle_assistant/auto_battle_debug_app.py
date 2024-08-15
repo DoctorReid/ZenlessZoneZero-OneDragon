@@ -78,7 +78,7 @@ class AutoBattleDebugApp(ZApplication):
         加载模型
         :return:
         """
-        self.ctx.yolo.init_dodge_model(use_gpu=self.ctx.battle_assistant_config.use_gpu)
+        self.ctx.battle_dodge.init_dodge_model(use_gpu=self.ctx.battle_assistant_config.use_gpu)
         return self.round_success()
 
     def load_op(self) -> OperationRoundResult:
@@ -126,16 +126,15 @@ class AutoBattleDebugApp(ZApplication):
 
     def _on_pause(self, e=None):
         ZApplication._on_pause(self, e)
-        if self.auto_op is not None:
-            self.auto_op.stop_running()
+        auto_battle_utils.stop_running(self)
 
     def _on_resume(self, e=None):
         ZApplication._on_resume(self, e)
-        if self.auto_op is not None:
-            self.auto_op.start_running_async()
+        auto_battle_utils.resume_running(self)
 
     def _after_operation_done(self, result: OperationResult):
         ZApplication._after_operation_done(self, result)
+        auto_battle_utils.stop_running(self)
         if self.auto_op is not None:
             self.auto_op.dispose()
             self.auto_op = None

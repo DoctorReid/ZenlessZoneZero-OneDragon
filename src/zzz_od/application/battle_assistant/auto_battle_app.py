@@ -8,7 +8,6 @@ from one_dragon.base.operation.operation_base import OperationResult
 from one_dragon.base.operation.operation_node import OperationNode
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils.i18_utils import gt
-from one_dragon.utils.performance_recorder import log_all_performance
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.auto_battle import auto_battle_utils
 from zzz_od.config.game_config import GamepadTypeEnum
@@ -79,7 +78,7 @@ class AutoBattleApp(ZApplication):
         加载模型
         :return:
         """
-        self.ctx.yolo.init_dodge_model(use_gpu=self.ctx.battle_assistant_config.use_gpu)
+        self.ctx.battle_dodge.init_dodge_model(use_gpu=self.ctx.battle_assistant_config.use_gpu)
         return self.round_success()
 
     def load_op(self) -> OperationRoundResult:
@@ -122,18 +121,15 @@ class AutoBattleApp(ZApplication):
 
     def _on_pause(self, e=None):
         ZApplication._on_pause(self, e)
-        if self.auto_op is not None:
-            self.auto_op.stop_running()
+        auto_battle_utils.stop_running(self)
 
     def _on_resume(self, e=None):
         ZApplication._on_resume(self, e)
-        if self.auto_op is not None:
-            self.auto_op.start_running_async()
+        auto_battle_utils.resume_running(self)
 
     def _after_operation_done(self, result: OperationResult):
         ZApplication._after_operation_done(self, result)
+        auto_battle_utils.stop_running(self)
         if self.auto_op is not None:
-            self.auto_op.stop_running()
             self.auto_op.dispose()
             self.auto_op = None
-        log_all_performance()

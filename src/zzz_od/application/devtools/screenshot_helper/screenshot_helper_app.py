@@ -50,7 +50,7 @@ class ScreenshotHelperApp(ZApplication):
         self.ctx.listen_event(ContextKeyboardEventEnum.PRESS.value, self._on_key_press)
 
     def init_context(self) -> OperationRoundResult:
-        self.ctx.yolo.init_context(self.ctx.battle_assistant_config.use_gpu)
+        self.ctx.battle_dodge.init_context(self.ctx.battle_assistant_config.use_gpu)
         return self.round_success()
 
     def repeat_screenshot(self) -> OperationRoundResult:
@@ -61,7 +61,7 @@ class ScreenshotHelperApp(ZApplication):
         screen = self.screenshot()
 
         if self.ctx.screenshot_helper_config.dodge_detect:
-            if self.ctx.yolo.check_dodge_flash(screen, now):
+            if self.ctx.battle_dodge.check_dodge_flash(screen, now):
                 debug_utils.save_debug_image(screen, prefix='dodge_wrong')
 
         if self.to_save_screenshot:

@@ -115,11 +115,11 @@ class HollowBattle(ZOperation):
     @operation_node(name='自动战斗')
     def auto_battle(self) -> OperationRoundResult:
         if self.ctx.battle.last_check_end_result is not None:
-            self.auto_op.stop_running()
+            auto_battle_utils.stop_running(self)
             return self.round_success(status=self.ctx.battle.last_check_end_result)
 
         if self.ctx.battle.with_distance_times >= 5:
-            self.auto_op.stop_running()
+            auto_battle_utils.stop_running(self)
             return self.round_success(status=HollowBattle.STATUS_NEED_SPECIAL_MOVE)
 
         now = time.time()
@@ -151,17 +151,15 @@ class HollowBattle(ZOperation):
 
     def _on_pause(self, e=None):
         ZOperation._on_pause(self, e)
-        if self.auto_op is not None:
-            self.auto_op.stop_running()
+        auto_battle_utils.stop_running(self)
 
     def _on_resume(self, e=None):
         ZOperation._on_resume(self, e)
-        if self.auto_op is not None:
-            self.auto_op.start_running_async()
+        auto_battle_utils.resume_running(self)
 
     def _after_operation_done(self, result: OperationResult):
         ZOperation._after_operation_done(self, result)
+        auto_battle_utils.stop_running(self)
         if self.auto_op is not None:
-            self.auto_op.stop_running()
             self.auto_op.dispose()
             self.auto_op = None
