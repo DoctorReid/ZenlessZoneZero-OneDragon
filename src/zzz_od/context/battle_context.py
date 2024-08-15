@@ -332,7 +332,8 @@ class BattleContext:
                      check_battle_end_hollow_result: bool = False,
                      check_battle_end_hollow_bag: bool = False,
                      check_distance: bool = False,
-                     sync: bool = False) -> None:
+                     sync: bool = False
+                     ) -> None:
         """
         异步判断角战斗画面 并发送事件
         :return:
