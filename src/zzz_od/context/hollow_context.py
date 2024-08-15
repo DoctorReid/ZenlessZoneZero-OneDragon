@@ -77,6 +77,8 @@ class HollowContext:
         if possible_agents is None:
             possible_agents = [agent_enum.value for agent_enum in AgentEnum]
         for agent in possible_agents:
+            if agent is None:
+                continue
             mrl = self.ctx.tm.match_template(img, 'hollow', prefix + agent.agent_id, threshold=0.8)
             if mrl.max is not None:
                 return agent
@@ -239,7 +241,7 @@ def __debug_get_map():
 
     from one_dragon.utils import debug_utils
     img_list = [
-        '_1723649519504',
+        '6',
     ]
     for i in img_list:
         img = debug_utils.get_debug_image(i)
