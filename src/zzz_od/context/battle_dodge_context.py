@@ -4,7 +4,6 @@ from concurrent.futures import ThreadPoolExecutor, Future
 import librosa
 import numpy as np
 import os
-import soundcard as sc
 import threading
 from cv2.typing import MatLike
 from enum import Enum
@@ -48,6 +47,7 @@ class AudioRecorder:
 
     def _record_loop(self, interval: float = 0.01) -> None:
         last_frames = np.empty(shape=(0,), dtype=np.float64)
+        import soundcard as sc
         _mic = sc.get_microphone(id=str(sc.default_speaker().name), include_loopback=True)
         _recorder = _mic.recorder(samplerate=self._sample_rate, channels=self._used_channel)
 
@@ -240,7 +240,6 @@ class BattleDodgeContext:
 def __debug():
     ctx = ZContext()
     ctx.init_by_config()
-    print(sc.default_speaker().name)
 
     from one_dragon.utils import debug_utils
     img = debug_utils.get_debug_image('flash')
