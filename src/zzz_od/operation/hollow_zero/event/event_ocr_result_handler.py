@@ -9,7 +9,7 @@ class EventOcrResultHandler:
     def __init__(self, target_cn: str,
                  method: Optional[Callable[[str, Rect], OperationRoundResult]] = None,
                  click_result: bool = True,
-                 click_wait: float = 1,
+                 click_wait: float = 0.5,
                  lcs_percent: float = 0.5,
                  is_event_mark: bool = False,
                  status: Optional[str] = None

@@ -29,7 +29,7 @@ class HollowRunner(ZOperation):
     def __init__(self, ctx: ZContext):
         ZOperation.__init__(
             self, ctx,
-            node_max_retry_times=20,
+            node_max_retry_times=60,
             op_name=gt('空洞操作器')
         )
 
@@ -63,7 +63,7 @@ class HollowRunner(ZOperation):
 
         # 当前识别到地图
         current_map = self.ctx.hollow.check_current_map(screen, now)
-        if current_map.current_idx is not None:
+        if current_map is not None and current_map.current_idx is not None:
             self.ctx.hollow.check_before_move(screen)
             return self._handle_map_move(screen, current_map)
 

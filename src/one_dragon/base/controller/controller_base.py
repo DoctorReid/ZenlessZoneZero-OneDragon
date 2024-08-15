@@ -50,13 +50,13 @@ class ControllerBase:
         """
         pass
 
-    def screenshot(self) -> MatLike:
+    def screenshot(self, independent: bool = False) -> MatLike:
         """
         截图并保存在内存中
         """
         self.before_screenshot()
         now = time.time()
-        screen = self.get_screenshot()
+        screen = self.get_screenshot(independent)
         fix_screen = self.fill_uid_black(screen)
 
         self.screenshot_history.append(ScreenshotWithTime(fix_screen, now))
@@ -75,7 +75,7 @@ class ControllerBase:
         """
         pass
 
-    def get_screenshot(self) -> MatLike:
+    def get_screenshot(self, independent: bool = False) -> MatLike:
         """
         截图 如果分辨率和默认不一样则进行缩放
         由子类实现 做具体的截图

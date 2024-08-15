@@ -116,7 +116,7 @@ class PcControllerBase(ControllerBase):
             self.keyboard_controller.keyboard.release(keyboard.Key.alt)
         return True
 
-    def get_screenshot(self) -> MatLike:
+    def get_screenshot(self, independent: bool = False) -> MatLike:
         """
         截图 如果分辨率和默认不一样则进行缩放
         :return: 截图
@@ -130,7 +130,15 @@ class PcControllerBase(ControllerBase):
 
         if self.sct is not None:
             monitor = {"top": top, "left": left, "width": width, "height": height}
-            screenshot = cv2.cvtColor(np.array(self.sct.grab(monitor)), cv2.COLOR_BGRA2RGB)
+            if independent:
+                try:
+                    import mss
+                    with mss.mss() as sct:
+                        screenshot = cv2.cvtColor(np.array(sct.grab(monitor)), cv2.COLOR_BGRA2RGB)
+                except Exception:
+                    pass
+            else:
+                screenshot = cv2.cvtColor(np.array(self.sct.grab(monitor)), cv2.COLOR_BGRA2RGB)
         else:
             img: Image = pyautogui.screenshot(region=(left, top, width, height))
             screenshot = np.array(img)
