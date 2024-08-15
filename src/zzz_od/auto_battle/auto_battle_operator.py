@@ -24,7 +24,7 @@ from zzz_od.auto_battle.atomic_op.state_clear import AtomicClearState
 from zzz_od.auto_battle.atomic_op.state_set import AtomicSetState
 from zzz_od.auto_battle.atomic_op.wait import AtomicWait
 from zzz_od.context.battle_context import BattleEventEnum
-from zzz_od.context.yolo_context import YoloStateEventEnum
+from zzz_od.context.battle_dodge_context import YoloStateEventEnum
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import AgentEnum, AgentTypeEnum
 

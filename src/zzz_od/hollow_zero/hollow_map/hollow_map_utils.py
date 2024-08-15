@@ -22,7 +22,11 @@ def construct_map_from_yolo_result(detect_result: DetectFrameResult, name_2_entr
         else:
             entry = unknown
 
-        pos = Rect(result.x1, result.y1 + entry.y_delta, result.x2, result.y2)
+        width = result.x2 - result.x1
+        if entry.is_base:
+            pos = Rect(result.x1, result.y2 - width, result.x2, result.y2)
+        else:
+            pos = Rect(result.x1, result.y1, result.x2, result.y2)
 
         # 判断与已有的节点是否重复
         to_merge: Optional[HollowZeroMapNode] = None
