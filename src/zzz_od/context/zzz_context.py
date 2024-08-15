@@ -32,7 +32,7 @@ class ZContext(OneDragonContext):
         self.battle: BattleContext = BattleContext(self)
 
         from zzz_od.context.battle_dodge_context import BattleDodgeContext
-        self.yolo: BattleDodgeContext = BattleDodgeContext(self)
+        self.battle_dodge: BattleDodgeContext = BattleDodgeContext(self)
 
         from zzz_od.context.custom_battle_context import CustomBattleContext
         self.custom_battle: CustomBattleContext = CustomBattleContext(self)

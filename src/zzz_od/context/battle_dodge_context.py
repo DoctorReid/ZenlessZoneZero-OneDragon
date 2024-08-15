@@ -1,3 +1,4 @@
+import time
 from concurrent.futures import ThreadPoolExecutor, Future
 
 import librosa
@@ -29,9 +30,10 @@ class AudioRecorder:
 
         self._sample_rate = 32000  # 采样率
         self._used_channel = 2
-        self._mic = sc.default_microphone()
+        self._chunk_size = 1600  # 语音块大小
+        self._sample_len = 0.2  # 每次采样长度0.2s
 
-        self.latest_audio = np.zeros(self._sample_rate)  # 1秒的音频帧数
+        self.latest_audio = np.empty(shape=(0,), dtype=np.float64)
 
     def start_running_async(self, interval: float = 0.01) -> None:
         with self._run_lock:
@@ -45,13 +47,20 @@ class AudioRecorder:
         future.add_done_callback(thread_utils.handle_future_result)
 
     def _record_loop(self, interval: float = 0.01) -> None:
-        window_size = int(self._sample_rate * interval)
-        while self.running:
-            recording = self._mic.record(numframes=window_size, samplerate=self._sample_rate, channels=self._used_channel)
-            mono = librosa.to_mono(recording)
-            latest_audio = np.roll(self.latest_audio, -len(mono))
-            latest_audio[-len(mono):] = mono
-            self.latest_audio = latest_audio
+        last_frames = np.empty(shape=(0,), dtype=np.float64)
+        _mic = sc.get_microphone(id=str(sc.default_speaker().name), include_loopback=True)
+        _recorder = _mic.recorder(samplerate=self._sample_rate, channels=self._used_channel)
+
+        with _recorder as audio_recorder:
+            while self.running:
+                current_frame = np.empty(shape=(0,), dtype=np.float64)
+                for index in range(int(self._sample_rate / self._chunk_size * self._sample_len)):
+                    stream_data = audio_recorder.record(numframes=self._chunk_size)
+                    read_chunks = librosa.to_mono(stream_data.T)
+
+                    current_frame = np.append(current_frame, read_chunks)
+                self.latest_audio = np.append(last_frames, current_frame)
+                last_frames = current_frame
 
     def stop_running(self) -> None:
         self.running = False
@@ -133,7 +142,7 @@ class BattleDodgeContext:
         :return:
         """
         future_list: List[Future] = []
-        audio_future = _dodge_check_executor.submit(self.check_dodge_audio, screen, screenshot_time)
+        audio_future = _dodge_check_executor.submit(self.check_dodge_audio, screenshot_time)
         future_list.append(audio_future)
         future_list.append(_dodge_check_executor.submit(self.check_dodge_flash, screen, screenshot_time, audio_future))
 
@@ -197,12 +206,13 @@ class BattleDodgeContext:
             self._last_check_audio_time = screenshot_time
 
             corr = self.get_max_corr(self._audio_template, self._audio_recorder.latest_audio)
+            log.debug('声音相似度 %.2f' % corr)
 
             return corr > 0.1
         except Exception:
             log.error('识别画面闪光失败', exc_info=True)
         finally:
-            self._check_dodge_flash_lock.release()
+            self._check_audio_lock.release()
 
     @staticmethod
     def get_max_corr(x: np.ndarray, y: np.ndarray):
@@ -220,16 +230,27 @@ class BattleDodgeContext:
 
         return max_corr
 
+    def stop_context(self) -> None:
+        self._audio_recorder.stop_running()
+
+    def resume_context(self) -> None:
+        self._audio_recorder.start_running_async(self._check_audio_interval)
+
 
 def __debug():
     ctx = ZContext()
     ctx.init_by_config()
+    print(sc.default_speaker().name)
 
     from one_dragon.utils import debug_utils
     img = debug_utils.get_debug_image('flash')
 
-    ctx.yolo.init_context(use_gpu=False)
-    result = ctx.yolo._dodge_model.run(img)
+    ctx.battle_dodge.init_audio_template()
+    ctx.battle_dodge._audio_recorder.start_running_async(0.01)
+    while True:
+        ctx.battle_dodge.check_dodge_audio(time.time())
+        time.sleep(0.02)
+    print(ctx.battle_dodge.get_max_corr(ctx.battle_dodge._audio_template, ctx.battle_dodge._audio_template))
 
 
 if __name__ == '__main__':
