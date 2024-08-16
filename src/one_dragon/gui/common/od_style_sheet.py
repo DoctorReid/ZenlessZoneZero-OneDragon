@@ -12,6 +12,7 @@ class OdStyleSheet(StyleSheetBase, Enum):
     NONE = "none"
     SAMPLE_CARD = "sample_card"
     LINK_CARD = "link_card"
+    FLUENT_WINDOW_BASE = "fluent_window_base"
 
     def path(self, theme=Theme.AUTO):
         theme = qconfig.theme if theme == Theme.AUTO else theme

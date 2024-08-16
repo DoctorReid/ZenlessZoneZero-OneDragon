@@ -9,6 +9,10 @@ LinkCard:hover {
     border: 1px solid rgb(220, 220, 220);
 }
 
+QWidget {
+    background-color: rgba(249, 249, 249, 0.95);
+}
+
 #titleLabel {
     font: 18px 'Segoe UI', 'Microsoft YaHei', 'PingFang SC';
     color: black;
