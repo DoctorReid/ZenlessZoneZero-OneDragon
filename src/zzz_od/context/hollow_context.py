@@ -175,18 +175,20 @@ class HollowContext:
         :param current_map:
         :return:
         """
+        if current_map.current_idx is None:
+            return None
         idx_2_route = hollow_map_utils.search_map(current_map)
+
+        # 队员不满的时候 优先去增援
+        if self.ctx.hollow.agent_list is None or len(self.ctx.hollow.agent_list) < 3 or None in self.ctx.hollow.agent_list:
+            route = hollow_map_utils.get_route_by_entry(idx_2_route, '呼叫增援')
+            if route is not None:
+                return current_map.nodes[route.first_step]
 
         # 1步可到的奖励 都先领取了
         route = hollow_map_utils.get_route_in_1_step_benefit(idx_2_route)
         if route is not None:
             return current_map.nodes[route.first_step]
-
-        # 队员不满的时候 优先去增援
-        if self.ctx.hollow.agent_list is None or len(self.ctx.hollow.agent_list) < 3:
-            route = hollow_map_utils.get_route_by_entry(idx_2_route, '呼叫增援')
-            if route is not None:
-                return current_map.nodes[route.first_step]
 
         # 有业绩的时候 去拿业绩
         route = hollow_map_utils.get_route_by_entry(idx_2_route, '业绩考察点')
@@ -200,6 +202,11 @@ class HollowContext:
 
         # 有出口的时候 去出口
         route = hollow_map_utils.get_route_by_entry(idx_2_route, '守门人')
+        if route is not None:
+            return current_map.nodes[route.first_step]
+
+        # 有出口的时候 去出口
+        route = hollow_map_utils.get_route_by_entry(idx_2_route, '传送点')
         if route is not None:
             return current_map.nodes[route.first_step]
 
@@ -241,7 +248,7 @@ def __debug_get_map():
 
     from one_dragon.utils import debug_utils
     img_list = [
-        '6',
+        '_1723823767662',
     ]
     for i in img_list:
         img = debug_utils.get_debug_image(i)

@@ -251,11 +251,12 @@ def search_map(current_map: HollowZeroMap) -> dict[int, RouteSearchRoute]:
             if not next_entry.can_go:  # 无法移动
                 continue
 
+            next_step_cnt = current.step_cnt + (next_entry.need_step if next_entry is not None else 1)
             next_route = RouteSearchRoute(
                 node=next_node,
                 node_idx=next_idx,
-                first_step=next_idx if current.first_step == current_idx else current.first_step,
-                step_cnt=current.step_cnt + (next_entry.need_step if next_entry is not None else 1),
+                first_step=next_idx if next_step_cnt == 1 else current.first_step,
+                step_cnt=next_step_cnt,
                 distance=cal_utils.distance_between(current_node.pos.center, next_node.pos.center)
             )
             bfs_queue.append(next_route)

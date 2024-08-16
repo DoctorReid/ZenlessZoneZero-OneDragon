@@ -62,25 +62,18 @@ class AudioRecorder:
         _mic = sc.get_microphone(id=str(sc.default_speaker().name), include_loopback=True)
         _recorder = _mic.recorder(samplerate=self._sample_rate, channels=self._used_channel)
 
-        max_elapsed_time = 0
         with _recorder as audio_recorder:
             while self.running:
-                start_time = time.time()
-
                 stream_data = audio_recorder.record(numframes=self._chunk_size)
                 if self._used_channel > 1:
                     stream_data = librosa.to_mono(stream_data.T)
                 else:
                     stream_data = stream_data.T
 
-                elapsed_time = time.time() - start_time
-                max_elapsed_time = max(elapsed_time, max_elapsed_time)
-
                 with self._update_audio_lock:
                     # 更新 latest_audio
                     self.latest_audio[:-len(stream_data)] = self.latest_audio[len(stream_data):]
                     self.latest_audio[-len(stream_data):] = stream_data
-        print(elapsed_time)  # 可以注释掉或移到调试模式下
 
     def stop_running(self) -> None:
         """
