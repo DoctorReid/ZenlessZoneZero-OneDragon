@@ -18,34 +18,45 @@ from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.yolo.dodge_classifier import DodgeClassifier
 
+# 创建一个线程池执行器，用于异步执行任务
 _dodge_check_executor = ThreadPoolExecutor(thread_name_prefix='od_yolo_check', max_workers=16)
 
-
 class AudioRecorder:
+    """
+    音频录制类，用于录制和处理音频数据。
+    """
 
     def __init__(self):
-        self.running: bool = False
-        self._run_lock = threading.Lock()
+        self.running: bool = False  # 标记录制是否正在运行
+        self._run_lock = threading.Lock()  # 用于线程安全的锁
 
         self._sample_rate = 32000  # 采样率
-        self._used_channel = 2
-        self._chunk_size = 1600  # 语音块大小
-        self._sample_len = 0.2  # 每次采样长度0.2s
+        self._used_channel = 2  # 使用的音频通道数
+        self._chunk_size = 1024  # 每个音频块的大小
+        self._sample_len = 0.05  # 每次采样的长度（秒）
 
-        self.latest_audio = np.empty(shape=(0,), dtype=np.float64)
+        self.latest_audio = np.empty(shape=(0,), dtype=np.float64)  # 存储最新的音频数据
 
     def start_running_async(self, interval: float = 0.01) -> None:
+        """
+        异步启动音频录制。
+        :param interval: 录制间隔时间
+        """
         with self._run_lock:
             if self.running:
                 return
 
             self.running = True
 
-        self.latest_audio = np.zeros(self._sample_rate)
+        self.latest_audio = np.zeros(int(self._sample_rate * 0.5))  # 初始化音频数据缓冲区，长度为0.5秒
         future = _dodge_check_executor.submit(self._record_loop, interval)
         future.add_done_callback(thread_utils.handle_future_result)
 
     def _record_loop(self, interval: float = 0.01) -> None:
+        """
+        音频录制循环，持续录制音频数据。
+        :param interval: 录制间隔时间
+        """
         last_frames = np.empty(shape=(0,), dtype=np.float64)
         import soundcard as sc
         _mic = sc.get_microphone(id=str(sc.default_speaker().name), include_loopback=True)
@@ -59,29 +70,41 @@ class AudioRecorder:
                     read_chunks = librosa.to_mono(stream_data.T)
 
                     current_frame = np.append(current_frame, read_chunks)
-                self.latest_audio = np.append(last_frames, current_frame)
-                last_frames = current_frame
+                
+                self.latest_audio = np.append(self.latest_audio, current_frame)
+                
+                # 保留最近0.5秒的数据
+                if len(self.latest_audio) > int(self._sample_rate * 0.5):
+                    self.latest_audio = self.latest_audio[-int(self._sample_rate * 0.5):]
 
     def stop_running(self) -> None:
+        """
+        停止音频录制。
+        """
         self.running = False
 
 
 class YoloStateEventEnum(Enum):
-
+    """
+    YOLO状态事件枚举类，定义不同的闪避识别事件。
+    """
     DODGE_YELLOW = '闪避识别-黄光'
     DODGE_RED = '闪避识别-红光'
     DODGE_AUDIO = '闪避识别-声音'
 
 
 class BattleDodgeContext:
+    """
+    战斗闪避上下文类，用于管理和处理闪避识别相关的逻辑。
+    """
 
     def __init__(self, ctx: ZContext):
-        self.ctx: ZContext = ctx
-        self._flash_model: Optional[DodgeClassifier] = None
-        self._audio_recorder: AudioRecorder = AudioRecorder()
-        self._audio_template: Optional[np.ndarray] = None
+        self.ctx: ZContext = ctx  # 上下文对象
+        self._flash_model: Optional[DodgeClassifier] = None  # 闪避分类器
+        self._audio_recorder: AudioRecorder = AudioRecorder()  # 音频录制器
+        self._audio_template: Optional[np.ndarray] = None  # 音频模板
 
-        # 识别锁 保证每种类型只有1实例在进行识别
+        # 识别锁，保证每种类型只有一个实例在进行识别
         self._check_dodge_flash_lock = threading.Lock()
         self._check_audio_lock = threading.Lock()
 
@@ -93,6 +116,10 @@ class BattleDodgeContext:
         self._last_check_dodge_time: float = 0
         self._last_check_audio_time: float = 0
 
+        # 音频事件去重时间间隔
+        self._audio_event_interval: float = 0.1
+        self._last_audio_event_time: float = 0
+
     def init_context(self,
                      use_gpu: bool = True,
                      check_dodge_interval: Union[float, List[float]] = 0,
@@ -100,8 +127,11 @@ class BattleDodgeContext:
                      check_audio_interval: float = 0.02
                      ) -> None:
         """
-        运行前 初始化上下文
-        :return:
+        初始化上下文，在运行前调用。
+        :param use_gpu: 是否使用GPU
+        :param check_dodge_interval: 闪避识别间隔
+        :param audio_recorder_interval: 音频录制间隔
+        :param check_audio_interval: 音频识别间隔
         """
         if self._flash_model is None or self._flash_model.gpu != use_gpu:
             self._flash_model = DodgeClassifier(
@@ -119,13 +149,12 @@ class BattleDodgeContext:
 
         self._audio_recorder.start_running_async(audio_recorder_interval)
 
-        # 异步加载音频 这个比较慢
+        # 异步加载音频模板
         _dodge_check_executor.submit(self.init_audio_template)
 
     def init_audio_template(self) -> None:
         """
-        加载音频模板
-        :return:
+        加载音频模板。
         """
         if self._audio_template is not None:
             return
@@ -138,8 +167,10 @@ class BattleDodgeContext:
 
     def check_screen(self, screen: MatLike, screenshot_time: float, sync: bool = False) -> None:
         """
-        异步识别画面
-        :return:
+        异步识别画面。
+        :param screen: 屏幕截图
+        :param screenshot_time: 截图时间
+        :param sync: 是否同步执行
         """
         future_list: List[Future] = []
         audio_future = _dodge_check_executor.submit(self.check_dodge_audio, screenshot_time)
@@ -155,10 +186,11 @@ class BattleDodgeContext:
 
     def check_dodge_flash(self, screen: MatLike, screenshot_time: float, audio_future: Optional[Future[bool]] = None) -> bool:
         """
-        识别画面是否有闪光
-        :param screen:
-        :param screenshot_time:
-        :return:
+        识别画面是否有闪光。
+        :param screen: 屏幕截图
+        :param screenshot_time: 截图时间
+        :param audio_future: 音频识别结果的Future对象
+        :return: 是否识别到闪光
         """
         if not self._check_dodge_flash_lock.acquire(blocking=False):
             return False
@@ -194,6 +226,11 @@ class BattleDodgeContext:
             self._check_dodge_flash_lock.release()
 
     def check_dodge_audio(self, screenshot_time: float) -> bool:
+        """
+        识别音频是否有闪避提示。
+        :param screenshot_time: 截图时间
+        :return: 是否识别到音频提示
+        """
         if not self._check_audio_lock.acquire(blocking=False):
             return False
 
@@ -208,7 +245,12 @@ class BattleDodgeContext:
             corr = self.get_max_corr(self._audio_template, self._audio_recorder.latest_audio)
             log.debug('声音相似度 %.2f' % corr)
 
-            return corr > 0.1
+            # 事件去重逻辑
+            if corr > 0.1:
+                self._last_audio_event_time = screenshot_time
+                return True
+
+            return False
         except Exception:
             log.error('识别画面闪光失败', exc_info=True)
         finally:
@@ -216,6 +258,12 @@ class BattleDodgeContext:
 
     @staticmethod
     def get_max_corr(x: np.ndarray, y: np.ndarray):
+        """
+        计算两个音频信号的最大相关性。
+        :param x: 音频信号x
+        :param y: 音频信号y
+        :return: 最大相关性系数
+        """
         # 标准化
         wx = scale(x, with_mean=False)
         wy = scale(y, with_mean=False)
@@ -231,13 +279,22 @@ class BattleDodgeContext:
         return max_corr
 
     def stop_context(self) -> None:
+        """
+        停止上下文，停止音频录制。
+        """
         self._audio_recorder.stop_running()
 
     def resume_context(self) -> None:
+        """
+        恢复上下文，重新启动音频录制。
+        """
         self._audio_recorder.start_running_async(self._check_audio_interval)
 
 
 def __debug():
+    """
+    调试函数，用于测试战斗闪避上下文的功能。
+    """
     ctx = ZContext()
     ctx.init_by_config()
 
