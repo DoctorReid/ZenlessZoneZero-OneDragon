@@ -256,6 +256,7 @@ class ConditionalOperator(YamlConfig):
                 result = future.result()
                 if result:  # 顺利执行完毕
                     self._running_task_cnt.dec()
+                    self._running_task.priority = None
             except Exception:  # run_async里有callback打印日志
                 pass
 
