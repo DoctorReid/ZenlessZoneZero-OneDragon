@@ -9,7 +9,7 @@ from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.gui.component.interface.base_interface import BaseInterface
 from one_dragon.utils import os_utils
 from one_dragon.utils.i18_utils import gt
-
+from one_dragon.gui.common.od_style_sheet import OdStyleSheet
 
 class FluentWindowBase(FluentWindow):
 
@@ -21,9 +21,9 @@ class FluentWindowBase(FluentWindow):
         super().__init__(parent=parent)
         self.ctx: OneDragonContext = ctx
         self._last_stack_idx: int = 0
-
+        
         self.init_window(win_title, app_icon)
-
+    
         # 1. 创建启动页面
         self.splashScreen = SplashScreen(self.windowIcon(), self)
         self.splashScreen.setIconSize(QSize(144, 144))
@@ -54,6 +54,8 @@ class FluentWindowBase(FluentWindow):
         if app_icon is not None:
             app_icon_path = os.path.join(os_utils.get_path_under_work_dir('assets', 'ui'), app_icon)
             self.setWindowIcon(QIcon(app_icon_path))
+        OdStyleSheet.FLUENT_WINDOW_BASE.apply(self)
+        self.setMicaEffectEnabled(False)
         self.resize(960, 820)
         self.move(100, 100)
 
