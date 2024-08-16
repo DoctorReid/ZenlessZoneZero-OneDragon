@@ -21,6 +21,7 @@ from zzz_od.yolo.dodge_classifier import DodgeClassifier
 # 创建一个线程池执行器，用于异步执行任务
 _dodge_check_executor = ThreadPoolExecutor(thread_name_prefix='od_yolo_check', max_workers=16)
 
+
 class AudioRecorder:
     """
     音频录制类，用于录制和处理音频数据。
@@ -32,10 +33,11 @@ class AudioRecorder:
 
         self._sample_rate = 32000  # 采样率
         self._used_channel = 2  # 使用的音频通道数
-        self._chunk_size = 1024  # 每个音频块的大小
-        self._sample_len = 0.05  # 每次采样的长度（秒）
+        self._sample_len = 0.01  # 每次采样的长度（秒）
+        self._chunk_size = int(self._sample_rate * self._sample_len)  # 每个音频块的大小
 
         self.latest_audio = np.empty(shape=(0,), dtype=np.float64)  # 存储最新的音频数据
+        self._update_audio_lock = threading.Lock()
 
     def start_running_async(self, interval: float = 0.01) -> None:
         """
@@ -48,40 +50,50 @@ class AudioRecorder:
 
             self.running = True
 
-        self.latest_audio = np.zeros(int(self._sample_rate * 0.5))  # 初始化音频数据缓冲区，长度为0.5秒
-        future = _dodge_check_executor.submit(self._record_loop, interval)
+        self.latest_audio = np.zeros(int(self._sample_rate // 2))  # 初始化音频数据缓冲区，长度为0.5秒
+        future = _dodge_check_executor.submit(self._record_loop)
         future.add_done_callback(thread_utils.handle_future_result)
 
-    def _record_loop(self, interval: float = 0.01) -> None:
+    def _record_loop(self) -> None:
         """
         音频录制循环，持续录制音频数据。
-        :param interval: 录制间隔时间
         """
-        last_frames = np.empty(shape=(0,), dtype=np.float64)
         import soundcard as sc
         _mic = sc.get_microphone(id=str(sc.default_speaker().name), include_loopback=True)
         _recorder = _mic.recorder(samplerate=self._sample_rate, channels=self._used_channel)
 
+        max_elapsed_time = 0
         with _recorder as audio_recorder:
             while self.running:
-                current_frame = np.empty(shape=(0,), dtype=np.float64)
-                for index in range(int(self._sample_rate / self._chunk_size * self._sample_len)):
-                    stream_data = audio_recorder.record(numframes=self._chunk_size)
-                    read_chunks = librosa.to_mono(stream_data.T)
+                start_time = time.time()
 
-                    current_frame = np.append(current_frame, read_chunks)
+                stream_data = audio_recorder.record(numframes=self._chunk_size)
+                if self._used_channel > 1:
+                    stream_data = librosa.to_mono(stream_data.T)
+                else:
+                    stream_data = stream_data.T
 
-                self.latest_audio = np.append(self.latest_audio, current_frame)
+                elapsed_time = time.time() - start_time
+                max_elapsed_time = max(elapsed_time, max_elapsed_time)
 
-                # 保留最近0.5秒的数据
-                if len(self.latest_audio) > int(self._sample_rate * 0.5):
-                    self.latest_audio = self.latest_audio[-int(self._sample_rate * 0.5):]
+                with self._update_audio_lock:
+                    # 更新 latest_audio
+                    self.latest_audio[:-len(stream_data)] = self.latest_audio[len(stream_data):]
+                    self.latest_audio[-len(stream_data):] = stream_data
+        print(elapsed_time)  # 可以注释掉或移到调试模式下
 
     def stop_running(self) -> None:
         """
         停止音频录制。
         """
         self.running = False
+
+    def clear_audio(self) -> None:
+        """
+        清楚当前录音
+        """
+        with self._update_audio_lock:
+            self.latest_audio = np.zeros(int(self._sample_rate // 2))
 
 
 class YoloStateEventEnum(Enum):
@@ -248,6 +260,7 @@ class BattleDodgeContext:
             # 事件去重逻辑
             if corr > 0.1:
                 self._last_audio_event_time = screenshot_time
+                self._audio_recorder.clear_audio()
                 return True
 
             return False
