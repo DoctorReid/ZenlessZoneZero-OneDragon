@@ -11,10 +11,10 @@ scenes:
         data: ["0.2"]
       - op_name: "按键-普通攻击"
         data: []
-- triggers: ["闪避识别-红光"]
+- triggers: ["闪避识别-红光", "闪避识别-声音"]
   interval: 0.5
   handlers:
-  - states: "[闪避识别-红光]"
+  - states: "[闪避识别-红光] | [闪避识别-声音]"
     operations:
       - op_name: "按键-闪避"
         data: []
