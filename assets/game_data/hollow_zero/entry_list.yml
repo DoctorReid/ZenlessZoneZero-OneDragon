@@ -17,6 +17,7 @@
 - entry_name: "调查员"
 - entry_name: "盗洞客"
 - entry_name: "邦布商人"
+  is_benefit: false
 - entry_name: "门扉禁闭-财富"
   is_benefit: false
 - entry_name: "顽固的障碍物"
@@ -28,6 +29,7 @@
   is_benefit: false
 - entry_name: "门扉禁闭-善战"
 - entry_name: "开启的门"
+  need_step: 0
 - entry_name: "安全区"
 - entry_name: "休息区"
 - entry_name: "失联"
@@ -36,12 +38,14 @@
   is_benefit: false
 - entry_name: "净化室"
 - entry_name: "传送点"
+  is_benefit: false
 - entry_name: "真相"
 - entry_name: "通道"
 - entry_name: "巨兽"
 - entry_name: "奇货"
 - entry_name: "盲盒区域"
 - entry_name: "不宜久留"
+  need_step: 0
 - entry_name: "奇怪的侦探"
 - entry_name: "求救的信号"
 - entry_name: "调查协会补给站"
@@ -52,6 +56,7 @@
 - entry_name: "怀斯塔学会研究站"
 - entry_name: "活化结晶"
 - entry_name: "守门人"
+  is_benefit: false
 - entry_name: "裂隙"
 - entry_name: "紧急撤离点"
 - entry_name: "防卫军后勤站"
@@ -65,13 +70,14 @@
 - entry_name: "空白已通行"
   need_step: 0
 - entry_name: "电视底座绿"
+  is_benefit: false
   is_base: true
-  y_delta: -140
 - entry_name: "电视底座红"
+  is_benefit: false
   is_base: true
-  y_delta: -140
 - entry_name: "电视底座大"
+  is_benefit: false
   is_base: true
-  y_delta: -280
 - entry_name: "未知"
+  is_benefit: false
 - entry_name: "零号银行"
