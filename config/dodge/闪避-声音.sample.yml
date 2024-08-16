@@ -1,7 +1,0 @@
-scenes:
-  - triggers: ["闪避识别-声音"]
-    interval: 0.01
-    handlers:
-      - states: "[闪避识别-声音]"
-        operations:
-          - op_name: "按键-闪避"
