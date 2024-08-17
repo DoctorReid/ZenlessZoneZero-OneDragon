@@ -8,9 +8,10 @@ from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroEntry
 
 class HollowZeroMapNode:
 
-    def __init__(self, pos: Rect, entry: HollowZeroEntry):
+    def __init__(self, pos: Rect, entry: HollowZeroEntry, check_time: Optional[float] = None):
         self.pos: Rect = pos
         self.entry: HollowZeroEntry = entry
+        self.check_time: float = time.time() if check_time is None else check_time  # 识别时间
 
 
 class HollowZeroMapEdge:

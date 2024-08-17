@@ -6,6 +6,7 @@ import threading
 from cv2.typing import MatLike
 from typing import List, Optional, Union
 
+from one_dragon.base.geometry.point import Point
 from one_dragon.base.screen.screen_area import ScreenArea
 from one_dragon.utils import cv2_utils, thread_utils, cal_utils, os_utils
 from one_dragon.utils.log_utils import log
@@ -13,6 +14,7 @@ from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import Agent, AgentEnum
 from zzz_od.hollow_zero.hollow_level_info import HollowLevelInfo
 from zzz_od.hollow_zero.hollow_map import hollow_map_utils
+from zzz_od.hollow_zero.hollow_map.hollow_map_utils import RouteSearchRoute
 from zzz_od.hollow_zero.hollow_map.hollow_zero_map import HollowZeroMap, HollowZeroMapNode
 from zzz_od.hollow_zero.hollow_zero_data_service import HallowZeroDataService
 from zzz_od.yolo.hollow_event_detector import HollowEventDetector
@@ -32,6 +34,8 @@ class HollowContext:
         self._event_model: Optional[HollowEventDetector] = None
 
         self.map_results: List[HollowZeroMap] = []  # 识别的地图结果
+        self._visited_nodes: List[HollowZeroMapNode] = []  # 已经去过的点
+        self._last_route: Optional[RouteSearchRoute] = None  # 上一次想走的路
 
     def check_agent_list(self, screen: MatLike) -> Optional[List[Agent]]:
         """
@@ -145,9 +149,6 @@ class HollowContext:
             return None
 
         current_map = hollow_map_utils.construct_map_from_yolo_result(result, self.data_service.name_2_entry)
-        if current_map.current_idx is None and self.ctx.env_config.is_debug:
-            from one_dragon.utils import debug_utils
-            # file_name = debug_utils.save_debug_image(screen, prefix='map_detect_fail')
 
         self.map_results.append(current_map)
         while len(self.map_results) > 0 and screenshot_time - self.map_results[0].check_time > 2:
@@ -181,7 +182,7 @@ class HollowContext:
 
         # 队员不满的时候 优先去增援
         if self.ctx.hollow.agent_list is None or len(self.ctx.hollow.agent_list) < 3 or None in self.ctx.hollow.agent_list:
-            route = hollow_map_utils.get_route_by_entry(idx_2_route, '呼叫增援')
+            route = hollow_map_utils.get_route_by_entry(idx_2_route, '呼叫增援', self._visited_nodes)
             if route is not None:
                 return current_map.nodes[route.first_step]
 
@@ -190,24 +191,31 @@ class HollowContext:
         if route is not None:
             return current_map.nodes[route.first_step]
 
-        # 有业绩的时候 去拿业绩
-        route = hollow_map_utils.get_route_by_entry(idx_2_route, '业绩考察点')
-        if route is not None:
-            return current_map.nodes[route.first_step]
+        go_priority_list = [
+            '业绩考察点',
+            '零号银行',
+            '邦布商人',
+            '守门人',
+            '传送点',
+            '不宜久留'
+        ]
 
-        # 有银行的时候 去银行
-        route = hollow_map_utils.get_route_by_entry(idx_2_route, '零号银行')
-        if route is not None:
-            return current_map.nodes[route.first_step]
+        for to_go in go_priority_list:
+            route = hollow_map_utils.get_route_by_entry(idx_2_route, to_go, self._visited_nodes)
+            if route is None:
+                continue
 
-        # 有出口的时候 去出口
-        route = hollow_map_utils.get_route_by_entry(idx_2_route, '守门人')
-        if route is not None:
-            return current_map.nodes[route.first_step]
+            # 两次想要前往同一个节点
+            if self._last_route is not None and hollow_map_utils.is_same_node(self._last_route.node, route.node):
+                last_node = current_map.nodes[self._last_route.first_step]
+                curr_node = current_map.nodes[route.first_step]
+                if (hollow_map_utils.is_same_node(last_node, curr_node)
+                        and route.node.entry.entry_name == '零号业绩点'):
+                    # 代表上一次点了之后 这次依然要点同样的位置 也就是无法通行
+                    self._visited_nodes.append(route.node)
+                    continue
 
-        # 有出口的时候 去出口
-        route = hollow_map_utils.get_route_by_entry(idx_2_route, '传送点')
-        if route is not None:
+            self._last_route = route
             return current_map.nodes[route.first_step]
 
         # 没有特殊点的时候 按副本类型走特定方向
@@ -224,7 +232,18 @@ class HollowContext:
         :param node:
         :return:
         """
-        pass
+        self._visited_nodes.append(node)
+
+        if node.entry.is_tp:
+            self._visited_nodes.clear()
+
+    def update_to_next_level(self) -> None:
+        """
+        前往下一层了 更新信息
+        """
+        self._visited_nodes.clear()
+        self.level_info.level += 1
+        self._last_route = None
 
 
 def __debug_draw_detect():
@@ -248,7 +267,7 @@ def __debug_get_map():
 
     from one_dragon.utils import debug_utils
     img_list = [
-        '_1723823767662',
+        '_1723857069303',
     ]
     for i in img_list:
         img = debug_utils.get_debug_image(i)

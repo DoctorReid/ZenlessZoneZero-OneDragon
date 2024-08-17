@@ -5,14 +5,14 @@ from typing import Optional, List
 class HollowZeroEntry:
 
     def __init__(self, entry_name: str, is_benefit: bool = True, need_step: int = 1,
-                 is_base: bool = False, y_delta: int = 0, can_go: bool = True):
+                 is_base: bool = False, can_go: bool = True, is_tp: bool = False):
         # TODO 要将这里改成不可改
         self.entry_name: str = entry_name
         self.is_benefit: bool = is_benefit
         self.need_step: int = need_step
-        self.is_base: bool = is_base
-        self.y_delta: int = y_delta
-        self.can_go: bool = can_go
+        self.is_base: bool = is_base  # 是否电视机底座
+        self.can_go: bool = can_go  # 是否可同行
+        self.is_tp: bool = is_tp  # 是否传送点
 
 
 class HallowZeroNormalEventOption:

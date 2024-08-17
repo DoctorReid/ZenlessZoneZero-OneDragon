@@ -10,6 +10,7 @@ from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.back_to_normal_world import BackToNormalWorld
 from zzz_od.operation.compendium.compendium_choose_tab import CompendiumChooseTab
 from zzz_od.operation.compendium.tp_by_compendium import TransportByCompendium
+from zzz_od.operation.hollow_zero.hollow_runner import HollowRunner
 
 
 class HollowZeroApp(ZApplication):
@@ -32,7 +33,7 @@ class HollowZeroApp(ZApplication):
 
     def handle_init(self):
         mission_name = self.ctx.hollow_zero_config.mission_name
-        idx = self.mission_name.find('-')
+        idx = mission_name.find('-')
         if idx != -1:
             self.mission_name = mission_name[idx+1:]
             self.mission_type_name = mission_name[:idx]
@@ -40,7 +41,7 @@ class HollowZeroApp(ZApplication):
             self.mission_name = mission_name
             self.mission_type_name = mission_name
 
-    @operation_node(name='传送', is_start_node=False)
+    @operation_node(name='传送', is_start_node=True)
     def tp(self) -> OperationRoundResult:
         op = TransportByCompendium(self.ctx,
                                    '挑战',
@@ -65,7 +66,7 @@ class HollowZeroApp(ZApplication):
                                            success_wait=1, retry_wait=1)
 
     @node_from(from_name='选择副本类型')
-    @operation_node(name='选择副本', is_start_node=True)
+    @operation_node(name='选择副本')
     def choose_mission(self) -> OperationRoundResult:
         screen = self.screenshot()
         area = self.ctx.screen_loader.get_area('零号空洞-入口', '副本列表')
@@ -83,6 +84,12 @@ class HollowZeroApp(ZApplication):
     def click_deploy(self) -> OperationRoundResult:
         screen = self.screenshot()
         return self.round_by_find_and_click_area(screen, '零号空洞-入口', '出战', success_wait=1, retry_wait=1)
+
+    @node_from(from_name='出战')
+    @operation_node(name='自动运行')
+    def auto_run(self) -> OperationRoundResult:
+        op = HollowRunner(self.ctx)
+        return self.round_by_op(op.execute())
 
 
 def __debug():

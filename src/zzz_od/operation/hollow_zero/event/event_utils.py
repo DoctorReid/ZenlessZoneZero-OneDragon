@@ -1,3 +1,5 @@
+import time
+
 import cv2
 import difflib
 from cv2.typing import MatLike
@@ -98,6 +100,8 @@ def click_rect(op: ZOperation, status: str, rect: Rect, wait: float = 1) -> Oper
     """
     click = op.ctx.controller.click(rect.center)
     if click:
+        time.sleep(0.1)
+        click_empty(op)
         return op.round_success(status, wait=wait)
     else:
         return op.round_retry(f'点击失败 {status}', wait=1)

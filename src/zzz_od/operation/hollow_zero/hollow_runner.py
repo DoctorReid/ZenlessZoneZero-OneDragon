@@ -17,7 +17,7 @@ from zzz_od.operation.hollow_zero.event.confirm_resonium import ConfirmResonium
 from zzz_od.operation.hollow_zero.event.critical_stage import CriticalStage
 from zzz_od.operation.hollow_zero.event.normal_event_handler import NormalEventHandler
 from zzz_od.operation.hollow_zero.event.remove_corruption import RemoveCorruption
-from zzz_od.operation.hollow_zero.event.resonium_store import ResoniumStore
+from zzz_od.operation.hollow_zero.event.bamboo_merchant import BambooMerchant
 from zzz_od.operation.hollow_zero.event.swift_supply import SwiftSupply
 from zzz_od.operation.hollow_zero.event.upgrade_resonium import UpgradeResonium
 from zzz_od.operation.hollow_zero.hollow_battle import HollowBattle
@@ -36,8 +36,8 @@ class HollowRunner(ZOperation):
         self._special_event_handlers: dict[str, Type] = {
             HollowZeroSpecialEvent.CALL_FOR_SUPPORT.value.event_name: CallForSupport,
 
-            HollowZeroSpecialEvent.RESONIUM_STORE_1.value.event_name: ResoniumStore,
-            HollowZeroSpecialEvent.RESONIUM_STORE_2.value.event_name: ResoniumStore,
+            HollowZeroSpecialEvent.RESONIUM_STORE_1.value.event_name: BambooMerchant,
+            HollowZeroSpecialEvent.RESONIUM_STORE_2.value.event_name: BambooMerchant,
 
             HollowZeroSpecialEvent.RESONIUM_CHOOSE.value.event_name: ChooseResonium,
             HollowZeroSpecialEvent.RESONIUM_CONFIRM_1.value.event_name: ConfirmResonium,
@@ -52,6 +52,7 @@ class HollowRunner(ZOperation):
             HollowZeroSpecialEvent.CRITICAL_STAGE.value.event_name: CriticalStage,
             HollowZeroSpecialEvent.IN_BATTLE.value.event_name: HollowBattle,
         }
+        self._last_save_image_time: float = 0
 
     @operation_node(name='画面识别', is_start_node=True)
     def check_screen(self) -> OperationRoundResult:
@@ -107,16 +108,26 @@ class HollowRunner(ZOperation):
         """
         next_to_move: HollowZeroMapNode = self.ctx.hollow.get_next_to_move(current_map)
         if next_to_move is None:
-            from one_dragon.utils import debug_utils
-            # file_name = debug_utils.save_debug_image(screen, prefix='pathfinding_fail')
-            file_name = 'fake'
-            log.error('自动寻路失败 请将游戏截图反馈给作者 %s', file_name)
+            self._save_debug_image(screen)
             return self.round_retry('自动寻路失败')
 
         self.ctx.controller.click(next_to_move.pos.center)
         self.ctx.hollow.update_context_after_move(next_to_move)
 
         return self.round_wait(wait=1)
+
+    def _save_debug_image(self, screen: MatLike) -> None:
+        """
+        保存图片用于优化模型
+        """
+        if not self.ctx.env_config.is_debug:
+            return
+        now = time.time()
+        if now - self._last_save_image_time < 1:
+            return
+        self._last_save_image_time = now
+        from one_dragon.utils import debug_utils
+        debug_utils.save_debug_image(screen, prefix='pathfinding_fail')
 
 
 def __debug():

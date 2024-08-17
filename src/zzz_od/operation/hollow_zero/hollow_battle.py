@@ -107,7 +107,8 @@ class HollowBattle(ZOperation):
             self.ctx.controller.turn_by_distance(+50)
             return self.round_wait(wait=0.5)
         else:
-            self.ctx.controller.move_w(press=1, press_time=0.5, release=True)
+            press_time = self.ctx.battle.last_check_distance / 7.2  # 朱鸢测出来的速度
+            self.ctx.controller.move_w(press=True, press_time=press_time, release=True)
             return self.round_wait(wait=0.5)
 
     @node_from(from_name='识别特殊移动', status=STATUS_NO_NEED_SPECIAL_MOVE)
@@ -126,6 +127,7 @@ class HollowBattle(ZOperation):
         screen = self.screenshot()
 
         auto_battle_utils.run_screen_check(self, screen, now,
+                                           check_battle_end_normal_result=True,
                                            check_battle_end_hollow_result=True,
                                            check_battle_end_hollow_bag=True,
                                            check_distance=True)
@@ -133,13 +135,20 @@ class HollowBattle(ZOperation):
         return self.round_wait(wait=self.ctx.battle_assistant_config.screenshot_interval)
 
     @node_from(from_name='自动战斗', status='零号空洞-挑战结果')
-    @operation_node(name='战斗结束')
+    @operation_node(name='战斗结果-确定')
     def after_battle(self) -> OperationRoundResult:
         self.node_max_retry_times = 5  # 战斗结束恢复重试次数
         screen = self.screenshot()
         area = self.ctx.screen_loader.get_area('零号空洞-事件', '战斗结果-确定')
         return self.round_by_ocr_and_click(screen, '确定', area=area,
                                            success_wait=1, retry_wait=1)
+
+    @node_from(from_name='战斗结果-确定')
+    @operation_node(name='更新楼层信息')
+    def update_level_info(self) -> OperationRoundResult:
+        if self.is_critical_stage:
+            self.ctx.hollow.update_to_next_level()
+        return self.round_success()
 
     def _check_distance(self, screen: MatLike) -> None:
         mr = self.ctx.battle.check_battle_distance(screen)
