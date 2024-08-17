@@ -13,7 +13,7 @@ class HollowZeroChallengeConfig(YamlConfig):
             self,
             module_name,
             sub_dir=['hollow_zero_challenge'],
-            is_mock=is_mock, sample=False
+            is_mock=is_mock, sample=True, copy_from_sample=True,
         )
 
         self.old_module_name: str = self.module_name
@@ -75,11 +75,21 @@ def get_all_hollow_zero_challenge_config() -> List[HollowZeroChallengeConfig]:
     config_list: List[HollowZeroChallengeConfig] = []
     dir_path = os_utils.get_path_under_work_dir('config', 'hollow_zero_challenge')
     config_name_list = os.listdir(dir_path)
+    existed_module_set = set()
     for config_name in config_name_list:
         if not config_name.endswith('.yml'):
             continue
+        if config_name.endswith('.sample.yml'):
+            module_name = config_name[:-11]
+        else:
+            module_name = config_name[:-4]
+
+        if module_name in existed_module_set:
+            continue
+        existed_module_set.add(module_name)
+
         try:
-            config = HollowZeroChallengeConfig(config_name[:-4])
+            config = HollowZeroChallengeConfig(module_name)
             config_list.append(config)
         except Exception:
             log.error('配置文件读取错误 跳过 %s', config_name)

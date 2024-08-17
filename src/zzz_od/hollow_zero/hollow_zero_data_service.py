@@ -102,9 +102,9 @@ class HallowZeroDataService:
         except Exception:
             log.error(f'文件读取失败 {file_path}', exc_info=True)
 
-    def match_resonium(self, category_name: str, resonium_name: str) -> Optional[Resonium]:
+    def match_resonium_by_ocr(self, cate_ocr: str, name_str: str) -> Optional[Resonium]:
         category_list = [gt(i) for i in self.resonium_cate_list]
-        results = difflib.get_close_matches(category_name, category_list, n=1)
+        results = difflib.get_close_matches(cate_ocr, category_list, n=1)
 
         if results is None or len(results) == 0:
             return None
@@ -113,7 +113,7 @@ class HallowZeroDataService:
         resonium_list = self.cate_2_resonium[self.resonium_cate_list[category_idx]]
 
         resonium_name_list = [gt(i.name) for i in resonium_list]
-        results = difflib.get_close_matches(resonium_name, resonium_name_list, n=1)
+        results = difflib.get_close_matches(name_str, resonium_name_list, n=1)
 
         if results is None or len(results) == 0:
             return None

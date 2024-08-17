@@ -1,3 +1,1080 @@
-- category: "通用"
-  name: "测试"
+- category: "契合"
+  name: "充盈电鸣"
+  level: "N"
+
+- category: "契合"
+  name: "巅峰猎手"
+  level: "N"
+
+- category: "契合"
+  name: "火力全开"
+  level: "N"
+
+- category: "契合"
+  name: "在我的BGM里"
+  level: "N"
+
+- category: "契合"
+  name: "肌肉狂欢"
+  level: "N"
+
+- category: "契合"
+  name: "熊熊怒火"
+  level: "N"
+
+- category: "契合"
+  name: "邦布赐予我力量"
+  level: "N"
+
+- category: "契合"
+  name: "烈锤火花"
+  level: "N"
+
+- category: "契合"
+  name: "冰冷逐客令"
+  level: "N"
+
+- category: "契合"
+  name: "对敌型起床气"
+  level: "N"
+
+- category: "契合"
+  name: "游刃有余"
+  level: "N"
+
+- category: "契合"
+  name: "热情大扫除"
+  level: "N"
+
+- category: "契合"
+  name: "天衣无缝"
+  level: "N"
+
+- category: "契合"
+  name: "砥砺同行"
+  level: "N"
+
+- category: "契合"
+  name: "强攻战术交流"
+  level: "N"
+
+- category: "契合"
+  name: "击破战术交流"
+  level: "N"
+
+- category: "契合"
+  name: "异常战术交流"
+  level: "N"
+
+- category: "契合"
+  name: "支援战术交流"
+  level: "N"
+
+- category: "契合"
+  name: "防护战术交流"
+  level: "N"
+
+- category: "邦布"
+  name: "鲨牙布"
+  level: "S"
+
+- category: "邦布"
+  name: "阿全"
+  level: "S"
+
+- category: "邦布"
+  name: "巴特勒"
+  level: "S"
+
+- category: "邦布"
+  name: "艾米莉安"
+  level: "S"
+
+- category: "邦布"
+  name: "飙速布"
+  level: "S"
+
+- category: "邦布"
+  name: "插头布"
+  level: "S"
+
+- category: "邦布"
+  name: "共鸣布"
+  level: "S"
+
+- category: "邦布"
+  name: "左轮布"
+  level: "S"
+
+- category: "邦布"
+  name: "企鹅布"
   level: "A"
+
+- category: "邦布"
+  name: "招财布"
+  level: "A"
+
+- category: "邦布"
+  name: "寻宝布"
+  level: "A"
+
+- category: "邦布"
+  name: "扑击布"
+  level: "A"
+
+- category: "邦布"
+  name: "纸壳布"
+  level: "A"
+
+- category: "邦布"
+  name: "纸袋布"
+  level: "A"
+
+- category: "邦布"
+  name: "泪眼布"
+  level: "A"
+
+- category: "邦布"
+  name: "果核布"
+  level: "A"
+
+- category: "邦布"
+  name: "飞靶布"
+  level: "A"
+
+- category: "邦布"
+  name: "电击布"
+  level: "A"
+
+- category: "邦布"
+  name: "磁力布"
+  level: "A"
+
+- category: "邦布"
+  name: "气压布"
+  level: "A"
+
+- category: "邦布"
+  name: "恶魔布"
+  level: "A"
+
+- category: "通用"
+  name: "殷红之杯"
+  level: "S"
+
+- category: "通用"
+  name: "勇者披风"
+  level: "A"
+
+- category: "通用"
+  name: "猫毛针梳"
+  level: "A"
+
+- category: "通用"
+  name: "大袋食盐"
+  level: "A"
+
+- category: "通用"
+  name: "决斗邀请函"
+  level: "A"
+
+- category: "通用"
+  name: "保湿面膜"
+  level: "A"
+
+- category: "通用"
+  name: "电蚊拍"
+  level: "A"
+
+- category: "通用"
+  name: "出刃刀"
+  level: "A"
+
+- category: "通用"
+  name: "伴郎领结"
+  level: "A"
+
+- category: "通用"
+  name: "篮球战术板"
+  level: "A"
+
+- category: "通用"
+  name: "热水壶"
+  level: "A"
+
+- category: "通用"
+  name: "强效杀虫剂"
+  level: "A"
+
+- category: "通用"
+  name: "果蔬刨皮器"
+  level: "A"
+
+- category: "通用"
+  name: "枯枝弹弓"
+  level: "A"
+
+- category: "通用"
+  name: "一串狗牌"
+  level: "A"
+
+- category: "通用"
+  name: "奇迹星辉"
+  level: "A"
+
+- category: "通用"
+  name: "香氛蜡烛"
+  level: "A"
+
+- category: "通用"
+  name: "古旧怀表"
+  level: "A"
+
+- category: "通用"
+  name: "多功能军刀"
+  level: "A"
+
+- category: "通用"
+  name: "变焦镜头"
+  level: "A"
+
+- category: "通用"
+  name: "一次性手套"
+  level: "A"
+
+- category: "通用"
+  name: "导游旗"
+  level: "B"
+
+- category: "诡术"
+  name: "感应扑克"
+  level: "SS"
+
+- category: "诡术"
+  name: "漆黑斗篷"
+  level: "SS"
+
+- category: "诡术"
+  name: "华丽手杖"
+  level: "SS"
+
+- category: "诡术"
+  name: "催眠怀表"
+  level: "SS"
+
+- category: "诡术"
+  name: "机关鸽子"
+  level: "SS"
+
+- category: "诡术"
+  name: "神奇礼帽"
+  level: "SS"
+
+- category: "诡术"
+  name: "燃烧玫瑰"
+  level: "SS"
+
+- category: "诡术"
+  name: "魔术手套"
+  level: "SS"
+
+- category: "研究"
+  name: "过载分流"
+  level: "S"
+
+- category: "研究"
+  name: "资源置换"
+  level: "S"
+
+- category: "研究"
+  name: "本能激发"
+  level: "S"
+
+- category: "协助"
+  name: "迷你雪橇"
+  level: "SS"
+
+- category: "协助"
+  name: "木天蓼球"
+  level: "SS"
+
+- category: "协助"
+  name: "羽毛逗猫棒"
+  level: "S"
+
+- category: "协助"
+  name: "发声铃"
+  level: "S"
+
+- category: "协助"
+  name: "兔兔不倒翁"
+  level: "S"
+
+- category: "协助"
+  name: "激光笔"
+  level: "A"
+
+- category: "协助"
+  name: "磨牙玩具"
+  level: "A"
+
+- category: "协助"
+  name: "狗狗飞盘"
+  level: "A"
+
+- category: "协助"
+  name: "金鱼躲避屋"
+  level: "A"
+
+- category: "协助"
+  name: "聚合徽标"
+  level: "A"
+
+- category: "协助"
+  name: "波浪抓板"
+  level: "B"
+
+- category: "协助"
+  name: "冲刺隧道"
+  level: "B"
+
+- category: "协助"
+  name: "疯跑滚轮"
+  level: "B"
+
+- category: "协助"
+  name: "快乐转盘"
+  level: "B"
+
+- category: "空洞"
+  name: "猪猪存钱罐"
+  level: "S"
+
+- category: "空洞"
+  name: "招财猫"
+  level: "S"
+
+- category: "空洞"
+  name: "筹码纸币"
+  level: "S"
+
+- category: "空洞"
+  name: "邦布抱枕"
+  level: "S"
+
+- category: "空洞"
+  name: "积木城堡"
+  level: "S"
+
+- category: "空洞"
+  name: "搞怪闹钟"
+  level: "S"
+
+- category: "空洞"
+  name: "附赠CD"
+  level: "S"
+
+- category: "空洞"
+  name: "精选盲盒"
+  level: "S"
+
+- category: "空洞"
+  name: "玩具听诊器"
+  level: "S"
+
+- category: "空洞"
+  name: "珂蕾妞的破拆锤"
+  level: "S"
+
+- category: "空洞"
+  name: "瓶中幸运星"
+  level: "A"
+
+- category: "空洞"
+  name: "名刀图册"
+  level: "A"
+
+- category: "空洞"
+  name: "植物标本册"
+  level: "A"
+
+- category: "空洞"
+  name: "玩具光剑"
+  level: "A"
+
+- category: "空洞"
+  name: "战斗陀螺"
+  level: "A"
+
+- category: "空洞"
+  name: "昆虫图册"
+  level: "A"
+
+- category: "空洞"
+  name: "典藏版卡包"
+  level: "A"
+
+- category: "空洞"
+  name: "多彩手电"
+  level: "A"
+
+- category: "空洞"
+  name: "玩具救护车"
+  level: "A"
+
+- category: "空洞"
+  name: "干纸鹤"
+  level: "A"
+
+- category: "空洞"
+  name: "纸飞机"
+  level: "B"
+
+- category: "空洞"
+  name: "过期会员卡"
+  level: "B"
+
+- category: "空洞"
+  name: "玻璃弹珠"
+  level: "B"
+
+- category: "空洞"
+  name: "迷你沙袋"
+  level: "B"
+
+- category: "空洞"
+  name: "猫耳耳机"
+  level: "B"
+
+- category: "空洞"
+  name: "喷水枪"
+  level: "B"
+
+- category: "空洞"
+  name: "童真泡泡机"
+  level: "B"
+
+- category: "空洞"
+  name: "涂鸦喷漆"
+  level: "B"
+
+- category: "空洞"
+  name: "普通版卡包"
+  level: "B"
+
+- category: "闪避"
+  name: "橄榄球"
+  level: "SS"
+
+- category: "闪避"
+  name: "磁吸飞镖"
+  level: "SS"
+
+- category: "闪避"
+  name: "羽毛球"
+  level: "S"
+
+- category: "闪避"
+  name: "街头滑板"
+  level: "S"
+
+- category: "闪避"
+  name: "运动护目镜"
+  level: "S"
+
+- category: "闪避"
+  name: "绝杀球板"
+  level: "A"
+
+- category: "闪避"
+  name: "瑜伽球"
+  level: "A"
+
+- category: "闪避"
+  name: "轻盈花剑"
+  level: "A"
+
+- category: "闪避"
+  name: "网球拍"
+  level: "A"
+
+- category: "闪避"
+  name: "聚合徽标"
+  level: "A"
+
+- category: "闪避"
+  name: "防护头盔"
+  level: "B"
+
+- category: "闪避"
+  name: "滑雪板"
+  level: "B"
+
+- category: "闪避"
+  name: "气垫运动鞋"
+  level: "B"
+
+- category: "闪避"
+  name: "溜冰鞋"
+  level: "B"
+
+- category: "护盾"
+  name: "战术背包"
+  level: "SS"
+
+- category: "护盾"
+  name: "防暴叉"
+  level: "SS"
+
+- category: "护盾"
+  name: "蓄电甩棍"
+  level: "S"
+
+- category: "护盾"
+  name: "弹性护膝"
+  level: "S"
+
+- category: "护盾"
+  name: "半指手套"
+  level: "S"
+
+- category: "护盾"
+  name: "外骨骼臂甲"
+  level: "A"
+
+- category: "护盾"
+  name: "作战靴"
+  level: "A"
+
+- category: "护盾"
+  name: "朋克皮带"
+  level: "A"
+
+- category: "护盾"
+  name: "防暴头盔"
+  level: "A"
+
+- category: "护盾"
+  name: "聚合徽标"
+  level: "A"
+
+- category: "护盾"
+  name: "战术口罩"
+  level: "B"
+
+- category: "护盾"
+  name: "充气背甲"
+  level: "B"
+
+- category: "护盾"
+  name: "保暖护腕"
+  level: "B"
+
+- category: "护盾"
+  name: "防爆盾"
+  level: "B"
+
+- category: "决斗"
+  name: "陶瓷花瓶"
+  level: "SS"
+
+- category: "决斗"
+  name: "充气锤"
+  level: "SS"
+
+- category: "决斗"
+  name: "自制狼牙棒"
+  level: "S"
+
+- category: "决斗"
+  name: "震荡拳套"
+  level: "S"
+
+- category: "决斗"
+  name: "环链重锤"
+  level: "S"
+
+- category: "决斗"
+  name: "称手板砖"
+  level: "A"
+
+- category: "决斗"
+  name: "观众席板凳"
+  level: "A"
+
+- category: "决斗"
+  name: "木工小锤"
+  level: "A"
+
+- category: "决斗"
+  name: "T型拐"
+  level: "A"
+
+- category: "决斗"
+  name: "聚合徽标"
+  level: "A"
+
+- category: "决斗"
+  name: "庆典锣"
+  level: "B"
+
+- category: "决斗"
+  name: "双节棍"
+  level: "B"
+
+- category: "决斗"
+  name: "合金指虎"
+  level: "B"
+
+- category: "决斗"
+  name: "棒球棍"
+  level: "B"
+
+- category: "能量"
+  name: "炸弹可乐"
+  level: "SS"
+
+- category: "能量"
+  name: "汀曼精选咖啡"
+  level: "SS"
+
+- category: "能量"
+  name: "炸毛牛磺酸"
+  level: "S"
+
+- category: "能量"
+  name: "红男爵隐藏款"
+  level: "S"
+
+- category: "能量"
+  name: "霓虹可乐"
+  level: "S"
+
+- category: "能量"
+  name: "奶牛大尉"
+  level: "A"
+
+- category: "能量"
+  name: "橙苏鲁"
+  level: "A"
+
+- category: "能量"
+  name: "电瀑"
+  level: "A"
+
+- category: "能量"
+  name: "碳卡烤肉味"
+  level: "A"
+
+- category: "能量"
+  name: "聚合徽标"
+  level: "A"
+
+- category: "能量"
+  name: "白仔益生菌"
+  level: "B"
+
+- category: "能量"
+  name: "柠猛小子"
+  level: "B"
+
+- category: "能量"
+  name: "红男爵-青柠味"
+  level: "B"
+
+- category: "能量"
+  name: "尖笑"
+  level: "B"
+
+- category: "暴击"
+  name: "高爆于雷"
+  level: "SS"
+
+- category: "暴击"
+  name: "轻质枪托"
+  level: "SS"
+
+- category: "暴击"
+  name: "狙击镜"
+  level: "S"
+
+- category: "暴击"
+  name: "短锯霰弹枪"
+  level: "S"
+
+- category: "暴击"
+  name: "武器箱"
+  level: "S"
+
+- category: "暴击"
+  name: "RPG弹头"
+  level: "A"
+
+- category: "暴击"
+  name: "加特林机枪"
+  level: "A"
+
+- category: "暴击"
+  name: "恐慌雷管"
+  level: "A"
+
+- category: "暴击"
+  name: "战术目镜"
+  level: "A"
+
+- category: "暴击"
+  name: "聚合徽标"
+  level: "A"
+
+- category: "暴击"
+  name: "清算使者"
+  level: "B"
+
+- category: "暴击"
+  name: "备用弹夹"
+  level: "B"
+
+- category: "暴击"
+  name: "枪口补偿器"
+  level: "B"
+
+- category: "暴击"
+  name: "激光瞄具"
+  level: "B"
+
+- category: "支援"
+  name: "动态传感器"
+  level: "SS"
+
+- category: "支援"
+  name: "战术分析仪"
+  level: "SS"
+
+- category: "支援"
+  name: "破门器"
+  level: "S"
+
+- category: "支援"
+  name: "液压缓冲器"
+  level: "S"
+
+- category: "支援"
+  name: "高频通讯器"
+  level: "S"
+
+- category: "支援"
+  name: "以太反应装置"
+  level: "A"
+
+- category: "支援"
+  name: "冲力反馈装置"
+  level: "A"
+
+- category: "支援"
+  name: "动态校准装置"
+  level: "A"
+
+- category: "支援"
+  name: "全息诱饵"
+  level: "A"
+
+- category: "支援"
+  name: "聚合徽标"
+  level: "A"
+
+- category: "支援"
+  name: "活性传递装置"
+  level: "B"
+
+- category: "支援"
+  name: "手动发电器"
+  level: "B"
+
+- category: "支援"
+  name: "应急强化装置"
+  level: "B"
+
+- category: "支援"
+  name: "备用护盾发生器"
+  level: "B"
+
+- category: "感电"
+  name: "引雷针"
+  level: "SS"
+
+- category: "感电"
+  name: "户外蓄电池"
+  level: "SS"
+
+- category: "感电"
+  name: "增幅手环"
+  level: "S"
+
+- category: "感电"
+  name: "动感电击枪"
+  level: "S"
+
+- category: "感电"
+  name: "释电手套"
+  level: "S"
+
+- category: "感电"
+  name: "电蚊拍"
+  level: "A"
+
+- category: "感电"
+  name: "防身电击器"
+  level: "A"
+
+- category: "感电"
+  name: "雷光电戟"
+  level: "A"
+
+- category: "感电"
+  name: "特斯拉球"
+  level: "A"
+
+- category: "感电"
+  name: "聚合徽标"
+  level: "A"
+
+- category: "感电"
+  name: "手摇发电机"
+  level: "B"
+
+- category: "感电"
+  name: "EMP手雷"
+  level: "B"
+
+- category: "感电"
+  name: "电霆鞭"
+  level: "B"
+
+- category: "感电"
+  name: "导电线圈"
+  level: "B"
+
+- category: "冻结"
+  name: "冰柱发射器"
+  level: "SS"
+
+- category: "冻结"
+  name: "冰温瓶"
+  level: "SS"
+
+- category: "冻结"
+  name: "手摇刨冰机"
+  level: "S"
+
+- category: "冻结"
+  name: "制冰机"
+  level: "S"
+
+- category: "冻结"
+  name: "冰触手套"
+  level: "S"
+
+- category: "冻结"
+  name: "便携制冰机"
+  level: "A"
+
+- category: "冻结"
+  name: "冰球格"
+  level: "A"
+
+- category: "冻结"
+  name: "冰屑枪"
+  level: "A"
+
+- category: "冻结"
+  name: "急冷冻喷雾"
+  level: "A"
+
+- category: "冻结"
+  name: "聚合徽标"
+  level: "A"
+
+- category: "冻结"
+  name: "可爱冰垫"
+  level: "B"
+
+- category: "冻结"
+  name: "冷藏箱"
+  level: "B"
+
+- category: "冻结"
+  name: "冰袋"
+  level: "B"
+
+- category: "冻结"
+  name: "高档冰桶"
+  level: "B"
+
+- category: "强袭"
+  name: "冲击电钻"
+  level: "SS"
+
+- category: "强袭"
+  name: "锯木盘"
+  level: "SS"
+
+- category: "强袭"
+  name: "拔钉钳"
+  level: "S"
+
+- category: "强袭"
+  name: "美工刀"
+  level: "S"
+
+- category: "强袭"
+  name: "破窗锤"
+  level: "S"
+
+- category: "强袭"
+  name: "园艺剪"
+  level: "A"
+
+- category: "强袭"
+  name: "轻型扳手"
+  level: "A"
+
+- category: "强袭"
+  name: "密齿锉刀"
+  level: "A"
+
+- category: "强袭"
+  name: "滚筒刷"
+  level: "A"
+
+- category: "强袭"
+  name: "聚合徽标"
+  level: "A"
+
+- category: "强袭"
+  name: "长柄草叉"
+  level: "B"
+
+- category: "强袭"
+  name: "伐木斧"
+  level: "B"
+
+- category: "强袭"
+  name: "钢制于锯"
+  level: "B"
+
+- category: "强袭"
+  name: "尖头铁锹"
+  level: "B"
+
+- category: "引燃"
+  name: "老式火柴盒"
+  level: "SS"
+
+- category: "引燃"
+  name: "电子烧烤架"
+  level: "SS"
+
+- category: "引燃"
+  name: "煤油灯"
+  level: "S"
+
+- category: "引燃"
+  name: "怒焰喷射器"
+  level: "S"
+
+- category: "引燃"
+  name: "熔火手套"
+  level: "S"
+
+- category: "引燃"
+  name: "卡式炉"
+  level: "A"
+
+- category: "引燃"
+  name: "果木炭"
+  level: "A"
+
+- category: "引燃"
+  name: "燃烧瓶"
+  level: "A"
+
+- category: "引燃"
+  name: "火枪喷灯"
+  level: "A"
+
+- category: "引燃"
+  name: "聚合鸣徽"
+  level: "A"
+
+- category: "引燃"
+  name: "固体酒精"
+  level: "B"
+
+- category: "引燃"
+  name: "脉冲点火器"
+  level: "B"
+
+- category: "引燃"
+  name: "电子火炬"
+  level: "B"
+
+- category: "引燃"
+  name: "奢华火机"
+  level: "B"
+
+- category: "以太"
+  name: "废旧鱼叉枪"
+  level: "SS"
+
+- category: "以太"
+  name: "紊乱麻醉弹"
+  level: "SS"
+
+- category: "以太"
+  name: "捕捉网发射器"
+  level: "S"
+
+- category: "以太"
+  name: "锈蚀音擎"
+  level: "S"
+
+- category: "以太"
+  name: "废旧増幅器"
+  level: "S"
+
+- category: "以太"
+  name: "无效转接器"
+  level: "A"
+
+- category: "以太"
+  name: "旧化过滤器"
+  level: "A"
+
+- category: "以太"
+  name: "抑制手环"
+  level: "A"
+
+- category: "以太"
+  name: "裂损驱动"
+  level: "A"
+
+- category: "以太"
+  name: "聚合徽标"
+  level: "A"
+
+- category: "以太"
+  name: "故障干扰器"
+  level: "B"
+
+- category: "以太"
+  name: "破损芯片"
+  level: "B"
+
+- category: "以太"
+  name: "空电池"
+  level: "B"
+
+- category: "以太"
+  name: "停滞限时器"
+  level: "B"
+
