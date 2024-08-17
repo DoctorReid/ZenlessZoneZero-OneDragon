@@ -237,6 +237,9 @@ class HollowContext:
         if node.entry.is_tp:
             self._visited_nodes.clear()
 
+            if node.entry.entry_name == '传送点':
+                self.level_info.phase += 1
+
     def update_to_next_level(self) -> None:
         """
         前往下一层了 更新信息
@@ -244,6 +247,12 @@ class HollowContext:
         self._visited_nodes.clear()
         self.level_info.level += 1
         self._last_route = None
+
+    def init_level_info(self, mission_type_name: str, mission_name: str) -> None:
+        """
+        重新开始空洞时 初始化空洞的信息
+        """
+        self.level_info = HollowLevelInfo(mission_type_name, mission_name, 1, 1)
 
 
 def __debug_draw_detect():
@@ -267,7 +276,7 @@ def __debug_get_map():
 
     from one_dragon.utils import debug_utils
     img_list = [
-        '_1723857069303',
+        '_1723877563267',
     ]
     for i in img_list:
         img = debug_utils.get_debug_image(i)

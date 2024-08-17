@@ -1,0 +1,11 @@
+- entry_name: "资源回收小组"
+  event_name: "事件资源回收小组"
+  lcs_percent: 0.6
+  options:
+    - option_name: "买1个物资箱"
+      desc: "花费200齿轮币"
+    - option_name: "直接抢一个物资箱"
+      desc: "损失5%生命值"
+    - option_name: "花费时间求情拿1个物资箱"
+      desc: "损失5%压力值+20"
+    - option_name: "离开"

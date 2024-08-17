@@ -88,6 +88,8 @@ class HollowZeroApp(ZApplication):
     @node_from(from_name='出战')
     @operation_node(name='自动运行')
     def auto_run(self) -> OperationRoundResult:
+        self.ctx.hollow.init_level_info(self.mission_type_name, self.mission_name)
+        self.ctx.hollow.init_event_yolo(True)
         op = HollowRunner(self.ctx)
         return self.round_by_op(op.execute())
 

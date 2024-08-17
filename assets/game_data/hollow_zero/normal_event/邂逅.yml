@@ -25,3 +25,13 @@
   event_name: "面子的力量"
   options:
     - option_name: "告知实情"
+
+- entry_name: "邂逅"
+  event_name: "休息是为了更好地工作"
+  lcs_percent: 0.5
+  options:
+    - option_name: "好吧那休息一会儿"
+    - option_name: "醒醒！艾莲！！！"
+    - option_name: "艾莲？该出发了！"
+      desc: "艾莲不参加下1场战斗，归队后回复生命值并提升伤害"
+

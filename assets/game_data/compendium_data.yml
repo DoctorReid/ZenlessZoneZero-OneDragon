@@ -93,13 +93,13 @@
         - mission_type_name: "资质考核"
         - mission_type_name: "旧都列车"
           mission_list:
+            - mission_name: "旧都列车-外围"
+            - mission_name: "旧都列车-前线"
             - mission_name: "旧都列车-内部"
+            - mission_name: "旧都列车-腹地"
+            - mission_name: "旧都列车-核心"
         - mission_type_name: "施工废墟"
-          mission_list:
-            - mission_name: "施工废墟-内部"
         - mission_type_name: "巨厦遗骸"
-          mission_list:
-            - mission_name: "巨厦遗骸-内部"
     - category_name: "式舆防卫战"
       mission_type_list:
         - mission_type_name: "稳定节点"
