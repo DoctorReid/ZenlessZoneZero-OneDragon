@@ -22,7 +22,7 @@ class HollowZeroConfig(YamlConfig):
 
     @property
     def challenge_config(self) -> str:
-        return self.get('challenge_config', None)
+        return self.get('challenge_config', '以太')
 
     @challenge_config.setter
     def challenge_config(self, new_value: str):
