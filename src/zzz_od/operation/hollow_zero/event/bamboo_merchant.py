@@ -15,6 +15,7 @@ from zzz_od.operation.zzz_operation import ZOperation
 
 class BambooMerchant(ZOperation):
 
+    STATUS_LEVEL_1: ClassVar[str] = '外层选择'
     NOT_TO_BUY: ClassVar[str] = '不购买'
 
     def __init__(self, ctx: ZContext):
@@ -28,7 +29,29 @@ class BambooMerchant(ZOperation):
             op_name=gt('邦布商人')
         )
 
-    @operation_node(name='鸣徽交易', is_start_node=True)
+    @node_from(from_name='购买后确定')
+    @operation_node(name='画面识别', is_start_node=True)
+    def check_screen(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        area = event_utils.get_event_text_area(self)
+
+        result = self.round_by_ocr(screen, '鸣徽交易', area=area)
+        if result.is_success:
+            return self.round_success(BambooMerchant.STATUS_LEVEL_1)
+
+        result = self.round_by_find_area(screen, '零号空洞-商店', '二级标题-鸣徽交易')
+        if result.is_success:
+            return result
+
+        area = self.ctx.screen_loader.get_area('零号空洞-事件', '底部-选择列表')
+        result = self.round_by_ocr_and_click(screen, '确定', area=area)
+        if result.is_success:
+            return self.round_wait(wait=1)
+
+        return self.round_retry('未知画面', wait=1)
+
+    @node_from(from_name='画面识别', status=STATUS_LEVEL_1)
+    @operation_node(name='鸣徽交易')
     def choose_buy(self) -> OperationRoundResult:
         screen = self.screenshot()
         area = event_utils.get_event_text_area(self)
@@ -43,8 +66,8 @@ class BambooMerchant(ZOperation):
 
         return self.round_retry(wait=1)
 
+    @node_from(from_name='画面识别', status='二级标题-鸣徽交易')
     @node_from(from_name='鸣徽交易')
-    @node_from(from_name='购买后确定')
     @operation_node(name='选择鸣徽')
     def choose_item(self) -> OperationRoundResult:
         screen = self.screenshot()

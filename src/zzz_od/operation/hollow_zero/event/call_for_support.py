@@ -21,8 +21,6 @@ class CallForSupport(ZOperation):
     STATUS_NO_NEED: ClassVar[str] = '无需支援'
     OPT_3: ClassVar[str] = '接替小组成员'
     # 每个角色的不接受选项不一样
-    OPT_4: ClassVar[str] = '下次再依靠你'  # 本
-    OPT_5: ClassVar[str] = '这次没有研究的机会'  # 格蕾丝
 
     def __init__(self, ctx: ZContext):
         """
@@ -132,11 +130,14 @@ class CallForSupport(ZOperation):
         screen = self.screenshot()
         area = event_utils.get_event_text_area(self)
         opts = [
-            CallForSupport.OPT_4,
-            CallForSupport.OPT_5
+            '下次再依靠你',  # 本
+            '这次没有研究的机会',  # 格蕾丝
+            '先不劳烦青衣了',  # 青衣
+            '暂不需要援助',  # 丽娜
+            '目前不需要支援',  # 派派
         ]
         for opt in opts:
-            result = self.round_by_ocr_and_click(screen, opt, area=area, lcs_percent=1)
+            result = self.round_by_ocr_and_click(screen, opt, area=area, lcs_percent=0.5)
             if result.is_success:
                  return self.round_success(result.status, wait=2)
         return self.round_retry('未配置对应的代理人选项', wait=1)
