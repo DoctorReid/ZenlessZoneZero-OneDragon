@@ -141,7 +141,7 @@ def check_dialog_confirm(op: ZOperation, screen: MatLike) -> Optional[str]:
 
 def check_bottom_choose(op: ZOperation, screen: MatLike) -> Optional[str]:
     """
-    底部是否有 选择、确认、催化
+    底部是否有 选择、确认、催化、丢弃
     - 鸣徽选择、催化
     - 奖励确认
     - 邦布选择
@@ -155,6 +155,7 @@ def check_bottom_choose(op: ZOperation, screen: MatLike) -> Optional[str]:
         HollowZeroSpecialEvent.RESONIUM_CONFIRM_1.value,
         HollowZeroSpecialEvent.RESONIUM_CONFIRM_2.value,
         HollowZeroSpecialEvent.RESONIUM_UPGRADE.value,
+        HollowZeroSpecialEvent.RESONIUM_DROP.value,
         HollowZeroSpecialEvent.SWIFT_SUPPLY_LIFE.value,
         HollowZeroSpecialEvent.SWIFT_SUPPLY_COIN.value,
         HollowZeroSpecialEvent.SWIFT_SUPPLY_PRESS.value

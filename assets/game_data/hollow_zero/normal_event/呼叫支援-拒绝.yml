@@ -1,0 +1,6 @@
+- entry_name: "呼叫支援"
+  event_name: "这次没有研究的机会"
+  options:
+    - option_name: "随机获得一枚S级或A级冻结类型鸣徽"
+    - option_name: "随机获得一枚S级或A级能量类型鸣微"
+    - option_name: "随机获得一枚S级或A级通用类型鸣徽"
