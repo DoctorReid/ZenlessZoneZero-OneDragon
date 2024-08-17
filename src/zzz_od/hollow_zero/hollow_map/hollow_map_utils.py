@@ -41,7 +41,7 @@ def construct_map_from_yolo_result(detect_result: DetectFrameResult, name_2_entr
             else:  # 旧的是格子类型 那么把底座的范围赋值上去
                 to_merge.pos = pos
         else:
-            node = HollowZeroMapNode(pos, entry)
+            node = HollowZeroMapNode(pos, entry, check_time=detect_result.run_time)
             nodes.append(node)
 
     for node in nodes:
@@ -162,6 +162,8 @@ def merge_map(map_list: List[HollowZeroMap]):
                 elif node.entry.is_base:  # 旧的是格子类型 新的是底座 将底座范围赋值上去
                     to_merge.pos = node.pos
                 elif to_merge.entry.entry_name == '未知' and node.entry.entry_name != '未知':  # 旧的是格子类型 新的也是格子类型 旧的是未知 将新的类型赋值上去
+                    to_merge.entry = node.entry
+                elif to_merge.check_time < node.check_time:  # 旧的是格子类型 新的也是格子类型 新的识别时间更晚 将新的类型赋值上去
                     to_merge.entry = node.entry
             else:
                 nodes.append(node)
@@ -286,7 +288,8 @@ def get_route_in_1_step_benefit(idx_2_route: dict[int, RouteSearchRoute]) -> Opt
     return target
 
 
-def get_route_by_entry(idx_2_route: dict[int, RouteSearchRoute], entry_name: str) -> Optional[RouteSearchRoute]:
+def get_route_by_entry(idx_2_route: dict[int, RouteSearchRoute], entry_name: str,
+                       visited_nodes: List[HollowZeroMapNode]) -> Optional[RouteSearchRoute]:
     """
     根据格子类型找最近能到的路径
     :param idx_2_route:
@@ -294,8 +297,18 @@ def get_route_by_entry(idx_2_route: dict[int, RouteSearchRoute], entry_name: str
     """
     target: Optional[RouteSearchRoute] = None
     for idx, route in idx_2_route.items():
+        node = route.node
         entry = route.node.entry
         if entry is None or entry.entry_name != entry_name:
+            continue
+
+        had_visited: bool = False
+        for visited in visited_nodes:
+            if cal_utils.distance_between(node.pos.center, visited.pos.center) < 100:
+                had_visited = True
+                break
+
+        if had_visited:
             continue
 
         if (target is None
@@ -326,3 +339,10 @@ def get_route_by_direction(idx_2_route: dict[int, RouteSearchRoute], direction: 
             target = route
 
     return target
+
+
+def is_same_node(x: HollowZeroMapNode, y: HollowZeroMapNode) -> bool:
+    """
+    判断两个节点是否同一个节点
+    """
+    return x.entry.entry_name == y.entry.entry_name and cal_utils.distance_between(x.pos.center, y.pos.center) < 100

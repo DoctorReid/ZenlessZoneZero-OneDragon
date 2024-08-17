@@ -3,4 +3,3 @@
   options:
     - option_name: "接受检疫扫描"
     - option_name: "强行闯入通道"
-      wait: 5

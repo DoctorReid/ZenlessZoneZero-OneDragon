@@ -30,6 +30,7 @@
 - entry_name: "门扉禁闭-善战"
 - entry_name: "开启的门"
   need_step: 0
+  is_benefit: false
 - entry_name: "安全区"
 - entry_name: "休息区"
 - entry_name: "失联"
@@ -39,6 +40,7 @@
 - entry_name: "净化室"
 - entry_name: "传送点"
   is_benefit: false
+  is_tp: true
 - entry_name: "真相"
 - entry_name: "通道"
 - entry_name: "巨兽"
@@ -57,6 +59,7 @@
 - entry_name: "活化结晶"
 - entry_name: "守门人"
   is_benefit: false
+  is_tp: true
 - entry_name: "裂隙"
 - entry_name: "紧急撤离点"
 - entry_name: "防卫军后勤站"
@@ -66,8 +69,10 @@
 - entry_name: "当前"
   need_step: 0
 - entry_name: "空白未通行"
+  is_benefit: false
   need_step: 0
 - entry_name: "空白已通行"
+  is_benefit: false
   need_step: 0
 - entry_name: "电视底座绿"
   is_benefit: false
@@ -81,3 +86,8 @@
 - entry_name: "未知"
   is_benefit: false
 - entry_name: "零号银行"
+  is_benefit: false
+- entry_name: "失效节点"
+  need_step: 0
+  is_benefit: false
+- entry_name: "资源回收小组"

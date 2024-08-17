@@ -87,6 +87,7 @@ class BattleContext:
 
         # 识别结果
         self.last_check_end_result: Optional[str] = None
+        self.last_check_distance: float = -1  # 最后一次识别的距离
         self.without_distance_times: int = 0  # 没有显示距离的次数
         self.with_distance_times: int = 0  # 有显示距离的次数
 
@@ -326,6 +327,7 @@ class BattleContext:
         self.last_check_end_result: Optional[str] = None
         self.without_distance_times: int = 0  # 没有显示距离的次数
         self.with_distance_times: int = 0  # 有显示距离的次数
+        self.last_check_distance = -1
 
     def check_screen(self, screen: MatLike, screenshot_time: float,
                      check_battle_end_normal_result: bool = False,
@@ -809,6 +811,7 @@ class BattleContext:
             if agent is None:  # 没有显示角色 就一定没有距离
                 self.without_distance_times += 1
                 self.with_distance_times = 0
+                self.last_check_distance = -1
                 self._check_distance_interval = 5
                 return
 
@@ -844,10 +847,12 @@ class BattleContext:
             mr.data = distance
             self.without_distance_times = 0
             self.with_distance_times += 1
+            self.last_check_distance = distance
             self._check_distance_interval = 1  # 识别到距离的话 减少识别间隔
         else:
             self.without_distance_times += 1
             self.with_distance_times = 0
+            self.last_check_distance = -1
             self._check_distance_interval = 5
 
         return mr

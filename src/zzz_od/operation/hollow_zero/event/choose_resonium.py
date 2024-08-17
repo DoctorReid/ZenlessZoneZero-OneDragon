@@ -1,3 +1,5 @@
+import time
+
 from typing import List
 
 from cv2.typing import MatLike
@@ -40,9 +42,10 @@ class ChooseResonium(ZOperation):
 
         mr = item_list[idx_list[0]]
         self.ctx.controller.click(mr.center)
-        return self.round_success(wait=1)
+        time.sleep(0.1)
+        return self.round_by_click_area('零号空洞-事件', '空白', success_wait=0.9)
 
-    @node_from(from_name='选择')  # 防止识别有问题 兜底随便选一个
+    @node_from(from_name='选择', success=False)  # 防止识别有问题 兜底随便选一个
     @operation_node(name='兜底选择')
     def choose_default(self):
         screen = self.screenshot()

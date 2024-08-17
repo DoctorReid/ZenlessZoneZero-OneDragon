@@ -137,14 +137,25 @@ class HallowZeroDataService:
         for i in input_arr:
             if len(i) == 0:
                 continue
+            split_idx = i.find(' ')
+            if split_idx != -1:
+                cate_name = i[:split_idx]
+                item_name = i[split_idx+1:]
+            else:
+                cate_name = i
+                item_name = ''
+
             is_valid: bool = False
+
             for cate in self.resonium_cate_list:
-                if i == cate:
+                if item_name != '':  # 不可能是分类
+                    break
+                if cate_name == cate:
                     resonium_list.append(i)
                     is_valid = True
                     break
             for r in self.resonium_list:
-                if i == r.name:
+                if cate_name == r.category and item_name == r.name:
                     resonium_list.append(i)
                     is_valid = True
                     break

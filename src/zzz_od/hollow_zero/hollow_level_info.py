@@ -19,4 +19,3 @@ class HollowLevelInfo:
                 and self.mission_type_name == mission_type_name
                 and self.level is not None
                 and self.level == level)
-
