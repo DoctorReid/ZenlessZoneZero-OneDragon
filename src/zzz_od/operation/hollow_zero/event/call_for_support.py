@@ -20,7 +20,9 @@ class CallForSupport(ZOperation):
     STATUS_ACCEPT: ClassVar[str] = '接应支援代理人'
     STATUS_NO_NEED: ClassVar[str] = '无需支援'
     OPT_3: ClassVar[str] = '接替小组成员'
-    OPT_4: ClassVar[str] = '下次再依靠你'
+    # 每个角色的不接受选项不一样
+    OPT_4: ClassVar[str] = '下次再依靠你'  # 本
+    OPT_5: ClassVar[str] = '这次没有研究的机会'  # 格蕾丝
 
     def __init__(self, ctx: ZContext):
         """
@@ -74,7 +76,11 @@ class CallForSupport(ZOperation):
             return self.round_success(CallForSupport.STATUS_NO_NEED)
 
     def _best_match_agent(self, ocr_result: str) -> Optional[Agent]:
-        to_match = ocr_result.replace(gt('响应了求援信息'), '')
+        idx = ocr_result.find('响应')
+        if idx != -1:
+            to_match = ocr_result[:idx]
+        else:
+            to_match = ocr_result
 
         agent_list: List[Agent] = [agent.value for agent in AgentEnum]
         target_list: List[str] = [gt(agent.value.agent_name) for agent in AgentEnum]
@@ -121,13 +127,19 @@ class CallForSupport(ZOperation):
         return event_utils.click_empty(self)
 
     @node_from(from_name='画面识别', status=STATUS_NO_NEED)
-    @operation_node(name='下次再依靠你')
-    def wait_next(self) -> OperationRoundResult:
+    @operation_node(name='拒绝')
+    def reject_agent(self) -> OperationRoundResult:
         screen = self.screenshot()
         area = event_utils.get_event_text_area(self)
-        return self.round_by_ocr_and_click(screen, CallForSupport.OPT_4,
-                                           area=area, lcs_percent=1,
-                                           success_wait=2, retry_wait=1)
+        opts = [
+            CallForSupport.OPT_4,
+            CallForSupport.OPT_5
+        ]
+        for opt in opts:
+            result = self.round_by_ocr_and_click(screen, opt, area=area, lcs_percent=1)
+            if result.is_success:
+                 return self.round_success(result.status, wait=2)
+        return self.round_retry('未配置对应的代理人选项', wait=1)
 
 
 

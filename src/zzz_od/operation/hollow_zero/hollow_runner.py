@@ -15,6 +15,7 @@ from zzz_od.operation.hollow_zero.event.call_for_support import CallForSupport
 from zzz_od.operation.hollow_zero.event.choose_resonium import ChooseResonium
 from zzz_od.operation.hollow_zero.event.confirm_resonium import ConfirmResonium
 from zzz_od.operation.hollow_zero.event.critical_stage import CriticalStage
+from zzz_od.operation.hollow_zero.event.drop_resonium import DropResonium
 from zzz_od.operation.hollow_zero.event.normal_event_handler import NormalEventHandler
 from zzz_od.operation.hollow_zero.event.remove_corruption import RemoveCorruption
 from zzz_od.operation.hollow_zero.event.bamboo_merchant import BambooMerchant
@@ -43,6 +44,7 @@ class HollowRunner(ZOperation):
             HollowZeroSpecialEvent.RESONIUM_CONFIRM_1.value.event_name: ConfirmResonium,
             HollowZeroSpecialEvent.RESONIUM_CONFIRM_2.value.event_name: ConfirmResonium,
             HollowZeroSpecialEvent.RESONIUM_UPGRADE.value.event_name: UpgradeResonium,
+            HollowZeroSpecialEvent.RESONIUM_DROP.value.event_name: DropResonium,
             HollowZeroSpecialEvent.SWIFT_SUPPLY_LIFE.value.event_name: SwiftSupply,
             HollowZeroSpecialEvent.SWIFT_SUPPLY_COIN.value.event_name: SwiftSupply,
             HollowZeroSpecialEvent.SWIFT_SUPPLY_PRESS.value.event_name: SwiftSupply,
