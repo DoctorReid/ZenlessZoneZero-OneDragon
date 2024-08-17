@@ -238,14 +238,17 @@ class HollowContext:
             self._visited_nodes.clear()
 
             if node.entry.entry_name == '传送点':
-                self.level_info.phase += 1
+                if self.level_info is not None and self.level_info.phase is not None:
+                    self.level_info.phase += 1
 
     def update_to_next_level(self) -> None:
         """
         前往下一层了 更新信息
         """
         self._visited_nodes.clear()
-        self.level_info.level += 1
+        if self.level_info is not None and self.level_info.level is not None:
+            self.level_info.level += 1
+            self.level_info.phase = 1
         self._last_route = None
 
     def init_level_info(self, mission_type_name: str, mission_name: str) -> None:

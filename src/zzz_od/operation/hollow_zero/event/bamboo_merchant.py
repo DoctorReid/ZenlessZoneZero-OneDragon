@@ -16,6 +16,8 @@ from zzz_od.operation.zzz_operation import ZOperation
 class BambooMerchant(ZOperation):
 
     STATUS_LEVEL_1: ClassVar[str] = '外层选择'
+    STATUS_LEVEL_2_BUY: ClassVar[str] = '二级标题-鸣徽交易'
+    STATUS_LEVEL_2_UPGRADE: ClassVar[str] = '二级标题-鸣徽催化'
     NOT_TO_BUY: ClassVar[str] = '不购买'
 
     def __init__(self, ctx: ZContext):
@@ -33,20 +35,25 @@ class BambooMerchant(ZOperation):
     @operation_node(name='画面识别', is_start_node=True)
     def check_screen(self) -> OperationRoundResult:
         screen = self.screenshot()
-        area = event_utils.get_event_text_area(self)
 
-        result = self.round_by_ocr(screen, '鸣徽交易', area=area)
+        area = self.ctx.screen_loader.get_area('零号空洞-商店', '二级标题')
+        result = self.round_by_ocr(screen, '交易', area=area, lcs_percent=1)
         if result.is_success:
-            return self.round_success(BambooMerchant.STATUS_LEVEL_1)
+            return self.round_success(status=BambooMerchant.STATUS_LEVEL_2_BUY)
 
-        result = self.round_by_find_area(screen, '零号空洞-商店', '二级标题-鸣徽交易')
+        result = self.round_by_ocr(screen, '催化', area=area, lcs_percent=1)
         if result.is_success:
-            return result
+            return self.round_success(status=BambooMerchant.STATUS_LEVEL_2_UPGRADE)
 
         area = self.ctx.screen_loader.get_area('零号空洞-事件', '底部-选择列表')
         result = self.round_by_ocr_and_click(screen, '确定', area=area)
         if result.is_success:
             return self.round_wait(wait=1)
+
+        area = event_utils.get_event_text_area(self)
+        result = self.round_by_ocr(screen, '鸣徽交易', area=area)
+        if result.is_success:
+            return self.round_success(BambooMerchant.STATUS_LEVEL_1)
 
         return self.round_retry('未知画面', wait=1)
 
@@ -56,9 +63,9 @@ class BambooMerchant(ZOperation):
         screen = self.screenshot()
         area = event_utils.get_event_text_area(self)
 
-        result = self.round_by_ocr_and_click(screen, '鸣徽交易', area=area)
+        result = self.round_by_ocr_and_click(screen, '交易', area=area)
         if result.is_success:
-            return self.round_success(result.status, wait=1)
+            return self.round_success(BambooMerchant.STATUS_LEVEL_2_BUY, wait=1)
 
         result = self.round_by_ocr_and_click(screen, '特价折扣', area=area)
         if result.is_success:
@@ -66,7 +73,7 @@ class BambooMerchant(ZOperation):
 
         return self.round_retry(wait=1)
 
-    @node_from(from_name='画面识别', status='二级标题-鸣徽交易')
+    @node_from(from_name='画面识别', status=STATUS_LEVEL_2_BUY)
     @node_from(from_name='鸣徽交易')
     @operation_node(name='选择鸣徽')
     def choose_item(self) -> OperationRoundResult:
@@ -80,6 +87,8 @@ class BambooMerchant(ZOperation):
             to_ocr = cv2.bitwise_and(part, part, mask=mask)
 
             ocr_result = self.ctx.ocr.run_ocr_single_line(to_ocr)
+            if ocr_result == '。':
+                ocr_result = '0'  # 这里比较特殊 0会被识别成句号
             digit = str_utils.get_positive_digits(ocr_result, None)
             if digit is None:
                 continue
@@ -102,7 +111,13 @@ class BambooMerchant(ZOperation):
         return self.round_by_find_and_click_area(screen, '零号空洞-商店', '购买后确定',
                                                  success_wait=1, retry_wait=1)
 
+    @node_from(from_name='画面识别', status=STATUS_LEVEL_2_UPGRADE)
+    @operation_node(name='鸣徽催化')
+    def upgrade_resonium(self) -> OperationRoundResult:
+        return self.round_success()
+
     @node_from(from_name='选择鸣徽', status=NOT_TO_BUY)
+    @node_from(from_name='鸣徽催化')
     @operation_node(name='返回')
     def back(self) -> OperationRoundResult:
         screen = self.screenshot()
