@@ -33,5 +33,4 @@ installer.exe
 .venv/
 
 # 需自行下载的模型文件
-assets/models/flash_classifier/
-assets/models/hollow_zero_event/
+models/
