@@ -65,21 +65,37 @@ def check_event_text_and_run(op: ZOperation, screen: MatLike, handlers: List[Eve
         results = difflib.get_close_matches(gt(handler.target_cn), ocr_result_list, n=1)
 
         if results is None or len(results) == 0:
-            mrl = None
-            for idx in range(len(ocr_result_list)):
-                ocr_result = ocr_result_list[idx]
-                if str_utils.find_by_lcs(gt(handler.target_cn), ocr_result, percent=handler.lcs_percent):
-                    mrl = mrl_list[idx]
-                    break
-
-            if mrl is None:
-                continue
+            continue
         else:
             idx = ocr_result_list.index(results[0])
             ocr_result = ocr_result_list[idx]
             mrl = mrl_list[idx]
             if not str_utils.find_by_lcs(gt(handler.target_cn), ocr_result, percent=handler.lcs_percent):
                 continue
+
+        if handler.is_event_mark:
+            if event_mark_handler is None:
+                event_mark_handler = handler
+                event_mark_mrl = mrl
+        elif target_handler is None:
+            target_handler = handler
+            target_mrl = mrl
+
+    if target_handler is not None:
+        return run_event_handler(op, target_handler, area, target_mrl.max)
+    elif event_mark_handler is not None:
+        return click_empty(op)
+
+    for handler in handlers:
+        mrl = None
+        for idx in range(len(ocr_result_list)):
+            ocr_result = ocr_result_list[idx]
+            if str_utils.find_by_lcs(gt(handler.target_cn), ocr_result, percent=handler.lcs_percent):
+                mrl = mrl_list[idx]
+                break
+
+        if mrl is None:
+            continue
 
         if handler.is_event_mark:
             if event_mark_handler is None:

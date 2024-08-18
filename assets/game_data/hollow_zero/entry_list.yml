@@ -89,7 +89,7 @@
 - entry_name: "零号银行"
   is_benefit: false
 - entry_name: "失效节点"
-  need_step: 0
+  need_step: 1
   is_benefit: false
 - entry_name: "资源回收小组"
 - entry_name: "按压式开关"
