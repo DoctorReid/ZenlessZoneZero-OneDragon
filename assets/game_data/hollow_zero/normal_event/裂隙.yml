@@ -1,5 +1,5 @@
 - entry_name: "裂隙"
-  event_name: "事件裂隙"
+  event_name: "裂隙"
   options:
     - option_name: "放弃挣扎，拥抱深渊"
     - option_name: "物品遗失"

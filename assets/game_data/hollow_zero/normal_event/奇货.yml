@@ -1,5 +1,5 @@
 - entry_name: "奇货"
-  event_name: "事件人工自动贩卖机"
+  event_name: "人工自动贩卖机"
   lcs_percent: 0.6
   options:
     - option_name: "拆开贩卖机一探究竞"

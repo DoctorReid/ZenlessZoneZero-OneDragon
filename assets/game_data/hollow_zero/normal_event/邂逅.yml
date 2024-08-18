@@ -16,16 +16,19 @@
   event_name: "篝火如家般温暖"
   lcs_percent: 0.5
 
+# 朱鸢
 - entry_name: "邂逅"
   event_name: "体系的力量"
   options:
     - option_name: "恭敬不如从命"
 
+# 朱鸢
 - entry_name: "邂逅"
   event_name: "面子的力量"
   options:
     - option_name: "告知实情"
 
+# 艾莲
 - entry_name: "邂逅"
   event_name: "休息是为了更好地工作"
   lcs_percent: 0.5
@@ -34,4 +37,19 @@
     - option_name: "醒醒！艾莲！！！"
     - option_name: "艾莲？该出发了！"
       desc: "艾莲不参加下1场战斗，归队后回复生命值并提升伤害"
+
+# 安比
+- entry_name: "邂逅"
+  event_name: "张驰有度，收放自如"
+  lcs_percent: 0.6
+  options:
+    - option_name: "听从安比的建议，体息一会儿"
+
+# 安比
+- entry_name: "邂逅"
+  event_name: "有备无患"
+  lcs_percent: 0.8
+  options:
+    - option_name: "使用抗侵蚀剂"
+    - option_name: "感谢安比"
 

@@ -1,5 +1,5 @@
 - entry_name: "资源回收小组"
-  event_name: "事件资源回收小组"
+  event_name: "资源回收小组"
   lcs_percent: 0.6
   options:
     - option_name: "买1个物资箱"

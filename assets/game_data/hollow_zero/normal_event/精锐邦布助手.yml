@@ -1,0 +1,24 @@
+- entry_name: "精锐邦布助手"
+  event_name: "武装升级"
+  options:
+    - option_name: "失去1枚A级鸣徽，获得1枚S级鸣徽"
+    - option_name: "失去1 枚B级鸣徽，获得1枚A级鸣徽"
+    - option_name: "用1枚S级鸣徽更换3个随机鸣徽"
+    - option_name: "离开"
+
+- entry_name: "精锐邦布助手"
+  event_name: "随机交换"
+  options:
+    - option_name: "离开"
+    - option_name: "用所有鸣徽，交换等量鸣徽"
+
+- entry_name: "精锐邦布助手"
+  event_name: "精锐邦布助手"
+  lcs_percent: 0.8
+  options:
+    - option_name: "我是法厄同，送我！"
+      desc: "压力值+50，获得0~3枚鸣徽"
+    - option_name: "获得基础礼包"
+      desc: "获得1枚B级鸣徽"
+    - option_name: "升级可购买物资礼包"
+      desc: "花费300齿轮硬币"

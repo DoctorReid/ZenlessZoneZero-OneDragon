@@ -1,5 +1,5 @@
 - entry_name: "调查员"
-  event_name: "事件老练的调查员"
+  event_name: "老练的调查员"
   options:
     - option_name: "购买"
       desc: "花费400齿轮硬币，获得1枚鸣徽"

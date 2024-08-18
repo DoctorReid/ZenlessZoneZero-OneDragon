@@ -1,5 +1,5 @@
 - entry_name: "活化结晶"
-  event_name: "事件活化结晶"
+  event_name: "活化结晶"
   lcs_percent: 0.6
   options:
     - option_name: "加工为战斗物资"

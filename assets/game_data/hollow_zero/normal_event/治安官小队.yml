@@ -1,5 +1,5 @@
 - entry_name: "治安官小队"
-  event_name: "事件治安局预备队"
+  event_name: "治安局预备队"
   lcs_percent: 0.5
   options:
     - option_name: "我一定要珍惜地使用"
