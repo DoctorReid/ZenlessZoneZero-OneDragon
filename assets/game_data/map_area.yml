@@ -1,5 +1,6 @@
 - area_name: "Random Play"
   tp_list:
+    - "HDD"
     - "影像档案架"
     - "柜台"
     - "房间"
@@ -45,3 +46,6 @@
 - area_name: "协会俱乐部"
   tp_list:
     - "HIA俱乐部"
+- area_name: "新艾利都治安局"
+  tp_list:
+    - "治安局光映分署"

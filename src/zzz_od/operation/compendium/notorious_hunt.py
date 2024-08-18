@@ -49,7 +49,7 @@ class NotoriousHunt(ZOperation):
 
         self.auto_op: Optional[ConditionalOperator] = None
 
-    @operation_node(name='等待入口加载', is_start_node=False)
+    @operation_node(name='等待入口加载', is_start_node=True)
     def wait_entry_load(self) -> OperationRoundResult:
         self.node_max_retry_times = 60  # 一开始等待加载要久一点
         screen = self.screenshot()
@@ -196,12 +196,42 @@ class NotoriousHunt(ZOperation):
             return self.round_by_find_and_click_area(screen, '恶名狩猎', '重新开始',
                                                      success_wait=1, retry_wait_round=1)
 
-    @node_from(from_name='判断下一次')
+    @node_from(from_name='判断下一次', status='重新开始')
     @operation_node(name='重新开始-确认')
     def restart_confirm(self) -> OperationRoundResult:
         screen = self.screenshot()
         return self.round_by_find_and_click_area(screen, '恶名狩猎', '重新开始-确认',
                                                  success_wait=1, retry_wait_round=1)
+
+    @node_from(from_name='判断下一次', status='战斗结果-完成')
+    @operation_node(name='等待返回入口')
+    def wait_back_to_entry(self) -> OperationRoundResult:
+        self.node_max_retry_times = 60  # 一开始等待加载要久一点
+        screen = self.screenshot()
+        return self.round_by_find_area(
+            screen, '恶名狩猎', '剩余奖励次数',
+            success_wait=1, retry_wait=1
+        )
+
+    @node_from(from_name='识别剩余次数', status=STATUS_NO_LEFT_TIMES)
+    @node_from(from_name='等待返回入口')
+    @operation_node(name='点击奖励入口')
+    def click_reward_entry(self) -> OperationRoundResult:
+        self.node_max_retry_times = 60  # 一开始等待加载要久一点
+        return self.round_by_click_area(
+            '恶名狩猎', '奖励入口',
+            success_wait=1, retry_wait=1
+        )
+
+    @node_from(from_name='点击奖励入口')
+    @operation_node(name='全部领取')
+    def claim_all(self) -> OperationRoundResult:
+        self.node_max_retry_times = 5
+        screen = self.screenshot()
+        return self.round_by_find_and_click_area(
+            screen, '恶名狩猎', '全部领取',
+            success_wait=1, retry_wait=1
+        )
 
     def _on_pause(self, e=None):
         ZOperation._on_pause(self, e)

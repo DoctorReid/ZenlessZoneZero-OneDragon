@@ -266,3 +266,9 @@ class AutoBattleOperator(ConditionalOperator):
         for sr in self._state_recorders.values():
             sr.dispose()
         self._state_recorders.clear()
+
+    def stop_running(self) -> None:
+        """
+        停止运行 要松开所有按钮
+        """
+        ConditionalOperator.stop_running(self)

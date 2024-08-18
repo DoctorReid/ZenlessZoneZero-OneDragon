@@ -75,6 +75,8 @@
 - entry_name: "空白已通行"
   is_benefit: false
   need_step: 0
+- entry_name: "空白无法通行"
+  can_go: false
 - entry_name: "电视底座绿"
   is_benefit: false
   is_base: true
