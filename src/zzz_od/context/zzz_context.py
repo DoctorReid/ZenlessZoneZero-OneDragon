@@ -14,6 +14,7 @@ from zzz_od.application.random_play.random_play_run_record import RandomPlayRunR
 from zzz_od.application.scratch_card.scratch_card_run_record import ScratchCardRunRecord
 from zzz_od.application.charge_plan.charge_plan_config import ChargePlanConfig
 from zzz_od.config.game_config import GameConfig, GamePlatformEnum
+from zzz_od.config.yolo_config import YoloConfig
 from zzz_od.controller.zzz_pc_controller import ZPcController
 from zzz_od.game_data.compendium import CompendiumService
 from zzz_od.game_data.map_area import MapAreaService
@@ -42,6 +43,7 @@ class ZContext(OneDragonContext):
 
         # 基础配置
         self.game_config: GameConfig = GameConfig(instance_idx)
+        self.yolo_config: YoloConfig = YoloConfig()
 
         # 游戏数据
         self.map_service: MapAreaService = MapAreaService()

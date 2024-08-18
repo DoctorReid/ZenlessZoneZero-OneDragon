@@ -34,6 +34,7 @@ class OnnxModelLoader:
         self.onnx_input_width: int = 0
         self.onnx_input_height: int = 0
         self.output_names: List[str] = []
+        self.check_and_download_model()
         self.load_model()
 
     def check_and_download_model(self) -> bool:

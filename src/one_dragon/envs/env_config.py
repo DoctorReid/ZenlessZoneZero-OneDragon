@@ -122,6 +122,10 @@ class EnvConfig(YamlConfig):
         self.update('proxy_type', new_value)
 
     @property
+    def is_ghproxy(self) -> bool:
+        return self.proxy_type == ProxyTypeEnum.GHPROXY.value.value
+
+    @property
     def personal_proxy(self) -> str:
         """
         代理类型
