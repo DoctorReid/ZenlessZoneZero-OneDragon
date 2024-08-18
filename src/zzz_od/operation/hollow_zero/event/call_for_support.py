@@ -135,6 +135,7 @@ class CallForSupport(ZOperation):
             '先不劳烦青衣了',  # 青衣
             '暂不需要援助',  # 丽娜
             '目前不需要支援',  # 派派
+            '下次再雇你',  # 妮可
         ]
         for opt in opts:
             result = self.round_by_ocr_and_click(screen, opt, area=area, lcs_percent=0.5)

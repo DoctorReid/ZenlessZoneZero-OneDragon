@@ -1,0 +1,11 @@
+- entry_name: "馅饼天降"
+  event_name: "埋伏"
+  options:
+    - option_name: "忍了买吧"
+      desc: "花费所有齿轮硬币，获得1枚S级鸣徽"
+    - option_name: "不能被小瞧"
+      desc: "随机1名角色损失生命值至1点，获得2枚S级鸣徽"
+    - option_name: "发起偷袭"
+      desc: "损失0~40%生命值，获得1000~2000齿轮硬币"
+    - option_name: "转身就跑"
+      desc: "损失10%生命值"

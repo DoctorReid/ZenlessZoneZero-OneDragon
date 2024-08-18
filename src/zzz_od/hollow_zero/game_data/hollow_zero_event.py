@@ -9,7 +9,7 @@ class HollowZeroEntry:
                  move_afterwards: bool = False):
         # TODO 要将这里改成不可改
         self.entry_name: str = entry_name
-        self.is_benefit: bool = is_benefit
+        self.is_benefit: bool = is_benefit  # 是否完全有益的事件
         self.need_step: int = need_step
         self.is_base: bool = is_base  # 是否电视机底座
         self.can_go: bool = can_go  # 是否可同行

@@ -1,0 +1,10 @@
+- entry_name: "调查协会补给站"
+  event_name: "协会支援站"
+  options:
+    - option_name: "轻飘飘的物资箱"
+      desc: "40%概率获得1枚鸣徽，失败则压力值+20"
+    - option_name: "便携医药箱"
+      desc: "回复10%生命值"
+    - option_name: "一个破损的邦布插件"
+      desc: "60%概率获得插件，失败则压力值+20"
+    - option_name: "不用领取了"

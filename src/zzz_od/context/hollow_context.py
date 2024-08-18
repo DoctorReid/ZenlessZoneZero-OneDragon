@@ -2,13 +2,10 @@ import time
 from concurrent.futures import ThreadPoolExecutor, Future
 
 import cv2
-import threading
 from cv2.typing import MatLike
-from typing import List, Optional, Union
+from typing import List, Optional
 
-from one_dragon.base.geometry.point import Point
-from one_dragon.base.screen.screen_area import ScreenArea
-from one_dragon.utils import cv2_utils, thread_utils, cal_utils, os_utils, yolo_config_utils
+from one_dragon.utils import cv2_utils, thread_utils, cal_utils, yolo_config_utils
 from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import Agent, AgentEnum

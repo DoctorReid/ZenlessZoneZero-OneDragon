@@ -53,3 +53,37 @@
     - option_name: "使用抗侵蚀剂"
     - option_name: "感谢安比"
 
+# 安东
+- entry_name: "邂逅"
+  event_name: "工业级自律"
+  lcs_percent: 0.8
+  options:
+    - option_name: "开始吧安东"
+
+# 安东
+- entry_name: "邂逅"
+  event_name: "工业级干劲"
+  lcs_percent: 0.8
+  options:
+    - option_name: "还是算了"
+    - option_name: "靠你了安东"
+
+# 安东
+- entry_name: "邂逅"
+  event_name: "算了算了"
+
+# 妮可
+- entry_name: "邂逅"
+  event_name: "狡兔的逆鳞"
+  lcs_percent: 0.8
+  options:
+    - option_name: "为妮可打灯照明"
+
+# 妮可
+- entry_name: "邂逅"
+  event_name: "狡兔的生意经"
+  lcs_percent: 0.8
+  options:
+    - option_name: "一手交钱一手拿货"
+    - option_name: "算了算了"
+

@@ -55,6 +55,7 @@
 - entry_name: "治安官小队"
 - entry_name: "有偿休息站"
 - entry_name: "馅饼天降"
+  is_benefit: false
 - entry_name: "怀斯塔学会研究站"
 - entry_name: "活化结晶"
 - entry_name: "守门人"
