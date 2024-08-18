@@ -5,7 +5,7 @@ allow_ultimate:
 
 scenes:
 
-  - triggers: [ "闪避识别-黄光", "闪避识别-红光" ]
+  - triggers: [ "闪避识别-黄光", "闪避识别-红光", "闪避识别-声音" ]
     interval: 1.2
     handlers:
       - states: "[闪避识别-黄光, 0, 0.5]"
@@ -13,7 +13,7 @@ scenes:
           - state_template: "双反模板-击破"
           - state_template: "双反模板-强攻"
           - state_template: "双反模板-下一个"
-      - states: "[闪避识别-红光, 0, 0.5]"
+      - states: "[闪避识别-红光, 0, 0.5] | [闪避识别-声音, 0, 0.5]"
         sub_states:
           - state_template: "闪A模板-全角色"
 
