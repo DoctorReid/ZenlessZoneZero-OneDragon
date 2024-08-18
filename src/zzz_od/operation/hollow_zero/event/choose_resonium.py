@@ -38,7 +38,10 @@ class ChooseResonium(ZOperation):
         idx_list = resonium_utils.choose_resonium_by_priority([i.data for i in item_list],
                                                               self.ctx.hollow_zero_challenge_config.resonium_priority)
         if len(idx_list) == 0:
-            return self.round_retry(status='优先级无返回', wait=0.5)
+            if len(item_list) >= 3:  # 如果都识别到了 那证明就是没有匹配到优先级
+                return self.round_fail(status='优先级无返回')
+            else:
+                return self.round_retry(status='优先级无返回', wait=0.5)
 
         mr = item_list[idx_list[0]]
         self.ctx.controller.click(mr.center)

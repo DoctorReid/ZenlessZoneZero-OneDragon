@@ -332,7 +332,6 @@ class BattleContext:
     def check_screen(self, screen: MatLike, screenshot_time: float,
                      check_battle_end_normal_result: bool = False,
                      check_battle_end_hollow_result: bool = False,
-                     check_battle_end_hollow_bag: bool = False,
                      check_distance: bool = False,
                      sync: bool = False
                      ) -> None:
@@ -347,11 +346,11 @@ class BattleContext:
         future_list.append(_battle_check_executor.submit(self.check_ultimate_btn, screen, screenshot_time))
         future_list.append(_battle_check_executor.submit(self.check_chain_attack, screen, screenshot_time))
         future_list.append(_battle_check_executor.submit(self.check_quick_assist, screen, screenshot_time))
-        check_battle_end = check_battle_end_normal_result or check_battle_end_hollow_result or check_battle_end_hollow_bag
+        check_battle_end = check_battle_end_normal_result or check_battle_end_hollow_result
         if check_battle_end:
             future_list.append(_battle_check_executor.submit(
                 self._check_battle_end, screen, screenshot_time,
-                check_battle_end_normal_result, check_battle_end_hollow_result, check_battle_end_hollow_bag
+                check_battle_end_normal_result, check_battle_end_hollow_result
             ))
         if check_distance:
             future_list.append(_battle_check_executor.submit(self._check_distance_with_lock, screen, screenshot_time))
@@ -753,8 +752,7 @@ class BattleContext:
 
     def _check_battle_end(self, screen: MatLike, screenshot_time: float,
                           check_battle_end_normal_result: bool,
-                          check_battle_end_hollow_result: bool,
-                          check_battle_end_hollow_bag: bool) -> None:
+                          check_battle_end_hollow_result: bool) -> None:
         if not self._check_end_lock.acquire(blocking=False):
             return
 
@@ -771,16 +769,21 @@ class BattleContext:
 
             if check_battle_end_hollow_result:
                 result = screen_utils.find_area(ctx=self.ctx, screen=screen,
-                                                screen_name='零号空洞-事件', area_name='挑战结果')
+                                                screen_name='零号空洞-战斗', area_name='挑战结果')
                 if result == FindAreaResultEnum.TRUE:
                     self.last_check_end_result = '零号空洞-挑战结果'
                     return
 
-            if check_battle_end_hollow_bag:
                 result = screen_utils.find_area(ctx=self.ctx, screen=screen,
                                                 screen_name='零号空洞-事件', area_name='背包')
                 if result == FindAreaResultEnum.TRUE:
                     self.last_check_end_result = '零号空洞-背包'
+                    return
+
+                result = screen_utils.find_area(ctx=self.ctx, screen=screen,
+                                                screen_name='零号空洞-战斗', area_name='鸣徽-确定')
+                if result == FindAreaResultEnum.TRUE:
+                    self.last_check_end_result = '鸣徽-确定'
                     return
 
             if check_battle_end_normal_result:

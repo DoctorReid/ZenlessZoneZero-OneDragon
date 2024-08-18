@@ -129,7 +129,6 @@ class HollowBattle(ZOperation):
         auto_battle_utils.run_screen_check(self, screen, now,
                                            check_battle_end_normal_result=True,
                                            check_battle_end_hollow_result=True,
-                                           check_battle_end_hollow_bag=True,
                                            check_distance=True)
 
         return self.round_wait(wait=self.ctx.battle_assistant_config.screenshot_interval)
@@ -139,7 +138,7 @@ class HollowBattle(ZOperation):
     def after_battle(self) -> OperationRoundResult:
         self.node_max_retry_times = 5  # 战斗结束恢复重试次数
         screen = self.screenshot()
-        area = self.ctx.screen_loader.get_area('零号空洞-事件', '战斗结果-确定')
+        area = self.ctx.screen_loader.get_area('零号空洞-战斗', '战斗结果-确定')
         return self.round_by_ocr_and_click(screen, '确定', area=area,
                                            success_wait=1, retry_wait=1)
 

@@ -3,12 +3,9 @@ from typing import ClassVar
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
-from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
-from zzz_od.operation.back_to_normal_world import BackToNormalWorld
-from zzz_od.operation.compendium.compendium_choose_tab import CompendiumChooseTab
 from zzz_od.operation.compendium.tp_by_compendium import TransportByCompendium
 from zzz_od.operation.hollow_zero.hollow_runner import HollowRunner
 
@@ -50,6 +47,7 @@ class HollowZeroApp(ZApplication):
         return self.round_by_op(op.execute())
 
     @node_from(from_name='传送')
+    @node_from(from_name='自动运行')
     @operation_node(name='等待入口加载')
     def wait_entry_loading(self) -> OperationRoundResult:
         self.node_max_retry_times = 20  # 等待加载久一点
@@ -77,15 +75,33 @@ class HollowZeroApp(ZApplication):
     @operation_node(name='下一步')
     def click_next(self) -> OperationRoundResult:
         screen = self.screenshot()
-        return self.round_by_find_and_click_area(screen, '零号空洞-入口', '下一步', success_wait=1, retry_wait=1)
+
+        result = self.round_by_find_and_click_area(screen, '零号空洞-入口', '下一步')
+        if result.is_success:
+            return self.round_success(wait=1)
+
+        result = self.round_by_find_and_click_area(screen, '零号空洞-入口', '行动中-确认')
+        if result.is_success:
+            return self.round_wait(wait=1)
+
+        return self.round_retry(wait=1)
 
     @node_from(from_name='下一步')
-    @operation_node(name='出战')
-    def click_deploy(self) -> OperationRoundResult:
+    @operation_node(name='继续或出战')
+    def continue_or_deploy(self) -> OperationRoundResult:
         screen = self.screenshot()
-        return self.round_by_find_and_click_area(screen, '零号空洞-入口', '出战', success_wait=1, retry_wait=1)
 
-    @node_from(from_name='出战')
+        result = self.round_by_find_and_click_area(screen, '零号空洞-入口', '继续-确认')
+        if result.is_success:
+            return self.round_success(wait=1)
+
+        result = self.round_by_find_and_click_area(screen, '零号空洞-入口', '出战')
+        if result.is_success:
+            return self.round_success(wait=1)
+
+        return self.round_retry(wait=1)
+
+    @node_from(from_name='继续或出战')
     @operation_node(name='自动运行')
     def auto_run(self) -> OperationRoundResult:
         self.ctx.hollow.init_level_info(self.mission_type_name, self.mission_name)

@@ -123,28 +123,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: 挑战结果
-  pc_rect:
-  - 556
-  - 8
-  - 1368
-  - 236
-  text: 挑战结果
-  lcs_percent: 0.5
-  template_sub_dir: ''
-  template_id: ''
-  template_match_threshold: 0.7
-- area_name: 战斗结果-确定
-  pc_rect:
-  - 1048
-  - 910
-  - 1268
-  - 1032
-  text: ''
-  lcs_percent: 0.5
-  template_sub_dir: ''
-  template_id: ''
-  template_match_threshold: 0.7
+
 - area_name: 鸣徽名称-1
   pc_rect:
   - 416
