@@ -224,6 +224,11 @@ class HollowContext:
             self._last_route = route
             return current_map.nodes[route.first_step]
 
+        # 有出口的时候 去出口
+        route = hollow_map_utils.get_route_by_entry(idx_2_route, '传送点')
+        if route is not None:
+            return current_map.nodes[route.first_step]
+
         # 没有特殊点的时候 按副本类型走特定方向
         if self.level_info.level == 2:  # 第2层往上走
             route = hollow_map_utils.get_route_by_direction(idx_2_route, 'w')
