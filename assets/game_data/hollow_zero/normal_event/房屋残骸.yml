@@ -1,5 +1,5 @@
 - entry_name: "房屋残骸"
-  event_name: "事件坍塌的房屋"
+  event_name: "坍塌的房屋"
   lcs_percent: 0.5
   options:
     - option_name: "强行拜访"

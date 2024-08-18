@@ -1,5 +1,5 @@
 - entry_name: "通道"
-  event_name: "事件前人藏宝，后人生财"
+  event_name: "前人藏宝，后人生财"
   lcs_percent: 0.6
   options:
     - option_name: "看向妮可"
@@ -13,3 +13,16 @@
 
     - option_name: "拜托1号队员"
       desc: "损失15%生命值，获得800~1400齿轮硬币"
+
+- entry_name: "通道"
+  event_name: "安全车厢"
+  lcs_percent: 0.6
+  options:
+    - option_name: "认真修理一番"
+      desc: "压力值+50，催化2枚鸣徽"
+
+    - option_name: "就修一下大门吧"
+      desc: "压力值+25，催化1枚鸣徽"
+
+    - option_name: "在列车中歇一歇"
+      desc: "压力值-30"

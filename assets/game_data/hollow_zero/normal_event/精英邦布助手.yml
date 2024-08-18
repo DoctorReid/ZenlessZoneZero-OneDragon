@@ -1,7 +1,0 @@
-- entry_name: "精英邦布助手"
-  event_name: "武装升级"
-  options:
-    - option_name: "失去1枚A级鸣徽，获得1枚S级鸣徽"
-    - option_name: "失去1 枚B级鸣徽，获得1枚A级鸣徽"
-    - option_name: "用1枚S级鸣徽更换3个随机鸣徽"
-    - option_name: "离开"

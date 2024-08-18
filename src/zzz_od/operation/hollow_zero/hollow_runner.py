@@ -6,11 +6,11 @@ from typing import Type
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils.i18_utils import gt
-from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroSpecialEvent
 from zzz_od.hollow_zero.hollow_map.hollow_zero_map import HollowZeroMapNode, HollowZeroMap
 from zzz_od.operation.hollow_zero import hollow_utils
+from zzz_od.operation.hollow_zero.event.bamboo_merchant import BambooMerchant
 from zzz_od.operation.hollow_zero.event.call_for_support import CallForSupport
 from zzz_od.operation.hollow_zero.event.choose_resonium import ChooseResonium
 from zzz_od.operation.hollow_zero.event.confirm_resonium import ConfirmResonium
@@ -18,8 +18,8 @@ from zzz_od.operation.hollow_zero.event.critical_stage import CriticalStage
 from zzz_od.operation.hollow_zero.event.drop_resonium import DropResonium
 from zzz_od.operation.hollow_zero.event.normal_event_handler import NormalEventHandler
 from zzz_od.operation.hollow_zero.event.remove_corruption import RemoveCorruption
-from zzz_od.operation.hollow_zero.event.bamboo_merchant import BambooMerchant
 from zzz_od.operation.hollow_zero.event.swift_supply import SwiftSupply
+from zzz_od.operation.hollow_zero.event.switch_resonium import SwitchResonium
 from zzz_od.operation.hollow_zero.event.upgrade_resonium import UpgradeResonium
 from zzz_od.operation.hollow_zero.hollow_battle import HollowBattle
 from zzz_od.operation.zzz_operation import ZOperation
@@ -46,6 +46,7 @@ class HollowRunner(ZOperation):
             HollowZeroSpecialEvent.RESONIUM_CONFIRM_2.value.event_name: ConfirmResonium,
             HollowZeroSpecialEvent.RESONIUM_UPGRADE.value.event_name: UpgradeResonium,
             HollowZeroSpecialEvent.RESONIUM_DROP.value.event_name: DropResonium,
+            HollowZeroSpecialEvent.RESONIUM_SWITCH.value.event_name: SwitchResonium,
             HollowZeroSpecialEvent.SWIFT_SUPPLY_LIFE.value.event_name: SwiftSupply,
             HollowZeroSpecialEvent.SWIFT_SUPPLY_COIN.value.event_name: SwiftSupply,
             HollowZeroSpecialEvent.SWIFT_SUPPLY_PRESS.value.event_name: SwiftSupply,

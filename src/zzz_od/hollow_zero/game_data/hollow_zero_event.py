@@ -61,6 +61,7 @@ class HollowZeroSpecialEvent(Enum):
     RESONIUM_CONFIRM_2 = HallowZeroEvent('确定')
     RESONIUM_UPGRADE = HallowZeroEvent('催化')
     RESONIUM_DROP = HallowZeroEvent('丢弃')
+    RESONIUM_SWITCH = HallowZeroEvent('交换')
 
     SWIFT_SUPPLY_LIFE = HallowZeroEvent('回复生命值')
     SWIFT_SUPPLY_COIN = HallowZeroEvent('获取齿轮硬币')
