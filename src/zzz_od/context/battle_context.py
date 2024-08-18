@@ -789,6 +789,11 @@ class BattleContext:
                 if result == FindAreaResultEnum.TRUE:
                     self.last_check_end_result = '普通战斗-完成'
                     return
+                result = screen_utils.find_area(ctx=self.ctx, screen=screen,
+                                                screen_name='战斗画面', area_name='战斗结果-撤退')
+                if result == FindAreaResultEnum.TRUE:
+                    self.last_check_end_result = '普通战斗-撤退'
+                    return
 
             self.last_check_end_result = None
         except Exception:

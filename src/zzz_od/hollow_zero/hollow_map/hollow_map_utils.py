@@ -41,7 +41,9 @@ def construct_map_from_yolo_result(detect_result: DetectFrameResult, name_2_entr
             else:  # 旧的是格子类型 那么把底座的范围赋值上去
                 to_merge.pos = pos
         else:
-            node = HollowZeroMapNode(pos, entry, check_time=detect_result.run_time)
+            node = HollowZeroMapNode(pos, entry,
+                                     check_time=detect_result.run_time,
+                                     confidence=result.score)
             nodes.append(node)
 
     for node in nodes:
@@ -60,18 +62,38 @@ def construct_map_from_nodes(nodes: List[HollowZeroMapNode], check_time: float) 
     edges: dict[int, List[int]] = {}
 
     for i in range(len(nodes)):
-        for j in range(i + 1, len(nodes)):
+        for j in range(len(nodes)):
             node_1 = nodes[i]
             node_2 = nodes[j]
 
             if _at_left(node_1, node_2):  # 1在2左边
-                _add_edge(edges, i, j)
+                if node_2.entry.entry_name in ['轨道-左']:
+                    pass
+                elif node_1.entry.entry_name in ['轨道-上', '轨道-下', '轨道-左']:
+                    pass
+                else:
+                    _add_directed_edge(edges, i, j)
             elif _at_right(node_1, node_2):  # 1在2右边
-                _add_edge(edges, i, j)
+                if node_2.entry.entry_name in ['轨道-右']:
+                    pass
+                elif node_1.entry.entry_name in ['轨道-上', '轨道-下', '轨道-右']:
+                    pass
+                else:
+                    _add_directed_edge(edges, i, j)
             elif _above(node_1, node_2):  # 1在2上边
-                _add_edge(edges, i, j)
+                if node_2.entry.entry_name in ['轨道-上']:
+                    pass
+                elif node_1.entry.entry_name in ['轨道-左', '轨道-右', '轨道-上']:
+                    pass
+                else:
+                    _add_directed_edge(edges, i, j)
             elif _under(node_1, node_2):  # 1在2下边
-                _add_edge(edges, i, j)
+                if node_2.entry.entry_name in ['轨道-下']:
+                    pass
+                elif node_1.entry.entry_name in ['轨道-左', '轨道-右', '轨道-下']:
+                    pass
+                else:
+                    _add_directed_edge(edges, i, j)
 
     return HollowZeroMap(nodes, current_idx, edges, check_time=check_time)
 

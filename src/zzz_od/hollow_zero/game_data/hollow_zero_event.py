@@ -5,7 +5,8 @@ from typing import Optional, List
 class HollowZeroEntry:
 
     def __init__(self, entry_name: str, is_benefit: bool = True, need_step: int = 1,
-                 is_base: bool = False, can_go: bool = True, is_tp: bool = False):
+                 is_base: bool = False, can_go: bool = True, is_tp: bool = False,
+                 move_afterwards: bool = False):
         # TODO 要将这里改成不可改
         self.entry_name: str = entry_name
         self.is_benefit: bool = is_benefit
@@ -13,6 +14,7 @@ class HollowZeroEntry:
         self.is_base: bool = is_base  # 是否电视机底座
         self.can_go: bool = can_go  # 是否可同行
         self.is_tp: bool = is_tp  # 是否传送点
+        self.move_afterwards: bool = move_afterwards  # 进入后会触发额外移动 轨道、弹射等
 
 
 class HallowZeroNormalEventOption:
