@@ -23,12 +23,15 @@ from zzz_od.hollow_zero.hollow_zero_challenge_config import HollowZeroChallengeC
 
 class ZContext(OneDragonContext):
 
-    def __init__(self):
+    def __init__(self, is_installer: bool = False):
         OneDragonContext.__init__(self)
 
         instance_idx = 0
 
         # 其它上下文
+        if is_installer:
+            return
+
         from zzz_od.context.battle_context import BattleContext
         self.battle: BattleContext = BattleContext(self)
 

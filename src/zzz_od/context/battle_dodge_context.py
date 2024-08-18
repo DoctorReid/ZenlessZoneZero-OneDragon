@@ -12,7 +12,6 @@ from sklearn.preprocessing import scale
 from typing import Optional, List, Union
 
 from one_dragon.base.conditional_operation.state_event import StateEvent
-from one_dragon.envs.env_config import ProxyTypeEnum
 from one_dragon.utils import cal_utils, yolo_config_utils
 from one_dragon.utils import thread_utils, os_utils
 from one_dragon.utils.log_utils import log

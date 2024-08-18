@@ -85,3 +85,7 @@ def cancel_shutdown_sys():
     :return:
     """
     os.system("shutdown /a")
+
+
+if __name__ == '__main__':
+    run_command(['taskkill', '/F', '/IM', 'git.exe'])

@@ -135,6 +135,10 @@ class GitService:
         if progress_callback is not None:
             progress_callback(-1, msg)
 
+        # 先关闭打开的git 防止占据了.temp_clone文件夹
+        cmd_utils.run_command(['taskkill', '/F', '/IM', 'git.exe'])
+        cmd_utils.run_command(['taskkill', '/F', '/IM', 'ssh.exe'])
+
         temp_dir_path = os.path.join(os_utils.get_work_dir(), temp_folder)
         if os.path.exists(temp_dir_path):
             shutil.rmtree(temp_dir_path)
@@ -144,8 +148,9 @@ class GitService:
         if progress_callback is not None:
             progress_callback(-1, msg)
         repo_url = self.get_git_repository()
-        if self.env_config.git_method == GitMethodEnum.GHPROXY.value.value:
-                 GH_PROXY_URL +self.project_config.github_https_repository
+        if (self.env_config.git_method == GitMethodEnum.HTTPS.value.value
+                and self.env_config.is_ghproxy):
+            repo_url = GH_PROXY_URL + self.project_config.github_https_repository
         result = cmd_utils.run_command([self.env_config.git_path, 'clone', '-b', self.project_config.project_git_branch,
                                         repo_url, temp_folder])
         if result is None:

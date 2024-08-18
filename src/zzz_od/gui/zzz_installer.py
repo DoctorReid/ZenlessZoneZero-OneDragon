@@ -30,7 +30,7 @@ class ZInstallerWindow(FluentWindowBase):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    _ctx = ZContext()
+    _ctx = ZContext(is_installer=True)
     setTheme(Theme[_ctx.env_config.theme.upper()])
     w = ZInstallerWindow(_ctx, f'{_ctx.project_config.project_name}-installer')
     w.show()
