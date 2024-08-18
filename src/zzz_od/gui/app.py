@@ -30,8 +30,7 @@ class AppWindow(FluentWindowBase):
         self.add_sub_interface(HomeInterface(self.ctx, parent=self))
         self.add_sub_interface(BattleAssistantInterface(self.ctx, parent=self))
         self.add_sub_interface(ZOneDragonInterface(self.ctx, parent=self))
-        if self.ctx.env_config.is_debug:
-            self.add_sub_interface(HollowZeroInterface(self.ctx, parent=self))
+        self.add_sub_interface(HollowZeroInterface(self.ctx, parent=self))
 
         self.add_sub_interface(AppDevtoolsInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)
         self.add_sub_interface(CodeInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)

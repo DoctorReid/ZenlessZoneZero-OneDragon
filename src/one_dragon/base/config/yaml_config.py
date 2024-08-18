@@ -58,3 +58,11 @@ class YamlConfig(YamlOperator):
             usage_yml_path = yml_path
 
         return usage_yml_path
+
+    @property
+    def is_sample(self) -> bool:
+        """
+        是否样例文件
+        :return:
+        """
+        return self.file_path.endswith('.sample.yml')

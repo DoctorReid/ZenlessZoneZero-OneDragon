@@ -94,6 +94,7 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
         self.event_priority_input = PlainTextEdit()
         self.event_priority_input.textChanged.connect(self._on_event_priority_changed)
         widget.add_widget(self.event_priority_input)
+        self.event_priority_input.setVisible(False)
 
         widget.add_stretch(1)
 
@@ -113,17 +114,18 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
         :return:
         """
         chosen = self.chosen_config is not None
+        is_sample = self.chosen_config is None or self.chosen_config.is_sample
 
         self.existed_yml_btn.setDisabled(chosen)
         self.create_btn.setDisabled(chosen)
         self.copy_btn.setDisabled(not chosen)
-        self.delete_btn.setDisabled(not chosen)
+        self.delete_btn.setDisabled(not chosen or is_sample)
         self.cancel_btn.setDisabled(not chosen)
 
-        self.name_opt.setDisabled(not chosen)
-        self.auto_battle_opt.setDisabled(not chosen)
-        self.resonium_priority_input.setDisabled(not chosen)
-        self.event_priority_input.setDisabled(not chosen)
+        self.name_opt.setDisabled(not chosen or is_sample)
+        self.auto_battle_opt.setDisabled(not chosen or is_sample)
+        self.resonium_priority_input.setDisabled(not chosen or is_sample)
+        self.event_priority_input.setDisabled(not chosen or is_sample)
 
         self._update_existed_yml_options()
         self._update_auto_battle_opts()

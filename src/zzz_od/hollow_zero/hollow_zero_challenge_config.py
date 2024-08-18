@@ -13,7 +13,7 @@ class HollowZeroChallengeConfig(YamlConfig):
             self,
             module_name,
             sub_dir=['hollow_zero_challenge'],
-            is_mock=is_mock, sample=True, copy_from_sample=True,
+            is_mock=is_mock, sample=True, copy_from_sample=False,
         )
 
         self.old_module_name: str = self.module_name
@@ -25,6 +25,9 @@ class HollowZeroChallengeConfig(YamlConfig):
         :return:
         """
         self.module_name = self.module_name + '_copy'
+        if self.is_sample:
+            self.old_module_name = self.module_name
+        self._sample = False
 
         self.file_path = self._get_yaml_file_path()
 
