@@ -209,7 +209,10 @@ class HollowContext:
                 continue
 
             # 两次想要前往同一个节点
-            if self._last_route is not None and hollow_map_utils.is_same_node(self._last_route.node, route.node):
+            if (self._last_route is not None
+                    and hollow_map_utils.is_same_node(self._last_route.node, route.node)
+                    and self._last_route.first_step < len(current_map.nodes)
+            ):
                 last_node = current_map.nodes[self._last_route.first_step]
                 curr_node = current_map.nodes[route.first_step]
                 if (hollow_map_utils.is_same_node(last_node, curr_node)
@@ -282,7 +285,7 @@ def __debug_get_map():
 
     from one_dragon.utils import debug_utils
     img_list = [
-        '_1723877563267',
+        'HollowRunner_1723980881127',
     ]
     for i in img_list:
         img = debug_utils.get_debug_image(i)

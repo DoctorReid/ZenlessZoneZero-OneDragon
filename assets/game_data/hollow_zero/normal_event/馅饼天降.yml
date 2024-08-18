@@ -1,5 +1,6 @@
 - entry_name: "馅饼天降"
-  event_name: "埋伏"
+  event_name: "事件埋伏"
+  lcs_percent: 0.6
   options:
     - option_name: "忍了买吧"
       desc: "花费所有齿轮硬币，获得1枚S级鸣徽"

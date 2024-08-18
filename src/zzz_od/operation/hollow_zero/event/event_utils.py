@@ -65,13 +65,21 @@ def check_event_text_and_run(op: ZOperation, screen: MatLike, handlers: List[Eve
         results = difflib.get_close_matches(gt(handler.target_cn), ocr_result_list, n=1)
 
         if results is None or len(results) == 0:
-            continue
+            mrl = None
+            for idx in range(len(ocr_result_list)):
+                ocr_result = ocr_result_list[idx]
+                if str_utils.find_by_lcs(gt(handler.target_cn), ocr_result, percent=handler.lcs_percent):
+                    mrl = mrl_list[idx]
+                    break
 
-        idx = ocr_result_list.index(results[0])
-        ocr_result = ocr_result_list[idx]
-        mrl = mrl_list[idx]
-        if not str_utils.find_by_lcs(gt(handler.target_cn), ocr_result, percent=handler.lcs_percent):
-            continue
+            if mrl is None:
+                continue
+        else:
+            idx = ocr_result_list.index(results[0])
+            ocr_result = ocr_result_list[idx]
+            mrl = mrl_list[idx]
+            if not str_utils.find_by_lcs(gt(handler.target_cn), ocr_result, percent=handler.lcs_percent):
+                continue
 
         if handler.is_event_mark:
             if event_mark_handler is None:

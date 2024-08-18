@@ -3,18 +3,22 @@
   lcs_percent: 0.5
 
 - entry_name: "邂逅"
+  event_name: "怀斯塔学会的援助"
+  lcs_percent: 0.5
+  options:
+    - option_name: "接受学会的好意"
+
+# 朱鸢
+- entry_name: "邂逅"
   event_name: "体系的力量"
   options:
     - option_name: "恭敬不如从命"
 
+# 朱鸢
 - entry_name: "邂逅"
   event_name: "面子的力量"
   options:
     - option_name: "告知实情"
-
-- entry_name: "邂逅"
-  event_name: "篝火如家般温暖"
-  lcs_percent: 0.5
 
 # 朱鸢
 - entry_name: "邂逅"
@@ -86,4 +90,19 @@
   options:
     - option_name: "一手交钱一手拿货"
     - option_name: "算了算了"
+
+# 本
+- entry_name: "邂逅"
+  event_name: "怒火报价"
+  lcs_percent: 0.7
+  options:
+    - option_name: "向敌人撒火吧"
+
+# 本
+- entry_name: "邂逅"
+  event_name: "先礼后兵"
+  lcs_percent: 0.7
+  options:
+    - option_name: "拜托你了本"
+    - option_name: "还是算了"
 

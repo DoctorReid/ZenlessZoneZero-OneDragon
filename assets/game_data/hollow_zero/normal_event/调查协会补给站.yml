@@ -1,6 +1,9 @@
 - entry_name: "调查协会补给站"
   event_name: "协会支援站"
   options:
+    - option_name: "白抵重工的代理人擅长挑选物资"
+      ocr_word: "挑选物资"
+      lcs_percent: 0.7
     - option_name: "轻飘飘的物资箱"
       desc: "40%概率获得1枚鸣徽，失败则压力值+20"
     - option_name: "便携医药箱"
