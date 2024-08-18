@@ -1,0 +1,10 @@
+- entry_name: "裂隙"
+  event_name: "事件裂隙"
+  options:
+    - option_name: "放弃挣扎，拥抱深渊"
+    - option_name: "物品遗失"
+      desc: "失去2个随机鸣徽"
+    - option_name: "直面恐惧"
+      desc: "压力值变为90"
+    - option_name: "意外之伤"
+      desc: "随机一名角色损失50%生命值"

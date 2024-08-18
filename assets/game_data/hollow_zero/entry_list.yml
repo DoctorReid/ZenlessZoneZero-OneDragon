@@ -91,3 +91,33 @@
   need_step: 0
   is_benefit: false
 - entry_name: "资源回收小组"
+- entry_name: "按压式开关"
+  is_benefit: false
+- entry_name: "弹射-上"
+  is_benefit: false
+  move_afterwards: true
+- entry_name: "轨道-上"
+  is_benefit: false
+  move_afterwards: true
+- entry_name: "同伴"
+  is_benefit: false
+- entry_name: "弹射-下"
+  is_benefit: false
+  move_afterwards: true
+- entry_name: "弹射-左"
+  is_benefit: false
+  move_afterwards: true
+- entry_name: "弹射-右"
+  is_benefit: false
+  move_afterwards: true
+- entry_name: "轨道-下"
+  is_benefit: false
+  move_afterwards: true
+- entry_name: "轨道-左"
+  is_benefit: false
+  move_afterwards: true
+- entry_name: "轨道-右"
+  is_benefit: false
+  move_afterwards: true
+- entry_name: "房屋残骸"
+  is_benefit: false

@@ -150,6 +150,13 @@ class HollowBattle(ZOperation):
             self.ctx.hollow.update_to_next_level()
         return self.round_success()
 
+    @node_from(from_name='自动战斗', status='普通战斗-撤退')
+    @operation_node(name='战斗撤退')
+    def battle_fail(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        return self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-撤退',
+                                                 success_wait=1, retry_wait=1)
+
     def _check_distance(self, screen: MatLike) -> None:
         mr = self.ctx.battle.check_battle_distance(screen)
 

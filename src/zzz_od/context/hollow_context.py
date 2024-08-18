@@ -173,6 +173,8 @@ class HollowContext:
         """
         if self.agent_list is None:
             self.check_agent_list(screen)
+        if self.level_info is None or self.level_info.level is None:
+            pass
 
     def get_next_to_move(self, current_map: HollowZeroMap) -> Optional[HollowZeroMapNode]:
         """
