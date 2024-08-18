@@ -1,0 +1,411 @@
+description: |
+  专属配队-艾莲
+  配队列表：艾莲-莱卡恩-苍角
+  备注： 莱卡恩可换其他击破
+  版本号： 1.2
+  作者： 巡夜子
+
+#基础配置
+check_dodge_interval: 0.02
+check_agent_interval: [0.4, 0.6]
+check_special_attack_interval: [0.4, 0.6]
+check_ultimate_interval: [0.4, 0.6]
+check_chain_interval: 0.3
+check_quick_interval: 0.3
+
+#速切模板-苍角
+t-c: &c
+  - op_name: "按键-特殊攻击"
+    data: []
+  - op_name: "等待秒数"
+    data: ["0.3"]
+  - op_name: "按键-特殊攻击-按下"
+    data: []
+  - op_name: "等待秒数"
+    data: ["0.6"]
+  - op_name: "设置状态"
+    data: ["自定义-增益"]
+  - op_name: "按键-普通攻击"
+    data: []
+
+#速切模板-莱卡恩
+t-l: &l
+  - op_name: "按键-特殊攻击"
+    data: []
+  - op_name: "等待秒数"
+    data: ["0.1"]
+  - op_name: "设置状态"
+    data: ["自定义-变量a"]
+  - op_name: "设置状态"
+    data: ["自定义-速切结束"]
+
+#站场模板-艾莲-普通攻击
+t-ap: &ap
+  - op_name: "按键-移动-前-按下"
+  - op_name: "等待秒数"
+    data: ["0.1"]
+  - op_name: "按键-闪避-按下"
+  - op_name: "等待秒数"
+    data: ["0.3"]
+  - op_name: "按键-普通攻击-按下"
+    data: ["1.2"]
+  - op_name: "按键-闪避-松开"
+  - op_name: "按键-移动-前-按下"
+  - op_name: "等待秒数"
+    data: ["0.2"]
+  - op_name: "按键-终结技"
+  - op_name: "按键-闪避-按下"
+    data: ["0.05"]
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.25"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.25"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.2"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.2"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.2"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.2"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.25"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.25"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.25"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+
+#站场模板-艾莲-特殊攻击
+t-at: &at
+  - op_name: "按键-闪避-按下"
+    data: ["0.1"]
+  - op_name: "按键-特殊攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.25"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.25"]
+  - op_name: "按键-移动-前-按下"
+    data: ["0.25"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.25"]
+  - op_name: "按键-移动-前-按下"
+    data: ["0.2"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-终结技"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-终结技"
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-终结技"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-终结技"
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-终结技"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-终结技"
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-终结技"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-终结技"
+  - op_name: "按键-普通攻击"
+  - op_name: "按键-移动-前-按下"
+    data: ["0.1"]
+  - op_name: "按键-普通攻击"
+  - op_name: "等待秒数"
+    data: ["0.1"]
+
+#站场模板-艾莲-切换下一个
+t-ad: &ad
+  - op_name: "按键-切换角色-下一个"
+    data: []
+  - op_name: "等待秒数"
+    data: ["0.1"]
+  - op_name: "设置状态"
+    data: ["自定义-速切结束"]
+
+#双反模板-上一个
+t-fu: &fu
+  - op_name: "按键-闪避"
+    data: []
+  - op_name: "等待秒数"
+    data: ["0.1"]
+  - op_name: "按键-普通攻击"
+    data: []
+  - op_name: "等待秒数"
+    data: ["0.1"]
+  - op_name: "按键-切换角色-上一个"
+    data: []
+  - op_name: "等待秒数"
+    data: ["0.5"]
+  - op_name: "按键-普通攻击"
+    data: []
+  - op_name: "设置状态"
+    data: ["自定义-黄光切人"]
+
+#双反模板-下一个
+t-fd: &fd
+  - op_name: "按键-闪避"
+    data: []
+  - op_name: "等待秒数"
+    data: ["0.1"]
+  - op_name: "按键-普通攻击"
+    data: []
+  - op_name: "等待秒数"
+    data: ["0.1"]
+  - op_name: "按键-切换角色-下一个"
+    data: []
+  - op_name: "等待秒数"
+    data: ["0.5"]
+  - op_name: "按键-普通攻击"
+    data: []
+
+#连携模板-上一个
+t-lu: &lu
+  - op_name: "按键-连携技-左"
+  - op_name: "等待秒数"
+    data: ["3.5"]
+
+#连携模板-下一个
+t-ld: &ld
+  - op_name: "按键-连携技-右"
+  - op_name: "等待秒数"
+    data: ["3.5"]
+  - op_name: "设置状态"
+    data: ["自定义-连携换人"]
+
+scenes:
+  - triggers: ["闪避识别-黄光", "闪避识别-红光", "闪避识别-声音"]
+    interval: 0.2
+    handlers:
+      - states: "[闪避识别-黄光] & ![按键-切换角色-下一个,0.1,1]"
+        sub_states:
+          - states: "[后台-1-艾莲]"
+            operations: *fd
+          - states: "[后台-2-艾莲]"
+            operations: *fu
+          - states: ""
+            operations: *fd
+      - states: "[闪避识别-红光] | [闪避识别-声音] | ([闪避识别-黄光] & [按键-切换角色-下一个,0.1,1])"
+        operations:
+          - op_name: "按键-闪避"
+          - op_name: "等待秒数"
+            data: ["0.1"]
+          - op_name: "按键-闪避"
+          - op_name: "等待秒数"
+            data: ["0.5"]
+          - op_name: "按键-移动-前-按下"
+          - op_name: "按键-闪避-按下"
+          - op_name: "等待秒数"
+            data: ["0.3"]
+          - op_name: "按键-普通攻击-按下"
+            data: ["0.6"]
+          - op_name: "按键-移动-前-松开"
+          - op_name: "按键-闪避-松开"
+          - op_name: "等待秒数"
+            data: ["0.3"]
+
+  - triggers: ["按键可用-连携技"]
+    interval: 0.1
+    handlers:
+      - states: "[按键可用-连携技]"
+        sub_states:
+          - states: "![连携技-1-艾莲] & ![连携技-1-击破] & ![连携技-1-苍角]"
+            operations: *lu
+          - states: "![连携技-2-艾莲] & ![连携技-2-击破] & ![连携技-2-苍角]"
+            operations: *ld
+          - states: ""
+            operations: *ld
+
+  - triggers: ["按键可用-快速支援"]
+    handlers:
+      - states: "[按键可用-快速支援,0,0.5]"
+        sub_states:
+          - states: "[后台-1-艾莲]"
+            operations:
+              - op_name: "按键-切换角色-下一个"
+                data: []
+              - op_name: "等待秒数"
+                data: ["0.05"]
+              - op_name: "按键-闪避"
+              - op_name: "等待秒数"
+                data: ["0.05"]
+              - op_name: "按键-闪避"
+              - op_name: "按键-移动-前-按下"
+              - op_name: "等待秒数"
+                data: ["0.1"]
+              - op_name: "按键-闪避-按下"
+              - op_name: "等待秒数"
+                data: ["0.3"]
+              - op_name: "按键-普通攻击-按下"
+                data: ["0.4"]
+              - op_name: "按键-移动-前-松开"
+              - op_name: "按键-闪避-松开"
+              - op_name: "等待秒数"
+                data: ["0.1"]
+              - op_name: "按键-普通攻击"
+              - op_name: "等待秒数"
+                data: ["0.1"]
+          - states: ""
+            operations:
+              - op_name: "按键-切换角色-下一个"
+                data: []
+              - op_name: "等待秒数"
+                data: ["0.1"]
+
+  - triggers: ["前台-苍角"]
+    interval: 1
+    handlers:
+      - states: "[前台-苍角]"
+        operations: *c
+
+  - triggers: ["前台-击破"]
+    interval: 1
+    handlers:
+      - states: "[前台-击破]"
+        operations: *l
+
+  - triggers: ["按键可用-终结技"]
+    interval: 1
+    handlers:
+      - states: "[前台-艾莲] & [按键可用-终结技] & ![按键-切换角色-下一个,0,0.3]"
+        operations:
+          - op_name: "按键-终结技"
+            data: []
+          - op_name: "等待秒数"
+            data: ["0.1"]
+
+  - triggers: []
+    interval: 0.2
+    handlers:
+      # 速切之后 切换回强攻角色
+      - states: "![前台-艾莲] & [自定义-速切结束,0,0.3]"
+        sub_states:
+          - states: "[后台-1-艾莲]"
+            operations:
+              - op_name: "按键-切换角色-下一个"
+                data: []
+              - op_name: "等待秒数"
+                data: ["0.1"]
+              - op_name: "清除状态"
+                data: ["自定义-速切结束"]
+
+          - states: "[自定义-变量a,0,0.5]"
+            operations:
+              - op_name: "按键-切换角色-下一个"
+                data: []
+              - op_name: "等待秒数"
+                data: ["0.1"]
+              - op_name: "清除状态"
+                data: ["自定义-变量a"]
+              - op_name: "清除状态"
+                data: ["自定义-速切结束"]
+
+          - states: ""
+            operations:
+              - op_name: "按键-切换角色-上一个"
+                data: []
+              - op_name: "等待秒数"
+                data: ["0.1"]
+              - op_name: "清除状态"
+                data: ["自定义-速切结束"]
+
+      - states: "[前台-艾莲] & ![自定义-增益,0,999]"
+        operations:
+          - op_name: "设置状态"
+            data: ["自定义-增益"]
+
+      - states: "[前台-艾莲] & [自定义-增益,22,999] & ![自定义-增益,0,22] & ![自定义-速切结束,0,22]"
+        operations: *ad
+
+      - states: "[前台-艾莲] & [按键可用-特殊攻击]"
+        operations: *at
+
+      - states: "[前台-艾莲] & ![按键可用-特殊攻击]"
+        operations: *ap
