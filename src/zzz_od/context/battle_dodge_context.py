@@ -37,7 +37,7 @@ class AudioRecorder:
         self._sample_len = 0.01  # 每次采样的长度（秒）
         self._chunk_size = int(self._sample_rate * self._sample_len)  # 每个音频块的大小
 
-        self.trigger_threshold = 0.1  # 出发阈值
+        self.trigger_threshold = 0.1  # 触发阈值
 
         self._filter_degree = 4  # 四阶bathworth多项式, 越大阻带区域滤波程度越大
         self._cut_off = 1000  # Hz,截止频率,对该频率一下的声音进行滤波,若需要识别人声可适当降低
