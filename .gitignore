@@ -32,5 +32,6 @@ installer.exe
 .vscode/
 .venv/
 
-# 模型文件 仅保留手工commit的
-models/yolo/
+# 需自行下载的模型文件
+assets/models/flash_classifier/
+assets/models/hollow_zero_event/

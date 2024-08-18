@@ -12,11 +12,12 @@ from sklearn.preprocessing import scale
 from typing import Optional, List, Union
 
 from one_dragon.base.conditional_operation.state_event import StateEvent
-from one_dragon.utils import cal_utils
+from one_dragon.envs.env_config import ProxyTypeEnum
+from one_dragon.utils import cal_utils, yolo_config_utils
 from one_dragon.utils import thread_utils, os_utils
 from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
-from zzz_od.yolo.dodge_classifier import DodgeClassifier
+from zzz_od.yolo.flash_classifier import FlashClassifier
 
 # 创建一个线程池执行器，用于异步执行任务
 _dodge_check_executor = ThreadPoolExecutor(thread_name_prefix='od_yolo_check', max_workers=16)
@@ -105,7 +106,7 @@ class BattleDodgeContext:
 
     def __init__(self, ctx: ZContext):
         self.ctx: ZContext = ctx  # 上下文对象
-        self._flash_model: Optional[DodgeClassifier] = None  # 闪避分类器
+        self._flash_model: Optional[FlashClassifier] = None  # 闪避分类器
         self._audio_recorder: AudioRecorder = AudioRecorder()  # 音频录制器
         self._audio_template: Optional[np.ndarray] = None  # 音频模板
 
@@ -139,8 +140,12 @@ class BattleDodgeContext:
         :param check_audio_interval: 音频识别间隔
         """
         if self._flash_model is None or self._flash_model.gpu != use_gpu:
-            self._flash_model = DodgeClassifier(
-                model_parent_dir_path=os_utils.get_path_under_work_dir('assets', 'models', 'yolo'),
+            use_gh_proxy = self.ctx.env_config.is_ghproxy
+            self._flash_model = FlashClassifier(
+                model_name=self.ctx.yolo_config.flash_classifier,
+                model_parent_dir_path=yolo_config_utils.get_model_category_dir('flash_classifier'),
+                gh_proxy=use_gh_proxy,
+                personal_proxy=None if use_gh_proxy else self.ctx.env_config.personal_proxy,
                 gpu=use_gpu
             )
 

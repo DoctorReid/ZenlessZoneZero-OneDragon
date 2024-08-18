@@ -6,7 +6,9 @@ import os
 from cv2.typing import MatLike
 from typing import Optional, List
 
+from one_dragon.utils import yolo_config_utils
 from one_dragon.utils.log_utils import log
+from zzz_od.config.yolo_config import ZZZ_MODEL_DOWNLOAD_URL
 from zzz_od.yolo import onnx_utils
 from zzz_od.yolo.detect_utils import multiclass_nms, xywh2xyxy, DetectContext, DetectClass, DetectObjectResult, \
     DetectFrameResult
@@ -33,7 +35,7 @@ class HollowEventDetector(OnnxModelLoader):
         OnnxModelLoader.__init__(
             self,
             model_name=model_name,
-            model_download_url='',
+            model_download_url=ZZZ_MODEL_DOWNLOAD_URL,
             model_parent_dir_path=model_parent_dir_path,
             gh_proxy=gh_proxy,
             personal_proxy=personal_proxy,

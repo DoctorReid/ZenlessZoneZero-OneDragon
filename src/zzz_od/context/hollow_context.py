@@ -8,7 +8,7 @@ from typing import List, Optional, Union
 
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.screen.screen_area import ScreenArea
-from one_dragon.utils import cv2_utils, thread_utils, cal_utils, os_utils
+from one_dragon.utils import cv2_utils, thread_utils, cal_utils, os_utils, yolo_config_utils
 from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import Agent, AgentEnum
@@ -125,9 +125,13 @@ class HollowContext:
 
     def init_event_yolo(self, use_gpu: bool = False) -> None:
         if self._event_model is None or self._event_model.gpu != use_gpu:
+            use_gh_proxy = self.ctx.env_config.is_ghproxy
             self._event_model = HollowEventDetector(
-                model_parent_dir_path=os_utils.get_path_under_work_dir('assets', 'models', 'yolo'),
-                gpu=use_gpu,
+                model_name=self.ctx.yolo_config.hollow_zero_event,
+                model_parent_dir_path=yolo_config_utils.get_model_category_dir('hollow_zero_event'),
+                gh_proxy=use_gh_proxy,
+                personal_proxy=None if use_gh_proxy else self.ctx.env_config.personal_proxy,
+                gpu=use_gpu
             )
 
     def clear_detect_history(self) -> None:
