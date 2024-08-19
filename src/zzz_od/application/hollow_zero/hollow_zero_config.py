@@ -27,3 +27,11 @@ class HollowZeroConfig(YamlConfig):
     @challenge_config.setter
     def challenge_config(self, new_value: str):
         self.update('challenge_config', new_value)
+
+    @property
+    def weekly_times(self) -> int:
+        return self.get('weekly_times', 2)
+
+    @weekly_times.setter
+    def weekly_times(self, new_value: int):
+        self.update('weekly_times', new_value)

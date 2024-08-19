@@ -8,6 +8,7 @@ from zzz_od.application.devtools.screenshot_helper.screenshot_helper_config impo
 from zzz_od.application.email.email_run_record import EmailRunRecord
 from zzz_od.application.engagement_reward.engagement_reward_run_record import EngagementRewardRunRecord
 from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroConfig
+from zzz_od.application.hollow_zero.hollow_zero_run_record import HollowZeroRunRecord
 from zzz_od.application.notorious_hunt.notorious_hunt_config import NotoriousHuntConfig
 from zzz_od.application.notorious_hunt.notorious_hunt_run_record import NotoriousHuntRunRecord
 from zzz_od.application.random_play.random_play_run_record import RandomPlayRunRecord
@@ -68,6 +69,7 @@ class ZContext(OneDragonContext):
         self.charge_plan_run_record: ChargePlanRunRecord = ChargePlanRunRecord(instance_idx, game_refresh_hour_offset)
         self.engagement_reward_run_record: EngagementRewardRunRecord = EngagementRewardRunRecord(instance_idx, game_refresh_hour_offset)
         self.notorious_hunt_record: NotoriousHuntRunRecord = NotoriousHuntRunRecord(instance_idx, game_refresh_hour_offset)
+        self.hollow_zero_record: HollowZeroRunRecord = HollowZeroRunRecord(self.hollow_zero_config, instance_idx, game_refresh_hour_offset)
 
     def init_by_config(self) -> None:
         """

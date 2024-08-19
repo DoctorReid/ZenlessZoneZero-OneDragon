@@ -13,6 +13,7 @@ from zzz_od.operation.hollow_zero.hollow_runner import HollowRunner
 class HollowZeroApp(ZApplication):
 
     STATUS_NO_REWARD: ClassVar[str] = '无奖励可领取'
+    STATUS_TIMES_FINISHED: ClassVar[str] = '完成指定次数'
 
     def __init__(self, ctx: ZContext):
         ZApplication.__init__(
@@ -56,6 +57,8 @@ class HollowZeroApp(ZApplication):
     @operation_node(name='选择副本类型')
     def choose_mission_type(self) -> OperationRoundResult:
         self.node_max_retry_times = 5
+        if self.ctx.hollow_zero_record.is_finished_by_times():
+            return self.round_success(HollowZeroApp.STATUS_TIMES_FINISHED)
         screen = self.screenshot()
         return self.round_by_ocr_and_click(screen, self.mission_type_name,
                                            success_wait=1, retry_wait=1)
@@ -105,6 +108,12 @@ class HollowZeroApp(ZApplication):
         self.ctx.hollow.init_event_yolo(True)
         op = HollowRunner(self.ctx)
         return self.round_by_op(op.execute())
+
+
+    @node_from(from_name='等待入口加载', status=STATUS_TIMES_FINISHED)
+    @operation_node(name='完成后')
+    def back(self) -> OperationRoundResult:
+        return self.round_success()
 
 
 def __debug():

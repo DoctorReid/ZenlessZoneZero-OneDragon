@@ -5,6 +5,7 @@ from typing import Optional, List
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.gui.view.app_run_interface import AppRunInterface
 from zzz_od.application.hollow_zero.hollow_zero_app import HollowZeroApp
 from zzz_od.application.hollow_zero.hollow_zero_debug_app import HollowZeroDebugApp
@@ -45,6 +46,10 @@ class HollowZeroRunInterface(AppRunInterface):
         self.challenge_config_opt.value_changed.connect(self._on_challenge_config_changed)
         top_widget.add_widget(self.challenge_config_opt)
 
+        self.weekly_times_opt = TextSettingCard(icon=FluentIcon.GAME, title='每周通过次数')
+        self.weekly_times_opt.value_changed.connect(self._on_weekly_times_changed)
+        top_widget.add_widget(self.weekly_times_opt)
+
         return top_widget
 
     def on_interface_shown(self) -> None:
@@ -58,6 +63,7 @@ class HollowZeroRunInterface(AppRunInterface):
 
         self.mission_opt.setValue(self.ctx.hollow_zero_config.mission_name)
         self.challenge_config_opt.setValue(self.ctx.hollow_zero_config.challenge_config)
+        self.weekly_times_opt.setValue(str(self.ctx.hollow_zero_config.weekly_times))
 
     def _update_mission_options(self) -> None:
         try:
@@ -114,3 +120,6 @@ class HollowZeroRunInterface(AppRunInterface):
         """
         self.app = HollowZeroDebugApp(self.ctx)
         AppRunInterface._on_start_clicked(self)
+
+    def _on_weekly_times_changed(self, value: str) -> None:
+        self.ctx.hollow_zero_config.weekly_times = int(value)
