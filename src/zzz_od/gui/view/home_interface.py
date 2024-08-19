@@ -1,8 +1,8 @@
 import os
-from PySide6.QtCore import Qt, QSize, QRect
+from PySide6.QtCore import Qt, QRect, QThread, Signal
 from PySide6.QtGui import QPixmap, QPainter, QPainterPath, QFont, QColor, QLinearGradient, QPen
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QSpacerItem, QSizePolicy
-from qfluentwidgets import FluentIcon
+from qfluentwidgets import FluentIcon, InfoBar, InfoBarPosition
 
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.link_card import LinkCardView
@@ -14,6 +14,7 @@ from zzz_od.context.zzz_context import ZContext
 CORNER_RADIUS = 20  # 圆角半径
 TEXT_SIZE = 36  # 文字大小
 TEXT_OFFSET = 36  # 文字距离右边的偏移量
+
 
 class BannerWidget(QWidget):
     """展示带有圆角和自适应宽度和高度的横幅小部件"""
@@ -124,6 +125,24 @@ class BannerWidget(QWidget):
 
         painter.end()
 
+
+class CheckUpdateRunner(QThread):
+    need_update = Signal(bool)
+
+    def __init__(self, ctx: ZContext):
+        super().__init__()
+        self.ctx = ctx
+
+    def run(self):
+        """
+        运行 最后发送结束信号
+        :return:
+        """
+        with_new, msg = self.ctx.git_service.is_current_branch_latest()
+        if msg != '与远程分支不一致':
+            self.need_update.emit(with_new)
+
+
 class HomeInterface(VerticalScrollInterface):
     """主页界面"""
 
@@ -145,3 +164,24 @@ class HomeInterface(VerticalScrollInterface):
             content_widget=content_widget, object_name='home_interface',
             nav_text_cn='主页', nav_icon=FluentIcon.HOME
         )
+
+        self._check_update_runner = CheckUpdateRunner(self.ctx)
+        self._check_update_runner.need_update.connect(self._need_to_update)
+
+    def on_interface_shown(self) -> None:
+        VerticalScrollInterface.on_interface_shown(self)
+        self._check_update_runner.run()
+
+    def _need_to_update(self, with_new: bool):
+        if not with_new:
+            return
+        w = InfoBar.success(
+            title='有新版本啦',
+            content="到代码同步里更新吧~",
+            orient=Qt.Orientation.Horizontal,
+            isClosable=True,
+            position=InfoBarPosition.TOP_RIGHT,
+            duration=20000,
+            parent=self
+        )
+        w.setCustomBackgroundColor('white', '#202020')

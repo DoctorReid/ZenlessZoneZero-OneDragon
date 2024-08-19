@@ -52,7 +52,7 @@ class CodeInstallCard(BaseInstallCard):
             msg = f"{gt('当前分支', 'ui')}: {current_branch}; {gt('建议分支', 'ui')}: {self.ctx.project_config.project_git_branch}; {gt('不自动同步', 'ui')}"
             return icon, msg
         else:
-            latest, msg = self.ctx.git_service.is_current_brand_latest()
+            latest, msg = self.ctx.git_service.is_current_branch_latest()
             if latest:
                 icon = FluentIcon.INFO.icon(color=FluentThemeColor.DEFAULT_BLUE.value)
                 msg = f"{gt('已同步代码', 'ui')}" + ' ' + current_branch

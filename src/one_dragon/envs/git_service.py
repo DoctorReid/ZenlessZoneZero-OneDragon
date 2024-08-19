@@ -269,7 +269,7 @@ class GitService:
         else:
             return status_str.find('nothing to commit, working tree clean') != -1
 
-    def is_current_brand_latest(self) -> Tuple[bool, str]:
+    def is_current_branch_latest(self) -> Tuple[bool, str]:
         """
         当前分支是否已经最新 与远程分支一致
         """
