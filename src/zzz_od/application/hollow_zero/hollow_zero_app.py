@@ -109,8 +109,7 @@ class HollowZeroApp(ZApplication):
         op = HollowRunner(self.ctx)
         return self.round_by_op(op.execute())
 
-
-    @node_from(from_name='等待入口加载', status=STATUS_TIMES_FINISHED)
+    @node_from(from_name='选择副本类型', status=STATUS_TIMES_FINISHED)
     @operation_node(name='完成后')
     def back(self) -> OperationRoundResult:
         return self.round_success()

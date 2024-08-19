@@ -1,0 +1,8 @@
+- entry_name: "怀斯塔学会研究站"
+  event_name: "事件怀斯塔学会研究站"
+  options:
+    - option_name: "想要点武装物资"
+      desc: "获得2枚[空洞】鸣徽"
+    - option_name: "再多要一些"
+      desc: "压力值+70"
+    - option_name: "离开"
