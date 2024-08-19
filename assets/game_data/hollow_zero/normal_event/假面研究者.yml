@@ -4,8 +4,17 @@
     - option_name: "接受他的好意"
     - option_name: "拒绝他的好意"
 
+    - option_name: "换人"
+      desc: "出现2个[呼叫代理人］事件"
+
+    - option_name: "获得武装物资"
+      desc: "获得3枚鸣徽"
+
     - option_name: "拿点垃圾物资"
       desc: "获得2枚B级鸣徽"
+
+    - option_name: "正常治疗"
+      desc: "消除2个侵蚀症状"
 
     - option_name: "减缓侵蚀"
     - option_name: "战斗物资"
@@ -20,3 +29,12 @@
 
     - option_name: "我要购物"
       desc: "获得1000齿轮硬币，产生1个商店"
+
+    - option_name: "放弃治疗"
+      desc: "不消除侵蚀症状"
+
+    - option_name: "激进治疗"
+      desc: "生命值变为20%，消除所有侵蚀症状"
+
+    - option_name: "拿走一大筐炸弹"
+      desc: "获得9个炸弹"

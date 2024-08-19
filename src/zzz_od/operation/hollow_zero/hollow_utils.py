@@ -48,3 +48,23 @@ def check_mission_complete(op: ZOperation, screen: MatLike) -> Optional[str]:
 
     if result.is_success:
         return HollowZeroSpecialEvent.MISSION_COMPLETE.value.event_name
+
+
+def __debug_opts():
+    """
+    识别图片输出选项
+    :return:
+    """
+    from zzz_od.context.zzz_context import ZContext
+    ctx = ZContext()
+    ctx.init_by_config()
+    ctx.ocr.init_model()
+    from zzz_od.operation.hollow_zero.hollow_runner import HollowRunner
+    op = HollowRunner(ctx)
+    from one_dragon.utils import debug_utils
+    img = debug_utils.get_debug_image('358929910-dc49a677-d647-40f4-acd1-b2258365b0f2')
+    check_screen(op, img)
+
+
+if __name__ == '__main__':
+    __debug_opts()
