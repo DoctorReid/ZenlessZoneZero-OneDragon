@@ -228,7 +228,7 @@ class PythonService:
         progress_callback(-1, '正在安装...安装过程需要5~10分钟，请耐心等待')
 
         # 部分人不升级pip会安装失败 不知道为什么
-        result = cmd_utils.run_command([self.env_config.python_path, '-m', 'pip', 'install', '--upgrade', '-pip'])
+        result = cmd_utils.run_command([self.env_config.python_path, '-m', 'pip', 'install', '--upgrade', 'pip'])
         success = result is not None
         msg = '运行依赖安装成功' if success else '运行依赖安装失败'
         if not success:

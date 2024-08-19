@@ -1,3 +1,4 @@
+import cv2
 import difflib
 from typing import Optional, List, ClassVar
 
@@ -5,7 +6,7 @@ from one_dragon.base.geometry.rectangle import Rect
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
-from one_dragon.utils import cv2_utils
+from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import Agent, AgentEnum
@@ -15,12 +16,18 @@ from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroSpecialEven
 from zzz_od.operation.zzz_operation import ZOperation
 
 
+class RejectOption:
+
+    def __init__(self, word: str, lcs_percent: float = 0.5):
+        self.word: str = word
+        self.lcs_percent: float = lcs_percent
+
+
 class CallForSupport(ZOperation):
 
     STATUS_ACCEPT: ClassVar[str] = '接应支援代理人'
     STATUS_NO_NEED: ClassVar[str] = '无需支援'
     OPT_3: ClassVar[str] = '接替小组成员'
-    # 每个角色的不接受选项不一样
 
     def __init__(self, ctx: ZContext):
         """
@@ -80,6 +87,13 @@ class CallForSupport(ZOperation):
         else:
             to_match = ocr_result
 
+        # 一些识别错误的硬编码纠正
+        ocr_wrong = {
+            '菜卡': '莱卡'
+        }
+        for o, n in ocr_wrong.items():
+            to_match = to_match.replace(o, n)
+
         agent_list: List[Agent] = [agent.value for agent in AgentEnum]
         target_list: List[str] = [gt(agent.value.agent_name) for agent in AgentEnum]
 
@@ -136,20 +150,40 @@ class CallForSupport(ZOperation):
     def reject_agent(self) -> OperationRoundResult:
         screen = self.screenshot()
         area = event_utils.get_event_text_area(self)
+        # 每个角色的不接受选项不一样
         opts = [
-            '下次再依靠你',  # 本
-            '这次没有研究的机会',  # 格蕾丝
-            '先不劳烦青衣了',  # 青衣
-            '暂不需要援助',  # 丽娜
-            '目前不需要支援',  # 派派
-            '下次再雇你',  # 妮可
+            RejectOption('下次再依靠你'),  # 本
+            RejectOption('这次没有研究的机会'),  # 格蕾丝
+            RejectOption('先不劳烦青衣了'),  # 青衣
+            RejectOption('暂不需要援助'),  # 丽娜
+            RejectOption('目前不需要支援'),  # 派派、露西、苍角
+            RejectOption('下次再雇你'),  # 妮可
+            RejectOption('市民更需要你'),  # 朱鸢
+            RejectOption('无需增援', lcs_percent=0.6),  # 安比
+            RejectOption('无需增援over'),  # 11号
+            RejectOption('下次指名你'),  # 莱卡恩
+            RejectOption('辛苦了兄弟下次一起'),  # 安东
+            RejectOption('谢谢可琳这次不用'),  # 可琳
+            RejectOption('星徽骑士再见'),  # 比利
         ]
-        for opt in opts:
-            result = self.round_by_ocr_and_click(screen, opt, area=area, lcs_percent=0.5)
-            if result.is_success:
-                 return self.round_success(result.status, wait=2)
-        return self.round_retry('未配置对应的代理人选项', wait=1)
 
+        part = cv2_utils.crop_image_only(screen, area.rect)
+        white = cv2.inRange(part, (240, 240, 240), (255, 255, 255))
+        white = cv2_utils.dilate(white, 5)
+        to_ocr = cv2.bitwise_and(part, part, mask=white)
+
+        target_list = [gt(i.word) for i in opts]
+        ocr_result_map = self.ctx.ocr.run_ocr(to_ocr)
+        for ocr_result, mrl in ocr_result_map.items():
+            results = difflib.get_close_matches(ocr_result, target_list, n=1)
+            if results is None or len(results) == 0:
+                continue
+            opt = opts[target_list.index(results[0])]
+            if str_utils.find_by_lcs(results[0], ocr_result, percent=opt.lcs_percent):
+                click = self.ctx.controller.click(mrl.max.center + area.left_top)
+                return self.round_success(wait=1)
+
+        return self.round_retry('未配置对应的代理人选项', wait=1)
 
 
 def __debug():

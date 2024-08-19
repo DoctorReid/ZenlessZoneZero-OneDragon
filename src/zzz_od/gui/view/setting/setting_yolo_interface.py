@@ -149,7 +149,8 @@ class SettingYoloInterface(VerticalScrollInterface):
 
     def _on_flash_classifier_changed(self, index: int, value: str) -> None:
         self.ctx.yolo_config.flash_classifier = value
+        self.flash_classifier_opt.check_and_update_display()
 
     def _on_hollow_zero_event_changed(self, index: int, value: str) -> None:
         self.ctx.yolo_config.hollow_zero_event = value
-
+        self.hollow_zero_event_opt.check_and_update_display()

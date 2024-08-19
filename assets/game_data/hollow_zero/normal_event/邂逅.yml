@@ -113,6 +113,14 @@
   options:
     - option_name: "没那回事可琳的表现是全队第一名"
 
+- entry_name: "邂逅"
+  event_name: "结束痛苦"
+  lcs_percent: 0.7
+  options:
+    - option_name: "你先放下锯子"
+    - option_name: "拜托你了可琳"
+    - option_name: "还是算了"
+
 # 莱卡恩
 - entry_name: "邂逅"
   event_name: "劳逸结合"
