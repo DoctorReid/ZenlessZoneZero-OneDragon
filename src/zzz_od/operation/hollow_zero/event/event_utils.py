@@ -12,6 +12,7 @@ from one_dragon.base.operation.operation_round_result import OperationRoundResul
 from one_dragon.base.screen.screen_area import ScreenArea
 from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
+from one_dragon.utils.log_utils import log
 from zzz_od.operation.hollow_zero.event.event_ocr_result_handler import EventOcrResultHandler
 from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroSpecialEvent, HallowZeroEvent
 from zzz_od.operation.zzz_operation import ZOperation
@@ -82,6 +83,7 @@ def check_event_text_and_run(op: ZOperation, screen: MatLike, handlers: List[Eve
             target_mrl = mrl
 
     if target_handler is not None:
+        log.debug('识别事件选项 %s' % target_handler.target_cn)
         return run_event_handler(op, target_handler, area, target_mrl.max)
     elif event_mark_handler is not None:
         return click_empty(op)
@@ -106,6 +108,7 @@ def check_event_text_and_run(op: ZOperation, screen: MatLike, handlers: List[Eve
             target_mrl = mrl
 
     if target_handler is not None:
+        log.debug('识别事件选项 %s' % target_handler.target_cn)
         return run_event_handler(op, target_handler, area, target_mrl.max)
     elif event_mark_handler is not None:
         return click_empty(op)

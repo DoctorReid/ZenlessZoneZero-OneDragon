@@ -1,0 +1,7 @@
+- entry_name: "真相"
+  event_name: "事件药剂说明书"
+  lcs_percent: 0.6
+  options:
+    - option_name: "不使用"
+    - option_name: "直接使用一点点"
+      desc: "压力值+100"

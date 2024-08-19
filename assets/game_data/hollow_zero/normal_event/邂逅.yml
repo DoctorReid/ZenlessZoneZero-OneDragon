@@ -106,3 +106,17 @@
     - option_name: "拜托你了本"
     - option_name: "还是算了"
 
+# 可琳
+- entry_name: "邂逅"
+  event_name: "失眠女仆"
+  lcs_percent: 0.7
+  options:
+    - option_name: "没那回事可琳的表现是全队第一名"
+
+# 莱卡恩
+- entry_name: "邂逅"
+  event_name: "劳逸结合"
+  options:
+    - option_name: "我很期待"
+      desc: "清除1个侵蚀症状，或降低50点压力值"
+    - option_name: "还是算了"

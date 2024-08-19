@@ -41,3 +41,27 @@ class NormalEventHandler(ZOperation):
     def check_screen(self) -> OperationRoundResult:
         screen = self.screenshot()
         return event_utils.check_event_text_and_run(self, screen, self._handlers)
+
+
+def __debug_opts():
+    """
+    识别图片输出选项
+    :return:
+    """
+    from zzz_od.context.zzz_context import ZContext
+    ctx = ZContext()
+    ctx.init_by_config()
+    ctx.ocr.init_model()
+    from zzz_od.operation.hollow_zero.hollow_runner import HollowRunner
+    op = HollowRunner(ctx)
+    from one_dragon.utils import debug_utils
+    screen = debug_utils.get_debug_image('_1724045902037')
+    from zzz_od.operation.hollow_zero import hollow_utils
+    event_name = hollow_utils.check_screen(op, screen)
+    e = ctx.hollow.data_service.get_normal_event_by_name(event_name)
+    op2 = NormalEventHandler(ctx, e)
+    event_utils.check_event_text_and_run(op, screen, op2._handlers)
+
+
+if __name__ == '__main__':
+    __debug_opts()
