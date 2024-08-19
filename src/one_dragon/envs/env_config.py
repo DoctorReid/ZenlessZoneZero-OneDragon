@@ -194,7 +194,7 @@ class EnvConfig(YamlConfig):
         git使用ghproxy还是https还是ssh
         :return:
         """
-        return self.get('git_method', GitMethodEnum.GHPROXY.value.value)
+        return self.get('git_method', GitMethodEnum.HTTPS.value.value)
 
     @git_method.setter
     def git_method(self, new_value: str) -> None:
