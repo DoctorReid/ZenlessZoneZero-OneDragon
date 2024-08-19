@@ -272,3 +272,28 @@ class AutoBattleOperator(ConditionalOperator):
         停止运行 要松开所有按钮
         """
         ConditionalOperator.stop_running(self)
+
+        ops = [
+            AtomicBtnDodge(self.ctx, release=True),
+            AtomicBtnSwitchNext(self.ctx, release=True),
+            AtomicBtnSwitchPrev(self.ctx, release=True),
+            AtomicBtnNormalAttack(self.ctx, release=True),
+            AtomicBtnSpecialAttack(self.ctx, release=True),
+            AtomicBtnUltimate(self.ctx, release=True),
+            AtomicBtnChainLeft(self.ctx, release=True),
+            AtomicBtnChainRight(self.ctx, release=True),
+            AtomicBtnMoveW(self.ctx, release=True),
+            AtomicBtnMoveS(self.ctx, release=True),
+            AtomicBtnMoveA(self.ctx, release=True),
+            AtomicBtnMoveD(self.ctx, release=True),
+            AtomicBtnLock(self.ctx, release=True)
+        ]
+        for op in ops:
+            op.execute()
+
+
+if __name__ == '__main__':
+    ctx = ZContext()
+    ctx.init_by_config()
+    op = AutoBattleOperator(ctx, 'auto_battle', '专属配队-艾莲')
+    op.stop_running()

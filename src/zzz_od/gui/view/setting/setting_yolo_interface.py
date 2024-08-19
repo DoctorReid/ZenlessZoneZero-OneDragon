@@ -9,8 +9,7 @@ from one_dragon.gui.component.log_display_card import LogDisplayCard
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils.i18_utils import gt
-from zzz_od.config.yolo_config import ZZZ_MODEL_DOWNLOAD_URL
-from one_dragon.utils.yolo_config_utils import get_flash_classifier_opts, get_hollow_zero_event_opts
+from zzz_od.config.yolo_config import ZZZ_MODEL_DOWNLOAD_URL, get_flash_classifier_opts, get_hollow_zero_event_opts
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.setting.yolo_model_card import ModelDownloadSettingCard
 
