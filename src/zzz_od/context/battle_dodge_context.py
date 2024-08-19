@@ -7,7 +7,7 @@ import os
 import threading
 from cv2.typing import MatLike
 from enum import Enum
-from scipy.signal import correlate
+from scipy.signal import correlate, butter, filtfilt
 from sklearn.preprocessing import scale
 from typing import Optional, List, Union
 
@@ -35,6 +35,14 @@ class AudioRecorder:
         self._used_channel = 2  # 使用的音频通道数
         self._sample_len = 0.01  # 每次采样的长度（秒）
         self._chunk_size = int(self._sample_rate * self._sample_len)  # 每个音频块的大小
+
+        self.trigger_threshold = 0.1  # 触发阈值
+
+        self._filter_degree = 4  # 四阶bathworth多项式, 越大阻带区域滤波程度越大
+        self._cut_off = 1000  # Hz,截止频率,对该频率一下的声音进行滤波,若需要识别人声可适当降低
+
+        self.filter_b, self.filter_a = butter(self._filter_degree, self._cut_off, btype='highpass', output='ba',
+                                              fs=self._sample_rate)  # Butterworth高通滤波
 
         self.latest_audio = np.empty(shape=(0,), dtype=np.float64)  # 存储最新的音频数据
         self._update_audio_lock = threading.Lock()
@@ -172,6 +180,9 @@ class BattleDodgeContext:
             os_utils.get_path_under_work_dir('assets', 'template', 'dodge_audio'),
             'template_1.wav'
         ), sr=32000)
+
+        self._audio_template = self._get_filter_wave(self._audio_template)  # 滤波
+
         log.info('加载声音模板完成')
 
     def check_screen(self, screen: MatLike, screenshot_time: float, sync: bool = False) -> None:
@@ -255,7 +266,7 @@ class BattleDodgeContext:
             log.debug('声音相似度 %.2f' % corr)
 
             # 事件去重逻辑
-            if corr > 0.1:
+            if corr > self._audio_recorder.trigger_threshold:
                 self._last_audio_event_time = screenshot_time
                 self._audio_recorder.clear_audio()
                 return True
@@ -266,14 +277,15 @@ class BattleDodgeContext:
         finally:
             self._check_audio_lock.release()
 
-    @staticmethod
-    def get_max_corr(x: np.ndarray, y: np.ndarray):
+    def get_max_corr(self, x: np.ndarray, y: np.ndarray):
         """
         计算两个音频信号的最大相关性。
         :param x: 音频信号x
         :param y: 音频信号y
         :return: 最大相关性系数
         """
+        y = self._get_filter_wave(y)  # 滤波
+
         # 标准化
         wx = scale(x, with_mean=False)
         wy = scale(y, with_mean=False)
@@ -287,6 +299,17 @@ class BattleDodgeContext:
         max_corr = np.max(correlation)
 
         return max_corr
+
+    def _get_filter_wave(self, x: np.ndarray):
+        """
+        音频滤波。
+        :param x: 音频信号x
+        :return: 滤波后波形
+        """
+        wx = filtfilt(self._audio_recorder.filter_b,
+                      self._audio_recorder.filter_a,
+                      x)
+        return wx
 
     def stop_context(self) -> None:
         """
