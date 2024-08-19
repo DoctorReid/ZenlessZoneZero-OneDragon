@@ -1,0 +1,44 @@
+handlers:
+  - states: "[前台-青衣]"
+    sub_states:
+    # 失衡阶段：切朱鸢
+    - states: "[按键-连携技-左, 0, 10] | [按键-连携技-右, 0, 10]"
+      sub_states:
+      - states: "[后台-2-朱鸢]"
+        operations:
+          - op_name: "按键-切换角色-上一个"
+            data: [ ]
+          - op_name: "等待秒数"
+            data: [ "0.1" ]
+      - states: ""
+        operations:
+          - op_name: "按键-切换角色-下一个"
+            data: [ ]
+          - op_name: "等待秒数"
+            data: [ "0.1" ]
+
+    - states: "![自定义-开始充电, 0, 10]"
+      operations:
+        - op_name: "设置状态"
+          data: [ "自定义-开始充电", "0", "1" ]
+
+    - states: "[自定义-开始充电, 6, 10]"
+      operations:
+        - op_name: "清除状态"
+          data: [ "自定义-开始充电" ]
+        - operation_template: "青衣-重击"
+
+    - states: "[按键可用-特殊攻击]"
+      operations:
+        - op_name: "按键-闪避"
+          data: [ ]
+        - op_name: "等待秒数"
+          data: [ "0.1" ]
+        - op_name: "按键-特殊攻击"
+          data: [ ]
+        - op_name: "等待秒数"
+          data: [ "1" ]
+
+    - states: ""
+      operations:
+        - operation_template: "青衣-平A"
