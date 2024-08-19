@@ -148,9 +148,6 @@ class GitService:
         if progress_callback is not None:
             progress_callback(-1, msg)
         repo_url = self.get_git_repository()
-        if (self.env_config.git_method == GitMethodEnum.HTTPS.value.value
-                and self.env_config.is_ghproxy):
-            repo_url = GH_PROXY_URL + self.project_config.github_https_repository
         result = cmd_utils.run_command([self.env_config.git_path, 'clone', '-b', self.project_config.project_git_branch,
                                         repo_url, temp_folder])
         if result is None:
@@ -330,12 +327,18 @@ class GitService:
         :return:
         """
         if self.env_config.repository_type == RepositoryTypeEnum.GITHUB.value.value:
-            if self.env_config.git_method == ( GitMethodEnum.HTTPS.value.value or GitMethodEnum.GHPROXY.value.value):
-                return self.project_config.github_https_repository
-            elif self.env_config.git_method == GitMethodEnum.GHPROXY.value.value:
-                return GH_PROXY_URL +self.project_config.github_https_repository
+            if self.env_config.git_method == GitMethodEnum.HTTPS.value.value:
+                if self.env_config.is_ghproxy:
+                    return GH_PROXY_URL + self.project_config.github_https_repository
+                else:
+                    return self.project_config.github_https_repository
             else:
                 return self.project_config.github_ssh_repository
+        elif self.env_config.repository_type == RepositoryTypeEnum.GITEE.value.value:
+            if self.env_config.git_method == GitMethodEnum.HTTPS.value.value:
+                return self.project_config.gitee_https_repository
+            else:
+                return self.project_config.gitee_ssh_repository
         else:
             return ''
 
@@ -364,4 +367,17 @@ class GitService:
         """
         if not os.path.exists(DOT_GIT_DIR_PATH):  # 未有.git文件夹
             return
-        cmd_utils.run_command([self.env_config.git_path, 'remote', 'set-url', 'origin', self.project_config.github_https_repository])
+
+        if self.env_config.repository_type == RepositoryTypeEnum.GITHUB.value.value:
+            if self.env_config.git_method == GitMethodEnum.HTTPS.value.value:
+                remote = self.project_config.github_https_repository
+            else:
+                remote = self.project_config.github_ssh_repository
+        elif self.env_config.repository_type == RepositoryTypeEnum.GITEE.value.value:
+            if self.env_config.git_method == GitMethodEnum.HTTPS.value.value:
+                remote = self.project_config.gitee_https_repository
+            else:
+                remote = self.project_config.gitee_ssh_repository
+        else:
+            return
+        cmd_utils.run_command([self.env_config.git_path, 'remote', 'set-url', 'origin', remote])
