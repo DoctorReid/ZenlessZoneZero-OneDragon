@@ -118,6 +118,7 @@ class GitService:
         :return: 是否成功
         """
         log.info(f'.git目录 {DOT_GIT_DIR_PATH}')
+        self.set_safe_dir()
         if not os.path.exists(DOT_GIT_DIR_PATH):  # 第一次直接克隆
             return self.clone_repository(progress_callback)
         else:  # 已经克隆了
@@ -370,3 +371,10 @@ class GitService:
 
         remote = self.get_git_repository()
         cmd_utils.run_command([self.env_config.git_path, 'remote', 'set-url', 'origin', remote])
+
+    def set_safe_dir(self) -> None:
+        """
+        部分场景会没有权限clone代码 需要先授权
+        :return:
+        """
+        cmd_utils.run_command([self.env_config.git_path, 'config', '--global', '--add', 'safe.directory', os_utils.get_work_dir()])
