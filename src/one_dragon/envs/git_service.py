@@ -147,7 +147,7 @@ class GitService:
         log.info(msg)
         if progress_callback is not None:
             progress_callback(-1, msg)
-        repo_url = self.get_git_repository()
+        repo_url = self.get_git_repository(for_clone=True)
         result = cmd_utils.run_command([self.env_config.git_path, 'clone', '-b', self.project_config.project_git_branch,
                                         repo_url, temp_folder])
         if result is None:
@@ -185,14 +185,14 @@ class GitService:
         :return:
         """
         log.info('核对当前仓库')
-        current_repo = cmd_utils.run_command([self.env_config.git_path,'config','--get','remote.origin.url'])
+        current_repo = cmd_utils.run_command([self.env_config.git_path, 'config', '--get', 'remote.origin.url'])
         if current_repo is None or not current_repo:
             log.info('未找到远程仓库')
-            cmd_utils.run_command([self.env_config.git_path, 'remote', 'set-url', 'origin', self.project_config.github_https_repository])
+            self.update_git_remote()
             log.info('添加远程仓库地址')
-        if(current_repo != self.project_config.github_ssh_repository):
+        elif current_repo != self.get_git_repository():
             log.info('远程仓库地址不一致')
-            cmd_utils.run_command([self.env_config.git_path,'remote','set-url','origin',self.project_config.github_ssh_repository])
+            self.update_git_remote()
             log.info('更新远程仓库地址')
 
         log.info('获取远程代码')
@@ -321,14 +321,14 @@ class GitService:
 
         return log_list
 
-    def get_git_repository(self) -> str:
+    def get_git_repository(self, for_clone: bool = False) -> str:
         """
         获取使用的仓库地址
         :return:
         """
         if self.env_config.repository_type == RepositoryTypeEnum.GITHUB.value.value:
             if self.env_config.git_method == GitMethodEnum.HTTPS.value.value:
-                if self.env_config.is_ghproxy:
+                if self.env_config.is_ghproxy and for_clone:
                     return GH_PROXY_URL + self.project_config.github_https_repository
                 else:
                     return self.project_config.github_https_repository
@@ -368,16 +368,5 @@ class GitService:
         if not os.path.exists(DOT_GIT_DIR_PATH):  # 未有.git文件夹
             return
 
-        if self.env_config.repository_type == RepositoryTypeEnum.GITHUB.value.value:
-            if self.env_config.git_method == GitMethodEnum.HTTPS.value.value:
-                remote = self.project_config.github_https_repository
-            else:
-                remote = self.project_config.github_ssh_repository
-        elif self.env_config.repository_type == RepositoryTypeEnum.GITEE.value.value:
-            if self.env_config.git_method == GitMethodEnum.HTTPS.value.value:
-                remote = self.project_config.gitee_https_repository
-            else:
-                remote = self.project_config.gitee_ssh_repository
-        else:
-            return
+        remote = self.get_git_repository()
         cmd_utils.run_command([self.env_config.git_path, 'remote', 'set-url', 'origin', remote])
