@@ -27,8 +27,14 @@ class HollowZeroChallengeConfig(YamlConfig):
         self.module_name = self.module_name + '_copy'
         if self.is_sample:
             self.old_module_name = self.module_name
-        self._sample = False
+        self.remove_sample()
 
+    def remove_sample(self) -> None:
+        """
+        设置为不是sample
+        :return:
+        """
+        self._sample = False
         self.file_path = self._get_yaml_file_path()
 
     def save(self) -> None:
@@ -72,6 +78,18 @@ class HollowZeroChallengeConfig(YamlConfig):
     @property
     def event_priority_str(self) -> str:
         return '\n'.join(self.event_priority)
+
+    @property
+    def agent1(self) -> str:
+        return self.get('agent1', None)
+
+    @property
+    def target_agents(self) -> List[str]:
+        return self.get('target_agents', [None, None, None])
+
+    @target_agents.setter
+    def target_agents(self, new_value: List[str]):
+        self.update('target_agents', new_value)
 
 
 def get_all_hollow_zero_challenge_config() -> List[HollowZeroChallengeConfig]:
@@ -120,4 +138,4 @@ def get_hollow_zero_challenge_new_name() -> str:
         except Exception:
             pass
 
-    return '%s%02d' % (prefix, max_idx)
+    return '%s%02d' % (prefix, max_idx + 1)

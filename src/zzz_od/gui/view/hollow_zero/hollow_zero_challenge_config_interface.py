@@ -6,10 +6,12 @@ from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.row_widget import RowWidget
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiPushSettingCard
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_op_config_list
 from zzz_od.context.zzz_context import ZContext
+from zzz_od.game_data.agent import AgentEnum
 from zzz_od.hollow_zero.hollow_zero_challenge_config import HollowZeroChallengeConfig, \
     get_all_hollow_zero_challenge_config, get_hollow_zero_challenge_new_name
 
@@ -73,6 +75,18 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
         self.name_opt.value_changed.connect(self._on_name_changed)
         widget.add_widget(self.name_opt)
 
+        self.agent_btn_list: List[ComboBox] = []
+        for i in range(3):
+            agent_btn = ComboBox()
+            for agent_enum in AgentEnum:
+                agent_btn.addItem(agent_enum.value.agent_name, userData=agent_enum.value.agent_id)
+            agent_btn.currentIndexChanged.connect(self._on_agent_changed)
+            self.agent_btn_list.append(agent_btn)
+
+        self.agents_opt = MultiPushSettingCard(btn_list=self.agent_btn_list, icon=FluentIcon.PEOPLE,
+                                               title='目标配队', content='超过3人配队进入空洞时才需要配置，呼叫增援时保留这3个')
+        widget.add_widget(self.agents_opt)
+
         self.auto_battle_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='自动战斗')
         self.auto_battle_opt.value_changed.connect(self._on_auto_battle_config_changed)
         widget.add_widget(self.auto_battle_opt)
@@ -124,6 +138,9 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
 
         self.name_opt.setDisabled(not chosen or is_sample)
         self.auto_battle_opt.setDisabled(not chosen or is_sample)
+        self.agents_opt.setDisabled(not chosen or is_sample)
+        for agent_btn in self.agent_btn_list:
+            agent_btn.setDisabled(not chosen or is_sample)
         self.resonium_priority_input.setDisabled(not chosen or is_sample)
         self.event_priority_input.setDisabled(not chosen or is_sample)
 
@@ -133,6 +150,13 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
         if chosen:
             self.name_opt.setValue(self.chosen_config.module_name)
             self.auto_battle_opt.setValue(self.chosen_config.auto_battle)
+            agents = self.chosen_config.target_agents
+            for i in range(3):
+                btn = self.agent_btn_list[i]
+                if agents[i] is None:
+                    btn.setCurrentIndex(-1)
+                else:
+                    btn.setCurrentIndex(btn.findData(agents[i]))
             self.resonium_priority_input.setPlainText(self.chosen_config.resonium_priority_str)
             self.event_priority_input.setPlainText(self.chosen_config.event_priority_str)
 
@@ -184,6 +208,8 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
             return
 
         self.chosen_config = HollowZeroChallengeConfig(get_hollow_zero_challenge_new_name(), False)
+        self.chosen_config.remove_sample()
+
         self._update_whole_display()
 
     def _on_copy_clicked(self):
@@ -267,3 +293,16 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
         value = self.event_priority_input.toPlainText()
 
         self.chosen_config.event_priority = [i.strip() for i in value.split('\n')]
+
+    def _on_agent_changed(self, idx: int) -> None:
+        if self.chosen_config is None:
+            return
+
+        agents = []
+        for i in range(3):
+            if self.agent_btn_list[i].currentIndex() == -1:
+                agents.append(None)
+            else:
+                agents.append(self.agent_btn_list[i].currentData())
+
+        self.chosen_config.target_agents = agents

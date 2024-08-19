@@ -99,7 +99,14 @@ class CallForSupport(ZOperation):
             return 2
         elif agent_list[2] is None:
             return 3
-        else:  # TODO 增加优先级
+        else:
+            targets = self.ctx.hollow_zero_challenge_config.target_agents
+            if new_agent.agent_id not in targets:  # 不在目标中
+                return None
+            else:  # 当前哪个不在目标里就踢掉哪个
+                for i in range(3):
+                    if agent_list[i].agent_id not in targets:
+                        return i
             return None
 
     @node_from(from_name='画面识别', status=STATUS_ACCEPT)
