@@ -4,10 +4,10 @@ pc_alt: false
 area_list:
 - area_name: 副本名称列表
   pc_rect:
-  - 752
-  - 182
-  - 1698
-  - 260
+  - 360
+  - 216
+  - 1552
+  - 466
   text: ''
   lcs_percent: 0.5
   template_sub_dir: ''
