@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QWidget
-from qfluentwidgets import FluentIcon
+from qfluentwidgets import FluentIcon, PushSettingCard
 from typing import Optional, List
 
 from one_dragon.base.config.config_item import ConfigItem
@@ -7,6 +7,7 @@ from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.view.app_run_interface import AppRunInterface
 from zzz_od.application.hollow_zero.hollow_zero_app import HollowZeroApp
+from zzz_od.application.hollow_zero.hollow_zero_debug_app import HollowZeroDebugApp
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.hollow_zero.hollow_zero_challenge_config import get_all_hollow_zero_challenge_config, \
@@ -31,6 +32,10 @@ class HollowZeroRunInterface(AppRunInterface):
 
     def get_widget_at_top(self) -> QWidget:
         top_widget = ColumnWidget()
+
+        self.debug_opt = PushSettingCard(text='调试', icon=FluentIcon.GAME, title='在空洞内可以直接调试运行')
+        self.debug_opt.clicked.connect(self._on_debug_clicked)
+        top_widget.add_widget(self.debug_opt)
 
         self.mission_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='挑战副本')
         self.mission_opt.value_changed.connect(self._on_mission_changed)
@@ -94,4 +99,18 @@ class HollowZeroRunInterface(AppRunInterface):
         self.ctx.init_hollow_config()
 
     def get_app(self) -> ZApplication:
-        return HollowZeroApp(self.ctx)
+        return self.app
+
+    def _on_start_clicked(self) -> None:
+        """
+        正常运行
+        """
+        self.app = HollowZeroApp(self.ctx)
+        AppRunInterface._on_start_clicked(self)
+
+    def _on_debug_clicked(self) -> None:
+        """
+        调试
+        """
+        self.app = HollowZeroDebugApp(self.ctx)
+        AppRunInterface._on_start_clicked(self)

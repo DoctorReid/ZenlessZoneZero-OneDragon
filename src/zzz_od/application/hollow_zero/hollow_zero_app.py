@@ -15,9 +15,6 @@ class HollowZeroApp(ZApplication):
     STATUS_NO_REWARD: ClassVar[str] = '无奖励可领取'
 
     def __init__(self, ctx: ZContext):
-        """
-        每天自动接收邮件奖励
-        """
         ZApplication.__init__(
             self,
             ctx=ctx, app_id='hollow_zero',
