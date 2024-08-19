@@ -157,7 +157,7 @@ class Ds4ButtonController(PcButtonController):
         self.pad.reset()
         self.pad.update()
 
-    def press(self, key: str, press_time: float) -> None:
+    def press(self, key: str, press_time: Optional[float] = None) -> None:
         """
         :param key: 按键
         :param press_time: 持续按键时间
