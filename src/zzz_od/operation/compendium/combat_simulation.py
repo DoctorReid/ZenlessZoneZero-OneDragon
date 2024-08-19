@@ -1,5 +1,6 @@
 import time
 
+import difflib
 from typing import Optional, ClassVar
 
 from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
@@ -68,12 +69,18 @@ class CombatSimulation(ZOperation):
 
         target_point: Optional[Point] = None
         ocr_result_map = self.ctx.ocr.run_ocr(part)
+        target_list = []
+        mrl_list = []
         for ocr_result, mrl in ocr_result_map.items():
-            if not str_utils.find_by_lcs(gt(self.plan.mission_name), ocr_result, percent=0.55):
-                continue
+            target_list.append(ocr_result)
+            mrl_list.append(mrl)
 
+        results = difflib.get_close_matches(gt(self.plan.mission_name), target_list, n=1)
+
+        if results is not None and len(results) > 0:
+            idx = target_list.index(results[0])
+            mrl = mrl_list[idx]
             target_point = area.left_top + mrl.max + Point(0, 50)
-            break
 
         if target_point is None:
             return self.round_retry(status='找不到 %s' % self.plan.mission_name, wait=1)
@@ -214,10 +221,6 @@ def __debug():
     ctx.start_running()
     op = CombatSimulation(ctx, ChargePlanItem())
     op.can_run_times = 1
-    op.handle_init()
-    op.init_auto_battle()
-    auto_battle_utils.init_context(op)
-    op.auto_op.start_running_async()
     op.execute()
 
 
