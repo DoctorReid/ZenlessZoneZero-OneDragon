@@ -17,11 +17,7 @@
 
 基于 绝区零 && 图像识别 && 一条龙框架，适用于 PC 端，一键完成日常任务
 
-<font color=pink>
-
-无修改游戏、读取内存等作弊行为。低调学习的好学生应该不会被米哈游老师抓
-
-</font>
+（无修改游戏、读取内存等行为，低调学习的好学生应该不会被米哈游老师抓）
 
 如果喜欢本项目，可右上角送作者一个`Star` ✨
 
@@ -33,19 +29,30 @@
 
 ## 支持功能
 
-- **战斗：** 一键赋予自动战斗的灵魂
-- **闪避：** 拥有多种闪避方式供你选择
+- **战斗：** 一键自动战斗
+- **闪避：** 支持声音、图像识别
 - **日常：** 完成每日任务，收派委托，刮刮乐
 - **打本：** 每日副本
-- **空洞：** 制作中，敬请期待~
+- **空洞：** 自动空洞（测试中，遇到问题请提交问题区或 Q 群反馈）
 
-## 安装方式
+> 遇到问题，请查看[常见问题排查](https://kdocs.cn/l/cbSJUUNotJ3Z)或加入 Q 群咨询
 
-以下方式选择其一即可
+## 图片展示
 
-### 1.1.使用自己的 Python 环境
+<img alt="App" src="./image/app.png" width="512" height="256" />
 
-（新手建议使用第二种）
+## 快速上手
+
+### A.使用安装器（推荐）
+
+使用安装器的话，不要放在包含空格的目录下
+
+1. 从 [最新 Release](https://github.com/DoctorReid/ZenlessZoneZero-OneDragon/releases/latest) 中下载 `ZZZ-OD-X.Y.Z.zip` (X.Y.Z 为版本号)
+2. 选择一个完整的英文目录，右键解压 `提取到当前位置`
+3. 运行 `installer.exe`，选择 `一键安装`。如果无法同步代码，请在【设置】中填入你的网络代理。安装过程可能需要 5~10 分钟，请耐心等待。
+4. 在安装器上点击`启动一条龙`，或右键管理员权限运行 `app.bat`
+
+### B.手动克隆仓库
 
 1. 创建你自己的虚拟环境
 2. `git clone git@github.com:DoctorReid/ZenlessZoneZero-OneDragon.git`
@@ -53,15 +60,6 @@
 4. 运行 （以下二选一）
    - 复制 `env.sample.bat`，重命名为 `env.bat`，并修改内容为你的虚拟环境的 python 路径，使用 `app.bat` 运行。
    - 将`src`文件夹加入环境变量`PYTHONPATH`，执行 `python src/zzz_od/gui/app.py` 。
-
-### 1.2.使用安装器
-
-使用安装器的话，不要放在包含空格的目录下
-
-1. 从 [最新 Release](https://github.com/DoctorReid/ZenlessZoneZero-OneDragon/releases/latest) 中下载 `ZZZ-OD-X.Y.Z.zip` (X.Y.Z 为版本号)
-2. 选择一个完整的英文目录，右键解压 `提取到当前位置`
-3. 运行 `installer.exe`，选择 `一键安装`。如果无法同步代码，请在【设置】中填入你的网络代理。安装过程可能需要 5~10 分钟，请耐心等待。
-4. 在安装器上点击`启动一条龙`，或手动运行 `app.bat`
 
 ### 前置说明
 
@@ -79,17 +77,11 @@
 7. 如果游戏内进行过改键，请到脚本设置中对应修改。
 8. 国际服需要在【设置】-【游戏设置】中更改区服后使用。
 
-另可参考 [常见问题排查](https://kdocs.cn/l/cbSJUUNotJ3Z)
+## 文档合集
 
-## 功能说明
+自定义指令教程：[地址](https://github.com/DoctorReid/ZenlessZoneZero-OneDragon/wiki/%E5%8A%9F%E8%83%BD-%E9%97%AA%E9%81%BF%E5%8A%A9%E6%89%8B)
 
-### 自动闪避
-
-**手残救星，只管输出即可**
-
-判断游戏画面，出现黄光/红光后进行自动闪避，可设置成切人格挡，闪 A 切人(双反)，甚至自定义指令。[详细说明](https://github.com/DoctorReid/ZenlessZoneZero-OneDragon/wiki/%E5%8A%9F%E8%83%BD-%E9%97%AA%E9%81%BF%E5%8A%A9%E6%89%8B)
-
-支持手柄，参考[文档](https://github.com/DoctorReid/ZenlessZoneZero-OneDragon/wiki/%E5%85%B6%E5%AE%83-%E6%89%8B%E6%9F%84%E6%94%AF%E6%8C%81)安装所需依赖。
+手柄驱动教程：[地址](https://github.com/DoctorReid/ZenlessZoneZero-OneDragon/wiki/%E5%85%B6%E5%AE%83-%E6%89%8B%E6%9F%84%E6%94%AF%E6%8C%81)
 
 注意: 不同响应速度的机器、不同的角色需要的按键手法不一样，特别是按键的间隔。 所以默认的配置未必适用所有情况，请按自身情况调整配置文件。
 
