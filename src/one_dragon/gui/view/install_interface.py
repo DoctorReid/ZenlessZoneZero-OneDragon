@@ -101,11 +101,10 @@ class InstallerInterface(VerticalScrollInterface):
             self.progress_bar_2.setVisible(False)
             self.progress_bar_2.stop()
 
-    def _on_code_updated(self, success: bool, msg: str) -> None:
+    def _on_code_updated(self, success: bool) -> None:
         """
         代码更新后
         :param success:
-        :param msg:
         :return:
         """
         if success:
