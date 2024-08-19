@@ -22,7 +22,7 @@ class YoloConfig(YamlConfig):
 
     @property
     def hollow_zero_event(self) -> str:
-        return self.get('hollow_zero_event', 'yolov8s-640-hollow-zero-event-0818')
+        return self.get('hollow_zero_event', 'yolov8s-640-hollow-zero-event-0819')
 
     @hollow_zero_event.setter
     def hollow_zero_event(self, new_value: str) -> None:
