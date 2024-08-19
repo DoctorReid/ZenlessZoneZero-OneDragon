@@ -55,7 +55,7 @@ def __debug_opts():
     from zzz_od.operation.hollow_zero.hollow_runner import HollowRunner
     op = HollowRunner(ctx)
     from one_dragon.utils import debug_utils
-    screen = debug_utils.get_debug_image('_1724045902037')
+    screen = debug_utils.get_debug_image('_1724044474644')
     from zzz_od.operation.hollow_zero import hollow_utils
     event_name = hollow_utils.check_screen(op, screen)
     e = ctx.hollow.data_service.get_normal_event_by_name(event_name)

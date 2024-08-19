@@ -46,6 +46,7 @@ def check_event_text_and_run(op: ZOperation, screen: MatLike, handlers: List[Eve
     area = get_event_text_area(op)
     part = cv2_utils.crop_image_only(screen, area.rect)
     white = cv2.inRange(part, (240, 240, 240), (255, 255, 255))
+    white = cv2_utils.dilate(white, 5)
     to_ocr = cv2.bitwise_and(part, part, mask=white)
 
     ocr_result_map = op.ctx.ocr.run_ocr(to_ocr)
