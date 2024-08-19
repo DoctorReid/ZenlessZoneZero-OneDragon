@@ -138,9 +138,9 @@ class CheckUpdateRunner(QThread):
         运行 最后发送结束信号
         :return:
         """
-        with_new, msg = self.ctx.git_service.is_current_branch_latest()
+        is_latest, msg = self.ctx.git_service.is_current_branch_latest()
         if msg != '与远程分支不一致':
-            self.need_update.emit(with_new)
+            self.need_update.emit(not is_latest)
 
 
 class HomeInterface(VerticalScrollInterface):
@@ -170,7 +170,7 @@ class HomeInterface(VerticalScrollInterface):
 
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)
-        self._check_update_runner.run()
+        self._check_update_runner.start()
 
     def _need_to_update(self, with_new: bool):
         if not with_new:
