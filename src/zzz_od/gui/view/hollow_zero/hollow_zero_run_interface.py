@@ -33,7 +33,7 @@ class HollowZeroRunInterface(AppRunInterface):
     def get_widget_at_top(self) -> QWidget:
         top_widget = ColumnWidget()
 
-        self.debug_opt = PushSettingCard(text='调试', icon=FluentIcon.GAME, title='在空洞内可以直接调试运行')
+        self.debug_opt = PushSettingCard(text='调试', icon=FluentIcon.GAME, title='调试', content='测试使用 空洞内可调试 空洞外需点开始')
         self.debug_opt.clicked.connect(self._on_debug_clicked)
         top_widget.add_widget(self.debug_opt)
 
