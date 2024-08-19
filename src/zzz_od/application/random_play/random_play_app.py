@@ -158,6 +158,14 @@ class RandomPlayApp(ZApplication):
                 idx = target_list.index(results[0])
                 self._need_video_themes.append(self._all_video_themes[idx])
 
+        # 识别不到 随便补充到3个主题
+        for theme in self._all_video_themes:
+            if len(self._need_video_themes) >= 3:
+                break
+            if theme in self._need_video_themes:
+                continue
+            self._need_video_themes.append(theme)
+
         return self.round_success()
 
     @node_from(from_name='识别录像带主题')
