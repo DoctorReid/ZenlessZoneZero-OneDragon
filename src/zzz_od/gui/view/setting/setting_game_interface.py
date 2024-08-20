@@ -417,25 +417,25 @@ class SettingGameInterface(VerticalScrollInterface):
     def _on_xbox_key_interact_changed(self, idx: int, key: str) -> None:
         self.ctx.game_config.xbox_key_interact = key
 
-    def _on_xbox_key_chain_left_changed(self, key: str) -> None:
+    def _on_xbox_key_chain_left_changed(self, idx: int, key: str) -> None:
         self.ctx.game_config.xbox_key_chain_left = key
 
-    def _on_xbox_key_chain_right_changed(self, key: str) -> None:
+    def _on_xbox_key_chain_right_changed(self, idx: int, key: str) -> None:
         self.ctx.game_config.xbox_key_chain_right = key
 
-    def _on_xbox_key_move_w_changed(self, key: str) -> None:
+    def _on_xbox_key_move_w_changed(self, idx: int, key: str) -> None:
         self.ctx.game_config.xbox_key_move_w = key
 
-    def _on_xbox_key_move_s_changed(self, key: str) -> None:
+    def _on_xbox_key_move_s_changed(self, idx: int, key: str) -> None:
         self.ctx.game_config.xbox_key_move_s = key
 
-    def _on_xbox_key_move_a_changed(self, key: str) -> None:
+    def _on_xbox_key_move_a_changed(self, idx: int, key: str) -> None:
         self.ctx.game_config.xbox_key_move_a = key
 
-    def _on_xbox_key_move_d_changed(self, key: str) -> None:
+    def _on_xbox_key_move_d_changed(self, idx: int, key: str) -> None:
         self.ctx.game_config.xbox_key_move_d = key
 
-    def _on_xbox_key_lock_changed(self, key: str) -> None:
+    def _on_xbox_key_lock_changed(self, idx: int, key: str) -> None:
         self.ctx.game_config.xbox_key_lock = key
 
     def _on_ds4_key_press_time_changed(self, value: str) -> None:
@@ -462,23 +462,23 @@ class SettingGameInterface(VerticalScrollInterface):
     def _on_ds4_key_interact_changed(self, idx: int, key: str) -> None:
         self.ctx.game_config.ds4_key_interact = key
 
-    def _on_ds4_key_chain_left_changed(self, key: str) -> None:
+    def _on_ds4_key_chain_left_changed(self, idx: int, key: str) -> None:
         self.ctx.game_config.ds4_key_chain_left = key
 
-    def _on_ds4_key_chain_right_changed(self, key: str) -> None:
+    def _on_ds4_key_chain_right_changed(self, idx: int, key: str) -> None:
         self.ctx.game_config.ds4_key_chain_right = key
 
-    def _on_ds4_key_move_w_changed(self, key: str) -> None:
+    def _on_ds4_key_move_w_changed(self, idx: int, key: str) -> None:
         self.ctx.game_config.ds4_key_move_w = key
 
-    def _on_ds4_key_move_s_changed(self, key: str) -> None:
+    def _on_ds4_key_move_s_changed(self, idx: int, key: str) -> None:
         self.ctx.game_config.ds4_key_move_s = key
 
-    def _on_ds4_key_move_a_changed(self, key: str) -> None:
+    def _on_ds4_key_move_a_changed(self, idx: int, key: str) -> None:
         self.ctx.game_config.ds4_key_move_a = key
 
-    def _on_ds4_key_move_d_changed(self, key: str) -> None:
+    def _on_ds4_key_move_d_changed(self, idx: int, key: str) -> None:
         self.ctx.game_config.ds4_key_move_d = key
 
-    def _on_ds4_key_lock_changed(self, key: str) -> None:
+    def _on_ds4_key_lock_changed(self, idx: int, key: str) -> None:
         self.ctx.game_config.ds4_key_lock = key
