@@ -72,7 +72,7 @@ class HollowContext:
 
     def _match_agent_in(self, img: MatLike, possible_agents: Optional[List[Agent]] = None) -> Optional[Agent]:
         """
-        在候选列表重匹配角色 TODO 待优化
+        在候选列表中匹配角色
         :return:
         """
         prefix = 'avatar_'
@@ -86,40 +86,6 @@ class HollowContext:
                 return agent
 
         return None
-
-    def check_battle_screen(self, screen: MatLike, screenshot_time: float,
-                            check_battle_end: bool = True,
-                            sync: bool = False) -> None:
-        """
-        异步判断角战斗画面
-        :return:
-        """
-        future_list: List[Future] = []
-
-        if check_battle_end:
-            future_list.append(_hollow_context_executor.submit(self._check_battle_end, screen, screenshot_time))
-
-        for future in future_list:
-            future.add_done_callback(thread_utils.handle_future_result)
-
-        if sync:
-            for future in future_list:
-                future.result()
-
-    def _check_battle_end(self, screen: MatLike, screenshot_time: float) -> None:
-        if not self._check_end_lock.acquire(blocking=False):
-            return
-
-        try:
-            if screenshot_time - self._last_check_end_time < cal_utils.random_in_range(self._check_end_interval):
-                # 还没有达到识别间隔
-                return
-            self._last_check_end_time = screenshot_time
-
-        except Exception:
-            log.error('识别战斗结束失败', exc_info=True)
-        finally:
-            self._check_end_lock.release()
 
     def init_event_yolo(self, use_gpu: bool = False) -> None:
         if self._event_model is None or self._event_model.gpu != use_gpu:
@@ -181,24 +147,17 @@ class HollowContext:
             return None
         idx_2_route = hollow_map_utils.search_map(current_map)
 
-        # 队员不满的时候 优先去增援
-        if self.ctx.hollow.agent_list is None or len(self.ctx.hollow.agent_list) < 3 or None in self.ctx.hollow.agent_list:
-            route = hollow_map_utils.get_route_by_entry(idx_2_route, '呼叫增援', self._visited_nodes)
-            if route is not None:
-                return current_map.nodes[route.first_step]
-
         # 1步可到的奖励 都先领取了
-        route = hollow_map_utils.get_route_in_1_step_benefit(idx_2_route)
+        route = hollow_map_utils.get_route_in_1_step_benefit(idx_2_route, self._visited_nodes)
         if route is not None:
-            return current_map.nodes[route.first_step]
+            return route.first_need_step_node
 
+        # 有一些优先要去的格子
         go_priority_list = [
+            '呼叫增援',
             '业绩考察点',
             '零号银行',
             '邦布商人',
-            '守门人',
-            '传送点',
-            '不宜久留'
         ]
 
         for to_go in go_priority_list:
@@ -209,10 +168,9 @@ class HollowContext:
             # 两次想要前往同一个节点
             if (self._last_route is not None
                     and hollow_map_utils.is_same_node(self._last_route.node, route.node)
-                    and self._last_route.first_step < len(current_map.nodes)
             ):
-                last_node = current_map.nodes[self._last_route.first_step]
-                curr_node = current_map.nodes[route.first_step]
+                last_node = self._last_route.first_need_step_node
+                curr_node = route.first_need_step_node
                 if (hollow_map_utils.is_same_node(last_node, curr_node)
                         and route.node.entry.entry_name == '零号业绩点'):
                     # 代表上一次点了之后 这次依然要点同样的位置 也就是无法通行
@@ -220,13 +178,30 @@ class HollowContext:
                     continue
 
             self._last_route = route
-            return current_map.nodes[route.first_step]
+            return route.first_need_step_node
 
-        # 没有特殊点的时候 按副本类型走特定方向
-        if self.level_info.level == 2:  # 第2层往上走
+        # 是一定能走到的出口
+        must_go_list = [
+            '守门人',
+            '传送点',
+            '不宜久留'
+        ]
+
+        for to_go in must_go_list:
+            route = hollow_map_utils.get_route_by_entry(idx_2_route, to_go, self._visited_nodes)
+            if route is not None:
+                return route.first_need_step_node
+
+            # 如果之前走过，但走不到 说明可能中间有格子识别错了 这种情况就一格一格地走
+            route = hollow_map_utils.get_route_by_entry(idx_2_route, to_go, [])
+            if route is not None:
+                return route.first_node
+
+        # 没有匹配到特殊点的时候 按副本类型走特定方向
+        if self.level_info.level >= 2 and self.level_info.phase == 1:
             route = hollow_map_utils.get_route_by_direction(idx_2_route, 'w')
             if route is not None:
-                return current_map.nodes[route.first_step]
+                return route.first_need_step_node
 
         return None
 
@@ -242,17 +217,16 @@ class HollowContext:
             self._visited_nodes.clear()
 
             if node.entry.entry_name == '传送点':
-                if self.level_info is not None and self.level_info.phase is not None:
-                    self.level_info.phase += 1
+                if self.level_info is not None:
+                    self.level_info.to_next_phase()
 
     def update_to_next_level(self) -> None:
         """
         前往下一层了 更新信息
         """
         self._visited_nodes.clear()
-        if self.level_info is not None and self.level_info.level is not None:
-            self.level_info.level += 1
-            self.level_info.phase = 1
+        if self.level_info is not None:
+            self.level_info.to_next_level()
         self._last_route = None
 
     def init_level_info(self, mission_type_name: str, mission_name: str) -> None:
@@ -283,7 +257,7 @@ def __debug_get_map():
 
     from one_dragon.utils import debug_utils
     img_list = [
-        '_1724143042504',
+        '_1724046131053',
     ]
     for i in img_list:
         img = debug_utils.get_debug_image(i)

@@ -226,12 +226,16 @@ def draw_map(screen: MatLike, current_map: HollowZeroMap,
 
 class RouteSearchRoute:
 
-    def __init__(self, node: HollowZeroMapNode, node_idx: int, first_step: int, step_cnt: int, distance: float):
+    def __init__(self, node: HollowZeroMapNode, node_idx: int,
+                 first_node: HollowZeroMapNode,
+                 first_need_step_node: HollowZeroMapNode,
+                 step_cnt: int, distance: float):
         self.node: HollowZeroMapNode = node  # 需要前往的节点
         self.node_idx: int = node_idx  # 需要前往的节点的下标
-        self.first_step: int = first_step  # 第一步需要走的节点下标
+        self.first_node: HollowZeroMapNode = first_node  # 第一个节点
+        self.first_need_step_node: HollowZeroMapNode = first_need_step_node  # 第一个需要步数的节点
         self.step_cnt: int = step_cnt  # 走到这个格子需要的步数
-        self.distance: float = distance  # 需要前往的节点的距离
+        self.distance: float = distance  # 需要前往的节点在图像上的距离
 
 
 def search_map(current_map: HollowZeroMap) -> dict[int, RouteSearchRoute]:
@@ -245,22 +249,25 @@ def search_map(current_map: HollowZeroMap) -> dict[int, RouteSearchRoute]:
     if current_map is None or current_map.current_idx is None:
         return result
 
-    current_idx = current_map.current_idx
-    current_node = current_map.nodes[current_idx]
-    current_route = RouteSearchRoute(current_node, current_idx, current_idx, 0, 0)
-    result[current_idx] = current_route
+    start_node_idx = current_map.current_idx
+    start_node = current_map.nodes[start_node_idx]
+    start_route = RouteSearchRoute(start_node, start_node_idx,
+                                   None, start_node,
+                                   0, 0)
+    result[start_node_idx] = start_route
 
-    if current_idx not in current_map.edges:
+    if start_node_idx not in current_map.edges:
         return result
 
     searched: set[int] = set()  # 已经搜索过的
-    searched.add(current_idx)
+    searched.add(start_node_idx)
 
-    bfs_queue: List[RouteSearchRoute] = [current_route]
+    bfs_queue: List[RouteSearchRoute] = [start_route]
     bfs_idx: int = 0
     while bfs_idx < len(bfs_queue):
-        current = bfs_queue[bfs_idx]
-        current_node_idx = current.node_idx
+        current_route = bfs_queue[bfs_idx]
+        current_node = current_route.node
+        current_node_idx = current_route.node_idx
         bfs_idx += 1
 
         if current_node_idx not in current_map.edges:  # 没有边
@@ -275,11 +282,16 @@ def search_map(current_map: HollowZeroMap) -> dict[int, RouteSearchRoute]:
             if not next_entry.can_go:  # 无法移动
                 continue
 
-            next_step_cnt = current.step_cnt + (next_entry.need_step if next_entry is not None else 1)
+            next_step_cnt = current_route.step_cnt + (next_entry.need_step if next_entry is not None else 1)
+            if next_step_cnt <= 1:
+                first_need_step_node = next_node
+            else:
+                first_need_step_node = current_route.first_need_step_node
             next_route = RouteSearchRoute(
                 node=next_node,
                 node_idx=next_idx,
-                first_step=next_idx if next_step_cnt == 1 else current.first_step,
+                first_node=next_node if current_route.first_node is None else current_route.first_node,
+                first_need_step_node=first_need_step_node,
                 step_cnt=next_step_cnt,
                 distance=cal_utils.distance_between(current_node.pos.center, next_node.pos.center)
             )
@@ -290,7 +302,7 @@ def search_map(current_map: HollowZeroMap) -> dict[int, RouteSearchRoute]:
     return result
 
 
-def get_route_in_1_step_benefit(idx_2_route: dict[int, RouteSearchRoute]) -> Optional[RouteSearchRoute]:
+def get_route_in_1_step_benefit(idx_2_route: dict[int, RouteSearchRoute], visited_nodes: List[HollowZeroMapNode]) -> Optional[RouteSearchRoute]:
     """
     获取1步能到的奖励节点的路径
     :param idx_2_route:
@@ -304,17 +316,29 @@ def get_route_in_1_step_benefit(idx_2_route: dict[int, RouteSearchRoute]) -> Opt
         if entry is None or not entry.is_benefit:
             continue
 
+        had_visited: bool = False
+        for visited in visited_nodes:
+            if cal_utils.distance_between(route.node.pos.center, visited.pos.center) < 100:
+                had_visited = True
+                break
+
+        if had_visited:
+            continue
+
         if target is None or target.distance > route.distance:
             target = route
 
     return target
 
 
-def get_route_by_entry(idx_2_route: dict[int, RouteSearchRoute], entry_name: str,
+def get_route_by_entry(idx_2_route: dict[int, RouteSearchRoute],
+                       entry_name: str,
                        visited_nodes: List[HollowZeroMapNode]) -> Optional[RouteSearchRoute]:
     """
     根据格子类型找最近能到的路径
-    :param idx_2_route:
+    :param idx_2_route: 搜索的路径
+    :param entry_name: 需要前往的格子类型
+    :param visited_nodes: 已经尝试去过的格子
     :return:
     """
     target: Optional[RouteSearchRoute] = None

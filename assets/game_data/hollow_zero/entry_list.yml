@@ -47,8 +47,10 @@
 - entry_name: "奇货"
 - entry_name: "盲盒区域"
   is_benefit: false
+  is_tp: true
 - entry_name: "不宜久留"
-  need_step: 0
+  is_benefit: false
+  is_tp: true
 - entry_name: "奇怪的侦探"
 - entry_name: "求救的信号"
 - entry_name: "调查协会补给站"
