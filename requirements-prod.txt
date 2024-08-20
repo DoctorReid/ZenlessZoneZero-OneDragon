@@ -4,7 +4,6 @@
 #
 #    pip-compile --annotation-style=line --index-url=https://pypi.tuna.tsinghua.edu.cn/simple --output-file=requirements-prod.txt requirements-dev.txt
 #
---index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
 audioread==3.0.1          # via librosa
 certifi==2024.7.4         # via requests

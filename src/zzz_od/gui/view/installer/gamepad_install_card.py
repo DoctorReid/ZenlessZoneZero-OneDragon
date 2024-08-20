@@ -65,8 +65,9 @@ class GamepadInstallCard(BaseInstallCard):
         :return:
         """
         progress_callback(-1, '正在安装...安装过程可能需要安装驱动 正常安装即可')
-        result = cmd_utils.run_command([self.ctx.env_config.python_path, '-m', 'pip', 'install', '--upgrade', '-r',
-                                        self.get_requirement_path()])
+        result = cmd_utils.run_command([self.ctx.env_config.python_path, '-m', 'pip', 'install', '--upgrade',
+                                        '-r', self.get_requirement_path(),
+                                        '--index-url', self.ctx.env_config.pip_source])
         success = result is not None
         msg = '运行依赖安装成功' if success else '运行依赖安装失败'
         return success, msg
