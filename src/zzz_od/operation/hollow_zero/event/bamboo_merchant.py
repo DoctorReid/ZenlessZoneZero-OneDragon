@@ -96,7 +96,7 @@ class BambooMerchant(ZOperation):
                 continue
             with_price: bool = False
             for price in price_pos_list:
-                if price.y > mrl.max.center.y:
+                if price.y > mrl.max.center.y and price.y - mrl.max.center.y < 150:
                     with_price = True
                     break
 

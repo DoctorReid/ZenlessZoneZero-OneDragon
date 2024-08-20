@@ -9,9 +9,9 @@ from zzz_od.operation.hollow_zero.event import resonium_utils
 from zzz_od.operation.zzz_operation import ZOperation
 
 
-class DropResonium(ZOperation):
+class DropResoniumBase(ZOperation):
 
-    def __init__(self, ctx: ZContext):
+    def __init__(self, ctx: ZContext, drop_cn: str):
         """
         在选择鸣徽的画面了 选择一个
         :param ctx:
@@ -22,11 +22,13 @@ class DropResonium(ZOperation):
             op_name=gt('丢弃鸣徽')
         )
 
+        self.drop_cn: str = drop_cn
+
     @operation_node(name='选择', is_start_node=True)
     def choose_one(self) -> OperationRoundResult:
         screen = self.screenshot()
 
-        item_list = resonium_utils.get_to_choose_list(self.ctx, screen, '丢弃')
+        item_list = resonium_utils.get_to_choose_list(self.ctx, screen, self.drop_cn)
         if len(item_list) == 0:
             return self.round_retry(status='识别不到选项', wait=0.5)
 
@@ -45,5 +47,17 @@ class DropResonium(ZOperation):
     def choose_default(self):
         screen = self.screenshot()
         area = self.ctx.screen_loader.get_area('零号空洞-事件', '底部-选择列表')
-        return self.round_by_ocr_and_click(screen, '丢弃', area=area,
+        return self.round_by_ocr_and_click(screen, self.drop_cn, area=area,
                                            success_wait=1, retry_wait=1)
+
+
+class DropResonium(DropResoniumBase):
+
+    def __init__(self, ctx: ZContext):
+        DropResoniumBase.__init__(self, ctx, '丢弃')
+
+
+class DropResonium2(DropResoniumBase):
+
+    def __init__(self, ctx: ZContext):
+        DropResoniumBase.__init__(self, ctx, '抵押欠款')

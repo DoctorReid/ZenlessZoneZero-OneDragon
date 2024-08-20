@@ -124,7 +124,7 @@ class CallForSupport(ZOperation):
             else:  # 当前哪个不在目标里就踢掉哪个
                 for i in range(3):
                     if agent_list[i].agent_id not in targets:
-                        return i
+                        return i + 1
             return None
 
     @node_from(from_name='画面识别', status=STATUS_ACCEPT)
@@ -132,8 +132,15 @@ class CallForSupport(ZOperation):
     def accept_backup(self) -> OperationRoundResult:
         screen = self.screenshot()
         area = event_utils.get_event_text_area(self)
-        return self.round_by_ocr_and_click(screen, CallForSupport.STATUS_ACCEPT, area=area,
-                                           success_wait=2, retry_wait=1)
+        result = self.round_by_ocr_and_click(screen, CallForSupport.STATUS_ACCEPT, area=area)
+        if result.is_success:
+            return self.round_success(wait=2)
+
+        result = self.round_by_ocr_and_click(screen, '接替小队成员', area=area, lcs_percent=0.8)
+        if result.is_success:
+            return self.round_success(wait=2)
+
+        return self.round_retry(wait=1)
 
     @node_from(from_name=STATUS_ACCEPT)
     @operation_node(name='选择位置')
