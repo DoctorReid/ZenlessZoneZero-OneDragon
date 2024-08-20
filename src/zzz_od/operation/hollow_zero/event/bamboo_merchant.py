@@ -1,15 +1,15 @@
-import time
-
 import cv2
+from cv2.typing import MatLike
 from typing import ClassVar
 
+from one_dragon.base.matcher.match_result import MatchResultList
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
-from one_dragon.utils import cv2_utils, str_utils
+from one_dragon.utils import cv2_utils
 from one_dragon.utils.i18_utils import gt
 from zzz_od.context.zzz_context import ZContext
-from zzz_od.operation.hollow_zero.event import event_utils
+from zzz_od.operation.hollow_zero.event import event_utils, resonium_utils
 from zzz_od.operation.zzz_operation import ZOperation
 
 
@@ -55,6 +55,10 @@ class BambooMerchant(ZOperation):
         if result.is_success:
             return self.round_success(BambooMerchant.STATUS_LEVEL_1)
 
+        result = self.round_by_ocr(screen, '特价折扣', area=area)
+        if result.is_success:
+            return self.round_success(BambooMerchant.STATUS_LEVEL_1)
+
         return self.round_retry('未知画面', wait=1)
 
     @node_from(from_name='画面识别', status=STATUS_LEVEL_1)
@@ -79,32 +83,72 @@ class BambooMerchant(ZOperation):
     def choose_item(self) -> OperationRoundResult:
         screen = self.screenshot()
 
-        for idx in reversed(range(1, 4)):
-            area = self.ctx.screen_loader.get_area('零号空洞-商店', ('商品价格-%d' % idx))
+        price_ocr_result_map = self._ocr_price_area(screen)
+        price_pos_list = [i.max.center for i in price_ocr_result_map.values()]
 
-            part = cv2_utils.crop_image_only(screen, area.rect)
-            mask = cv2.inRange(part, (240, 140, 0), (255, 255, 50))
-            to_ocr = cv2.bitwise_and(part, part, mask=mask)
-
-            ocr_result = self.ctx.ocr.run_ocr_single_line(to_ocr)
-            if ocr_result == '。':
-                ocr_result = '0'  # 这里比较特殊 0会被识别成句号
-            digit = str_utils.get_positive_digits(ocr_result, None)
-            if digit is None:
+        desc_ocr_result_map = self._ocr_desc_area(screen)
+        item_list = []
+        pos_list = []
+        # 只保留有价格的
+        for ocr_result, mrl in desc_ocr_result_map.items():
+            item = self.ctx.hollow.data_service.match_resonium_by_ocr_name(ocr_result)
+            if item is None:
                 continue
+            with_price: bool = False
+            for price in price_pos_list:
+                if price.y > mrl.max.center.y:
+                    with_price = True
+                    break
 
-            self.ctx.controller.click(area.center)
-            time.sleep(1)
+            if not with_price:
+                continue
+            item_list.append(item)
+            pos_list.append(mrl.max.center)
 
-            buy_area = self.ctx.screen_loader.get_area('零号空洞-商店', ('商品购买-%d' % idx))
-            self.ctx.controller.click(buy_area.center)
-            time.sleep(1)
+        if len(item_list) > 0:
+            idx_list = resonium_utils.choose_resonium_by_priority(item_list, self.ctx.hollow_zero_challenge_config.resonium_priority)
+            to_choose = pos_list[idx_list[0]]
+        else:
+            to_choose = None
+            for price in price_pos_list:
+                if to_choose is None or price.y > to_choose.y:
+                    to_choose = price
 
-            return self.round_success()
+        if to_choose is None:
+            return self.round_success(BambooMerchant.NOT_TO_BUY, wait=1)
+        else:
+            self.ctx.controller.click(to_choose)
+            return self.round_success(wait=1)
 
-        return self.round_success(BambooMerchant.NOT_TO_BUY, wait=1)
+    def _ocr_price_area(self, screen: MatLike) -> dict[str, MatchResultList]:
+        area = self.ctx.screen_loader.get_area('零号空洞-商店', '商品价格区域')
+        part = cv2_utils.crop_image_only(screen, area.rect)
+        mask = cv2.inRange(part, (240, 140, 0), (255, 255, 50))
+        mask = cv2_utils.dilate(mask, 5)
+        to_ocr = cv2.bitwise_and(part, part, mask=mask)
+
+        ocr_result_map = self.ctx.ocr.run_ocr(to_ocr)
+        for mrl in ocr_result_map.values():
+            mrl.add_offset(area.left_top)
+
+        return ocr_result_map
+
+    def _ocr_desc_area(self, screen: MatLike) -> dict[str, MatchResultList]:
+        area = self.ctx.screen_loader.get_area('零号空洞-商店', '商品描述区域')
+        part = cv2_utils.crop_image_only(screen, area.rect)
+        ocr_result_map = self.ctx.ocr.run_ocr(part)
+        for mrl in ocr_result_map.values():
+            mrl.add_offset(area.left_top)
+
+        return ocr_result_map
 
     @node_from(from_name='选择鸣徽')
+    @operation_node(name='购买')
+    def buy(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        return self.round_by_find_and_click_area(screen, '零号空洞-商店', '商品购买区域')
+
+    @node_from(from_name='购买')
     @operation_node(name='购买后确定')
     def confirm(self) -> OperationRoundResult:
         screen = self.screenshot()

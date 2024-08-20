@@ -56,18 +56,12 @@ def choose_resonium_by_priority(item_list: List[Resonium], priority_list: List[s
     :return:
     """
     # 先按等级排序
-    level_list: List[Resonium] = []
-    for level in ['S', 'A', 'B', '']:
-        for i in item_list:
-            if i.level == level:
-                level_list.append(i)
-
     idx_list: List[int] = []  # 最终的下标排序结果
     for priority_item in priority_list:
-        for i in range(len(level_list)):
+        for i in range(len(item_list)):
             if i in idx_list:
                 continue
-            item = level_list[i]
+            item = item_list[i]
             if item.category == priority_item:  # 分类符合
                 idx_list.append(i)
                 break
@@ -77,8 +71,12 @@ def choose_resonium_by_priority(item_list: List[Resonium], priority_list: List[s
                 break
 
     # 不符合优先级的
-    for i in range(len(level_list)):
-        if i not in idx_list:
+    for level in ['S', 'A', 'B', '']:
+        for i in range(len(item_list)):
+            if item_list[i].level != level:
+                continue
+            if i in idx_list:
+                continue
             idx_list.append(i)
 
     return idx_list

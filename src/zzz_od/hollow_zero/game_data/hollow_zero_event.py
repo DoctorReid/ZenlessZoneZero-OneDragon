@@ -70,9 +70,9 @@ class HollowZeroSpecialEvent(Enum):
     CORRUPTION_REMOVE = HallowZeroEvent('清除')
 
     CALL_FOR_SUPPORT = HallowZeroEvent('呼叫增援！', on_the_right=True)
-    RESONIUM_STORE_1 = HallowZeroEvent('鸣徽交易', on_the_right=True)
+    RESONIUM_STORE_1 = HallowZeroEvent('鸣徽交易', on_the_right=True, lcs_percent=0.7)
     RESONIUM_STORE_2 = HallowZeroEvent('特价折扣', on_the_right=True)
-    RESONIUM_STORE_3 = HallowZeroEvent('鸣徽催化', on_the_right=True)
+    RESONIUM_STORE_3 = HallowZeroEvent('鸣徽催化', on_the_right=True, lcs_percent=0.7)
 
     CRITICAL_STAGE = HallowZeroEvent('关键进展', on_the_right=True)
 

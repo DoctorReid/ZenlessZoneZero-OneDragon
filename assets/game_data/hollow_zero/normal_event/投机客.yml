@@ -1,0 +1,18 @@
+- entry_name: "投机客"
+  event_name: "投机客"
+  options:
+    - option_name: "借2488齿轮硬币"
+    - option_name: "借1688齿轮硬币"
+    - option_name: "借888齿轮硬币"
+    - option_name: "不需要借款"
+
+    - option_name: "清除压力"
+      desc: "压力值-20"
+    - option_name: "恢复身体"
+      desc: "回复10%生命值"
+
+    - option_name: "离开"
+    - option_name: "享受更多帮助"
+
+    - option_name: "全部还款"
+    - option_name: "我只能还齿轮硬币"

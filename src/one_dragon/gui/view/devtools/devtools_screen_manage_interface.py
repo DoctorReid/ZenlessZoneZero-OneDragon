@@ -497,7 +497,7 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
                 area_item.template_sub_dir = ''
                 area_item.template_id = ''
             else:
-                template_list = text.split(',')
+                template_list = text.split('.')
                 if len(template_list) > 1:
                     area_item.template_sub_dir = template_list[0]
                     area_item.template_id = template_list[1]

@@ -121,6 +121,16 @@ class HallowZeroDataService:
         resonium_idx = resonium_name_list.index(results[0])
         return resonium_list[resonium_idx]
 
+    def match_resonium_by_ocr_name(self, name_str: str) -> Optional[Resonium]:
+        resonium_name_list = [gt(i.name) for i in self.resonium_list]
+        results = difflib.get_close_matches(name_str, resonium_name_list, n=1)
+
+        if results is None or len(results) == 0:
+            return None
+
+        resonium_idx = resonium_name_list.index(results[0])
+        return self.resonium_list[resonium_idx]
+
     def check_resonium_priority(self, input: str) -> Tuple[List[str], str]:
         """
         校验优先级的文本输入

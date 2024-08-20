@@ -85,11 +85,18 @@ class CallForSupport(ZOperation):
         return self._best_match_agent(ocr_result)
 
     def _best_match_agent(self, ocr_result: str) -> Optional[Agent]:
-        idx = ocr_result.find('响')
-        if idx != -1:
-            to_match = ocr_result[:idx]
-        else:
-            to_match = ocr_result
+        ocr_result = ocr_result.replace('「', '')
+        idx1 = ocr_result.find('响')
+        idx2 = ocr_result.find('应')
+        idx3 = ocr_result.find('了')
+        if idx1 != -1 and idx1 > 0:
+            to_match = ocr_result[:idx1]
+        elif idx2 != -1 and idx2 - 1 > 0:
+            to_match = ocr_result[:idx2-1]
+        elif idx3 != -1 and idx3 - 2 > 0:
+            to_match = ocr_result[:idx3-2]
+        else:  # 默认情况只取前面3个字匹配
+            to_match = ocr_result[:3]
 
         # 一些识别错误的硬编码纠正
         ocr_wrong = {
@@ -159,7 +166,7 @@ class CallForSupport(ZOperation):
             RejectOption('下次再依靠你'),  # 本
             RejectOption('这次没有研究的机会'),  # 格蕾丝
             RejectOption('先不劳烦青衣了'),  # 青衣
-            RejectOption('暂不需要援助'),  # 丽娜
+            RejectOption('暂不需要援护'),  # 丽娜
             RejectOption('目前不需要支援'),  # 派派、露西、苍角
             RejectOption('下次再雇你'),  # 妮可
             RejectOption('市民更需要你'),  # 朱鸢

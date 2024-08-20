@@ -46,7 +46,7 @@ class HollowZeroRunInterface(AppRunInterface):
         self.challenge_config_opt.value_changed.connect(self._on_challenge_config_changed)
         top_widget.add_widget(self.challenge_config_opt)
 
-        self.weekly_times_opt = TextSettingCard(icon=FluentIcon.GAME, title='每周通过次数')
+        self.weekly_times_opt = TextSettingCard(icon=FluentIcon.GAME, title='每周通关次数')
         self.weekly_times_opt.value_changed.connect(self._on_weekly_times_changed)
         top_widget.add_widget(self.weekly_times_opt)
 
@@ -119,6 +119,7 @@ class HollowZeroRunInterface(AppRunInterface):
         调试
         """
         self.app = HollowZeroDebugApp(self.ctx)
+        self.ctx.hollow.data_service.reload()
         AppRunInterface._on_start_clicked(self)
 
     def _on_weekly_times_changed(self, value: str) -> None:

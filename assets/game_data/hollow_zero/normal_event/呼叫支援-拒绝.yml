@@ -206,7 +206,7 @@
 
 # 丽娜
 - entry_name: "呼叫支援"
-  event_name: "暂不需要援助"
+  event_name: "暂不需要援护"
   options:
     - option_name: "随机获得一枚S级或A级以太类型鸣徽"
     - option_name: "随机获得一枚S级或A级冻结类型鸣徽"

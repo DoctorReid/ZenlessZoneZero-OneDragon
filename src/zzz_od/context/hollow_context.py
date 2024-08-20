@@ -157,9 +157,6 @@ class HollowContext:
             self.map_results.pop(0)
 
         merge_map = hollow_map_utils.merge_map(self.map_results)
-        if self.ctx.env_config.is_debug:
-            result_img = hollow_map_utils.draw_map(screen, merge_map)
-            cv2_utils.show_image(result_img)
 
         return merge_map
 
@@ -286,7 +283,7 @@ def __debug_get_map():
 
     from one_dragon.utils import debug_utils
     img_list = [
-        'HollowRunner_1723980881127',
+        '_1724143042504',
     ]
     for i in img_list:
         img = debug_utils.get_debug_image(i)
