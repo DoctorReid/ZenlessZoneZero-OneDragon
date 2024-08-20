@@ -70,6 +70,8 @@ class XboxButtonController(PcButtonController):
         :param key:
         :return:
         """
+        if key is None:  # 部分按键不支持
+            return
         self._tab_handler[int(key.split('_')[-1])](None)
 
     def tab_a(self, press_time: Optional[float] = None) -> None:
@@ -166,6 +168,8 @@ class XboxButtonController(PcButtonController):
         self._tab_handler[int(key.split('_')[-1])](press_time)
 
     def release(self, key: str) -> None:
+        if key is None:  # 部分按键不支持
+            return
         self.release_handler[int(key.split('_')[-1])]()
 
     def release_a(self) -> None:

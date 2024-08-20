@@ -83,7 +83,7 @@ class ZPcController(PcControllerBase):
         self.key_move_a: str = self.game_config.xbox_key_move_a
         self.key_move_d: str = self.game_config.xbox_key_move_d
         self.key_interact: str = self.game_config.xbox_key_interact
-        self.key_lock: str = self.game_config.xbox_key_lock
+        self.key_lock: str = None
 
     def enable_ds4(self):
         PcControllerBase.enable_ds4(self)
@@ -101,7 +101,7 @@ class ZPcController(PcControllerBase):
         self.key_move_a: str = self.game_config.ds4_key_move_a
         self.key_move_d: str = self.game_config.ds4_key_move_d
         self.key_interact: str = self.game_config.ds4_key_interact
-        self.key_lock: str = self.game_config.ds4_key_lock
+        self.key_lock: str = None
 
     def dodge(self, press: bool = False, press_time: Optional[float] = None, release: bool = False) -> None:
         """
