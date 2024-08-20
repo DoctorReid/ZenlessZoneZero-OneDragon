@@ -48,10 +48,10 @@ area_list:
   template_match_threshold: 0.7
 - area_name: 呼叫增援-角色行
   pc_rect:
-  - 1230
-  - 436
-  - 1910
-  - 492
+  - 1232
+  - 434
+  - 1390
+  - 504
   text: ''
   lcs_percent: 0.5
   template_sub_dir: ''
@@ -123,7 +123,6 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-
 - area_name: 鸣徽名称-1
   pc_rect:
   - 416

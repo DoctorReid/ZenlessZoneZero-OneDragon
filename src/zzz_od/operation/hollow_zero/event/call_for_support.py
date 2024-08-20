@@ -1,5 +1,6 @@
 import cv2
 import difflib
+from cv2.typing import MatLike
 from typing import Optional, List, ClassVar
 
 from one_dragon.base.geometry.rectangle import Rect
@@ -65,11 +66,7 @@ class CallForSupport(ZOperation):
         if agent_list is None:
             return self.round_retry('无法识别当前角色列表', wait=1)
 
-        area = self.ctx.screen_loader.get_area('零号空洞-事件', '呼叫增援-角色行')
-        part = cv2_utils.crop_image_only(screen, area.rect)
-        ocr_result = self.ctx.ocr.run_ocr_single_line(part)
-
-        agent = self._best_match_agent(ocr_result)
+        agent = self._get_support_agent(screen)
         if agent is None:
             return self.round_retry('无法识别当前增援角色', wait=1)
 
@@ -80,8 +77,15 @@ class CallForSupport(ZOperation):
         else:
             return self.round_success(CallForSupport.STATUS_NO_NEED)
 
+    def _get_support_agent(self, screen: MatLike) -> Optional[Agent]:
+        area = self.ctx.screen_loader.get_area('零号空洞-事件', '呼叫增援-角色行')
+        part = cv2_utils.crop_image_only(screen, area.rect)
+        ocr_result = self.ctx.ocr.run_ocr_single_line(part)
+
+        return self._best_match_agent(ocr_result)
+
     def _best_match_agent(self, ocr_result: str) -> Optional[Agent]:
-        idx = ocr_result.find('响应')
+        idx = ocr_result.find('响')
         if idx != -1:
             to_match = ocr_result[:idx]
         else:
@@ -195,5 +199,16 @@ def __debug():
     op.execute()
 
 
+def __debug_support_agent():
+    ctx = ZContext()
+    ctx.init_by_config()
+    ctx.ocr.init_model()
+    op = CallForSupport(ctx)
+    from one_dragon.utils import debug_utils
+    screen = debug_utils.get_debug_image('IMG_0002')
+    print(op._get_support_agent(screen).agent_name)
+
+
 if __name__ == '__main__':
-    __debug()
+    # __debug()
+    __debug_support_agent()
