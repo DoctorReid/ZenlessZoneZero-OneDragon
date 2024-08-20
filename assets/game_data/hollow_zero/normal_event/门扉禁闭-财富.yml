@@ -1,0 +1,6 @@
+- entry_name: "门扉禁闭-财富"
+  event_name: "付费道路"
+  options:
+    - option_name: "打开阀门"
+      desc: "支付1000齿轮硬币"
+    - option_name: "离开"
