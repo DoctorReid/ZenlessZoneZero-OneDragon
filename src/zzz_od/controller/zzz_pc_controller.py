@@ -63,7 +63,7 @@ class ZPcController(PcControllerBase):
         self.key_move_w: str = self.game_config.key_move_w
         self.key_move_s: str = self.game_config.key_move_s
         self.key_move_a: str = self.game_config.key_move_a
-        self.key_lock: str = self.game_config.key_lock
+        self.key_move_d: str = self.game_config.key_move_d
         self.key_interact: str = self.game_config.key_interact
         self.key_lock: str = self.game_config.key_lock
 
