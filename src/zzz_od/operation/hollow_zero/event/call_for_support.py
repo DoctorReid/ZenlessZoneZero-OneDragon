@@ -9,11 +9,12 @@ from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
+from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import Agent, AgentEnum
+from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroSpecialEvent
 from zzz_od.operation.hollow_zero.event import event_utils
 from zzz_od.operation.hollow_zero.event.event_ocr_result_handler import EventOcrResultHandler
-from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroSpecialEvent
 from zzz_od.operation.zzz_operation import ZOperation
 
 
@@ -68,8 +69,7 @@ class CallForSupport(ZOperation):
 
         agent = self._get_support_agent(screen)
         if agent is None:
-            return self.round_retry('无法识别当前增援角色', wait=1)
-
+            log.error('无法识别当前增援角色')
         self.should_call_pos = self._should_call_backup(agent_list, agent)
 
         if self.should_call_pos is not None:
@@ -98,17 +98,10 @@ class CallForSupport(ZOperation):
         else:  # 默认情况只取前面3个字匹配
             to_match = ocr_result[:3]
 
-        # 一些识别错误的硬编码纠正
-        ocr_wrong = {
-            '菜卡': '莱卡'
-        }
-        for o, n in ocr_wrong.items():
-            to_match = to_match.replace(o, n)
-
         agent_list: List[Agent] = [agent.value for agent in AgentEnum]
         target_list: List[str] = [gt(agent.value.agent_name) for agent in AgentEnum]
 
-        results = difflib.get_close_matches(to_match, target_list, n=1, cutoff=0.5)
+        results = difflib.get_close_matches(to_match, target_list, n=1, cutoff=0.1)
 
         if results is not None and len(results) > 0:
             idx = target_list.index(results[0])
@@ -126,7 +119,7 @@ class CallForSupport(ZOperation):
             return 3
         else:
             targets = self.ctx.hollow_zero_challenge_config.target_agents
-            if new_agent.agent_id not in targets:  # 不在目标中
+            if new_agent is None or new_agent.agent_id not in targets:  # 不在目标中
                 return None
             else:  # 当前哪个不在目标里就踢掉哪个
                 for i in range(3):
