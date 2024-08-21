@@ -193,7 +193,7 @@ class NotoriousHunt(ZOperation):
             return self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-完成',
                                                      success_wait=5, retry_wait_round=1)
         else:
-            return self.round_by_find_and_click_area(screen, '恶名狩猎', '重新开始',
+            return self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-再来一次',
                                                      success_wait=1, retry_wait_round=1)
 
     @node_from(from_name='判断下一次', status='重新开始')

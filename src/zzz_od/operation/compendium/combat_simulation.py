@@ -195,8 +195,8 @@ class CombatSimulation(ZOperation):
             return self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-完成',
                                                      success_wait=5, retry_wait=1)
         else:
-            return self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-再来一次', success_wait=1,
-                                                     retry_wait=1)
+            return self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-再来一次',
+                                                     success_wait=1, retry_wait=1)
 
     def _on_pause(self, e=None):
         ZOperation._on_pause(self, e)
