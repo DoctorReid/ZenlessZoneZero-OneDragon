@@ -1,6 +1,6 @@
 import os
 from PySide6.QtCore import Qt, QRect, QThread, Signal
-from PySide6.QtGui import QPixmap, QPainter, QPainterPath, QFont, QColor, QLinearGradient, QPen
+from PySide6.QtGui import QPixmap, QPainter, QPainterPath, QFont, QColor, QLinearGradient, QPen,QBrush
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QSpacerItem, QSizePolicy
 from qfluentwidgets import FluentIcon, InfoBar, InfoBarPosition
 
@@ -41,8 +41,8 @@ class BannerWidget(QWidget):
         # 向链接卡片视图中添加一个卡片
         self.linkCardView.addCard(
             FluentIcon.GITHUB,
-            gt('主页', 'ui'),
-            self.tr('喜欢本项目请前往主页点Star'),
+            gt('仓库地址', 'ui'),
+            self.tr('如果本项目有帮助到您~\n不妨给项目点一个Star⭐'),
             "https://github.com/DoctorReid/ZenlessZoneZero-OneDragon"
         )
 
@@ -104,24 +104,44 @@ class BannerWidget(QWidget):
         painter.setClipPath(path)
         painter.drawPixmap(0, 0, banner_pixmap)
 
-        # 准备绘制文字
-        font = QFont("Microsoft YaHei", TEXT_SIZE, QFont.Weight.Bold)  # 使用常见的加粗中文字体
+        # 定义文本大小和间距
+        TEXT_SIZE = 24
+        TEXT_OFFSET = 50
+        BACKGROUND_PADDING = 10  # 矩形与文字之间的间距
+        ROUNDED_RADIUS = 10  # 圆角半径
+
+        # 准备绘制主标题文字
+        font = QFont("Microsoft YaHei", TEXT_SIZE, QFont.Weight.Bold)
         painter.setFont(font)
         text = "OneDragon"
         text_rect = painter.fontMetrics().boundingRect(text)
-        text_rect.moveCenter(QRect(0, 0, w, h).center())  # 使文字矩形居中
-        text_rect.moveRight(w - TEXT_OFFSET)  # 将文字稍微向右移动
+        text_rect.moveRight(w-TEXT_OFFSET)  # 将文字稍微向右移动
+        text_rect.moveTop(TEXT_OFFSET)  # 将文字稍微向右移动
 
-        # 绘制文字轮廓
-        outline_path = QPainterPath()
-        outline_path.addText(text_rect.topLeft(), font, text)  # 绘制文字轮廓
-        pen = QPen(Qt.black, 2, Qt.PenStyle.SolidLine)  # 轮廓颜色为黑色，线宽为2
-        painter.setPen(pen)
-        painter.drawPath(outline_path)
+        # 计算背景矩形的位置和大小
+        background_rect = text_rect.adjusted(-15, -10, 15, 40)
+        painter.setPen(Qt.NoPen)  # 不绘制边框
+        painter.setBrush(QBrush(QColor(0, 0, 0, 127)))  # 半透明黑色背景
+        painter.drawRoundedRect(background_rect, ROUNDED_RADIUS, ROUNDED_RADIUS)
 
-        # 绘制文字
-        painter.setPen(Qt.white)  # 文字颜色为浅灰色
-        painter.drawText(text_rect, Qt.AlignmentFlag.AlignCenter, text)
+        # 绘制主标题文字
+        painter.setPen(Qt.white)
+        painter.drawText(text_rect, text)
+
+        # 准备绘制副标题文字
+        small_font = QFont("Microsoft YaHei", 16, QFont.Weight.Bold)
+        painter.setFont(small_font)
+        small_text = "绝区零一条龙小助手 "
+        small_text_rect = painter.fontMetrics().boundingRect(small_text)
+
+        # 直接定位到主标题的下方
+        small_text_rect.moveLeft(text_rect.left())  # 与主标题左对齐
+        small_text_rect.moveTop(text_rect.bottom() + 2)  # 放置在主标题下方，间距为2像素
+
+        # 绘制副标题文字
+        painter.setPen(Qt.white)
+        painter.drawText(small_text_rect, small_text)
+
 
         painter.end()
 

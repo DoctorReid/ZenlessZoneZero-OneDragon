@@ -1,9 +1,8 @@
-from PySide6.QtWidgets import QWidget
-from qfluentwidgets import FluentIcon, PushSettingCard
+from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout
+from qfluentwidgets import FluentIcon,PushSettingCard,FluentThemeColor
 from typing import Optional, List
-
+from PySide6.QtGui import Qt,QColor
 from one_dragon.base.config.config_item import ConfigItem
-from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.gui.view.app_run_interface import AppRunInterface
@@ -32,25 +31,68 @@ class HollowZeroRunInterface(AppRunInterface):
         )
 
     def get_widget_at_top(self) -> QWidget:
-        top_widget = ColumnWidget()
+        # 创建一个容器 widget 用于水平排列
+        col_widget = QWidget(self)
+        col_layout = QHBoxLayout(col_widget)
+        col_widget.setLayout(col_layout)
 
-        self.debug_opt = PushSettingCard(text='调试', icon=FluentIcon.GAME, title='调试', content='测试使用 空洞内可调试 空洞外需点开始')
-        self.debug_opt.clicked.connect(self._on_debug_clicked)
-        top_widget.add_widget(self.debug_opt)
+        # 创建左侧的垂直布局容器
+        left_widget = QWidget(self)
+        left_layout = QVBoxLayout(left_widget)
+        left_widget.setLayout(left_layout)
 
-        self.mission_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='挑战副本')
+        # 创建右侧的垂直布局容器
+        right_widget = QWidget(self)
+        right_layout = QVBoxLayout(right_widget)
+        right_widget.setLayout(right_layout)
+
+        # 创建一个组合框设置卡片，标题为“挑战副本”
+        self.mission_opt = ComboBoxSettingCard(
+            icon=FluentIcon.GAME,  # 选择与挑战相关的图标
+            title='挑战副本', 
+            content='选择空洞及难度等级',
+        )
+        self.mission_opt.setIconSize(24,24)
         self.mission_opt.value_changed.connect(self._on_mission_changed)
-        top_widget.add_widget(self.mission_opt)
+        left_layout.addWidget(self.mission_opt)
 
-        self.challenge_config_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='挑战配置')
-        self.challenge_config_opt.value_changed.connect(self._on_challenge_config_changed)
-        top_widget.add_widget(self.challenge_config_opt)
-
-        self.weekly_times_opt = TextSettingCard(icon=FluentIcon.GAME, title='每周通关次数')
+        # 创建一个文本设置卡片，标题为“每周通关次数”
+        self.weekly_times_opt = TextSettingCard(
+            icon=FluentIcon.CALENDAR,  # 选择与时间相关的图标
+            title='每周通关次数', 
+            content='每周完成的通关次数',
+        )
+        self.weekly_times_opt.setIconSize(24,24)
         self.weekly_times_opt.value_changed.connect(self._on_weekly_times_changed)
-        top_widget.add_widget(self.weekly_times_opt)
+        right_layout.addWidget(self.weekly_times_opt)
 
-        return top_widget
+        # 创建一个组合框设置卡片，标题为“挑战配置”
+        self.challenge_config_opt = ComboBoxSettingCard(
+            icon=FluentIcon.SETTING,  # 选择与设置相关的图标
+            title='挑战配置', 
+            content='选择角色、鸣徽和事件',
+        )
+        self.challenge_config_opt.setIconSize(24,24)
+        self.challenge_config_opt.value_changed.connect(self._on_challenge_config_changed)
+        left_layout.addWidget(self.challenge_config_opt)
+
+        # 创建一个推送设置卡片，标题为“调试”
+        self.debug_opt = PushSettingCard(
+            text='调试', 
+            icon=FluentIcon.STOP_WATCH,  # 选择与停止相关的图标
+            title='调试', 
+            content='在中断/停止状态下用于继续执行',
+        )
+        self.debug_opt.setIconSize(24,24)
+        self.debug_opt.clicked.connect(self._on_debug_clicked)
+        right_layout.addWidget(self.debug_opt)
+
+        # 将左侧和右侧的 widget 添加到主布局中，并均分空间
+        col_layout.addWidget(left_widget, stretch=1)
+        col_layout.addWidget(right_widget, stretch=1)
+
+        return col_widget
+
 
     def on_interface_shown(self) -> None:
         """

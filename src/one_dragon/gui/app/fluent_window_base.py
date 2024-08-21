@@ -3,15 +3,16 @@ from PySide6.QtCore import QSize
 from typing import Optional
 
 from PySide6.QtGui import QIcon
-from qfluentwidgets import FluentWindow, NavigationItemPosition, SplashScreen
+from qfluentwidgets import NavigationItemPosition, SplashScreen
 
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.gui.component.interface.base_interface import BaseInterface
+from one_dragon.gui.component.setting_card.one_dragon_window import OneDragonWindow
 from one_dragon.utils import os_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.gui.common.od_style_sheet import OdStyleSheet
 
-class FluentWindowBase(FluentWindow):
+class FluentWindowBase(OneDragonWindow):
 
     def __init__(self,
                  ctx: OneDragonContext,
