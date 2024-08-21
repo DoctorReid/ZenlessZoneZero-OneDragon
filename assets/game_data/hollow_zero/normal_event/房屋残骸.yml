@@ -1,11 +1,14 @@
 - entry_name: "房屋残骸"
-  event_name: "坍塌的房屋"
-  lcs_percent: 0.5
+  event_name: "事件坍塌的房屋"
   options:
+    - option_name: "钻入狭缝通道"
+      desc: "获得1400齿轮硬币"
     - option_name: "强行拜访"
       desc: "获得600齿轮硬币"
     - option_name: "通过夹缝离开"
       desc: "承受1个侵蚀症状"
     - option_name: "从坍塌处离开"
       desc: "损失20%生命值"
+    - option_name: "摧毁面前的危楼"
+      desc: "资源可能受损"
     - option_name: "离开"
