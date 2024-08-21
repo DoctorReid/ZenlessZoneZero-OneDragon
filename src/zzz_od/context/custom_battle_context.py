@@ -9,16 +9,17 @@ class CustomBattleContext:
     def __init__(self, ctx: ZContext):
         self.ctx: ZContext = ctx
 
-    def set_state(self, event_id: str, time_diff: float, value: int) -> None:
+    def set_state(self, event_id: str, time_diff: float, value: int, value_add: int) -> None:
         """
         设置状态
         :param event_id:
         :param time_diff:
         :param value:
+        :param value_add:
         :return:
         """
         now = time.time()
-        self.ctx.dispatch_event(event_id, StateEvent(now + time_diff, value))
+        self.ctx.dispatch_event(event_id, StateEvent(now + time_diff, value, value_add))
 
     def clear_state(self, event_id: str) -> None:
         """

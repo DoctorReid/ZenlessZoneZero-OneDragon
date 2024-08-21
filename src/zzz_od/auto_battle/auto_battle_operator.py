@@ -1,8 +1,11 @@
+import time
+
 import os
 from typing import List, Optional
 
 from one_dragon.base.conditional_operation.atomic_op import AtomicOp
 from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
+from one_dragon.base.conditional_operation.operation_def import OperationDef
 from one_dragon.base.conditional_operation.operation_template import OperationTemplate
 from one_dragon.base.conditional_operation.state_handler_template import StateHandlerTemplate
 from one_dragon.base.conditional_operation.state_recorder import StateRecorder
@@ -10,6 +13,7 @@ from one_dragon.utils import os_utils
 from one_dragon.utils.log_utils import log
 from zzz_od.auto_battle.atomic_op.btn_chain_left import AtomicBtnChainLeft
 from zzz_od.auto_battle.atomic_op.btn_chain_right import AtomicBtnChainRight
+from zzz_od.auto_battle.atomic_op.btn_common import AtomicBtnCommon
 from zzz_od.auto_battle.atomic_op.btn_dodge import AtomicBtnDodge
 from zzz_od.auto_battle.atomic_op.btn_lock import AtomicBtnLock
 from zzz_od.auto_battle.atomic_op.btn_move_a import AtomicBtnMoveA
@@ -147,22 +151,24 @@ class AutoBattleOperator(ConditionalOperator):
         else:
             return False
 
-    def get_atomic_op(self, op_name: str, op_data: List[str]) -> AtomicOp:
+    def get_atomic_op(self, op_def: OperationDef) -> AtomicOp:
         """
         获取一个原子操作
-        :param op_name:
-        :param op_data:
         :return:
         """
+        op_name = op_def.op_name
+        op_data = op_def.data
         # 有几个特殊参数 在这里统一提取
         press: bool = op_name.endswith('-按下')
         release: bool = op_name.endswith('-松开')
         if press:
-            press_time = float(op_data[0]) if len(op_data) > 0 else None
+            press_time = float(op_data[0]) if (op_data is not None and len(op_data) > 0) else None
         else:
             press_time = None
 
-        if op_name.startswith(BattleEventEnum.BTN_DODGE.value):
+        if op_name.startswith('按键') and not op_name.endswith('按下') and not op_name.endswith('松开'):
+            return AtomicBtnCommon(self.ctx, op_def)
+        elif op_name.startswith(BattleEventEnum.BTN_DODGE.value):
             return AtomicBtnDodge(self.ctx, press=press, press_time=press_time, release=release)
         elif op_name.startswith(BattleEventEnum.BTN_SWITCH_NEXT.value):
             return AtomicBtnSwitchNext(self.ctx, press=press, press_time=press_time, release=release)
@@ -189,21 +195,11 @@ class AutoBattleOperator(ConditionalOperator):
         elif op_name.startswith(BattleEventEnum.BTN_LOCK.value):
             return AtomicBtnLock(self.ctx, press=press, press_time=press_time, release=release)
         elif op_name == AtomicWait.OP_NAME:
-            if len(op_data) == 0:
-                raise ValueError(f'{AtomicWait.OP_NAME} 未填入参数 data')
-            return AtomicWait(float(op_data[0]))
+            return AtomicWait(op_def)
         elif op_name == AtomicSetState.OP_NAME:
-            if len(op_data) == 0:
-                raise ValueError(f'{AtomicSetState.OP_NAME} 未填入参数 data')
-            event_id = op_data[0]
-            diff_time = float(op_data[1]) if len(op_data) > 1 else 0
-            value = int(op_data[2]) if len(op_data) > 2 else None
-            return AtomicSetState(self.ctx.custom_battle, event_id, diff_time, value)
+            return AtomicSetState(self.ctx.custom_battle, op_def)
         elif op_name == AtomicClearState.OP_NAME:
-            if len(op_data) == 0:
-                raise ValueError(f'{AtomicClearState.OP_NAME} 未填入参数 data')
-            event_id = op_data[0]
-            return AtomicClearState(self.ctx.custom_battle, event_id)
+            return AtomicClearState(self.ctx.custom_battle, op_def)
         else:
             raise ValueError('非法的指令 %s' % op_name)
 
@@ -297,5 +293,8 @@ class AutoBattleOperator(ConditionalOperator):
 if __name__ == '__main__':
     ctx = ZContext()
     ctx.init_by_config()
-    op = AutoBattleOperator(ctx, 'auto_battle', '专属配队-艾莲')
+    op = AutoBattleOperator(ctx, 'auto_battle', '击破站场-强攻速切')
+    op.init_operator()
+    op.start_running_async()
+    time.sleep(5)
     op.stop_running()

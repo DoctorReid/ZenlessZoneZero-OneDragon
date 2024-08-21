@@ -17,31 +17,25 @@ scenes:
   - states: "[闪避识别-黄光, 0, 1] & [后台-2-强攻]"
     operations:
       - op_name: "按键-切换角色-上一个"
-        data: []
-      - op_name: "等待秒数"
-        data: [ "0.2" ]
+        post_delay: 0.2
       - op_name: "按键-普通攻击"
-        data: []
   - states: "[闪避识别-黄光, 0, 1]"
     operations:
       - op_name: "按键-切换角色-下一个"
-        data: []
-      - op_name: "等待秒数"
-        data: [ "0.2" ]
+        post_delay: 0.2
       - op_name: "按键-普通攻击"
         data: []
   - states: "[闪避识别-红光, 0, 1]"
     operations:
       - op_name: "按键-闪避"
-        data: []
-      - op_name: "等待秒数"
-        data: [ "0.2" ]
+        post_delay: 0.2
       - op_name: "按键-普通攻击"
         data: []
   - states: "[自定义-朱鸢-子弹]{6, 9}"
     operations:
-      - op_name: "按键-普通攻击-按下"
-        data: [ "3" ]
+      - op_name: "按键-普通攻击"
+        way: "按下"
+        press: 3
 
 - triggers: ["按键可用-快速支援"]
   interval: 1
@@ -49,9 +43,7 @@ scenes:
   - states: "[按键可用-快速支援]"
     operations:
     - op_name: "按键-切换角色-下一个"
-      data: []
-    - op_name: "等待秒数"
-      data: [ "0.5" ]
+      post_delay: 0.5
 
 - triggers: ["按键可用-连携技"]
   interval: 1
@@ -61,17 +53,13 @@ scenes:
       - states: "[后台-2-强攻]"
         operations:
           - op_name: "按键-切换角色-上一个"
-            data: []
-          - op_name: "等待秒数"
-            data: [ "0.5" ]
+            post_delay: 0.5
           - op_name: "设置状态"
             data: ["自定义-连携次数", "0", "1"]
       - states: ""
         operations:
           - op_name: "按键-切换角色-下一个"
-            data: []
-          - op_name: "等待秒数"
-            data: [ "0.5" ]
+            post_delay: 0.5
           - op_name: "设置状态"
             data: ["自定义-连携次数", "0", "1"]
   - states: "[自定义-连携次数, 0, 3]{1, 2}"
@@ -79,25 +67,19 @@ scenes:
       - states: "[后台-2-支援]"
         operations:
           - op_name: "按键-切换角色-上一个"
-            data: []
-          - op_name: "等待秒数"
-            data: [ "0.5" ]
+            post_delay: 0.5
           - op_name: "设置状态"
             data: ["自定义-连携次数", "0", "2"]
       - states: "[后台-2-强攻]"
         operations:
           - op_name: "按键-切换角色-上一个"
-            data: []
-          - op_name: "等待秒数"
-            data: [ "0.5" ]
+            post_delay: 0.5
           - op_name: "设置状态"
             data: ["自定义-连携次数", "0", "2"]
       - states: ""
         operations:
           - op_name: "按键-切换角色-下一个"
-            data: []
-          - op_name: "等待秒数"
-            data: [ "0.5" ]
+            post_delay: 0.5
           - op_name: "设置状态"
             data: ["自定义-连携次数", "0", "2"]
 
@@ -111,17 +93,15 @@ scenes:
       - states: "[按键可用-终结技]"
         operations:
           - op_name: "按键-终结技"
-            data: []
       - states: "[按键可用-特殊攻击]"
         operations:
           - op_name: "按键-特殊攻击"
-            data: []
       - states: ""
         operations:
-          - op_name: "按键-普通攻击-按下"
-            data: [ "1" ]
+          - op_name: "按键-普通攻击"
+            way: "按下"
+            press: 1
     - states: ""
       operations:
       - op_name: "按键-切换角色-下一个"
-        data: []
   - state_template: "站场模板-击破站场"

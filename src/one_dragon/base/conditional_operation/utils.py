@@ -1,6 +1,7 @@
 from typing import List, Callable, Set
 
 from one_dragon.base.conditional_operation.atomic_op import AtomicOp
+from one_dragon.base.conditional_operation.operation_def import OperationDef
 from one_dragon.base.conditional_operation.operation_template import OperationTemplate
 from one_dragon.base.conditional_operation.scene_handler import SceneHandler
 from one_dragon.base.conditional_operation.state_cal_tree import construct_state_cal_tree
@@ -12,7 +13,7 @@ from one_dragon.base.conditional_operation.state_recorder import StateRecorder
 def construct_scene_handler(
         scene_data: dict,
         state_getter: Callable[[str], StateRecorder],
-        op_getter: Callable[[str, List[str]], AtomicOp],
+        op_getter: Callable[[OperationDef], AtomicOp],
         scene_handler_getter: Callable[[str], StateHandlerTemplate],
         operation_template_getter: Callable[[str], OperationTemplate],
 ):
@@ -32,7 +33,7 @@ def construct_scene_handler(
 def _get_state_handlers_by_template(
         template_name: str,
         state_getter: Callable[[str], StateRecorder],
-        op_getter: Callable[[str, List[str]], AtomicOp],
+        op_getter: Callable[[OperationDef], AtomicOp],
         scene_handler_getter: Callable[[str], StateHandlerTemplate],
         operation_template_getter: Callable[[str], OperationTemplate],
         usage_states_handler_templates: Set[str]
@@ -63,7 +64,7 @@ def _get_state_handlers_by_template(
 def _get_state_handlers(
         handler_data_list: List[dict],
         state_getter: Callable[[str], StateRecorder],
-        op_getter: Callable[[str, List[str]], AtomicOp],
+        op_getter: Callable[[OperationDef], AtomicOp],
         scene_handler_getter: Callable[[str], StateHandlerTemplate],
         operation_template_getter: Callable[[str], OperationTemplate],
         usage_states_handler_templates: Set[str]
@@ -91,7 +92,7 @@ def _get_state_handlers(
 def construct_state_handler(
         state_data: dict,
         state_getter: Callable[[str], StateRecorder],
-        op_getter: Callable[[str, List[str]], AtomicOp],
+        op_getter: Callable[[OperationDef], AtomicOp],
         scene_handler_getter: Callable[[str], StateHandlerTemplate],
         operation_template_getter: Callable[[str], OperationTemplate],
         usage_scene_templates: Set[str],
@@ -134,7 +135,7 @@ def construct_state_handler(
 
 def get_ops_by_template(
         template_name: str,
-        op_getter: Callable[[str, List[str]], AtomicOp],
+        op_getter: Callable[[OperationDef], AtomicOp],
         operation_template_getter: Callable[[str], OperationTemplate],
         usage_operation_templates: Set[str]
 ) -> List[AtomicOp]:
@@ -158,23 +159,22 @@ def get_ops_by_template(
 
 def _get_ops_from_data(
         operation_data_list: List[dict],
-        op_getter: Callable[[str, List[str]], AtomicOp],
+        op_getter: Callable[[OperationDef], AtomicOp],
         operation_template_getter: Callable[[str], OperationTemplate],
         usage_templates: Set[str]
 ):
     ops = []
     for operation_data_item in operation_data_list:
-        if 'operation_template' in operation_data_item:
+        op_def = OperationDef(**operation_data_item)
+        if op_def.operation_template is not None:
             template_ops = get_ops_by_template(
-                operation_data_item['operation_template'],
+                op_def.operation_template,
                 op_getter, operation_template_getter,
                 usage_templates
             )
             for op in template_ops:
                 ops.append(op)
         else:
-            op_name = operation_data_item.get('op_name', '')
-            op_data = operation_data_item.get('data', [])
-            op = op_getter(op_name, op_data)
+            op = op_getter(op_def)
             ops.append(op)
     return ops

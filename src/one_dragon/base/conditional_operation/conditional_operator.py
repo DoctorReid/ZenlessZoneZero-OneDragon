@@ -2,9 +2,10 @@ import time
 from concurrent.futures import ThreadPoolExecutor, Future
 
 from threading import Lock
-from typing import Optional, List, Callable
+from typing import Optional, Callable
 
 from one_dragon.base.conditional_operation.atomic_op import AtomicOp
+from one_dragon.base.conditional_operation.operation_def import OperationDef
 from one_dragon.base.conditional_operation.operation_task import OperationTask
 from one_dragon.base.conditional_operation.operation_template import OperationTemplate
 from one_dragon.base.conditional_operation.scene_handler import SceneHandler
@@ -48,7 +49,7 @@ class ConditionalOperator(YamlConfig):
             self,
             event_bus: ContextEventBus,
             state_getter: Callable[[str], StateRecorder],
-            op_getter: Callable[[str, List[str]], AtomicOp],
+            op_getter: Callable[[OperationDef], AtomicOp],
             scene_handler_getter: Callable[[str], StateHandlerTemplate],
             operation_template_getter: Callable[[str], OperationTemplate],
     ) -> None:
