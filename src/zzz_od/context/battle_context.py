@@ -98,7 +98,7 @@ class BattleContext:
             e = BattleEventEnum.BTN_DODGE.value + '-松开'
         else:
             e = BattleEventEnum.BTN_DODGE.value
-        log.info(e)
+
         self.ctx.controller.dodge(press=press, press_time=press_time, release=release)
         self.ctx.dispatch_event(e, StateEvent(time.time()))
 
@@ -113,7 +113,7 @@ class BattleContext:
             e = BattleEventEnum.BTN_SWITCH_NEXT.value
             update_agent = True
 
-        log.info(e)
+
 
         self.ctx.controller.switch_next(press=press, press_time=press_time, release=release)
         press_time = time.time()
@@ -131,7 +131,7 @@ class BattleContext:
         else:
             e = BattleEventEnum.BTN_SWITCH_PREV.value
             update_agent = True
-        log.info(e)
+
         self.ctx.controller.switch_prev(press=press, press_time=press_time, release=release)
         press_time = time.time()
         self.ctx.dispatch_event(e, StateEvent(press_time))
@@ -146,7 +146,7 @@ class BattleContext:
             e = BattleEventEnum.BTN_SWITCH_NORMAL_ATTACK.value + '-松开'
         else:
             e = BattleEventEnum.BTN_SWITCH_NORMAL_ATTACK.value
-        log.info(e)
+
         self.ctx.controller.normal_attack(press=press, press_time=press_time, release=release)
         self.ctx.dispatch_event(e, StateEvent(time.time()))
 
@@ -157,7 +157,7 @@ class BattleContext:
             e = BattleEventEnum.BTN_SWITCH_SPECIAL_ATTACK.value + '-松开'
         else:
             e = BattleEventEnum.BTN_SWITCH_SPECIAL_ATTACK.value
-        log.info(e)
+
         self.ctx.controller.special_attack(press=press, press_time=press_time, release=release)
         self.ctx.dispatch_event(e, StateEvent(time.time()))
 
@@ -168,7 +168,7 @@ class BattleContext:
             e = BattleEventEnum.BTN_ULTIMATE.value + '-松开'
         else:
             e = BattleEventEnum.BTN_ULTIMATE.value
-        log.info(e)
+
         self.ctx.controller.ultimate(press=press, press_time=press_time, release=release)
         self.ctx.dispatch_event(e, StateEvent(time.time()))
 
@@ -182,7 +182,7 @@ class BattleContext:
         else:
             e = BattleEventEnum.BTN_CHAIN_LEFT.value
             update_agent = True
-        log.info(e)
+
         self.ctx.controller.chain_left(press=press, press_time=press_time, release=release)
         press_time = time.time()
         self.ctx.dispatch_event(e, StateEvent(press_time))
@@ -200,7 +200,7 @@ class BattleContext:
         else:
             e = BattleEventEnum.BTN_CHAIN_RIGHT.value
             update_agent = True
-        log.info(e)
+
         self.ctx.controller.chain_right(press=press, press_time=press_time, release=release)
         press_time = time.time()
         self.ctx.dispatch_event(e, StateEvent(press_time))
@@ -215,7 +215,7 @@ class BattleContext:
             e = BattleEventEnum.BTN_MOVE_W.value + '-松开'
         else:
             e = BattleEventEnum.BTN_MOVE_W.value
-        log.info(e)
+
         self.ctx.controller.move_w(press=press, press_time=press_time, release=release)
         self.ctx.dispatch_event(e, StateEvent(time.time()))
 
@@ -226,7 +226,7 @@ class BattleContext:
             e = BattleEventEnum.BTN_MOVE_S.value + '-松开'
         else:
             e = BattleEventEnum.BTN_MOVE_S.value
-        log.info(e)
+
         self.ctx.controller.move_s(press=press, press_time=press_time, release=release)
         self.ctx.dispatch_event(e, StateEvent(time.time()))
 
@@ -237,7 +237,7 @@ class BattleContext:
             e = BattleEventEnum.BTN_MOVE_A.value + '-松开'
         else:
             e = BattleEventEnum.BTN_MOVE_A.value
-        log.info(e)
+
         self.ctx.controller.move_a(press=press, press_time=press_time, release=release)
         self.ctx.dispatch_event(e, StateEvent(time.time()))
 
@@ -248,7 +248,7 @@ class BattleContext:
             e = BattleEventEnum.BTN_MOVE_D.value + '-松开'
         else:
             e = BattleEventEnum.BTN_MOVE_D.value
-        log.info(e)
+
         self.ctx.controller.move_d(press=press, press_time=press_time, release=release)
         self.ctx.dispatch_event(e, StateEvent(time.time()))
 
@@ -259,7 +259,7 @@ class BattleContext:
             e = BattleEventEnum.BTN_LOCK.value + '-松开'
         else:
             e = BattleEventEnum.BTN_LOCK.value
-        log.info(e)
+
         self.ctx.controller.lock(press=press, press_time=press_time, release=release)
         self.ctx.dispatch_event(e, StateEvent(time.time()))
 
@@ -298,6 +298,7 @@ class BattleContext:
         self.area_agent_3_3: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '头像-3-3')
         self.area_agent_2_2: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '头像-2-2')
 
+        self.area_btn_normal: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '按键-普通攻击')
         self.area_btn_special: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '按键-特殊攻击')
         self.area_btn_ultimate: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '按键-终结技')
         self.area_btn_switch: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '按键-切换角色')
@@ -333,7 +334,7 @@ class BattleContext:
                      check_battle_end_normal_result: bool = False,
                      check_battle_end_hollow_result: bool = False,
                      check_distance: bool = False,
-                     sync: bool = False
+                     sync: bool = False, in_battle: bool = True
                      ) -> None:
         """
         异步判断角战斗画面 并发送事件
@@ -341,19 +342,21 @@ class BattleContext:
         """
         future_list: List[Future] = []
 
-        future_list.append(_battle_check_executor.submit(self.check_agent_related, screen, screenshot_time))
-        future_list.append(_battle_check_executor.submit(self.check_special_attack_btn, screen, screenshot_time))
-        future_list.append(_battle_check_executor.submit(self.check_ultimate_btn, screen, screenshot_time))
-        future_list.append(_battle_check_executor.submit(self.check_chain_attack, screen, screenshot_time))
-        future_list.append(_battle_check_executor.submit(self.check_quick_assist, screen, screenshot_time))
-        check_battle_end = check_battle_end_normal_result or check_battle_end_hollow_result
-        if check_battle_end:
-            future_list.append(_battle_check_executor.submit(
-                self._check_battle_end, screen, screenshot_time,
-                check_battle_end_normal_result, check_battle_end_hollow_result
-            ))
-        if check_distance:
-            future_list.append(_battle_check_executor.submit(self._check_distance_with_lock, screen, screenshot_time))
+        if in_battle:
+            future_list.append(_battle_check_executor.submit(self.check_agent_related, screen, screenshot_time))
+            future_list.append(_battle_check_executor.submit(self.check_special_attack_btn, screen, screenshot_time))
+            future_list.append(_battle_check_executor.submit(self.check_ultimate_btn, screen, screenshot_time))
+            future_list.append(_battle_check_executor.submit(self.check_quick_assist, screen, screenshot_time))
+        else:
+            future_list.append(_battle_check_executor.submit(self.check_chain_attack, screen, screenshot_time))
+            check_battle_end = check_battle_end_normal_result or check_battle_end_hollow_result
+            if check_battle_end:
+                future_list.append(_battle_check_executor.submit(
+                    self._check_battle_end, screen, screenshot_time,
+                    check_battle_end_normal_result, check_battle_end_hollow_result
+                ))
+            if check_distance:
+                future_list.append(_battle_check_executor.submit(self._check_distance_with_lock, screen, screenshot_time))
 
         for future in future_list:
             future.add_done_callback(thread_utils.handle_future_result)
@@ -873,17 +876,32 @@ class BattleContext:
         img = cv2_utils.crop_image_only(screen, self.area_agent_3_1.rect)
         return self._match_agent_in(img, True, self._get_possible_agent_list())
 
+    def is_normal_attack_btn_available(self, screen: MatLike) -> bool:
+        """
+        识别普通攻击按钮是否存在 用了粗略判断是否在战斗画面 2~3ms
+        :param screen:
+        :return:
+        """
+        part = cv2_utils.crop_image_only(screen, self.area_btn_normal.rect)
+        mrl = self.ctx.tm.match_template(part, 'battle', 'btn_normal_attack',
+                                         threshold=0.9)
+        return mrl.max is not None
+
 
 def __debug():
     ctx = ZContext()
     battle = BattleContext(ctx)
     battle.init_context()
-    screen = debug_utils.get_debug_image('_1723213187935')
+    screen = debug_utils.get_debug_image('_1724044474644')
     # battle.check_agent(screen, 0)
     # battle.check_special_attack_btn(screen, 0)
-    battle.check_ultimate_btn(screen, 0)
+    # battle.check_ultimate_btn(screen, 0)
     # battle.check_chain_attack(screen, 0)
     # battle.check_quick_assist(screen, 0)
+    battle.is_normal_attack_btn_available(screen)
+    t1 = time.time()
+    battle.is_normal_attack_btn_available(screen)
+    print(time.time() - t1)
 
 
 if __name__ == '__main__':

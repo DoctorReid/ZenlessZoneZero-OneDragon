@@ -61,12 +61,14 @@ def run_screen_check(op: Union[ZOperation, ZApplication], screen: MatLike, scree
     :param sync: 是否同步
     :return:
     """
-    op.ctx.battle_dodge.check_screen(screen, screenshot_time, sync=sync)
+    in_battle = op.ctx.battle.is_normal_attack_btn_available(screen)
+
+    op.ctx.battle_dodge.check_screen(screen, screenshot_time, sync=sync, in_battle=in_battle)
     op.ctx.battle.check_screen(screen, screenshot_time,
                                check_battle_end_normal_result=check_battle_end_normal_result,
                                check_battle_end_hollow_result=check_battle_end_hollow_result,
                                check_distance=check_distance,
-                               sync=sync)
+                               sync=sync, in_battle=in_battle)
 
 
 def stop_running(op: Union[ZOperation, ZApplication]) -> None:

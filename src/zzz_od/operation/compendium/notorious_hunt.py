@@ -132,7 +132,7 @@ class NotoriousHunt(ZOperation):
     def wait_battle_screen(self) -> OperationRoundResult:
         self.node_max_retry_times = 60  # 战斗加载的等待时间较长
         screen = self.screenshot()
-        return self.round_by_find_area(screen, '战斗画面', '按钮-普通攻击', retry_wait_round=1)
+        return self.round_by_find_area(screen, '战斗画面', '按键-普通攻击', retry_wait_round=1)
 
     @node_from(from_name='等待战斗画面加载')
     @operation_node(name='移动交互')

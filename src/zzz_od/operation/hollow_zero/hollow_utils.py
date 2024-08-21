@@ -37,7 +37,7 @@ def check_screen(op: ZOperation, screen: MatLike) -> Optional[str]:
 
 
 def check_battle_screen(op: ZOperation, screen: MatLike) -> Optional[str]:
-    result = op.round_by_find_area(screen, '战斗画面', '按钮-普通攻击')
+    result = op.round_by_find_area(screen, '战斗画面', '按键-普通攻击')
 
     if result.is_success:
         return HollowZeroSpecialEvent.IN_BATTLE.value.event_name

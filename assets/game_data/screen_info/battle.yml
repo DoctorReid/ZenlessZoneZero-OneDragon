@@ -101,7 +101,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: 按钮-普通攻击
+- area_name: 按键-普通攻击
   pc_rect:
   - 1403
   - 916

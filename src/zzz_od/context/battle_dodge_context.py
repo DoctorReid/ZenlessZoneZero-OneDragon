@@ -185,17 +185,20 @@ class BattleDodgeContext:
 
         log.info('加载声音模板完成')
 
-    def check_screen(self, screen: MatLike, screenshot_time: float, sync: bool = False) -> None:
+    def check_screen(self, screen: MatLike, screenshot_time: float,
+                     sync: bool = False, in_battle: bool = True) -> None:
         """
         异步识别画面。
         :param screen: 屏幕截图
         :param screenshot_time: 截图时间
         :param sync: 是否同步执行
+        :param in_battle: 是否在战斗画面
         """
         future_list: List[Future] = []
-        audio_future = _dodge_check_executor.submit(self.check_dodge_audio, screenshot_time)
-        future_list.append(audio_future)
-        future_list.append(_dodge_check_executor.submit(self.check_dodge_flash, screen, screenshot_time, audio_future))
+        if in_battle:
+            audio_future = _dodge_check_executor.submit(self.check_dodge_audio, screenshot_time)
+            future_list.append(audio_future)
+            future_list.append(_dodge_check_executor.submit(self.check_dodge_flash, screen, screenshot_time, audio_future))
 
         for future in future_list:
             future.add_done_callback(thread_utils.handle_future_result)
