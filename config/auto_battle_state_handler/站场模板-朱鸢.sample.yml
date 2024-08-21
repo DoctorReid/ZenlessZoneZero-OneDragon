@@ -117,6 +117,8 @@ handlers:
       operations:
         # 先闪A打断当前动作
         - operation_template: "朱鸢-后4A"
+        - op_name: "设置状态"
+          data: [ "自定义-朱鸢-下发普攻前滑" ]
 
     - states: ""
       operations:

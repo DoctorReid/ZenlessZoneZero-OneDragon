@@ -43,7 +43,7 @@ class HollowBattle(ZOperation):
     def load_auto_op(self) -> OperationRoundResult:
         return auto_battle_utils.load_auto_op(
             self, 'auto_battle',
-            self.ctx.battle_assistant_config.auto_battle_config
+            self.ctx.hollow_zero_challenge_config.auto_battle
         )
 
     @node_from(from_name='加载自动战斗指令')
@@ -136,7 +136,9 @@ class HollowBattle(ZOperation):
     @node_from(from_name='自动战斗', status='零号空洞-挑战结果')
     @operation_node(name='战斗结果-确定')
     def after_battle(self) -> OperationRoundResult:
-        self.node_max_retry_times = 5  # 战斗结束恢复重试次数
+        if self.node_max_retry_times > 5:
+            self.node_max_retry_times = 5  # 战斗结束恢复重试次数
+            time.sleep(2)  # 第一次稍等等一段时间 避免按键还不能响应
         screen = self.screenshot()
         area = self.ctx.screen_loader.get_area('零号空洞-战斗', '战斗结果-确定')
         return self.round_by_ocr_and_click(screen, '确定', area=area,
@@ -178,3 +180,17 @@ class HollowBattle(ZOperation):
         if self.auto_op is not None:
             self.auto_op.dispose()
             self.auto_op = None
+
+
+def __debug():
+    ctx = ZContext()
+    ctx.init_by_config()
+    ctx.start_running()
+    ctx.ocr.init_model()
+    op = HollowBattle(ctx)
+    op.execute()
+
+
+if __name__ == '__main__':
+    __debug()
+

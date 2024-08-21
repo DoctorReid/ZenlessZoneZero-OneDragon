@@ -189,3 +189,14 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 快进
+  pc_rect:
+  - 174
+  - 25
+  - 248
+  - 80
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: hollow
+  template_id: speed_up
+  template_match_threshold: 0.7

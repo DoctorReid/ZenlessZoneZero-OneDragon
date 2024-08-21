@@ -33,7 +33,7 @@ class HollowContext:
         self.map_results: List[HollowZeroMap] = []  # 识别的地图结果
         self._visited_nodes: List[HollowZeroMapNode] = []  # 已经去过的点
         self._last_route: Optional[RouteSearchRoute] = None  # 上一次想走的路
-        self.fasten_clicked: bool = False  # 是否已经点击加速
+        self.speed_up_clicked: bool = False  # 是否已经点击加速
 
     def check_agent_list(self, screen: MatLike) -> Optional[List[Agent]]:
         """

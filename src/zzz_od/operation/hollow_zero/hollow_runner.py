@@ -116,6 +116,13 @@ class HollowRunner(ZOperation):
             self._save_debug_image(screen)
             return self.round_retry('自动寻路失败')
 
+        #
+        if not self.ctx.hollow.speed_up_clicked:
+            result = self.round_by_find_and_click_area(screen, '零号空洞-事件', '快进')
+            time.sleep(0.2)
+            if result.is_success:
+                self.ctx.hollow.speed_up_clicked = True
+
         self.ctx.controller.click(next_to_move.pos.center)
         self.ctx.hollow.update_context_after_move(next_to_move)
 

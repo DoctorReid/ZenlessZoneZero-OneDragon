@@ -1,8 +1,11 @@
 - entry_name: "投机客"
   event_name: "投机客"
   options:
+    - option_name: "借2699齿轮硬币"
     - option_name: "借2488齿轮硬币"
+    - option_name: "借1899齿轮硬币"
     - option_name: "借1688齿轮硬币"
+    - option_name: "借999齿轮硬币"
     - option_name: "借888齿轮硬币"
     - option_name: "不需要借款"
 

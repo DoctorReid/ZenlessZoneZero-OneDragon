@@ -357,7 +357,6 @@ def get_route_in_1_step(idx_2_route: dict[int, RouteSearchRoute], visited_nodes:
 
     return target
 
-
 def get_route_by_entry(idx_2_route: dict[int, RouteSearchRoute],
                        entry_name: str,
                        visited_nodes: List[HollowZeroMapNode]) -> Optional[RouteSearchRoute]:
