@@ -203,6 +203,11 @@ class HollowContext:
             if route is not None:
                 return route.first_need_step_node
 
+        # 最终兜底 走一步能到的
+        route = hollow_map_utils.get_route_in_1_step(idx_2_route, self._visited_nodes)
+        if route is not None:
+            return route.first_need_step_node
+
         return None
 
     def update_context_after_move(self, node: HollowZeroMapNode) -> None:
@@ -257,7 +262,7 @@ def __debug_get_map():
 
     from one_dragon.utils import debug_utils
     img_list = [
-        '_1724046131053',
+        'pathfinding_fail_1724218224825',
     ]
     for i in img_list:
         img = debug_utils.get_debug_image(i)
