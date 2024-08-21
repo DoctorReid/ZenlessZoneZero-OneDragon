@@ -137,7 +137,7 @@ class NotoriousHunt(ZOperation):
     @node_from(from_name='等待战斗画面加载')
     @operation_node(name='移动交互')
     def move_and_interact(self) -> OperationRoundResult:
-        self.ctx.controller.move_w(press=True, press_time=1.5, release=True)
+        self.ctx.controller.move_w(press=True, press_time=1.2, release=True)
 
         time.sleep(1)
 
