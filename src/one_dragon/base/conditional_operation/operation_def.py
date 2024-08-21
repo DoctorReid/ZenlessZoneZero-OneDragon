@@ -14,7 +14,7 @@ class OperationDef:
 
                  # 按键特有的属性
                  way: Optional[str] = None,
-                 press: float = 1,
+                 press: Optional[float] = None,
                  repeat: int = 1,
 
                  # 等待秒数
