@@ -5,6 +5,8 @@ from one_dragon.base.config.yaml_config import YamlConfig
 from one_dragon.utils import yolo_config_utils
 
 ZZZ_MODEL_DOWNLOAD_URL = 'https://github.com/DoctorReid/OneDragon-YOLO/releases/download/zzz_model'
+_DEFAULT_FLASH_CLASSIFIER = 'yolov8n-640-flash-0718'
+_DEFAULT_HOLLOW_ZERO_EVENT = 'yolov8s-640-hollow-zero-event-0821'
 
 
 class YoloConfig(YamlConfig):
@@ -14,7 +16,7 @@ class YoloConfig(YamlConfig):
 
     @property
     def flash_classifier(self) -> str:
-        return self.get('flash_classifier', 'yolov8n-640-flash-0718')
+        return self.get('flash_classifier', _DEFAULT_FLASH_CLASSIFIER)
 
     @flash_classifier.setter
     def flash_classifier(self, new_value: str) -> None:
@@ -22,7 +24,7 @@ class YoloConfig(YamlConfig):
 
     @property
     def hollow_zero_event(self) -> str:
-        return self.get('hollow_zero_event', 'yolov8s-640-hollow-zero-event-0819')
+        return self.get('hollow_zero_event', _DEFAULT_HOLLOW_ZERO_EVENT)
 
     @hollow_zero_event.setter
     def hollow_zero_event(self, new_value: str) -> None:
@@ -34,7 +36,7 @@ def get_flash_classifier_opts() -> List[ConfigItem]:
     获取闪光模型的选项
     :return:
     """
-    models_list = yolo_config_utils.get_available_models('flash_classifier') + [ 'yolov8n-640-flash-0718' ]
+    models_list = yolo_config_utils.get_available_models('flash_classifier') + [ _DEFAULT_FLASH_CLASSIFIER ]
 
     return [ConfigItem(i) for i in models_list]
 
@@ -44,6 +46,6 @@ def get_hollow_zero_event_opts() -> List[ConfigItem]:
     获取空洞模型的选项
     :return:
     """
-    models_list = yolo_config_utils.get_available_models('hollow_zero_event') + [ 'yolov8s-640-hollow-zero-event-0819' ]
+    models_list = yolo_config_utils.get_available_models('hollow_zero_event') + [ _DEFAULT_HOLLOW_ZERO_EVENT ]
 
     return [ConfigItem(i) for i in models_list]

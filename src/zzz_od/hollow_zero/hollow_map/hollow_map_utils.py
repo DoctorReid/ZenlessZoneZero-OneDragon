@@ -283,7 +283,7 @@ def search_map(current_map: HollowZeroMap) -> dict[int, RouteSearchRoute]:
                 continue
 
             next_step_cnt = current_route.step_cnt + (next_entry.need_step if next_entry is not None else 1)
-            if next_step_cnt <= 1:
+            if next_step_cnt <= 1 and next_entry.need_step > 0:
                 first_need_step_node = next_node
             else:
                 first_need_step_node = current_route.first_need_step_node
@@ -315,6 +315,33 @@ def get_route_in_1_step_benefit(idx_2_route: dict[int, RouteSearchRoute], visite
         entry = route.node.entry
         if entry is None or not entry.is_benefit:
             continue
+
+        had_visited: bool = False
+        for visited in visited_nodes:
+            if cal_utils.distance_between(route.node.pos.center, visited.pos.center) < 100:
+                had_visited = True
+                break
+
+        if had_visited:
+            continue
+
+        if target is None or target.distance > route.distance:
+            target = route
+
+    return target
+
+
+def get_route_in_1_step(idx_2_route: dict[int, RouteSearchRoute], visited_nodes: List[HollowZeroMapNode]) -> Optional[RouteSearchRoute]:
+    """
+    获取1步能到的节点的路径
+    :param idx_2_route:
+    :return:
+    """
+    target: Optional[RouteSearchRoute] = None
+    for idx, route in idx_2_route.items():
+        if route.step_cnt != 1:
+            continue
+        entry = route.node.entry
 
         had_visited: bool = False
         for visited in visited_nodes:
