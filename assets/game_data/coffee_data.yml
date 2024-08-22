@@ -1,0 +1,96 @@
+coffee_list:
+  - coffee_name: "新艾利都特调"
+
+  - coffee_name: "红茶拿提"
+    tab_name: "训练"
+    category_name: "实战模拟室"
+    mission_type_name: "代理人晋升"
+    mission_name: "强攻演练"
+  - coffee_name: "红茶拿提（淡）"
+    tab_name: "训练"
+    category_name: "实战模拟室"
+    mission_type_name: "代理人晋升"
+    mission_name: "击破演练"
+  - coffee_name: "红茶拿提（浓）"
+    tab_name: "训练"
+    category_name: "实战模拟室"
+    mission_type_name: "代理人晋升"
+    mission_name: "异常演练"
+
+  - coffee_name: "麦草拿提"
+    tab_name: "训练"
+    category_name: "实战模拟室"
+    mission_type_name: "代理人技能"
+    mission_name: "刚性测试"
+  - coffee_name: "麦草拿提（淡）"
+    tab_name: "训练"
+    category_name: "实战模拟室"
+    mission_type_name: "代理人技能"
+    mission_name: "升温测试"
+  - coffee_name: "麦草拿提（浓）"
+    tab_name: "训练"
+    category_name: "实战模拟室"
+    mission_type_name: "代理人技能"
+    mission_name: "冰洁测试"
+
+  - coffee_name: "空泡魔咔"
+    tab_name: "训练"
+    category_name: "实战模拟室"
+    mission_type_name: "音擎改装"
+    mission_name: "支援分频试验"
+  - coffee_name: "空泡魔咔（淡）"
+    tab_name: "训练"
+    category_name: "实战模拟室"
+    mission_type_name: "音擎改装"
+    mission_name: "防护音圈试验"
+
+  - coffee_name: "果泡拿提"
+    tab_name: "训练"
+    category_name: "实战模拟室"
+    mission_type_name: "代理人晋升"
+    mission_name: "支援演练"
+  - coffee_name: "果泡拿提（淡）"
+    tab_name: "训练"
+    category_name: "实战模拟室"
+    mission_type_name: "代理人晋升"
+    mission_name: "防护演练"
+
+  - coffee_name: "月壤魔咔"
+    tab_name: "训练"
+    category_name: "实战模拟室"
+    mission_type_name: "音擎改装"
+    mission_name: "强攻极片试验"
+  - coffee_name: "月壤魔咔（淡）"
+    tab_name: "训练"
+    category_name: "实战模拟室"
+    mission_type_name: "音擎改装"
+    mission_name: "击破振膜试验"
+  - coffee_name: "月壤魔咔（浓）"
+    tab_name: "训练"
+    category_name: "实战模拟室"
+    mission_type_name: "音擎改装"
+    mission_name: "异常磁体试验"
+
+  - coffee_name: "胡椒拿提"
+    tab_name: "训练"
+    category_name: "实战模拟室"
+    mission_type_name: "代理人技能"
+    mission_name: "电流测试"
+  - coffee_name: "胡椒拿提（淡）"
+    tab_name: "训练"
+    category_name: "实战模拟室"
+    mission_type_name: "代理人技能"
+    mission_name: "共鸣测试"
+
+schedule:
+  - days: [ 1, 4 ]
+    coffee_list: [ "红茶拿提", "麦草拿提（淡）", "空泡魔咔（淡）", "果泡拿提（淡）", "月壤魔咔", "新艾利都特调" ]
+
+  - days: [ 2, 5 ]
+    coffee_list: [ "月壤魔咔（淡）", "麦草拿提（浓）", "月壤魔咔（浓）", "红茶拿提（浓）", "月壤魔咔（淡）", "新艾利都特调" ]
+
+  - days: [ 3, 6 ]
+    coffee_list: [ "果泡拿提", "胡椒拿提", "空泡魔咔", "麦草拿提", "胡椒拿提（淡）", "新艾利都特调" ]
+
+  - days: [ 7 ]
+    coffee_list: [ "红茶拿提", "红茶拿提（淡）", "红茶拿提（浓）", "果泡拿提", "果泡拿提（淡）", "麦草拿提", "麦草拿提（淡）", "麦草拿提（浓）", "胡椒拿提", "胡椒拿提（淡）", "月壤魔咔", "月壤魔咔（淡）", "月壤魔咔（浓）", "空泡魔咔", "空泡魔咔（淡）", "新艾利都特调" ]

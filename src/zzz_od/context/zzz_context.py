@@ -4,6 +4,7 @@ from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils import i18_utils
 from zzz_od.application.battle_assistant.battle_assistant_config import BattleAssistantConfig
 from zzz_od.application.charge_plan.charge_plan_run_record import ChargePlanRunRecord
+from zzz_od.application.coffee.coffee_config import CoffeeConfig
 from zzz_od.application.devtools.screenshot_helper.screenshot_helper_config import ScreenshotHelperConfig
 from zzz_od.application.email.email_run_record import EmailRunRecord
 from zzz_od.application.engagement_reward.engagement_reward_run_record import EngagementRewardRunRecord
@@ -60,6 +61,7 @@ class ZContext(OneDragonContext):
         self.notorious_hunt_config: NotoriousHuntConfig = NotoriousHuntConfig(instance_idx)
         self.hollow_zero_config: HollowZeroConfig = HollowZeroConfig(instance_idx)
         self.hollow_zero_challenge_config: Optional[HollowZeroChallengeConfig] = None
+        self.coffee_config: CoffeeConfig = CoffeeConfig(instance_idx)
 
         # 运行记录
         game_refresh_hour_offset = self.game_config.game_refresh_hour_offset
