@@ -63,7 +63,7 @@ area_list:
   - 638
   - 1620
   - 694
-  text: ''
+  text: 叫醒他
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''
@@ -75,6 +75,17 @@ area_list:
   - 1138
   - 586
   text: 嗷呜被你叫醒了
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 嗷呜对话
+  pc_rect:
+  - 686
+  - 830
+  - 1272
+  - 1024
+  text: 嗷呜睡得很香甜要不要惊动它呢
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''

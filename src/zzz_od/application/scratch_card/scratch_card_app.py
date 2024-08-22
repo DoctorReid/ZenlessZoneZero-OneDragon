@@ -74,6 +74,10 @@ class ScratchCardApp(ZApplication):
         if result.is_success:
             return self.round_wait(wait=1)
 
+        result = self.round_by_find_and_click_area(screen, '报刊亭', '嗷呜对话')
+        if result.is_success:
+            return self.round_wait(wait=1)
+
         return self.round_retry(wait=1)
 
     @node_from(from_name='点击刮刮卡')
