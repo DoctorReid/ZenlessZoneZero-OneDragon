@@ -57,3 +57,25 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 叫醒他
+  pc_rect:
+  - 1434
+  - 638
+  - 1620
+  - 694
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 嗷呜被你叫醒了
+  pc_rect:
+  - 780
+  - 518
+  - 1138
+  - 586
+  text: 嗷呜被你叫醒了
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

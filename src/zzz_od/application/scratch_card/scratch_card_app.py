@@ -15,12 +15,7 @@ from zzz_od.operation.wait_normal_world import WaitNormalWorld
 
 class ScratchCardApp(ZApplication):
 
-    STATUS_ALL_VIDEO_CHOOSE: ClassVar[str] = '已选择全部录像带'
-
     def __init__(self, ctx: ZContext):
-        """
-        每天自动接收邮件奖励
-        """
         ZApplication.__init__(
             self,
             ctx=ctx, app_id='scratch_card',
@@ -67,7 +62,19 @@ class ScratchCardApp(ZApplication):
     def click_scratch_card(self) -> OperationRoundResult:
         screen = self.screenshot()
 
-        return self.round_by_find_and_click_area(screen, '报刊亭', '刮刮卡', success_wait=1, retry_wait=1)
+        result = self.round_by_find_and_click_area(screen, '报刊亭', '刮刮卡')
+        if result.is_success:
+            return self.round_success(wait=1)
+
+        result = self.round_by_find_and_click_area(screen, '报刊亭', '叫醒他')
+        if result.is_success:
+            return self.round_wait(wait=1)
+
+        result = self.round_by_find_and_click_area(screen, '报刊亭', '嗷呜被你叫醒了')
+        if result.is_success:
+            return self.round_wait(wait=1)
+
+        return self.round_retry(wait=1)
 
     @node_from(from_name='点击刮刮卡')
     @operation_node(name='刮刮')
