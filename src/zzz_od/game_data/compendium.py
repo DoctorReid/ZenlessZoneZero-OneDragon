@@ -79,6 +79,14 @@ class Coffee:
         else:
             return self.mission_type.mission_type_name_display + ' - ' + self.mission.mission_name_display
 
+    @property
+    def without_benefit(self) -> bool:
+        """
+        这种咖啡没有增益
+        :return:
+        """
+        return self.mission_type is None
+
 
 class CompendiumService:
 

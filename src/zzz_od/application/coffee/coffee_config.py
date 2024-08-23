@@ -8,7 +8,7 @@ from one_dragon.base.config.yaml_config import YamlConfig
 class CoffeeChooseWay(Enum):
 
     PLAN_PRIORITY = ConfigItem('优先体力计划')
-    CUSTOM = ConfigItem('定制')
+    CUSTOM = ConfigItem('只按定制')
 
 
 class CoffeeChallengeWay(Enum):
@@ -44,8 +44,16 @@ class CoffeeConfig(YamlConfig):
         self.update('challenge_way', new_value)
 
     @property
+    def auto_battle(self) -> str:
+        return self.get('auto_battle', '击破站场-强攻速切')
+
+    @auto_battle.setter
+    def auto_battle(self, new_value: str) -> None:
+        self.update('auto_battle', new_value)
+
+    @property
     def day_coffee_1(self) -> str:
-        return self.get('day_coffee_1', '红茶拿提')
+        return self.get('day_coffee_1', '新艾利都特调')
 
     @day_coffee_1.setter
     def day_coffee_1(self, new_value: str) -> None:
@@ -53,7 +61,7 @@ class CoffeeConfig(YamlConfig):
 
     @property
     def day_coffee_2(self) -> str:
-        return self.get('day_coffee_2', '月壤魔咔（淡）')
+        return self.get('day_coffee_2', '新艾利都特调')
 
     @day_coffee_2.setter
     def day_coffee_2(self, new_value: str) -> None:
@@ -61,7 +69,7 @@ class CoffeeConfig(YamlConfig):
 
     @property
     def day_coffee_3(self) -> str:
-        return self.get('day_coffee_3', '果泡拿提')
+        return self.get('day_coffee_3', '新艾利都特调')
 
     @day_coffee_3.setter
     def day_coffee_3(self, new_value: str) -> None:
@@ -69,7 +77,7 @@ class CoffeeConfig(YamlConfig):
 
     @property
     def day_coffee_4(self) -> str:
-        return self.get('day_coffee_4', '红茶拿提')
+        return self.get('day_coffee_4', '新艾利都特调')
 
     @day_coffee_4.setter
     def day_coffee_4(self, new_value: str) -> None:
@@ -77,7 +85,7 @@ class CoffeeConfig(YamlConfig):
 
     @property
     def day_coffee_5(self) -> str:
-        return self.get('day_coffee_5', '月壤魔咔（淡）')
+        return self.get('day_coffee_5', '新艾利都特调')
 
     @day_coffee_5.setter
     def day_coffee_5(self, new_value: str) -> None:
@@ -85,7 +93,7 @@ class CoffeeConfig(YamlConfig):
 
     @property
     def day_coffee_6(self) -> str:
-        return self.get('day_coffee_6', '果泡拿提')
+        return self.get('day_coffee_6', '新艾利都特调')
 
     @day_coffee_6.setter
     def day_coffee_6(self, new_value: str) -> None:
@@ -93,8 +101,29 @@ class CoffeeConfig(YamlConfig):
 
     @property
     def day_coffee_7(self) -> str:
-        return self.get('day_coffee_7', '红茶拿提')
+        return self.get('day_coffee_7', '新艾利都特调')
 
     @day_coffee_7.setter
     def day_coffee_7(self, new_value: str) -> None:
         self.update('day_coffee_7', new_value)
+
+    def get_coffee_by_day(self, day: int) -> str:
+        """
+        根据星期几获取对应的咖啡名称
+        :param day: 1~7
+        :return:
+        """
+        if day == 1:
+            return self.day_coffee_1
+        elif day == 2:
+            return self.day_coffee_2
+        elif day == 3:
+            return self.day_coffee_3
+        elif day == 4:
+            return self.day_coffee_4
+        elif day == 5:
+            return self.day_coffee_5
+        elif day == 6:
+            return self.day_coffee_6
+        elif day == 7:
+            return self.day_coffee_7

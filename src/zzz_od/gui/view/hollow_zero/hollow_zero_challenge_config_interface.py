@@ -71,7 +71,7 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
         self.error_message.setTextColor(FluentThemeColor.RED.value)
         widget.add_widget(self.error_message)
 
-        self.name_opt = TextSettingCard(icon=FluentIcon.GAME, title='配置名称')
+        self.name_opt = TextSettingCard(icon=FluentIcon.GAME, title='配置名称', content='样例配置复制后可修改')
         self.name_opt.value_changed.connect(self._on_name_changed)
         widget.add_widget(self.name_opt)
 

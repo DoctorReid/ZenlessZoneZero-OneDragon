@@ -30,4 +30,4 @@ class ZOneDragonInterface(PivotNavigatorInterface):
         self.add_sub_interface(OneDragonRunInterface(self.ctx, ZOneDragonApp(self.ctx)))
         self.add_sub_interface(ChargePlanInterface(self.ctx))
         self.add_sub_interface(NotoriousHuntPlanInterface(self.ctx))
-        # self.add_sub_interface(CoffeePlanInterface(self.ctx))
+        self.add_sub_interface(CoffeePlanInterface(self.ctx))

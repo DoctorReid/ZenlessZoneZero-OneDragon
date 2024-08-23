@@ -91,6 +91,10 @@ class ChargePlanConfig(YamlConfig):
         self.save()
 
     def reset_plans(self) -> None:
+        """
+        根据运行次数 重置运行计划
+        :return:
+        """
         if len(self.plan_list) == 0:
             return
 

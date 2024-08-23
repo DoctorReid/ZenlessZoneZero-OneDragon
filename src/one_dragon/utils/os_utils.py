@@ -136,6 +136,16 @@ def is_monday(dt: str) -> bool:
     return weekday == 0
 
 
+def get_current_day_of_week(utc_offset: int = None) -> int:
+    """
+    获取当前星期几 1~7
+    :return:
+    """
+    dt = get_dt(utc_offset)
+    date = datetime.datetime.strptime(dt, "%Y%m%d")
+    return date.weekday() + 1
+
+
 def dt_day_diff(dt_1: str, dt_2: str) -> int:
     """
     计算两个dt之间相差多少天
