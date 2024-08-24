@@ -48,10 +48,10 @@ area_list:
   template_match_threshold: 0.7
 - area_name: 下一步
   pc_rect:
-  - 1600
-  - 1008
-  - 1834
-  - 1048
+  - 1590
+  - 984
+  - 1850
+  - 1080
   text: 下一步
   lcs_percent: 0.5
   template_sub_dir: ''

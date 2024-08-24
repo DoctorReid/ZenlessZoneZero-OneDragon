@@ -48,10 +48,10 @@ area_list:
   template_match_threshold: 0.7
 - area_name: 点单后跳过
   pc_rect:
-  - 1682
-  - 104
-  - 1844
-  - 162
+  - 1684
+  - 64
+  - 1850
+  - 200
   text: 跳过
   lcs_percent: 0.5
   template_sub_dir: ''
