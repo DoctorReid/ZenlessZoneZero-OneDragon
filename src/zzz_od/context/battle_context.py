@@ -13,8 +13,9 @@ from one_dragon.base.screen.screen_area import ScreenArea
 from one_dragon.base.screen.screen_utils import FindAreaResultEnum
 from one_dragon.utils import cv2_utils, debug_utils, thread_utils, cal_utils, str_utils
 from one_dragon.utils.log_utils import log
+from zzz_od.auto_battle.agent_state import agent_state_checker
 from zzz_od.context.zzz_context import ZContext
-from zzz_od.game_data.agent import Agent, AgentEnum
+from zzz_od.game_data.agent import Agent, AgentEnum, AgentStateCheckWay
 
 _battle_check_executor = ThreadPoolExecutor(thread_name_prefix='od_battle_check', max_workers=16)
 
@@ -41,6 +42,19 @@ class BattleEventEnum(Enum):
     STATUS_QUICK_ASSIST_READY = '按键可用-快速支援'
 
 
+class AgentInfo:
+
+    def __init__(self):
+        self.agent: Optional[Agent] = None
+        self.energy: float = 0  # 能量
+
+
+class TeamInfo:
+
+    def __init__(self):
+        self.agent_list: List[AgentInfo] = []
+
+
 class BattleContext:
 
     def __init__(self, ctx: ZContext):
@@ -53,6 +67,7 @@ class BattleContext:
         self.check_agent_same_times: int = 0  # 识别角色的相同次数
         self.check_agent_diff_times: int = 0  # 识别角色的不同次数
         self._agent_update_time: float = 0  # 识别角色的更新时间
+        self._to_check_states: Optional[set[str]] = None  # 需要识别的状态列表
 
         # 识别区域
         self._check_distance_area: Optional[ScreenArea] = None
@@ -112,8 +127,6 @@ class BattleContext:
         else:
             e = BattleEventEnum.BTN_SWITCH_NEXT.value
             update_agent = True
-
-
 
         self.ctx.controller.switch_next(press=press, press_time=press_time, release=release)
         press_time = time.time()
@@ -265,6 +278,7 @@ class BattleContext:
 
     def init_context(self,
                      agent_names: Optional[List[str]] = None,
+                     to_check_state_list: Optional[List[str]] = None,
                      allow_ultimate_list: Optional[List[dict[str, str]]] = None,
                      check_agent_interval: Union[float, List[float]] = 0,
                      check_special_attack_interval: Union[float, List[float]] = 0,
@@ -278,6 +292,7 @@ class BattleContext:
         :return:
         """
         self.agent_list = []
+        self._to_check_states = set(to_check_state_list)
         self._allow_ultimate_list = allow_ultimate_list
         self.should_check_all_agents = agent_names is None
         self.check_agent_same_times = 0
@@ -379,13 +394,15 @@ class BattleContext:
                 return
             self._last_check_agent_time = screenshot_time
 
-            self._check_agent_in_parallel(screen, screenshot_time)
+            screen_agent_list = self._check_agent_in_parallel(screen, screenshot_time)
+            self._check_front_agent_state(screen, screenshot_time, screen_agent_list)
+
         except Exception:
             log.error('识别画面角色失败', exc_info=True)
         finally:
             self._check_agent_lock.release()
 
-    def _check_agent_in_parallel(self, screen: MatLike, screenshot_time: float) -> None:
+    def _check_agent_in_parallel(self, screen: MatLike, screenshot_time: float) -> List[Agent]:
         """
         并发识别角色
         :return:
@@ -455,6 +472,8 @@ class BattleContext:
                 self.check_agent_diff_times = 0
 
         self._update_agent_list(current_agent_list, screenshot_time)
+
+        return current_agent_list
 
     def _match_agent_in(self, img: MatLike, is_front: bool,
                         possible_agents: Optional[List[Agent]] = None) -> Optional[Agent]:
@@ -886,6 +905,27 @@ class BattleContext:
         mrl = self.ctx.tm.match_template(part, 'battle', 'btn_normal_attack',
                                          threshold=0.9)
         return mrl.max is not None
+
+    def _check_front_agent_state(self, screen: MatLike, screenshot_time: float, screen_agent_list: List[Agent]) -> None:
+        """
+        识别前台角色的状态
+        :param screen: 游戏画面
+        :param screenshot_time: 截图时间
+        :param screen_agent_list: 当前画面前台角色
+        :return:
+        """
+        if screen_agent_list is None or len(screen_agent_list) == 0 or screen_agent_list[0] is None:
+            return
+        front_agent: Agent = screen_agent_list[0]
+        if front_agent.state_list is None:
+            return
+
+        for state in front_agent.state_list:
+            if self._to_check_states is not None and state.state_name not in self._to_check_states:
+                continue
+            if state.check_way == AgentStateCheckWay.COLOR_RANGE_CONNECT:
+                cnt = agent_state_checker.check_cnt_by_color_range(self.ctx, screen, state)
+                self.ctx.dispatch_event(state.state_name, StateEvent(screenshot_time, value=cnt))
 
 
 def __debug():

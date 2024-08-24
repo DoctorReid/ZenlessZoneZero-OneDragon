@@ -1,4 +1,5 @@
 import os
+from cv2.typing import MatLike
 from typing import List, Optional
 
 from one_dragon.base.screen.template_info import TemplateInfo, is_template_existed
@@ -41,14 +42,15 @@ class TemplateLoader:
 
         return info_list
 
-    def load_template(self, sub_dir: str, template_id: str) -> Optional[TemplateInfo]:
+    def load_template(self, sub_dir: str, template_id: str, only_mask: bool = False) -> Optional[TemplateInfo]:
         """
         加载某个模板到内存
         :param sub_dir: 子文件夹
         :param template_id: 模板id
+        :param only_mask:
         :return: 模板图片
         """
-        if not is_template_existed(sub_dir, template_id):
+        if not is_template_existed(sub_dir, template_id, need_raw=not only_mask):
             return None
         template: TemplateInfo = TemplateInfo(sub_dir, template_id)
 
@@ -68,3 +70,16 @@ class TemplateLoader:
             return self.template[key]
         else:
             return self.load_template(sub_dir, template_id)
+
+    def get_template_mask(self, sub_dir: str, template_id: str) -> MatLike:
+        """
+        获取某个模板的掩码
+        :param sub_dir: 子文件夹
+        :param template_id: 模板id
+        :return: 模板图片
+        """
+        key = '%s:%s' % (sub_dir, template_id)
+        if key in self.template:
+            return self.template[key].mask
+        else:
+            return self.load_template(sub_dir, template_id, only_mask=True).mask

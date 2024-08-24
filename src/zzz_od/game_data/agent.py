@@ -1,4 +1,6 @@
+from cv2.typing import MatLike
 from enum import Enum
+from typing import Optional, List
 
 from one_dragon.utils.i18_utils import gt
 
@@ -51,12 +53,35 @@ class RareTypeEnum(Enum):
             return cls.UNKNOWN
 
 
+class AgentStateCheckWay(Enum):
+
+    COLOR_RANGE_CONNECT: int = 1  # 根据颜色 在特定范围里匹配找连通块的数量
+
+
+class AgentStateDef:
+
+    def __init__(self, state_name: str,
+                 check_way: AgentStateCheckWay,
+                 lower_color: MatLike = None,
+                 upper_color: MatLike = None,
+                 connect_cnt: Optional[int] = None):
+        self.state_name: str = state_name
+        self.check_way: AgentStateCheckWay = check_way
+
+        # 颜色连通块部分
+        self.lower_color: MatLike = lower_color
+        self.upper_color: MatLike = upper_color
+        self.connect_cnt: Optional[int] = connect_cnt
+
+
 class Agent:
 
     def __init__(self, agent_id: str, agent_name: str,
                  rare_type: RareTypeEnum,
                  agent_type: AgentTypeEnum,
-                 dmg_type: DmgTypeEnum):
+                 dmg_type: DmgTypeEnum,
+                 state_list: Optional[List[AgentStateDef]] = None
+                 ):
         """
         代理人
         """
@@ -66,6 +91,8 @@ class Agent:
 
         self.agent_type: AgentTypeEnum = agent_type  # 角色类型
         self.dmg_type: DmgTypeEnum = dmg_type  # 伤害类型
+
+        self.state_list: List[AgentStateDef] = state_list  # 可能有的状态
 
     @property
     def agent_type_str(self) -> str:
@@ -90,5 +117,9 @@ class AgentEnum(Enum):
     RINA = Agent('rina', '丽娜', RareTypeEnum.S, AgentTypeEnum.SUPPORT, DmgTypeEnum.ELECTRIC)
     SOLDIER_11 = Agent('soldier_11', '11号', RareTypeEnum.S, AgentTypeEnum.ATTACK, DmgTypeEnum.FIRE)
     SOUKAKU = Agent('soukaku', '苍角', RareTypeEnum.A, AgentTypeEnum.SUPPORT, DmgTypeEnum.ICE)
-    ZHU_YUAN = Agent('zhu_yuan', '朱鸢', RareTypeEnum.S, AgentTypeEnum.ATTACK, DmgTypeEnum.ETHER)
+
+    ZHU_YUAN = Agent('zhu_yuan', '朱鸢', RareTypeEnum.S, AgentTypeEnum.ATTACK, DmgTypeEnum.ETHER,
+                     state_list=[AgentStateDef('朱鸢-子弹数', AgentStateCheckWay.COLOR_RANGE_CONNECT,
+                                               lower_color=(240, 60, 0), upper_color=(255, 180, 20), connect_cnt=20)])
+
     QINGYI = Agent('qingyi', '青衣', RareTypeEnum.S, AgentTypeEnum.STUN, DmgTypeEnum.ELECTRIC)
