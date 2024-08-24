@@ -134,10 +134,12 @@ class CallForSupport(ZOperation):
         area = event_utils.get_event_text_area(self)
         result = self.round_by_ocr_and_click(screen, CallForSupport.STATUS_ACCEPT, area=area)
         if result.is_success:
+            self.replace = False
             return self.round_success(wait=2)
 
         result = self.round_by_ocr_and_click(screen, '接替小队成员', area=area, lcs_percent=0.8)
         if result.is_success:
+            self.replace = True
             return self.round_success(wait=2)
 
         return self.round_retry(wait=1)
@@ -147,7 +149,10 @@ class CallForSupport(ZOperation):
     def choose_pos(self) -> OperationRoundResult:
         screen = self.screenshot()
         area = event_utils.get_event_text_area(self)
-        cn = '%d号位' % self.should_call_pos
+        if self.replace:
+            cn = '接替%d号队员的位置' % self.should_call_pos
+        else:
+            cn = '%d号位' % self.should_call_pos
         return self.round_by_ocr_and_click(screen, cn, area=area, lcs_percent=1,
                                            success_wait=2, retry_wait=1)
 

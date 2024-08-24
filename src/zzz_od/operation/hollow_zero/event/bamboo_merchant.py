@@ -41,6 +41,10 @@ class BambooMerchant(ZOperation):
         if result.is_success:
             return self.round_success(status=BambooMerchant.STATUS_LEVEL_2_BUY)
 
+        result = self.round_by_ocr(screen, '特价折扣', area=area, lcs_percent=1)
+        if result.is_success:
+            return self.round_success(status=BambooMerchant.STATUS_LEVEL_2_BUY)
+
         result = self.round_by_ocr(screen, '催化', area=area, lcs_percent=1)
         if result.is_success:
             return self.round_success(status=BambooMerchant.STATUS_LEVEL_2_UPGRADE)
@@ -67,15 +71,15 @@ class BambooMerchant(ZOperation):
         screen = self.screenshot()
         area = event_utils.get_event_text_area(self)
 
-        result = self.round_by_ocr_and_click(screen, '交易', area=area)
+        result = self.round_by_ocr_and_click(screen, '鸣徽交易', area=area)
         if result.is_success:
             return self.round_success(BambooMerchant.STATUS_LEVEL_2_BUY, wait=1)
 
         result = self.round_by_ocr_and_click(screen, '特价折扣', area=area)
         if result.is_success:
-            return self.round_success(result.status, wait=1)
+            return self.round_success(BambooMerchant.STATUS_LEVEL_2_BUY, wait=1)
 
-        return self.round_retry(wait=1)
+        return self.round_retry(status=result.status, wait=1)
 
     @node_from(from_name='画面识别', status=STATUS_LEVEL_2_BUY)
     @node_from(from_name='鸣徽交易')

@@ -99,6 +99,11 @@
             - mission_name: "旧都列车-腹地"
             - mission_name: "旧都列车-核心"
         - mission_type_name: "施工废墟"
+          mission_list:
+            - mission_name: "施工废墟-前线"
+            - mission_name: "施工废墟-内部"
+            - mission_name: "施工废墟-腹地"
+            - mission_name: "施工废墟-核心"
         - mission_type_name: "巨厦遗骸"
     - category_name: "式舆防卫战"
       mission_type_list:

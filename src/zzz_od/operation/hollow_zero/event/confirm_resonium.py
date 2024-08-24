@@ -22,5 +22,11 @@ class ConfirmResonium(ZOperation):
     def choose_one(self) -> OperationRoundResult:
         screen = self.screenshot()
         area = self.ctx.screen_loader.get_area('零号空洞-事件', '底部-选择列表')
-        return self.round_by_ocr_and_click(screen, '确认', area=area,
-                                           success_wait=1, retry_wait=1)
+        result = self.round_by_ocr_and_click(screen, '确认', area=area)
+        if result.is_success:
+            return self.round_success(wait=1)
+        result = self.round_by_ocr_and_click(screen, '确定', area=area)
+        if result.is_success:
+            return self.round_success(wait=1)
+
+        return self.round_retry(result.status, wait=1)
