@@ -292,7 +292,7 @@ class BattleContext:
         :return:
         """
         self.agent_list = []
-        self._to_check_states = set(to_check_state_list)
+        self._to_check_states = set(to_check_state_list) if to_check_state_list is not None else None
         self._allow_ultimate_list = allow_ultimate_list
         self.should_check_all_agents = agent_names is None
         self.check_agent_same_times = 0

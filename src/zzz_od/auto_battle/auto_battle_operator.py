@@ -104,12 +104,17 @@ class AutoBattleOperator(ConditionalOperator):
             event_ids.append(event_enum.value)
 
         for agent_enum in AgentEnum:
-            event_ids.append('前台-' + agent_enum.value.agent_name)
-            event_ids.append('后台-1-' + agent_enum.value.agent_name)
-            event_ids.append('后台-2-' + agent_enum.value.agent_name)
-            event_ids.append('连携技-1-' + agent_enum.value.agent_name)
-            event_ids.append('连携技-2-' + agent_enum.value.agent_name)
-            event_ids.append('快速支援-' + agent_enum.value.agent_name)
+            agent = agent_enum.value
+            event_ids.append('前台-' + agent.agent_name)
+            event_ids.append('后台-1-' + agent.agent_name)
+            event_ids.append('后台-2-' + agent.agent_name)
+            event_ids.append('连携技-1-' + agent.agent_name)
+            event_ids.append('连携技-2-' + agent.agent_name)
+            event_ids.append('快速支援-' + agent.agent_name)
+
+            if agent.state_list is not None:
+                for state in agent.state_list:
+                    event_ids.append(state.state_name)
 
         for agent_type_enum in AgentTypeEnum:
             event_ids.append('前台-' + agent_type_enum.value)
