@@ -118,7 +118,7 @@ class CoffeeApp(ZApplication):
 
                 mrl = mrl_list[ocr_result_list.index(results[0])]
                 self.chosen_coffee = self.ctx.compendium_service.name_2_coffee[coffee_name]
-                self.ctx.controller.click(mrl.max.center)
+                self.ctx.controller.click(mrl.max.center + area.left_top)
                 return self.round_success(wait=0.5)
 
         if day == 7:  # 目前只有星期日需要右滑找咖啡
@@ -206,7 +206,7 @@ class CoffeeApp(ZApplication):
             if self.chosen_coffee.extra:
                 return self.round_success(status=CoffeeApp.STATUS_EXTRA_COFFEE, wait=1)
             else:
-                return self.round_success(wait=2)
+                return self.round_success(wait=3)
         return self.round_retry(wait=1)
 
     @node_from(from_name='点单', status=STATUS_EXTRA_COFFEE)
@@ -214,7 +214,7 @@ class CoffeeApp(ZApplication):
     def extra_order_confirm(self) -> OperationRoundResult:
         screen = self.screenshot()
         return self.round_by_find_and_click_area(screen, '咖啡店', '对话框确认',
-                                                 success_wait=1, retry_wait=1)
+                                                 success_wait=3, retry_wait=1)
 
     @node_from(from_name='点单')
     @node_from(from_name='不占用点单确认')
