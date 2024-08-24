@@ -4,6 +4,7 @@ from one_dragon.base.operation.operation_round_result import OperationRoundResul
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
+from zzz_od.operation.back_to_normal_world import BackToNormalWorld
 from zzz_od.operation.open_menu import OpenMenu
 
 
@@ -48,7 +49,7 @@ class CityFundApp(ZApplication):
     @operation_node(name='任务全部领取')
     def click_task_claim(self) -> OperationRoundResult:
         screen = self.screenshot()
-        return self.round_by_find_and_click_area(screen, '丽都城募', '任务全部领取',
+        return self.round_by_find_and_click_area(screen, '丽都城募', '任务-全部领取',
                                                  success_wait=1, retry_wait=1)
 
     @node_from(from_name='任务全部领取')
@@ -62,5 +63,23 @@ class CityFundApp(ZApplication):
     @operation_node(name='等级全部领取')
     def click_level_claim(self) -> OperationRoundResult:
         screen = self.screenshot()
-        return self.round_by_find_and_click_area(screen, '丽都城募', '等级全部领取',
+        return self.round_by_find_and_click_area(screen, '丽都城募', '等级-全部领取',
                                                  success_wait=1, retry_wait=1)
+
+    @node_from(from_name='等级全部领取')
+    @node_from(from_name='等级全部领取', success=False)
+    @operation_node(name='返回大世界')
+    def back_to_world(self) -> OperationRoundResult:
+        op = BackToNormalWorld(self.ctx)
+        return self.round_by_op(op.execute())
+
+
+def __debug():
+    ctx = ZContext()
+    ctx.init_by_config()
+    app = CityFundApp(ctx)
+    app.execute()
+
+
+if __name__ == '__main__':
+    __debug()
