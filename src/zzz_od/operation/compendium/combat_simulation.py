@@ -18,10 +18,13 @@ from zzz_od.operation.zzz_operation import ZOperation
 
 
 class CombatSimulation(ZOperation):
+
+    STATUS_NEED_TYPE: ClassVar[str] = '需选择类型'
     STATUS_CHARGE_NOT_ENOUGH: ClassVar[str] = '电量不足'
     STATUS_CHARGE_ENOUGH: ClassVar[str] = '电量充足'
 
     def __init__(self, ctx: ZContext, plan: ChargePlanItem,
+                 need_to_choose_type: bool = False
                  ):
         """
         使用快捷手册传送后
@@ -53,12 +56,29 @@ class CombatSimulation(ZOperation):
     def wait_entry_load(self) -> OperationRoundResult:
         self.node_max_retry_times = 60  # 一开始等待加载要久一点
         screen = self.screenshot()
-        return self.round_by_find_area(
-            screen, '实战模拟室', '挑战等级',
-            success_wait=1, retry_wait=1
-        )
+
+        result = self.round_by_find_area(screen, '实战模拟室', '挑战等级')
+        if result.is_success:
+            return self.round_success()
+
+        result = self.round_by_find_area(screen, '实战模拟室', '沉浸模式')
+        if result.is_success:
+            return self.round_success(CombatSimulation.STATUS_NEED_TYPE)
+
+        return self.round_retry(wait=1)
+
+    @node_from(from_name='等待入口加载', status=STATUS_NEED_TYPE)
+    @operation_node(name='选择类型')
+    def choose_mission_type(self) -> OperationRoundResult:
+        self.node_max_retry_times = 5
+
+        screen = self.screenshot()
+        area = self.ctx.screen_loader.get_area('实战模拟室', '副本类型列表')
+        return self.round_by_ocr_and_click(screen, self.plan.mission_type_name, area=area,
+                                           success_wait=1, retry_wait=1)
 
     @node_from(from_name='等待入口加载')
+    @node_from(from_name='选择类型')
     @operation_node(name='选择副本')
     def choose_mission(self) -> OperationRoundResult:
         self.node_max_retry_times = 5
@@ -219,7 +239,17 @@ def __debug():
     ctx.init_by_config()
     ctx.ocr.init_model()
     ctx.start_running()
-    op = CombatSimulation(ctx, ChargePlanItem())
+    chosen_coffee = ctx.compendium_service.name_2_coffee['红茶拿提（浓）']
+    charge_plan = ChargePlanItem(
+        tab_name=chosen_coffee.tab.tab_name,
+        category_name=chosen_coffee.category.category_name,
+        mission_type_name=chosen_coffee.mission_type.mission_type_name,
+        mission_name=None if chosen_coffee.mission is None else chosen_coffee.mission.mission_name,
+        auto_battle_config=ctx.coffee_config.auto_battle,
+        run_times=0,
+        plan_times=1
+    )
+    op = CombatSimulation(ctx, charge_plan)
     op.can_run_times = 1
     op.execute()
 

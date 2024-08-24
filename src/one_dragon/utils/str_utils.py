@@ -1,3 +1,4 @@
+import difflib
 import re
 from typing import Optional, List
 
@@ -123,3 +124,27 @@ def find_best_match_by_lcs(word: str, target_word_list: List[str],
             target_lcs_percent = lcs_percent
 
     return target_idx
+
+
+def find_most_similar(str_list1, str_list2):
+    highest_similarity = 0
+    most_similar_pair = (None, None)
+
+    # 创建一个SequenceMatcher对象
+    sequence_matcher = difflib.SequenceMatcher()
+
+    # 遍历两个列表中的所有字符串组合
+    for s1 in str_list1:
+        for s2 in str_list2:
+            # 设置要比较的两个字符串
+            sequence_matcher.set_seqs(s1, s2)
+
+            # 计算相似度比例
+            similarity = sequence_matcher.ratio()
+
+            # 如果当前相似度高于之前记录的最高相似度，则更新最高相似度和最相似的一对
+            if similarity > highest_similarity:
+                highest_similarity = similarity
+                most_similar_pair = (s1, s2)
+
+    return most_similar_pair, highest_similarity

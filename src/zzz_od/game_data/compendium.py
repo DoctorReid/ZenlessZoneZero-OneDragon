@@ -63,12 +63,14 @@ class Coffee:
                  tab: Optional[CompendiumTab],
                  category: Optional[CompendiumCategory],
                  mission_type: Optional[CompendiumMissionType],
-                 mission: Optional[CompendiumMission]):
+                 mission: Optional[CompendiumMission],
+                 extra: bool = False):
         self.coffee_name: str = coffee_name
         self.tab: CompendiumTab = tab
         self.category: CompendiumCategory = category
         self.mission_type: CompendiumMissionType = mission_type
         self.mission: CompendiumMission = mission
+        self.extra: bool = extra  # 可额外喝 不占用次数的
 
     @property
     def display_name(self) -> str:
@@ -286,13 +288,18 @@ class CompendiumService:
                           tab_name: Optional[str] = None,
                           category_name: Optional[str] = None,
                           mission_type_name: Optional[str] = None,
-                          mission_name: Optional[str] = None) -> Coffee:
+                          mission_name: Optional[str] = None,
+                          extra: bool = False
+                          ) -> Coffee:
         tab = self.get_tab_data(tab_name)
         category = self.get_category_data(tab_name, category_name)
         mission_type = self.get_mission_type_data(tab_name, category_name, mission_type_name)
         mission = self.get_mission_data(tab_name, category_name, mission_type_name, mission_name)
 
-        return Coffee(coffee_name, tab, category, mission_type, mission)
+        return Coffee(coffee_name, tab, category, mission_type, mission, extra=extra)
 
     def get_coffee_config_list_by_day(self, day: int) -> List[ConfigItem]:
         return [ConfigItem(i.display_name, i.coffee_name) for i in self.coffee_schedule.get(day, [])]
+
+    def get_extra_coffee_list(self) -> List[Coffee]:
+        return [i for i in self.coffee_list if i.extra]

@@ -90,3 +90,25 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 沉浸模式
+  pc_rect:
+  - 1534
+  - 32
+  - 1650
+  - 72
+  text: 沉浸模式
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 副本类型列表
+  pc_rect:
+  - 406
+  - 592
+  - 1528
+  - 828
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

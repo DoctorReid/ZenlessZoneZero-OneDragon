@@ -1,14 +1,14 @@
 import time
 
 import difflib
-from typing import Optional, List
+from typing import Optional, List, ClassVar
 
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.matcher.match_result import MatchResultList
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
-from one_dragon.utils import os_utils, cv2_utils
+from one_dragon.utils import os_utils, cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem
 from zzz_od.application.coffee.coffee_config import CoffeeChooseWay, CoffeeChallengeWay
@@ -25,6 +25,8 @@ from zzz_od.operation.wait_normal_world import WaitNormalWorld
 
 class CoffeeApp(ZApplication):
 
+    STATUS_EXTRA_COFFEE: ClassVar[str] = '不占用上限的咖啡'
+
     def __init__(self, ctx: ZContext):
         """
         每天自动接收邮件奖励
@@ -39,6 +41,7 @@ class CoffeeApp(ZApplication):
 
         self.chosen_coffee: Optional[Coffee] = None  # 选择的咖啡
         self.charge_plan: Optional[ChargePlanItem] = None  # 咖啡模拟生成的挑战计划
+        self.had_coffee_list: set[str] = set()  # 已经喝过的咖啡
 
     def handle_init(self) -> None:
         """
@@ -53,6 +56,7 @@ class CoffeeApp(ZApplication):
         return self.round_by_op(op.execute())
 
     @node_from(from_name='传送')
+    @node_from(from_name='电量确认', status=STATUS_EXTRA_COFFEE)
     @operation_node(name='等待大世界加载')
     def wait_world(self) -> OperationRoundResult:
         op = WaitNormalWorld(self.ctx)
@@ -96,22 +100,26 @@ class CoffeeApp(ZApplication):
             ocr_result_list.append(ocr_result)
             mrl_list.append(mrl)
 
-        for coffee_name in to_choose_list:
-            results = difflib.get_close_matches(gt(coffee_name), ocr_result_list, n=1)
-            if results is None or len(results) == 0:
-                continue
+        for lcs_percent in [0.8, 0.6, 0.4]:
+            for coffee_name in to_choose_list:
+                results = difflib.get_close_matches(gt(coffee_name), ocr_result_list, n=1)
+                if results is None or len(results) == 0:
+                    continue
 
-            # 对于浓淡二字特殊判断
-            if coffee_name.find('浓') > -1 and results[0].find('浓') == -1:
-                continue
+                if not str_utils.find_by_lcs(gt(coffee_name), results[0], percent=lcs_percent):
+                    continue
 
-            if coffee_name.find('淡') > -1 and results[0].find('淡') == -1:
-                continue
+                # 对于浓淡二字特殊判断
+                if coffee_name.find('浓') > -1 and results[0].find('浓') == -1:
+                    continue
 
-            mrl = mrl_list[ocr_result_list.index(results[0])]
-            self.chosen_coffee = self.ctx.compendium_service.name_2_coffee[coffee_name]
-            self.ctx.controller.click(mrl.max.center)
-            return self.round_success(wait=0.5)
+                if coffee_name.find('淡') > -1 and results[0].find('淡') == -1:
+                    continue
+
+                mrl = mrl_list[ocr_result_list.index(results[0])]
+                self.chosen_coffee = self.ctx.compendium_service.name_2_coffee[coffee_name]
+                self.ctx.controller.click(mrl.max.center)
+                return self.round_success(wait=0.5)
 
         if day == 7:  # 目前只有星期日需要右滑找咖啡
             start = area.center
@@ -126,6 +134,12 @@ class CoffeeApp(ZApplication):
         :return:
         """
         to_choose_list = []
+
+        for i in self.ctx.compendium_service.get_extra_coffee_list():
+            if i.coffee_name in self.had_coffee_list:
+                continue
+            to_choose_list.append(i.coffee_name)
+
         if self.ctx.coffee_config.choose_way == CoffeeChooseWay.PLAN_PRIORITY.value.value:
             opt_coffee_list = self.ctx.compendium_service.coffee_schedule[day]
 
@@ -144,6 +158,8 @@ class CoffeeApp(ZApplication):
                 if plan.run_times < plan.plan_times:
                     continue
                 for coffee in opt_coffee_list:
+                    if coffee.coffee_name in self.had_coffee_list:
+                        continue
                     if self._is_coffee_for_plan(coffee, plan):
                         to_choose_list.append(coffee.coffee_name)
                     break
@@ -155,7 +171,9 @@ class CoffeeApp(ZApplication):
                         to_choose_list.append(coffee.coffee_name)
                         break
 
-        to_choose_list.append(self.ctx.coffee_config.get_coffee_by_day(day))
+        day_config_coffee = self.ctx.coffee_config.get_coffee_by_day(day)
+        if day_config_coffee not in self.had_coffee_list:
+            to_choose_list.append(day_config_coffee)
 
         return to_choose_list
 
@@ -181,21 +199,58 @@ class CoffeeApp(ZApplication):
     @operation_node(name='点单')
     def order_coffee(self) -> OperationRoundResult:
         screen = self.screenshot()
-        return self.round_by_find_and_click_area(screen, '咖啡店', '点单',
-                                                 success_wait=5, retry_wait=1)
+
+        result = self.round_by_find_and_click_area(screen, '咖啡店', '点单')
+        if result.is_success:
+            self.had_coffee_list.add(self.chosen_coffee.coffee_name)
+            if self.chosen_coffee.extra:
+                return self.round_success(status=CoffeeApp.STATUS_EXTRA_COFFEE, wait=1)
+            else:
+                return self.round_success(wait=2)
+        return self.round_retry(wait=1)
+
+    @node_from(from_name='点单', status=STATUS_EXTRA_COFFEE)
+    @operation_node(name='不占用点单确认')
+    def extra_order_confirm(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        return self.round_by_find_and_click_area(screen, '咖啡店', '对话框确认',
+                                                 success_wait=1, retry_wait=1)
 
     @node_from(from_name='点单')
+    @node_from(from_name='不占用点单确认')
+    @operation_node(name='点单后跳过')
+    def skip_after_order(self) -> OperationRoundResult:
+        screen = self.screenshot()
+
+        return self.round_by_find_and_click_area(screen, '咖啡店', '点单后跳过',
+                                                 success_wait=1, retry_wait=1)
+
+    @node_from(from_name='点单后跳过')
+    @operation_node(name='电量确认')
+    def charge_confirm(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        result = self.round_by_find_and_click_area(screen, '咖啡店', '电量确认')
+
+        if result.is_success:
+            if self.chosen_coffee.extra:
+                return self.round_success(CoffeeApp.STATUS_EXTRA_COFFEE, wait=1)
+            else:
+                return self.round_success(wait=1)
+
+        return self.round_retry(wait=1)
+
+    @node_from(from_name='电量确认')
     @operation_node(name='选择前往')
     def choose_go(self) -> OperationRoundResult:
         if self.chosen_coffee.without_benefit:
             # 没有加成的
-            return self.round_success('咖啡后确认')
+            return self.round_success('没有加成')
 
         screen = self.screenshot()
 
         if self.ctx.coffee_config.challenge_way == CoffeeChallengeWay.NONE.value.value:
             # 不挑战的
-            return self.round_by_find_and_click_area(screen, '咖啡店', '咖啡后确认',
+            return self.round_by_find_and_click_area(screen, '咖啡店', '对话框确认',
                                                      success_wait=1, retry_wait=1)
 
         if self.ctx.coffee_config.challenge_way == CoffeeChallengeWay.ONLY_PLAN.value.value:
@@ -207,13 +262,13 @@ class CoffeeApp(ZApplication):
                     break
 
             if not in_plan:
-                return self.round_by_find_and_click_area(screen, '咖啡店', '咖啡后确认',
+                return self.round_by_find_and_click_area(screen, '咖啡店', '对话框确认',
                                                          success_wait=1, retry_wait=1)
 
-        return self.round_by_find_and_click_area(screen, '咖啡店', '咖啡后前往',
+        return self.round_by_find_and_click_area(screen, '咖啡店', '对话框前往',
                                                  success_wait=1, retry_wait=1)
 
-    @node_from(from_name='选择前往', status='咖啡后前往')
+    @node_from(from_name='选择前往', status='对话框前往')
     @operation_node(name='传送副本')
     def tp_mission(self) -> OperationRoundResult:
         if self.chosen_coffee.without_benefit:
@@ -229,12 +284,13 @@ class CoffeeApp(ZApplication):
         )
 
         screen = self.screenshot()
-        result = self.round_by_find_and_click_area(screen, '咖啡店', '前往确认')
+        area = self.ctx.screen_loader.get_area('咖啡店', '对话框确认')
+        result = self.round_by_ocr_and_click(screen, '确认', area=area)
 
         if result.is_success:
             return self.round_success(self.charge_plan.category_name, wait=5)
         else:
-            return self.round_retry(wait=1)
+            return self.round_retry(result.status, wait=1)
 
     @node_from(from_name='传送副本', status='实战模拟室')
     @operation_node(name='实战模拟室')
@@ -262,3 +318,17 @@ class CoffeeApp(ZApplication):
     def back_to_world(self) -> OperationRoundResult:
         op = BackToNormalWorld(self.ctx)
         return self.round_by_op(op.execute())
+
+
+def __debug():
+    ctx = ZContext()
+    ctx.init_by_config()
+    app = CoffeeApp(ctx)
+    app.chosen_coffee = ctx.compendium_service.name_2_coffee['果泡拿提']
+    app.execute()
+
+
+if __name__ == '__main__':
+    __debug()
+
+
