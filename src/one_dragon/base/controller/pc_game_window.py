@@ -117,7 +117,7 @@ class PcGameWindow:
         xs = 1 if rect.width == self.standard_width else rect.width * 1.0 / self.standard_width
         ys = 1 if rect.height == self.standard_height else rect.height * 1.0 / self.standard_height
         s_pos = Point(game_pos.x * xs, game_pos.y * ys)
-        return s_pos if self.is_valid_game_pos(s_pos, self.standard_game_rect) else None
+        return s_pos if self.is_valid_game_pos(game_pos, self.standard_game_rect) else None
 
     def is_valid_game_pos(self, s_pos: Point, rect: Rect = None) -> bool:
         """
