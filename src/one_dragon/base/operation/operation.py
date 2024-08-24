@@ -1,3 +1,4 @@
+import difflib
 import time
 
 import cv2
@@ -6,6 +7,7 @@ from cv2.typing import MatLike
 from typing import Optional, ClassVar, Callable, List, Any
 
 from one_dragon.base.geometry.point import Point
+from one_dragon.base.matcher.match_result import MatchResultList
 from one_dragon.base.operation.one_dragon_context import OneDragonContext, ContextRunningStateEventEnum
 from one_dragon.base.operation.operation_base import OperationBase, OperationResult
 from one_dragon.base.operation.operation_edge import OperationEdge, OperationEdgeDesc
@@ -671,9 +673,23 @@ class Operation(OperationBase):
         ocr_result_map = self.ctx.ocr.run_ocr(to_ocr_part)
 
         to_click: Optional[Point] = None
+        ocr_result_list: List[str] = []
+        mrl_list: List[MatchResultList] = []
+
         for ocr_result, mrl in ocr_result_map.items():
             if mrl.max is None:
                 continue
+            ocr_result_list.append(ocr_result)
+            mrl_list.append(mrl)
+
+        results = difflib.get_close_matches(gt(target_cn), ocr_result_list, n=1)
+        if results is None or len(results) == 0:
+            return self.round_retry(f'找不到 {target_cn}', wait=retry_wait, wait_round_time=retry_wait_round)
+
+        for result in results:
+            idx = ocr_result_list.index(result)
+            ocr_result = ocr_result_list[idx]
+            mrl = mrl_list[idx]
             if str_utils.find_by_lcs(gt(target_cn), ocr_result, percent=lcs_percent):
                 to_click = mrl.max.center
                 break

@@ -69,6 +69,7 @@ def find_and_click_area(ctx: OneDragonContext, screen: MatLike, screen_name: str
     if area.is_text_area:
         rect = area.rect
         part = cv2_utils.crop_image_only(screen, rect)
+        # cv2_utils.show_image(part, win_name='debug')
 
         ocr_result_map = ctx.ocr.run_ocr(part)
         for ocr_result, mrl in ocr_result_map.items():

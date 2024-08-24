@@ -239,7 +239,7 @@ def __debug():
     ctx.init_by_config()
     ctx.ocr.init_model()
     ctx.start_running()
-    chosen_coffee = ctx.compendium_service.name_2_coffee['红茶拿提（浓）']
+    chosen_coffee = ctx.compendium_service.name_2_coffee['麦草拿提']
     charge_plan = ChargePlanItem(
         tab_name=chosen_coffee.tab.tab_name,
         category_name=chosen_coffee.category.category_name,

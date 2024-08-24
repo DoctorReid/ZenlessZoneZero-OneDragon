@@ -34,7 +34,7 @@ class CoffeeApp(ZApplication):
         ZApplication.__init__(
             self,
             ctx=ctx, app_id='coffee',
-            node_max_retry_times=10,
+            node_max_retry_times=5,
             op_name=gt('咖啡店', 'ui'),
             run_record=ctx.charge_plan_run_record
         )
@@ -118,7 +118,7 @@ class CoffeeApp(ZApplication):
 
                 mrl = mrl_list[ocr_result_list.index(results[0])]
                 self.chosen_coffee = self.ctx.compendium_service.name_2_coffee[coffee_name]
-                self.ctx.controller.click(mrl.max.center + area.left_top)
+                self.ctx.controller.click(mrl.max.center + area.left_top + Point(0, -50))
                 return self.round_success(wait=0.5)
 
         if day == 7:  # 目前只有星期日需要右滑找咖啡
@@ -222,8 +222,16 @@ class CoffeeApp(ZApplication):
     def skip_after_order(self) -> OperationRoundResult:
         screen = self.screenshot()
 
-        return self.round_by_find_and_click_area(screen, '咖啡店', '点单后跳过',
-                                                 success_wait=1, retry_wait=1)
+        result = self.round_by_find_area(screen, '咖啡店', '电量确认')
+        if result.is_success:
+            return self.round_success()
+
+        # 这个点击很怪 需要多点几次
+        result = self.round_by_find_and_click_area(screen, '咖啡店', '点单后跳过')
+        if result.is_success:
+            return self.round_wait(wait=1)
+
+        return self.round_retry(result.status, wait=1)
 
     @node_from(from_name='点单后跳过')
     @operation_node(name='电量确认')
@@ -310,6 +318,8 @@ class CoffeeApp(ZApplication):
         op = ExpertChallenge(self.ctx, self.charge_plan)
         return self.round_by_op(op.execute())
 
+
+    @node_from(from_name='点单后跳过', success=False)  # 已经喝过了
     @node_from(from_name='选择前往', status='咖啡后确认')
     @node_from(from_name='实战模拟室')
     @node_from(from_name='定期清剿')
@@ -324,7 +334,7 @@ def __debug():
     ctx = ZContext()
     ctx.init_by_config()
     app = CoffeeApp(ctx)
-    app.chosen_coffee = ctx.compendium_service.name_2_coffee['果泡拿提']
+    # app.chosen_coffee = ctx.compendium_service.name_2_coffee['果泡拿提']
     app.execute()
 
 
