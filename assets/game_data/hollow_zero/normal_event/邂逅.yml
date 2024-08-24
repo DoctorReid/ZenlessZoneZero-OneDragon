@@ -128,3 +128,9 @@
     - option_name: "我很期待"
       desc: "清除1个侵蚀症状，或降低50点压力值"
     - option_name: "还是算了"
+
+# 青衣
+- entry_name: "邂逅"
+  event_name: "提醒喝水小助手"
+  options:
+    - option_name: "里面装了什么好喝的"
