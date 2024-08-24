@@ -5,6 +5,7 @@ from one_dragon.utils import i18_utils
 from zzz_od.application.battle_assistant.battle_assistant_config import BattleAssistantConfig
 from zzz_od.application.charge_plan.charge_plan_config import ChargePlanConfig
 from zzz_od.application.charge_plan.charge_plan_run_record import ChargePlanRunRecord
+from zzz_od.application.city_fund.city_fund_run_record import CityFundRunRecord
 from zzz_od.application.coffee.coffee_config import CoffeeConfig
 from zzz_od.application.coffee.coffee_run_record import CoffeeRunRecord
 from zzz_od.application.devtools.screenshot_helper.screenshot_helper_config import ScreenshotHelperConfig
@@ -74,6 +75,7 @@ class ZContext(OneDragonContext):
         self.notorious_hunt_record: NotoriousHuntRunRecord = NotoriousHuntRunRecord(instance_idx, game_refresh_hour_offset)
         self.hollow_zero_record: HollowZeroRunRecord = HollowZeroRunRecord(self.hollow_zero_config, instance_idx, game_refresh_hour_offset)
         self.coffee_record: CoffeeRunRecord = CoffeeRunRecord(instance_idx, game_refresh_hour_offset)
+        self.city_fund_record: CityFundRunRecord = CityFundRunRecord(instance_idx, game_refresh_hour_offset)
 
     def init_by_config(self) -> None:
         """
