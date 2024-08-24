@@ -4,6 +4,7 @@
   options:
     - option_name: "钻入狭缝通道"
       desc: "获得1400齿轮硬币"
+    - option_name: "寻找幸存者"
     - option_name: "强行拜访"
       desc: "获得600齿轮硬币"
     - option_name: "通过夹缝离开"

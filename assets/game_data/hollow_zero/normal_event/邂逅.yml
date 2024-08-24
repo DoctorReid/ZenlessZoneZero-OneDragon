@@ -79,7 +79,7 @@
 # 妮可
 - entry_name: "邂逅"
   event_name: "狡兔的逆鳞"
-  lcs_percent: 0.8
+  lcs_percent: 0.6
   options:
     - option_name: "为妮可打灯照明"
 

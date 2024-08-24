@@ -1,0 +1,7 @@
+- entry_name: "秘医"
+  event_name: "秘医"
+  options:
+    - option_name: "同意秘医抽取充足血液"
+      desc: "获得2个浓缩医疗和1枚A级护盾鸣徽"
+    - option_name: "同意秘医抽取微量血液"
+      desc: "获得1个浓缩医疗"
