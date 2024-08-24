@@ -26,10 +26,10 @@ area_list:
   template_match_threshold: 0.7
 - area_name: 底部列表
   pc_rect:
-  - 268
-  - 1022
-  - 1535
-  - 1060
+  - 270
+  - 924
+  - 1634
+  - 1058
   text: ''
   lcs_percent: 0.5
   template_sub_dir: ''
