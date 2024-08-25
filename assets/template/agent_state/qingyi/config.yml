@@ -1,0 +1,8 @@
+sub_dir: agent_state
+template_id: qingyi
+template_name: 角色状态-青衣
+template_shape: rectangle
+auto_mask: true
+point_list:
+- 132, 119
+- 222, 120

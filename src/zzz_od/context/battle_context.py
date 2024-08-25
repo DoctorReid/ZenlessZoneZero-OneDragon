@@ -924,8 +924,11 @@ class BattleContext:
             if self._to_check_states is not None and state.state_name not in self._to_check_states:
                 continue
             if state.check_way == AgentStateCheckWay.COLOR_RANGE_CONNECT:
-                cnt = agent_state_checker.check_cnt_by_color_range(self.ctx, screen, state)
-                self.ctx.dispatch_event(state.state_name, StateEvent(screenshot_time, value=cnt))
+                value = agent_state_checker.check_cnt_by_color_range(self.ctx, screen, state)
+                self.ctx.dispatch_event(state.state_name, StateEvent(screenshot_time, value=value))
+            elif state.check_way == AgentStateCheckWay.BACKGROUND_COLOR_RANGE_LENGTH:
+                value = agent_state_checker.check_length_by_background(self.ctx, screen, state)
+                self.ctx.dispatch_event(state.state_name, StateEvent(screenshot_time, value=value))
 
 
 def __debug():

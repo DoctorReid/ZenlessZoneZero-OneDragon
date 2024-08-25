@@ -13,3 +13,14 @@ area_list:
   template_sub_dir: agent_state
   template_id: zhu_yuan
   template_match_threshold: 0.7
+- area_name: 青衣-电压
+  pc_rect:
+  - 132
+  - 119
+  - 222
+  - 120
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: agent_state
+  template_id: qingyi
+  template_match_threshold: 0.7
