@@ -30,7 +30,7 @@ class HollowZeroApp(ZApplication):
         mission_name = self.ctx.hollow_zero_config.mission_name
         idx = mission_name.find('-')
         if idx != -1:
-            self.mission_name = mission_name[idx+1:]
+            self.mission_name = mission_name
             self.mission_type_name = mission_name[:idx]
         else:
             self.mission_name = mission_name
