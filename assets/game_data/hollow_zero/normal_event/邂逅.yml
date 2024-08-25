@@ -139,3 +139,4 @@
   event_name: "提醒喝水小助手"
   options:
     - option_name: "里面装了什么好喝的"
+    - option_name: "我我记住了马马上会去喝的"
