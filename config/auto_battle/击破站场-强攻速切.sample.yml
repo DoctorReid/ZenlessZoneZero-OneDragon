@@ -54,7 +54,7 @@ scenes:
       - states: "[自定义-黄光切人, 0, 2] | [自定义-红光闪避, 0, 2]"
         sub_states:
           - state_template: "站场模板-全角色"
-      - states: "[按键-连携技-左, 0, 12] | [按键-连携技-右, 0, 12]"
+      - states: "[自定义-连携换人, 0, 12] | [自定义-连携换人, 0, 12]"
         sub_states:
           - state_template: "站场模板-强攻站场"
       - state_template: "站场模板-击破站场"
