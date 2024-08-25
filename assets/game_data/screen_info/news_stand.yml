@@ -5,9 +5,9 @@ area_list:
 - area_name: 刮刮卡
   pc_rect:
   - 94
-  - 996
+  - 956
   - 172
-  - 1020
+  - 1050
   text: 刮刮卡
   lcs_percent: 0.5
   template_sub_dir: ''
