@@ -1,6 +1,10 @@
 - entry_name: "裂隙"
-  event_name: "裂隙"
+  event_name: "事件裂隙"
   options:
+    - option_name: "一支精神放松剂"
+      desc: "压力值变为20"
+    - option_name: "一个医药箱"
+      desc: "随机一名角色回复50%生命值"
     - option_name: "放弃挣扎，拥抱深渊"
     - option_name: "物品遗失"
       desc: "失去2个随机鸣徽"
