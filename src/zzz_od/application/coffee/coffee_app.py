@@ -224,12 +224,16 @@ class CoffeeApp(ZApplication):
 
         result = self.round_by_find_area(screen, '咖啡店', '电量确认')
         if result.is_success:
-            return self.round_success()
+            return self.round_success(result.status)
 
         # 这个点击很怪 需要多点几次
         result = self.round_by_find_and_click_area(screen, '咖啡店', '点单后跳过')
         if result.is_success:
-            return self.round_wait(wait=1)
+            return self.round_wait(result.status, wait=1)
+
+        result = self.round_by_find_and_click_area(screen, '咖啡店', '不可贪杯确认')
+        if result.is_success:
+            return self.round_success(result.status, wait=1)
 
         return self.round_retry(result.status, wait=1)
 
@@ -318,9 +322,8 @@ class CoffeeApp(ZApplication):
         op = ExpertChallenge(self.ctx, self.charge_plan)
         return self.round_by_op(op.execute())
 
-
-    @node_from(from_name='点单后跳过', success=False)  # 已经喝过了
-    @node_from(from_name='选择前往', status='咖啡后确认')
+    @node_from(from_name='点单后跳过', status='不可贪杯确认')  # 已经喝过了
+    @node_from(from_name='选择前往', status='对话框确认')
     @node_from(from_name='实战模拟室')
     @node_from(from_name='定期清剿')
     @node_from(from_name='专业挑战室')
