@@ -185,6 +185,6 @@ class OneDragonConfig(YamlConfig):
         app_run_list = self.app_run_list
         if to_run and app_id not in app_run_list:
             app_run_list.append(app_id)
-        elif not to_run:
+        elif not to_run and app_id in app_run_list:
             app_run_list.remove(app_id)
         self.app_run_list = app_run_list

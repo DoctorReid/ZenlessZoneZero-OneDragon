@@ -67,7 +67,7 @@ class YamlOperator:
     def update(self, key: str, value, save: bool = True):
         if self.data is None:
             self.data = {}
-        if key in self.data and self.data[key] == value:
+        if key in self.data and not isinstance(value, list) and self.data[key] == value:
             return
         self.data[key] = value
         if save:

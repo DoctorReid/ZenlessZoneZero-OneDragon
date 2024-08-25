@@ -36,7 +36,7 @@ class CoffeeApp(ZApplication):
             ctx=ctx, app_id='coffee',
             node_max_retry_times=5,
             op_name=gt('咖啡店', 'ui'),
-            run_record=ctx.charge_plan_run_record
+            run_record=ctx.coffee_record
         )
 
         self.chosen_coffee: Optional[Coffee] = None  # 选择的咖啡

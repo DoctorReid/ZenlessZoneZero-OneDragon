@@ -1,5 +1,3 @@
-from concurrent.futures import ThreadPoolExecutor
-
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
 from enum import Enum
@@ -10,16 +8,15 @@ from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.operation.application_base import Application, ApplicationEventId
 from one_dragon.base.operation.context_event_bus import ContextEventItem
 from one_dragon.base.operation.one_dragon_app import OneDragonApp
-from one_dragon.base.operation.one_dragon_context import OneDragonContext, ContextRunningStateEventEnum, \
-    ContextKeyboardEventEnum
+from one_dragon.base.operation.one_dragon_context import OneDragonContext, ContextKeyboardEventEnum
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.log_display_card import LogDisplayCard
 from one_dragon.gui.component.setting_card.app_run_card import AppRunCard
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.view.app_run_interface import AppRunner
 from one_dragon.utils import cmd_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
-from one_dragon.gui.view.app_run_interface import AppRunner
 
 
 class AfterDoneOpEnum(Enum):
