@@ -55,14 +55,14 @@ def __debug_opts():
     from zzz_od.operation.hollow_zero.hollow_runner import HollowRunner
     op = HollowRunner(ctx)
     from one_dragon.utils import debug_utils
-    screen = debug_utils.get_debug_image('_1724044474644')
-    from one_dragon.utils import os_utils
-    import os
-    from one_dragon.utils import cv2_utils
-    screen = cv2_utils.read_image(
-        os.path.join(os_utils.get_path_under_work_dir('.debug', 'devtools', 'screen', 'hollow_zero_friend'),
-                     'qingyi_1.png')
-    )
+    screen = debug_utils.get_debug_image('1')
+    # from one_dragon.utils import os_utils
+    # import os
+    # from one_dragon.utils import cv2_utils
+    # screen = cv2_utils.read_image(
+    #     os.path.join(os_utils.get_path_under_work_dir('.debug', 'devtools', 'screen', 'hollow_zero_friend'),
+    #                  'qingyi_1.png')
+    # )
     from zzz_od.operation.hollow_zero import hollow_utils
     event_name = hollow_utils.check_screen(op, screen)
     e = ctx.hollow.data_service.get_normal_event_by_name(event_name)

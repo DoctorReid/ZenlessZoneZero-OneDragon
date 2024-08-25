@@ -39,7 +39,7 @@ class HollowZeroApp(ZApplication):
             self.mission_name = mission_name
             self.mission_type_name = mission_name
 
-    @operation_node(name='传送', is_start_node=False)
+    @operation_node(name='传送', is_start_node=True)
     def tp(self) -> OperationRoundResult:
         op = TransportByCompendium(self.ctx,
                                    '挑战',
@@ -113,7 +113,7 @@ class HollowZeroApp(ZApplication):
         return self.round_by_op(op.execute())
 
     @node_from(from_name='选择副本类型', status=STATUS_TIMES_FINISHED)
-    @operation_node(name='完成后等待加载', is_start_node=True)
+    @operation_node(name='完成后等待加载')
     def wait_back_loading(self) -> OperationRoundResult:
         self.node_max_retry_times = 20  # 等待加载久一点
         screen = self.screenshot()

@@ -86,8 +86,6 @@ def check_event_text_and_run(op: ZOperation, screen: MatLike, handlers: List[Eve
     if target_handler is not None:
         log.debug('识别事件选项 %s' % target_handler.target_cn)
         return run_event_handler(op, target_handler, area, target_mrl.max)
-    elif event_mark_handler is not None:
-        return click_empty(op)
 
     for handler in handlers:
         mrl = None
