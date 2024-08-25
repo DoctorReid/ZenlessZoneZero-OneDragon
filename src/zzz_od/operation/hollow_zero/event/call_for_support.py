@@ -218,10 +218,32 @@ def __debug_support_agent():
     ctx.ocr.init_model()
     op = CallForSupport(ctx)
     from one_dragon.utils import debug_utils
-    screen = debug_utils.get_debug_image('IMG_0002')
+    from one_dragon.utils import os_utils
+    import os
+    screen = cv2_utils.read_image(os.path.join(
+        os_utils.get_path_under_work_dir('.debug', 'devtools', 'screen', 'hollow_zero_support'),
+        'laikaen.png'
+    ))
     print(op._get_support_agent(screen).agent_name)
+
+
+def __debug_current_agent():
+    ctx = ZContext()
+    ctx.init_by_config()
+    ctx.ocr.init_model()
+    op = CallForSupport(ctx)
+    from one_dragon.utils import debug_utils
+    from one_dragon.utils import os_utils
+    import os
+    screen = cv2_utils.read_image(os.path.join(
+        os_utils.get_path_under_work_dir('.debug', 'devtools', 'screen', 'hollow_zero_support'),
+        'laikaen.png'
+    ))
+    agent_list = ctx.hollow.check_agent_list(screen)
+    print([i.agent_name for i in agent_list if i is not None])
 
 
 if __name__ == '__main__':
     # __debug()
-    __debug_support_agent()
+    # __debug_support_agent()
+    __debug_current_agent()
