@@ -241,6 +241,30 @@ class HollowContext:
         """
         self.level_info = HollowLevelInfo(mission_type_name, mission_name, 1, 1)
 
+    def update_agent_list_after_support(self, new_agent: Agent, pos: int) -> None:
+        """
+        呼叫支援后 更新角色列表
+        :param new_agent: 加入的代理人
+        :param pos: 位置 1~3
+        :return:
+        """
+        if self.agent_list is None:
+            return
+        if pos - 1 >= len(self.agent_list):
+            return
+        self.agent_list[pos - 1] = new_agent
+
+    def had_been_entry(self, entry_name: str) -> bool:
+        """
+        是否曾经到达过某种类型的格子
+        :param entry_name:
+        :return:
+        """
+        for visited in self._visited_nodes:
+            if visited.entry.entry_name == entry_name:
+                return True
+        return False
+
 
 def __debug_draw_detect():
     ctx = ZContext()

@@ -1,11 +1,14 @@
 import time
 
 from cv2.typing import MatLike
-from typing import Type
+from typing import Type, Optional, ClassVar
 
+from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
+from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
+from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroExtraTask
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroSpecialEvent
 from zzz_od.hollow_zero.hollow_map.hollow_zero_map import HollowZeroMapNode, HollowZeroMap
@@ -26,6 +29,8 @@ from zzz_od.operation.zzz_operation import ZOperation
 
 
 class HollowRunner(ZOperation):
+
+    STATUS_LEAVE: ClassVar[str] = '离开空洞'
 
     def __init__(self, ctx: ZContext):
         ZOperation.__init__(
@@ -70,7 +75,6 @@ class HollowRunner(ZOperation):
         # 当前识别到地图
         current_map = self.ctx.hollow.check_current_map(screen, now)
         if current_map is not None and current_map.current_idx is not None:
-            self.ctx.hollow.check_before_move(screen)
             return self._handle_map_move(screen, current_map)
 
         self.round_by_click_area('零号空洞-事件', '空白')
@@ -116,6 +120,19 @@ class HollowRunner(ZOperation):
             self._save_debug_image(screen)
             return self.round_retry('自动寻路失败')
 
+        self._try_click_speed_up(screen)
+        self._check_agent_list(screen)
+        self._check_mission_level(screen, current_map)
+        extra_finished = self._check_extra_task_finished(screen, current_map)
+        if extra_finished:
+            return self.round_success(HollowRunner.STATUS_LEAVE)
+
+        self.ctx.controller.click(next_to_move.pos.center)
+        self.ctx.hollow.update_context_after_move(next_to_move)
+
+        return self.round_wait(wait=1)
+
+    def _try_click_speed_up(self, screen: MatLike) -> None:
         # 快进
         if not self.ctx.hollow.speed_up_clicked:
             result = self.round_by_find_and_click_area(screen, '零号空洞-事件', '快进')
@@ -123,10 +140,79 @@ class HollowRunner(ZOperation):
             if result.is_success:
                 self.ctx.hollow.speed_up_clicked = True
 
-        self.ctx.controller.click(next_to_move.pos.center)
-        self.ctx.hollow.update_context_after_move(next_to_move)
+    def _check_agent_list(self, screen: MatLike) -> None:
+        if self.ctx.hollow.agent_list is not None:
+            return
+        self.ctx.hollow.check_agent_list(screen)
 
-        return self.round_wait(wait=1)
+    def _check_mission_level(self, screen: MatLike, current_map: HollowZeroMap) -> None:
+        """
+        如果之前没有初始化好副本信息 靠当前画面识别 断点继续时有用
+        :param screen:
+        :param current_map: 当前地图信息
+        :return:
+        """
+        level_info = self.ctx.hollow.level_info
+        if level_info.level == -1:  # 没有楼层信息 先识别
+            area = self.ctx.screen_loader.get_area('零号空洞-事件', '当前层数')
+            part = cv2_utils.crop_image_only(screen, area.rect)
+            ocr_result = self.ctx.ocr.run_ocr_single_line(part)
+            digit = str_utils.get_positive_digits(ocr_result, err=-1)
+            level_info.level = digit
+
+        if level_info.phase == -1 and level_info.level in [2, 3]:  # 没有阶段信息 先尝试识别
+            if current_map.contains_entry('零号银行'):  # 银行辨识度较高
+                level_info.phase = 1
+            elif current_map.contains_entry('守门人'):
+                level_info.phase = 2
+        else:  # 1楼固定只有1阶段
+            level_info.phase = 1
+
+        # 旧都列车
+        if level_info.mission_type_name is None:
+            if level_info.level in [2, 3] and level_info.phase == 1:
+                if current_map.contains_entry('假面研究者'):
+                    level_info.mission_type_name = '旧都列车'
+
+        # 施工废墟
+        if level_info.mission_type_name is None:
+            if current_map.contains_entry('投机客'):
+                level_info.mission_type_name = '施工废墟'
+
+    def _check_extra_task_finished(self, screen: MatLike, current_map: HollowZeroMap) -> bool:
+        """
+        判断额外业绩是否刷完了
+        :param screen:
+        :param current_map:
+        :return:
+        """
+        level_info = self.ctx.hollow.level_info
+        # 完成指定次数后才会触发刷业绩的选项
+        if not self.ctx.hollow_zero_record.is_finished_by_times():
+            return False
+
+        if self.ctx.hollow_zero_config.extra_task == HollowZeroExtraTask.NONE.value.value:
+            return False
+
+        if self.ctx.hollow_zero_config.extra_task == HollowZeroExtraTask.LEVEL_2.value.value:
+            if level_info.level > 2 or (level_info.level == 2 and level_info.phase > 1):  # 已经过了指定的楼层
+                return True
+            if level_info.level == 2 and level_info.phase == 1:
+                if self.ctx.hollow.had_been_entry('零号业绩') and not current_map.contains_entry('零号业绩'):
+                    return True
+                if current_map.contains_entry('零号业绩空'):
+                    return True
+            return False
+
+        if self.ctx.hollow_zero_config.extra_task == HollowZeroExtraTask.LEVEL_3.value.value:
+            if level_info.level == 3 and level_info.phase == 1:
+                if self.ctx.hollow.had_been_entry('零号业绩') and not current_map.contains_entry('零号业绩'):
+                    return True
+                if current_map.contains_entry('零号业绩空'):
+                    return True
+            return False
+
+        return False
 
     def _save_debug_image(self, screen: MatLike) -> None:
         """
@@ -140,6 +226,42 @@ class HollowRunner(ZOperation):
         self._last_save_image_time = now
         from one_dragon.utils import debug_utils
         debug_utils.save_debug_image(screen, prefix='pathfinding_fail')
+
+    @node_from(from_name='画面识别', status=STATUS_LEAVE)
+    @operation_node(name='点击菜单')
+    def click_menu(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        result = self.round_by_find_area(screen, '零号空洞-事件', '离开')
+        if result.is_success:
+            return self.round_success()
+
+        result = self.round_by_click_area('零号空洞-事件', '菜单')
+        if result.is_success:
+            return self.round_wait(wait=1)
+
+        return self.round_retry(result.status, wait=1)
+
+    @node_from(from_name='点击菜单')
+    @operation_node(name='点击离开')
+    def click_leave(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        return self.round_by_find_and_click_area(screen, '零号空洞-事件', '离开',
+                                                 success_wait=1, retry_wait=1)
+
+    @node_from(from_name='点击离开')
+    @operation_node(name='确认离开')
+    def confirm_leave(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        return self.round_by_find_and_click_area(screen, '零号空洞-事件', '确认离开',
+                                                 success_wait=1, retry_wait=1)
+
+    @node_from(from_name='确认离开')
+    @operation_node(name='点击完成')
+    def click_finish(self) -> OperationRoundResult:
+        screen = self.screenshot()
+
+        return self.round_by_find_and_click_area(screen, '零号空洞-事件', '通关-完成',
+                                                 success_wait=5, retry_wait=1)
 
 
 def __debug():
