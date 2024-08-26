@@ -271,10 +271,10 @@ def __debug():
     ctx.ocr.init_model()
     ctx.hollow.init_event_yolo(True)
     op = HollowRunner(ctx)
-    from one_dragon.utils import debug_utils
-    screen = debug_utils.get_debug_image('_1723977819253')
-    result = op.round_by_find_and_click_area(screen, '零号空洞-事件', '快进')
-    print(result.is_success)
+    # from one_dragon.utils import debug_utils
+    # screen = debug_utils.get_debug_image('_1723977819253')
+    # result = op.round_by_find_and_click_area(screen, '零号空洞-事件', '快进')
+    # print(result.is_success)
     op.execute()
 
 
