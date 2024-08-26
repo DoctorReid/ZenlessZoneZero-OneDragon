@@ -5,7 +5,7 @@ import cv2
 from cv2.typing import MatLike
 from typing import List, Optional
 
-from one_dragon.utils import cv2_utils, thread_utils, cal_utils, yolo_config_utils
+from one_dragon.utils import cv2_utils, yolo_config_utils
 from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import Agent, AgentEnum
@@ -158,6 +158,7 @@ class HollowContext:
             '业绩考察点',
             '零号银行',
             '邦布商人',
+            '诡雾',
         ]
 
         for to_go in go_priority_list:

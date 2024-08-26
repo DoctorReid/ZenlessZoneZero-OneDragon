@@ -128,3 +128,7 @@
   move_afterwards: true
 - entry_name: "房屋残骸"
   is_benefit: false
+- entry_name: "投机客"
+  is_benefit: false
+- entry_name: "诡雾"
+  is_benefit: false
