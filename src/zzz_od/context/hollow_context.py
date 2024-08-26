@@ -263,7 +263,7 @@ def __debug_get_map():
 
     from one_dragon.utils import debug_utils
     img_list = [
-        'pathfinding_fail_1724218224825',
+        'a9b49eea5a066d1d78e7f9f582808569',
     ]
     for i in img_list:
         img = debug_utils.get_debug_image(i)
@@ -272,8 +272,9 @@ def __debug_get_map():
         current_map = ctx.hollow.check_current_map(img, time.time())
 
     print(current_map.current_idx)
+    idx_2_route = hollow_map_utils.search_map(current_map)
     target = ctx.hollow.get_next_to_move(current_map)
-    result_img = hollow_map_utils.draw_map(img, current_map, next_node=target)
+    result_img = hollow_map_utils.draw_map(img, current_map, next_node=target, idx_2_route=idx_2_route)
     cv2_utils.show_image(result_img, wait=0)
     cv2.destroyAllWindows()
 

@@ -199,4 +199,4 @@ area_list:
   lcs_percent: 0.5
   template_sub_dir: hollow
   template_id: speed_up
-  template_match_threshold: 0.7
+  template_match_threshold: 0.9

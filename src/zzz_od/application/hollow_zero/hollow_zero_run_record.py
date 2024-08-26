@@ -1,6 +1,6 @@
 from typing import Optional
 
-from one_dragon.base.operation.application_run_record import AppRunRecord
+from one_dragon.base.operation.application_run_record import AppRunRecord, AppRunRecordPeriod
 from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroConfig
 
 
@@ -11,7 +11,8 @@ class HollowZeroRunRecord(AppRunRecord):
             self,
             'hollow_zero',
             instance_idx=instance_idx,
-            game_refresh_hour_offset=game_refresh_hour_offset
+            game_refresh_hour_offset=game_refresh_hour_offset,
+            record_period=AppRunRecordPeriod.WEEKLY
         )
         self.config: HollowZeroConfig = config
 
