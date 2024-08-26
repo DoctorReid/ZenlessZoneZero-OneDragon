@@ -140,3 +140,9 @@
   options:
     - option_name: "里面装了什么好喝的"
     - option_name: "我我记住了马马上会去喝的"
+
+# 猫又
+- entry_name: "邂逅"
+  event_name: "捕猎游戏高分段位"
+  options:
+    - option_name: "等待猫又吧已经习惯了"
