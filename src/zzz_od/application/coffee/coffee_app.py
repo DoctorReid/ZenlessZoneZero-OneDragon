@@ -56,7 +56,6 @@ class CoffeeApp(ZApplication):
         return self.round_by_op(op.execute())
 
     @node_from(from_name='传送')
-    @node_from(from_name='电量确认', status=STATUS_EXTRA_COFFEE)
     @operation_node(name='等待大世界加载')
     def wait_world(self) -> OperationRoundResult:
         op = WaitNormalWorld(self.ctx)
@@ -73,7 +72,6 @@ class CoffeeApp(ZApplication):
         time.sleep(1)
 
         self.ctx.controller.interact(press=True, press_time=0.2, release=True)
-        time.sleep(5)
 
         return self.round_success()
 
@@ -81,9 +79,11 @@ class CoffeeApp(ZApplication):
     @operation_node(name='等待咖啡店加载')
     def wait_coffee_shop(self) -> OperationRoundResult:
         screen = self.screenshot()
-        return self.round_by_find_area(screen, '咖啡店', '点单')
+        return self.round_by_find_area(screen, '咖啡店', '点单',
+                                       retry_wait=1)
 
     @node_from(from_name='等待咖啡店加载')
+    @node_from(from_name='电量确认', status=STATUS_EXTRA_COFFEE)
     @operation_node(name='选择咖啡')
     def choose_coffee(self) -> OperationRoundResult:
         day = os_utils.get_current_day_of_week(self.ctx.game_config.game_refresh_hour_offset)
@@ -112,8 +112,12 @@ class CoffeeApp(ZApplication):
                 # 对于浓淡二字特殊判断
                 if coffee_name.find('浓') > -1 and results[0].find('浓') == -1:
                     continue
+                if results[0].find('浓') > -1 and coffee_name.find('浓') == -1:
+                    continue
 
                 if coffee_name.find('淡') > -1 and results[0].find('淡') == -1:
+                    continue
+                if results[0].find('淡') > -1 and coffee_name.find('淡') == -1:
                     continue
 
                 mrl = mrl_list[ocr_result_list.index(results[0])]
@@ -213,8 +217,15 @@ class CoffeeApp(ZApplication):
     @operation_node(name='不占用点单确认')
     def extra_order_confirm(self) -> OperationRoundResult:
         screen = self.screenshot()
-        return self.round_by_find_and_click_area(screen, '咖啡店', '对话框确认',
-                                                 success_wait=3, retry_wait=1)
+        result = self.round_by_find_and_click_area(screen, '咖啡店', '对话框确认')
+        if result.is_success:
+            return self.round_success(result.status, wait=1)
+
+        result = self.round_by_find_and_click_area(screen, '咖啡店', '不可贪杯确认')
+        if result.is_success:
+            return self.round_success(result.status, wait=1)
+
+        return self.round_retry(wait=1)
 
     @node_from(from_name='点单')
     @node_from(from_name='不占用点单确认')
@@ -322,6 +333,7 @@ class CoffeeApp(ZApplication):
         op = ExpertChallenge(self.ctx, self.charge_plan)
         return self.round_by_op(op.execute())
 
+    @node_from(from_name='不占用点单确认', status='不可贪杯确认')  # 已经喝过了
     @node_from(from_name='点单后跳过', status='不可贪杯确认')  # 已经喝过了
     @node_from(from_name='选择前往', status='对话框确认')
     @node_from(from_name='实战模拟室')
@@ -338,6 +350,7 @@ def __debug():
     ctx.init_by_config()
     app = CoffeeApp(ctx)
     # app.chosen_coffee = ctx.compendium_service.name_2_coffee['果泡拿提']
+    app.had_coffee_list.add('沙罗特调（浓）')
     app.execute()
 
 

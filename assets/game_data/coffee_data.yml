@@ -1,6 +1,10 @@
 coffee_list:
   - coffee_name: "新艾利都特调"
+  - coffee_name: "沙罗特调"
+    extra: true
   - coffee_name: "沙罗特调（淡）"
+    extra: true
+  - coffee_name: "沙罗特调（浓）"
     extra: true
 
   - coffee_name: "红茶拿提"
