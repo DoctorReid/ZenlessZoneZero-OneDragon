@@ -1,0 +1,9 @@
+- entry_name: "全自动医疗仓"
+  event_name: "全自动医疗仓"
+  options:
+    - option_name: "启动医疗仓"
+      desc: "存活代理人的生命值将按比例均分给全队"
+    - option_name: "暂时离开"
+
+- entry_name: "全自动医疗仓"
+  event_name: "启动医疗仓"
