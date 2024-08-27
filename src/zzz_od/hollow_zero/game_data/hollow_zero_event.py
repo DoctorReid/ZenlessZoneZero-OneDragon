@@ -8,7 +8,8 @@ class HollowZeroEntry:
                  is_base: bool = False, can_go: bool = True, is_tp: bool = False,
                  move_afterwards: bool = False):
         # TODO 要将这里改成不可改
-        self.entry_name: str = entry_name
+        self.entry_id: str = entry_name[:4]
+        self.entry_name: str = entry_name[5:]
         self.is_benefit: bool = is_benefit  # 是否完全有益的事件
         self.need_step: int = need_step
         self.is_base: bool = is_base  # 是否电视机底座

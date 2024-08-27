@@ -1,6 +1,7 @@
 from cv2.typing import MatLike
 from typing import List, Optional
 
+from one_dragon.base.geometry.point import Point
 from one_dragon.base.geometry.rectangle import Rect
 from one_dragon.utils import cal_utils
 from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroEntry
@@ -23,26 +24,30 @@ def construct_map_from_yolo_result(detect_result: DetectFrameResult, name_2_entr
             entry = unknown
 
         width = result.x2 - result.x1
+        height = result.y2 - result.y1
         if entry.is_base:
             pos = Rect(result.x1, result.y2 - width, result.x2, result.y2)
         else:
-            pos = Rect(result.x1, result.y1, result.x2, result.y2)
+            pos = Rect(result.x1, result.y1, result.x2, result.y2 + height // 3)
 
         # 判断与已有的节点是否重复
         to_merge: Optional[HollowZeroMapNode] = None
         for existed in nodes:
-            if cal_utils.distance_between(pos.center, existed.pos.center) < 100:
+            min_dis = min(pos.height, pos.width, existed.pos.height, existed.pos.width) // 2
+            if cal_utils.distance_between(pos.center, existed.pos.center) < min_dis:
                 to_merge = existed
                 break
 
         if to_merge is not None:
-            if to_merge.entry.is_base:  # 旧的是底座 那么将新的类型赋值上去
+            if to_merge.entry.is_base and not entry.is_base:  # 旧的是底座 那么将新的类型赋值上去
                 to_merge.entry = entry
                 to_merge.pos.y1 = pos.y1  # 使用具体类型的坐标
-            else:  # 旧的是格子类型 那么把底座的范围赋值上去
+            elif not to_merge.entry.is_base and entry.is_base:  # 旧的是格子类型 那么把底座的范围赋值上去
                 to_merge.pos.x1 = pos.x1
                 to_merge.pos.x2 = pos.x2
                 to_merge.pos.y2 = pos.y2
+            else:
+                pass
         else:
             node = HollowZeroMapNode(pos, entry,
                                      check_time=detect_result.run_time,
@@ -465,7 +470,15 @@ def draw_map(screen: MatLike, current_map: HollowZeroMap,
         for idx, route in idx_2_route.items():
             # 在对应坐标是显示idx
             node = current_map.nodes[idx]
-            cv2.putText(to_draw, str(route.step_cnt), node.pos.left_top.tuple(), cv2.FONT_HERSHEY_SIMPLEX,
+            msg = f'{route.node.entry.entry_id} : {route.step_cnt}'
+            cv2.putText(to_draw, msg, (node.pos.left_top + Point(0, 20)).tuple(), cv2.FONT_HERSHEY_SIMPLEX,
+                        0.5, (0, 0, 255), 2)
+        for idx in range(len(current_map.nodes)):
+            if idx in idx_2_route:
+                continue
+            node = current_map.nodes[idx]
+            msg = f'{node.entry.entry_id} : -1'
+            cv2.putText(to_draw, msg, (node.pos.left_top + Point(0, 20)).tuple(), cv2.FONT_HERSHEY_SIMPLEX,
                         0.5, (0, 0, 255), 2)
 
     if next_node is not None:
