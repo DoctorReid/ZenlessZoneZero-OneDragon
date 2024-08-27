@@ -93,7 +93,7 @@ class HollowRunner(ZOperation):
             if op_result.success:
                 return self.round_wait()
             else:
-                return self.round_retry(wait=1)
+                return self.round_retry()
 
         if event_name in self._special_event_handlers:
             op: ZOperation = self._special_event_handlers[event_name](self.ctx)
@@ -101,7 +101,7 @@ class HollowRunner(ZOperation):
             if op_result.success:
                 return self.round_wait()
             else:
-                return self.round_retry(wait=1)
+                return self.round_retry()
 
         if event_name == HollowZeroSpecialEvent.MISSION_COMPLETE.value.event_name:
             return self.round_by_find_and_click_area(screen, '零号空洞-事件', '通关-完成',
@@ -231,7 +231,7 @@ class HollowRunner(ZOperation):
     @operation_node(name='点击菜单')
     def click_menu(self) -> OperationRoundResult:
         screen = self.screenshot()
-        result = self.round_by_find_area(screen, '零号空洞-事件', '离开')
+        result = self.round_by_find_area(screen, '零号空洞-事件', '放弃')
         if result.is_success:
             return self.round_success()
 
@@ -245,14 +245,14 @@ class HollowRunner(ZOperation):
     @operation_node(name='点击离开')
     def click_leave(self) -> OperationRoundResult:
         screen = self.screenshot()
-        return self.round_by_find_and_click_area(screen, '零号空洞-事件', '离开',
+        return self.round_by_find_and_click_area(screen, '零号空洞-事件', '放弃',
                                                  success_wait=1, retry_wait=1)
 
     @node_from(from_name='点击离开')
     @operation_node(name='确认离开')
     def confirm_leave(self) -> OperationRoundResult:
         screen = self.screenshot()
-        return self.round_by_find_and_click_area(screen, '零号空洞-事件', '确认离开',
+        return self.round_by_find_and_click_area(screen, '零号空洞-事件', '放弃-确认',
                                                  success_wait=1, retry_wait=1)
 
     @node_from(from_name='确认离开')
@@ -260,8 +260,16 @@ class HollowRunner(ZOperation):
     def click_finish(self) -> OperationRoundResult:
         screen = self.screenshot()
 
-        return self.round_by_find_and_click_area(screen, '零号空洞-事件', '通关-完成',
-                                                 success_wait=5, retry_wait=1)
+        # 这个按钮刚出现的时候可以按不到 需要重复按它
+        result = self.round_by_find_and_click_area(screen, '零号空洞-事件', '通关-完成')
+        if result.is_success:
+            return self.round_wait(wait=1)
+
+        result = self.round_by_find_area(screen, '零号空洞-入口', '街区')
+        if result.is_success:
+            return self.round_success()
+
+        return self.round_retry(wait=1)
 
 
 def __debug():
@@ -275,6 +283,8 @@ def __debug():
     # screen = debug_utils.get_debug_image('_1723977819253')
     # result = op.round_by_find_and_click_area(screen, '零号空洞-事件', '快进')
     # print(result.is_success)
+    from one_dragon.base.geometry.rectangle import Rect
+    ctx.hollow._visited_nodes.append(HollowZeroMapNode(Rect(0,0,0,0), ctx.hollow.data_service.name_2_entry['业绩考察点']))
     op.execute()
 
 

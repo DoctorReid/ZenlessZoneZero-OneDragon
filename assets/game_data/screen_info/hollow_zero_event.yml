@@ -211,3 +211,36 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 放弃
+  pc_rect:
+  - 1564
+  - 1004
+  - 1832
+  - 1052
+  text: 放弃
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 放弃-确认
+  pc_rect:
+  - 1024
+  - 600
+  - 1234
+  - 652
+  text: 确认
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 菜单
+  pc_rect:
+  - 74
+  - 28
+  - 140
+  - 76
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
