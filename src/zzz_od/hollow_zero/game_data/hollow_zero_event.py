@@ -13,7 +13,7 @@ class HollowZeroEntry:
         self.is_benefit: bool = is_benefit  # 是否完全有益的事件
         self.need_step: int = need_step
         self.is_base: bool = is_base  # 是否电视机底座
-        self.can_go: bool = can_go  # 是否可同行
+        self.can_go: bool = can_go  # 是否可通行
         self.is_tp: bool = is_tp  # 是否传送点
         self.move_afterwards: bool = move_afterwards  # 进入后会触发额外移动 轨道、弹射等
 

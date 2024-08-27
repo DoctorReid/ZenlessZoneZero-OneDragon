@@ -198,17 +198,17 @@ class HollowRunner(ZOperation):
             if level_info.level > 2 or (level_info.level == 2 and level_info.phase > 1):  # 已经过了指定的楼层
                 return True
             if level_info.level == 2 and level_info.phase == 1:
-                if self.ctx.hollow.had_been_entry('零号业绩') and not current_map.contains_entry('零号业绩'):
+                if self.ctx.hollow.had_been_entry('业绩考察点') and not current_map.contains_entry('业绩考察点'):
                     return True
-                if current_map.contains_entry('零号业绩空'):
+                if current_map.contains_entry('业绩考察点空'):
                     return True
             return False
 
         if self.ctx.hollow_zero_config.extra_task == HollowZeroExtraTask.LEVEL_3.value.value:
             if level_info.level == 3 and level_info.phase == 1:
-                if self.ctx.hollow.had_been_entry('零号业绩') and not current_map.contains_entry('零号业绩'):
+                if self.ctx.hollow.had_been_entry('业绩考察点') and not current_map.contains_entry('业绩考察点'):
                     return True
-                if current_map.contains_entry('零号业绩空'):
+                if current_map.contains_entry('业绩考察点空'):
                     return True
             return False
 

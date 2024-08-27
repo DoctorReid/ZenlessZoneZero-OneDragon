@@ -49,7 +49,8 @@ class HollowEventDetector(OnnxModelLoader):
         self.class_2_idx: dict[str, int] = {}
         self._load_detect_classes(self.model_dir_path)
 
-    def run(self, image: MatLike, conf: float = 0.6, iou: float = 0.5, run_time: Optional[float] = None) -> DetectFrameResult:
+    def run(self, image: MatLike, conf: float = 0.6, iou: float = 0.5, run_time: Optional[float] = None,
+            labels: Optional[List[str]] = None) -> DetectFrameResult:
         """
         对图片进行识别
         :param image: 使用 opencv 读取的图片 BGR通道
@@ -60,6 +61,7 @@ class HollowEventDetector(OnnxModelLoader):
         context = DetectContext(image, run_time)
         context.conf = conf
         context.iou = iou
+        context.labels = labels
 
         input_tensor = self.prepare_input(context)
         t2 = time.time()

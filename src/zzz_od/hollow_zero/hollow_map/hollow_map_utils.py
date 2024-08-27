@@ -74,6 +74,9 @@ def construct_map_from_nodes(nodes: List[HollowZeroMapNode], check_time: float) 
             node_1 = nodes[i]
             node_2 = nodes[j]
 
+            if not node_1.entry.can_go or not node_2.entry.can_go:
+                continue
+
             if _at_left(node_1, node_2):  # 1在2左边
                 if node_2.entry.entry_name in ['轨道-左']:
                     pass
