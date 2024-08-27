@@ -6,6 +6,7 @@ from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils.i18_utils import gt
+from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroExtraTask
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.back_to_normal_world import BackToNormalWorld
@@ -60,7 +61,8 @@ class HollowZeroApp(ZApplication):
     @operation_node(name='选择副本类型')
     def choose_mission_type(self) -> OperationRoundResult:
         self.node_max_retry_times = 5
-        if self.ctx.hollow_zero_record.is_finished_by_times():
+        if (self.ctx.hollow_zero_record.is_finished_by_times()
+                and self.ctx.hollow_zero_config.extra_task == HollowZeroExtraTask.NONE.value.value):
             return self.round_success(HollowZeroApp.STATUS_TIMES_FINISHED)
         screen = self.screenshot()
         return self.round_by_ocr_and_click(screen, self.mission_type_name,
