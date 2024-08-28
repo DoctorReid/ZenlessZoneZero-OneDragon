@@ -7,16 +7,9 @@ handlers:
           way: "按下"
           press: 0.02
         - op_name: "等待秒数"
-          data: [ "4.9" ]
+          data: [ "4.5" ]
         - operation_template: "11号-火刀4A"
-    - states: "[按键可用-特殊攻击]"
-      operations:
-        - op_name: "按键-特殊攻击"
-          way: "按下"
-          press: 0.02
-        - op_name: "等待秒数"
-          data: [ "1.5" ]
-        - operation_template: "11号-火刀4A"
+
     - states: ""
       operations:
         - operation_template: "11号-火刀4A"
