@@ -29,7 +29,7 @@ class CallForSupport(ZOperation):
 
     STATUS_ACCEPT: ClassVar[str] = '接应支援代理人'
     STATUS_NO_NEED: ClassVar[str] = '无需支援'
-    OPT_3: ClassVar[str] = '接替小组成员'
+    STATUS_REPLACE: ClassVar[str] = '接替小组成员'
 
     def __init__(self, ctx: ZContext):
         """
@@ -44,8 +44,8 @@ class CallForSupport(ZOperation):
         )
 
         self._handlers: List[EventOcrResultHandler] = [
-            EventOcrResultHandler(CallForSupport.STATUS_ACCEPT, method=self.check_team, lcs_percent=1),
-            EventOcrResultHandler(CallForSupport.OPT_3, self.check_team),
+            EventOcrResultHandler(CallForSupport.STATUS_ACCEPT, method=self.check_team),
+            EventOcrResultHandler(CallForSupport.STATUS_REPLACE, method=self.check_team),
             EventOcrResultHandler(event_name, is_event_mark=True)
         ]
 
@@ -220,7 +220,6 @@ def __debug_support_agent():
     ctx.init_by_config()
     ctx.ocr.init_model()
     op = CallForSupport(ctx)
-    from one_dragon.utils import debug_utils
     from one_dragon.utils import os_utils
     import os
     screen = cv2_utils.read_image(os.path.join(
@@ -235,7 +234,6 @@ def __debug_current_agent():
     ctx.init_by_config()
     ctx.ocr.init_model()
     op = CallForSupport(ctx)
-    from one_dragon.utils import debug_utils
     from one_dragon.utils import os_utils
     import os
     screen = cv2_utils.read_image(os.path.join(
@@ -246,7 +244,22 @@ def __debug_current_agent():
     print([i.agent_name for i in agent_list if i is not None])
 
 
+def __debug_check_screen():
+    ctx = ZContext()
+    ctx.init_by_config()
+    ctx.ocr.init_model()
+    op = CallForSupport(ctx)
+    from one_dragon.utils import os_utils
+    import os
+    screen = cv2_utils.read_image(os.path.join(
+        os_utils.get_path_under_work_dir('.debug', 'devtools', 'screen', 'hollow_zero_support'),
+        'ailian.png'
+    ))
+    event_utils.check_event_text_and_run(op, screen, op._handlers)
+
+
 if __name__ == '__main__':
     # __debug()
     # __debug_support_agent()
-    __debug_current_agent()
+    # __debug_current_agent()
+    __debug_check_screen()
