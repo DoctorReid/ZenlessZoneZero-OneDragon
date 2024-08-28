@@ -206,8 +206,7 @@ class HomeInterface(VerticalScrollInterface):
         )
         w.setCustomBackgroundColor('white', '#202020')
         if self.ctx.env_config.auto_update:
-            # result, msg = self.ctx.git_service.fetch_latest_code()
-            result = True
+            result, msg = self.ctx.git_service.fetch_latest_code()
             if result:
                 self._show_dialog_after_code_updated()
 
