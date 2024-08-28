@@ -27,6 +27,7 @@ class RejectOption:
 
 class CallForSupport(ZOperation):
 
+    OPT_LIKE_EVENT_NAME: ClassVar[str] = '支援代理人吧'
     STATUS_ACCEPT: ClassVar[str] = '接应支援代理人'
     STATUS_NO_NEED: ClassVar[str] = '无需支援'
     STATUS_REPLACE: ClassVar[str] = '接替小组成员'
@@ -46,6 +47,7 @@ class CallForSupport(ZOperation):
         self._handlers: List[EventOcrResultHandler] = [
             EventOcrResultHandler(CallForSupport.STATUS_ACCEPT, method=self.check_team),
             EventOcrResultHandler(CallForSupport.STATUS_REPLACE, method=self.check_team),
+            EventOcrResultHandler(CallForSupport.OPT_LIKE_EVENT_NAME, is_event_mark=True),
             EventOcrResultHandler(event_name, is_event_mark=True)
         ]
 
@@ -253,7 +255,7 @@ def __debug_check_screen():
     import os
     screen = cv2_utils.read_image(os.path.join(
         os_utils.get_path_under_work_dir('.debug', 'devtools', 'screen', 'hollow_zero_support'),
-        'ailian.png'
+        'empty.png'
     ))
     event_utils.check_event_text_and_run(op, screen, op._handlers)
 
