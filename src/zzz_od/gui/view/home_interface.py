@@ -1,6 +1,6 @@
 import os
-from PySide6.QtCore import Qt, QRect, QThread, Signal
-from PySide6.QtGui import QPixmap, QPainter, QPainterPath, QFont, QColor, QLinearGradient, QPen,QBrush
+from PySide6.QtCore import Qt, QThread, Signal
+from PySide6.QtGui import QPixmap, QPainter, QPainterPath, QFont, QColor, QLinearGradient, QBrush
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QSpacerItem, QSizePolicy
 from qfluentwidgets import FluentIcon, InfoBar, InfoBarPosition, Dialog
 
@@ -160,6 +160,7 @@ class CheckUpdateRunner(QThread):
         is_latest, msg = self.ctx.git_service.is_current_branch_latest()
         if msg not in ['与远程分支不一致', '获取远程代码失败']:
             self.need_update.emit(not is_latest)
+        # self.need_update.emit(True)  # 调试用
 
 
 class HomeInterface(VerticalScrollInterface):
@@ -206,6 +207,7 @@ class HomeInterface(VerticalScrollInterface):
         w.setCustomBackgroundColor('white', '#202020')
         if self.ctx.env_config.auto_update:
             result, msg = self.ctx.git_service.fetch_latest_code()
+            # result = True  # 调试用
             if result:
                 self._show_dialog_after_code_updated()
 
