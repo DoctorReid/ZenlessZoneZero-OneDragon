@@ -79,8 +79,9 @@ class CoffeeApp(ZApplication):
     @operation_node(name='等待咖啡店加载')
     def wait_coffee_shop(self) -> OperationRoundResult:
         screen = self.screenshot()
+        # 画面加载的时候，是滑动出现的，点单出现的时候，还未必能点击选中咖啡，因此要success_wait
         return self.round_by_find_area(screen, '咖啡店', '点单',
-                                       retry_wait=1)
+                                       success_wait=1, retry_wait=1)
 
     @node_from(from_name='等待咖啡店加载')
     @node_from(from_name='电量确认', status=STATUS_EXTRA_COFFEE)
