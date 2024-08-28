@@ -142,7 +142,6 @@ class BannerWidget(QWidget):
         painter.setPen(Qt.white)
         painter.drawText(small_text_rect, small_text)
 
-
         painter.end()
 
 
@@ -159,7 +158,7 @@ class CheckUpdateRunner(QThread):
         :return:
         """
         is_latest, msg = self.ctx.git_service.is_current_branch_latest()
-        if msg != '与远程分支不一致':
+        if msg not in ['与远程分支不一致', '获取远程代码失败']:
             self.need_update.emit(not is_latest)
 
 
