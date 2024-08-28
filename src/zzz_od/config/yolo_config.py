@@ -30,6 +30,13 @@ class YoloConfig(YamlConfig):
     def hollow_zero_event(self, new_value: str) -> None:
         self.update('hollow_zero_event', new_value)
 
+    def using_old_model(self) -> bool:
+        """
+        是否在使用旧模型
+        :return:
+        """
+        return self.flash_classifier != _DEFAULT_FLASH_CLASSIFIER or self.hollow_zero_event != _DEFAULT_HOLLOW_ZERO_EVENT
+
 
 def get_flash_classifier_opts() -> List[ConfigItem]:
     """

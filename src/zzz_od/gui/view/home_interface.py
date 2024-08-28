@@ -145,7 +145,7 @@ class BannerWidget(QWidget):
         painter.end()
 
 
-class CheckUpdateRunner(QThread):
+class CheckCodeRunner(QThread):
     need_update = Signal(bool)
 
     def __init__(self, ctx: ZContext):
@@ -161,6 +161,21 @@ class CheckUpdateRunner(QThread):
         if msg not in ['与远程分支不一致', '获取远程代码失败']:
             self.need_update.emit(not is_latest)
         # self.need_update.emit(True)  # 调试用
+
+
+class CheckModelRunner(QThread):
+    need_update = Signal(bool)
+
+    def __init__(self, ctx: ZContext):
+        super().__init__()
+        self.ctx = ctx
+
+    def run(self):
+        """
+        运行 最后发送结束信号
+        :return:
+        """
+        self.need_update.emit(self.ctx.yolo_config.using_old_model())
 
 
 class HomeInterface(VerticalScrollInterface):
@@ -185,14 +200,18 @@ class HomeInterface(VerticalScrollInterface):
             nav_text_cn='主页', nav_icon=FluentIcon.HOME
         )
 
-        self._check_update_runner = CheckUpdateRunner(self.ctx)
-        self._check_update_runner.need_update.connect(self._need_to_update)
+        self._check_code_runner = CheckCodeRunner(self.ctx)
+        self._check_code_runner.need_update.connect(self._need_to_update_code)
+
+        self._check_model_runner = CheckModelRunner(self.ctx)
+        self._check_model_runner.need_update.connect(self._need_to_update_model)
 
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)
-        self._check_update_runner.start()
+        self._check_code_runner.start()
+        self._check_model_runner.start()
 
-    def _need_to_update(self, with_new: bool):
+    def _need_to_update_code(self, with_new: bool):
         if not with_new:
             return
         w = InfoBar.success(
@@ -221,3 +240,17 @@ class HomeInterface(VerticalScrollInterface):
         if w.exec():
             from one_dragon.utils import app_utils
             app_utils.start_one_dragon(restart=True)
+
+    def _need_to_update_model(self, with_new: bool):
+        if not with_new:
+            return
+        w = InfoBar.success(
+            title='有新模型啦',
+            content="到[设置-模型选择]更新吧~",
+            orient=Qt.Orientation.Horizontal,
+            isClosable=True,
+            position=InfoBarPosition.TOP_RIGHT,
+            duration=5000,
+            parent=self
+        )
+        w.setCustomBackgroundColor('white', '#202020')
