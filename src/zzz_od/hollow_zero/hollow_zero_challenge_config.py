@@ -1,9 +1,19 @@
+from enum import Enum
+
 import os
 from typing import List
 
+from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
 from one_dragon.utils import os_utils
 from one_dragon.utils.log_utils import log
+
+
+class HollowZeroChallengePathFinding(Enum):
+
+    DEFAULT = ConfigItem('默认')
+    ONLY_BOSS = ConfigItem('速通')
+    CUSTOM = ConfigItem('自定义')
 
 
 class HollowZeroChallengeConfig(YamlConfig):

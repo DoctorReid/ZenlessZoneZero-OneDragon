@@ -173,7 +173,7 @@ class HollowContext:
                 last_node = self._last_route.first_need_step_node
                 curr_node = route.first_need_step_node
                 if (hollow_map_utils.is_same_node(last_node, curr_node)
-                        and route.node.entry.entry_name == '零号业绩点'):
+                        and route.node.entry.entry_name == '业绩考察点'):
                     # 代表上一次点了之后 这次依然要点同样的位置 也就是无法通行
                     self._visited_nodes.append(route.node)
                     continue
@@ -241,6 +241,30 @@ class HollowContext:
         """
         self.level_info = HollowLevelInfo(mission_type_name, mission_name, 1, 1)
 
+    def update_agent_list_after_support(self, new_agent: Agent, pos: int) -> None:
+        """
+        呼叫支援后 更新角色列表
+        :param new_agent: 加入的代理人
+        :param pos: 位置 1~3
+        :return:
+        """
+        if self.agent_list is None:
+            return
+        if pos - 1 >= len(self.agent_list):
+            return
+        self.agent_list[pos - 1] = new_agent
+
+    def had_been_entry(self, entry_name: str) -> bool:
+        """
+        是否曾经到达过某种类型的格子
+        :param entry_name:
+        :return:
+        """
+        for visited in self._visited_nodes:
+            if visited.entry.entry_name == entry_name:
+                return True
+        return False
+
 
 def __debug_draw_detect():
     ctx = ZContext()
@@ -263,7 +287,7 @@ def __debug_get_map():
 
     from one_dragon.utils import debug_utils
     img_list = [
-        'pathfinding_fail_1724218224825',
+        '2',
     ]
     for i in img_list:
         img = debug_utils.get_debug_image(i)
@@ -271,11 +295,12 @@ def __debug_get_map():
         ctx.hollow.init_event_yolo(False)
         current_map = ctx.hollow.check_current_map(img, time.time())
 
-    print(current_map.current_idx)
+    idx_2_route = hollow_map_utils.search_map(current_map)
     target = ctx.hollow.get_next_to_move(current_map)
-    result_img = hollow_map_utils.draw_map(img, current_map, next_node=target)
+    result_img = hollow_map_utils.draw_map(img, current_map, next_node=target, idx_2_route=idx_2_route)
     cv2_utils.show_image(result_img, wait=0)
     cv2.destroyAllWindows()
+    print(current_map.contains_entry('业绩考察点'))
 
 
 if __name__ == '__main__':

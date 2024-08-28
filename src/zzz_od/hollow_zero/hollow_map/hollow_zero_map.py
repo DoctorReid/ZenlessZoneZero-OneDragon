@@ -34,3 +34,15 @@ class HollowZeroMap:
         self.current_idx: int = current_idx
         self.edges: dict[int, List[int]] = edges
         self.check_time: float = time.time() if check_time is None else check_time  # 识别时间
+
+    def contains_entry(self, entry_name: str) -> bool:
+        """
+        是否保护某个类型的格子
+        :param entry_name:
+        :return:
+        """
+        for node in self.nodes:
+            if node.entry.entry_name == entry_name:
+                return True
+
+        return False

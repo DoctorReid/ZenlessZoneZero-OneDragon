@@ -221,6 +221,18 @@ class EnvConfig(YamlConfig):
         self.update('force_update', new_value)
 
     @property
+    def auto_update(self) -> bool:
+        """
+        自动更新
+        :return:
+        """
+        return self.get('auto_update', True)
+
+    @auto_update.setter
+    def auto_update(self, new_value: bool) -> None:
+        self.update('auto_update', new_value)
+
+    @property
     def pip_source(self) -> str:
         """
         pip源

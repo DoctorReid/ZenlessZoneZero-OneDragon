@@ -53,6 +53,7 @@ class NotoriousHuntApp(ZApplication):
         return self.round_by_op(op.execute())
 
     @node_from(from_name='传送')
+    @node_from(from_name='判断剩余次数')
     @operation_node(name='恶名狩猎')
     def notorious_hunt(self) -> OperationRoundResult:
         op = NotoriousHunt(self.ctx, self.next_plan)
@@ -64,11 +65,30 @@ class NotoriousHuntApp(ZApplication):
         if self.ctx.notorious_hunt_record.left_times == 0:
             return self.round_success(NotoriousHunt.STATUS_NO_LEFT_TIMES)
         else:
+            self.next_plan = self.ctx.notorious_hunt_config.get_next_plan()
             return self.round_success()
 
     @node_from(from_name='判断剩余次数', status=NotoriousHunt.STATUS_NO_LEFT_TIMES)
     @node_from(from_name='恶名狩猎', status=NotoriousHunt.STATUS_NO_LEFT_TIMES)
-    @operation_node(name='返回大世界', is_start_node=True)
+    @operation_node(name='点击奖励入口')
+    def click_reward_entry(self) -> OperationRoundResult:
+        return self.round_by_click_area(
+            '恶名狩猎', '奖励入口',
+            success_wait=1, retry_wait=1
+        )
+
+    @node_from(from_name='点击奖励入口')
+    @operation_node(name='全部领取')
+    def claim_all(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        return self.round_by_find_and_click_area(
+            screen, '恶名狩猎', '全部领取',
+            success_wait=1, retry_wait=1
+        )
+
+    @node_from(from_name='点击奖励入口', success=False)
+    @node_from(from_name='全部领取')
+    @operation_node(name='返回大世界')
     def back_to_world(self) -> OperationRoundResult:
         op = BackToNormalWorld(self.ctx)
         return self.round_by_op(op.execute())

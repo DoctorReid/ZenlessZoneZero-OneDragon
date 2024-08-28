@@ -1,134 +1,140 @@
-- entry_name: "起点"
-- entry_name: "齿轮硬币箱"
-- entry_name: "危机"
+- entry_name: "0001-起点"
+- entry_name: "0002-齿轮硬币箱"
+- entry_name: "0003-危机"
   is_benefit: false
-- entry_name: "业绩考察点"
-- entry_name: "及时补给"
-- entry_name: "插件获取"
-- entry_name: "扭蛋机"
-- entry_name: "呼叫增援"
-- entry_name: "秘径"
-- entry_name: "操纵杆"
-- entry_name: "邂逅"
-- entry_name: "侵蚀扭蛋机"
-- entry_name: "临时拍档"
-- entry_name: "假面研究者"
-- entry_name: "鸣徽催化剂"
-- entry_name: "调查员"
-- entry_name: "盗洞客"
-- entry_name: "邦布商人"
+- entry_name: "0004-业绩考察点"
+- entry_name: "0006-及时补给"
+- entry_name: "0007-插件获取"
+- entry_name: "0008-扭蛋机"
+- entry_name: "0009-呼叫增援"
+- entry_name: "0010-秘径"
+- entry_name: "0011-操纵杆"
+- entry_name: "0012-邂逅"
+- entry_name: "0013-侵蚀扭蛋机"
+- entry_name: "0014-临时拍档"
+- entry_name: "0015-假面研究者"
+- entry_name: "0016-鸣徽催化剂"
+- entry_name: "0017-调查员"
+- entry_name: "0018-盗洞客"
+- entry_name: "0019-邦布商人"
   is_benefit: false
-- entry_name: "门扉禁闭-财富"
+- entry_name: "0020-门扉禁闭-财富"
   is_benefit: false
-- entry_name: "顽固的障碍物"
+- entry_name: "0021-顽固的障碍物"
   can_go: false
-- entry_name: "门扉禁闭-侵蚀"
+- entry_name: "0022-门扉禁闭-侵蚀"
   is_benefit: false
-- entry_name: "残破的障碍物"
-- entry_name: "双重危机"
+- entry_name: "0023-残破的障碍物"
+- entry_name: "0024-双重危机"
   is_benefit: false
-- entry_name: "门扉禁闭-善战"
-- entry_name: "开启的门"
+- entry_name: "0025-门扉禁闭-善战"
+- entry_name: "0026-开启的门"
   need_step: 0
   is_benefit: false
-- entry_name: "安全区"
-- entry_name: "休息区"
-- entry_name: "失联"
+- entry_name: "0027-安全区"
+- entry_name: "0028-休息区"
+- entry_name: "0029-失联"
   is_benefit: false
-- entry_name: "侵蚀"
+- entry_name: "0030-侵蚀"
   is_benefit: false
-- entry_name: "净化室"
-- entry_name: "传送点"
-  is_benefit: false
-  is_tp: true
-- entry_name: "真相"
-- entry_name: "通道"
-- entry_name: "巨兽"
-- entry_name: "奇货"
-- entry_name: "盲盒区域"
+- entry_name: "0031-净化室"
+- entry_name: "0032-传送点"
   is_benefit: false
   is_tp: true
-- entry_name: "不宜久留"
+- entry_name: "0033-真相"
+- entry_name: "0034-通道"
+- entry_name: "0035-巨兽"
+- entry_name: "0036-奇货"
+- entry_name: "0037-盲盒区域"
   is_benefit: false
   is_tp: true
-- entry_name: "奇怪的侦探"
-- entry_name: "求救的信号"
-- entry_name: "调查协会补给站"
-- entry_name: "精锐邦布助手"
-- entry_name: "治安官小队"
-- entry_name: "有偿休息站"
-- entry_name: "馅饼天降"
-  is_benefit: false
-- entry_name: "怀斯塔学会研究站"
-- entry_name: "活化结晶"
-- entry_name: "守门人"
+- entry_name: "0038-不宜久留"
   is_benefit: false
   is_tp: true
-- entry_name: "裂隙"
+- entry_name: "0039-奇怪的侦探"
+- entry_name: "0040-求救的信号"
+- entry_name: "0041-调查协会补给站"
+- entry_name: "0042-精锐邦布助手"
+- entry_name: "0043-治安官小队"
+- entry_name: "0044-有偿休息站"
+- entry_name: "0045-馅饼天降"
   is_benefit: false
-- entry_name: "紧急撤离点"
-- entry_name: "防卫军后勤站"
-- entry_name: "王牌邦布助手"
-- entry_name: "未知区域"
-- entry_name: "奇怪的学生"
-- entry_name: "当前"
+- entry_name: "0046-怀斯塔学会研究站"
+- entry_name: "0047-活化结晶"
+- entry_name: "0048-守门人"
+  is_benefit: false
+  is_tp: true
+- entry_name: "0049-裂隙"
+  is_benefit: false
+- entry_name: "0051-紧急撤离点"
+- entry_name: "0052-防卫军后勤站"
+- entry_name: "0053-王牌邦布助手"
+- entry_name: "0054-未知区域"
+- entry_name: "0055-奇怪的学生"
+- entry_name: "9000-当前"
   need_step: 0
-- entry_name: "空白未通行"
-  is_benefit: false
-  need_step: 0
-- entry_name: "空白已通行"
+- entry_name: "9001-空白未通行"
   is_benefit: false
   need_step: 0
-- entry_name: "空白无法通行"
+- entry_name: "9002-空白已通行"
+  is_benefit: false
+  need_step: 0
+- entry_name: "9003-空白无法通行"
   can_go: false
-- entry_name: "电视底座绿"
+- entry_name: "8000-电视底座绿"
   is_benefit: false
   is_base: true
-- entry_name: "电视底座红"
+- entry_name: "8001-电视底座红"
   is_benefit: false
   is_base: true
-- entry_name: "电视底座大"
+- entry_name: "8002-电视底座大"
   is_benefit: false
   is_base: true
-- entry_name: "未知"
+- entry_name: "9999-未知"
   is_benefit: false
-- entry_name: "零号银行"
+- entry_name: "0056-零号银行"
   is_benefit: false
-- entry_name: "失效节点"
+- entry_name: "0057-失效节点"
   need_step: 1
   is_benefit: false
-- entry_name: "资源回收小组"
-- entry_name: "按压式开关"
+- entry_name: "0058-资源回收小组"
+- entry_name: "0059-按压式开关"
   is_benefit: false
-- entry_name: "弹射-上"
-  is_benefit: false
-  move_afterwards: true
-- entry_name: "轨道-上"
+- entry_name: "0060-弹射-上"
   is_benefit: false
   move_afterwards: true
-- entry_name: "同伴"
-  is_benefit: false
-- entry_name: "弹射-下"
+- entry_name: "0061-轨道-上"
   is_benefit: false
   move_afterwards: true
-- entry_name: "弹射-左"
+- entry_name: "0062-同伴"
+  is_benefit: false
+- entry_name: "0063-弹射-下"
   is_benefit: false
   move_afterwards: true
-- entry_name: "弹射-右"
+- entry_name: "0064-弹射-左"
   is_benefit: false
   move_afterwards: true
-- entry_name: "轨道-下"
+- entry_name: "0065-弹射-右"
   is_benefit: false
   move_afterwards: true
-- entry_name: "轨道-左"
+- entry_name: "0066-轨道-下"
   is_benefit: false
   move_afterwards: true
-- entry_name: "轨道-右"
+- entry_name: "0067-轨道-左"
   is_benefit: false
   move_afterwards: true
-- entry_name: "房屋残骸"
+- entry_name: "0068-轨道-右"
   is_benefit: false
-- entry_name: "投机客"
+  move_afterwards: true
+- entry_name: "0069-房屋残骸"
   is_benefit: false
-- entry_name: "诡雾"
+- entry_name: "0070-投机客"
+  is_benefit: false
+- entry_name: "0071-诡雾"
+  is_benefit: false
+- entry_name: "0072-限时战斗"
+  is_benefit: false
+- entry_name: "0073-业绩考察点空"
+  is_benefit: false
+- entry_name: "9005-空白未通行红"
   is_benefit: false

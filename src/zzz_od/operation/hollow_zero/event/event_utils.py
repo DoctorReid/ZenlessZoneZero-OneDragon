@@ -117,7 +117,7 @@ def check_event_text_and_run(op: ZOperation, screen: MatLike, handlers: List[Eve
 
 def click_empty(op: ZOperation) -> OperationRoundResult:
     return op.round_by_click_area('零号空洞-事件', '事件文本', click_left_top=True,
-                                  success_wait=1, retry_wait=1)
+                                  success_wait=0.2, retry_wait=0.2)
 
 
 def click_rect(op: ZOperation, status: str, rect: Rect, wait: float = 1) -> OperationRoundResult:

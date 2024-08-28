@@ -8,11 +8,12 @@ class HollowZeroEntry:
                  is_base: bool = False, can_go: bool = True, is_tp: bool = False,
                  move_afterwards: bool = False):
         # TODO 要将这里改成不可改
-        self.entry_name: str = entry_name
+        self.entry_id: str = entry_name[:4]
+        self.entry_name: str = entry_name[5:]
         self.is_benefit: bool = is_benefit  # 是否完全有益的事件
         self.need_step: int = need_step
         self.is_base: bool = is_base  # 是否电视机底座
-        self.can_go: bool = can_go  # 是否可同行
+        self.can_go: bool = can_go  # 是否可通行
         self.is_tp: bool = is_tp  # 是否传送点
         self.move_afterwards: bool = move_afterwards  # 进入后会触发额外移动 轨道、弹射等
 
@@ -74,6 +75,8 @@ class HollowZeroSpecialEvent(Enum):
     RESONIUM_STORE_1 = HallowZeroEvent('鸣徽交易', on_the_right=True, lcs_percent=0.7)
     RESONIUM_STORE_2 = HallowZeroEvent('特价折扣', on_the_right=True)
     RESONIUM_STORE_3 = HallowZeroEvent('鸣徽催化', on_the_right=True, lcs_percent=0.7)
+    RESONIUM_STORE_4 = HallowZeroEvent('血汗交易', on_the_right=True, lcs_percent=0.7)
+    RESONIUM_STORE_5 = HallowZeroEvent('血汗催化', on_the_right=True, lcs_percent=0.7)
 
     CRITICAL_STAGE = HallowZeroEvent('关键进展', on_the_right=True)
 

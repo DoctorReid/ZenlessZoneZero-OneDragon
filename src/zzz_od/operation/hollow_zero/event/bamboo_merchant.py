@@ -49,13 +49,21 @@ class BambooMerchant(ZOperation):
         if result.is_success:
             return self.round_success(status=BambooMerchant.STATUS_LEVEL_2_UPGRADE)
 
+        result = self.round_by_ocr(screen, '血汗交易', area=area, lcs_percent=0.6)
+        if result.is_success:
+            return self.round_success(status=BambooMerchant.NOT_TO_BUY)
+
         area = self.ctx.screen_loader.get_area('零号空洞-事件', '底部-选择列表')
         result = self.round_by_ocr_and_click(screen, '确定', area=area)
         if result.is_success:
             return self.round_wait(wait=1)
 
         area = event_utils.get_event_text_area(self)
-        result = self.round_by_ocr(screen, '鸣徽交易', area=area)
+        result = self.round_by_ocr(screen, '血汗交易', area=area, lcs_percent=0.6)
+        if result.is_success:
+            return self.round_success(BambooMerchant.NOT_TO_BUY)
+
+        result = self.round_by_ocr(screen, '鸣徽交易', area=area, lcs_percent=0.6)
         if result.is_success:
             return self.round_success(BambooMerchant.STATUS_LEVEL_1)
 
@@ -164,6 +172,7 @@ class BambooMerchant(ZOperation):
     def upgrade_resonium(self) -> OperationRoundResult:
         return self.round_success()
 
+    @node_from(from_name='画面识别', status=NOT_TO_BUY)
     @node_from(from_name='选择鸣徽', status=NOT_TO_BUY)
     @node_from(from_name='鸣徽催化')
     @operation_node(name='返回')

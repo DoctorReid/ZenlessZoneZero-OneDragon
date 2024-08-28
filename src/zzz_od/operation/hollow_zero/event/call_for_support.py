@@ -51,6 +51,7 @@ class CallForSupport(ZOperation):
 
     def handle_init(self):
         self.should_call_pos: int = 0  # 呼叫支援的位置
+        self.new_agent: Optional[Agent] = None  # 本次加入的代理人
 
     @operation_node(name='画面识别', is_start_node=True)
     def check_screen(self) -> OperationRoundResult:
@@ -67,10 +68,10 @@ class CallForSupport(ZOperation):
         if agent_list is None:
             return self.round_retry('无法识别当前角色列表', wait=1)
 
-        agent = self._get_support_agent(screen)
-        if agent is None:
+        self.new_agent = self._get_support_agent(screen)
+        if self.new_agent is None:
             log.error('无法识别当前增援角色')
-        self.should_call_pos = self._should_call_backup(agent_list, agent)
+        self.should_call_pos = self._should_call_backup(agent_list, self.new_agent)
 
         if self.should_call_pos is not None:
             return self.round_success(CallForSupport.STATUS_ACCEPT)
@@ -159,6 +160,7 @@ class CallForSupport(ZOperation):
     @node_from(from_name='选择位置')
     @operation_node(name='确认')
     def confirm(self) -> OperationRoundResult:
+        self.ctx.hollow.update_agent_list_after_support(self.new_agent, self.should_call_pos)
         return event_utils.click_empty(self)
 
     @node_from(from_name='画面识别', status=STATUS_NO_NEED)

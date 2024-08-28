@@ -79,6 +79,12 @@ class SettingEnvInterface(VerticalScrollInterface):
         self.force_update_opt.value_changed.connect(self._on_force_update_changed)
         git_group.addSettingCard(self.force_update_opt)
 
+        self.auto_update_opt = SwitchSettingCard(
+            icon=FluentIcon.SYNC, title='自动更新', content='脚本启动时，自动检测并更新代码',
+        )
+        self.auto_update_opt.value_changed.connect(self._on_auto_update_changed)
+        git_group.addSettingCard(self.auto_update_opt)
+
         return git_group
 
     def _init_web_group(self) -> SettingCardGroup:
@@ -155,6 +161,7 @@ class SettingEnvInterface(VerticalScrollInterface):
             self.git_method_opt.setValue(git_method.value)
 
         self.force_update_opt.setValue(self.ctx.env_config.force_update)
+        self.auto_update_opt.setValue(self.ctx.env_config.auto_update)
 
         proxy_type = get_config_item_from_enum(ProxyTypeEnum, self.ctx.env_config.proxy_type)
         if proxy_type is not None:
@@ -209,6 +216,9 @@ class SettingEnvInterface(VerticalScrollInterface):
         强制更新改变
         """
         self.ctx.env_config.force_update = value
+
+    def _on_auto_update_changed(self, value: bool) -> None:
+        self.ctx.env_config.auto_update = value
 
     def _on_proxy_type_changed(self, index: int, value: str) -> None:
         """

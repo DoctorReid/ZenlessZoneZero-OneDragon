@@ -7,6 +7,7 @@ from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBo
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.gui.view.app_run_interface import AppRunInterface
 from zzz_od.application.hollow_zero.hollow_zero_app import HollowZeroApp
+from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroExtraTask
 from zzz_od.application.hollow_zero.hollow_zero_debug_app import HollowZeroDebugApp
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
@@ -36,63 +37,80 @@ class HollowZeroRunInterface(AppRunInterface):
         col_layout = QHBoxLayout(col_widget)
         col_widget.setLayout(col_layout)
 
+        # 将左侧和右侧的 widget 添加到主布局中，并均分空间
+        col_layout.addWidget(self._get_left_opts(), stretch=1)
+        col_layout.addWidget(self._get_right_opts(), stretch=1)
+
+        return col_widget
+
+    def _get_left_opts(self) -> QWidget:
         # 创建左侧的垂直布局容器
         left_widget = QWidget(self)
         left_layout = QVBoxLayout(left_widget)
         left_widget.setLayout(left_layout)
 
-        # 创建右侧的垂直布局容器
-        right_widget = QWidget(self)
-        right_layout = QVBoxLayout(right_widget)
-        right_widget.setLayout(right_layout)
-
         # 创建一个组合框设置卡片，标题为“挑战副本”
         self.mission_opt = ComboBoxSettingCard(
             icon=FluentIcon.GAME,  # 选择与挑战相关的图标
-            title='挑战副本', 
+            title='挑战副本',
             content='选择空洞及难度等级',
         )
         self.mission_opt.setIconSize(24,24)
         self.mission_opt.value_changed.connect(self._on_mission_changed)
         left_layout.addWidget(self.mission_opt)
 
-        # 创建一个文本设置卡片，标题为“每周通关次数”
-        self.weekly_times_opt = TextSettingCard(
-            icon=FluentIcon.CALENDAR,  # 选择与时间相关的图标
-            title='每周通关次数', 
-            content='每周完成的通关次数',
-        )
-        self.weekly_times_opt.setIconSize(24,24)
-        self.weekly_times_opt.value_changed.connect(self._on_weekly_times_changed)
-        right_layout.addWidget(self.weekly_times_opt)
-
         # 创建一个组合框设置卡片，标题为“挑战配置”
         self.challenge_config_opt = ComboBoxSettingCard(
             icon=FluentIcon.SETTING,  # 选择与设置相关的图标
-            title='挑战配置', 
+            title='挑战配置',
             content='选择角色、鸣徽和事件',
         )
         self.challenge_config_opt.setIconSize(24,24)
         self.challenge_config_opt.value_changed.connect(self._on_challenge_config_changed)
         left_layout.addWidget(self.challenge_config_opt)
 
+        left_layout.addStretch(1)
+        return left_widget
+
+    def _get_right_opts(self) -> QWidget:
+        # 创建右侧的垂直布局容器
+        right_widget = QWidget(self)
+        right_layout = QVBoxLayout(right_widget)
+        right_widget.setLayout(right_layout)
+
         # 创建一个推送设置卡片，标题为“调试”
         self.debug_opt = PushSettingCard(
-            text='调试', 
+            text='调试',
             icon=FluentIcon.STOP_WATCH,  # 选择与停止相关的图标
-            title='调试', 
+            title='调试',
             content='在中断/停止状态下用于继续执行',
         )
-        self.debug_opt.setIconSize(24,24)
+        self.debug_opt.setIconSize(24, 24)
         self.debug_opt.clicked.connect(self._on_debug_clicked)
         right_layout.addWidget(self.debug_opt)
 
-        # 将左侧和右侧的 widget 添加到主布局中，并均分空间
-        col_layout.addWidget(left_widget, stretch=1)
-        col_layout.addWidget(right_widget, stretch=1)
+        # 创建一个文本设置卡片，标题为“每周通关次数”
+        self.weekly_times_opt = TextSettingCard(
+            icon=FluentIcon.CALENDAR,  # 选择与时间相关的图标
+            title='每周通关次数',
+            content='完整的通关次数，用于完成委托任务',
+        )
+        self.weekly_times_opt.setIconSize(24, 24)
+        self.weekly_times_opt.value_changed.connect(self._on_weekly_times_changed)
+        right_layout.addWidget(self.weekly_times_opt)
 
-        return col_widget
+        self.extra_task_opt = ComboBoxSettingCard(
+            icon=FluentIcon.CALENDAR,  # 选择与时间相关的图标
+            title='刷业绩点',
+            content='完成通过次数后，继续挑战刷业绩点',
+            options_enum=HollowZeroExtraTask
+        )
+        self.extra_task_opt.setIconSize(24, 24)
+        self.extra_task_opt.value_changed.connect(self._on_extra_task_changed)
+        right_layout.addWidget(self.extra_task_opt)
 
+        right_layout.addStretch(1)
+        return right_widget
 
     def on_interface_shown(self) -> None:
         """
@@ -106,6 +124,7 @@ class HollowZeroRunInterface(AppRunInterface):
         self.mission_opt.setValue(self.ctx.hollow_zero_config.mission_name)
         self.challenge_config_opt.setValue(self.ctx.hollow_zero_config.challenge_config)
         self.weekly_times_opt.setValue(str(self.ctx.hollow_zero_config.weekly_times))
+        self.extra_task_opt.setValue(self.ctx.hollow_zero_config.extra_task)
 
     def _update_mission_options(self) -> None:
         try:
@@ -166,3 +185,6 @@ class HollowZeroRunInterface(AppRunInterface):
 
     def _on_weekly_times_changed(self, value: str) -> None:
         self.ctx.hollow_zero_config.weekly_times = int(value)
+
+    def _on_extra_task_changed(self, idx: int, value: str) -> None:
+        self.ctx.hollow_zero_config.extra_task = value
