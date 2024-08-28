@@ -6,7 +6,7 @@ from one_dragon.utils.i18_utils import gt
 
 class ConfigItem:
 
-    def __init__(self, label: str, value: object = None):
+    def __init__(self, label: str, value: object = None, desc: Optional[str] = None):
         """
         选项值
         :param label: 显示文本
@@ -14,6 +14,7 @@ class ConfigItem:
         """
         self.label: str = label  # 显示文本
         self.value: object = label if value is None else value  # 值
+        self.desc: str = desc if desc is not None else ''  # 选项解释
 
     @property
     def ui_text(self) -> str:

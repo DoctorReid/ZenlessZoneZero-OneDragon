@@ -1,18 +1,23 @@
 import time
 from concurrent.futures import ThreadPoolExecutor, Future
+import random
 
 import cv2
 from cv2.typing import MatLike
 from typing import List, Optional
 
+from one_dragon.base.geometry.point import Point
+from one_dragon.base.geometry.rectangle import Rect
 from one_dragon.utils import cv2_utils, yolo_config_utils
 from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import Agent, AgentEnum
+from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroEntry
 from zzz_od.hollow_zero.hollow_level_info import HollowLevelInfo
 from zzz_od.hollow_zero.hollow_map import hollow_map_utils
 from zzz_od.hollow_zero.hollow_map.hollow_map_utils import RouteSearchRoute
 from zzz_od.hollow_zero.hollow_map.hollow_zero_map import HollowZeroMap, HollowZeroMapNode
+from zzz_od.hollow_zero.hollow_zero_challenge_config import HollowZeroChallengePathFinding
 from zzz_od.hollow_zero.hollow_zero_data_service import HallowZeroDataService
 from zzz_od.yolo.hollow_event_detector import HollowEventDetector
 
@@ -33,6 +38,7 @@ class HollowContext:
         self.map_results: List[HollowZeroMap] = []  # 识别的地图结果
         self._visited_nodes: List[HollowZeroMapNode] = []  # 已经去过的点
         self._last_route: Optional[RouteSearchRoute] = None  # 上一次想走的路
+        self._last_current_node: Optional[HollowZeroMapNode] = None  # 上一次当前所在的点
         self.speed_up_clicked: bool = False  # 是否已经点击加速
 
     def check_agent_list(self, screen: MatLike) -> Optional[List[Agent]]:
@@ -147,19 +153,14 @@ class HollowContext:
             return None
         idx_2_route = hollow_map_utils.search_map(current_map)
 
-        # 1步可到的奖励 都先领取了
-        route = hollow_map_utils.get_route_in_1_step_benefit(idx_2_route, self._visited_nodes)
+        # 一步可达时前往
+        route = hollow_map_utils.get_route_in_1_step(idx_2_route, self._visited_nodes,
+                                                     target_entry_list=self._get_go_in_1_step())
         if route is not None:
             return route.first_need_step_node
 
         # 有一些优先要去的格子
-        go_priority_list = [
-            '呼叫增援',
-            '业绩考察点',
-            '零号银行',
-            '邦布商人',
-            '诡雾',
-        ]
+        go_priority_list = self._get_waypoint()
 
         for to_go in go_priority_list:
             route = hollow_map_utils.get_route_by_entry(idx_2_route, to_go, self._visited_nodes)
@@ -199,17 +200,47 @@ class HollowContext:
                 return route.first_node
 
         # 没有匹配到特殊点的时候 按副本类型走特定方向
+        direction = 'w'
         if self.level_info.level >= 2 and self.level_info.phase == 1:
-            route = hollow_map_utils.get_route_by_direction(idx_2_route, 'w')
-            if route is not None:
-                return route.first_need_step_node
+            direction = 'w'
+        elif self.level_info.mission_name == '施工废墟':
+            direction = 'd'
+        elif self.level_info.mission_name == '巨厦遗骸':
+            direction = 'd'
 
-        # 最终兜底 走一步能到的
+        route = hollow_map_utils.get_route_by_direction(idx_2_route, direction)
+        if route is not None:
+            return route.first_need_step_node
+
+        # 兜底 走一步能到的
         route = hollow_map_utils.get_route_in_1_step(idx_2_route, self._visited_nodes)
         if route is not None:
             return route.first_need_step_node
 
-        return None
+        # 最终兜底 随便移动一格
+        current_node = current_map.nodes[current_map.current_idx]
+        if hollow_map_utils.is_same_node(self._last_current_node, current_node):
+            arr = ['w', 's', 'a', 'd']
+            arr.remove(direction)
+            direction = arr[random.randint(0, len(arr) - 1)]
+        self._last_current_node = current_node
+
+        # 伪造一个节点前往
+        if direction == 'w':
+            to_go = current_node.pos.center - Point(0, current_node.pos.height)
+        elif direction == 's':
+            to_go = current_node.pos.center + Point(0, current_node.pos.height)
+        elif direction == 'a':
+            to_go = current_node.pos.center - Point(current_node.pos.width, 0)
+        else:
+            to_go = current_node.pos.center + Point(current_node.pos.width, 0)
+
+        fake_node = HollowZeroMapNode(
+            pos=Rect(to_go.x, to_go.y, to_go.x, to_go.y),
+            entry=HollowZeroEntry('0000-fake'),
+        )
+
+        return fake_node
 
     def update_context_after_move(self, node: HollowZeroMapNode) -> None:
         """
@@ -264,6 +295,36 @@ class HollowContext:
             if visited.entry.entry_name == entry_name:
                 return True
         return False
+
+    def _get_go_in_1_step(self) -> List[str]:
+        """
+        一步可达时前往
+        :return:
+        """
+        if self.ctx.hollow_zero_challenge_config.path_finding == HollowZeroChallengePathFinding.DEFAULT.value.value:
+            return self.data_service.get_default_go_in_1_step_entry_list()
+        elif self.ctx.hollow_zero_challenge_config.path_finding == HollowZeroChallengePathFinding.ONLY_BOSS.value.value:
+            return self.data_service.get_only_boss_go_in_1_step_entry_list()
+        elif self.ctx.hollow_zero_challenge_config.path_finding == HollowZeroChallengePathFinding.CUSTOM.value.value:
+            return self.ctx.hollow_zero_challenge_config.go_in_1_step
+        else:
+            return []
+
+    def _get_waypoint(self) -> List[str]:
+        """
+        途径点
+        :return:
+        """
+        if self.ctx.hollow_zero_challenge_config.path_finding == HollowZeroChallengePathFinding.DEFAULT.value.value:
+            return self.data_service.get_default_waypoint_entry_list()
+        elif self.ctx.hollow_zero_challenge_config.path_finding == HollowZeroChallengePathFinding.ONLY_BOSS.value.value:
+            return self.data_service.get_only_boss_waypoint_entry_list()
+        elif self.ctx.hollow_zero_challenge_config.path_finding == HollowZeroChallengePathFinding.CUSTOM.value.value:
+            return self.ctx.hollow_zero_challenge_config.waypoint
+        else:
+            return []
+
+
 
 
 def __debug_draw_detect():

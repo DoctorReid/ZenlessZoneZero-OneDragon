@@ -25,7 +25,6 @@ class HallowZeroDataService:
 
         self.reload()
 
-
     def reload(self):
         self._load_normal_events()
         self._load_entry_list()
@@ -131,17 +130,17 @@ class HallowZeroDataService:
         resonium_idx = resonium_name_list.index(results[0])
         return self.resonium_list[resonium_idx]
 
-    def check_resonium_priority(self, input: str) -> Tuple[List[str], str]:
+    def check_resonium_priority(self, input_str: str) -> Tuple[List[str], str]:
         """
         校验优先级的文本输入
         错误的输入会被过滤掉
-        :param input:
+        :param input_str:
         :return: 匹配的鸣徽和错误信息
         """
-        if input is None or len(input) == 0:
+        if input_str is None or len(input_str) == 0:
             return [], ''
 
-        input_arr = [i.strip() for i in input.split('\n')]
+        input_arr = [i.strip() for i in input_str.split('\n')]
         resonium_list = []
         error_msg = ''
         for i in input_arr:
@@ -174,3 +173,64 @@ class HallowZeroDataService:
                 error_msg += f'输入非法 {i}'
 
         return resonium_list, error_msg
+
+    def check_entry_list_input(self, input_str: str) -> Tuple[List[str], str]:
+        if input_str is None or len(input_str) == 0:
+            return [], ''
+
+        input_arr = [i.strip() for i in input_str.split('\n')]
+        entry_list = []
+        error_msg = ''
+        for i in input_arr:
+            if len(i) == 0:
+                continue
+
+        for i in input_arr:
+            if len(i) == 0:
+                continue
+            if i not in self.name_2_entry:
+                error_msg += f'输入非法 {i}; '
+            else:
+                entry_list.append(i)
+
+        return entry_list, error_msg
+
+    def get_default_go_in_1_step_entry_list(self) -> List[str]:
+        """
+        默认的一步可达前往的格子类型
+        :return:
+        """
+        return [entry.entry_name for entry in self.entry_list if entry.is_benefit]
+
+    def get_only_boss_go_in_1_step_entry_list(self) -> List[str]:
+        """
+        速通模式的一步可达前往的格子类型
+        :return:
+        """
+        return []
+
+    def get_default_waypoint_entry_list(self) -> List[str]:
+        """
+        默认的途径点类型
+        :return:
+        """
+        return [
+            '呼叫增援',
+            '业绩考察点',
+            '零号银行',
+            '邦布商人',
+            '诡雾',
+        ]
+
+    def get_only_boss_waypoint_entry_list(self) -> List[str]:
+        """
+        速通模式的途径点类型
+        :return:
+        """
+        return [
+            '呼叫增援',
+            '业绩考察点',
+            '诡雾',
+        ]
+
+

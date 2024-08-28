@@ -1,4 +1,5 @@
 - entry_name: "0001-起点"
+  is_benefit: false
 - entry_name: "0002-齿轮硬币箱"
 - entry_name: "0003-危机"
   is_benefit: false
@@ -21,6 +22,7 @@
 - entry_name: "0020-门扉禁闭-财富"
   is_benefit: false
 - entry_name: "0021-顽固的障碍物"
+  is_benefit: false
   can_go: false
 - entry_name: "0022-门扉禁闭-侵蚀"
   is_benefit: false
@@ -70,6 +72,7 @@
 - entry_name: "0052-防卫军后勤站"
 - entry_name: "0053-王牌邦布助手"
 - entry_name: "0054-未知区域"
+  is_benefit: false
 - entry_name: "0055-奇怪的学生"
 - entry_name: "9000-当前"
   need_step: 0
@@ -80,6 +83,7 @@
   is_benefit: false
   need_step: 0
 - entry_name: "9003-空白无法通行"
+  is_benefit: false
   can_go: false
 - entry_name: "8000-电视底座绿"
   is_benefit: false

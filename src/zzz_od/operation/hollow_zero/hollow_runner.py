@@ -1,7 +1,7 @@
 import time
 
 from cv2.typing import MatLike
-from typing import Type, Optional, ClassVar
+from typing import Type, ClassVar
 
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
@@ -65,6 +65,7 @@ class HollowRunner(ZOperation):
             HollowZeroSpecialEvent.IN_BATTLE.value.event_name: HollowBattle,
         }
         self._last_save_image_time: float = 0
+        self._last_move_time: float = 0  # 上一次移动的时间
 
     @operation_node(name='画面识别', is_start_node=True)
     def check_screen(self) -> OperationRoundResult:
@@ -77,7 +78,7 @@ class HollowRunner(ZOperation):
         # 当前识别到地图
         current_map = self.ctx.hollow.check_current_map(screen, now)
         if current_map is not None and current_map.current_idx is not None:
-            return self._handle_map_move(screen, current_map)
+            return self._handle_map_move(screen, now, current_map)
 
         self.round_by_click_area('零号空洞-事件', '空白')
         return self.round_retry('未能识别当前画面', wait=1)
@@ -111,24 +112,34 @@ class HollowRunner(ZOperation):
 
         return self.round_retry('当前事件未有对应指令', wait=1)
 
-    def _handle_map_move(self, screen: MatLike, current_map: HollowZeroMap) -> OperationRoundResult:
+    def _handle_map_move(self, screen: MatLike, screen_time: float, current_map: HollowZeroMap) -> OperationRoundResult:
         """
         识别到地图后 自动寻路
-        :param current_map:
+        :param screen: 游戏画面
+        :param screen_time: 截图时间
+        :param current_map: 分析得到的地图
         :return:
         """
         next_to_move: HollowZeroMapNode = self.ctx.hollow.get_next_to_move(current_map)
-        if next_to_move is None:
+        pathfinding_success = next_to_move is not None and next_to_move.entry.entry_name != 'fake'
+        if not pathfinding_success:
             self._save_debug_image(screen)
+            if next_to_move is None:
+                return self.round_retry('自动寻路失败')
+
+        if pathfinding_success:
+            self._try_click_speed_up(screen)
+            self._check_agent_list(screen)
+            self._check_mission_level(screen, current_map)
+            extra_finished = self._check_extra_task_finished(screen, current_map)
+            if extra_finished:
+                return self.round_success(HollowRunner.STATUS_LEAVE)
+
+        # 寻路失败的话 间隔1秒才尝试一次随机移动
+        if not pathfinding_success and screen_time - self._last_move_time < 1:
             return self.round_retry('自动寻路失败')
 
-        self._try_click_speed_up(screen)
-        self._check_agent_list(screen)
-        self._check_mission_level(screen, current_map)
-        extra_finished = self._check_extra_task_finished(screen, current_map)
-        if extra_finished:
-            return self.round_success(HollowRunner.STATUS_LEAVE)
-
+        self._last_move_time = screen_time
         self.ctx.controller.click(next_to_move.pos.center)
         self.ctx.hollow.update_context_after_move(next_to_move)
 

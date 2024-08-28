@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QWidget
-from qfluentwidgets import FluentIcon, PushButton, ComboBox, PlainTextEdit, SubtitleLabel, BodyLabel, FluentThemeColor
+from qfluentwidgets import FluentIcon, PushButton, ComboBox, PlainTextEdit, SubtitleLabel, BodyLabel, FluentThemeColor, \
+    TitleLabel
 from typing import List, Optional
 
 from one_dragon.gui.component.column_widget import ColumnWidget
@@ -13,7 +14,7 @@ from zzz_od.application.battle_assistant.auto_battle_config import get_auto_batt
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import AgentEnum
 from zzz_od.hollow_zero.hollow_zero_challenge_config import HollowZeroChallengeConfig, \
-    get_all_hollow_zero_challenge_config, get_hollow_zero_challenge_new_name
+    get_all_hollow_zero_challenge_config, get_hollow_zero_challenge_new_name, HollowZeroChallengePathFinding
 
 
 class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
@@ -91,24 +92,48 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
         self.auto_battle_opt.value_changed.connect(self._on_auto_battle_config_changed)
         widget.add_widget(self.auto_battle_opt)
 
+        self.path_finding_opt = ComboBoxSettingCard(icon=FluentIcon.MARKET, title='寻路方式',
+                                                    options_enum=HollowZeroChallengePathFinding, show_config_desc=True)
+        self.path_finding_opt.value_changed.connect(self._on_path_finding_changed)
+        widget.add_widget(self.path_finding_opt)
+
         widget.add_stretch(1)
         return widget
 
     def _init_right_part(self) -> QWidget:
         widget = ColumnWidget()
 
-        resonium_title = SubtitleLabel(text='奖励优先级')
+        resonium_title = TitleLabel(text='奖励优先级')
         widget.add_widget(resonium_title)
         self.resonium_priority_input = PlainTextEdit()
         self.resonium_priority_input.textChanged.connect(self._on_resonium_priority_changed)
         widget.add_widget(self.resonium_priority_input)
 
-        event_priority_title = SubtitleLabel(text='选项优先级')
+        event_priority_title = TitleLabel(text='选项优先级')
+        event_priority_title.setVisible(False)
         widget.add_widget(event_priority_title)
         self.event_priority_input = PlainTextEdit()
         self.event_priority_input.textChanged.connect(self._on_event_priority_changed)
         widget.add_widget(self.event_priority_input)
         self.event_priority_input.setVisible(False)
+
+        pathfinding_title = TitleLabel(text='寻路方式')
+        widget.add_widget(pathfinding_title)
+
+        go_in_1_step_title = SubtitleLabel(text='一步可达时前往')
+        widget.add_widget(go_in_1_step_title)
+        self.go_in_1_step_input = PlainTextEdit()
+        self.go_in_1_step_input.textChanged.connect(self._on_go_in_1_step_changed)
+        widget.add_widget(self.go_in_1_step_input)
+
+        waypoint_title = SubtitleLabel(text='途径点')
+        widget.add_widget(waypoint_title)
+        self.waypoint_input = PlainTextEdit()
+        self.waypoint_input.textChanged.connect(self._on_waypoint_changed)
+        widget.add_widget(self.waypoint_input)
+
+        self._pathfinding_inputs = [pathfinding_title, go_in_1_step_title, self.go_in_1_step_input,
+                                    waypoint_title, self.waypoint_input]
 
         widget.add_stretch(1)
 
@@ -138,6 +163,7 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
 
         self.name_opt.setDisabled(not chosen or is_sample)
         self.auto_battle_opt.setDisabled(not chosen or is_sample)
+        self.path_finding_opt.setDisabled(not chosen or is_sample)
         self.agents_opt.setDisabled(not chosen or is_sample)
         for agent_btn in self.agent_btn_list:
             agent_btn.setDisabled(not chosen or is_sample)
@@ -150,6 +176,7 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
         if chosen:
             self.name_opt.setValue(self.chosen_config.module_name)
             self.auto_battle_opt.setValue(self.chosen_config.auto_battle)
+            self.path_finding_opt.setValue(self.chosen_config.path_finding)
             agents = self.chosen_config.target_agents
             for i in range(3):
                 btn = self.agent_btn_list[i]
@@ -159,6 +186,8 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
                     btn.setCurrentIndex(btn.findData(agents[i]))
             self.resonium_priority_input.setPlainText(self.chosen_config.resonium_priority_str)
             self.event_priority_input.setPlainText(self.chosen_config.event_priority_str)
+
+            self._update_pathfinding_input_display()
 
     def _update_existed_yml_options(self) -> None:
         """
@@ -189,6 +218,26 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
             pass
         self.auto_battle_opt.set_options_by_list(get_auto_battle_op_config_list('auto_battle'))
         self.auto_battle_opt.value_changed.connect(self._on_auto_battle_config_changed)
+
+    def _update_pathfinding_input_display(self) -> None:
+        """
+        寻路相关的显示
+        :return:
+        """
+        chosen = self.chosen_config is not None
+        is_sample = self.chosen_config is None or self.chosen_config.is_sample
+        custom = self.chosen_config is not None and self.chosen_config.path_finding == HollowZeroChallengePathFinding.CUSTOM.value.value
+
+        self.go_in_1_step_input.setDisabled(not chosen or is_sample or not custom)
+        self.waypoint_input.setDisabled(not chosen or is_sample or not custom)
+
+        for widget in self._pathfinding_inputs:
+            widget.setVisible(custom)
+        if custom:
+            if self.chosen_config.go_in_1_step is not None:
+                self.go_in_1_step_input.setPlainText('\n'.join(self.chosen_config.go_in_1_step))
+            if self.chosen_config.waypoint is not None:
+                self.waypoint_input.setPlainText('\n'.join(self.chosen_config.waypoint))
 
     def _on_choose_existed_yml(self, idx: int):
         """
@@ -269,6 +318,20 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
 
         self.chosen_config.auto_battle = value
 
+    def _on_path_finding_changed(self, index, value) -> None:
+        if self.chosen_config is None:
+            return
+
+        self.chosen_config.path_finding = value
+
+        if value == HollowZeroChallengePathFinding.CUSTOM.value.value:
+            if self.chosen_config.go_in_1_step is None:
+                self.chosen_config.go_in_1_step = self.ctx.hollow.data_service.get_default_go_in_1_step_entry_list()
+            if self.chosen_config.waypoint is None:
+                self.chosen_config.waypoint = self.ctx.hollow.data_service.get_default_waypoint_entry_list()
+
+        self._update_pathfinding_input_display()
+
     def _update_error_message(self, msg: str) -> None:
         if msg is None or len(msg) == 0:
             self.error_message.setVisible(False)
@@ -293,6 +356,26 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
         value = self.event_priority_input.toPlainText()
 
         self.chosen_config.event_priority = [i.strip() for i in value.split('\n')]
+
+    def _on_go_in_1_step_changed(self) -> None:
+        if self.chosen_config is None:
+            return
+
+        value = self.go_in_1_step_input.toPlainText()
+        entry_list, err_msg = self.ctx.hollow.data_service.check_entry_list_input(value)
+        self._update_error_message(err_msg)
+
+        self.chosen_config.go_in_1_step = entry_list
+
+    def _on_waypoint_changed(self) -> None:
+        if self.chosen_config is None:
+            return
+
+        value = self.go_in_1_step_input.toPlainText()
+        entry_list, err_msg = self.ctx.hollow.data_service.check_entry_list_input(value)
+        self._update_error_message(err_msg)
+
+        self.chosen_config.waypoint = entry_list
 
     def _on_agent_changed(self, idx: int) -> None:
         if self.chosen_config is None:
