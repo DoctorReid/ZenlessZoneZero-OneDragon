@@ -11,8 +11,8 @@ from one_dragon.utils.log_utils import log
 class HollowZeroChallengePathFinding(Enum):
 
     DEFAULT = ConfigItem('默认', desc='默认的寻路方式')
-    ONLY_BOSS = ConfigItem('速通', desc='只会途径呼叫增援和业绩考察点')
-    CUSTOM = ConfigItem('自定义', desc='自己在右边填吧')
+    ONLY_BOSS = ConfigItem('速通', desc='途经呼叫增援和业绩考察点 避免战斗')
+    CUSTOM = ConfigItem('自定义', desc='自己在下边填吧 名称可以看游戏图鉴')
 
 
 class HollowZeroChallengeConfig(YamlConfig):
@@ -127,6 +127,18 @@ class HollowZeroChallengeConfig(YamlConfig):
     @waypoint.setter
     def waypoint(self, new_value: List[str]):
         self.update('waypoint', new_value)
+
+    @property
+    def avoid(self) -> List[str]:
+        """
+        避免
+        :return:
+        """
+        return self.get('avoid', None)
+
+    @avoid.setter
+    def avoid(self, new_value: List[str]):
+        self.update('avoid', new_value)
 
 
 def get_all_hollow_zero_challenge_config() -> List[HollowZeroChallengeConfig]:

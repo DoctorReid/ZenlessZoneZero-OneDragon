@@ -233,4 +233,9 @@ class HallowZeroDataService:
             '诡雾',
         ]
 
-
+    def get_default_avoid_entry_list(self) -> List[str]:
+        """
+        默认的避免途经点类型
+        :return:
+        """
+        return ['危机', '双重危机', '限时战斗']

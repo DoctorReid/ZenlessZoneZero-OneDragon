@@ -227,10 +227,11 @@ class RouteSearchRoute:
         self.distance: float = distance  # 需要前往的节点在图像上的距离
 
 
-def search_map(current_map: HollowZeroMap) -> dict[int, RouteSearchRoute]:
+def search_map(current_map: HollowZeroMap, avoid_entry_list: List[str]) -> dict[int, RouteSearchRoute]:
     """
     对当前地图进行搜索 获取前往每个节点的路径
     :param current_map:
+    :param: avoid_entry_list: 避免途经点
     :return:
     """
     if current_map is None or current_map.current_idx is None:
@@ -243,7 +244,7 @@ def search_map(current_map: HollowZeroMap) -> dict[int, RouteSearchRoute]:
                                    0, 0)
 
     # 先避开战斗搜索
-    result_1 = _bfs_search_map(current_map, [start_route], {'危机', '双重危机', '限时挑战'})
+    result_1 = _bfs_search_map(current_map, [start_route], avoid_entry_list)
     start_routes = [i for i in result_1.values()]
 
     # 在

@@ -151,7 +151,7 @@ class HollowContext:
         """
         if current_map.current_idx is None:
             return None
-        idx_2_route = hollow_map_utils.search_map(current_map)
+        idx_2_route = hollow_map_utils.search_map(current_map, self._get_avoid())
 
         # 一步可达时前往
         route = hollow_map_utils.get_route_in_1_step(idx_2_route, self._visited_nodes,
@@ -312,7 +312,7 @@ class HollowContext:
 
     def _get_waypoint(self) -> List[str]:
         """
-        途径点
+        途经点
         :return:
         """
         if self.ctx.hollow_zero_challenge_config.path_finding == HollowZeroChallengePathFinding.DEFAULT.value.value:
@@ -324,7 +324,19 @@ class HollowContext:
         else:
             return []
 
-
+    def _get_avoid(self) -> List[str]:
+        """
+        避免途经点
+        :return:
+        """
+        if self.ctx.hollow_zero_challenge_config.path_finding == HollowZeroChallengePathFinding.DEFAULT.value.value:
+            return self.data_service.get_default_avoid_entry_list()
+        elif self.ctx.hollow_zero_challenge_config.path_finding == HollowZeroChallengePathFinding.ONLY_BOSS.value.value:
+            return self.data_service.get_default_avoid_entry_list()
+        elif self.ctx.hollow_zero_challenge_config.path_finding == HollowZeroChallengePathFinding.CUSTOM.value.value:
+            return self.ctx.hollow_zero_challenge_config.avoid
+        else:
+            return []
 
 
 def __debug_draw_detect():
@@ -348,7 +360,7 @@ def __debug_get_map():
 
     from one_dragon.utils import debug_utils
     img_list = [
-        '2',
+        '_1724909838372',
     ]
     for i in img_list:
         img = debug_utils.get_debug_image(i)
@@ -356,7 +368,7 @@ def __debug_get_map():
         ctx.hollow.init_event_yolo(False)
         current_map = ctx.hollow.check_current_map(img, time.time())
 
-    idx_2_route = hollow_map_utils.search_map(current_map)
+    idx_2_route = hollow_map_utils.search_map(current_map, ctx.hollow._get_avoid())
     target = ctx.hollow.get_next_to_move(current_map)
     result_img = hollow_map_utils.draw_map(img, current_map, next_node=target, idx_2_route=idx_2_route)
     cv2_utils.show_image(result_img, wait=0)

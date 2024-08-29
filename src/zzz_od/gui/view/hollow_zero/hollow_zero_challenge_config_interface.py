@@ -97,6 +97,34 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
         self.path_finding_opt.value_changed.connect(self._on_path_finding_changed)
         widget.add_widget(self.path_finding_opt)
 
+        go_in_1_step_widget = ColumnWidget()
+        go_in_1_step_title = SubtitleLabel(text='一步可达时前往')
+        go_in_1_step_widget.v_layout.addWidget(go_in_1_step_title)
+        self.go_in_1_step_input = PlainTextEdit()
+        self.go_in_1_step_input.textChanged.connect(self._on_go_in_1_step_changed)
+        go_in_1_step_widget.v_layout.addWidget(self.go_in_1_step_input)
+
+        waypoint_widget = ColumnWidget()
+        waypoint_title = SubtitleLabel(text='优先途经点')
+        waypoint_widget.v_layout.addWidget(waypoint_title)
+        self.waypoint_input = PlainTextEdit()
+        self.waypoint_input.textChanged.connect(self._on_waypoint_changed)
+        waypoint_widget.v_layout.addWidget(self.waypoint_input)
+
+        avoid_widget = ColumnWidget()
+        avoid_title = SubtitleLabel(text='避免途经点')
+        avoid_widget.v_layout.addWidget(avoid_title)
+        self.avoid_input = PlainTextEdit()
+        self.avoid_input.textChanged.connect(self._on_avoid_changed)
+        avoid_widget.v_layout.addWidget(self.avoid_input)
+
+        self.pathfinding_widget = RowWidget()
+        self.pathfinding_widget.h_layout.addWidget(go_in_1_step_widget)
+        self.pathfinding_widget.h_layout.addWidget(waypoint_widget)
+        self.pathfinding_widget.h_layout.addWidget(avoid_widget)
+
+        widget.add_widget(self.pathfinding_widget)
+
         widget.add_stretch(1)
         return widget
 
@@ -116,24 +144,6 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
         self.event_priority_input.textChanged.connect(self._on_event_priority_changed)
         widget.add_widget(self.event_priority_input)
         self.event_priority_input.setVisible(False)
-
-        pathfinding_title = TitleLabel(text='寻路方式')
-        widget.add_widget(pathfinding_title)
-
-        go_in_1_step_title = SubtitleLabel(text='一步可达时前往')
-        widget.add_widget(go_in_1_step_title)
-        self.go_in_1_step_input = PlainTextEdit()
-        self.go_in_1_step_input.textChanged.connect(self._on_go_in_1_step_changed)
-        widget.add_widget(self.go_in_1_step_input)
-
-        waypoint_title = SubtitleLabel(text='途径点')
-        widget.add_widget(waypoint_title)
-        self.waypoint_input = PlainTextEdit()
-        self.waypoint_input.textChanged.connect(self._on_waypoint_changed)
-        widget.add_widget(self.waypoint_input)
-
-        self._pathfinding_inputs = [pathfinding_title, go_in_1_step_title, self.go_in_1_step_input,
-                                    waypoint_title, self.waypoint_input]
 
         widget.add_stretch(1)
 
@@ -230,14 +240,16 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
 
         self.go_in_1_step_input.setDisabled(not chosen or is_sample or not custom)
         self.waypoint_input.setDisabled(not chosen or is_sample or not custom)
+        self.avoid_input.setDisabled(not chosen or is_sample or not custom)
 
-        for widget in self._pathfinding_inputs:
-            widget.setVisible(custom)
+        self.pathfinding_widget.setVisible(custom)
         if custom:
             if self.chosen_config.go_in_1_step is not None:
                 self.go_in_1_step_input.setPlainText('\n'.join(self.chosen_config.go_in_1_step))
             if self.chosen_config.waypoint is not None:
                 self.waypoint_input.setPlainText('\n'.join(self.chosen_config.waypoint))
+            if self.chosen_config.avoid is not None:
+                self.avoid_input.setPlainText('\n'.join(self.chosen_config.avoid))
 
     def _on_choose_existed_yml(self, idx: int):
         """
@@ -329,6 +341,8 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
                 self.chosen_config.go_in_1_step = self.ctx.hollow.data_service.get_default_go_in_1_step_entry_list()
             if self.chosen_config.waypoint is None:
                 self.chosen_config.waypoint = self.ctx.hollow.data_service.get_default_waypoint_entry_list()
+            if self.chosen_config.avoid is None:
+                self.chosen_config.avoid = self.ctx.hollow.data_service.get_default_avoid_entry_list()
 
         self._update_pathfinding_input_display()
 
@@ -371,11 +385,21 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
         if self.chosen_config is None:
             return
 
-        value = self.go_in_1_step_input.toPlainText()
+        value = self.waypoint_input.toPlainText()
         entry_list, err_msg = self.ctx.hollow.data_service.check_entry_list_input(value)
         self._update_error_message(err_msg)
 
         self.chosen_config.waypoint = entry_list
+
+    def _on_avoid_changed(self) -> None:
+        if self.chosen_config is None:
+            return
+
+        value = self.avoid_input.toPlainText()
+        entry_list, err_msg = self.ctx.hollow.data_service.check_entry_list_input(value)
+        self._update_error_message(err_msg)
+
+        self.chosen_config.avoid = entry_list
 
     def _on_agent_changed(self, idx: int) -> None:
         if self.chosen_config is None:
