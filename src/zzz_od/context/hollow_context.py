@@ -8,7 +8,7 @@ from typing import List, Optional
 
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.geometry.rectangle import Rect
-from one_dragon.utils import cv2_utils, yolo_config_utils
+from one_dragon.utils import cv2_utils, yolo_config_utils, str_utils
 from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import Agent, AgentEnum
@@ -203,9 +203,9 @@ class HollowContext:
         direction = 'w'
         if self.level_info.level >= 2 and self.level_info.phase == 1:
             direction = 'w'
-        elif self.level_info.mission_name == '施工废墟':
+        elif self.level_info.mission_type_name == '施工废墟':
             direction = 'd'
-        elif self.level_info.mission_name == '巨厦遗骸':
+        elif self.level_info.mission_type_name == '巨厦遗骸':
             direction = 'd'
 
         route = hollow_map_utils.get_route_by_direction(idx_2_route, direction)
@@ -338,6 +338,49 @@ class HollowContext:
         else:
             return []
 
+    def check_info_before_move(self, screen: MatLike, current_map: HollowZeroMap) -> bool:
+        self._check_agent_list(screen)
+        self._check_mission_level(screen, current_map)
+
+    def _check_agent_list(self, screen: MatLike) -> None:
+        if self.agent_list is not None:
+            return
+        self.check_agent_list(screen)
+
+    def _check_mission_level(self, screen: MatLike, current_map: HollowZeroMap) -> None:
+        """
+        如果之前没有初始化好副本信息 靠当前画面识别 断点继续时有用
+        :param screen:
+        :param current_map: 当前地图信息
+        :return:
+        """
+        level_info = self.level_info
+        if level_info.level == -1:  # 没有楼层信息 先识别
+            area = self.ctx.screen_loader.get_area('零号空洞-事件', '当前层数')
+            part = cv2_utils.crop_image_only(screen, area.rect)
+            ocr_result = self.ctx.ocr.run_ocr_single_line(part)
+            digit = str_utils.get_positive_digits(ocr_result, err=-1)
+            level_info.level = digit
+
+        if level_info.phase == -1 and level_info.level in [2, 3]:  # 没有阶段信息 先尝试识别
+            if current_map.contains_entry('传送点'):
+                level_info.phase = 1
+            else:
+                level_info.phase = 2
+        else:  # 1楼固定只有1阶段
+            level_info.phase = 1
+
+        # 旧都列车
+        if level_info.mission_type_name is None:
+            if level_info.level in [2, 3] and level_info.phase == 1:
+                if current_map.contains_entry('假面研究者'):
+                    level_info.mission_type_name = '旧都列车'
+
+        # 施工废墟
+        if level_info.mission_type_name is None:
+            if current_map.contains_entry('投机客') or current_map.contains_entry('门扉禁闭-财富'):
+                level_info.mission_type_name = '施工废墟'
+
 
 def __debug_draw_detect():
     ctx = ZContext()
@@ -357,16 +400,18 @@ def __debug_draw_detect():
 def __debug_get_map():
     ctx = ZContext()
     ctx.init_by_config()
+    ctx.ocr.init_model()
 
     from one_dragon.utils import debug_utils
     img_list = [
-        '_1724909838372',
+        '_1724930679038',
     ]
     for i in img_list:
         img = debug_utils.get_debug_image(i)
 
         ctx.hollow.init_event_yolo(False)
         current_map = ctx.hollow.check_current_map(img, time.time())
+        ctx.hollow.check_info_before_move(img, current_map)
 
     idx_2_route = hollow_map_utils.search_map(current_map, ctx.hollow._get_avoid())
     target = ctx.hollow.get_next_to_move(current_map)

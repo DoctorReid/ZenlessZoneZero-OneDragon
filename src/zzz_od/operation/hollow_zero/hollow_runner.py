@@ -6,7 +6,6 @@ from typing import Type, ClassVar
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
-from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroExtraTask
 from zzz_od.context.zzz_context import ZContext
@@ -128,9 +127,8 @@ class HollowRunner(ZOperation):
                 return self.round_retry('自动寻路失败')
 
         if pathfinding_success:
+            self.ctx.hollow.check_info_before_move(screen, current_map)
             self._try_click_speed_up(screen)
-            self._check_agent_list(screen)
-            self._check_mission_level(screen, current_map)
             extra_finished = self._check_extra_task_finished(screen, current_map)
             if extra_finished:
                 return self.round_success(HollowRunner.STATUS_LEAVE)
@@ -152,45 +150,6 @@ class HollowRunner(ZOperation):
             time.sleep(0.2)
             if result.is_success:
                 self.ctx.hollow.speed_up_clicked = True
-
-    def _check_agent_list(self, screen: MatLike) -> None:
-        if self.ctx.hollow.agent_list is not None:
-            return
-        self.ctx.hollow.check_agent_list(screen)
-
-    def _check_mission_level(self, screen: MatLike, current_map: HollowZeroMap) -> None:
-        """
-        如果之前没有初始化好副本信息 靠当前画面识别 断点继续时有用
-        :param screen:
-        :param current_map: 当前地图信息
-        :return:
-        """
-        level_info = self.ctx.hollow.level_info
-        if level_info.level == -1:  # 没有楼层信息 先识别
-            area = self.ctx.screen_loader.get_area('零号空洞-事件', '当前层数')
-            part = cv2_utils.crop_image_only(screen, area.rect)
-            ocr_result = self.ctx.ocr.run_ocr_single_line(part)
-            digit = str_utils.get_positive_digits(ocr_result, err=-1)
-            level_info.level = digit
-
-        if level_info.phase == -1 and level_info.level in [2, 3]:  # 没有阶段信息 先尝试识别
-            if current_map.contains_entry('零号银行'):  # 银行辨识度较高
-                level_info.phase = 1
-            elif current_map.contains_entry('守门人'):
-                level_info.phase = 2
-        else:  # 1楼固定只有1阶段
-            level_info.phase = 1
-
-        # 旧都列车
-        if level_info.mission_type_name is None:
-            if level_info.level in [2, 3] and level_info.phase == 1:
-                if current_map.contains_entry('假面研究者'):
-                    level_info.mission_type_name = '旧都列车'
-
-        # 施工废墟
-        if level_info.mission_type_name is None:
-            if current_map.contains_entry('投机客'):
-                level_info.mission_type_name = '施工废墟'
 
     def _check_extra_task_finished(self, screen: MatLike, current_map: HollowZeroMap) -> bool:
         """

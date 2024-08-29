@@ -31,6 +31,8 @@
 - entry_name: "有偿休息站"
   event_name: "事件有偿休息站"
   options:
+    - option_name: "豪华服务我请你们"
+      desc: "压力值-20"
     - option_name: "选个豪华服务"
       desc: "花费1000齿轮硬币，消除1个侵蚀，压力值-100"
     - option_name: "选个最便宜的"

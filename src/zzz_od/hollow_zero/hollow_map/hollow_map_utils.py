@@ -432,6 +432,8 @@ def get_route_by_direction(idx_2_route: dict[int, RouteSearchRoute], direction: 
     """
     target: Optional[RouteSearchRoute] = None
     for idx, route in idx_2_route.items():
+        if route.node.entry.entry_name in ['当前', '空白已通行', '空白未通行']:
+            continue
         if target is None:
             target = route
         elif direction == 'w' and target.node.pos.y1 > route.node.pos.y1:

@@ -21,4 +21,10 @@
     - option_name: "直接购买物资"
       desc: "损失20%生命值，获得2枚鸣徽"
 
+    - option_name: "获取少量补给品"
+      desc: "获得1个浓缩医疗"
+
+    - option_name: "获取大量受侵蚀的补给品"
+      desc: "获得3个浓缩医疗，压力值+50"
+
     - option_name: "跳过"

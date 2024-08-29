@@ -1,9 +1,15 @@
 - entry_name: "调查协会补给站"
-  event_name: "协会支援站"
+  event_name: "事件协会支援站"
   options:
     - option_name: "白抵重工的代理人擅长挑选物资"
+    - option_name: "狡兔屋的代理人前去谈判"
+
+    - option_name: "把次数兑换为补给品"
+      desc: "不再领取物资，每次数兑换为1个浓缩医疗"
     - option_name: "轻飘飘的物资箱"
       desc: "40%概率获得1枚鸣徽，失败则压力值+20"
+    - option_name: "篷搭建的临时补给点"
+      desc: "60%概率获得插件，失败则压力值+20"
     - option_name: "便携医药箱"
       desc: "回复10%生命值"
     - option_name: "一个破损的邦布插件"
