@@ -52,6 +52,30 @@ class GameConfig(YamlConfig):
         self.update('game_language', new_value)
 
     @property
+    def game_path(self) -> str:
+        return self.get('game_path', '')
+
+    @game_path.setter
+    def game_path(self, new_value: str) -> None:
+        self.update('game_path', new_value)
+
+    @property
+    def account(self) -> str:
+        return self.get('account', '')
+
+    @account.setter
+    def account(self, new_value: str) -> None:
+        self.update('account', new_value)
+
+    @property
+    def password(self) -> str:
+        return self.get('password', '')
+
+    @password.setter
+    def password(self, new_value: str) -> None:
+        self.update('password', new_value)
+
+    @property
     def game_region(self) -> str:
         return self.get('game_region', GameRegionEnum.CN.value.value)
 

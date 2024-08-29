@@ -1,0 +1,70 @@
+screen_id: enter_game
+screen_name: 打开游戏
+pc_alt: false
+area_list:
+- area_name: 点击进入游戏
+  pc_rect:
+  - 810
+  - 846
+  - 1088
+  - 942
+  text: 点击进入游戏
+  lcs_percent: 0.6
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 账号密码
+  pc_rect:
+  - 800
+  - 738
+  - 922
+  - 808
+  text: 账号密码
+  lcs_percent: 0.6
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 账号输入区域
+  pc_rect:
+  - 612
+  - 368
+  - 1258
+  - 438
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 密码输入区域
+  pc_rect:
+  - 612
+  - 470
+  - 1258
+  - 544
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 同意按钮
+  pc_rect:
+  - 606
+  - 576
+  - 644
+  - 614
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 账号密码进入游戏
+  pc_rect:
+  - 608
+  - 648
+  - 1290
+  - 722
+  text: 进入游戏
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

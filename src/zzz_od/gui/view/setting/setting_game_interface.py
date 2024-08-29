@@ -1,5 +1,6 @@
-from PySide6.QtWidgets import QWidget
-from qfluentwidgets import SettingCardGroup, FluentIcon
+import os
+from PySide6.QtWidgets import QWidget, QFileDialog
+from qfluentwidgets import SettingCardGroup, FluentIcon, PushSettingCard
 
 from one_dragon.base.config.config_item import get_config_item_from_enum
 from one_dragon.base.controller.pc_button.ds4_button_controller import Ds4ButtonEnum
@@ -10,6 +11,7 @@ from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBo
 from one_dragon.gui.component.setting_card.key_setting_card import KeySettingCard
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils.i18_utils import gt
+from one_dragon.utils.log_utils import log
 from zzz_od.config.game_config import GameRegionEnum, GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
 
@@ -40,9 +42,19 @@ class SettingGameInterface(VerticalScrollInterface):
     def _get_basic_group(self) -> QWidget:
         basic_group = SettingCardGroup(gt('游戏基础', 'ui'))
 
+        self.game_path_opt = PushSettingCard(icon=FluentIcon.FOLDER, title='游戏路径', text='选择')
+        self.game_path_opt.clicked.connect(self._on_game_path_clicked)
+        basic_group.addSettingCard(self.game_path_opt)
+
         self.game_region_opt = ComboBoxSettingCard(icon=FluentIcon.HOME, title='游戏区服', options_enum=GameRegionEnum)
-        self.game_region_opt.value_changed.connect(self._on_game_region_changed)
         basic_group.addSettingCard(self.game_region_opt)
+
+        self.game_account_opt = TextSettingCard(icon=FluentIcon.PEOPLE, title='账号')
+        basic_group.addSettingCard(self.game_account_opt)
+
+        self.game_password_opt = TextSettingCard(icon=FluentIcon.EXPRESSIVE_INPUT_ENTRY, title='密码',
+                                                 content='放心不会盗你的号 异地登陆需要验证')
+        basic_group.addSettingCard(self.game_password_opt)
 
         return basic_group
 
@@ -247,9 +259,16 @@ class SettingGameInterface(VerticalScrollInterface):
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)
 
+        self.game_region_opt.value_changed.disconnect(self._on_game_region_changed)
+        self.game_account_opt.value_changed.disconnect(self._on_game_account_changed)
+        self.game_password_opt.value_changed.disconnect(self._on_game_password_changed)
+
         game_region = get_config_item_from_enum(GameRegionEnum, self.ctx.game_config.game_region)
         if game_region is not None:
             self.game_region_opt.setValue(game_region.value)
+        self.game_path_opt.setContent(self.ctx.game_config.game_path)
+        self.game_account_opt.setValue(self.ctx.game_config.account)
+        self.game_path_opt.setValue(self.ctx.game_config.password)
 
         self.key_normal_attack_opt.setValue(self.ctx.game_config.key_normal_attack)
         self.key_dodge_opt.setValue(self.ctx.game_config.key_dodge)
@@ -267,6 +286,10 @@ class SettingGameInterface(VerticalScrollInterface):
         self.key_lock_opt.setValue(self.ctx.game_config.key_lock)
 
         self._update_gamepad_part()
+
+        self.game_region_opt.value_changed.connect(self._on_game_region_changed)
+        self.game_account_opt.value_changed.connect(self._on_game_account_changed)
+        self.game_password_opt.value_changed.connect(self._on_game_password_changed)
 
     def _update_gamepad_part(self) -> None:
         """
@@ -346,6 +369,22 @@ class SettingGameInterface(VerticalScrollInterface):
     def _on_game_region_changed(self, index, value):
         self.ctx.game_config.game_region = value
         self.ctx.init_by_config()
+
+    def _on_game_path_clicked(self) -> None:
+        file_path, _ = QFileDialog.getOpenFileName(self, gt('选择你的 ZenlessZoneZero.exe'), filter="Exe (*.exe)")
+        if file_path is not None and file_path.endswith('.exe'):
+            log.info('选择路径 %s', file_path)
+            self._on_game_path_chosen(os.path.normpath(file_path))
+
+    def _on_game_path_chosen(self, file_path) -> None:
+        self.ctx.game_config.game_path = file_path
+        self.game_path_opt.setContent(file_path)
+
+    def _on_game_account_changed(self, value: str) -> None:
+        self.ctx.game_config.account = value
+
+    def _on_game_password_changed(self, value: str) -> None:
+        self.ctx.game_config.password = value
 
     def _on_key_normal_attack_changed(self, key: str) -> None:
         self.ctx.game_config.key_normal_attack = key

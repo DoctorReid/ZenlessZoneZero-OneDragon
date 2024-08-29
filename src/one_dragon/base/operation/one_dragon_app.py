@@ -3,6 +3,7 @@ from typing import List, Optional, ClassVar
 from one_dragon.base.operation.application_base import Application
 from one_dragon.base.operation.application_run_record import AppRunRecord
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
+from one_dragon.base.operation.operation import Operation
 from one_dragon.base.operation.operation_base import OperationResult
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.base.operation.operation_node import OperationNode
@@ -15,11 +16,13 @@ class OneDragonApp(Application):
     STATUS_NEXT: ClassVar[str] = '下一个'
 
     def __init__(self, ctx: OneDragonContext, app_id: str,
-                 app_list: List[Application]):
+                 app_list: List[Application],
+                 op_to_enter_game: Optional[Operation] = None,):
         Application.__init__(
             self,
             ctx, app_id,
-            op_name=gt('一条龙', 'ui')
+            op_name=gt('一条龙', 'ui'),
+            op_to_enter_game=op_to_enter_game
         )
 
         self.app_list: List[Application] = app_list
