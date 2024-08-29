@@ -1,0 +1,11 @@
+- entry_name: "对空部特遣队"
+  event_name: "事件对空部特遣队"
+  options:
+    - option_name: "能换成补给物资援助吗"
+      desc: "获得2个浓缩医疗"
+
+    - option_name: "获得武装物资"
+      # 类型会变
+      desc: "获得协助类型B级鸣徽"
+
+    - option_name: "还有别的物资吗"
