@@ -34,7 +34,9 @@ class ZContext(OneDragonContext):
         """
         OneDragonContext.__init__(self)
 
-        self.current_instance_idx = 0 if instance_idx is None else instance_idx
+        if self.one_dragon_config.current_active_instance is None:
+            self.one_dragon_config.create_new_instance(True)
+        self.current_instance_idx = self.one_dragon_config.current_active_instance.idx
 
         # 其它上下文
         if is_installer:
