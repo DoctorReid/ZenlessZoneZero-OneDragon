@@ -7,10 +7,10 @@ class RowWidget(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent=parent)
 
-        self.row_layout = QHBoxLayout(self)
+        self.h_layout = QHBoxLayout(self)
 
     def add_widget(self, widget: QWidget, stretch: int = 0, alignment: Qt.AlignmentFlag = Qt.AlignmentFlag.AlignLeft):
-        self.row_layout.addWidget(widget, stretch=stretch, alignment=alignment)
+        self.h_layout.addWidget(widget, stretch=stretch, alignment=alignment)
 
     def add_stretch(self, stretch: int):
-        self.row_layout.addStretch(stretch)
+        self.h_layout.addStretch(stretch)

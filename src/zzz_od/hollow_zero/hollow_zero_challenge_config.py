@@ -1,6 +1,5 @@
-from enum import Enum
-
 import os
+from enum import Enum
 from typing import List
 
 from one_dragon.base.config.config_item import ConfigItem
@@ -11,9 +10,9 @@ from one_dragon.utils.log_utils import log
 
 class HollowZeroChallengePathFinding(Enum):
 
-    DEFAULT = ConfigItem('默认')
-    ONLY_BOSS = ConfigItem('速通')
-    CUSTOM = ConfigItem('自定义')
+    DEFAULT = ConfigItem('默认', desc='默认的寻路方式')
+    ONLY_BOSS = ConfigItem('速通', desc='途经呼叫增援和业绩考察点 避免战斗')
+    CUSTOM = ConfigItem('自定义', desc='自己在下边填吧 名称可以看游戏图鉴')
 
 
 class HollowZeroChallengeConfig(YamlConfig):
@@ -90,16 +89,56 @@ class HollowZeroChallengeConfig(YamlConfig):
         return '\n'.join(self.event_priority)
 
     @property
-    def agent1(self) -> str:
-        return self.get('agent1', None)
-
-    @property
     def target_agents(self) -> List[str]:
         return self.get('target_agents', [None, None, None])
 
     @target_agents.setter
     def target_agents(self, new_value: List[str]):
         self.update('target_agents', new_value)
+
+    @property
+    def path_finding(self) -> str:
+        return self.get('path_finding', HollowZeroChallengePathFinding.DEFAULT.value.value)
+
+    @path_finding.setter
+    def path_finding(self, new_value: str):
+        self.update('path_finding', new_value)
+
+    @property
+    def go_in_1_step(self) -> List[str]:
+        """
+        一步可达时前往
+        :return:
+        """
+        return self.get('go_in_1_step', None)
+
+    @go_in_1_step.setter
+    def go_in_1_step(self, new_value: List[str]):
+        self.update('go_in_1_step', new_value)
+
+    @property
+    def waypoint(self) -> List[str]:
+        """
+        途经点
+        :return:
+        """
+        return self.get('waypoint', None)
+
+    @waypoint.setter
+    def waypoint(self, new_value: List[str]):
+        self.update('waypoint', new_value)
+
+    @property
+    def avoid(self) -> List[str]:
+        """
+        避免
+        :return:
+        """
+        return self.get('avoid', None)
+
+    @avoid.setter
+    def avoid(self, new_value: List[str]):
+        self.update('avoid', new_value)
 
 
 def get_all_hollow_zero_challenge_config() -> List[HollowZeroChallengeConfig]:

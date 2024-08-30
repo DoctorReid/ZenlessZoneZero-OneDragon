@@ -656,7 +656,7 @@ class Operation(OperationBase):
             retry_wait: Optional[float] = None, retry_wait_round: Optional[float] = None
     ) -> OperationRoundResult:
         if self.click_area(screen_name, area_name, click_left_top=click_left_top):
-            return self.round_success(wait=success_wait, wait_round_time=success_wait_round)
+            return self.round_success(status=area_name, wait=success_wait, wait_round_time=success_wait_round)
         else:
             return self.round_retry(status=f'点击{area_name}失败', wait=retry_wait, wait_round_time=retry_wait_round)
 

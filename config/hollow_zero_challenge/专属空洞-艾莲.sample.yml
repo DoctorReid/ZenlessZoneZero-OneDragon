@@ -1,6 +1,10 @@
 resonium_priority:
-  - 冻结
-  - 邦布 鲨牙布
+- 冻结
+- 决斗
+- 闪避
+- 能量
+- 通用
+- 邦布 鲨牙布
 auto_battle: 专属配队-艾莲
 event_priority:
-  - ""
+- ''

@@ -13,11 +13,13 @@
     - option_name: "用所有鸣徽，交换等量鸣徽"
 
 - entry_name: "精锐邦布助手"
-  event_name: "精锐邦布助手"
+  event_name: "事件精锐邦布助手"
   lcs_percent: 0.8
   options:
     - option_name: "我是法厄同，送我！"
       desc: "压力值+50，获得0~3枚鸣徽"
+    - option_name: "询问特殊服务"
+      desc: "损失20%生命值，复制所有浓缩医疗"
     - option_name: "获得基础礼包"
       desc: "获得1枚B级鸣徽"
     - option_name: "升级可购买物资礼包"

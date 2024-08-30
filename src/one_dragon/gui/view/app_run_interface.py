@@ -105,9 +105,9 @@ class AppRunInterface(VerticalScrollInterface):
             log_row = RowWidget()
             content_layout.addWidget(log_row)
 
-            log_row.row_layout.addWidget(self.log_card, stretch=1)
+            log_row.h_layout.addWidget(self.log_card, stretch=1)
 
-            log_row.row_layout.addWidget(self.app_event_log_card, stretch=1)
+            log_row.h_layout.addWidget(self.app_event_log_card, stretch=1)
         else:
             content_layout.addWidget(self.log_card)
 

@@ -16,7 +16,7 @@ area_list:
 - area_name: 战斗结果-确定
   pc_rect:
   - 1048
-  - 910
+  - 810
   - 1268
   - 1032
   text: ''
@@ -29,7 +29,7 @@ area_list:
   - 556
   - 8
   - 1368
-  - 236
+  - 336
   text: 挑战结果
   lcs_percent: 0.5
   template_sub_dir: ''

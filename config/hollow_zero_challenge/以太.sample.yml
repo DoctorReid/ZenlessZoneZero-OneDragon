@@ -1,6 +1,11 @@
 resonium_priority:
 - 以太
+- 闪避
+- 决斗
+- 能量
+- 通用
 - 邦布 共鸣布
 auto_battle: 击破站场-强攻速切
 event_priority:
 - ''
+path_finding: 默认

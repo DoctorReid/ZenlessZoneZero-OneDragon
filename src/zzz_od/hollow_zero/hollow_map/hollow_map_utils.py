@@ -227,10 +227,11 @@ class RouteSearchRoute:
         self.distance: float = distance  # 需要前往的节点在图像上的距离
 
 
-def search_map(current_map: HollowZeroMap) -> dict[int, RouteSearchRoute]:
+def search_map(current_map: HollowZeroMap, avoid_entry_list: List[str]) -> dict[int, RouteSearchRoute]:
     """
     对当前地图进行搜索 获取前往每个节点的路径
     :param current_map:
+    :param: avoid_entry_list: 避免途经点
     :return:
     """
     if current_map is None or current_map.current_idx is None:
@@ -243,7 +244,7 @@ def search_map(current_map: HollowZeroMap) -> dict[int, RouteSearchRoute]:
                                    0, 0)
 
     # 先避开战斗搜索
-    result_1 = _bfs_search_map(current_map, [start_route], {'危机', '双重危机', '限时挑战'})
+    result_1 = _bfs_search_map(current_map, [start_route], avoid_entry_list)
     start_routes = [i for i in result_1.values()]
 
     # 在
@@ -357,10 +358,14 @@ def get_route_in_1_step_benefit(idx_2_route: dict[int, RouteSearchRoute], visite
     return target
 
 
-def get_route_in_1_step(idx_2_route: dict[int, RouteSearchRoute], visited_nodes: List[HollowZeroMapNode]) -> Optional[RouteSearchRoute]:
+def get_route_in_1_step(idx_2_route: dict[int, RouteSearchRoute],
+                        visited_nodes: List[HollowZeroMapNode],
+                        target_entry_list: Optional[List[str]] = None) -> Optional[RouteSearchRoute]:
     """
     获取1步能到的节点的路径
     :param idx_2_route:
+    :param visited_nodes: 已经去过的节点 就不会再去了
+    :param target_entry_list: 传入时限定格子类型
     :return:
     """
     target: Optional[RouteSearchRoute] = None
@@ -368,10 +373,12 @@ def get_route_in_1_step(idx_2_route: dict[int, RouteSearchRoute], visited_nodes:
         if route.step_cnt != 1:
             continue
         entry = route.node.entry
+        if target_entry_list is not None and entry.entry_name not in target_entry_list:
+            continue
 
         had_visited: bool = False
         for visited in visited_nodes:
-            if cal_utils.distance_between(route.node.pos.center, visited.pos.center) < 100:
+            if is_same_node(route.node, visited):
                 had_visited = True
                 break
 
@@ -402,7 +409,7 @@ def get_route_by_entry(idx_2_route: dict[int, RouteSearchRoute],
 
         had_visited: bool = False
         for visited in visited_nodes:
-            if cal_utils.distance_between(node.pos.center, visited.pos.center) < 100:
+            if is_same_node(node, visited):
                 had_visited = True
                 break
 
@@ -425,6 +432,8 @@ def get_route_by_direction(idx_2_route: dict[int, RouteSearchRoute], direction: 
     """
     target: Optional[RouteSearchRoute] = None
     for idx, route in idx_2_route.items():
+        if route.node.entry.entry_name in ['当前', '空白已通行', '空白未通行']:
+            continue
         if target is None:
             target = route
         elif direction == 'w' and target.node.pos.y1 > route.node.pos.y1:
@@ -443,7 +452,10 @@ def is_same_node(x: HollowZeroMapNode, y: HollowZeroMapNode) -> bool:
     """
     判断两个节点是否同一个节点
     """
-    return x.entry.entry_name == y.entry.entry_name and cal_utils.distance_between(x.pos.center, y.pos.center) < 100
+    if x is None or y is None:
+        return False
+    min_dis = min(x.pos.height, x.pos.width, y.pos.height, y.pos.width) // 2
+    return x.entry.entry_name == y.entry.entry_name and cal_utils.distance_between(x.pos.center, y.pos.center) < min_dis
 
 
 def draw_map(screen: MatLike, current_map: HollowZeroMap,

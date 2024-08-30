@@ -9,23 +9,24 @@ from zzz_od.application.random_play.random_play_app import RandomPlayApp
 from zzz_od.application.scratch_card.scratch_card_app import ScratchCardApp
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
+from zzz_od.operation.enter_game.open_and_enter_game import OpenAndEnterGame
 
 
 class ZOneDragonApp(OneDragonApp, ZApplication):
 
     def __init__(self, ctx: ZContext):
         app_id = 'zzz_one_dragon'
-        ZApplication.__init__(self, ctx, app_id)
-
+        op_to_enter_game = OpenAndEnterGame(ctx)
         app_list = [
-            EmailApp(self.ctx),
-            RandomPlayApp(self.ctx),
-            ScratchCardApp(self.ctx),
-            CoffeeApp(self.ctx),
-            ChargePlanApp(self.ctx),
-            NotoriousHuntApp(self.ctx),
-            EngagementRewardApp(self.ctx),
-            CityFundApp(self.ctx),
+            EmailApp(ctx),
+            RandomPlayApp(ctx),
+            ScratchCardApp(ctx),
+            CoffeeApp(ctx),
+            ChargePlanApp(ctx),
+            NotoriousHuntApp(ctx),
+            EngagementRewardApp(ctx),
+            CityFundApp(ctx),
         ]
 
-        OneDragonApp.__init__(self, ctx, app_id, app_list)
+        ZApplication.__init__(self, ctx, app_id)
+        OneDragonApp.__init__(self, ctx, app_id, app_list, op_to_enter_game=op_to_enter_game)

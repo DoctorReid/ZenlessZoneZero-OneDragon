@@ -14,3 +14,8 @@
     - option_name: "摧毁面前的危楼"
       desc: "资源可能受损"
     - option_name: "离开"
+
+    - option_name: "给与1个浓缩医疗"
+    - option_name: "给与1个浓缩医疗Ⅱ型"
+    - option_name: "给与1个集成补给或集成补给Ⅱ型"
+    - option_name: "还是离开吧"

@@ -1,6 +1,7 @@
 import time
 
 import difflib
+from cv2.typing import MatLike
 from typing import Optional, List, ClassVar
 
 from one_dragon.base.geometry.point import Point
@@ -26,6 +27,7 @@ from zzz_od.operation.wait_normal_world import WaitNormalWorld
 class CoffeeApp(ZApplication):
 
     STATUS_EXTRA_COFFEE: ClassVar[str] = '不占用上限的咖啡'
+    STATUS_WITHOUT_BENEFIT: ClassVar[str] = '没有增益的咖啡'
 
     def __init__(self, ctx: ZContext):
         """
@@ -210,6 +212,8 @@ class CoffeeApp(ZApplication):
             self.had_coffee_list.add(self.chosen_coffee.coffee_name)
             if self.chosen_coffee.extra:
                 return self.round_success(status=CoffeeApp.STATUS_EXTRA_COFFEE, wait=1)
+            elif self.chosen_coffee.without_benefit:
+                return self.round_success(status=CoffeeApp.STATUS_WITHOUT_BENEFIT, wait=1)
             else:
                 return self.round_success(wait=3)
         return self.round_retry(wait=1)
@@ -228,8 +232,15 @@ class CoffeeApp(ZApplication):
 
         return self.round_retry(wait=1)
 
+    @node_from(from_name='点单', status=STATUS_WITHOUT_BENEFIT)
+    @operation_node(name='无增益点单确认')
+    def without_benefit_confirm(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        return self.round_by_find_and_click_area(screen, '咖啡店', '对话框确认')
+
     @node_from(from_name='点单')
     @node_from(from_name='不占用点单确认')
+    @node_from(from_name='无增益点单确认')
     @operation_node(name='点单后跳过')
     def skip_after_order(self) -> OperationRoundResult:
         screen = self.screenshot()

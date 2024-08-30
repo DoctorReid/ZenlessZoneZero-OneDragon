@@ -4,7 +4,7 @@ from one_dragon.base.operation.application_base import Application
 from one_dragon.base.operation.application_run_record import AppRunRecord
 from one_dragon.base.operation.operation_base import OperationResult
 from zzz_od.context.zzz_context import ZContext
-from zzz_od.operation.enter_game import OpenAndEnterGame
+from zzz_od.operation.enter_game.open_and_enter_game import OpenAndEnterGame
 
 
 class ZApplication(Application):

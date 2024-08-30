@@ -1,9 +1,18 @@
+from enum import Enum
+
 import os
 import shutil
 from typing import List, Optional
 
+from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
 from one_dragon.utils import os_utils
+
+
+class InstanceRun(Enum):
+
+    RUN = ConfigItem('一条龙中运行', value=True)
+    DONT_RUN = ConfigItem('一条龙中不运行', value=False)
 
 
 class OneDragonInstance:
@@ -20,8 +29,6 @@ class OneDragonConfig(YamlConfig):
     def __init__(self):
         self.instance_list: List[OneDragonInstance] = []
         YamlConfig.__init__(self, 'zzz_one_dragon', sample=False)
-
-    def _init_after_read_file(self):
         self._init_instance_list()
 
     def _init_instance_list(self):
@@ -33,7 +40,8 @@ class OneDragonConfig(YamlConfig):
 
         self.instance_list.clear()
         for instance in instance_list:
-            self.instance_list.append(OneDragonInstance(**instance))
+            i = OneDragonInstance(**instance)
+            self.instance_list.append(i)
 
     def create_new_instance(self, first: bool) -> OneDragonInstance:
         """

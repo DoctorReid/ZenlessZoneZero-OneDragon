@@ -362,6 +362,8 @@ class BattleContext:
             future_list.append(_battle_check_executor.submit(self.check_special_attack_btn, screen, screenshot_time))
             future_list.append(_battle_check_executor.submit(self.check_ultimate_btn, screen, screenshot_time))
             future_list.append(_battle_check_executor.submit(self.check_quick_assist, screen, screenshot_time))
+            if check_distance:
+                future_list.append(_battle_check_executor.submit(self._check_distance_with_lock, screen, screenshot_time))
         else:
             future_list.append(_battle_check_executor.submit(self.check_chain_attack, screen, screenshot_time))
             check_battle_end = check_battle_end_normal_result or check_battle_end_hollow_result
@@ -370,9 +372,6 @@ class BattleContext:
                     self._check_battle_end, screen, screenshot_time,
                     check_battle_end_normal_result, check_battle_end_hollow_result
                 ))
-            if check_distance:
-                future_list.append(_battle_check_executor.submit(self._check_distance_with_lock, screen, screenshot_time))
-
         for future in future_list:
             future.add_done_callback(thread_utils.handle_future_result)
 

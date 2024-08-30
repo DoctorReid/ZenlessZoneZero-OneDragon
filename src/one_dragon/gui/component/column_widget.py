@@ -7,16 +7,16 @@ class ColumnWidget(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent=parent)
 
-        self.row_layout = QVBoxLayout(self)
+        self.v_layout = QVBoxLayout(self)
 
     def add_widget(self, widget: QWidget, stretch: int = 0, alignment: Qt.AlignmentFlag = Qt.AlignmentFlag.AlignTop):
-        self.row_layout.addWidget(widget, stretch=stretch, alignment=alignment)
+        self.v_layout.addWidget(widget, stretch=stretch, alignment=alignment)
 
     def add_stretch(self, stretch: int):
-        self.row_layout.addStretch(stretch)
+        self.v_layout.addStretch(stretch)
 
     def clear_widgets(self) -> None:
-        while self.row_layout.count():
-            child = self.row_layout.takeAt(0)
+        while self.v_layout.count():
+            child = self.v_layout.takeAt(0)
             if child.widget():
                 child.widget().deleteLater()

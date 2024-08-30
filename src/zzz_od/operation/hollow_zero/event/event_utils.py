@@ -63,40 +63,24 @@ def check_event_text_and_run(op: ZOperation, screen: MatLike, handlers: List[Eve
         ocr_result_list.append(ocr_result)
         mrl_list.append(mrl)
 
+    handler_str_list = [gt(handler.target_cn) for handler in handlers]
+
+    # 由于选项和识别的文本都是多个，多对多的情况下需要双向匹配才算成功匹配
     for handler in handlers:
-        results = difflib.get_close_matches(gt(handler.target_cn), ocr_result_list, n=1)
+        handler_event_str = gt(handler.target_cn)
+        results = difflib.get_close_matches(handler_event_str, ocr_result_list, n=1)
 
         if results is None or len(results) == 0:
             continue
-        else:
-            idx = ocr_result_list.index(results[0])
-            ocr_result = ocr_result_list[idx]
-            mrl = mrl_list[idx]
-            if not str_utils.find_by_lcs(gt(handler.target_cn), ocr_result, percent=handler.lcs_percent):
-                continue
 
-        if handler.is_event_mark:
-            if event_mark_handler is None:
-                event_mark_handler = handler
-                event_mark_mrl = mrl
-        elif target_handler is None:
-            target_handler = handler
-            target_mrl = mrl
-
-    if target_handler is not None:
-        log.debug('识别事件选项 %s' % target_handler.target_cn)
-        return run_event_handler(op, target_handler, area, target_mrl.max)
-
-    for handler in handlers:
-        mrl = None
-        for idx in range(len(ocr_result_list)):
-            ocr_result = ocr_result_list[idx]
-            if str_utils.find_by_lcs(gt(handler.target_cn), ocr_result, percent=handler.lcs_percent):
-                mrl = mrl_list[idx]
-                break
-
-        if mrl is None:
+        ocr_result = results[0]
+        # 同时需要反向匹配到一样的
+        results2 = difflib.get_close_matches(ocr_result, handler_str_list, n=1)
+        if results2 is None or len(results2) == 0 or results2[0] != handler_event_str:
             continue
+
+        ocr_result_idx = ocr_result_list.index(ocr_result)
+        mrl = mrl_list[ocr_result_idx]
 
         if handler.is_event_mark:
             if event_mark_handler is None:
@@ -110,6 +94,7 @@ def check_event_text_and_run(op: ZOperation, screen: MatLike, handlers: List[Eve
         log.debug('识别事件选项 %s' % target_handler.target_cn)
         return run_event_handler(op, target_handler, area, target_mrl.max)
     elif event_mark_handler is not None:
+        log.debug('识别事件无选项 %s' % event_mark_handler.target_cn)
         return click_empty(op)
     else:
         return op.round_retry('未匹配合适的处理方法', wait=1)
