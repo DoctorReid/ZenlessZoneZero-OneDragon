@@ -42,7 +42,7 @@ class SettingEnvInterface(VerticalScrollInterface):
         basic_group = SettingCardGroup(gt('基础', 'ui'))
 
         self.theme_opt = ComboBoxSettingCard(
-            icon=FluentIcon.CONSTRACT, title='界面主题', content='有没有大神提供个好配色',
+            icon=FluentIcon.CONSTRACT, title='界面主题',
             options_enum=ThemeEnum
         )
         self.theme_opt.value_changed.connect(self._on_theme_changed)
@@ -178,7 +178,7 @@ class SettingEnvInterface(VerticalScrollInterface):
         """
         config_item = get_config_item_from_enum(ThemeEnum, value)
         self.ctx.env_config.theme = config_item.value
-        setTheme(Theme[config_item.value.upper()])
+        setTheme(Theme[config_item.value.upper()],lazy=True)
 
     def _on_debug_changed(self, value: bool):
         """

@@ -2,7 +2,7 @@ import os
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QPixmap, QPainter, QPainterPath, QFont, QColor, QLinearGradient, QBrush
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QSpacerItem, QSizePolicy
-from qfluentwidgets import FluentIcon, InfoBar, InfoBarPosition, Dialog
+from qfluentwidgets import FluentIcon, InfoBar, InfoBarPosition, Dialog, ComboBox
 
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.link_card import LinkCardView
@@ -192,7 +192,7 @@ class HomeInterface(VerticalScrollInterface):
         # 创建横幅小部件并添加到布局中
         banner = BannerWidget()
         content_layout.addWidget(banner)
-
+        
         # 初始化父类并设置导航相关属性
         super().__init__(
             ctx=ctx, parent=parent,
