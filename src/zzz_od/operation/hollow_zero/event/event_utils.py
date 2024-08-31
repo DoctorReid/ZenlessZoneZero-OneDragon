@@ -26,17 +26,21 @@ def check_event_at_right(op: ZOperation, screen: MatLike) -> Optional[str]:
     part = cv2_utils.crop_image_only(screen, area.rect)
     ocr_result_map = op.ctx.ocr.run_ocr(part)
 
-    events: List[HallowZeroEvent] = [] + op.ctx.hollow.data_service.normal_events
-
+    event_name_list = []
+    event_name_gt_list = []
+    for event in op.ctx.hollow.data_service.normal_events:
+        event_name_list.append(event.event_name)
+        event_name_gt_list.append(gt(event.event_name))
     for event_enum in HollowZeroSpecialEvent:
         event = event_enum.value
-        if event.on_the_right:
-            events.append(event)
+        event_name_list.append(event.event_name)
+        event_name_gt_list.append(gt(event.event_name))
 
-    for ocr_result in ocr_result_map.keys():
-        for event in events:
-            if str_utils.find_by_lcs(gt(event.event_name), ocr_result, percent=event.lcs_percent):
-                return event.event_name
+    ocr_result_list = [i for i in ocr_result_map.keys()]
+    event_idx, _ = str_utils.find_most_similar(event_name_gt_list, ocr_result_list)
+
+    if event_idx is not None:
+        return event_name_list[event_idx]
 
 
 def check_event_text_and_run(op: ZOperation, screen: MatLike, handlers: List[EventOcrResultHandler]) -> OperationRoundResult:
@@ -97,6 +101,7 @@ def check_event_text_and_run(op: ZOperation, screen: MatLike, handlers: List[Eve
         log.debug('识别事件无选项 %s' % event_mark_handler.target_cn)
         return click_empty(op)
     else:
+        click_empty(op)  # 做一个兜底点击 感觉可以跟上面合并
         return op.round_retry('未匹配合适的处理方法', wait=1)
 
 

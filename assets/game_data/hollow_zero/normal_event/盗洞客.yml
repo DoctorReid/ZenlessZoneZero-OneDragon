@@ -7,7 +7,7 @@
 
 
 - entry_name: "盗洞客"
-  event_name: "事件博命盗洞客"
+  event_name: "事件搏命盗洞客"
   options:
     - option_name: "玩石头剪子布"
     - option_name: "我不喜欢合作"

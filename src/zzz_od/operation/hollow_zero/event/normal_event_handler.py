@@ -39,7 +39,7 @@ class NormalEventHandler(ZOperation):
 
     @operation_node(name='画面识别', is_start_node=True)
     def check_screen(self) -> OperationRoundResult:
-        screen = self.screenshot()
+        screen = self.screenshot()  # TODO 顺便识别是否同一个事件 不是的话就可以退出
         return event_utils.check_event_text_and_run(self, screen, self._handlers)
 
 
@@ -55,7 +55,7 @@ def __debug_opts():
     from zzz_od.operation.hollow_zero.hollow_runner import HollowRunner
     op = HollowRunner(ctx)
     from one_dragon.utils import debug_utils
-    screen = debug_utils.get_debug_image('_1724631206698')
+    screen = debug_utils.get_debug_image('_1725003310658')
     # from one_dragon.utils import os_utils
     # import os
     # from one_dragon.utils import cv2_utils
