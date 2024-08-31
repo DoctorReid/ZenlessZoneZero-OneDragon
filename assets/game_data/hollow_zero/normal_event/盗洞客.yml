@@ -12,3 +12,12 @@
     - option_name: "玩石头剪子布"
     - option_name: "我不喜欢合作"
     - option_name: "跟随他前进"
+
+- entry_name: "盗洞客"
+  event_name: "石头剪子布高手"
+  options:
+    - option_name: "石头"
+    - option_name: "剪子"
+    - option_name: "布"
+    - option_name: "不玩了"
+
