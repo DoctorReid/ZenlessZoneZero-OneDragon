@@ -35,6 +35,10 @@ def check_screen(op: ZOperation, screen: MatLike) -> Optional[str]:
     if complete is not None:
         return complete
 
+    full_in_bag = event_utils.check_full_in_bag(op, screen)
+    if full_in_bag is not None:
+        return full_in_bag
+
 
 def check_battle_screen(op: ZOperation, screen: MatLike) -> Optional[str]:
     result = op.round_by_find_area(screen, '战斗画面', '按键-普通攻击')

@@ -80,3 +80,5 @@ class HollowZeroSpecialEvent(Enum):
 
     IN_BATTLE = HallowZeroEvent('战斗画面')
     MISSION_COMPLETE = HallowZeroEvent('副本通关')
+
+    FULL_IN_BAG = HallowZeroEvent('背包已满')

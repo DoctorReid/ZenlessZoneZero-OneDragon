@@ -244,3 +244,14 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 背包已满
+  pc_rect:
+  - 826
+  - 344
+  - 1092
+  - 454
+  text: 背包已满
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
