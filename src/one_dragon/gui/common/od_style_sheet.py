@@ -1,10 +1,9 @@
 from enum import Enum
+import os
 
 from qfluentwidgets import StyleSheetBase, Theme, qconfig
 
-
-# 样式表列表
-OdStyleSheetList = []
+from one_dragon.utils import os_utils
 
 # 注册样式表
 class OdStyleSheet(StyleSheetBase, Enum):
@@ -21,5 +20,8 @@ class OdStyleSheet(StyleSheetBase, Enum):
     NAVIGATION_INTERFACE = "navigation_interface"
 
     def path(self, theme=Theme.AUTO):
-        theme = qconfig.theme if theme == Theme.AUTO else theme
-        return f"./assets/ui/qss/{theme.value.lower()}/{self.value}.qss"
+            theme = qconfig.theme if theme == Theme.AUTO else theme
+            return os.path.join(
+                os_utils.get_path_under_work_dir('assets', 'ui', 'qss', theme.value.lower()),
+                f"{self.value}.qss"
+            )

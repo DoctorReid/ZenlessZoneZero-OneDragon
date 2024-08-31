@@ -53,14 +53,14 @@ class AppWindow(FluentWindowBase):
         OdStyleSheet.TITLE_BAR.apply(self.titleBar)
 
         # DEBUG       
-        print("————APP WINDOW STYLE————")                 
-        print(self.styleSheet())         
-        print("————NAVIGATION INTERFACE STYLE————")                 
-        print(self.navigationInterface.styleSheet())    
-        print("————STACKED WIDGET STYLE————")                 
-        print(self.stackedWidget.styleSheet())    
-        print("————TITLE BAR STYLE————")                 
-        print(self.titleBar.styleSheet())    
+        # print("————APP WINDOW STYLE————")                 
+        # print(self.styleSheet())         
+        # print("————NAVIGATION INTERFACE STYLE————")                 
+        # print(self.navigationInterface.styleSheet())    
+        # print("————STACKED WIDGET STYLE————")                 
+        # print(self.stackedWidget.styleSheet())    
+        # print("————TITLE BAR STYLE————")                 
+        # print(self.titleBar.styleSheet())    
 
         # 开启磨砂效果
         # self.setAeroEffectEnabled(True)
