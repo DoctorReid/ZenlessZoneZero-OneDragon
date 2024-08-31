@@ -66,3 +66,16 @@ class SwitchAccount(ZOperation):
     def enter_game(self) -> OperationRoundResult:
         op = EnterGame(self.ctx)
         return self.round_by_op(op.execute())
+
+
+def __debug():
+    ctx = ZContext()
+    ctx.init_by_config()
+    ctx.ocr.init_model()
+    ctx.start_running()
+    op = SwitchAccount(ctx)
+    op.execute()
+
+
+if __name__ == '__main__':
+    __debug()

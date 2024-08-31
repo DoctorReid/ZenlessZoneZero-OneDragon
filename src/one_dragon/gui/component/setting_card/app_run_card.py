@@ -98,3 +98,6 @@ class AppRunCard(MultiPushSettingCard):
         self.move_up_btn.setDisabled(arg__1)
         self.run_btn.setDisabled(arg__1)
         self.switch_btn.setDisabled(arg__1)
+
+    def set_switch_on(self, on: bool) -> None:
+        self.switch_btn.setChecked(on)

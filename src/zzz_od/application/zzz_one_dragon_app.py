@@ -1,3 +1,5 @@
+from typing import List
+
 from one_dragon.base.operation.one_dragon_app import OneDragonApp
 from zzz_od.application.charge_plan.charge_plan_app import ChargePlanApp
 from zzz_od.application.city_fund.city_fund_app import CityFundApp
@@ -19,18 +21,20 @@ class ZOneDragonApp(OneDragonApp, ZApplication):
         app_id = 'zzz_one_dragon'
         op_to_enter_game = OpenAndEnterGame(ctx)
         op_to_switch_account = SwitchAccount(ctx)
-        app_list = [
-            EmailApp(ctx),
-            RandomPlayApp(ctx),
-            ScratchCardApp(ctx),
-            CoffeeApp(ctx),
-            ChargePlanApp(ctx),
-            NotoriousHuntApp(ctx),
-            EngagementRewardApp(ctx),
-            CityFundApp(ctx),
-        ]
 
         ZApplication.__init__(self, ctx, app_id)
-        OneDragonApp.__init__(self, ctx, app_id, app_list,
+        OneDragonApp.__init__(self, ctx, app_id,
                               op_to_enter_game=op_to_enter_game,
                               op_to_switch_account=op_to_switch_account)
+
+    def get_app_list(self) -> List[ZApplication]:
+        return [
+            EmailApp(self.ctx),
+            RandomPlayApp(self.ctx),
+            ScratchCardApp(self.ctx),
+            CoffeeApp(self.ctx),
+            ChargePlanApp(self.ctx),
+            NotoriousHuntApp(self.ctx),
+            EngagementRewardApp(self.ctx),
+            CityFundApp(self.ctx),
+        ]

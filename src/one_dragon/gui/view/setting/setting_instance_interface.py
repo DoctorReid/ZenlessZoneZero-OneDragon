@@ -41,6 +41,7 @@ class InstanceSettingCard(MultiPushSettingCard):
 
         self.active_btn = PushButton(text='启用')
         self.active_btn.clicked.connect(self._on_active_clicked)
+        self.active_btn.setDisabled(self.instance.active)
         self.login_btn = PushButton(text='登录')
         self.login_btn.clicked.connect(self._on_login_clicked)
         self.delete_btn = ToolButton(FluentIcon.DELETE, parent=None)
@@ -85,8 +86,10 @@ class InstanceSettingCard(MultiPushSettingCard):
         检查是否现在启用的 更新显示
         :return:
         """
-        self.instance.active = active_idx == self.instance.idx
+        active = active_idx == self.instance.idx
+        self.instance.active = active
         self.update_title()
+        self.active_btn.setDisabled(active)
 
 
 class SettingInstanceInterface(VerticalScrollInterface):

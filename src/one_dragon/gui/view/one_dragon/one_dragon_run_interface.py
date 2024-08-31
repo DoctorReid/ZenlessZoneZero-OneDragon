@@ -37,9 +37,7 @@ class ContextEventSignal(QObject):
 
 class OneDragonRunInterface(VerticalScrollInterface):
 
-    def __init__(self, ctx: OneDragonContext, one_dragon_app: OneDragonApp, parent=None):
-        self.one_dragon_app: OneDragonApp = one_dragon_app
-
+    def __init__(self, ctx: OneDragonContext, parent=None):
         VerticalScrollInterface.__init__(
             self,
             ctx=ctx,
@@ -51,6 +49,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
         )
 
         self._app_run_cards: List[AppRunCard] = []
+        self._context_event_signal = ContextEventSignal()
 
     def get_content_widget(self) -> QWidget:
         """
@@ -102,7 +101,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
         run_group = SettingCardGroup(gt('运行设置', 'ui'))
         layout.addWidget(run_group)
 
-        self.instance_run_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='选择实例',
+        self.instance_run_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='运行实例',
                                                     options_enum=InstanceRun)
         run_group.addSettingCard(self.instance_run_opt)
 
@@ -146,12 +145,13 @@ class OneDragonRunInterface(VerticalScrollInterface):
         """
         if not self.ctx.is_context_stop:  # 不是停止状态不更新
             return
-        self.app_list = self.one_dragon_app.get_one_dragon_apps_in_order()
+        self.app_list = self.get_one_dragon_app().get_one_dragon_apps_in_order()
         app_run_list = self.ctx.one_dragon_app_config.app_run_list
 
         if len(self._app_run_cards) > 0:  # 之前已经添加了组件了 这次只是调整顺序
             for idx, app in enumerate(self.app_list):
                 self._app_run_cards[idx].set_app(app)
+                self._app_run_cards[idx].set_switch_on(app.app_id in app_run_list)
         else:
             for app in self.app_list:
                 app_run_card = AppRunCard(app, switch_on=app.app_id in app_run_list)
@@ -179,13 +179,13 @@ class OneDragonRunInterface(VerticalScrollInterface):
 
         self.instance_run_opt.value_changed.connect(self._on_instance_run_changed)
 
-        ContextEventSignal.instance_changed.connect(self._on_instance_changed)
+        self._context_event_signal.instance_changed.connect(self._on_instance_changed)
 
     def on_interface_hidden(self) -> None:
         VerticalScrollInterface.on_interface_hidden(self)
         self.log_card.set_update_log(False)
         self.ctx.unlisten_all_event(self)
-        ContextEventSignal.instance_changed.disconnect(self._on_instance_changed)
+        self._context_event_signal.instance_changed.disconnect(self._on_instance_changed)
 
     def _on_after_done_changed(self, value: str) -> None:
         """
@@ -202,7 +202,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
         self.app_runner.start()
 
     def _on_start_clicked(self) -> None:
-        self.run_app(self.one_dragon_app)
+        self.run_app(self.get_one_dragon_app())
 
     def _on_stop_clicked(self) -> None:
         self.ctx.stop_running()
@@ -213,7 +213,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
         """
         key: str = event.data
         if key == self.ctx.key_start_running and self.ctx.is_context_stop:
-            self.run_app(self.one_dragon_app)
+            self.run_app(self.get_one_dragon_app())
 
     def _on_context_state_changed(self) -> None:
         """
@@ -275,20 +275,26 @@ class OneDragonRunInterface(VerticalScrollInterface):
         """
         self.ctx.one_dragon_app_config.set_app_run(app_id, value)
 
-    def _on_instance_event(self) -> None:
+    def _on_instance_event(self, event) -> None:
         """
         实例变更 这是context的事件 不能改UI
         :return:
         """
-        ContextEventSignal.instance_changed.emit()
+        self._context_event_signal.instance_changed.emit()
 
     def _on_instance_changed(self) -> None:
         """
         实例变更 这是signal 可以改ui
         :return:
         """
+        self.app_list = self.get_one_dragon_app().get_one_dragon_apps_in_order()
         for idx, app in enumerate(self.app_list):
             self._app_run_cards[idx].set_app(app)
+            app_run_list = self.ctx.one_dragon_app_config.app_run_list
+            self._app_run_cards[idx].set_switch_on(app.app_id in app_run_list)
 
     def _on_instance_run_changed(self, idx: int, value: str) -> None:
         self.ctx.one_dragon_config.instance_run = value
+
+    def get_one_dragon_app(self) -> OneDragonApp:
+        pass

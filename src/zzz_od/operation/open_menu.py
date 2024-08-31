@@ -32,9 +32,15 @@ class OpenMenu(ZOperation):
         """
         screen = self.screenshot()
         area = self.ctx.screen_loader.get_area('菜单', '底部列表')
+        result = self.round_by_ocr(screen, '更多', area=area)
+        if result.is_success:
+            return self.round_success()
 
-        return self.round_by_ocr(screen, '更多', area=area,
-                                 retry_wait=0.5)
+        result = self.round_by_find_area(screen, '大世界', '信息')
+        if result.is_success:
+            return self.round_success(result.status)
+
+        return self.round_retry(wait=1)
 
     @node_from(from_name='画面识别', success=False)
     @operation_node(name='返回大世界')
@@ -42,6 +48,7 @@ class OpenMenu(ZOperation):
         op = BackToNormalWorld(self.ctx)
         return self.round_by_op(op.execute())
 
+    @node_from(from_name='画面识别', status='信息')
     @node_from(from_name='返回大世界')
     @operation_node(name='点击菜单')
     def click_menu(self) -> OperationRoundResult:

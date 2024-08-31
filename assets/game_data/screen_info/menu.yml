@@ -35,3 +35,14 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 更多登出确认
+  pc_rect:
+  - 1036
+  - 604
+  - 1226
+  - 652
+  text: 确认
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
