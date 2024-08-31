@@ -43,6 +43,7 @@ class HollowRunner(ZOperation):
 
             HollowZeroSpecialEvent.RESONIUM_STORE_0.value.event_name: BambooMerchant,
             HollowZeroSpecialEvent.RESONIUM_STORE_1.value.event_name: BambooMerchant,
+            HollowZeroSpecialEvent.RESONIUM_STORE_2.value.event_name: BambooMerchant,
 
             HollowZeroSpecialEvent.RESONIUM_CHOOSE.value.event_name: ChooseResonium,
             HollowZeroSpecialEvent.RESONIUM_CONFIRM_1.value.event_name: ConfirmResonium,
