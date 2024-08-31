@@ -3,6 +3,7 @@ from enum import Enum
 from pynput import keyboard, mouse
 from typing import Optional
 
+from one_dragon.base.config.one_dragon_app_config import OneDragonAppConfig
 from one_dragon.base.config.one_dragon_config import OneDragonConfig
 from one_dragon.base.controller.controller_base import ControllerBase
 from one_dragon.base.controller.pc_button.pc_button_listener import PcButtonListener
@@ -51,6 +52,12 @@ class OneDragonContext(ContextEventBus):
         self.project_config: ProjectConfig = ProjectConfig()
         self.env_config: EnvConfig = EnvConfig()
         self.one_dragon_config: OneDragonConfig = OneDragonConfig()
+
+        if self.one_dragon_config.current_active_instance is None:
+            self.one_dragon_config.create_new_instance(True)
+        self.current_instance_idx = self.one_dragon_config.current_active_instance.idx
+
+        self.one_dragon_app_config: OneDragonAppConfig = OneDragonAppConfig(self.current_instance_idx)
 
         self.git_service: GitService = GitService(self.project_config, self.env_config)
         self.python_service: PythonService = PythonService(self.project_config, self.env_config, self.git_service)
@@ -179,3 +186,13 @@ class OneDragonContext(ContextEventBus):
             self.controller.game_win.active()
         img = self.controller.screenshot(independent=True)
         debug_utils.save_debug_image(img)
+
+    def switch_instance(self, instance_idx: int) -> None:
+        """
+        切换实例
+        :param instance_idx:
+        :return:
+        """
+        self.one_dragon_config.active_instance(instance_idx)
+        self.current_instance_idx = self.one_dragon_config.current_active_instance.idx
+        self.one_dragon_app_config = OneDragonAppConfig(self.current_instance_idx)

@@ -34,10 +34,7 @@ class EmailApp(ZApplication):
 
     @node_from(from_name='打开菜单')
     @operation_node(name='点击邮件')
-    def click_more(self) -> OperationRoundResult:
-        """
-        点击更多
-        """
+    def click_email(self) -> OperationRoundResult:
         screen = self.screenshot()
         area = self.ctx.screen_loader.get_area('菜单', '底部列表')
         return self.round_by_ocr_and_click(screen, '邮件', area=area,

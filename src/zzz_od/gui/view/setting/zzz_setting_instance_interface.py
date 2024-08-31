@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, ComboBox, LineEdit, PushButton, \
     ToolButton, PrimaryPushButton
 
-from one_dragon.base.config.one_dragon_config import OneDragonInstance, InstanceRun
+from one_dragon.base.config.one_dragon_config import OneDragonInstance, RunInOneDragonApp
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface

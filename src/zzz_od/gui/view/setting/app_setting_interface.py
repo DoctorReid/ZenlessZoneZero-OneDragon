@@ -23,4 +23,4 @@ class AppSettingInterface(PivotNavigatorInterface):
         self.add_sub_interface(SettingGameInterface(ctx=self.ctx))
         self.add_sub_interface(SettingYoloInterface(ctx=self.ctx))
         self.add_sub_interface(SettingEnvInterface(ctx=self.ctx))
-        # self.add_sub_interface(ZSettingInstanceInterface(ctx=self.ctx))
+        self.add_sub_interface(ZSettingInstanceInterface(ctx=self.ctx))

@@ -268,7 +268,7 @@ class SettingGameInterface(VerticalScrollInterface):
             self.game_region_opt.setValue(game_region.value)
         self.game_path_opt.setContent(self.ctx.game_config.game_path)
         self.game_account_opt.setValue(self.ctx.game_config.account)
-        self.game_path_opt.setValue(self.ctx.game_config.password)
+        self.game_password_opt.setValue(self.ctx.game_config.password)
 
         self.key_normal_attack_opt.setValue(self.ctx.game_config.key_normal_attack)
         self.key_dodge_opt.setValue(self.ctx.game_config.key_dodge)

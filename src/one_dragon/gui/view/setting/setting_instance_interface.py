@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, ComboBox, LineEdit, PushButton, \
     ToolButton, PrimaryPushButton
 
-from one_dragon.base.config.one_dragon_config import OneDragonInstance, InstanceRun
+from one_dragon.base.config.one_dragon_config import OneDragonInstance, RunInOneDragonApp
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
@@ -29,7 +29,7 @@ class InstanceSettingCard(MultiPushSettingCard):
         self.run_opt = ComboBox()
         run_idx = 0
         target_idx = 0
-        for opt_enum in InstanceRun:
+        for opt_enum in RunInOneDragonApp:
             opt = opt_enum.value
             self.run_opt.addItem(text=opt.label, userData=opt.value)
             if opt.value == self.instance.active_in_od:
@@ -146,7 +146,7 @@ class SettingInstanceInterface(VerticalScrollInterface):
         self.ctx.one_dragon_config.update_instance(instance)
 
     def _on_instance_active(self, idx: int) -> None:
-        self.ctx.one_dragon_config.active_instance(idx)
+        self.ctx.switch_instance(idx)
 
         for instance_card in self.instance_card_list:
             instance_card.check_active(idx)

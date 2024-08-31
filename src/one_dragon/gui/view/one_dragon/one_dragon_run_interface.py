@@ -1,10 +1,11 @@
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QObject, Signal
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
 from enum import Enum
 from qfluentwidgets import FluentIcon, SettingCardGroup, SubtitleLabel, PrimaryPushButton, PushButton
 from typing import List
 
 from one_dragon.base.config.config_item import ConfigItem
+from one_dragon.base.config.one_dragon_config import InstanceRun
 from one_dragon.base.operation.application_base import Application, ApplicationEventId
 from one_dragon.base.operation.context_event_bus import ContextEventItem
 from one_dragon.base.operation.one_dragon_app import OneDragonApp
@@ -24,6 +25,14 @@ class AfterDoneOpEnum(Enum):
     NONE = ConfigItem('无', 'none')
     CLOSE_GAME = ConfigItem('关闭游戏', 'close_game')
     SHUTDOWN = ConfigItem('关机', 'shutdown')
+
+
+class ContextEventSignal(QObject):
+
+    instance_changed = Signal()
+
+    def __init__(self):
+        QObject.__init__(self)
 
 
 class OneDragonRunInterface(VerticalScrollInterface):
@@ -93,6 +102,10 @@ class OneDragonRunInterface(VerticalScrollInterface):
         run_group = SettingCardGroup(gt('运行设置', 'ui'))
         layout.addWidget(run_group)
 
+        self.instance_run_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='选择实例',
+                                                    options_enum=InstanceRun)
+        run_group.addSettingCard(self.instance_run_opt)
+
         self.after_done_opt = ComboBoxSettingCard(icon=FluentIcon.CALENDAR, title='结束后',
                                                   options_enum=AfterDoneOpEnum)
         self.after_done_opt.value_changed.connect(self._on_after_done_changed)
@@ -134,7 +147,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
         if not self.ctx.is_context_stop:  # 不是停止状态不更新
             return
         self.app_list = self.one_dragon_app.get_one_dragon_apps_in_order()
-        app_run_list = self.ctx.one_dragon_config.app_run_list
+        app_run_list = self.ctx.one_dragon_app_config.app_run_list
 
         if len(self._app_run_cards) > 0:  # 之前已经添加了组件了 这次只是调整顺序
             for idx, app in enumerate(self.app_list):
@@ -153,15 +166,26 @@ class OneDragonRunInterface(VerticalScrollInterface):
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)
         self._init_app_list()
+
         self.log_card.set_update_log(True)
         self.ctx.listen_event(ContextKeyboardEventEnum.PRESS.value, self._on_key_press)
         self.ctx.listen_event(ApplicationEventId.APPLICATION_START.value, self._on_app_state_changed)
         self.ctx.listen_event(ApplicationEventId.APPLICATION_STOP.value, self._on_app_state_changed)
+        self.ctx.listen_event(OneDragonApp.EVENT_SWITCH, self._on_instance_event)
+
+        self.instance_run_opt.value_changed.disconnect(self._on_instance_run_changed)
+
+        self.instance_run_opt.setValue(self.ctx.one_dragon_config.instance_run)
+
+        self.instance_run_opt.value_changed.connect(self._on_instance_run_changed)
+
+        ContextEventSignal.instance_changed.connect(self._on_instance_changed)
 
     def on_interface_hidden(self) -> None:
         VerticalScrollInterface.on_interface_hidden(self)
         self.log_card.set_update_log(False)
         self.ctx.unlisten_all_event(self)
+        ContextEventSignal.instance_changed.disconnect(self._on_instance_changed)
 
     def _on_after_done_changed(self, value: str) -> None:
         """
@@ -229,7 +253,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
         :param app_id:
         :return:
         """
-        self.ctx.one_dragon_config.move_up_app(app_id)
+        self.ctx.one_dragon_app_config.move_up_app(app_id)
         self._init_app_list()
 
     def _on_app_card_run(self, app_id: str) -> None:
@@ -249,4 +273,22 @@ class OneDragonRunInterface(VerticalScrollInterface):
         :param value:
         :return:
         """
-        self.ctx.one_dragon_config.set_app_run(app_id, value)
+        self.ctx.one_dragon_app_config.set_app_run(app_id, value)
+
+    def _on_instance_event(self) -> None:
+        """
+        实例变更 这是context的事件 不能改UI
+        :return:
+        """
+        ContextEventSignal.instance_changed.emit()
+
+    def _on_instance_changed(self) -> None:
+        """
+        实例变更 这是signal 可以改ui
+        :return:
+        """
+        for idx, app in enumerate(self.app_list):
+            self._app_run_cards[idx].set_app(app)
+
+    def _on_instance_run_changed(self, idx: int, value: str) -> None:
+        self.ctx.one_dragon_config.instance_run = value

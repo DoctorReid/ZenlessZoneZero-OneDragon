@@ -1,23 +1,29 @@
 from typing import List, Optional, ClassVar
 
+from one_dragon.base.config.one_dragon_config import OneDragonInstance, InstanceRun
 from one_dragon.base.operation.application_base import Application
 from one_dragon.base.operation.application_run_record import AppRunRecord
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.base.operation.operation import Operation
 from one_dragon.base.operation.operation_base import OperationResult
+from one_dragon.base.operation.operation_edge import node_from
+from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
-from one_dragon.base.operation.operation_node import OperationNode
 from one_dragon.utils.i18_utils import gt
 
 
 class OneDragonApp(Application):
 
+    EVENT_SWITCH: ClassVar[str] = '切换实例'
+
     STATUS_ALL_DONE: ClassVar[str] = '全部结束'
     STATUS_NEXT: ClassVar[str] = '下一个'
+    STATUS_NO_LOGIN: ClassVar[str] = '下一个'
 
     def __init__(self, ctx: OneDragonContext, app_id: str,
                  app_list: List[Application],
-                 op_to_enter_game: Optional[Operation] = None,):
+                 op_to_enter_game: Optional[Operation] = None,
+                 op_to_switch_account: Optional[Operation] = None):
         Application.__init__(
             self,
             ctx, app_id,
@@ -28,16 +34,9 @@ class OneDragonApp(Application):
         self.app_list: List[Application] = app_list
         self._to_run_app_list: List[Application] = []  # 需要执行的app列表 有序
         self._current_app_idx: int = 0  # 当前运行的app 下标
-
-    def add_edges_and_nodes(self) -> None:
-        """
-        初始化前 添加边和节点 由子类实行
-        :return:
-        """
-        check_app = OperationNode('检测任务状态', self.check_app)
-        run_app = OperationNode('运行任务', self.run_app)
-        self.add_edge(check_app, run_app)
-        self.add_edge(run_app, run_app, status=OneDragonApp.STATUS_NEXT)
+        self._instance_list: List[OneDragonInstance] = []  # 需要运行的实例
+        self._instance_idx: int = 0  # 当前运行的实例下标
+        self._op_to_switch_account: Operation = op_to_switch_account  # 切换账号的op
 
     def handle_init(self) -> None:
         """
@@ -48,13 +47,19 @@ class OneDragonApp(Application):
             app.init_context_before_start = False
             app.stop_context_after_stop = False
 
+        if self.ctx.one_dragon_config.instance_run == InstanceRun.ALL.value.value:
+            self._instance_list = [i for i in self.ctx.one_dragon_config.instance_list if i.active_in_od]
+        else:
+            self._instance_list = [self.ctx.one_dragon_config.current_active_instance]
+        self._instance_idx = 0
+
     def get_one_dragon_apps_in_order(self) -> List[Application]:
         """
         按运行顺序配置 返回需要在一条龙中运行的app
         :return:
         """
         all_apps = self.app_list
-        app_orders = self.ctx.one_dragon_config.app_order
+        app_orders = self.ctx.one_dragon_app_config.app_order
 
         result_list: List[Application] = []
         # 按顺序加入
@@ -71,7 +76,7 @@ class OneDragonApp(Application):
 
         # 每次都更新配置
         new_app_orders = [app.app_id for app in result_list]
-        self.ctx.one_dragon_config.app_order = new_app_orders
+        self.ctx.one_dragon_app_config.app_order = new_app_orders
 
         return result_list
 
@@ -87,6 +92,8 @@ class OneDragonApp(Application):
 
         return None
 
+    @node_from(from_name='切换账后后处理', status=STATUS_NEXT)  # 切换实例后重新开始
+    @operation_node(name='检测任务状态', is_start_node=True)
     def check_app(self) -> OperationRoundResult:
         """
         找出需要运行的app
@@ -96,7 +103,7 @@ class OneDragonApp(Application):
 
         self._to_run_app_list = []
         for app in order_app_list:
-            if app.app_id not in self.ctx.one_dragon_config.app_run_list:
+            if app.app_id not in self.ctx.one_dragon_app_config.app_run_list:
                 continue
             if app.run_record.run_status_under_now == AppRunRecord.STATUS_SUCCESS:
                 continue
@@ -106,6 +113,9 @@ class OneDragonApp(Application):
 
         return self.round_success()
 
+    @node_from(from_name='检测任务状态')
+    @node_from(from_name='运行任务', status=STATUS_NEXT)
+    @operation_node(name='运行任务')
     def run_app(self) -> OperationRoundResult:
         """
         运行任务
@@ -119,6 +129,34 @@ class OneDragonApp(Application):
         self._current_app_idx += 1
 
         return self.round_success(status=OneDragonApp.STATUS_NEXT)
+
+    @node_from(from_name='运行任务')
+    @operation_node(name='切换实例配置')
+    def switch_instance(self) -> OperationRoundResult:
+        self._instance_idx += 1
+        if self._instance_idx >= len(self._instance_list):
+            self._instance_idx = 0
+
+        self.ctx.switch_instance(self._instance_list[self._instance_idx].idx)
+        self.ctx.dispatch_event(OneDragonApp.EVENT_SWITCH)
+
+        return self.round_success()
+
+    @node_from(from_name='切换实例配置')
+    @operation_node(name='切换账号')
+    def switch_account(self) -> OperationRoundResult:
+        if self._op_to_switch_account is None:
+            return self.round_fail('未实现切换账号')
+        else:
+            return self.round_by_op(self._op_to_switch_account.execute())
+
+    @node_from(from_name='切换账号')
+    @operation_node(name='切换账后后处理')
+    def after_switch_account(self) -> OperationRoundResult:
+        if self._instance_idx == 0:  # 已经完成一轮了
+            return self.round_success(OneDragonApp.STATUS_ALL_DONE)
+        else:
+            return self.round_success(OneDragonApp.STATUS_NEXT)
 
     def _after_operation_done(self, result: OperationResult):
         Application._after_operation_done(self, result)

@@ -1,7 +1,6 @@
-from enum import Enum
-
 import os
 import shutil
+from enum import Enum
 from typing import List, Optional
 
 from one_dragon.base.config.config_item import ConfigItem
@@ -9,7 +8,7 @@ from one_dragon.base.config.yaml_config import YamlConfig
 from one_dragon.utils import os_utils
 
 
-class InstanceRun(Enum):
+class RunInOneDragonApp(Enum):
 
     RUN = ConfigItem('一条龙中运行', value=True)
     DONT_RUN = ConfigItem('一条龙中不运行', value=False)
@@ -22,6 +21,12 @@ class OneDragonInstance:
         self.name: str = name
         self.active: bool = active
         self.active_in_od: bool = active_in_od
+
+
+class InstanceRun(Enum):
+
+    ALL = ConfigItem('全部实例')
+    CURRENT = ConfigItem('仅运行当前')
 
 
 class OneDragonConfig(YamlConfig):
@@ -143,56 +148,9 @@ class OneDragonConfig(YamlConfig):
         return None
 
     @property
-    def app_order(self) -> List[str]:
-        """
-        运行顺序
-        :return:
-        """
-        return self.get("app_order", [])
+    def instance_run(self) -> str:
+        return self.get('instance_run', InstanceRun.ALL.value.value)
 
-    @app_order.setter
-    def app_order(self, new_list: List[str]):
-        self.update('app_order', new_list)
-
-    def move_up_app(self, app_id: str) -> None:
-        """
-        将一个app的执行顺序往前调一位
-        :param app_id:
-        :return:
-        """
-        old_app_orders = self.app_order
-        idx = -1
-
-        for i in range(len(old_app_orders)):
-            if old_app_orders[i] == app_id:
-                idx = i
-                break
-
-        if idx <= 0:  # 无法交换
-            return
-
-        temp = old_app_orders[idx - 1]
-        old_app_orders[idx - 1] = old_app_orders[idx]
-        old_app_orders[idx] = temp
-
-        self.app_order = old_app_orders
-
-    @property
-    def app_run_list(self) -> List[str]:
-        """
-        运行顺序
-        :return:
-        """
-        return self.get("app_run_list", [])
-
-    @app_run_list.setter
-    def app_run_list(self, new_list: List[str]):
-        self.update('app_run_list', new_list)
-
-    def set_app_run(self, app_id: str, to_run: bool) -> None:
-        app_run_list = self.app_run_list
-        if to_run and app_id not in app_run_list:
-            app_run_list.append(app_id)
-        elif not to_run and app_id in app_run_list:
-            app_run_list.remove(app_id)
-        self.app_run_list = app_run_list
+    @instance_run.setter
+    def instance_run(self, new_value: str):
+        self.update('instance_run', new_value)
