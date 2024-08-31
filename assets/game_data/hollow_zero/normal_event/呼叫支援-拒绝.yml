@@ -153,7 +153,7 @@
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
 
-# 派派、露西、苍角
+# 派派、露西
 - entry_name: "呼叫支援"
   event_name: "目前不需要支援"
   options:
@@ -258,6 +258,23 @@
 # 艾莲
 - entry_name: "呼叫支援"
   event_name: "杀以骸焉用艾莲"
+  options:
+    - option_name: "随机获得一枚S级或A级以太类型鸣徽"
+    - option_name: "随机获得一枚S级或A级冻结类型鸣徽"
+    - option_name: "随机获得一枚S级或A级感电类型鸣徽"
+    - option_name: "随机获得一枚S级或A级引燃类型鸣徽"
+    - option_name: "随机获得一枚S级或A级强袭类型鸣徽"
+    - option_name: "随机获得一枚S级或A级决斗类型鸣徽"
+    - option_name: "随机获得一枚S级或A级暴击类型鸣徽"
+    - option_name: "随机获得一枚S级或A级能量类型鸣微"
+    - option_name: "随机获得一枚S级或A级支援类型鸣徽"
+    - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
+    - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
+    - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+
+# 苍角
+- entry_name: "呼叫支援"
+  event_name: "这次不用快回去吃饭吧"
   options:
     - option_name: "随机获得一枚S级或A级以太类型鸣徽"
     - option_name: "随机获得一枚S级或A级冻结类型鸣徽"
