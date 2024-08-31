@@ -30,7 +30,7 @@ class AppWindow(FluentWindowBase):
 
     # 继承初始化函数
     def init_window(self):
-        super().init_window()
+        self.resize(960, 640)
 
         # 初始化位置
         self.move(100, 100)
@@ -43,8 +43,8 @@ class AppWindow(FluentWindowBase):
 
         # 布局样式调整
         self.hBoxLayout.setContentsMargins(0, 0, 0, 0)
-        self.stackedWidget.setContentsMargins(4, 24, 4, 0)
-        self.navigationInterface.setContentsMargins(4, 24, 4, 0)
+        self.stackedWidget.setContentsMargins(0, 28, 0, 0)
+        self.navigationInterface.setContentsMargins(0, 28, 0, 0)
 
         # 配置样式
         OdStyleSheet.APP_WINDOW.apply(self)
@@ -63,7 +63,7 @@ class AppWindow(FluentWindowBase):
         print(self.titleBar.styleSheet())    
 
         # 开启磨砂效果
-        self.setAeroEffectEnabled(True)
+        # self.setAeroEffectEnabled(True)
 
     def create_sub_interface(self):
         """创建和添加各个子界面"""

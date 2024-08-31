@@ -4,8 +4,8 @@ import sys
 
 from PySide6.QtCore import Qt,QPropertyAnimation,Property,QRect,QRectF
 from PySide6.QtGui import QIcon, QPainter, QColor,QPen
-from PySide6.QtWidgets import QWidget, QVBoxLayout
-from qfluentwidgets import FluentStyleSheet,drawIcon,isDarkTheme,FluentIcon as FIF,setFont,NavigationBarPushButton,MSFluentWindow,SingleDirectionScrollArea,NavigationBar,NavigationWidget,qrouter,FluentIconBase,NavigationItemPosition
+from PySide6.QtWidgets import QWidget, QVBoxLayout,QLabel,QHBoxLayout,QSpacerItem,QSizePolicy
+from qfluentwidgets import FluentStyleSheet,drawIcon,isDarkTheme,FluentIcon as FIF,setFont,SplitTitleBar,NavigationBarPushButton,MSFluentWindow,SingleDirectionScrollArea,NavigationBar,NavigationWidget,qrouter,FluentIconBase,NavigationItemPosition
 
 
 #继承MSFluentWindow并重绘部分函数
@@ -16,6 +16,8 @@ class OneDragonWindow(MSFluentWindow):
         self._isAeroEnabled = False
 
         super(MSFluentWindow,self).__init__(parent=parent)
+
+        self.setTitleBar(OdTitleBar(self))
         
         self.navigationInterface = OneDragonNavigationBar(self)
 
@@ -112,7 +114,7 @@ class OneDragonNavigationBar(NavigationBar):
         if routeKey in self.items:
             return
 
-        w = OneDragonNavigationBarPushButton(icon, text, selectable, selectedIcon, self)
+        w = OdNavigationBarPushButton(icon, text, selectable, selectedIcon, self)
         self.insertWidget(index, routeKey, w, onClick, position)
         return w
 
@@ -147,7 +149,7 @@ class IconSlideAnimation(QPropertyAnimation):
 
     offset = Property(float, getOffset, setOffset)
 
-class OneDragonNavigationBarPushButton(NavigationBarPushButton):
+class OdNavigationBarPushButton(NavigationBarPushButton):
     """ Navigation bar push button """
 
     def __init__(self, icon: Union[str, QIcon, FIF], text: str, isSelectable: bool, selectedIcon=None, parent=None):
@@ -168,13 +170,13 @@ class OneDragonNavigationBarPushButton(NavigationBarPushButton):
         # 绘制选中按钮样式
         if self.isSelected:
             painter.setBrush(QColor(214,75,84))
-            painter.drawRoundedRect(self.rect(), 5, 5)
+            painter.drawRoundedRect(self.rect().adjusted(4, 0, -4, 0), 10, 10)
 
         elif self.isPressed or self.isEnter:
             c = 255 if isDarkTheme() else 0
             alpha = 9 if self.isEnter else 6
             painter.setBrush(QColor(c, c, c, alpha))
-            painter.drawRoundedRect(self.rect(), 5, 5)
+            painter.drawRoundedRect(self.rect().adjusted(4, 0, -4, 0), 10, 10)
 
         # draw icon
         if (self.isPressed or not self.isEnter) and not self.isSelected:
@@ -213,3 +215,34 @@ class OneDragonNavigationBarPushButton(NavigationBarPushButton):
         painter.setFont(self.font())
         rect = QRect(0, 32, self.width(), 26)
         painter.drawText(rect, Qt.AlignCenter, self.text())
+
+class OdTitleBar(SplitTitleBar):
+    """ One Dragon Title Bar """
+
+    def __init__(self, parent=None):
+        super(SplitTitleBar, self).__init__(parent)
+        self.setFixedHeight(32)
+
+        # Create a new layout to hold icon and title together
+        layout = QHBoxLayout()
+        layout.setContentsMargins(84, 10, 0, 0)  # Left 64px, Top 12px
+
+        # Add window icon
+        self.iconLabel = QLabel(self)
+        self.iconLabel.setFixedSize(18, 18)
+        layout.addWidget(self.iconLabel, 0, Qt.AlignLeft | Qt.AlignmentFlag.AlignTop)
+        self.window().windowIconChanged.connect(self.setIcon)
+
+        layout.addSpacerItem(QSpacerItem(8, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
+
+        # Add title label
+        self.titleLabel = QLabel(self)
+        layout.addWidget(self.titleLabel, 0, Qt.AlignLeft | Qt.AlignTop)
+        self.titleLabel.setObjectName('titleLabel')
+        self.window().windowTitleChanged.connect(self.setTitle)
+
+        # Add a spacer at the end to push the title to the left
+        layout.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+
+        # Integrate iconAndTitleLayout into the main hBoxLayout
+        self.hBoxLayout.insertLayout(0, layout)
