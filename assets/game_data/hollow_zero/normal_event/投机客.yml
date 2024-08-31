@@ -9,6 +9,15 @@
     - option_name: "借888齿轮硬币"
     - option_name: "不需要借款"
 
+    - option_name: "净化侵蚀"
+      desc: "消除1个侵蚀症状"
+
+    - option_name: "身体康复训练"
+      desc: "回复20%生命值"
+
+    - option_name: "特别援助"
+      desc: "获得2个低级邦布插件"
+
     - option_name: "清除压力"
       desc: "压力值-20"
     - option_name: "恢复身体"

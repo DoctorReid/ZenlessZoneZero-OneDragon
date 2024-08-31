@@ -24,19 +24,35 @@ def check_event_at_right(op: ZOperation, screen: MatLike) -> Optional[str]:
     """
     area = get_event_text_area(op)
     part = cv2_utils.crop_image_only(screen, area.rect)
-    ocr_result_map = op.ctx.ocr.run_ocr(part)
+    white = cv2.inRange(part, (240, 240, 240), (255, 255, 255))
+    white = cv2_utils.dilate(white, 5)
+    to_ocr = cv2.bitwise_and(part, part, mask=white)
+    ocr_result_map = op.ctx.ocr.run_ocr(to_ocr)
 
     event_name_list = []
     event_name_gt_list = []
     for event in op.ctx.hollow.data_service.normal_events:
         event_name_list.append(event.event_name)
         event_name_gt_list.append(gt(event.event_name))
+
     for event_enum in HollowZeroSpecialEvent:
         event = event_enum.value
+        if not event.on_the_right:
+            continue
         event_name_list.append(event.event_name)
         event_name_gt_list.append(gt(event.event_name))
 
-    ocr_result_list = [i for i in ocr_result_map.keys()]
+    # 事件标题一定在最上方 因此找y最小的
+    min_y = 9999
+    for ocr_result, mrl in ocr_result_map.items():
+        if mrl.max.y < min_y:
+            min_y = mrl.max.y
+
+    ocr_result_list = []
+    for ocr_result, mrl in ocr_result_map.items():
+        if mrl.max.y - min_y < 20:
+            ocr_result_list.append(ocr_result)
+
     event_idx, _ = str_utils.find_most_similar(event_name_gt_list, ocr_result_list)
 
     if event_idx is not None:

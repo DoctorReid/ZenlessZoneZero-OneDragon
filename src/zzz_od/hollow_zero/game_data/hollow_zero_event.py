@@ -72,11 +72,8 @@ class HollowZeroSpecialEvent(Enum):
     CORRUPTION_REMOVE = HallowZeroEvent('清除')
 
     CALL_FOR_SUPPORT = HallowZeroEvent('呼叫增援！', on_the_right=True)
-    RESONIUM_STORE_1 = HallowZeroEvent('鸣徽交易', on_the_right=True, lcs_percent=0.7)
-    RESONIUM_STORE_2 = HallowZeroEvent('特价折扣', on_the_right=True)
-    RESONIUM_STORE_3 = HallowZeroEvent('鸣徽催化', on_the_right=True, lcs_percent=0.7)
-    RESONIUM_STORE_4 = HallowZeroEvent('血汗交易', on_the_right=True, lcs_percent=0.7)
-    RESONIUM_STORE_5 = HallowZeroEvent('血汗催化', on_the_right=True, lcs_percent=0.7)
+    RESONIUM_STORE_0 = HallowZeroEvent('欢迎光临！本店只收齿轮硬币～', on_the_right=True)
+    RESONIUM_STORE_1 = HallowZeroEvent('欢迎本店欢迎', on_the_right=True)
 
     CRITICAL_STAGE = HallowZeroEvent('关键进展', on_the_right=True)
 

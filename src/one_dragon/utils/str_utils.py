@@ -3,6 +3,9 @@ import re
 from typing import Optional, List, Tuple
 
 
+_WITH_CHINESE_PATTERN = re.compile(r'[\u4e00-\u9fff]+')
+
+
 def find(source: str, target: str, ignore_case: bool = False) -> int:
     """
     字符串find的封装 在原目标串中招目标字符串
@@ -140,10 +143,16 @@ def find_most_similar(str_list1: List[str], str_list2: List[str]) -> Tuple[Optio
 
         str2 = str2_results[0]
 
-        str1_results = difflib.get_close_matches(str2, str2_results, n=1)
+        str1_results = difflib.get_close_matches(str2, str_list1, n=1)
         if str1_results is None or len(str1_results) == 0 or str1_results[0] != str1:
             continue
 
         return (str_list1.index(str1_results[0]), str_list2.index(str2_results[0]))
 
     return (None, None)
+
+
+def with_chinese(s: str) -> bool:
+    """
+    判断一个字符串是否包含中文
+    """

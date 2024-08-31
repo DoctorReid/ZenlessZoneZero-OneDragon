@@ -41,11 +41,8 @@ class HollowRunner(ZOperation):
         self._special_event_handlers: dict[str, Type] = {
             HollowZeroSpecialEvent.CALL_FOR_SUPPORT.value.event_name: CallForSupport,
 
+            HollowZeroSpecialEvent.RESONIUM_STORE_0.value.event_name: BambooMerchant,
             HollowZeroSpecialEvent.RESONIUM_STORE_1.value.event_name: BambooMerchant,
-            HollowZeroSpecialEvent.RESONIUM_STORE_2.value.event_name: BambooMerchant,
-            HollowZeroSpecialEvent.RESONIUM_STORE_3.value.event_name: BambooMerchant,
-            HollowZeroSpecialEvent.RESONIUM_STORE_4.value.event_name: BambooMerchant,
-            HollowZeroSpecialEvent.RESONIUM_STORE_5.value.event_name: BambooMerchant,
 
             HollowZeroSpecialEvent.RESONIUM_CHOOSE.value.event_name: ChooseResonium,
             HollowZeroSpecialEvent.RESONIUM_CONFIRM_1.value.event_name: ConfirmResonium,

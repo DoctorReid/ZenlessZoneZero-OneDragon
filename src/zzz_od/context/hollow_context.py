@@ -174,7 +174,11 @@ class HollowContext:
                 last_node = self._last_route.first_need_step_node
                 curr_node = route.first_need_step_node
                 if (hollow_map_utils.is_same_node(last_node, curr_node)
-                        and route.node.entry.entry_name == '业绩考察点'):
+                        and (
+                                curr_node.entry.entry_name in ['门扉禁闭-财富', '门扉禁闭-善战']
+                                or route.node.entry.entry_name in ['零号银行', '业绩考察点']
+                        )
+                ):
                     # 代表上一次点了之后 这次依然要点同样的位置 也就是无法通行
                     self._visited_nodes.append(route.node)
                     continue
