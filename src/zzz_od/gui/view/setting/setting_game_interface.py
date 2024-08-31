@@ -165,11 +165,11 @@ class SettingGameInterface(VerticalScrollInterface):
         gamepad_group.addSettingCard(self.xbox_key_interact_opt)
 
         self.xbox_key_chain_left_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='连携技-左', options_enum=XboxButtonEnum)
-        self.xbox_key_interact_opt.value_changed.connect(self._on_xbox_key_chain_left_changed)
+        self.xbox_key_chain_left_opt.value_changed.connect(self._on_xbox_key_chain_left_changed)
         gamepad_group.addSettingCard(self.xbox_key_chain_left_opt)
 
         self.xbox_key_chain_right_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='连携技-右', options_enum=XboxButtonEnum)
-        self.xbox_key_interact_opt.value_changed.connect(self._on_xbox_key_chain_right_changed)
+        self.xbox_key_chain_right_opt.value_changed.connect(self._on_xbox_key_chain_right_changed)
         gamepad_group.addSettingCard(self.xbox_key_chain_right_opt)
 
         self.xbox_key_move_w_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='移动-前', options_enum=XboxButtonEnum)
@@ -227,11 +227,11 @@ class SettingGameInterface(VerticalScrollInterface):
         gamepad_group.addSettingCard(self.ds4_key_interact_opt)
 
         self.ds4_key_chain_left_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='连携技-左', options_enum=Ds4ButtonEnum)
-        self.ds4_key_interact_opt.value_changed.connect(self._on_ds4_key_chain_left_changed)
+        self.ds4_key_chain_left_opt.value_changed.connect(self._on_ds4_key_chain_left_changed)
         gamepad_group.addSettingCard(self.ds4_key_chain_left_opt)
 
         self.ds4_key_chain_right_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='连携技-右', options_enum=Ds4ButtonEnum)
-        self.ds4_key_interact_opt.value_changed.connect(self._on_ds4_key_chain_right_changed)
+        self.ds4_key_chain_right_opt.value_changed.connect(self._on_ds4_key_chain_right_changed)
         gamepad_group.addSettingCard(self.ds4_key_chain_right_opt)
 
         self.ds4_key_move_w_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='移动-前', options_enum=Ds4ButtonEnum)
