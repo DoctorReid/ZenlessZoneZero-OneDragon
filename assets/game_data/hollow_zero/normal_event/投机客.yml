@@ -9,6 +9,9 @@
     - option_name: "借888齿轮硬币"
     - option_name: "不需要借款"
 
+    - option_name: "消费返利"
+      desc: "获得齿轮硬币"
+
     - option_name: "净化侵蚀"
       desc: "消除1个侵蚀症状"
 
@@ -22,6 +25,9 @@
       desc: "压力值-20"
     - option_name: "恢复身体"
       desc: "回复10%生命值"
+
+    - option_name: "催化剂"
+      desc: "催化1枚鸣徽"
 
     - option_name: "离开"
     - option_name: "享受更多帮助"

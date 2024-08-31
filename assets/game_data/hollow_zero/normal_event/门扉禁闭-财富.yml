@@ -4,3 +4,4 @@
     - option_name: "打开阀门"
       desc: "支付1000齿轮硬币"
     - option_name: "离开"
+    - option_name: "暂时离开"
