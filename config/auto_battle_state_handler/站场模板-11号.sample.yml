@@ -5,8 +5,12 @@ handlers:
       operations:
         - op_name: "按键-终结技"
           data: []
-        - operation_template: "11号-火刀4A"
-        - operation_template: "11号-火刀4A"
+        - op_name: "按键-普通攻击"
+          post_delay: 0.4
+          repeat: 8
+        - op_name: "按键-普通攻击"
+          post_delay: 0.4
+          repeat: 8
 
     - states: ""
       operations:
@@ -14,5 +18,9 @@ handlers:
           post_delay: 0.2
         - op_name: "按键-特殊攻击"
           post_delay: 1.2
-        - operation_template: "11号-火刀4A"
-        - operation_template: "11号-火刀4A"
+        - op_name: "按键-普通攻击"
+          post_delay: 0.4
+          repeat: 8
+        - op_name: "按键-普通攻击"
+          post_delay: 0.4
+          repeat: 8
