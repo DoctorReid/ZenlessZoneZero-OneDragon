@@ -214,3 +214,12 @@ def check_bottom_remove(op: ZOperation, screen: MatLike) -> Optional[str]:
     for ocr_result in ocr_result_map.keys():
         if str_utils.find_by_lcs(gt(event.event_name), ocr_result, percent=event.lcs_percent):
             return event.event_name
+
+
+def check_full_in_bag(op: ZOperation, screen: MatLike) -> Optional[str]:
+    """
+    中间是否有背包已满
+    """
+    result = op.round_by_find_area(screen, '零号空洞-事件', '背包已满')
+    if result.is_success:
+        return result.status

@@ -141,11 +141,16 @@ class BambooMerchant(ZOperation):
         to_ocr = cv2.bitwise_and(part, part, mask=mask)
         # cv2_utils.show_image(to_ocr, wait=0)
 
+        result_result_map = {}
         ocr_result_map = self.ctx.ocr.run_ocr(to_ocr)
-        for mrl in ocr_result_map.values():
+        for ocr_result, mrl in ocr_result_map.values():
+            digit = str_utils.get_positive_digits(ocr_result, None)
+            if digit is None:  # 忽略没有数字的
+                continue
             mrl.add_offset(area.left_top)
+            result_result_map[ocr_result] = mrl
 
-        if len(ocr_result_map) == 0:
+        if len(result_result_map) == 0:
             # 没有识别的情况 可能是价格为0识别不到 额外再每个价格格子识别一次
             for i in range(2, 4):
                 for j in range(1, i+1):
@@ -163,9 +168,9 @@ class BambooMerchant(ZOperation):
                         continue
                     # 构造返回结果
                     digit_str = str(digit)
-                    if digit_str not in ocr_result_map:
-                        ocr_result_map[digit_str] = mrl = MatchResultList(only_best=False)
-                    ocr_result_map[digit_str].append(
+                    if digit_str not in result_result_map:
+                        result_result_map[digit_str] = MatchResultList(only_best=False)
+                    result_result_map[digit_str].append(
                         MatchResult(1, area.left_top.x, area.left_top.y, area.width, area.height,
                                     data=digit_str)
                     )

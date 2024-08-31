@@ -74,8 +74,11 @@ class HollowZeroSpecialEvent(Enum):
     CALL_FOR_SUPPORT = HallowZeroEvent('呼叫增援！', on_the_right=True)
     RESONIUM_STORE_0 = HallowZeroEvent('欢迎光临！本店只收齿轮硬币～', on_the_right=True)
     RESONIUM_STORE_1 = HallowZeroEvent('欢迎本店欢迎', on_the_right=True)
+    RESONIUM_STORE_2 = HallowZeroEvent('鸣徽交易', on_the_right=True)
 
     CRITICAL_STAGE = HallowZeroEvent('关键进展', on_the_right=True)
 
     IN_BATTLE = HallowZeroEvent('战斗画面')
     MISSION_COMPLETE = HallowZeroEvent('副本通关')
+
+    FULL_IN_BAG = HallowZeroEvent('背包已满')

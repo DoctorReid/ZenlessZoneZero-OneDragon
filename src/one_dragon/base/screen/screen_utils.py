@@ -40,9 +40,11 @@ def find_area(ctx: OneDragonContext, screen: MatLike, screen_name: str, area_nam
         rect = area.rect
         part = cv2_utils.crop_image_only(screen, rect)
 
-        ocr_result = ctx.ocr.run_ocr_single_line(part, strict_one_line=True)
-
-        find = str_utils.find_by_lcs(gt(area.text), ocr_result, percent=area.lcs_percent)
+        ocr_result_map = ctx.ocr.run_ocr(part)
+        for ocr_result, mrl in ocr_result_map.items():
+            if str_utils.find_by_lcs(gt(area.text), ocr_result, percent=area.lcs_percent):
+                find = True
+                break
     elif area.is_template_area:
         rect = area.rect
         part = cv2_utils.crop_image_only(screen, rect)
