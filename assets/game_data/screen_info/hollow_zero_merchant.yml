@@ -68,3 +68,58 @@ area_list:
   template_sub_dir: hollow
   template_id: merchant_add
   template_match_threshold: 0.7
+- area_name: 商品价格-3-1
+  pc_rect:
+  - 1290
+  - 376
+  - 1380
+  - 400
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 商品价格-3-2
+  pc_rect:
+  - 1290
+  - 568
+  - 1380
+  - 589
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 商品价格-3-3
+  pc_rect:
+  - 1290
+  - 758
+  - 1380
+  - 781
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 商品价格-2-1
+  pc_rect:
+  - 1290
+  - 472
+  - 1380
+  - 494
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 商品价格-2-2
+  pc_rect:
+  - 1290
+  - 660
+  - 1380
+  - 684
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

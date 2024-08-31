@@ -2,11 +2,11 @@ import cv2
 from cv2.typing import MatLike
 from typing import ClassVar
 
-from one_dragon.base.matcher.match_result import MatchResultList
+from one_dragon.base.matcher.match_result import MatchResultList, MatchResult
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
-from one_dragon.utils import cv2_utils
+from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.hollow_zero.event import event_utils, resonium_utils
@@ -96,7 +96,7 @@ class BambooMerchant(ZOperation):
         screen = self.screenshot()
 
         price_ocr_result_map = self._ocr_price_area(screen)
-        price_pos_list = [i.max.center for i in price_ocr_result_map.values()]
+        price_pos_list = [i.center for mrl in price_ocr_result_map.values() for i in mrl]
 
         desc_ocr_result_map = self._ocr_desc_area(screen)
         item_list = []
@@ -137,11 +137,38 @@ class BambooMerchant(ZOperation):
         part = cv2_utils.crop_image_only(screen, area.rect)
         mask = cv2.inRange(part, (240, 140, 0), (255, 255, 50))
         mask = cv2_utils.dilate(mask, 5)
+
         to_ocr = cv2.bitwise_and(part, part, mask=mask)
+        # cv2_utils.show_image(to_ocr, wait=0)
 
         ocr_result_map = self.ctx.ocr.run_ocr(to_ocr)
         for mrl in ocr_result_map.values():
             mrl.add_offset(area.left_top)
+
+        if len(ocr_result_map) == 0:
+            # 没有识别的情况 可能是价格为0识别不到 额外再每个价格格子识别一次
+            for i in range(2, 4):
+                for j in range(1, i+1):
+                    area = self.ctx.screen_loader.get_area('零号空洞-商店', f'商品价格-{i}-{j}')
+                    part = cv2_utils.crop_image_only(screen, area.rect)
+                    mask = cv2.inRange(part, (240, 140, 0), (255, 255, 50))
+                    mask = cv2_utils.dilate(mask, 5)
+                    to_ocr = cv2.bitwise_and(part, part, mask=mask)
+                    # 底层onnx的ocr 使用 run_ocr 会对只有一个0的情况识别不到 只能用这个方法
+                    ocr_result = self.ctx.ocr.run_ocr_single_line(to_ocr)
+                    for special_char in ['.', '。', 'o', 'O']:  # 0 有可能被识别成其它字符 特殊处理
+                        ocr_result = ocr_result.replace(special_char, '0')
+                    digit = str_utils.get_positive_digits(ocr_result, None)
+                    if digit is None:
+                        continue
+                    # 构造返回结果
+                    digit_str = str(digit)
+                    if digit_str not in ocr_result_map:
+                        ocr_result_map[digit_str] = mrl = MatchResultList(only_best=False)
+                    ocr_result_map[digit_str].append(
+                        MatchResult(1, area.left_top.x, area.left_top.y, area.width, area.height,
+                                    data=digit_str)
+                    )
 
         return ocr_result_map
 
@@ -186,3 +213,21 @@ class BambooMerchant(ZOperation):
 
         return self.round_by_find_and_click_area(screen, '零号空洞-商店', '右上角-返回',
                                                  success_wait=1, retry_wait=1)
+
+
+def __debug_check_screen():
+    ctx = ZContext()
+    ctx.init_by_config()
+    ctx.ocr.init_model()
+    op = BambooMerchant(ctx)
+    from one_dragon.utils import os_utils
+    import os
+    screen = cv2_utils.read_image(os.path.join(
+        os_utils.get_path_under_work_dir('.debug', 'devtools', 'screen', 'hollow_zero_merchant'),
+        '_1725071431457.png'
+    ))
+    print(op._ocr_price_area(screen))
+
+
+if __name__ == '__main__':
+    __debug_check_screen()
