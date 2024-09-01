@@ -231,7 +231,11 @@ def __debug_check_screen():
         os_utils.get_path_under_work_dir('.debug', 'devtools', 'screen', 'hollow_zero_merchant'),
         '_1725071431457.png'
     ))
+    from one_dragon.utils import debug_utils
+    screen = debug_utils.get_debug_image('1')
     print(op._ocr_price_area(screen))
+    area = event_utils.get_event_text_area(op)
+    print(op.round_by_ocr(screen, '鸣徽交易', area=area, lcs_percent=0.6).status)
 
 
 if __name__ == '__main__':

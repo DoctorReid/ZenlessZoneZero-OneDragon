@@ -75,6 +75,7 @@ class HollowZeroSpecialEvent(Enum):
     RESONIUM_STORE_0 = HallowZeroEvent('欢迎光临！本店只收齿轮硬币～', on_the_right=True)
     RESONIUM_STORE_1 = HallowZeroEvent('欢迎本店欢迎', on_the_right=True)
     RESONIUM_STORE_2 = HallowZeroEvent('鸣徽交易', on_the_right=True)
+    RESONIUM_STORE_3 = HallowZeroEvent('特价折扣', on_the_right=True)
 
     CRITICAL_STAGE = HallowZeroEvent('关键进展', on_the_right=True)
 

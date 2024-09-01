@@ -187,6 +187,7 @@ class CallForSupport(ZOperation):
             RejectOption('星徽骑士再见'),  # 比利
             RejectOption('还不用请出白祇重工'),  # 珂蕾妲
             RejectOption('杀以骸焉用艾莲'),  # 艾莲
+            RejectOption('这次不用快回去吃饭吧'),  # 苍角
         ]
 
         part = cv2_utils.crop_image_only(screen, area.rect)
