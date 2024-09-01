@@ -143,7 +143,7 @@ class BambooMerchant(ZOperation):
 
         result_result_map = {}
         ocr_result_map = self.ctx.ocr.run_ocr(to_ocr)
-        for ocr_result, mrl in ocr_result_map.values():
+        for ocr_result, mrl in ocr_result_map.items():
             digit = str_utils.get_positive_digits(ocr_result, None)
             if digit is None:  # 忽略没有数字的
                 continue
