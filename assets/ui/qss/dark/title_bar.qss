@@ -2,8 +2,13 @@
     background-color: transparent;
 }
 
-titleLabel {
+#TitleBar>QLabel#titleLabel {
+    color: white;
+    background: transparent;
+    font: 13px 'Segoe UI', 'Microsoft YaHei', 'PingFang SC';
+    padding: 0 4px
 }
+
 
 MinimizeButton {
     qproperty-normalColor: white;
