@@ -17,7 +17,7 @@ class OneDragonWindow(MSFluentWindow):
 
         self._isAeroEnabled = False
 
-        super(MSFluentWindow,self).__init__(parent=parent)
+        super(MSFluentWindow, self).__init__(parent=parent)  # 不初始化MSFluentWindow 初始化其父类
 
         self.setTitleBar(OdTitleBar(self))
         
