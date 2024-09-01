@@ -1,11 +1,13 @@
 
-from typing import Dict, Union
 import sys
 
-from PySide6.QtCore import Qt,QPropertyAnimation,Property,QRect,QRectF
-from PySide6.QtGui import QIcon, QPainter, QColor,QPen
-from PySide6.QtWidgets import QWidget, QVBoxLayout,QLabel,QHBoxLayout,QSpacerItem,QSizePolicy
-from qfluentwidgets import FluentStyleSheet,drawIcon,isDarkTheme,FluentIcon as FIF,setFont,SplitTitleBar,NavigationBarPushButton,MSFluentWindow,SingleDirectionScrollArea,NavigationBar,NavigationWidget,qrouter,FluentIconBase,NavigationItemPosition
+from PySide6.QtCore import Qt, QPropertyAnimation, Property, QRect, QRectF
+from PySide6.QtGui import QIcon, QPainter, QColor
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QSpacerItem, QSizePolicy
+from qfluentwidgets import FluentStyleSheet, drawIcon, isDarkTheme, FluentIcon as FIF, setFont, SplitTitleBar, \
+    NavigationBarPushButton, MSFluentWindow, SingleDirectionScrollArea, NavigationBar, qrouter, FluentIconBase, \
+    NavigationItemPosition
+from typing import Union
 
 
 #继承MSFluentWindow并重绘部分函数
@@ -26,7 +28,7 @@ class OneDragonWindow(MSFluentWindow):
         self.hBoxLayout.addWidget(self.stackedWidget, 1)
 
         self.titleBar.raise_()
-        self.titleBar.setAttribute(Qt.WA_StyledBackground)   
+        self.titleBar.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
 
     # 补充磨砂效果
     def setAeroEffectEnabled(self, isEnabled: bool):

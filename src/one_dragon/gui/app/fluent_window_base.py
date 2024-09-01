@@ -19,7 +19,7 @@ class FluentWindowBase(OneDragonWindow):
                  win_title: str,
                  app_icon: Optional[str] = None,
                  parent=None):
-        super().__init__(parent=parent)
+        OneDragonWindow.__init__(self, parent=parent)
         self.ctx: OneDragonContext = ctx
         self._last_stack_idx: int = 0
         

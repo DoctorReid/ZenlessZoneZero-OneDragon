@@ -21,7 +21,8 @@ class AppWindow(FluentWindowBase):
     def __init__(self, ctx: ZContext, parent=None):
         """初始化主窗口类，设置窗口标题和图标"""
         self.ctx: ZContext = ctx
-        super().__init__(
+        FluentWindowBase.__init__(
+            self,
             ctx=ctx,
             win_title=ctx.project_config.project_name,
             app_icon='zzz_logo.ico',

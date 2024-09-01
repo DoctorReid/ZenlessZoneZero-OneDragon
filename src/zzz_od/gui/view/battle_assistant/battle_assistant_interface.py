@@ -21,8 +21,8 @@ class BattleAssistantInterface(PivotNavigatorInterface):
         :param parent: 父组件，默认为 None。
         """
         self.ctx: ZContext = ctx
-        super().__init__(ctx=ctx, object_name='battle_assistant_interface', parent=parent,
-                         nav_text_cn='战斗助手', nav_icon=FluentIcon.GAME)
+        PivotNavigatorInterface.__init__(self, ctx=ctx, object_name='battle_assistant_interface', parent=parent,
+                                         nav_text_cn='战斗助手', nav_icon=FluentIcon.GAME)
 
     def create_sub_interface(self):
         """

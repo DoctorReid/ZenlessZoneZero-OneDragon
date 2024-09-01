@@ -25,7 +25,8 @@ from zzz_od.context.zzz_context import ZContext
 class AutoBattleInterface(AppRunInterface):
     def __init__(self, ctx: ZContext, parent=None):
         """初始化 AutoBattleInterface 类"""
-        super().__init__(ctx=ctx, object_name='auto_battle_interface', nav_text_cn='自动战斗', nav_icon=FluentIcon.GAME, parent=parent)
+        AppRunInterface.__init__(self,
+                                 ctx=ctx, object_name='auto_battle_interface', nav_text_cn='自动战斗', nav_icon=FluentIcon.GAME, parent=parent)
         self.ctx: ZContext = ctx
         self.app: Optional[ZApplication] = None
 

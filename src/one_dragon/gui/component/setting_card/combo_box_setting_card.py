@@ -136,6 +136,8 @@ class ComboBoxSettingCard(SettingCard):
         """
         if not self.show_tooltip:
             SettingCard.setContent(self, gt(content, 'ui'))
+        else:
+            self.tooltip_text = gt(content, 'ui')
 
     def setValue(self, value: object) -> None:
         """
