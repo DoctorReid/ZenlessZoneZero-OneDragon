@@ -178,7 +178,7 @@ class EnvConfig(YamlConfig):
         仓库类型 Github / Gitee
         :return:
         """
-        return self.get('repository_type', RepositoryTypeEnum.GITHUB.value.value)
+        return self.get('repository_type', RepositoryTypeEnum.GITEE.value.value)
 
     @repository_type.setter
     def repository_type(self, new_value: str) -> None:

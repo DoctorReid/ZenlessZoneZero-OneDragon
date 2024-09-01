@@ -1,6 +1,6 @@
 from typing import List, Callable
 
-from qfluentwidgets import FluentIcon, FluentThemeColor, PushButton
+from qfluentwidgets import FluentIcon, FluentThemeColor, PushButton, HyperlinkButton
 
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.gui.install_card.base_install_card import BaseInstallCard
@@ -18,6 +18,11 @@ class AllInstallCard(BaseInstallCard):
         for card in self.install_cards:
             card.finished.connect(self.on_install_done)
 
+        guide_btn = HyperlinkButton(
+            url='http://one-dragon.org/zzz/zh/quickstart.html',
+            text='安装指南'
+        )
+
         self.run_btn = PushButton(text=gt('启动一条龙', 'ui'))
         self.run_btn.clicked.connect(self._on_run_clicked)
 
@@ -25,10 +30,10 @@ class AllInstallCard(BaseInstallCard):
             self,
             ctx=ctx,
             title_cn='全部',
-            content_cn='正常情况请使用一键安装。如你了解如何使用个人环境，可在下方选择。',
+            content_cn='请先查看安装指南再继续',
             install_method=self.install_all,
             install_btn_text_cn='一键安装',
-            left_widgets=[self.run_btn]
+            left_widgets=[guide_btn, self.run_btn]
         )
 
     def install_all(self, progress_callback: Callable[[float, str], None]) -> bool:
