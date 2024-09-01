@@ -3,34 +3,58 @@ from typing import Dict, Union
 import sys
 
 from PySide6.QtCore import Qt,QPropertyAnimation,Property,QRect,QRectF
-from PySide6.QtGui import QIcon, QPainter, QColor
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QApplication
-
-from qfluentwidgets import FluentStyleSheet,drawIcon,isDarkTheme,themeColor,FluentIcon as FIF,setFont,NavigationBarPushButton,MSFluentWindow,MSFluentTitleBar,SingleDirectionScrollArea,NavigationBar,NavigationWidget,qrouter,FluentIconBase,NavigationItemPosition
-
+from PySide6.QtGui import QIcon, QPainter, QColor,QPen
+from PySide6.QtWidgets import QWidget, QVBoxLayout,QLabel,QHBoxLayout,QSpacerItem,QSizePolicy
+from qfluentwidgets import FluentStyleSheet,drawIcon,isDarkTheme,FluentIcon as FIF,setFont,SplitTitleBar,NavigationBarPushButton,MSFluentWindow,SingleDirectionScrollArea,NavigationBar,NavigationWidget,qrouter,FluentIconBase,NavigationItemPosition
 
 
+#继承MSFluentWindow并重绘部分函数
 class OneDragonWindow(MSFluentWindow):
-    """ Fluent window in Microsoft Store style """
 
     def __init__(self, parent=None):
-        super(MSFluentWindow, self).__init__(parent)
-        self.setTitleBar(MSFluentTitleBar(self))
 
+        self._isAeroEnabled = False
+
+        super(MSFluentWindow,self).__init__(parent=parent)
+
+        self.setTitleBar(OdTitleBar(self))
+        
         self.navigationInterface = OneDragonNavigationBar(self)
-        # self.navigationInterface.setStyleSheet("background-color: #1a1a21;")
-        # self.stackedWidget.setStyleSheet("background-color: #13131a;")
-        # self.titleBar.setStyleSheet("background-color: #1a1a21;")
-        # initialize layout
-        self.hBoxLayout.setContentsMargins(0, 48, 0, 0)
+
+        # 继承MSFluentWindow的部分属性
         self.hBoxLayout.addWidget(self.navigationInterface)
         self.hBoxLayout.addWidget(self.stackedWidget, 1)
 
         self.titleBar.raise_()
-        self.titleBar.setAttribute(Qt.WA_StyledBackground)
+        self.titleBar.setAttribute(Qt.WA_StyledBackground)   
 
+    # 补充磨砂效果
+    def setAeroEffectEnabled(self, isEnabled: bool):
 
+        if sys.platform != 'win32':
+            return
 
+        self._isAeroEnabled = isEnabled
+
+        if isEnabled:
+            self.windowEffect.setAeroEffect(int(self.winId()))
+        else:
+            self.windowEffect.removeBackgroundEffect(self.winId())
+
+        self.setBackgroundColor(self._normalBackgroundColor())
+
+    def isAeroEffectEnabled(self):
+        return self._isAeroEnabled
+        
+    def _normalBackgroundColor(self):
+        if not self.isAeroEffectEnabled():
+            return self._darkBackgroundColor if isDarkTheme() else self._lightBackgroundColor
+
+        return QColor(0, 0, 0, 0)
+
+    def _onThemeChangedFinished(self):
+        if self.isAeroEffectEnabled():
+            self.windowEffect.setAeroEffect(self.winId(), isDarkTheme())
 
 class OneDragonNavigationBar(NavigationBar):
 
@@ -46,7 +70,7 @@ class OneDragonNavigationBar(NavigationBar):
         self.bottomLayout = QVBoxLayout()
         self.scrollLayout = QVBoxLayout(self.scrollWidget)
 
-        self.items = {}   # type: Dict[str, NavigationWidget]
+        self.items = {}
         self.history = qrouter
 
         self.__initWidget()
@@ -87,38 +111,10 @@ class OneDragonNavigationBar(NavigationBar):
 
     def insertItem(self, index: int, routeKey: str, icon: Union[str, QIcon, FluentIconBase], text: str, onClick=None,
                    selectable=True, selectedIcon=None, position=NavigationItemPosition.TOP):
-        """ insert navigation tree item
-
-        Parameters
-        ----------
-        index: int
-            the insert position of parent widget
-
-        routeKey: str
-            the unique name of item
-
-        icon: str | QIcon | FluentIconBase
-            the icon of navigation item
-
-        text: str
-            the text of navigation item
-
-        onClick: callable
-            the slot connected to item clicked signal
-
-        selectable: bool
-            whether the item is selectable
-
-        selectedIcon: str | QIcon | FluentIconBase
-            the icon of navigation item in selected state
-
-        position: NavigationItemPosition
-            where the button is added
-        """
         if routeKey in self.items:
             return
 
-        w = OneDragonNavigationBarPushButton(icon, text, selectable, selectedIcon, self)
+        w = OdNavigationBarPushButton(icon, text, selectable, selectedIcon, self)
         self.insertWidget(index, routeKey, w, onClick, position)
         return w
 
@@ -153,7 +149,7 @@ class IconSlideAnimation(QPropertyAnimation):
 
     offset = Property(float, getOffset, setOffset)
 
-class OneDragonNavigationBarPushButton(NavigationBarPushButton):
+class OdNavigationBarPushButton(NavigationBarPushButton):
     """ Navigation bar push button """
 
     def __init__(self, icon: Union[str, QIcon, FIF], text: str, isSelectable: bool, selectedIcon=None, parent=None):
@@ -171,23 +167,16 @@ class OneDragonNavigationBarPushButton(NavigationBarPushButton):
                                QPainter.TextAntialiasing | QPainter.SmoothPixmapTransform)
         painter.setPen(Qt.NoPen)
 
-        # draw background
+        # 绘制选中按钮样式
         if self.isSelected:
-            # painter.setBrush(QColor('#d64b54') if isDarkTheme() else Qt.white)
-            painter.setBrush(QColor('#d64b54'))
-            painter.drawRoundedRect(self.rect(), 5, 5)
+            painter.setBrush(QColor(214,75,84))
+            painter.drawRoundedRect(self.rect().adjusted(4, 0, -4, 0), 10, 10)
 
-            # draw indicator
-            # painter.setBrush(Qt.white)
-            # if not self.isPressed:
-            #     painter.drawRoundedRect(0, 16, 4, 24, 2, 2)
-            # else:
-            #     painter.drawRoundedRect(0, 19, 4, 18, 2, 2)
         elif self.isPressed or self.isEnter:
             c = 255 if isDarkTheme() else 0
             alpha = 9 if self.isEnter else 6
             painter.setBrush(QColor(c, c, c, alpha))
-            painter.drawRoundedRect(self.rect(), 5, 5)
+            painter.drawRoundedRect(self.rect().adjusted(4, 0, -4, 0), 10, 10)
 
         # draw icon
         if (self.isPressed or not self.isEnter) and not self.isSelected:
@@ -226,3 +215,34 @@ class OneDragonNavigationBarPushButton(NavigationBarPushButton):
         painter.setFont(self.font())
         rect = QRect(0, 32, self.width(), 26)
         painter.drawText(rect, Qt.AlignCenter, self.text())
+
+class OdTitleBar(SplitTitleBar):
+    """ One Dragon Title Bar """
+
+    def __init__(self, parent=None):
+        super(SplitTitleBar, self).__init__(parent)
+        self.setFixedHeight(32)
+
+        # Create a new layout to hold icon and title together
+        layout = QHBoxLayout()
+        layout.setContentsMargins(84, 10, 0, 0)  # Left 64px, Top 12px
+
+        # Add window icon
+        self.iconLabel = QLabel(self)
+        self.iconLabel.setFixedSize(18, 18)
+        layout.addWidget(self.iconLabel, 0, Qt.AlignLeft | Qt.AlignmentFlag.AlignTop)
+        self.window().windowIconChanged.connect(self.setIcon)
+
+        layout.addSpacerItem(QSpacerItem(8, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
+
+        # Add title label
+        self.titleLabel = QLabel(self)
+        layout.addWidget(self.titleLabel, 0, Qt.AlignLeft | Qt.AlignTop)
+        self.titleLabel.setObjectName('titleLabel')
+        self.window().windowTitleChanged.connect(self.setTitle)
+
+        # Add a spacer at the end to push the title to the left
+        layout.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+
+        # Integrate iconAndTitleLayout into the main hBoxLayout
+        self.hBoxLayout.insertLayout(0, layout)

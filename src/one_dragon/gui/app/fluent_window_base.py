@@ -1,16 +1,16 @@
 import os
-from PySide6.QtCore import QSize
 from typing import Optional
-
+from PySide6.QtCore import QSize
 from PySide6.QtGui import QIcon
+
 from qfluentwidgets import NavigationItemPosition, SplashScreen
 
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.gui.component.interface.base_interface import BaseInterface
-from one_dragon.gui.component.setting_card.one_dragon_window import OneDragonWindow
+from one_dragon.gui.app.one_dragon_window import OneDragonWindow
 from one_dragon.utils import os_utils
 from one_dragon.utils.i18_utils import gt
-from one_dragon.gui.common.od_style_sheet import OdStyleSheet
+
 
 class FluentWindowBase(OneDragonWindow):
 
@@ -23,19 +23,26 @@ class FluentWindowBase(OneDragonWindow):
         self.ctx: OneDragonContext = ctx
         self._last_stack_idx: int = 0
         
-        self.init_window(win_title, app_icon)
-    
-        # 1. 创建启动页面
+        # 设置窗口标题
+        self.setWindowTitle(gt(win_title, 'ui'))
+        if app_icon is not None:
+            app_icon_path = os.path.join(os_utils.get_path_under_work_dir('assets', 'ui'), app_icon)
+            self.setWindowIcon(QIcon(app_icon_path))
+
+        # 初始化窗口
+        self.init_window()  
+
+        # 创建启动页面
         self.splashScreen = SplashScreen(self.windowIcon(), self)
         self.splashScreen.setIconSize(QSize(144, 144))
 
-        # 2. 在创建其他子页面前先显示主界面
+        # 在创建其他子页面前先显示主界面
         self.show()
 
         self.stackedWidget.currentChanged.connect(self.init_interface_on_shown)
         self.create_sub_interface()
 
-        # 4. 隐藏启动页面
+        # 隐藏启动页面
         self.splashScreen.finish()
 
     def create_sub_interface(self) -> None:
@@ -48,15 +55,7 @@ class FluentWindowBase(OneDragonWindow):
     def add_sub_interface(self, interface: BaseInterface, position=NavigationItemPosition.TOP):
         self.addSubInterface(interface, interface.nav_icon, interface.nav_text, position=position)
 
-    def init_window(self,
-                    win_title: str,
-                    app_icon: Optional[str] = None):
-        self.setWindowTitle(gt(win_title, 'ui'))
-        if app_icon is not None:
-            app_icon_path = os.path.join(os_utils.get_path_under_work_dir('assets', 'ui'), app_icon)
-            self.setWindowIcon(QIcon(app_icon_path))
-        OdStyleSheet.FLUENT_WINDOW_BASE.apply(self)
-        self.setMicaEffectEnabled(False)
+    def init_window(self):
         self.resize(960, 820)
         self.move(100, 100)
 
