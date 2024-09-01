@@ -46,3 +46,25 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 好感度标题
+  pc_rect:
+  - 892
+  - 798
+  - 1042
+  - 836
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 好感度选项
+  pc_rect:
+  - 1420
+  - 552
+  - 1918
+  - 804
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
