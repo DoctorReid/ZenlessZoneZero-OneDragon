@@ -63,8 +63,8 @@ class PythonService:
         是否虚拟环境的python
         :return:
         """
-        result = cmd_utils.run_command([self.env_config.python_path, '-c', "import sys; print(sys.prefix == sys.base_prefix)"])
-        return result == 'False'
+        env = os.environ
+        return 'VIRTUAL_ENV' in env or 'CONDA_PREFIX' in env
 
     def install_default_pip(self, progress_callback: Optional[Callable[[float, str], None]] = None) -> bool:
         """
