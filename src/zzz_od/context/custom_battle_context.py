@@ -27,4 +27,4 @@ class CustomBattleContext:
         :param event_id:
         :return:
         """
-        self.ctx.dispatch_event(event_id, StateEvent(0))
+        self.ctx.dispatch_event(event_id, StateEvent(0, 0))

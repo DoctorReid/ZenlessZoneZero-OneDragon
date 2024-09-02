@@ -148,6 +148,13 @@ class HollowBattle(ZOperation):
         return self.round_by_ocr_and_click(screen, '确定', area=area,
                                            success_wait=1, retry_wait=1)
 
+    @node_from(from_name='自动战斗', status='普通战斗-完成')
+    @operation_node(name='普通战斗-完成')
+    def mission_complete(self) -> OperationRoundResult:
+        # 在battle_context里会判断这个的出现
+        # 找到后稍微等待 按钮刚出来的时候按没有用
+        return self.round_success(status='普通战斗-完成', wait=2)
+
     @node_from(from_name='战斗结果-确定')
     @operation_node(name='更新楼层信息')
     def update_level_info(self) -> OperationRoundResult:

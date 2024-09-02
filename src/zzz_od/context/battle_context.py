@@ -842,7 +842,7 @@ class BattleContext:
             return
 
         try:
-            if screenshot_time - self._last_check_distance_time < cal_utils.random_in_range(self._check_end_interval):
+            if screenshot_time - self._last_check_distance_time < cal_utils.random_in_range(self._check_distance_interval):
                 # 还没有达到识别间隔
                 return
 

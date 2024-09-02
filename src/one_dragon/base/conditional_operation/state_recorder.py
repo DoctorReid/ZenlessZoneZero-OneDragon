@@ -30,12 +30,14 @@ class StateRecorder:
         """
         data: StateEvent = event.data
         self.last_record_time = data.trigger_time
-        self.last_value = data.value
+        if self.last_value is None:
+            self.last_value = 0
 
-        if data.value is None and data.value_add is not None:
-            if self.last_value is None:
-                self.last_value = 0
-                self.last_value += data.value_add
+        if data.value is not None:
+            self.last_value = data.value
+
+        if data.value_add is not None:
+            self.last_value += data.value_add
 
     def _on_mutex_state_event(self, event: ContextEventItem) -> None:
         """

@@ -84,8 +84,8 @@ class StateCalNode:
                 log.debug('状态 [ %s ] 当前值 %s, 值要求区间 [%d, %d]' % (
                     self.state_recorder.state_name,
                     self.state_recorder.last_value,
-                    self.state_time_range_min,
-                    self.state_time_range_max
+                    self.state_value_range_min,
+                    self.state_value_range_max
                 ))
                 if self.state_recorder.last_value is None:
                     value_valid = False
