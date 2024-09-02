@@ -165,6 +165,8 @@ class XboxButtonController(PcButtonController):
         :param press_time: 持续按键时间
         :return:
         """
+        if key is None:  # 部分按键不支持
+            return
         self._tab_handler[int(key.split('_')[-1])](press_time)
 
     def release(self, key: str) -> None:
