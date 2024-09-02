@@ -1,6 +1,6 @@
 screen_id: battle
 screen_name: 战斗画面
-pc_alt: false
+pc_alt: true
 area_list:
 - area_name: 头像-3-1
   pc_rect:
@@ -140,6 +140,17 @@ area_list:
   - 132
   - 1640
   - 842
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 菜单
+  pc_rect:
+  - 82
+  - 46
+  - 110
+  - 100
   text: ''
   lcs_percent: 0.5
   template_sub_dir: ''

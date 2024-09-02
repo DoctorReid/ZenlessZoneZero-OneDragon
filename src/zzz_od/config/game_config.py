@@ -355,7 +355,7 @@ class GameConfig(YamlConfig):
 
     @property
     def xbox_key_chain_cancel(self) -> str:
-        return self.get('xbox_key_chain_cancel', 'mouse_middle')
+        return self.get('xbox_key_chain_cancel', XboxButtonEnum.A.value.value)
 
     @xbox_key_chain_cancel.setter
     def xbox_key_chain_cancel(self, new_value: str) -> None:
@@ -485,7 +485,7 @@ class GameConfig(YamlConfig):
 
     @property
     def ds4_key_chain_cancel(self) -> str:
-        return self.get('ds4_key_chain_cancel', 'mouse_middle')
+        return self.get('ds4_key_chain_cancel', Ds4ButtonEnum.CROSS.value.value)
 
     @ds4_key_chain_cancel.setter
     def ds4_key_chain_cancel(self, new_value: str) -> None:

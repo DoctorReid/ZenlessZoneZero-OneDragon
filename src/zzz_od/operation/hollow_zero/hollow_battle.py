@@ -167,7 +167,7 @@ class HollowBattle(ZOperation):
     def move_fail(self) -> OperationRoundResult:
         screen = self.screenshot()
 
-        result = self.round_by_find_area(screen, '零号空洞-战斗', '退出')
+        result = self.round_by_find_area(screen, '零号空洞-战斗', '退出战斗')
         if result.is_success:
             return self.round_success(wait=0.5)  # 稍微等一下让按钮可按
 
@@ -178,15 +178,23 @@ class HollowBattle(ZOperation):
     @operation_node(name='点击退出')
     def click_exit(self) -> OperationRoundResult:
         screen = self.screenshot()
-        return self.round_by_find_and_click_area(screen, '零号空洞-战斗', '退出',
+        return self.round_by_find_and_click_area(screen, '零号空洞-战斗', '退出战斗',
                                                  success_wait=1, retry_wait=1)
 
     @node_from(from_name='点击退出')
     @operation_node(name='点击退出确认')
     def click_exit_confirm(self) -> OperationRoundResult:
         screen = self.screenshot()
-        return self.round_by_find_and_click_area(screen, '零号空洞-战斗', '退出确认',
+        return self.round_by_find_and_click_area(screen, '零号空洞-战斗', '退出战斗-确认',
                                                  success_wait=1, retry_wait=1)
+
+    @node_from(from_name='点击退出确认')
+    @operation_node(name='等待退出')
+    def wait_exit(self) -> OperationRoundResult:
+        self.node_max_retry_times = 20
+        screen = self.screenshot()
+        return self.round_by_find_area(screen, '零号空洞-事件', '通关-完成',
+                                       success_wait=2, retry_wait=1)  # 找到后稍微等待 按钮刚出来的时候按没有用
 
     def _check_distance(self, screen: MatLike) -> None:
         mr = self.ctx.battle.check_battle_distance(screen)
