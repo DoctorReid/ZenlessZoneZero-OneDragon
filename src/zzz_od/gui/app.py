@@ -1,11 +1,14 @@
 import sys
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QColor
+
 from PySide6.QtWidgets import QApplication
-from qfluentwidgets import NavigationItemPosition, setTheme, Theme,setThemeColor
+from qfluentwidgets import NavigationItemPosition, setTheme, Theme
+
+from one_dragon.base.operation.one_dragon_context import ContextInstanceEventEnum
 from one_dragon.gui.app.fluent_window_base import FluentWindowBase
 from one_dragon.gui.common.od_style_sheet import OdStyleSheet
 from one_dragon.gui.view.code_interface import CodeInterface
+from one_dragon.gui.view.context_event_signal import ContextEventSignal
+from one_dragon.utils.i18_utils import gt
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.battle_assistant.battle_assistant_interface import BattleAssistantInterface
 from zzz_od.gui.view.devtools.app_devtools_interface import AppDevtoolsInterface
@@ -24,10 +27,14 @@ class AppWindow(FluentWindowBase):
         FluentWindowBase.__init__(
             self,
             ctx=ctx,
-            win_title=ctx.project_config.project_name,
+            win_title='%s %s' % (gt(ctx.project_config.project_name, 'ui'), ctx.one_dragon_config.current_active_instance.name),
             app_icon='zzz_logo.ico',
             parent=parent
         )
+
+        self.ctx.listen_event(ContextInstanceEventEnum.instance_active.value, self._on_instance_active_event)
+        self._context_event_signal: ContextEventSignal = ContextEventSignal()
+        self._context_event_signal.instance_changed.connect(self._on_instance_active_signal)
 
     # 继承初始化函数
     def init_window(self):
@@ -89,6 +96,25 @@ class AppWindow(FluentWindowBase):
 
         # 设置
         self.add_sub_interface(AppSettingInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)
+
+    def _on_instance_active_event(self, event) -> None:
+        """
+        切换实例后 更新title 这是context的事件 不能更新UI
+        :return:
+        """
+        self._context_event_signal.instance_changed.emit()
+
+    def _on_instance_active_signal(self) -> None:
+        """
+        切换实例后 更新title 这是Signal 可以更新UI
+        :return:
+        """
+        self.setWindowTitle(
+            '%s %s' % (
+                gt(self.ctx.project_config.project_name, 'ui'),
+                self.ctx.one_dragon_config.current_active_instance.name
+            )
+        )
 
 
 # 初始化应用程序，并启动主窗口

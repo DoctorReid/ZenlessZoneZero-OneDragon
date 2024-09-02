@@ -8,6 +8,7 @@ from one_dragon.gui.app.fluent_window_base import FluentWindowBase
 from one_dragon.gui.common.od_style_sheet import OdStyleSheet
 from one_dragon.gui.view.install_interface import InstallerInterface
 from one_dragon.gui.view.installer_setting_interface import InstallerSettingInterface
+from one_dragon.utils.i18_utils import gt
 
 
 class InstallerWindowBase(FluentWindowBase):
@@ -56,6 +57,6 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     _ctx = OneDragonContext()
     setTheme(Theme[_ctx.env_config.theme.upper()])
-    w = InstallerWindowBase(_ctx, f'{_ctx.project_config.project_name}-installer')
+    w = InstallerWindowBase(_ctx, gt(f'{_ctx.project_config.project_name}-installer', 'ui'))
     w.show()
     app.exec()

@@ -6,6 +6,7 @@ from qfluentwidgets import NavigationItemPosition, Theme, setTheme
 from one_dragon.gui.app.fluent_window_base import FluentWindowBase
 from one_dragon.gui.view.install_interface import InstallerInterface
 from one_dragon.gui.view.installer_setting_interface import InstallerSettingInterface
+from one_dragon.utils.i18_utils import gt
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.installer.extend_install_interface import ExtendInstallInterface
 
@@ -32,6 +33,6 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     _ctx = ZContext(is_installer=True)
     setTheme(Theme[_ctx.env_config.theme.upper()])
-    w = ZInstallerWindow(_ctx, f'{_ctx.project_config.project_name}-installer')
+    w = ZInstallerWindow(_ctx, gt(f'{_ctx.project_config.project_name}-installer', 'ui'))
     w.show()
     app.exec()

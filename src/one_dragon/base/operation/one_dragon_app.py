@@ -15,8 +15,6 @@ from one_dragon.utils.log_utils import log
 
 class OneDragonApp(Application):
 
-    EVENT_SWITCH: ClassVar[str] = '切换实例'
-
     STATUS_ALL_DONE: ClassVar[str] = '全部结束'
     STATUS_NEXT: ClassVar[str] = '下一个'
     STATUS_NO_LOGIN: ClassVar[str] = '下一个'

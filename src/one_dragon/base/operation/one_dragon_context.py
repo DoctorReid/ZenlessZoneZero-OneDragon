@@ -45,6 +45,11 @@ class ContextKeyboardEventEnum(Enum):
     PRESS: str = 'context_keyboard_press'
 
 
+class ContextInstanceEventEnum(Enum):
+
+    instance_active: str = 'instance_active'
+
+
 class OneDragonContext(ContextEventBus):
 
     def __init__(self, controller: Optional[ControllerBase] = None):
@@ -196,3 +201,4 @@ class OneDragonContext(ContextEventBus):
         self.one_dragon_config.active_instance(instance_idx)
         self.current_instance_idx = self.one_dragon_config.current_active_instance.idx
         self.one_dragon_app_config = OneDragonAppConfig(self.current_instance_idx)
+        self.dispatch_event(ContextInstanceEventEnum.instance_active.value, instance_idx)

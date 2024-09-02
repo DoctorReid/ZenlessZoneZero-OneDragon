@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt, QObject, Signal
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
 from enum import Enum
 from qfluentwidgets import FluentIcon, SettingCardGroup, SubtitleLabel, PrimaryPushButton, PushButton
@@ -9,12 +9,14 @@ from one_dragon.base.config.one_dragon_config import InstanceRun
 from one_dragon.base.operation.application_base import Application, ApplicationEventId
 from one_dragon.base.operation.context_event_bus import ContextEventItem
 from one_dragon.base.operation.one_dragon_app import OneDragonApp
-from one_dragon.base.operation.one_dragon_context import OneDragonContext, ContextKeyboardEventEnum
+from one_dragon.base.operation.one_dragon_context import OneDragonContext, ContextKeyboardEventEnum, \
+    ContextInstanceEventEnum
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.log_display_card import LogDisplayCard
 from one_dragon.gui.component.setting_card.app_run_card import AppRunCard
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.view.app_run_interface import AppRunner
+from one_dragon.gui.view.context_event_signal import ContextEventSignal
 from one_dragon.utils import cmd_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
@@ -25,14 +27,6 @@ class AfterDoneOpEnum(Enum):
     NONE = ConfigItem('无', 'none')
     CLOSE_GAME = ConfigItem('关闭游戏', 'close_game')
     SHUTDOWN = ConfigItem('关机', 'shutdown')
-
-
-class ContextEventSignal(QObject):
-
-    instance_changed = Signal()
-
-    def __init__(self):
-        QObject.__init__(self)
 
 
 class OneDragonRunInterface(VerticalScrollInterface):
@@ -171,7 +165,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
         self.ctx.listen_event(ContextKeyboardEventEnum.PRESS.value, self._on_key_press)
         self.ctx.listen_event(ApplicationEventId.APPLICATION_START.value, self._on_app_state_changed)
         self.ctx.listen_event(ApplicationEventId.APPLICATION_STOP.value, self._on_app_state_changed)
-        self.ctx.listen_event(OneDragonApp.EVENT_SWITCH, self._on_instance_event)
+        self.ctx.listen_event(ContextInstanceEventEnum.instance_active.value, self._on_instance_event)
 
         self.instance_run_opt.value_changed.disconnect(self._on_instance_run_changed)
 
