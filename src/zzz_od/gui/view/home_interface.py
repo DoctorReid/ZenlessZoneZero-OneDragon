@@ -40,9 +40,15 @@ class BannerWidget(QWidget):
 
         # 向链接卡片视图中添加一个卡片
         self.linkCardView.addCard(
+            FluentIcon.HOME,
+            gt('主页说明', 'ui'),
+            gt('使用说明都能在这找到', 'ui'),
+            "https://one-dragon.org/zzz/zh/home.html"
+        )
+        self.linkCardView.addCard(
             FluentIcon.GITHUB,
             gt('仓库地址', 'ui'),
-            self.tr('如果本项目有帮助到您~\n不妨给项目点一个Star⭐'),
+            gt('如果本项目有帮助到您~\n不妨给项目点一个Star⭐', 'ui'),
             "https://github.com/DoctorReid/ZenlessZoneZero-OneDragon"
         )
 
