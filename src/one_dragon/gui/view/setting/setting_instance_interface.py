@@ -1,7 +1,7 @@
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, ComboBox, LineEdit, PushButton, \
-    ToolButton, PrimaryPushButton
+    ToolButton, PrimaryPushButton, HyperlinkCard
 
 from one_dragon.base.config.one_dragon_config import OneDragonInstance, RunInOneDragonApp
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
@@ -125,6 +125,15 @@ class SettingInstanceInterface(VerticalScrollInterface):
         """
         self.instance_card_list = []
         self.content_widget.clear_widgets()
+
+        guide_opt = HyperlinkCard(
+            url='http://one-dragon.org/zzz/zh/docs/feat_one_dragon.html#_4-%E5%A4%9A%E8%B4%A6%E5%8F%B7',
+            text='说明',
+            icon=FluentIcon.INFO,
+            title='注意',
+            content='新实例需要点击启用后到各模块进行设置，各实例之间的设置是独立的。'
+        )
+        self.content_widget.add_widget(guide_opt)
 
         for instance in self.ctx.one_dragon_config.instance_list:
             instance_card = InstanceSettingCard(instance)
