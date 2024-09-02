@@ -20,6 +20,7 @@ class HollowBattle(ZOperation):
 
     STATUS_NEED_SPECIAL_MOVE: ClassVar[str] = '需要移动'
     STATUS_NO_NEED_SPECIAL_MOVE: ClassVar[str] = '不需要移动'
+    STATUS_FAIL_TO_MOVE: ClassVar[str] = '移动失败'
 
     def __init__(self, ctx: ZContext, is_critical_stage: bool = False):
         """
@@ -96,6 +97,9 @@ class HollowBattle(ZOperation):
             if self.ctx.battle.without_distance_times >= 10:
                 self.auto_op.start_running_async()
                 return self.round_success()
+            if self.ctx.battle.with_distance_times >= 20:
+                # 移动比较久也没到 就自动退出了
+                return self.round_fail(HollowBattle.STATUS_FAIL_TO_MOVE)
             else:
                 return self.round_wait(wait=0.02)
 
@@ -156,6 +160,32 @@ class HollowBattle(ZOperation):
     def battle_fail(self) -> OperationRoundResult:
         screen = self.screenshot()
         return self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-撤退',
+                                                 success_wait=1, retry_wait=1)
+
+    @node_from(from_name='向前移动准备战斗', success=False, status=STATUS_FAIL_TO_MOVE)
+    @operation_node(name='移动失败')
+    def move_fail(self) -> OperationRoundResult:
+        screen = self.screenshot()
+
+        result = self.round_by_find_area(screen, '零号空洞-战斗', '退出')
+        if result.is_success:
+            return self.round_success(wait=0.5)  # 稍微等一下让按钮可按
+
+        return self.round_by_click_area('战斗画面', '菜单',
+                                        success_wait=1, retry_wait=1)
+
+    @node_from(from_name='移动失败')
+    @operation_node(name='点击退出')
+    def click_exit(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        return self.round_by_find_and_click_area(screen, '零号空洞-战斗', '退出',
+                                                 success_wait=1, retry_wait=1)
+
+    @node_from(from_name='点击退出')
+    @operation_node(name='点击退出确认')
+    def click_exit_confirm(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        return self.round_by_find_and_click_area(screen, '零号空洞-战斗', '退出确认',
                                                  success_wait=1, retry_wait=1)
 
     def _check_distance(self, screen: MatLike) -> None:
