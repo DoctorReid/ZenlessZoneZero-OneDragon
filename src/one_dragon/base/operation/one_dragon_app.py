@@ -3,7 +3,7 @@ from typing import List, Optional, ClassVar
 from one_dragon.base.config.one_dragon_config import OneDragonInstance, InstanceRun
 from one_dragon.base.operation.application_base import Application
 from one_dragon.base.operation.application_run_record import AppRunRecord
-from one_dragon.base.operation.one_dragon_context import OneDragonContext
+from one_dragon.base.operation.one_dragon_context import OneDragonContext, ContextInstanceEventEnum
 from one_dragon.base.operation.operation import Operation
 from one_dragon.base.operation.operation_base import OperationResult
 from one_dragon.base.operation.operation_edge import node_from
@@ -149,7 +149,7 @@ class OneDragonApp(Application):
             self._instance_idx = 0
 
         self.ctx.switch_instance(self._instance_list[self._instance_idx].idx)
-        self.ctx.dispatch_event(OneDragonApp.EVENT_SWITCH)
+        self.ctx.dispatch_event(ContextInstanceEventEnum.instance_active.value)
         log.info('下一个实例 %s', self.ctx.one_dragon_config.current_active_instance.name)
         self.app_list = self.get_one_dragon_apps_in_order()
 
