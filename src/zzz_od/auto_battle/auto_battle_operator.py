@@ -298,7 +298,7 @@ class AutoBattleOperator(ConditionalOperator):
 if __name__ == '__main__':
     ctx = ZContext()
     ctx.init_by_config()
-    op = AutoBattleOperator(ctx, 'auto_battle', '专属配队-艾莲')
+    op = AutoBattleOperator(ctx, 'auto_battle', '击破站场-强攻速切')
     op.init_operator()
     op.start_running_async()
     time.sleep(5)

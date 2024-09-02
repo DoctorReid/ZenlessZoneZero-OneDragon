@@ -79,6 +79,8 @@ class AtomicBtnCommon(AtomicOp):
             self._method = self.ctx.battle.move_d
         elif op_name == BattleEventEnum.BTN_LOCK.value:
             self._method = self.ctx.battle.lock
+        elif op_name == BattleEventEnum.BTN_CHAIN_CANCEL.value:
+            self._method = self.ctx.battle.chain_cancel
         else:
             raise ValueError(f'非法按键 {self.btn_name}')
 

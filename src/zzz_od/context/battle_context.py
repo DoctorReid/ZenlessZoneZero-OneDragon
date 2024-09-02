@@ -35,6 +35,7 @@ class BattleEventEnum(Enum):
     BTN_MOVE_A = '按键-移动-左'
     BTN_MOVE_D = '按键-移动-右'
     BTN_LOCK = '按键-锁定敌人'
+    BTN_CHAIN_CANCEL = '按键-连携技-取消'
 
     STATUS_SPECIAL_READY = '按键可用-特殊攻击'
     STATUS_ULTIMATE_READY = '按键可用-终结技'
@@ -274,6 +275,17 @@ class BattleContext:
             e = BattleEventEnum.BTN_LOCK.value
 
         self.ctx.controller.lock(press=press, press_time=press_time, release=release)
+        self.ctx.dispatch_event(e, StateEvent(time.time()))
+
+    def chain_cancel(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
+        if press:
+            e = BattleEventEnum.BTN_CHAIN_CANCEL.value + '-按下'
+        elif release:
+            e = BattleEventEnum.BTN_CHAIN_CANCEL.value + '-松开'
+        else:
+            e = BattleEventEnum.BTN_CHAIN_CANCEL.value
+
+        self.ctx.controller.chain_cancel(press=press, press_time=press_time, release=release)
         self.ctx.dispatch_event(e, StateEvent(time.time()))
 
     def init_context(self,

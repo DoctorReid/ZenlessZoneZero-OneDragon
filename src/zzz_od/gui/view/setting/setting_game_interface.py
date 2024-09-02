@@ -117,6 +117,10 @@ class SettingGameInterface(VerticalScrollInterface):
         self.key_lock_opt.value_changed.connect(self._on_key_lock_changed)
         key_group.addSettingCard(self.key_lock_opt)
 
+        self.key_chain_cancel_opt = KeySettingCard(icon=FluentIcon.GAME, title='锁定敌人')
+        self.key_chain_cancel_opt.value_changed.connect(self._on_key_chain_cancel_changed)
+        key_group.addSettingCard(self.key_chain_cancel_opt)
+
         return key_group
 
     def _get_gamepad_group(self) -> QWidget:
@@ -192,6 +196,10 @@ class SettingGameInterface(VerticalScrollInterface):
         self.xbox_key_lock_opt.value_changed.connect(self._on_xbox_key_lock_changed)
         gamepad_group.addSettingCard(self.xbox_key_lock_opt)
 
+        self.xbox_key_chain_cancel_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='锁定敌人', options_enum=XboxButtonEnum)
+        self.xbox_key_chain_cancel_opt.value_changed.connect(self._on_xbox_key_chain_cancel_changed)
+        gamepad_group.addSettingCard(self.xbox_key_chain_cancel_opt)
+
         # ds4
         self.ds4_key_press_time_opt = TextSettingCard(icon=FluentIcon.GAME, title='单次按键持续时间(秒)',
                                                       content='自行调整，过小可能按键被吞，过大可能影响操作')
@@ -254,6 +262,10 @@ class SettingGameInterface(VerticalScrollInterface):
         self.ds4_key_lock_opt.value_changed.connect(self._on_ds4_key_lock_changed)
         gamepad_group.addSettingCard(self.ds4_key_lock_opt)
 
+        self.ds4_key_chain_cancel_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='锁定敌人', options_enum=Ds4ButtonEnum)
+        self.ds4_key_chain_cancel_opt.value_changed.connect(self._on_ds4_key_chain_cancel_changed)
+        gamepad_group.addSettingCard(self.ds4_key_chain_cancel_opt)
+
         return gamepad_group
 
     def on_interface_shown(self) -> None:
@@ -284,6 +296,7 @@ class SettingGameInterface(VerticalScrollInterface):
         self.key_move_a_opt.setValue(self.ctx.game_config.key_move_a)
         self.key_move_d_opt.setValue(self.ctx.game_config.key_move_d)
         self.key_lock_opt.setValue(self.ctx.game_config.key_lock)
+        self.key_chain_cancel_opt.setValue(self.ctx.game_config.key_chain_cancel)
 
         self._update_gamepad_part()
 
@@ -315,6 +328,7 @@ class SettingGameInterface(VerticalScrollInterface):
         self.xbox_key_move_a_opt.setValue(self.ctx.game_config.xbox_key_move_a)
         self.xbox_key_move_d_opt.setValue(self.ctx.game_config.xbox_key_move_d)
         self.xbox_key_lock_opt.setValue(self.ctx.game_config.xbox_key_lock)
+        self.xbox_key_chain_cancel_opt.setValue(self.ctx.game_config.xbox_key_chain_cancel)
 
         self.xbox_key_press_time_opt.setVisible(is_xbox)
         self.xbox_key_normal_attack_opt.setVisible(is_xbox)
@@ -331,6 +345,7 @@ class SettingGameInterface(VerticalScrollInterface):
         self.xbox_key_move_a_opt.setVisible(is_xbox)
         self.xbox_key_move_d_opt.setVisible(is_xbox)
         self.xbox_key_lock_opt.setVisible(is_xbox)
+        self.xbox_key_chain_cancel_opt.setVisible(is_xbox)
 
         is_ds4 = self.ctx.game_config.gamepad_type == GamepadTypeEnum.DS4.value.value
 
@@ -349,6 +364,7 @@ class SettingGameInterface(VerticalScrollInterface):
         self.ds4_key_move_a_opt.setValue(self.ctx.game_config.ds4_key_move_a)
         self.ds4_key_move_d_opt.setValue(self.ctx.game_config.ds4_key_move_d)
         self.ds4_key_lock_opt.setValue(self.ctx.game_config.ds4_key_lock)
+        self.ds4_key_chain_cancel_opt.setValue(self.ctx.game_config.ds4_key_chain_cancel)
 
         self.ds4_key_press_time_opt.setVisible(is_ds4)
         self.ds4_key_normal_attack_opt.setVisible(is_ds4)
@@ -365,6 +381,7 @@ class SettingGameInterface(VerticalScrollInterface):
         self.ds4_key_move_a_opt.setVisible(is_ds4)
         self.ds4_key_move_d_opt.setVisible(is_ds4)
         self.ds4_key_lock_opt.setVisible(is_ds4)
+        self.ds4_key_chain_cancel_opt.setVisible(is_ds4)
 
     def _on_game_region_changed(self, index, value):
         self.ctx.game_config.game_region = value
@@ -428,6 +445,9 @@ class SettingGameInterface(VerticalScrollInterface):
     def _on_key_lock_changed(self, key: str) -> None:
         self.ctx.game_config.key_lock = key
 
+    def _on_key_chain_cancel_changed(self, key: str) -> None:
+        self.ctx.game_config.key_chain_cancel = key
+
     def _on_gamepad_type_changed(self, idx: int, value: str) -> None:
         self.ctx.game_config.gamepad_type = value
         self._update_gamepad_part()
@@ -477,6 +497,9 @@ class SettingGameInterface(VerticalScrollInterface):
     def _on_xbox_key_lock_changed(self, idx: int, key: str) -> None:
         self.ctx.game_config.xbox_key_lock = key
 
+    def _on_xbox_key_chain_cancel_changed(self, idx: int, key: str) -> None:
+        self.ctx.game_config.xbox_key_chain_cancel = key
+
     def _on_ds4_key_press_time_changed(self, value: str) -> None:
         self.ctx.game_config.ds4_key_press_time = float(value)
 
@@ -521,3 +544,6 @@ class SettingGameInterface(VerticalScrollInterface):
 
     def _on_ds4_key_lock_changed(self, idx: int, key: str) -> None:
         self.ctx.game_config.ds4_key_lock = key
+
+    def _on_ds4_key_chain_cancel_changed(self, idx: int, key: str) -> None:
+        self.ctx.game_config.ds4_key_chain_cancel = key

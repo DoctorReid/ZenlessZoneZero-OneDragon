@@ -35,6 +35,7 @@ class ZPcController(PcControllerBase):
         self.key_move_d: str = self.game_config.key_move_d
         self.key_interact: str = self.game_config.key_interact
         self.key_lock: str = self.game_config.key_lock
+        self.key_chain_cancel: str = self.game_config.key_chain_cancel
 
     def fill_uid_black(self, screen: MatLike) -> MatLike:
         """
@@ -66,6 +67,7 @@ class ZPcController(PcControllerBase):
         self.key_move_d: str = self.game_config.key_move_d
         self.key_interact: str = self.game_config.key_interact
         self.key_lock: str = self.game_config.key_lock
+        self.key_chain_cancel: str = self.game_config.key_chain_cancel
 
     def enable_xbox(self):
         PcControllerBase.enable_xbox(self)
@@ -84,6 +86,7 @@ class ZPcController(PcControllerBase):
         self.key_move_d: str = self.game_config.xbox_key_move_d
         self.key_interact: str = self.game_config.xbox_key_interact
         self.key_lock: str = None
+        self.key_chain_cancel: str = self.game_config.xbox_key_chain_cancel
 
     def enable_ds4(self):
         PcControllerBase.enable_ds4(self)
@@ -102,6 +105,7 @@ class ZPcController(PcControllerBase):
         self.key_move_d: str = self.game_config.ds4_key_move_d
         self.key_interact: str = self.game_config.ds4_key_interact
         self.key_lock: str = None
+        self.key_chain_cancel: str = self.game_config.ds4_key_chain_cancel
 
     def dodge(self, press: bool = False, press_time: Optional[float] = None, release: bool = False) -> None:
         """
@@ -260,7 +264,7 @@ class ZPcController(PcControllerBase):
 
     def lock(self, press: bool = False, press_time: Optional[float] = None, release: bool = False) -> None:
         """
-        向右移动
+        锁定敌人
         """
         if press:
             self.btn_controller.press(self.key_lock, press_time)
@@ -268,3 +272,14 @@ class ZPcController(PcControllerBase):
             self.btn_controller.release(self.key_lock)
         else:
             self.btn_controller.tap(self.key_lock)
+
+    def chain_cancel(self, press: bool = False, press_time: Optional[float] = None, release: bool = False) -> None:
+        """
+        取消连携
+        """
+        if press:
+            self.btn_controller.press(self.key_chain_cancel, press_time)
+        elif release:
+            self.btn_controller.release(self.key_chain_cancel)
+        else:
+            self.btn_controller.tap(self.key_chain_cancel)

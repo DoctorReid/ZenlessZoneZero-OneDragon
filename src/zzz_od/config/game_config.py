@@ -216,6 +216,14 @@ class GameConfig(YamlConfig):
         self.update('key_lock', new_value)
 
     @property
+    def key_chain_cancel(self) -> str:
+        return self.get('key_chain_cancel', 'mouse_middle')
+
+    @key_chain_cancel.setter
+    def key_chain_cancel(self, new_value: str) -> None:
+        self.update('key_chain_cancel', new_value)
+
+    @property
     def gamepad_type(self) -> str:
         return self.get('gamepad_type', GamepadTypeEnum.NONE.value.value)
 
@@ -346,6 +354,14 @@ class GameConfig(YamlConfig):
         self.update('xbox_key_lock', new_value)
 
     @property
+    def xbox_key_chain_cancel(self) -> str:
+        return self.get('xbox_key_chain_cancel', 'mouse_middle')
+
+    @xbox_key_chain_cancel.setter
+    def xbox_key_chain_cancel(self, new_value: str) -> None:
+        self.update('xbox_key_chain_cancel', new_value)
+
+    @property
     def ds4_key_press_time(self) -> float:
         return self.get('ds4_key_press_time', 0.02)
 
@@ -466,6 +482,14 @@ class GameConfig(YamlConfig):
     @ds4_key_lock.setter
     def ds4_key_lock(self, new_value: str) -> None:
         self.update('ds4_key_lock', new_value)
+
+    @property
+    def ds4_key_chain_cancel(self) -> str:
+        return self.get('ds4_key_chain_cancel', 'mouse_middle')
+
+    @ds4_key_chain_cancel.setter
+    def ds4_key_chain_cancel(self, new_value: str) -> None:
+        self.update('ds4_key_chain_cancel', new_value)
 
     @property
     def gamepad_requirement_time(self) -> str:

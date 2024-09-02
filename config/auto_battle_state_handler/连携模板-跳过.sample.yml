@@ -2,5 +2,5 @@ template_name: "连携模板-跳过"
 handlers:
   - states: ""
     operations:
-      - op_name: "等待秒数"
-        data: [ "2.5" ]
+      - op_name: "按键-连携技-取消"
+        post_delay: 0.1

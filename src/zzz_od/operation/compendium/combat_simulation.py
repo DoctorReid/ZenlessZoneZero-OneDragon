@@ -52,6 +52,7 @@ class CombatSimulation(ZOperation):
 
         self.auto_op: Optional[ConditionalOperator] = None
 
+
     @operation_node(name='等待入口加载', is_start_node=True)
     def wait_entry_load(self) -> OperationRoundResult:
         self.node_max_retry_times = 60  # 一开始等待加载要久一点
