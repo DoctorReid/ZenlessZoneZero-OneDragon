@@ -1,4 +1,3 @@
-template_name: "连携模板-跳过"
 handlers:
   - states: ""
     operations:

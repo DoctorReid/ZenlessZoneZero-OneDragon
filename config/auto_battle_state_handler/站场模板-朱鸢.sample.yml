@@ -1,6 +1,6 @@
 # 朱鸢站场的主要动作
 main_zhu_yuan: &main
-  - states: "[按键可用-终结技]"
+  - states: "[按键可用-终结技] & ![自定义-临时站场]"
     operations:
       - operation_template: "朱鸢-闪前A"
       - op_name: "等待秒数"

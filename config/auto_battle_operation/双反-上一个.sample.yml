@@ -1,3 +1,4 @@
+# 负责闪A切人A 普攻后摇等待时间各角色不同 由后续动作控制
 operations:
   - op_name: "按键-闪避"
     post_delay: 0.1

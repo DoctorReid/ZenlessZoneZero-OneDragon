@@ -476,7 +476,7 @@ class BattleContext:
         else:
             if not self._is_same_agent_list(current_agent_list):
                 self.check_agent_diff_times += 1
-                if self.check_agent_diff_times >= 1000:  # 0.02秒1次 大概20s不一致就重新识别 基本不可能出现
+                if self.check_agent_diff_times >= 500:  # 0.02秒1次 大概10s不一致就重新识别 除了减员情况外基本不可能出现
                     self.should_check_all_agents = True
                     log.debug("重新识别新角色")
             else:
@@ -553,6 +553,7 @@ class BattleContext:
         with self._update_agent_lock:
             if update_time < self._agent_update_time:  # 可能是过时的截图 这时候不更新
                 return
+            self._agent_update_time = update_time
             any_none: bool = False
             for agent in current_agent_list:
                 if agent is None:
