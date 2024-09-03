@@ -5,8 +5,8 @@ handlers:
     - states: "[自定义-黄光切人]"
       operations:
         - op_name: "按键-普通攻击"
-          post_delay: 1
-        - op_name: "按键-普通攻击"
+          post_delay: 0.2
+          repeat: 8
         - op_name: "清除状态"
           state: "自定义-黄光切人"
 
@@ -17,6 +17,16 @@ handlers:
           seconds: 1.2
         - op_name: "清除状态"
           state:  "自定义-红光闪避"
+        - op_name: "清除状态"
+          state:  "自定义-青衣-普攻次数"
+
+    # 连携后
+    - states: "[自定义-连携换人]"
+      operations:
+        - op_name: "等待秒数"
+          seconds: 2
+        - op_name: "清除状态"
+          state:  "自定义-连携换人"
         - op_name: "清除状态"
           state:  "自定义-青衣-普攻次数"
 
