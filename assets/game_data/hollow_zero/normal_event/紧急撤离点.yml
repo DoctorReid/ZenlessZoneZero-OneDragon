@@ -8,3 +8,9 @@
 
 - entry_name: "紧急撤离点"
   event_name: "事件应急撒离点"
+  options:
+    # 艾莲选项
+    - option_name: "还没到偷懒的时间"
+    - option_name: "让3号队员离队体整"
+    - option_name: "让2号队员离队体整"
+    - option_name: "让1号队员离队体整"
