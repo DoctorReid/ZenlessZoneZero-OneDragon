@@ -11,6 +11,7 @@ from one_dragon.base.conditional_operation.state_handler_template import StateHa
 from one_dragon.base.conditional_operation.state_recorder import StateRecorder
 from one_dragon.utils import os_utils
 from one_dragon.utils.log_utils import log
+from zzz_od.auto_battle.atomic_op.btn_chain_cancel import AtomicBtnChainCancel
 from zzz_od.auto_battle.atomic_op.btn_chain_left import AtomicBtnChainLeft
 from zzz_od.auto_battle.atomic_op.btn_chain_right import AtomicBtnChainRight
 from zzz_od.auto_battle.atomic_op.btn_common import AtomicBtnCommon
@@ -289,7 +290,8 @@ class AutoBattleOperator(ConditionalOperator):
             AtomicBtnMoveS(self.ctx, release=True),
             AtomicBtnMoveA(self.ctx, release=True),
             AtomicBtnMoveD(self.ctx, release=True),
-            AtomicBtnLock(self.ctx, release=True)
+            AtomicBtnLock(self.ctx, release=True),
+            AtomicBtnChainCancel(self.ctx, release=True)
         ]
         for op in ops:
             op.execute()
