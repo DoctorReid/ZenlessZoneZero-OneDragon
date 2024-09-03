@@ -146,3 +146,10 @@
   event_name: "捕猎游戏高分段位"
   options:
     - option_name: "等待猫又吧已经习惯了"
+
+# 猫又
+- entry_name: "邂逅"
+  event_name: "捕猎收获"
+  options:
+    - option_name: "接受补给包"
+      desc: "回复少量生命值，并降低少量压力值"
