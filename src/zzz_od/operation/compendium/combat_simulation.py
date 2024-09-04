@@ -255,7 +255,7 @@ class CombatSimulation(ZOperation):
             self.auto_op = None
 
 
-def __debug():
+def __debug_coffee():
     ctx = ZContext()
     ctx.init_by_config()
     ctx.ocr.init_model()
@@ -267,6 +267,24 @@ def __debug():
         mission_type_name=chosen_coffee.mission_type.mission_type_name,
         mission_name=None if chosen_coffee.mission is None else chosen_coffee.mission.mission_name,
         auto_battle_config=ctx.coffee_config.auto_battle,
+        run_times=0,
+        plan_times=1
+    )
+    op = CombatSimulation(ctx, charge_plan)
+    op.can_run_times = 1
+    op.execute()
+
+def __debug():
+    ctx = ZContext()
+    ctx.init_by_config()
+    ctx.ocr.init_model()
+    ctx.start_running()
+    charge_plan = ChargePlanItem(
+        tab_name='训练',
+        category_name='实战模拟室',
+        mission_type_name='自定义模板',
+        mission_name='自定义模板1',
+        auto_battle_config=ctx.battle_assistant_config.auto_battle_config,
         run_times=0,
         plan_times=1
     )
