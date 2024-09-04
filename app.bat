@@ -5,12 +5,12 @@ set "PYTHONPATH=%~dp0src"
 echo PYTHON=%PYTHON%
 echo PYTHONPATH=%PYTHONPATH%
 
-:: 检查是否以管理员权限运行
+:: 检查是否以管理员权限运行, 若不是, 申请提权
 net session >nul 2>&1
 if %errorlevel% neq 0 (
-    echo 需要以管理员权限运行此脚本！
-    pause
-    exit /b 1
+    echo 当前未以管理员权限运行，尝试请求提权...
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "& {Start-Process '%~f0' -Verb RunAs}"
+    exit /b
 )
 
 :: 检查路径是否包含中文字符
