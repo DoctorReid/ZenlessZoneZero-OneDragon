@@ -49,7 +49,7 @@ class NotoriousHunt(ZOperation):
 
         self.auto_op: Optional[ConditionalOperator] = None
 
-    @operation_node(name='等待入口加载', is_start_node=True, node_retry_max_times=60)
+    @operation_node(name='等待入口加载', is_start_node=True, node_max_retry_times=60)
     def wait_entry_load(self) -> OperationRoundResult:
         screen = self.screenshot()
         return self.round_by_find_area(
@@ -139,23 +139,29 @@ class NotoriousHunt(ZOperation):
         return self.round_success()
 
     @node_from(from_name='加载自动战斗指令')
-    @operation_node(name='等待战斗画面加载')
+    @operation_node(name='等待战斗画面加载', node_max_retry_times=60)
     def wait_battle_screen(self) -> OperationRoundResult:
-        self.node_max_retry_times = 60  # 战斗加载的等待时间较长
         screen = self.screenshot()
         return self.round_by_find_area(screen, '战斗画面', '按键-普通攻击', retry_wait_round=1)
 
     @node_from(from_name='等待战斗画面加载')
     @operation_node(name='移动交互')
     def move_and_interact(self) -> OperationRoundResult:
-        self.ctx.controller.move_w(press=True, press_time=1.2, release=True)
-
+        if self.node_retry_times == 0:  # 第一次移动较远距离
+            self.ctx.controller.move_w(press=True, press_time=1.2, release=True)
+        else:
+            self.ctx.controller.move_w(press=True, press_time=0.2, release=True)
         time.sleep(1)
 
-        self.ctx.controller.interact(press=True, press_time=0.2, release=True)
-        time.sleep(2)
-
-        return self.round_success()
+        screen = self.screenshot()
+        area = self.ctx.screen_loader.get_area('恶名狩猎', '鸣徽交互区域')
+        result = self.round_by_ocr(screen, '鸣徽', area=area)
+        if result.is_success:
+            self.ctx.controller.interact(press=True, press_time=0.2, release=True)
+            time.sleep(2)
+            return self.round_success()
+        else:
+            return self.round_retry(result.status)
 
     @node_from(from_name='移动交互')
     @operation_node(name='选择')
