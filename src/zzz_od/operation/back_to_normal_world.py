@@ -1,6 +1,6 @@
 from cv2.typing import MatLike
 
-from one_dragon.base.operation.operation_node import OperationNode
+from one_dragon.base.operation.operation_node import OperationNode, operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
@@ -21,18 +21,10 @@ class BackToNormalWorld(ZOperation):
                             op_name=gt('返回大世界', 'ui')
                             )
 
-    def add_edges_and_nodes(self) -> None:
-        """
-        初始化前 添加边和节点 由子类实行
-        :return:
-        """
-        check = OperationNode('画面识别', self.check_screen_and_run)
-
-        self.param_start_node = check
-
     def handle_init(self):
         pass
 
+    @operation_node(name='画面识别', is_start_node=True, node_max_retry_times=60)
     def check_screen_and_run(self) -> OperationRoundResult:
         """
         识别游戏画面

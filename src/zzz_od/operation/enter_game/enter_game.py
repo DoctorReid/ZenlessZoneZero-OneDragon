@@ -13,12 +13,11 @@ class EnterGame(ZOperation):
 
     def __init__(self, ctx: ZContext):
         ZOperation.__init__(self, ctx,
-                            node_max_retry_times=60,
                             op_name=gt('进入游戏', 'ui')
                             )
 
     @node_from(from_name='输入账号密码')
-    @operation_node(name='画面识别', is_start_node=True)
+    @operation_node(name='画面识别', is_start_node=True, node_max_retry_times=60)
     def check_screen(self) -> OperationRoundResult:
         screen = self.screenshot()
 
