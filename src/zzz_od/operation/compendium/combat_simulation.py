@@ -23,9 +23,7 @@ class CombatSimulation(ZOperation):
     STATUS_CHARGE_NOT_ENOUGH: ClassVar[str] = '电量不足'
     STATUS_CHARGE_ENOUGH: ClassVar[str] = '电量充足'
 
-    def __init__(self, ctx: ZContext, plan: ChargePlanItem,
-                 need_to_choose_type: bool = False
-                 ):
+    def __init__(self, ctx: ZContext, plan: ChargePlanItem):
         """
         使用快捷手册传送后
         用这个进行挑战
@@ -60,7 +58,7 @@ class CombatSimulation(ZOperation):
 
         result = self.round_by_find_area(screen, '实战模拟室', '挑战等级')
         if result.is_success:
-            return self.round_success()
+            return self.round_success(self.plan.mission_type_name)
 
         result = self.round_by_find_area(screen, '实战模拟室', '沉浸模式')
         if result.is_success:
@@ -68,7 +66,22 @@ class CombatSimulation(ZOperation):
 
         return self.round_retry(wait=1)
 
+    @node_from(from_name='等待入口加载', status='自定义模板')
+    @operation_node(name='自定义模版的返回')
+    def back_for_div(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        result = self.round_by_find_area(screen, '实战模拟室', '沉浸模式')
+        if result.is_success:
+            return self.round_success()
+
+        result = self.round_by_click_area('菜单', '返回')
+        if result.is_success:
+            return self.round_retry('尝试返回副本类型列表' ,wait=1)
+        else:
+            return self.round_retry(result.status, wait=1)
+
     @node_from(from_name='等待入口加载', status=STATUS_NEED_TYPE)
+    @node_from(from_name='自定义模版的返回')
     @operation_node(name='选择类型')
     def choose_mission_type(self) -> OperationRoundResult:
         self.node_max_retry_times = 5

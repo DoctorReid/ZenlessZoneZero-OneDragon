@@ -31,6 +31,9 @@ class TransportByCompendium(ZOperation):
         self.category_name: str = category_name
         self.mission_type_name: str = mission_type_name
 
+        if self.mission_type_name == '自定义模板':  # 没法直接传送到自定义
+            self.mission_type_name: str = '基础材料'
+
     @operation_node(name='快捷手册', is_start_node=True)
     def open_compendium(self) -> OperationRoundResult:
         op = OpenCompendium(self.ctx)
