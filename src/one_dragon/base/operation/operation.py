@@ -347,6 +347,8 @@ class Operation(OperationBase):
                 and time.time() - self._current_node_start_time > self._current_node.timeout_seconds:
             return self.round_fail(Operation.STATUS_TIMEOUT)
 
+        self.node_max_retry_times = self._current_node.node_retry_max_times
+
         if self._current_node.func is not None:
             current_op = self._current_node.func
             current_round_result: OperationRoundResult = current_op()

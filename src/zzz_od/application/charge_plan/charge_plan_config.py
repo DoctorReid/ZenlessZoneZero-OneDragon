@@ -11,6 +11,7 @@ class ChargePlanItem:
             category_name: str = '实战模拟室',
             mission_type_name: str = '基础材料',
             mission_name: str = '调查专项',
+            level: str = '默认等级',
             auto_battle_config: str = '击破站场-强攻速切',
             run_times: int = 0,
             plan_times: int = 1
@@ -19,6 +20,7 @@ class ChargePlanItem:
         self.category_name: str = category_name
         self.mission_type_name: str = mission_type_name
         self.mission_name: str = mission_name
+        self.level: str = level
         self.auto_battle_config: str = auto_battle_config
         self.run_times: int = run_times
         self.plan_times: int = plan_times

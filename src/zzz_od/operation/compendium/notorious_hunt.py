@@ -10,9 +10,9 @@ from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
-from zzz_od.auto_battle import auto_battle_utils
-from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem
+from zzz_od.application.notorious_hunt.notorious_hunt_config import NotoriousHuntLevelEnum
+from zzz_od.auto_battle import auto_battle_utils
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.zzz_operation import ZOperation
 
@@ -49,9 +49,8 @@ class NotoriousHunt(ZOperation):
 
         self.auto_op: Optional[ConditionalOperator] = None
 
-    @operation_node(name='等待入口加载', is_start_node=True)
+    @operation_node(name='等待入口加载', is_start_node=True, node_retry_max_times=60)
     def wait_entry_load(self) -> OperationRoundResult:
-        self.node_max_retry_times = 60  # 一开始等待加载要久一点
         screen = self.screenshot()
         return self.round_by_find_area(
             screen, '恶名狩猎', '当期剩余奖励次数',
@@ -79,10 +78,22 @@ class NotoriousHunt(ZOperation):
             return self.round_success()
 
     @node_from(from_name='识别剩余次数')
+    @operation_node(name='选择难度')
+    def choose_level(self) -> OperationRoundResult:
+        if self.plan.level == NotoriousHuntLevelEnum.DEFAULT.value.value:
+            return self.round_success()
+
+        self.click_area('恶名狩猎', '难度选择入口')
+        time.sleep(1)
+
+        screen = self.screenshot()
+        area = self.ctx.screen_loader.get_area('恶名狩猎', '难度选择区域')
+        return self.round_by_ocr_and_click(screen, self.plan.level, area=area,
+                                           success_wait=1, retry_wait=1)
+
+    @node_from(from_name='选择难度')
     @operation_node(name='选择副本')
     def choose_mission(self) -> OperationRoundResult:
-        self.node_max_retry_times = 5
-
         screen = self.screenshot()
         area = self.ctx.screen_loader.get_area('恶名狩猎', '副本名称列表')
         part = cv2_utils.crop_image_only(screen, area.rect)
