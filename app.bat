@@ -13,20 +13,12 @@ if %errorlevel% neq 0 (
     exit /b
 )
 
-:: 检查路径是否包含中文字符
-echo %PYTHON% | findstr /r "[\u4e00-\u9fff]" >nul
-if %errorlevel% equ 0 (
-    echo "不要在路径中包含中文字符"
-    pause
-    exit /b 1
-)
+:: 使用 PowerShell 检查路径中是否包含中文字符
+powershell -Command "if ($env:PYTHON -match '[\u4e00-\u9fff]') { Write-Output '不要在路径中包含中文字符-step1'; exit 1 }"
+if %errorlevel% neq 0 exit /b %errorlevel%
 
-echo %PYTHONPATH% | findstr /r "[\u4e00-\u9fff]" >nul
-if %errorlevel% equ 0 (
-    echo "不要在路径中包含中文字符"
-    pause
-    exit /b 1
-)
+powershell -Command "if ($env:PYTHONPATH -match '[\u4e00-\u9fff]') { Write-Output '不要在路径中包含中文字符-step2'; exit 1 }"
+if %errorlevel% neq 0 exit /b %errorlevel%
 
 :: 检查 Python 可执行文件路径
 if not exist "%PYTHON%" (
