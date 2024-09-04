@@ -200,5 +200,8 @@ class OneDragonContext(ContextEventBus):
         """
         self.one_dragon_config.active_instance(instance_idx)
         self.current_instance_idx = self.one_dragon_config.current_active_instance.idx
-        self.one_dragon_app_config = OneDragonAppConfig(self.current_instance_idx)
+        self.load_instance_config()
         self.dispatch_event(ContextInstanceEventEnum.instance_active.value, instance_idx)
+
+    def load_instance_config(self):
+        self.one_dragon_app_config = OneDragonAppConfig(self.current_instance_idx)

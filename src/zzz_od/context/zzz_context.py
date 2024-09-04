@@ -58,7 +58,7 @@ class ZContext(OneDragonContext):
         self.compendium_service: CompendiumService = CompendiumService()
 
         # 实例独有的配置
-        self._load_instance_config()
+        self.load_instance_config()
 
     def init_by_config(self) -> None:
         """
@@ -90,16 +90,9 @@ class ZContext(OneDragonContext):
         else:
             self.hollow_zero_challenge_config = HollowZeroChallengeConfig(challenge_config)
 
-    def switch_instance(self, instance_idx: int) -> None:
-        """
-        切换实例
-        :param instance_idx:
-        :return:
-        """
-        OneDragonContext.switch_instance(self, instance_idx)
-        self._load_instance_config()
 
-    def _load_instance_config(self) -> None:
+    def load_instance_config(self) -> None:
+        OneDragonContext.load_instance_config(self)
         self.game_config: GameConfig = GameConfig(self.current_instance_idx)
 
         # 应用配置

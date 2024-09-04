@@ -938,8 +938,15 @@ class BattleContext:
             if state.check_way == AgentStateCheckWay.COLOR_RANGE_CONNECT:
                 value = agent_state_checker.check_cnt_by_color_range(self.ctx, screen, state)
                 self.ctx.dispatch_event(state.state_name, StateEvent(screenshot_time, value=value))
+            if state.check_way == AgentStateCheckWay.COLOR_RANGE_EXIST:
+                value = agent_state_checker.check_exist_by_color_range(self.ctx, screen, state)
+                if value:
+                    self.ctx.dispatch_event(state.state_name, StateEvent(screenshot_time))
             elif state.check_way == AgentStateCheckWay.BACKGROUND_COLOR_RANGE_LENGTH:
                 value = agent_state_checker.check_length_by_background(self.ctx, screen, state)
+                self.ctx.dispatch_event(state.state_name, StateEvent(screenshot_time, value=value))
+            elif state.check_way == AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH:
+                value = agent_state_checker.check_length_by_color_range(self.ctx, screen, state)
                 self.ctx.dispatch_event(state.state_name, StateEvent(screenshot_time, value=value))
 
 

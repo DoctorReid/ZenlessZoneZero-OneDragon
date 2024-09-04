@@ -57,6 +57,8 @@ class AgentStateCheckWay(Enum):
 
     COLOR_RANGE_CONNECT: int = 1  # 根据颜色 在特定范围里匹配找连通块的数量
     BACKGROUND_COLOR_RANGE_LENGTH: int = 2  # 根据背景颜色 在特定范围里反推横条的长度
+    COLOR_RANGE_EXIST: int = 3  # 根据颜色 在特定范围里匹配是否出现
+    FOREGROUND_COLOR_RANGE_LENGTH: int = 4  # 根据前景颜色 在特定范围里反推横条的长度
 
 
 class AgentStateDef:
@@ -127,5 +129,13 @@ class AgentEnum(Enum):
                      state_list=[AgentStateDef('青衣-电压', AgentStateCheckWay.BACKGROUND_COLOR_RANGE_LENGTH,
                                                lower_color=0, upper_color=10)])
 
-    JANE_DOE = Agent('jane_doe', '简', RareTypeEnum.S, AgentTypeEnum.ANOMALY, DmgTypeEnum.PHYSICAL)
-    SETH_LOWELL = Agent('seth_lowell', '赛斯', RareTypeEnum.A, AgentTypeEnum.DEFENSE, DmgTypeEnum.ELECTRIC)
+    JANE_DOE = Agent('jane_doe', '简', RareTypeEnum.S, AgentTypeEnum.ANOMALY, DmgTypeEnum.PHYSICAL,
+                     state_list=[AgentStateDef('简-萨霍夫跳', AgentStateCheckWay.COLOR_RANGE_EXIST,
+                                               lower_color=(100, 20, 20), upper_color=(255, 255, 255), connect_cnt=10),
+                                 AgentStateDef('简-狂热心流', AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH,
+                                               lower_color=(200, 20, 20), upper_color=(255, 255, 255), connect_cnt=10)
+                                 ])
+
+    SETH_LOWELL = Agent('seth_lowell', '赛斯', RareTypeEnum.A, AgentTypeEnum.DEFENSE, DmgTypeEnum.ELECTRIC,
+                     state_list=[AgentStateDef('赛斯-意气', AgentStateCheckWay.BACKGROUND_COLOR_RANGE_LENGTH,
+                                               lower_color=0, upper_color=10)])
