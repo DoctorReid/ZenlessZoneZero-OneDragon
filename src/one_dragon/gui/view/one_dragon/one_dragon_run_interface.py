@@ -5,7 +5,7 @@ from qfluentwidgets import FluentIcon, SettingCardGroup, SubtitleLabel, PrimaryP
 from typing import List
 
 from one_dragon.base.config.config_item import ConfigItem
-from one_dragon.base.config.one_dragon_config import InstanceRun
+from one_dragon.base.config.one_dragon_config import InstanceRun, AfterDoneOpEnum
 from one_dragon.base.operation.application_base import Application, ApplicationEventId
 from one_dragon.base.operation.context_event_bus import ContextEventItem
 from one_dragon.base.operation.one_dragon_app import OneDragonApp
@@ -20,13 +20,6 @@ from one_dragon.gui.view.context_event_signal import ContextEventSignal
 from one_dragon.utils import cmd_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
-
-
-class AfterDoneOpEnum(Enum):
-
-    NONE = ConfigItem('无', 'none')
-    CLOSE_GAME = ConfigItem('关闭游戏', 'close_game')
-    SHUTDOWN = ConfigItem('关机', 'shutdown')
 
 
 class OneDragonRunInterface(VerticalScrollInterface):
@@ -187,6 +180,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
         :param value:
         :return:
         """
+        self.ctx.one_dragon_config.after_done = value
         if value != AfterDoneOpEnum.SHUTDOWN.value.value:
             log.info('已取消关机计划')
             cmd_utils.cancel_shutdown_sys()

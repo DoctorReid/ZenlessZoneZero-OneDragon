@@ -9,7 +9,7 @@ from zzz_od.application.city_fund.city_fund_run_record import CityFundRunRecord
 from zzz_od.application.coffee.coffee_config import CoffeeConfig
 from zzz_od.application.coffee.coffee_run_record import CoffeeRunRecord
 from zzz_od.application.devtools.screenshot_helper.screenshot_helper_config import ScreenshotHelperConfig
-from zzz_od.application.email.email_run_record import EmailRunRecord
+from zzz_od.application.email_app.email_run_record import EmailRunRecord
 from zzz_od.application.engagement_reward.engagement_reward_run_record import EngagementRewardRunRecord
 from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroConfig
 from zzz_od.application.hollow_zero.hollow_zero_run_record import HollowZeroRunRecord
@@ -27,7 +27,7 @@ from zzz_od.hollow_zero.hollow_zero_challenge_config import HollowZeroChallengeC
 
 class ZContext(OneDragonContext):
 
-    def __init__(self, is_installer: bool = False, instance_idx: Optional[int] = None):
+    def __init__(self, is_installer: bool = False):
         """
         :param is_installer:
         :param instance_idx: 指定实例 用于测试
