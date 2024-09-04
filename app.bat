@@ -32,7 +32,22 @@ set second=%second: =0%
 set timestamp=%hour%.%minute%.%second%
 set "BAT_LOG=%~dp0.log\bat_%timestamp%.log"
 
-rem 检查 Python 可执行文件路径
+:: 检查路径是否包含中文字符
+echo %PYTHON% | findstr /r "[\u4e00-\u9fff]" >nul
+if %errorlevel% equ 0 (
+    echo "不要在路径中包含中文字符"
+    pause
+    exit /b 1
+)
+
+echo %PYTHONPATH% | findstr /r "[\u4e00-\u9fff]" >nul
+if %errorlevel% equ 0 (
+    echo "不要在路径中包含中文字符"
+    pause
+    exit /b 1
+)
+
+:: 检查 Python 可执行文件路径
 if not exist "%PYTHON%" (
     echo "未配置Python.exe"
     pause
