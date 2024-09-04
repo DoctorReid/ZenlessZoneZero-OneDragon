@@ -5,32 +5,13 @@ set "PYTHONPATH=%~dp0src"
 echo PYTHON=%PYTHON%
 echo PYTHONPATH=%PYTHONPATH%
 
-:: 创建日志文件夹
-if not exist "%~dp0.log" (
-    mkdir "%~dp0.log"
+:: 检查是否以管理员权限运行
+net session >nul 2>&1
+if %errorlevel% neq 0 (
+    echo 需要以管理员权限运行此脚本！
+    pause
+    exit /b 1
 )
-
-:: 删除所有以 bat_ 开头且以 .log 结尾的文件
-for /r "%~dp0.log" %%F in (bat_*.log) do (
-    del "%%F"
-    echo 删除旧日志文件: %%F
-)
-
-:: 获取当前日期和时间
-for /f "tokens=1-3 delims=/: " %%i in ('"echo %time%"') do (
-    set hour=%%i
-    set minute=%%j
-    set second=%%k
-)
-
-:: 去掉时间中的冒号
-set hour=%hour: =0%
-set minute=%minute: =0%
-set second=%second: =0%
-
-:: 生成日志文件名
-set timestamp=%hour%.%minute%.%second%
-set "BAT_LOG=%~dp0.log\bat_%timestamp%.log"
 
 :: 检查路径是否包含中文字符
 echo %PYTHON% | findstr /r "[\u4e00-\u9fff]" >nul
@@ -60,6 +41,33 @@ if not exist "%PYTHONPATH%" (
     pause
     exit /b 1
 )
+
+:: 创建日志文件夹
+if not exist "%~dp0.log" (
+    mkdir "%~dp0.log"
+)
+
+:: 删除所有以 bat_ 开头且以 .log 结尾的文件
+for /r "%~dp0.log" %%F in (bat_*.log) do (
+    del "%%F"
+    echo 删除旧日志文件: %%F
+)
+
+:: 获取当前日期和时间
+for /f "tokens=1-3 delims=/: " %%i in ('"echo %time%"') do (
+    set hour=%%i
+    set minute=%%j
+    set second=%%k
+)
+
+:: 去掉时间中的冒号
+set hour=%hour: =0%
+set minute=%minute: =0%
+set second=%second: =0%
+
+:: 生成日志文件名
+set timestamp=%hour%.%minute%.%second%
+set "BAT_LOG=%~dp0.log\bat_%timestamp%.log"
 
 :: 检查应用程序脚本路径
 if not exist "%PYTHONPATH%\zzz_od\gui\app.py" (
