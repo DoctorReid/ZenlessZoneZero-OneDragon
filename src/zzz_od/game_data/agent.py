@@ -126,3 +126,6 @@ class AgentEnum(Enum):
     QINGYI = Agent('qingyi', '青衣', RareTypeEnum.S, AgentTypeEnum.STUN, DmgTypeEnum.ELECTRIC,
                      state_list=[AgentStateDef('青衣-电压', AgentStateCheckWay.BACKGROUND_COLOR_RANGE_LENGTH,
                                                lower_color=0, upper_color=10)])
+
+    JANE_DOE = Agent('jane_doe', '简', RareTypeEnum.S, AgentTypeEnum.ANOMALY, DmgTypeEnum.PHYSICAL)
+    SETH_LOWELL = Agent('seth_lowell', '赛斯', RareTypeEnum.A, AgentTypeEnum.DEFENSE, DmgTypeEnum.ELECTRIC)
