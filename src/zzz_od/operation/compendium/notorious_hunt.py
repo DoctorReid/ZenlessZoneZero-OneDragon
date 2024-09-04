@@ -78,20 +78,6 @@ class NotoriousHunt(ZOperation):
             return self.round_success()
 
     @node_from(from_name='识别剩余次数')
-    @operation_node(name='选择难度')
-    def choose_level(self) -> OperationRoundResult:
-        if self.plan.level == NotoriousHuntLevelEnum.DEFAULT.value.value:
-            return self.round_success()
-
-        self.click_area('恶名狩猎', '难度选择入口')
-        time.sleep(1)
-
-        screen = self.screenshot()
-        area = self.ctx.screen_loader.get_area('恶名狩猎', '难度选择区域')
-        return self.round_by_ocr_and_click(screen, self.plan.level, area=area,
-                                           success_wait=1, retry_wait=1)
-
-    @node_from(from_name='选择难度')
     @operation_node(name='选择副本')
     def choose_mission(self) -> OperationRoundResult:
         screen = self.screenshot()
@@ -108,6 +94,27 @@ class NotoriousHunt(ZOperation):
         return self.round_retry(f'未能识别{self.plan.mission_type_name}', wait_round_time=1)
 
     @node_from(from_name='选择副本')
+    @operation_node(name='选择难度')
+    def choose_level(self) -> OperationRoundResult:
+        if self.plan.level == NotoriousHuntLevelEnum.DEFAULT.value.value:
+            return self.round_success()
+
+        self.click_area('恶名狩猎', '难度选择入口')
+        time.sleep(1)
+
+        screen = self.screenshot()
+        area = self.ctx.screen_loader.get_area('恶名狩猎', '难度选择区域')
+        result = self.round_by_ocr_and_click(screen, self.plan.level, area=area,
+                                           success_wait=1)
+        # 如果选择的是最高难度 那第一下有可能选中不到 多选一下兜底
+        self.round_by_ocr_and_click(screen, self.plan.level, area=area,
+                                    success_wait=1)
+        if result.is_success:
+            return result
+        else:
+            return self.round_retry(result.status, wait=1)
+
+    @node_from(from_name='选择难度')
     @operation_node(name='下一步')
     def click_next(self) -> OperationRoundResult:
         screen = self.screenshot()
@@ -253,7 +260,8 @@ def __debug():
     ctx.start_running()
     op = NotoriousHunt(ctx, ChargePlanItem(
         category_name='恶名狩猎',
-        mission_type_name='初生死路屠夫'
+        mission_type_name='初生死路屠夫',
+        level=NotoriousHuntLevelEnum.DEFAULT.value.value
     ))
     op.can_run_times = 1
     op.execute()

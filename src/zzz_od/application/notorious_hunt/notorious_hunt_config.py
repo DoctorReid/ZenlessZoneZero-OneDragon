@@ -9,11 +9,11 @@ from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem
 class NotoriousHuntLevelEnum(Enum):
 
     DEFAULT = ConfigItem('默认等级')
-    LEVEL_65 = ConfigItem('65级')
-    LEVEL_60 = ConfigItem('60级')
-    LEVEL_50 = ConfigItem('50级')
-    LEVEL_40 = ConfigItem('40级')
-    LEVEL_30 = ConfigItem('30级')
+    LEVEL_65 = ConfigItem('等级Lv.65')
+    LEVEL_60 = ConfigItem('等级Lv.60')
+    LEVEL_50 = ConfigItem('等级Lv.50')
+    LEVEL_40 = ConfigItem('等级Lv.40')
+    LEVEL_30 = ConfigItem('等级Lv.30')
 
 
 class NotoriousHuntConfig(YamlConfig):
