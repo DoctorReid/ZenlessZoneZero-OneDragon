@@ -91,7 +91,7 @@ if not exist "%PYTHONPATH%\zzz_od\gui\app.py" (
 )
 
 echo "启动中...大约需要10+秒"
-"%PYTHON%" "%PYTHONPATH%\zzz_od\gui\app.py" >> "%BAT_LOG%" 2>&1
+start /min "" "%PYTHON%" "%PYTHONPATH%\zzz_od\gui\app.py" >> "%BAT_LOG%" 2>&1
 if %errorlevel% neq 0 (
     echo "运行出错 请将错误信息反馈 %BAT_LOG%"
     pause
