@@ -24,7 +24,6 @@ class CriticalStage(ZOperation):
         event_name = HollowZeroSpecialEvent.CRITICAL_STAGE.value.event_name
         ZOperation.__init__(
             self, ctx,
-            node_max_retry_times=5,
             op_name=gt(event_name)
         )
 

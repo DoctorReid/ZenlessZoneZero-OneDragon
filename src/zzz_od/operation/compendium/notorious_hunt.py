@@ -30,7 +30,6 @@ class NotoriousHunt(ZOperation):
         """
         ZOperation.__init__(
             self, ctx,
-            node_max_retry_times=5,
             op_name='%s %s' % (
                 gt('恶名狩猎'),
                 gt(plan.mission_type_name)
@@ -202,7 +201,6 @@ class NotoriousHunt(ZOperation):
     @node_from(from_name='自动战斗')
     @operation_node(name='战斗结束')
     def after_battle(self) -> OperationRoundResult:
-        self.node_max_retry_times = 5  # 战斗结束恢复重试次数
         # TODO 还没有判断战斗失败
         self.can_run_times -= 1
         self.ctx.notorious_hunt_record.left_times = self.ctx.notorious_hunt_record.left_times - 1
@@ -228,9 +226,8 @@ class NotoriousHunt(ZOperation):
                                                  success_wait=1, retry_wait_round=1)
 
     @node_from(from_name='判断下一次', status='战斗结果-完成')
-    @operation_node(name='等待返回入口')
+    @operation_node(name='等待返回入口', node_max_retry_times=60)
     def wait_back_to_entry(self) -> OperationRoundResult:
-        self.node_max_retry_times = 60  # 一开始等待加载要久一点
         screen = self.screenshot()
         return self.round_by_find_area(
             screen, '恶名狩猎', '剩余奖励次数',

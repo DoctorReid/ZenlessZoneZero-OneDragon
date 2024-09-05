@@ -40,9 +40,8 @@ class OpenAndEnterGame(Operation):
         return self.round_by_op(op.execute())
 
     @node_from(from_name='打开游戏')
-    @operation_node(name='等待游戏打开')
+    @operation_node(name='等待游戏打开', node_max_retry_times=60)
     def wait_game(self) -> OperationRoundResult:
-        self.node_max_retry_times = 60
         self.ctx.controller.game_win.init_win()
         if self.ctx.controller.is_game_window_ready:
             self.ctx.controller.active_window()

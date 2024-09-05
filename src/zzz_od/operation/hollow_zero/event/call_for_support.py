@@ -40,7 +40,6 @@ class CallForSupport(ZOperation):
         event_name = HollowZeroSpecialEvent.CALL_FOR_SUPPORT.value.event_name
         ZOperation.__init__(
             self, ctx,
-            node_max_retry_times=5,
             op_name=gt(event_name)
         )
 

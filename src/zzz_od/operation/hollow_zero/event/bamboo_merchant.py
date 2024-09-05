@@ -27,7 +27,6 @@ class BambooMerchant(ZOperation):
         """
         ZOperation.__init__(
             self, ctx,
-            node_max_retry_times=5,
             op_name=gt('邦布商人')
         )
 

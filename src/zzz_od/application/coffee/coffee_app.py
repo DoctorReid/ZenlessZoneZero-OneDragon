@@ -36,7 +36,6 @@ class CoffeeApp(ZApplication):
         ZApplication.__init__(
             self,
             ctx=ctx, app_id='coffee',
-            node_max_retry_times=5,
             op_name=gt('咖啡店', 'ui'),
             run_record=ctx.coffee_record
         )
