@@ -5,7 +5,7 @@ from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_op_config_list
-from zzz_od.application.coffee.coffee_config import CoffeeChooseWay, CoffeeChallengeWay
+from zzz_od.application.coffee.coffee_config import CoffeeChooseWay, CoffeeChallengeWay, CoffeeCardNumEnum
 from zzz_od.context.zzz_context import ZContext
 
 
@@ -26,11 +26,15 @@ class CoffeePlanInterface(VerticalScrollInterface):
         content_widget = ColumnWidget()
 
         self.choose_way_opt = ComboBoxSettingCard(icon=FluentIcon.CALENDAR, title='咖啡选择', options_enum=CoffeeChooseWay,
-                                                  content='优先体力计划=优先选择符合体力计划的咖啡，没有时候再选择指定的咖啡')
+                                                  show_config_desc=True)
         content_widget.add_widget(self.choose_way_opt)
 
         self.challenge_way_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='喝后挑战', options_enum=CoffeeChallengeWay)
         content_widget.add_widget(self.challenge_way_opt)
+
+        self.card_num_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='体力计划外的数量', options_enum=CoffeeCardNumEnum,
+                                                show_config_desc=True)
+        content_widget.add_widget(self.card_num_opt)
 
         self.auto_battle_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='自动战斗')
         content_widget.add_widget(self.auto_battle_opt)
@@ -72,6 +76,7 @@ class CoffeePlanInterface(VerticalScrollInterface):
 
         self.choose_way_opt.setValue(self.ctx.coffee_config.choose_way)
         self.challenge_way_opt.setValue(self.ctx.coffee_config.challenge_way)
+        self.card_num_opt.setValue(self.ctx.coffee_config.card_num)
         self.auto_battle_opt.set_options_by_list(get_auto_battle_op_config_list('auto_battle'))
         self.auto_battle_opt.setValue(self.ctx.coffee_config.auto_battle)
         self.day_opt_1.setValue(self.ctx.coffee_config.day_coffee_1)
@@ -86,6 +91,7 @@ class CoffeePlanInterface(VerticalScrollInterface):
 
         self.choose_way_opt.value_changed.connect(self._on_choose_way_changed)
         self.challenge_way_opt.value_changed.connect(self._on_challenge_way_changed)
+        self.card_num_opt.value_changed.connect(self._on_card_num_changed)
         self.auto_battle_opt.value_changed.connect(self._on_auto_battle_changed)
         self.day_opt_1.value_changed.connect(self._on_day_1_changed)
         self.day_opt_2.value_changed.connect(self._on_day_2_changed)
@@ -100,6 +106,7 @@ class CoffeePlanInterface(VerticalScrollInterface):
 
         self.choose_way_opt.value_changed.disconnect(self._on_choose_way_changed)
         self.challenge_way_opt.value_changed.disconnect(self._on_challenge_way_changed)
+        self.card_num_opt.value_changed.disconnect(self._on_card_num_changed)
         self.auto_battle_opt.value_changed.disconnect(self._on_auto_battle_changed)
         self.day_opt_1.value_changed.disconnect(self._on_day_1_changed)
         self.day_opt_2.value_changed.disconnect(self._on_day_2_changed)
@@ -125,6 +132,9 @@ class CoffeePlanInterface(VerticalScrollInterface):
 
     def _on_challenge_way_changed(self, idx: int, value: str) -> None:
         self.ctx.coffee_config.challenge_way = value
+
+    def _on_card_num_changed(self, idx: int, value: str) -> None:
+        self.ctx.coffee_config.card_num = value
 
     def _on_auto_battle_changed(self, idx: int, value: str) -> None:
         self.ctx.coffee_config.auto_battle = value
