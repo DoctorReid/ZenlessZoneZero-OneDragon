@@ -23,9 +23,7 @@ class CombatSimulation(ZOperation):
     STATUS_CHARGE_NOT_ENOUGH: ClassVar[str] = '电量不足'
     STATUS_CHARGE_ENOUGH: ClassVar[str] = '电量充足'
 
-    def __init__(self, ctx: ZContext, plan: ChargePlanItem,
-                 need_to_choose_type: bool = False
-                 ):
+    def __init__(self, ctx: ZContext, plan: ChargePlanItem):
         """
         使用快捷手册传送后
         用这个进行挑战
@@ -33,7 +31,6 @@ class CombatSimulation(ZOperation):
         """
         ZOperation.__init__(
             self, ctx,
-            node_max_retry_times=5,
             op_name='%s %s' % (
                 gt('实战模拟室'),
                 gt(plan.mission_name)
@@ -53,14 +50,13 @@ class CombatSimulation(ZOperation):
         self.auto_op: Optional[ConditionalOperator] = None
 
 
-    @operation_node(name='等待入口加载', is_start_node=True)
+    @operation_node(name='等待入口加载', is_start_node=True, node_max_retry_times=60)
     def wait_entry_load(self) -> OperationRoundResult:
-        self.node_max_retry_times = 60  # 一开始等待加载要久一点
         screen = self.screenshot()
 
         result = self.round_by_find_area(screen, '实战模拟室', '挑战等级')
         if result.is_success:
-            return self.round_success()
+            return self.round_success(self.plan.mission_type_name)
 
         result = self.round_by_find_area(screen, '实战模拟室', '沉浸模式')
         if result.is_success:
@@ -68,11 +64,24 @@ class CombatSimulation(ZOperation):
 
         return self.round_retry(wait=1)
 
+    @node_from(from_name='等待入口加载', status='自定义模板')
+    @operation_node(name='自定义模版的返回')
+    def back_for_div(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        result = self.round_by_find_area(screen, '实战模拟室', '沉浸模式')
+        if result.is_success:
+            return self.round_success()
+
+        result = self.round_by_click_area('菜单', '返回')
+        if result.is_success:
+            return self.round_retry('尝试返回副本类型列表' ,wait=1)
+        else:
+            return self.round_retry(result.status, wait=1)
+
     @node_from(from_name='等待入口加载', status=STATUS_NEED_TYPE)
+    @node_from(from_name='自定义模版的返回')
     @operation_node(name='选择类型')
     def choose_mission_type(self) -> OperationRoundResult:
-        self.node_max_retry_times = 5
-
         screen = self.screenshot()
         area = self.ctx.screen_loader.get_area('实战模拟室', '副本类型列表')
         return self.round_by_ocr_and_click(screen, self.plan.mission_type_name, area=area,
@@ -82,8 +91,6 @@ class CombatSimulation(ZOperation):
     @node_from(from_name='选择类型')
     @operation_node(name='选择副本')
     def choose_mission(self) -> OperationRoundResult:
-        self.node_max_retry_times = 5
-
         screen = self.screenshot()
         area = self.ctx.screen_loader.get_area('实战模拟室', '副本名称列表')
         part = cv2_utils.crop_image_only(screen, area.rect)
@@ -171,9 +178,8 @@ class CombatSimulation(ZOperation):
                                               self.plan.auto_battle_config)
 
     @node_from(from_name='加载自动战斗指令')
-    @operation_node(name='等待战斗画面加载')
+    @operation_node(name='等待战斗画面加载', node_max_retry_times=60)
     def wait_battle_screen(self) -> OperationRoundResult:
-        self.node_max_retry_times = 60  # 战斗加载的等待时间较长
         screen = self.screenshot()
         result = self.round_by_find_area(screen, '战斗画面', '按键-普通攻击', retry_wait_round=1)
         return result
@@ -202,7 +208,6 @@ class CombatSimulation(ZOperation):
     @node_from(from_name='自动战斗')
     @operation_node(name='战斗结束')
     def after_battle(self) -> OperationRoundResult:
-        self.node_max_retry_times = 5  # 战斗结束恢复重试次数
         # TODO 还没有判断战斗失败
         self.can_run_times -= 1
         self.ctx.charge_plan_config.add_plan_run_times(self.plan)
@@ -242,7 +247,7 @@ class CombatSimulation(ZOperation):
             self.auto_op = None
 
 
-def __debug():
+def __debug_coffee():
     ctx = ZContext()
     ctx.init_by_config()
     ctx.ocr.init_model()
@@ -254,6 +259,24 @@ def __debug():
         mission_type_name=chosen_coffee.mission_type.mission_type_name,
         mission_name=None if chosen_coffee.mission is None else chosen_coffee.mission.mission_name,
         auto_battle_config=ctx.coffee_config.auto_battle,
+        run_times=0,
+        plan_times=1
+    )
+    op = CombatSimulation(ctx, charge_plan)
+    op.can_run_times = 1
+    op.execute()
+
+def __debug():
+    ctx = ZContext()
+    ctx.init_by_config()
+    ctx.ocr.init_model()
+    ctx.start_running()
+    charge_plan = ChargePlanItem(
+        tab_name='训练',
+        category_name='实战模拟室',
+        mission_type_name='自定义模板',
+        mission_name='自定义模板1',
+        auto_battle_config=ctx.battle_assistant_config.auto_battle_config,
         run_times=0,
         plan_times=1
     )

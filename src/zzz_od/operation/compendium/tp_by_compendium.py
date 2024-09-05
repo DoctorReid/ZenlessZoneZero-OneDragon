@@ -19,7 +19,6 @@ class TransportByCompendium(ZOperation):
         """
         ZOperation.__init__(
             self, ctx,
-            node_max_retry_times=5,
             op_name='%s %s %s-%s-%s' % (
                 gt('传送'),
                 gt('快捷手册'),
@@ -30,6 +29,9 @@ class TransportByCompendium(ZOperation):
         self.tab_name: str = tab_name
         self.category_name: str = category_name
         self.mission_type_name: str = mission_type_name
+
+        if self.mission_type_name == '自定义模板':  # 没法直接传送到自定义
+            self.mission_type_name: str = '基础材料'
 
     @operation_node(name='快捷手册', is_start_node=True)
     def open_compendium(self) -> OperationRoundResult:

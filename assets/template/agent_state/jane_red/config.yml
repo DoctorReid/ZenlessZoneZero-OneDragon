@@ -1,0 +1,8 @@
+sub_dir: agent_state
+template_id: jane_red
+template_name: 角色状态-简-狂热心流
+template_shape: rectangle
+auto_mask: true
+point_list:
+- 138, 121
+- 201, 122

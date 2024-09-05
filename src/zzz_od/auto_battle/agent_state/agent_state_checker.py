@@ -23,6 +23,8 @@ def check_cnt_by_color_range(
     part = cv2_utils.crop_image_only(screen, area.rect)
     if area.template_id is not None and len(area.template_id) > 0:
         part_mask = ctx.template_loader.get_template_mask(area.template_sub_dir, area.template_id)
+        print(part.shape)
+        print(part_mask.shape)
         to_check = cv2.bitwise_and(part, part, mask=part_mask)
     else:
         to_check = part
@@ -42,6 +44,21 @@ def check_cnt_by_color_range(
     return count
 
 
+def check_exist_by_color_range(
+        ctx: ZContext,
+        screen: MatLike,
+        state_def: AgentStateDef
+) -> bool:
+    """
+    在指定区域内，按颜色判断是否有出现
+    :param ctx: 上下文
+    :param screen: 游戏画面
+    :param state_def: 角色状态定义
+    """
+    cnt = check_cnt_by_color_range(ctx, screen, state_def)
+    return cnt > 0
+
+
 def check_length_by_background(
         ctx: ZContext,
         screen: MatLike,
@@ -56,17 +73,37 @@ def check_length_by_background(
     """
     area = ctx.screen_loader.get_area('角色状态', state_def.state_name)
     part = cv2_utils.crop_image_only(screen, area.rect)
-    if area.template_id is not None and len(area.template_id) > 0:
-        part_mask = ctx.template_loader.get_template_mask(area.template_sub_dir, area.template_id)
-        to_check = cv2.bitwise_and(part, part, mask=part_mask)
-    else:
-        to_check = part
+    to_check = part
 
     gray = cv2.cvtColor(to_check, cv2.COLOR_RGB2GRAY).mean(axis=0)
     bg_cnt = np.sum((gray >= state_def.lower_color) & (gray <= state_def.upper_color))
     total_cnt = len(gray)
 
     return 100 - int(bg_cnt * 100.0 / total_cnt)
+
+
+def check_length_by_color_range(
+        ctx: ZContext,
+        screen: MatLike,
+        state_def: AgentStateDef
+) -> int:
+    """
+    在指定区域内，按背景色(黑色)来反推横条的长度
+    :param ctx: 上下文
+    :param screen: 游戏画面
+    :param state_def: 角色状态定义
+    :return: 0~100
+    """
+    area = ctx.screen_loader.get_area('角色状态', state_def.state_name)
+    part = cv2_utils.crop_image_only(screen, area.rect)
+    to_check = part
+
+    mask = cv2.inRange(to_check, state_def.lower_color, state_def.upper_color)
+
+    bg_cnt = np.sum(mask == 255)
+    total_cnt = mask.shape[1]
+
+    return int(bg_cnt * 100.0 / total_cnt)
 
 
 def __debug_zhu_yuan():

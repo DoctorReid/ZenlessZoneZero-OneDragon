@@ -23,6 +23,13 @@ class OneDragonInstance:
         self.active_in_od: bool = active_in_od
 
 
+class AfterDoneOpEnum(Enum):
+
+    NONE = ConfigItem('无')
+    CLOSE_GAME = ConfigItem('关闭游戏')
+    SHUTDOWN = ConfigItem('关机')
+
+
 class InstanceRun(Enum):
 
     ALL = ConfigItem('全部实例')
@@ -154,3 +161,11 @@ class OneDragonConfig(YamlConfig):
     @instance_run.setter
     def instance_run(self, new_value: str):
         self.update('instance_run', new_value)
+
+    @property
+    def after_done(self) -> str:
+        return self.get('after_done', AfterDoneOpEnum.NONE.value.value)
+
+    @after_done.setter
+    def after_done(self, new_value: str):
+        self.update('after_done', new_value)

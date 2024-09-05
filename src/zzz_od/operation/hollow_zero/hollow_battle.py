@@ -30,7 +30,6 @@ class HollowBattle(ZOperation):
         event_name = HollowZeroSpecialEvent.IN_BATTLE.value.event_name
         ZOperation.__init__(
             self, ctx,
-            node_max_retry_times=5,
             op_name=gt(event_name)
         )
 
@@ -48,9 +47,8 @@ class HollowBattle(ZOperation):
         )
 
     @node_from(from_name='加载自动战斗指令')
-    @operation_node(name='等待战斗画面加载')
+    @operation_node(name='等待战斗画面加载', node_max_retry_times=60)
     def wait_battle_screen(self) -> OperationRoundResult:
-        self.node_max_retry_times = 60  # 战斗加载的等待时间较长
         screen = self.screenshot()
         result = self.round_by_find_area(screen, '战斗画面', '按键-普通攻击', retry_wait_round=1)
         return result
@@ -140,9 +138,7 @@ class HollowBattle(ZOperation):
     @node_from(from_name='自动战斗', status='零号空洞-挑战结果')
     @operation_node(name='战斗结果-确定')
     def after_battle(self) -> OperationRoundResult:
-        if self.node_max_retry_times > 5:
-            self.node_max_retry_times = 5  # 战斗结束恢复重试次数
-            time.sleep(2)  # 第一次稍等等一段时间 避免按键还不能响应
+        time.sleep(2)  # 第一次稍等等一段时间 避免按键还不能响应
         screen = self.screenshot()
         area = self.ctx.screen_loader.get_area('零号空洞-战斗', '战斗结果-确定')
         return self.round_by_ocr_and_click(screen, '确定', area=area,
@@ -196,9 +192,8 @@ class HollowBattle(ZOperation):
                                                  success_wait=1, retry_wait=1)
 
     @node_from(from_name='点击退出确认')
-    @operation_node(name='等待退出')
+    @operation_node(name='等待退出', node_max_retry_times=20)
     def wait_exit(self) -> OperationRoundResult:
-        self.node_max_retry_times = 20
         screen = self.screenshot()
         return self.round_by_find_area(screen, '零号空洞-事件', '通关-完成',
                                        success_wait=2, retry_wait=1)  # 找到后稍微等待 按钮刚出来的时候按没有用

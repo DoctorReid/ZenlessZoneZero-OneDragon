@@ -1,7 +1,19 @@
+from enum import Enum
 from typing import Optional, List
 
+from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
 from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem
+
+
+class NotoriousHuntLevelEnum(Enum):
+
+    DEFAULT = ConfigItem('默认等级')
+    LEVEL_65 = ConfigItem('等级Lv.65')
+    LEVEL_60 = ConfigItem('等级Lv.60')
+    LEVEL_50 = ConfigItem('等级Lv.50')
+    LEVEL_40 = ConfigItem('等级Lv.40')
+    LEVEL_30 = ConfigItem('等级Lv.30')
 
 
 class NotoriousHuntConfig(YamlConfig):
@@ -31,9 +43,9 @@ class NotoriousHuntConfig(YamlConfig):
         默认的周本计划
         """
         return [
-            ChargePlanItem('挑战', '恶名狩猎', '初生死路屠夫', None, '击破站场-强攻速切', 0, 1),
-            ChargePlanItem('挑战', '恶名狩猎', '未知复合侵蚀体', None, '击破站场-强攻速切', 0, 1),
-            ChargePlanItem('挑战', '恶名狩猎', '冥宁芙·双子', None, '击破站场-强攻速切', 0, 1)
+            ChargePlanItem('挑战', '恶名狩猎', '初生死路屠夫', None),
+            ChargePlanItem('挑战', '恶名狩猎', '未知复合侵蚀体', None),
+            ChargePlanItem('挑战', '恶名狩猎', '冥宁芙·双子', None)
         ]
 
     def save(self):
@@ -47,6 +59,7 @@ class NotoriousHuntConfig(YamlConfig):
                 'category_name': plan_item.category_name,
                 'mission_type_name': plan_item.mission_type_name,
                 'mission_name': plan_item.mission_name,
+                'level': plan_item.mission_name,
                 'auto_battle_config': plan_item.auto_battle_config,
                 'run_times': plan_item.run_times,
                 'plan_times': plan_item.plan_times,

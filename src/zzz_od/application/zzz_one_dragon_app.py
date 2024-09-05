@@ -4,7 +4,7 @@ from one_dragon.base.operation.one_dragon_app import OneDragonApp
 from zzz_od.application.charge_plan.charge_plan_app import ChargePlanApp
 from zzz_od.application.city_fund.city_fund_app import CityFundApp
 from zzz_od.application.coffee.coffee_app import CoffeeApp
-from zzz_od.application.email.email_app import EmailApp
+from zzz_od.application.email_app.email_app import EmailApp
 from zzz_od.application.engagement_reward.engagement_reward_app import EngagementRewardApp
 from zzz_od.application.notorious_hunt.notorious_hunt_app import NotoriousHuntApp
 from zzz_od.application.random_play.random_play_app import RandomPlayApp
@@ -38,3 +38,22 @@ class ZOneDragonApp(OneDragonApp, ZApplication):
             EngagementRewardApp(self.ctx),
             CityFundApp(self.ctx),
         ]
+
+
+def __debug():
+    ctx = ZContext()
+    ctx.init_by_config()
+
+    app = ZOneDragonApp(ctx)
+    app.execute()
+
+    from one_dragon.base.config.one_dragon_config import AfterDoneOpEnum
+    if ctx.one_dragon_config.after_done == AfterDoneOpEnum.SHUTDOWN.value.value:
+        from one_dragon.utils import cmd_utils
+        cmd_utils.shutdown_sys(60)
+    elif ctx.one_dragon_config.after_done == AfterDoneOpEnum.CLOSE_GAME.value.value:
+        ctx.controller.close_game()
+
+
+if __name__ == '__main__':
+    __debug()

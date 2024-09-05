@@ -24,3 +24,36 @@ area_list:
   template_sub_dir: agent_state
   template_id: qingyi
   template_match_threshold: 0.7
+- area_name: 赛斯-意气
+  pc_rect:
+  - 133
+  - 122
+  - 222
+  - 124
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: agent_state
+  template_id: seth_lowell
+  template_match_threshold: 0.7
+- area_name: 简-萨霍夫跳
+  pc_rect:
+  - 208
+  - 117
+  - 218
+  - 127
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: agent_state
+  template_id: jane_attack
+  template_match_threshold: 0.7
+- area_name: 简-狂热心流
+  pc_rect:
+  - 138
+  - 121
+  - 201
+  - 122
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: agent_state
+  template_id: jane_red
+  template_match_threshold: 0.7

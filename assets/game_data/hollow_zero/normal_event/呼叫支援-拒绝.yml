@@ -288,3 +288,37 @@
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+
+# 赛斯
+- entry_name: "呼叫支援"
+  event_name: "谢谢你的好意下次一定"
+  options:
+    - option_name: "随机获得一枚S级或A级以太类型鸣徽"
+    - option_name: "随机获得一枚S级或A级冻结类型鸣徽"
+    - option_name: "随机获得一枚S级或A级感电类型鸣徽"
+    - option_name: "随机获得一枚S级或A级引燃类型鸣徽"
+    - option_name: "随机获得一枚S级或A级强袭类型鸣徽"
+    - option_name: "随机获得一枚S级或A级决斗类型鸣徽"
+    - option_name: "随机获得一枚S级或A级暴击类型鸣徽"
+    - option_name: "随机获得一枚S级或A级能量类型鸣微"
+    - option_name: "随机获得一枚S级或A级支援类型鸣徽"
+    - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
+    - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
+    - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+
+# 简
+- entry_name: "呼叫支援"
+  event_name: "这点小事不用专家出马"
+  options:
+    - option_name: "随机获得一枚S级或A级以太类型鸣徽"
+    - option_name: "随机获得一枚S级或A级冻结类型鸣徽"
+    - option_name: "随机获得一枚S级或A级感电类型鸣徽"
+    - option_name: "随机获得一枚S级或A级引燃类型鸣徽"
+    - option_name: "随机获得一枚S级或A级强袭类型鸣徽"
+    - option_name: "随机获得一枚S级或A级决斗类型鸣徽"
+    - option_name: "随机获得一枚S级或A级暴击类型鸣徽"
+    - option_name: "随机获得一枚S级或A级能量类型鸣微"
+    - option_name: "随机获得一枚S级或A级支援类型鸣徽"
+    - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
+    - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
+    - option_name: "随机获得一枚S级或A级通用类型鸣徽"

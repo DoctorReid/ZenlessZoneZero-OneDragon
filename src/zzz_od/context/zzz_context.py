@@ -9,7 +9,7 @@ from zzz_od.application.city_fund.city_fund_run_record import CityFundRunRecord
 from zzz_od.application.coffee.coffee_config import CoffeeConfig
 from zzz_od.application.coffee.coffee_run_record import CoffeeRunRecord
 from zzz_od.application.devtools.screenshot_helper.screenshot_helper_config import ScreenshotHelperConfig
-from zzz_od.application.email.email_run_record import EmailRunRecord
+from zzz_od.application.email_app.email_run_record import EmailRunRecord
 from zzz_od.application.engagement_reward.engagement_reward_run_record import EngagementRewardRunRecord
 from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroConfig
 from zzz_od.application.hollow_zero.hollow_zero_run_record import HollowZeroRunRecord
@@ -27,7 +27,7 @@ from zzz_od.hollow_zero.hollow_zero_challenge_config import HollowZeroChallengeC
 
 class ZContext(OneDragonContext):
 
-    def __init__(self, is_installer: bool = False, instance_idx: Optional[int] = None):
+    def __init__(self, is_installer: bool = False):
         """
         :param is_installer:
         :param instance_idx: 指定实例 用于测试
@@ -58,7 +58,7 @@ class ZContext(OneDragonContext):
         self.compendium_service: CompendiumService = CompendiumService()
 
         # 实例独有的配置
-        self._load_instance_config()
+        self.load_instance_config()
 
     def init_by_config(self) -> None:
         """
@@ -90,16 +90,9 @@ class ZContext(OneDragonContext):
         else:
             self.hollow_zero_challenge_config = HollowZeroChallengeConfig(challenge_config)
 
-    def switch_instance(self, instance_idx: int) -> None:
-        """
-        切换实例
-        :param instance_idx:
-        :return:
-        """
-        OneDragonContext.switch_instance(self, instance_idx)
-        self._load_instance_config()
 
-    def _load_instance_config(self) -> None:
+    def load_instance_config(self) -> None:
+        OneDragonContext.load_instance_config(self)
         self.game_config: GameConfig = GameConfig(self.current_instance_idx)
 
         # 应用配置

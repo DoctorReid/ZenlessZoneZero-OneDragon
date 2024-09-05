@@ -8,6 +8,7 @@ from one_dragon.gui.component.interface.vertical_scroll_interface import Vertica
 from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiPushSettingCard
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_op_config_list
 from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem
+from zzz_od.application.notorious_hunt.notorious_hunt_config import NotoriousHuntLevelEnum
 from zzz_od.context.zzz_context import ZContext
 
 
@@ -24,6 +25,9 @@ class ChargePlanCard(MultiPushSettingCard):
         self.mission_type_combo_box = ComboBox()
         self.mission_type_combo_box.setDisabled(True)
         self._init_mission_type_combo_box()
+
+        self.level_combo_box = ComboBox()
+        self._init_level_combo_box()
 
         self.auto_battle_combo_box = ComboBox()
         self._init_auto_battle_box()
@@ -44,6 +48,7 @@ class ChargePlanCard(MultiPushSettingCard):
             title='',
             btn_list=[
                 self.mission_type_combo_box,
+                self.level_combo_box,
                 self.auto_battle_combo_box,
                 run_times_label,
                 self.run_times_input,
@@ -75,6 +80,29 @@ class ChargePlanCard(MultiPushSettingCard):
 
         self.mission_type_combo_box.currentIndexChanged.connect(self._on_mission_type_changed)
 
+    def _init_level_combo_box(self) -> None:
+        try:
+            self.level_combo_box.currentIndexChanged.disconnect(self._on_level_changed)
+        except Exception:
+            pass
+
+        self.level_combo_box.clear()
+
+        target_text: Optional[str] = None
+        for i in NotoriousHuntLevelEnum:
+            config = i.value
+            self.level_combo_box.addItem(text=config.ui_text, userData=config.value)
+            if config.value == self.plan.mission_type_name:
+                target_text = config.ui_text
+
+        if target_text is None:
+            self.level_combo_box.setCurrentIndex(0)
+            self.plan.level = self.level_combo_box.itemData(0)
+        else:
+            self.level_combo_box.setText(target_text)
+
+        self.level_combo_box.currentIndexChanged.connect(self._on_level_changed)
+
     def _init_auto_battle_box(self) -> None:
         try:
             self.auto_battle_combo_box.currentIndexChanged.disconnect(self._on_auto_battle_changed)
@@ -101,6 +129,12 @@ class ChargePlanCard(MultiPushSettingCard):
     def _on_mission_type_changed(self, idx: int) -> None:
         mission_type_name = self.mission_type_combo_box.itemData(idx)
         self.plan.mission_type_name = mission_type_name
+
+        self._emit_value()
+
+    def _on_level_changed(self, idx: int) -> None:
+        level = self.level_combo_box.itemData(idx)
+        self.plan.level = level
 
         self._emit_value()
 

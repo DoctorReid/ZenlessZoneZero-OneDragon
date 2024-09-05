@@ -10,9 +10,9 @@ from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
-from zzz_od.auto_battle import auto_battle_utils
-from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem
+from zzz_od.application.notorious_hunt.notorious_hunt_config import NotoriousHuntLevelEnum
+from zzz_od.auto_battle import auto_battle_utils
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.zzz_operation import ZOperation
 
@@ -30,7 +30,6 @@ class NotoriousHunt(ZOperation):
         """
         ZOperation.__init__(
             self, ctx,
-            node_max_retry_times=5,
             op_name='%s %s' % (
                 gt('恶名狩猎'),
                 gt(plan.mission_type_name)
@@ -49,9 +48,8 @@ class NotoriousHunt(ZOperation):
 
         self.auto_op: Optional[ConditionalOperator] = None
 
-    @operation_node(name='等待入口加载', is_start_node=True)
+    @operation_node(name='等待入口加载', is_start_node=True, node_max_retry_times=60)
     def wait_entry_load(self) -> OperationRoundResult:
-        self.node_max_retry_times = 60  # 一开始等待加载要久一点
         screen = self.screenshot()
         return self.round_by_find_area(
             screen, '恶名狩猎', '当期剩余奖励次数',
@@ -81,8 +79,6 @@ class NotoriousHunt(ZOperation):
     @node_from(from_name='识别剩余次数')
     @operation_node(name='选择副本')
     def choose_mission(self) -> OperationRoundResult:
-        self.node_max_retry_times = 5
-
         screen = self.screenshot()
         area = self.ctx.screen_loader.get_area('恶名狩猎', '副本名称列表')
         part = cv2_utils.crop_image_only(screen, area.rect)
@@ -97,6 +93,27 @@ class NotoriousHunt(ZOperation):
         return self.round_retry(f'未能识别{self.plan.mission_type_name}', wait_round_time=1)
 
     @node_from(from_name='选择副本')
+    @operation_node(name='选择难度')
+    def choose_level(self) -> OperationRoundResult:
+        if self.plan.level == NotoriousHuntLevelEnum.DEFAULT.value.value:
+            return self.round_success()
+
+        self.click_area('恶名狩猎', '难度选择入口')
+        time.sleep(1)
+
+        screen = self.screenshot()
+        area = self.ctx.screen_loader.get_area('恶名狩猎', '难度选择区域')
+        result = self.round_by_ocr_and_click(screen, self.plan.level, area=area,
+                                           success_wait=1)
+        # 如果选择的是最高难度 那第一下有可能选中不到 多选一下兜底
+        self.round_by_ocr_and_click(screen, self.plan.level, area=area,
+                                    success_wait=1)
+        if result.is_success:
+            return result
+        else:
+            return self.round_retry(result.status, wait=1)
+
+    @node_from(from_name='选择难度')
     @operation_node(name='下一步')
     def click_next(self) -> OperationRoundResult:
         screen = self.screenshot()
@@ -128,23 +145,29 @@ class NotoriousHunt(ZOperation):
         return self.round_success()
 
     @node_from(from_name='加载自动战斗指令')
-    @operation_node(name='等待战斗画面加载')
+    @operation_node(name='等待战斗画面加载', node_max_retry_times=60)
     def wait_battle_screen(self) -> OperationRoundResult:
-        self.node_max_retry_times = 60  # 战斗加载的等待时间较长
         screen = self.screenshot()
         return self.round_by_find_area(screen, '战斗画面', '按键-普通攻击', retry_wait_round=1)
 
     @node_from(from_name='等待战斗画面加载')
     @operation_node(name='移动交互')
     def move_and_interact(self) -> OperationRoundResult:
-        self.ctx.controller.move_w(press=True, press_time=1.2, release=True)
-
+        if self.node_retry_times == 0:  # 第一次移动较远距离
+            self.ctx.controller.move_w(press=True, press_time=1.2, release=True)
+        else:
+            self.ctx.controller.move_w(press=True, press_time=0.2, release=True)
         time.sleep(1)
 
-        self.ctx.controller.interact(press=True, press_time=0.2, release=True)
-        time.sleep(2)
-
-        return self.round_success()
+        screen = self.screenshot()
+        area = self.ctx.screen_loader.get_area('恶名狩猎', '鸣徽交互区域')
+        result = self.round_by_ocr(screen, '鸣徽', area=area)
+        if result.is_success:
+            self.ctx.controller.interact(press=True, press_time=0.2, release=True)
+            time.sleep(2)
+            return self.round_success()
+        else:
+            return self.round_retry(result.status)
 
     @node_from(from_name='移动交互')
     @operation_node(name='选择')
@@ -178,7 +201,6 @@ class NotoriousHunt(ZOperation):
     @node_from(from_name='自动战斗')
     @operation_node(name='战斗结束')
     def after_battle(self) -> OperationRoundResult:
-        self.node_max_retry_times = 5  # 战斗结束恢复重试次数
         # TODO 还没有判断战斗失败
         self.can_run_times -= 1
         self.ctx.notorious_hunt_record.left_times = self.ctx.notorious_hunt_record.left_times - 1
@@ -204,9 +226,8 @@ class NotoriousHunt(ZOperation):
                                                  success_wait=1, retry_wait_round=1)
 
     @node_from(from_name='判断下一次', status='战斗结果-完成')
-    @operation_node(name='等待返回入口')
+    @operation_node(name='等待返回入口', node_max_retry_times=60)
     def wait_back_to_entry(self) -> OperationRoundResult:
-        self.node_max_retry_times = 60  # 一开始等待加载要久一点
         screen = self.screenshot()
         return self.round_by_find_area(
             screen, '恶名狩猎', '剩余奖励次数',
@@ -236,7 +257,8 @@ def __debug():
     ctx.start_running()
     op = NotoriousHunt(ctx, ChargePlanItem(
         category_name='恶名狩猎',
-        mission_type_name='初生死路屠夫'
+        mission_type_name='初生死路屠夫',
+        level=NotoriousHuntLevelEnum.DEFAULT.value.value
     ))
     op.can_run_times = 1
     op.execute()

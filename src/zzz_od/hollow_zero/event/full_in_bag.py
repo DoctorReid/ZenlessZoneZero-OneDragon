@@ -15,7 +15,6 @@ class FullInBag(ZOperation):
         """
         ZOperation.__init__(
             self, ctx,
-            node_max_retry_times=5,
             op_name=gt(HollowZeroSpecialEvent.FULL_IN_BAG.value.event_name)
         )
 

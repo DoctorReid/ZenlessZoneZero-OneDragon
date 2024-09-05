@@ -90,3 +90,36 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 难度选择入口
+  pc_rect:
+  - 1566
+  - 24
+  - 1812
+  - 72
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 难度选择区域
+  pc_rect:
+  - 1570
+  - 100
+  - 1828
+  - 424
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 鸣徽交互区域
+  pc_rect:
+  - 358
+  - 218
+  - 1584
+  - 920
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

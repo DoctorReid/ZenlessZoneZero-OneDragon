@@ -22,13 +22,9 @@ class RandomPlayApp(ZApplication):
     STATUS_ALREADY_RUNNING: ClassVar[str] = '正在营业'
 
     def __init__(self, ctx: ZContext):
-        """
-        每天自动接收邮件奖励
-        """
         ZApplication.__init__(
             self,
             ctx=ctx, app_id='random_play',
-            node_max_retry_times=10,
             op_name=gt('影像店营业', 'ui'),
             run_record=ctx.random_play_run_record
         )

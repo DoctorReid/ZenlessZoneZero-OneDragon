@@ -20,7 +20,6 @@ class NormalEventHandler(ZOperation):
         event_name = event.event_name
         ZOperation.__init__(
             self, ctx,
-            node_max_retry_times=5,
             op_name=gt(event_name)
         )
 

@@ -40,7 +40,6 @@ class CallForSupport(ZOperation):
         event_name = HollowZeroSpecialEvent.CALL_FOR_SUPPORT.value.event_name
         ZOperation.__init__(
             self, ctx,
-            node_max_retry_times=5,
             op_name=gt(event_name)
         )
 
@@ -188,6 +187,8 @@ class CallForSupport(ZOperation):
             RejectOption('还不用请出白祇重工'),  # 珂蕾妲
             RejectOption('杀以骸焉用艾莲'),  # 艾莲
             RejectOption('这次不用快回去吃饭吧'),  # 苍角
+            RejectOption('谢谢你的好意下次一定'),  # 赛斯
+            RejectOption('这点小事不用专家出马'),  # 简
         ]
 
         part = cv2_utils.crop_image_only(screen, area.rect)
