@@ -1,67 +1,89 @@
 @echo off
 chcp 65001
-call %~dp0env.bat
+
+REM 检查是否以管理员权限运行
+openfiles >nul 2>&1
+if %errorlevel% neq 0 (
+    echo 请求管理员权限中...
+    powershell start-process "%~f0" -verb runas
+    exit /b
+) else (
+    echo 已获取管理员权限
+)
+
+REM 调用环境配置脚本
+call "%~dp0env.bat"
 set "PYTHONPATH=%~dp0src"
 echo PYTHON=%PYTHON%
 echo PYTHONPATH=%PYTHONPATH%
 
-:: 检查是否以管理员权限运行, 若不是, 申请提权
-net session >nul 2>&1
-if %errorlevel% neq 0 (
-    echo 当前未以管理员权限运行，尝试请求提权...
-    powershell -NoProfile -ExecutionPolicy Bypass -Command "& {Start-Process '%~f0' -Verb RunAs}"
-    exit /b
+REM 使用 PowerShell 检查路径中是否有中文字符
+powershell -command "if ('%~dp0' -match '[\u4e00-\u9fff]') { exit 1 } else { exit 0 }"
+if %errorlevel% equ 1 (
+    echo 警告：当前路径包含中文字符
 )
 
-:: 使用 PowerShell 检查路径中是否包含中文字符或空格
-powershell -Command "if ($env:PYTHON -match '[\u4e00-\u9fff]|\s') { Write-Output '路径中包含中文字符或空格-step1'; exit 1 }"
-if %errorlevel% neq 0 exit /b %errorlevel%
+REM 检查路径中是否有空格
+set "path_check=%~dp0"
+if "%path_check%" neq "%path_check: =%" (
+    echo 警告：路径中包含空格
+)
 
-powershell -Command "if ($env:PYTHONPATH -match '[\u4e00-\u9fff]|\s') { Write-Output '路径中包含中文字符或空格-step2'; exit 1 }"
-if %errorlevel% neq 0 exit /b %errorlevel%
+REM 获取当前日期并格式化为 YYYYMMDD
+for /f "tokens=2-4 delims=/ " %%a in ('echo %date%') do (
+    set year=%%c
+    set month=%%a
+    set day=%%b
+)
 
-:: 检查 Python 可执行文件路径
+REM 获取当前时间（小时和分钟）
+for /f "tokens=1-2 delims=: " %%a in ('echo %time%') do (
+    set hour=%%a
+    set minute=%%b
+)
+
+REM 将小时和分钟格式化为两位数
+set hour=%hour: =0%
+set minute=%minute: =0%
+
+REM 生成日志目录和文件名，格式为 YYYYMMDD 和 HH.MM
+set log_dir=%~dp0.log\%year%%month%%day%
+set timestamp=%hour%.%minute%
+set "BAT_LOG=%log_dir%\bat_%timestamp%.log"
+
+REM 检查并创建日志目录
+if not exist "%log_dir%" (
+    echo 日志目录不存在，正在创建...
+    mkdir "%log_dir%"
+    if %errorlevel% neq 0 (
+        echo 创建日志目录失败。
+        pause
+        exit /b 1
+    )
+    echo 日志目录创建成功。
+)
+
+REM 删除所有以 'bat_' 开头且以 '.log' 结尾的文件
+for /r "%log_dir%" %%F in (bat_*.log) do (
+    del "%%F"
+    echo 删除旧日志文件: %%F
+)
+
+REM 检查 Python 可执行文件路径
 if not exist "%PYTHON%" (
     echo "未配置Python.exe"
     pause
     exit /b 1
 )
 
-:: 检查 PythonPath 目录
+REM 检查 PythonPath 目录
 if not exist "%PYTHONPATH%" (
     echo "PYTHONPATH 未设置"
     pause
     exit /b 1
 )
 
-:: 创建日志文件夹
-if not exist "%~dp0.log" (
-    mkdir "%~dp0.log"
-)
-
-:: 删除所有以 bat_ 开头且以 .log 结尾的文件
-for /r "%~dp0.log" %%F in (bat_*.log) do (
-    del "%%F"
-    echo 删除旧日志文件: %%F
-)
-
-:: 获取当前日期和时间
-for /f "tokens=1-3 delims=/: " %%i in ('"echo %time%"') do (
-    set hour=%%i
-    set minute=%%j
-    set second=%%k
-)
-
-:: 去掉时间中的冒号
-set hour=%hour: =0%
-set minute=%minute: =0%
-set second=%second: =0%
-
-:: 生成日志文件名
-set timestamp=%hour%.%minute%.%second%
-set "BAT_LOG=%~dp0.log\bat_%timestamp%.log"
-
-:: 检查应用程序脚本路径
+REM 检查应用程序脚本路径
 if not exist "%PYTHONPATH%\zzz_od\gui\app.py" (
     echo "PYTHONPATH 设置错误 无法找到 %PYTHONPATH%\zzz_od\gui\app.py"
     pause
