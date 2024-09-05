@@ -11,7 +11,8 @@ from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
-from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem
+from one_dragon.utils.log_utils import log
+from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem, CardNumEnum
 from zzz_od.auto_battle import auto_battle_utils
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.zzz_operation import ZOperation
@@ -117,6 +118,29 @@ class CombatSimulation(ZOperation):
         return self.round_success(wait=1)
 
     @node_from(from_name='选择副本')
+    @operation_node(name='进入选择数量')
+    def click_card(self) -> OperationRoundResult:
+        if self.plan.card_num == CardNumEnum.DEFAULT.value.value:
+            return self.round_success(self.plan.card_num)
+        else:
+            return self.round_by_click_area('实战模拟室', '外层-卡片1',
+                                            success_wait=1, retry_wait=1)
+
+    @node_from(from_name='进入选择数量')
+    @operation_node(name='选择数量')
+    def choose_card_num(self) -> OperationRoundResult:
+        for i in range(1, 6):
+            log.info('开始取消已选择数量 %d', i)
+            self.click_area('实战模拟室', '内层-已选择卡片1')
+            time.sleep(0.5)
+        for i in range(1, 6):
+            log.info('开始选择数量 %d', i)
+            self.click_area('实战模拟室', '内层-卡片1')
+            time.sleep(0.5)
+        return self.round_success()
+
+    @node_from(from_name='进入选择数量', status=CardNumEnum.DEFAULT.value.value)
+    @node_from(from_name='选择数量')
     @operation_node(name='识别电量')
     def check_charge(self) -> OperationRoundResult:
         screen = self.screenshot()
