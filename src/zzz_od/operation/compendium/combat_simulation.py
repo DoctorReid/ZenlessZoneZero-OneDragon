@@ -129,15 +129,22 @@ class CombatSimulation(ZOperation):
     @node_from(from_name='进入选择数量')
     @operation_node(name='选择数量')
     def choose_card_num(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        result = self.round_by_find_area(screen, '实战模拟室', '保存方案')
+        if not result.is_success:
+            return self.round_retry(result.status, wait=1)
+
         for i in range(1, 6):
             log.info('开始取消已选择数量 %d', i)
             self.click_area('实战模拟室', '内层-已选择卡片1')
             time.sleep(0.5)
-        for i in range(1, 6):
+        for i in range(1, int(self.plan.card_num) + 1):
             log.info('开始选择数量 %d', i)
             self.click_area('实战模拟室', '内层-卡片1')
             time.sleep(0.5)
-        return self.round_success()
+
+        return self.round_by_find_and_click_area(screen, '实战模拟室', '保存方案',
+                                                 success_wait=2, retry_wait=1)
 
     @node_from(from_name='进入选择数量', status=CardNumEnum.DEFAULT.value.value)
     @node_from(from_name='选择数量')
