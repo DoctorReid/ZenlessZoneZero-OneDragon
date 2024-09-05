@@ -21,7 +21,7 @@
 
 如果喜欢本项目，可右上角送作者一个`Star` ✨
 
-唯一指定 QQ 群 `861603314`
+[主页](https://one-dragon.org/zzz/zh/home.html) & 唯一指定 QQ 群 `861603314`
 
 </div>
 </br>
