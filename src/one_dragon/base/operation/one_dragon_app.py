@@ -103,7 +103,7 @@ class OneDragonApp(Application):
 
         return None
 
-    @node_from(from_name='切换账后后处理', status=STATUS_NEXT)  # 切换实例后重新开始
+    @node_from(from_name='切换账号后处理', status=STATUS_NEXT)  # 切换实例后重新开始
     @operation_node(name='检测任务状态', is_start_node=True)
     def check_app(self) -> OperationRoundResult:
         """
@@ -116,6 +116,7 @@ class OneDragonApp(Application):
         for app in order_app_list:
             if app.app_id not in self.ctx.one_dragon_app_config.app_run_list:
                 continue
+            app.run_record.check_and_update_status()
             if app.run_record.run_status_under_now == AppRunRecord.STATUS_SUCCESS:
                 continue
             self._to_run_app_list.append(app)
@@ -166,7 +167,7 @@ class OneDragonApp(Application):
             return self.round_by_op(self._op_to_switch_account.execute())
 
     @node_from(from_name='切换账号')
-    @operation_node(name='切换账后后处理')
+    @operation_node(name='切换账号后处理')
     def after_switch_account(self) -> OperationRoundResult:
         if self._instance_idx == self._instance_start_idx:  # 已经完成一轮了
             return self.round_success(OneDragonApp.STATUS_ALL_DONE)
