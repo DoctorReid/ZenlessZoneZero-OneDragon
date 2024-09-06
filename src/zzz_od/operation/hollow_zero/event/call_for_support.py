@@ -115,19 +115,38 @@ class CallForSupport(ZOperation):
         """
         是否应该呼叫增援
         """
+        targets = self.ctx.hollow_zero_challenge_config.target_agents
+        start_idx = 0
+        for i in range(len(targets)):
+            ta = targets[i]
+            if ta is None:
+                continue
+            if ta == agent_list[0].agent_id:
+                start_idx = i
+                break
+
+        order_targets = targets[start_idx:] + targets[:start_idx]
+
         if agent_list[1] is None:
             return 2
         elif agent_list[2] is None:
-            return 3
+            if agent_list[1].agent_id == order_targets[1]:  # 当前第2位位置正确
+                return 3
+            elif agent_list[1].agent_id == order_targets[2]:  # 当前第2位应该在第3位
+                return 2
+            elif new_agent.agent_id == order_targets[1]:  # 当前第2位不在目标列表 新的应该在第2位
+                return 2
+            elif new_agent.agent_id == order_targets[2]:  # 当前第2位不在目标列表 新的应该在第3位
+                return 3
+            else:  # 兜底第3位
+                return 3
         else:
-            targets = self.ctx.hollow_zero_challenge_config.target_agents
             if new_agent is None or new_agent.agent_id not in targets:  # 不在目标中
                 return None
-            else:  # 当前哪个不在目标里就踢掉哪个
-                for i in range(3):
-                    if agent_list[i].agent_id not in targets:
-                        return i + 1
-            return None
+            else:
+                # 如果之前已经有2人符合目标 则这2人一定会在指定位置上
+                # 因此第3人只需要直接放到指定位置上即可
+                return order_targets.index(new_agent.agent_id) + 1
 
     @node_from(from_name='画面识别', status=STATUS_ACCEPT)
     @operation_node(name=STATUS_ACCEPT)
