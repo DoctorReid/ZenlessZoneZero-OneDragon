@@ -7,7 +7,7 @@ from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiPushSettingCard
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_op_config_list
-from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem
+from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem, CardNumEnum
 from zzz_od.context.zzz_context import ZContext
 
 
@@ -31,6 +31,9 @@ class ChargePlanCard(MultiPushSettingCard):
 
         self.mission_combo_box = ComboBox()
         self._init_mission_combo_box()
+
+        self.card_num_box = ComboBox()
+        self._init_card_num_box()
 
         self.auto_battle_combo_box = ComboBox()
         self._init_auto_battle_box()
@@ -58,6 +61,7 @@ class ChargePlanCard(MultiPushSettingCard):
                 self.category_combo_box,
                 self.mission_type_combo_box,
                 self.mission_combo_box,
+                self.card_num_box,
                 self.auto_battle_combo_box,
                 run_times_label,
                 self.run_times_input,
@@ -131,7 +135,32 @@ class ChargePlanCard(MultiPushSettingCard):
         else:
             self.mission_combo_box.setCurrentText(target_text)
 
+        self.mission_combo_box.setVisible(self.plan.category_name == '实战模拟室')
         self.mission_combo_box.currentIndexChanged.connect(self._on_mission_changed)
+
+    def _init_card_num_box(self) -> None:
+        try:
+            self.card_num_box.currentIndexChanged.disconnect(self._on_card_num_changed)
+        except Exception:
+            pass
+
+        self.card_num_box.clear()
+
+        target_text: Optional[str] = None
+        for config_enum in CardNumEnum:
+            config = config_enum.value
+            self.card_num_box.addItem(text=config.ui_text, userData=config.value)
+            if config.value == self.plan.card_num:
+                target_text = config.ui_text
+
+        if target_text is None:
+            self.card_num_box.setCurrentIndex(0)
+            self.plan.card_num = self.card_num_box.itemData(0)
+        else:
+            self.card_num_box.setCurrentText(target_text)
+
+        self.card_num_box.setVisible(self.plan.category_name == '实战模拟室')
+        self.card_num_box.currentIndexChanged.connect(self._on_card_num_changed)
 
     def _init_auto_battle_box(self) -> None:
         try:
@@ -162,6 +191,7 @@ class ChargePlanCard(MultiPushSettingCard):
 
         self._init_mission_type_combo_box()
         self._init_mission_combo_box()
+        self._init_card_num_box()
 
         self._emit_value()
 
@@ -177,6 +207,10 @@ class ChargePlanCard(MultiPushSettingCard):
         mission_name = self.mission_combo_box.itemData(idx)
         self.plan.mission_name = mission_name
 
+        self._emit_value()
+
+    def _on_card_num_changed(self, idx: int) -> None:
+        self.plan.card_num = self.card_num_box.itemData(idx)
         self._emit_value()
 
     def _on_auto_battle_changed(self, idx: int) -> None:

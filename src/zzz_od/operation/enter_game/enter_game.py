@@ -56,7 +56,6 @@ class EnterGame(ZOperation):
     @operation_node(name='等待画面加载')
     def wait_game(self) -> OperationRoundResult:
         op = BackToNormalWorld(self.ctx)
-        op.node_max_retry_times = 60
         return self.round_by_op(op.execute())
 
 

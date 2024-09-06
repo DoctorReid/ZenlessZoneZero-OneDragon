@@ -19,7 +19,6 @@ class ScratchCardApp(ZApplication):
         ZApplication.__init__(
             self,
             ctx=ctx, app_id='scratch_card',
-            node_max_retry_times=10,
             op_name=gt('刮刮卡', 'ui'),
             run_record=ctx.scratch_card_run_record
         )

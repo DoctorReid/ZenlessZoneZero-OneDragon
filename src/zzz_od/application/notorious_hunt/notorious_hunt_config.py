@@ -59,7 +59,7 @@ class NotoriousHuntConfig(YamlConfig):
                 'category_name': plan_item.category_name,
                 'mission_type_name': plan_item.mission_type_name,
                 'mission_name': plan_item.mission_name,
-                'level': plan_item.mission_name,
+                'level': plan_item.level,
                 'auto_battle_config': plan_item.auto_battle_config,
                 'run_times': plan_item.run_times,
                 'plan_times': plan_item.plan_times,

@@ -12,3 +12,6 @@ class ChargePlanRunRecord(AppRunRecord):
             instance_idx=instance_idx,
             game_refresh_hour_offset=game_refresh_hour_offset
         )
+
+    def check_and_update_status(self):  # 每次都运行
+        self.reset_record()

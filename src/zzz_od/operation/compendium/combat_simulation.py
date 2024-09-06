@@ -11,7 +11,8 @@ from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
-from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem
+from one_dragon.utils.log_utils import log
+from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem, CardNumEnum
 from zzz_od.auto_battle import auto_battle_utils
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.zzz_operation import ZOperation
@@ -31,7 +32,6 @@ class CombatSimulation(ZOperation):
         """
         ZOperation.__init__(
             self, ctx,
-            node_max_retry_times=5,
             op_name='%s %s' % (
                 gt('实战模拟室'),
                 gt(plan.mission_name)
@@ -51,9 +51,8 @@ class CombatSimulation(ZOperation):
         self.auto_op: Optional[ConditionalOperator] = None
 
 
-    @operation_node(name='等待入口加载', is_start_node=True)
+    @operation_node(name='等待入口加载', is_start_node=True, node_max_retry_times=60)
     def wait_entry_load(self) -> OperationRoundResult:
-        self.node_max_retry_times = 60  # 一开始等待加载要久一点
         screen = self.screenshot()
 
         result = self.round_by_find_area(screen, '实战模拟室', '挑战等级')
@@ -84,8 +83,6 @@ class CombatSimulation(ZOperation):
     @node_from(from_name='自定义模版的返回')
     @operation_node(name='选择类型')
     def choose_mission_type(self) -> OperationRoundResult:
-        self.node_max_retry_times = 5
-
         screen = self.screenshot()
         area = self.ctx.screen_loader.get_area('实战模拟室', '副本类型列表')
         return self.round_by_ocr_and_click(screen, self.plan.mission_type_name, area=area,
@@ -95,8 +92,6 @@ class CombatSimulation(ZOperation):
     @node_from(from_name='选择类型')
     @operation_node(name='选择副本')
     def choose_mission(self) -> OperationRoundResult:
-        self.node_max_retry_times = 5
-
         screen = self.screenshot()
         area = self.ctx.screen_loader.get_area('实战模拟室', '副本名称列表')
         part = cv2_utils.crop_image_only(screen, area.rect)
@@ -123,6 +118,36 @@ class CombatSimulation(ZOperation):
         return self.round_success(wait=1)
 
     @node_from(from_name='选择副本')
+    @operation_node(name='进入选择数量')
+    def click_card(self) -> OperationRoundResult:
+        if self.plan.card_num == CardNumEnum.DEFAULT.value.value:
+            return self.round_success(self.plan.card_num)
+        else:
+            return self.round_by_click_area('实战模拟室', '外层-卡片1',
+                                            success_wait=1, retry_wait=1)
+
+    @node_from(from_name='进入选择数量')
+    @operation_node(name='选择数量')
+    def choose_card_num(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        result = self.round_by_find_area(screen, '实战模拟室', '保存方案')
+        if not result.is_success:
+            return self.round_retry(result.status, wait=1)
+
+        for i in range(1, 6):
+            log.info('开始取消已选择数量 %d', i)
+            self.click_area('实战模拟室', '内层-已选择卡片1')
+            time.sleep(0.5)
+        for i in range(1, int(self.plan.card_num) + 1):
+            log.info('开始选择数量 %d', i)
+            self.click_area('实战模拟室', '内层-卡片1')
+            time.sleep(0.5)
+
+        return self.round_by_find_and_click_area(screen, '实战模拟室', '保存方案',
+                                                 success_wait=2, retry_wait=1)
+
+    @node_from(from_name='进入选择数量', status=CardNumEnum.DEFAULT.value.value)
+    @node_from(from_name='选择数量')
     @operation_node(name='识别电量')
     def check_charge(self) -> OperationRoundResult:
         screen = self.screenshot()
@@ -184,9 +209,8 @@ class CombatSimulation(ZOperation):
                                               self.plan.auto_battle_config)
 
     @node_from(from_name='加载自动战斗指令')
-    @operation_node(name='等待战斗画面加载')
+    @operation_node(name='等待战斗画面加载', node_max_retry_times=60)
     def wait_battle_screen(self) -> OperationRoundResult:
-        self.node_max_retry_times = 60  # 战斗加载的等待时间较长
         screen = self.screenshot()
         result = self.round_by_find_area(screen, '战斗画面', '按键-普通攻击', retry_wait_round=1)
         return result
@@ -215,7 +239,6 @@ class CombatSimulation(ZOperation):
     @node_from(from_name='自动战斗')
     @operation_node(name='战斗结束')
     def after_battle(self) -> OperationRoundResult:
-        self.node_max_retry_times = 5  # 战斗结束恢复重试次数
         # TODO 还没有判断战斗失败
         self.can_run_times -= 1
         self.ctx.charge_plan_config.add_plan_run_times(self.plan)
