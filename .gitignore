@@ -26,7 +26,9 @@ config/auto_battle_operation/*
 config/hollow_zero_challenge/*
 !config/hollow_zero_challenge/*.sample.yml
 config/yolo.yml
-installer.exe
+
+# 执行文件
+*.exe
 
 # 用户运行时产生的文件
 .log/

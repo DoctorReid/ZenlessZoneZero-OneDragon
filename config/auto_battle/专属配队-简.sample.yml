@@ -1,0 +1,280 @@
+description: |
+  专属配队-简
+  配队列表：支援-简-塞斯
+  备注： 角色位置不可替换
+  版本号： 0.1+
+  作者： 笙梦昱
+  协作： 巡夜子 starlight
+
+#基础配置
+check_dodge_interval: 0.01
+check_agent_interval: [0.4, 0.6]
+check_special_attack_interval: [0.4, 0.6]
+check_ultimate_interval: [0.4, 0.6]
+check_chain_interval: 0.3
+check_quick_interval: 0.2
+
+#速切模板-支援
+t-sup: &sup
+  - states: "[前台-支援]"
+    sub_states:
+      - state_template: "站场模板-全角色"
+
+#战场模板-简
+t-j: &j #当前狂热心流不足50%且萨霍夫可使用则使用萨霍夫
+  - states: "![简-狂热心流]{60, 101} & [简-萨霍夫跳] & ![自定义-萨霍夫跳,0, 10]"
+    # - states: [简-萨霍夫跳]"
+    operations:
+      - op_name: "按键-闪避"
+        post_delay: 0.1
+      - op_name: "设置状态"
+        state: "自定义-动作不打断"
+        value: 1
+      - op_name: "按键-普通攻击"
+        post_delay: 0.2
+      - op_name: "按键-普通攻击"
+        way: "按下"
+        post_delay: 0.9
+      - op_name: "按键-特殊攻击"
+        post_delay: 0.1
+        repeat: 18
+
+      - op_name: "设置状态"
+        state: "自定义-萨霍夫跳"
+      - op_name: "清除状态"
+        state: "自定义-动作不打断"
+  - states: "[按键可用-特殊攻击]"
+    operations:
+      - op_name: "按键-特殊攻击"
+        press: 0.5
+        repeat:
+          4
+
+          #简6段a
+  - states: ""
+    operations:
+      - op_name: "按键-普通攻击"
+#速切模板-塞斯
+t-ss: &ss
+  - states: "[赛斯-意气]{75, 101}"
+    operations:
+      - op_name: "设置状态"
+        state: "自定义-动作不打断"
+        value: 1
+      - op_name: "按键-普通攻击"
+        way: "按下"
+        press: 2.2
+      - op_name: "清除状态"
+        state: "自定义-动作不打断"
+  - states: "[按键可用-特殊攻击]"
+    operations:
+      - op_name: "按键-特殊攻击-按下"
+        data: ["0.5"]
+        post_delay: 1.5
+  - states: ""
+    operations:
+      - op_name: "按键-普通攻击"
+
+#连携模板-上一个
+t-up: &up
+  - op_name: "按键-连携技-左"
+    post_delay: 0.2
+    repeat: 2
+  - op_name: "按键-特殊攻击"
+    post_delay: 0.2
+    repeat: 7
+
+#连携模板-下一个
+t-down: &down
+  - op_name: "按键-连携技-右"
+    post_delay: 0.2
+    repeat: 2
+  - op_name: "按键-特殊攻击"
+    post_delay: 0.2
+    repeat: 7
+
+#连携模板-取消
+t-cancel: &cancel
+  - op_name: "按键-连携技-取消"
+    way: "按下"
+    press: 0.02
+    post_delay: 0.01
+    repeat: 2
+
+scenes:
+  - triggers: ["闪避识别-黄光", "闪避识别-红光", "闪避识别-声音"]
+    priority: 90
+    handlers:
+      - states: "[前台-简] & [闪避识别-黄光] & ![按键-切换角色-下一个,0,10]" #20s内未触发过切人则触发塞斯格挡
+        operations:
+          - op_name: "按键-切换角色-下一个"
+            post_delay: 0.025
+          - op_name: "按键-普通攻击"
+            post_delay: 0.05
+            repeat: 12
+          - op_name: "按键-普通攻击"
+            post_delay: 0.1
+            repeat: 12
+      - states: "[前台-简] & [闪避识别-黄光] & ![按键-切换角色-上一个,0,10]" #20s内触发过切人则触发支援格挡
+        operations:
+          - op_name: "按键-切换角色-上一个"
+            post_delay: 0.025
+          - op_name: "按键-普通攻击"
+            post_delay: 0.05
+            repeat: 12
+          - op_name: "按键-普通攻击"
+            press: 0.3
+            post_delay: 0.05
+            repeat: 3
+      - states: "[前台-简] & ([闪避识别-黄光] | [闪避识别-红光] | [闪避识别-声音] )" #简前台闪避反击
+        operations:
+          - op_name: "按键-移动-前"
+            way: "按下"
+            post_delay: 0.15
+          - op_name: "按键-闪避"
+            way: "按下"
+            press: 0.01
+            post_delay: 0.15
+            repeat: 2
+          - op_name: "按键-普通攻击"
+            press: 0.3
+            post_delay: 0.025
+            repeat: 2
+          - op_name: "按键-移动-前"
+            way: "松开"
+            post_delay: 0.1
+      - states: "[前台-支援] & [闪避识别-黄光]" #支援在前台切简触发格挡反击
+        operations:
+          - op_name: "按键-切换角色-下一个"
+            post_delay: 0.025
+          - op_name: "按键-普通攻击"
+            post_delay: 0.05
+            repeat: 12
+          - op_name: "按键-普通攻击"
+            press: 0.3
+            post_delay: 0.05
+            repeat: 3
+      - states: "[前台-防护] & [闪避识别-黄光]" #塞斯在前台切简格挡
+        operations:
+          - op_name: "按键-切换角色-上一个"
+            post_delay: 0.025
+          - op_name: "按键-普通攻击"
+            post_delay: 0.05
+            repeat: 12
+          - op_name: "按键-普通攻击"
+            press: 0.3
+            post_delay: 0.05
+            repeat: 3
+      - states: "![前台-简] & ([闪避识别-黄光] | [闪避识别-红光] | [闪避识别-声音] )" #前台不是简闪避反击
+        operations:
+          - op_name: "按键-移动-前"
+            way: "按下"
+            post_delay: 0.01
+          - op_name: "按键-闪避"
+            press: 0.01
+            post_delay: 0.15
+            repeat: 2
+          - op_name: "按键-普通攻击"
+            press: 0.3
+            post_delay: 0.025
+            repeat: 2
+          - op_name: "按键-闪避"
+            press: 0.01
+            post_delay: 0.15
+            repeat: 1
+          - op_name: "按键-移动-前"
+            way: "松开"
+            post_delay: 0.1
+  - triggers: ["按键可用-连携技"]
+    priority: 99
+    interval: 0.2
+    handlers:
+      # - states: "[按键可用-连携技]"
+      #   sub_states:
+      #     - states: ""
+      #       operations:
+      #         - op_name : "按键-连携技-取消"
+      #           way: "按下"
+      #           press: 0.02
+      #           post_delay: 0.01
+      #           repeat: 2
+      - states: "(![连携技-1-简] & ![连携技-1-防护] & ![连携技-1-支援]) | (![连携技-1-防护] & [连携技-2-简])"
+        operations: *up
+      - states: "[连携技-1-简] | [连携技-1-防护] | [连携技-1-支援]"
+        operations: *down
+
+  - triggers: ["按键可用-快速支援"]
+    priority: 98
+    handlers:
+      - states: "[按键可用-快速支援,0,0.2]" #快速支援触发时只有不是"简"才会触发快速支援
+        sub_states:
+          - states: "![前台-简]"
+            operations:
+              - op_name: "按键-移动-前"
+                way: "松开"
+              - op_name: "按键-切换角色-下一个"
+                post_delay: 0.2
+              - op_name: "按键-闪避"
+                post_delay: 0.3
+          - states: "[前台-简]"
+            operations:
+              - op_name: "按键-闪避"
+                post_delay: 0.1
+
+  - triggers: ["前台-支援"]
+    priority: 1
+    interval: 1
+    handlers:
+      - states: "[前台-支援]"
+        sub_states: *sup
+
+  - triggers: ["前台-防护"]
+    priority: 3
+    interval: 1
+    handlers:
+      - states: "[前台-防护]"
+        sub_states: *ss
+
+  - triggers: ["前台-简"]
+    priority: 4
+    interval: 0.1
+    handlers:
+      - states: "[前台-简]"
+        sub_states: *j
+  - triggers: ["按键可用-终结技"]
+    priority: 10
+    interval: 1
+    handlers:
+      - states: "[前台-简] & [按键可用-终结技] & ![按键-切换角色-下一个,0,2]"
+        operations:
+          - op_name: "按键-终结技"
+            post_delay: 0.2
+            repeat: 2
+
+  - triggers: []
+    priority: 2
+    interval: 0.2
+    handlers:
+      - state_template: "通用模板-锁定敌人"
+      #强制简战场
+      - states: "![前台-简]"
+        sub_states:
+          - states: "[前台-防护] & ![按键-切换角色-下一个,0,0.3]"
+            operations:
+              - op_name: "按键-特殊攻击"
+                post_delay: 0.025
+              - op_name: "按键-移动-前"
+                way: "松开"
+                post_delay: 0.05
+              - op_name: "按键-切换角色-上一个"
+                post_delay: 0.05
+          - states: "[前台-支援] & ![按键-切换角色-下一个,0,0.3]"
+            operations:
+              - op_name: "按键-特殊攻击"
+                post_delay: 0.025
+              - op_name: "按键-移动-前"
+                way: "松开"
+              - op_name: "等待秒数"
+                data: ["0.1"]
+              - op_name: "按键-切换角色-下一个"
+                post_delay: 0.05
