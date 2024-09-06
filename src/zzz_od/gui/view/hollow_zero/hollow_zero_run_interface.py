@@ -1,11 +1,12 @@
-from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout
-from qfluentwidgets import FluentIcon,PushSettingCard,FluentThemeColor
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
+from qfluentwidgets import FluentIcon, PushSettingCard
 from typing import Optional, List
-from PySide6.QtGui import Qt,QColor
+
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.gui.view.app_run_interface import AppRunInterface
+from one_dragon.utils.log_utils import log
 from zzz_od.application.hollow_zero.hollow_zero_app import HollowZeroApp
 from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroExtraTask
 from zzz_od.application.hollow_zero.hollow_zero_debug_app import HollowZeroDebugApp
@@ -55,7 +56,6 @@ class HollowZeroRunInterface(AppRunInterface):
             title='挑战副本',
             content='选择空洞及难度等级',
         )
-        self.mission_opt.setIconSize(24,24)
         self.mission_opt.value_changed.connect(self._on_mission_changed)
         left_layout.addWidget(self.mission_opt)
 
@@ -65,9 +65,16 @@ class HollowZeroRunInterface(AppRunInterface):
             title='挑战配置',
             content='选择角色、鸣徽和事件',
         )
-        self.challenge_config_opt.setIconSize(24,24)
         self.challenge_config_opt.value_changed.connect(self._on_challenge_config_changed)
         left_layout.addWidget(self.challenge_config_opt)
+
+        self.run_record_opt = PushSettingCard(
+            icon=FluentIcon.SYNC,
+            title='运行记录',
+            text='重置业绩点记录'
+        )
+        self.run_record_opt.clicked.connect(self._on_reset_record_clicked)
+        left_layout.addWidget(self.run_record_opt)
 
         left_layout.addStretch(1)
         return left_widget
@@ -85,27 +92,24 @@ class HollowZeroRunInterface(AppRunInterface):
             title='调试',
             content='在中断/停止状态下用于继续执行',
         )
-        self.debug_opt.setIconSize(24, 24)
         self.debug_opt.clicked.connect(self._on_debug_clicked)
         right_layout.addWidget(self.debug_opt)
 
         # 创建一个文本设置卡片，标题为“每周通关次数”
         self.weekly_times_opt = TextSettingCard(
             icon=FluentIcon.CALENDAR,  # 选择与时间相关的图标
-            title='每周通关次数',
+            title='每周基础次数',
             content='完整的通关次数，用于完成委托任务',
         )
-        self.weekly_times_opt.setIconSize(24, 24)
         self.weekly_times_opt.value_changed.connect(self._on_weekly_times_changed)
         right_layout.addWidget(self.weekly_times_opt)
 
         self.extra_task_opt = ComboBoxSettingCard(
             icon=FluentIcon.CALENDAR,  # 选择与时间相关的图标
             title='刷业绩点',
-            content='完成通过次数后，继续挑战刷业绩点',
+            content='完成基础次数后，继续挑战刷业绩点',
             options_enum=HollowZeroExtraTask
         )
-        self.extra_task_opt.setIconSize(24, 24)
         self.extra_task_opt.value_changed.connect(self._on_extra_task_changed)
         right_layout.addWidget(self.extra_task_opt)
 
@@ -123,6 +127,15 @@ class HollowZeroRunInterface(AppRunInterface):
 
         self.mission_opt.setValue(self.ctx.hollow_zero_config.mission_name)
         self.challenge_config_opt.setValue(self.ctx.hollow_zero_config.challenge_config)
+
+        if not self.ctx.hollow_zero_record.is_finished_by_times():
+            content = '本周通关次数 %d' % self.ctx.hollow_zero_record.weekly_run_times
+        elif not self.ctx.hollow_zero_record.no_eval_point:
+            content = '已完成基础通关次数'
+        else:
+            content = '已完成刷取业绩 如错误可重置'
+        self.run_record_opt.setContent(content)
+
         self.weekly_times_opt.setValue(str(self.ctx.hollow_zero_config.weekly_times))
         self.extra_task_opt.setValue(self.ctx.hollow_zero_config.extra_task)
 
@@ -164,6 +177,10 @@ class HollowZeroRunInterface(AppRunInterface):
     def _on_challenge_config_changed(self, idx, value) -> None:
         self.ctx.hollow_zero_config.challenge_config = value
         self.ctx.init_hollow_config()
+
+    def _on_reset_record_clicked(self) -> None:
+        self.ctx.hollow_zero_record.no_eval_point = False
+        log.info('重置成功')
 
     def get_app(self) -> ZApplication:
         return self.app

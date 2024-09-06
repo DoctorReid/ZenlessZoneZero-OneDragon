@@ -171,6 +171,7 @@ class HollowRunner(ZOperation):
                 if self.ctx.hollow.had_been_entry('业绩考察点') and not current_map.contains_entry('业绩考察点'):
                     return True
                 if current_map.contains_entry('业绩考察点空'):
+                    self.ctx.hollow_zero_record.no_eval_point = True
                     return True
             return False
 
@@ -179,6 +180,7 @@ class HollowRunner(ZOperation):
                 if self.ctx.hollow.had_been_entry('业绩考察点') and not current_map.contains_entry('业绩考察点'):
                     return True
                 if current_map.contains_entry('业绩考察点空'):
+                    self.ctx.hollow_zero_record.no_eval_point = True
                     return True
             return False
 

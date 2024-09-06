@@ -54,3 +54,12 @@ class HollowZeroRunRecord(AppRunRecord):
         :return:
         """
         return self.weekly_run_times >= self.config.weekly_times
+
+    @property
+    def no_eval_point(self) -> bool:
+        return self.get('no_eval_point', False)
+
+    @no_eval_point.setter
+    def no_eval_point(self, new_value: bool) -> None:
+        self.update('no_eval_point', new_value)
+

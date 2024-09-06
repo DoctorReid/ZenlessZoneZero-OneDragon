@@ -47,6 +47,8 @@ class ComboBoxSettingCard(SettingCard):
 
         if self.show_tooltip and content:
             self.titleLabel.installEventFilter(self)
+        elif content:
+            self.setContent(content)
 
         self._opts_list: List[ConfigItem] = []
         if options_enum is not None:
