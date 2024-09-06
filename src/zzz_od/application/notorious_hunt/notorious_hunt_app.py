@@ -27,7 +27,6 @@ class NotoriousHuntApp(ZApplication):
         ZApplication.__init__(
             self,
             ctx=ctx, app_id='notorious_hunt',
-            node_max_retry_times=10,
             op_name=gt('恶名狩猎', 'ui'),
             run_record=ctx.notorious_hunt_record
         )

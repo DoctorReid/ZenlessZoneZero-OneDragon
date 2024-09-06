@@ -1,6 +1,18 @@
+from enum import Enum
 from typing import Optional, List
 
+from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
+
+
+class CardNumEnum(Enum):
+
+    DEFAULT = ConfigItem('默认数量')
+    NUM_1 = ConfigItem('1')
+    NUM_2 = ConfigItem('2')
+    NUM_3 = ConfigItem('3')
+    NUM_4 = ConfigItem('4')
+    NUM_5 = ConfigItem('5')
 
 
 class ChargePlanItem:
@@ -14,7 +26,8 @@ class ChargePlanItem:
             level: str = '默认等级',
             auto_battle_config: str = '击破站场-强攻速切',
             run_times: int = 0,
-            plan_times: int = 1
+            plan_times: int = 1,
+            card_num: str = CardNumEnum.DEFAULT.value.value
     ):
         self.tab_name: str = tab_name
         self.category_name: str = category_name
@@ -24,6 +37,7 @@ class ChargePlanItem:
         self.auto_battle_config: str = auto_battle_config
         self.run_times: int = run_times
         self.plan_times: int = plan_times
+        self.card_num: str = card_num  # 实战模拟室的卡片数量
 
 
 class ChargePlanConfig(YamlConfig):
@@ -54,6 +68,7 @@ class ChargePlanConfig(YamlConfig):
                 'auto_battle_config': plan_item.auto_battle_config,
                 'run_times': plan_item.run_times,
                 'plan_times': plan_item.plan_times,
+                'card_num': plan_item.card_num
             })
 
         YamlConfig.save(self)
@@ -64,9 +79,11 @@ class ChargePlanConfig(YamlConfig):
             '实战模拟室',
             '基础材料',
             '调查专项',
-            '击破站场-强攻速切',
-            0,
-            1
+            level='默认等级',
+            auto_battle_config='击破站场-强攻速切',
+            run_times=0,
+            plan_times=1,
+            card_num=CardNumEnum.DEFAULT.value.value
         ))
         self.save()
 

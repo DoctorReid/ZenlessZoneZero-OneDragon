@@ -50,9 +50,8 @@ class HollowZeroApp(ZApplication):
 
     @node_from(from_name='传送')
     @node_from(from_name='自动运行')
-    @operation_node(name='等待入口加载')
+    @operation_node(name='等待入口加载', node_max_retry_times=20)
     def wait_entry_loading(self) -> OperationRoundResult:
-        self.node_max_retry_times = 20  # 等待加载久一点
         screen = self.screenshot()
 
         return self.round_by_find_area(screen, '零号空洞-入口', '街区', retry_wait=1)
@@ -60,7 +59,6 @@ class HollowZeroApp(ZApplication):
     @node_from(from_name='等待入口加载')
     @operation_node(name='选择副本类型')
     def choose_mission_type(self) -> OperationRoundResult:
-        self.node_max_retry_times = 5
         if (self.ctx.hollow_zero_record.is_finished_by_times()
                 and self.ctx.hollow_zero_config.extra_task == HollowZeroExtraTask.NONE.value.value):
             return self.round_success(HollowZeroApp.STATUS_TIMES_FINISHED)
@@ -115,9 +113,8 @@ class HollowZeroApp(ZApplication):
         return self.round_by_op(op.execute())
 
     @node_from(from_name='选择副本类型', status=STATUS_TIMES_FINISHED)
-    @operation_node(name='完成后等待加载')
+    @operation_node(name='完成后等待加载', node_max_retry_times=20)
     def wait_back_loading(self) -> OperationRoundResult:
-        self.node_max_retry_times = 20  # 等待加载久一点
         screen = self.screenshot()
 
         return self.round_by_find_area(screen, '零号空洞-入口', '街区', retry_wait=1)
@@ -125,14 +122,11 @@ class HollowZeroApp(ZApplication):
     @node_from(from_name='完成后等待加载')
     @operation_node(name='点击奖励入口')
     def click_reward_entry(self) -> OperationRoundResult:
-        self.node_max_retry_times = 5
-
         return self.round_by_click_area('零号空洞-入口', '奖励入口', success_wait=1)
 
     @node_from(from_name='点击奖励入口')
     @operation_node(name='悬赏委托')
     def click_task(self) -> OperationRoundResult:
-        self.node_max_retry_times = 5
         screen = self.screenshot()
 
         return self.round_by_find_and_click_area(screen, '零号空洞-入口', '悬赏委托',
@@ -141,7 +135,6 @@ class HollowZeroApp(ZApplication):
     @node_from(from_name='悬赏委托')
     @operation_node(name='领取奖励')
     def claim_reward(self) -> OperationRoundResult:
-        self.node_max_retry_times = 3
         screen = self.screenshot()
         area = self.ctx.screen_loader.get_area('零号空洞-入口', '领取')
 

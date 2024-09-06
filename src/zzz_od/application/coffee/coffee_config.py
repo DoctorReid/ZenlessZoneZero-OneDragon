@@ -7,8 +7,8 @@ from one_dragon.base.config.yaml_config import YamlConfig
 
 class CoffeeChooseWay(Enum):
 
-    PLAN_PRIORITY = ConfigItem('优先体力计划')
-    CUSTOM = ConfigItem('只按定制')
+    PLAN_PRIORITY = ConfigItem('优先体力计划', desc='优先选择符合体力计划的咖啡，没有时候再选择指定的咖啡')
+    CUSTOM = ConfigItem('只按定制', desc='只选择指定的咖啡')
 
 
 class CoffeeChallengeWay(Enum):
@@ -16,6 +16,11 @@ class CoffeeChallengeWay(Enum):
     ALL = ConfigItem('全都挑战')
     ONLY_PLAN = ConfigItem('只挑战体力计划')
     NONE = ConfigItem('不挑战')
+
+class CoffeeCardNumEnum(Enum):
+    # 注意需要跟charge_plan_config.CardNumEnum一致
+    DEFAULT = ConfigItem('默认数量', desc='挑战体力计划外的副本时，按游戏内设数量')
+    NUM_1 = ConfigItem('1', desc='挑战体力计划外的副本时，选择最少数量')
 
 
 class CoffeeConfig(YamlConfig):
@@ -42,6 +47,14 @@ class CoffeeConfig(YamlConfig):
     @challenge_way.setter
     def challenge_way(self, new_value: str) -> None:
         self.update('challenge_way', new_value)
+
+    @property
+    def card_num(self) -> str:
+        return self.get('card_num', CoffeeCardNumEnum.NUM_1.value.value)
+
+    @card_num.setter
+    def card_num(self, new_value: str) -> None:
+        self.update('card_num', new_value)
 
     @property
     def auto_battle(self) -> str:

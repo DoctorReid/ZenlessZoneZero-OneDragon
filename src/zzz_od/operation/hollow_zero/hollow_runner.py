@@ -34,7 +34,6 @@ class HollowRunner(ZOperation):
     def __init__(self, ctx: ZContext):
         ZOperation.__init__(
             self, ctx,
-            node_max_retry_times=60,
             op_name=gt('空洞操作器')
         )
 
@@ -65,7 +64,7 @@ class HollowRunner(ZOperation):
         self._last_save_image_time: float = 0
         self._last_move_time: float = 0  # 上一次移动的时间
 
-    @operation_node(name='画面识别', is_start_node=True)
+    @operation_node(name='画面识别', is_start_node=True, node_max_retry_times=60)
     def check_screen(self) -> OperationRoundResult:
         now = time.time()
         screen = self.screenshot()

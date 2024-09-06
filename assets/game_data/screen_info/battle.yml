@@ -156,3 +156,36 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 战斗结果-撤退
+  pc_rect:
+  - 526
+  - 848
+  - 746
+  - 912
+  text: 撤退
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 战斗结果-倒带
+  pc_rect:
+  - 874
+  - 850
+  - 1088
+  - 914
+  text: 倒带
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 战斗结果-退出
+  pc_rect:
+  - 1566
+  - 1004
+  - 1832
+  - 1056
+  text: 退出
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

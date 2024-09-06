@@ -12,7 +12,7 @@ from one_dragon.base.operation.operation_round_result import OperationRoundResul
 from one_dragon.utils import os_utils, cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem
-from zzz_od.application.coffee.coffee_config import CoffeeChooseWay, CoffeeChallengeWay
+from zzz_od.application.coffee.coffee_config import CoffeeChooseWay, CoffeeChallengeWay, CoffeeCardNumEnum
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.compendium import Coffee
@@ -36,7 +36,6 @@ class CoffeeApp(ZApplication):
         ZApplication.__init__(
             self,
             ctx=ctx, app_id='coffee',
-            node_max_retry_times=5,
             op_name=gt('咖啡店', 'ui'),
             run_record=ctx.coffee_record
         )
@@ -308,6 +307,7 @@ class CoffeeApp(ZApplication):
     def tp_mission(self) -> OperationRoundResult:
         if self.chosen_coffee.without_benefit:
             return self.round_fail('没有增益的咖啡')
+
         self.charge_plan = ChargePlanItem(
             tab_name=self.chosen_coffee.tab.tab_name,
             category_name=self.chosen_coffee.category.category_name,
@@ -315,7 +315,8 @@ class CoffeeApp(ZApplication):
             mission_name=None if self.chosen_coffee.mission is None else self.chosen_coffee.mission.mission_name,
             auto_battle_config=self.ctx.coffee_config.auto_battle,
             run_times=0,
-            plan_times=1
+            plan_times=1,
+            card_num=self.ctx.coffee_config.card_num
         )
 
         screen = self.screenshot()
@@ -361,8 +362,10 @@ def __debug():
     ctx = ZContext()
     ctx.init_by_config()
     app = CoffeeApp(ctx)
-    # app.chosen_coffee = ctx.compendium_service.name_2_coffee['果泡拿提']
-    app.had_coffee_list.add('沙罗特调（浓）')
+    app.chosen_coffee = ctx.compendium_service.name_2_coffee['果泡拿提']
+    app._init_before_execute()
+    app.tp_mission()
+    # app.had_coffee_list.add('沙罗特调（浓）')
     app.execute()
 
 
