@@ -23,7 +23,6 @@ class CompendiumChooseMissionType(ZOperation):
         """
         ZOperation.__init__(
             self, ctx,
-            node_max_retry_times=5,
             op_name='%s %s %s' % (
                 gt('快捷手册'),
                 gt('选择副本类型', 'ui'),

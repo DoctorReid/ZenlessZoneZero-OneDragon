@@ -40,7 +40,7 @@ class OpenMenu(ZOperation):
         if result.is_success:
             return self.round_success(result.status)
 
-        return self.round_retry(wait=1)
+        return self.round_fail()
 
     @node_from(from_name='画面识别', success=False)
     @operation_node(name='返回大世界')

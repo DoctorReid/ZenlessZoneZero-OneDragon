@@ -19,13 +19,9 @@ class ChargePlanApp(ZApplication):
     STATUS_NO_PLAN: ClassVar[str] = '未配置体力计划'
 
     def __init__(self, ctx: ZContext):
-        """
-        每天自动接收邮件奖励
-        """
         ZApplication.__init__(
             self,
             ctx=ctx, app_id='charge_plan',
-            node_max_retry_times=10,
             op_name=gt('体力刷本', 'ui'),
             run_record=ctx.charge_plan_run_record
         )

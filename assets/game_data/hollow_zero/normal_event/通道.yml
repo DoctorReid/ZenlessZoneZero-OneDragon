@@ -1,6 +1,5 @@
 - entry_name: "通道"
   event_name: "前人藏宝，后人生财"
-  lcs_percent: 0.6
   options:
     - option_name: "看向妮可"
       desc: "花费400齿轮硬币，获得1枚鸣徽"
@@ -15,9 +14,11 @@
       desc: "损失15%生命值，获得800~1400齿轮硬币"
 
 - entry_name: "通道"
-  event_name: "安全车厢"
-  lcs_percent: 0.6
+  event_name: "事件安全车厢"
   options:
+    - option_name: "搜刮此处齿轮硬币"
+      desc: "一定有人将齿轮硬币遗失在这吧"
+
     - option_name: "认真修理一番"
       desc: "压力值+50，催化2枚鸣徽"
 

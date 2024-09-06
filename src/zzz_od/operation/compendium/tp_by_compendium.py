@@ -19,7 +19,6 @@ class TransportByCompendium(ZOperation):
         """
         ZOperation.__init__(
             self, ctx,
-            node_max_retry_times=5,
             op_name='%s %s %s-%s-%s' % (
                 gt('传送'),
                 gt('快捷手册'),

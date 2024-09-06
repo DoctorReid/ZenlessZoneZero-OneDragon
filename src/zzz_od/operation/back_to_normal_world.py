@@ -16,10 +16,7 @@ class BackToNormalWorld(ZOperation):
         需要保证在任何情况下调用，都能返回大世界，让后续的应用可执行
         :param ctx:
         """
-        ZOperation.__init__(self, ctx,
-                            node_max_retry_times=60,
-                            op_name=gt('返回大世界', 'ui')
-                            )
+        ZOperation.__init__(self, ctx, op_name=gt('返回大世界', 'ui'))
 
     def handle_init(self):
         pass

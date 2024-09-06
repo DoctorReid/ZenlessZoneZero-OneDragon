@@ -1,5 +1,6 @@
 import time
 
+from PIL.ImageChops import screen
 from typing import Optional, ClassVar
 
 from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
@@ -30,7 +31,6 @@ class NotoriousHunt(ZOperation):
         """
         ZOperation.__init__(
             self, ctx,
-            node_max_retry_times=5,
             op_name='%s %s' % (
                 gt('恶名狩猎'),
                 gt(plan.mission_type_name)
@@ -187,6 +187,7 @@ class NotoriousHunt(ZOperation):
         return self.round_success()
 
     @node_from(from_name='向前移动准备战斗')
+    @node_from(from_name='战斗失败', status='战斗结果-倒带')
     @operation_node(name='自动战斗')
     def auto_battle(self) -> OperationRoundResult:
         if self.ctx.battle.last_check_end_result is not None:
@@ -199,11 +200,37 @@ class NotoriousHunt(ZOperation):
 
         return self.round_wait(wait=self.ctx.battle_assistant_config.screenshot_interval)
 
+    @node_from(from_name='自动战斗', status='普通战斗-撤退')
+    @operation_node(name='战斗失败')
+    def battle_fail(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        result = self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-倒带')
+
+        if result.is_success:
+            auto_battle_utils.init_context(self)
+            self.auto_op.start_running_async()
+            return self.round_success(result.status, wait=1)
+
+        result = self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-撤退')
+        if result.is_success:
+            return self.round_success(result.status, wait=1)
+
+        return self.round_retry(result.status, wait=1)
+
+    @node_from(from_name='战斗失败', status='战斗结果-撤退')
+    @operation_node(name='战斗失败退出')
+    def battle_fail_exit(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        result = self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-退出')
+
+        if result.is_success:  # 战斗失败 返回失败到外层 中断后续挑战
+            return self.round_fail(result.status, wait=5)
+        else:
+            return self.round_retry(result.status, wait=1)
+
     @node_from(from_name='自动战斗')
     @operation_node(name='战斗结束')
     def after_battle(self) -> OperationRoundResult:
-        self.node_max_retry_times = 5  # 战斗结束恢复重试次数
-        # TODO 还没有判断战斗失败
         self.can_run_times -= 1
         self.ctx.notorious_hunt_record.left_times = self.ctx.notorious_hunt_record.left_times - 1
         self.ctx.notorious_hunt_config.add_plan_run_times(self.plan)
@@ -228,9 +255,8 @@ class NotoriousHunt(ZOperation):
                                                  success_wait=1, retry_wait_round=1)
 
     @node_from(from_name='判断下一次', status='战斗结果-完成')
-    @operation_node(name='等待返回入口')
+    @operation_node(name='等待返回入口', node_max_retry_times=60)
     def wait_back_to_entry(self) -> OperationRoundResult:
-        self.node_max_retry_times = 60  # 一开始等待加载要久一点
         screen = self.screenshot()
         return self.round_by_find_area(
             screen, '恶名狩猎', '剩余奖励次数',

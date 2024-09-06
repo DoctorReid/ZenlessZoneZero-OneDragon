@@ -29,7 +29,6 @@ class ExpertChallenge(ZOperation):
         """
         ZOperation.__init__(
             self, ctx,
-            node_max_retry_times=5,
             op_name='%s %s' % (
                 gt('专业挑战室'),
                 gt(plan.mission_type_name)
@@ -48,9 +47,8 @@ class ExpertChallenge(ZOperation):
 
         self.auto_op: Optional[ConditionalOperator] = None
 
-    @operation_node(name='等待入口加载', is_start_node=True)
+    @operation_node(name='等待入口加载', is_start_node=True, node_max_retry_times=60)
     def wait_entry_load(self) -> OperationRoundResult:
-        self.node_max_retry_times = 60  # 一开始等待加载要久一点
         screen = self.screenshot()
         return self.round_by_find_area(
             screen, '实战模拟室', '挑战等级',
@@ -119,9 +117,8 @@ class ExpertChallenge(ZOperation):
                                               self.plan.auto_battle_config)
 
     @node_from(from_name='加载自动战斗指令')
-    @operation_node(name='等待战斗画面加载')
+    @operation_node(name='等待战斗画面加载', node_max_retry_times=60)
     def wait_battle_screen(self) -> OperationRoundResult:
-        self.node_max_retry_times = 60  # 战斗加载的等待时间较长
         screen = self.screenshot()
         result = self.round_by_find_area(screen, '战斗画面', '按键-普通攻击', retry_wait_round=1)
         return result
@@ -150,7 +147,6 @@ class ExpertChallenge(ZOperation):
     @node_from(from_name='自动战斗')
     @operation_node(name='战斗结束')
     def after_battle(self) -> OperationRoundResult:
-        self.node_max_retry_times = 5  # 战斗结束恢复重试次数
         # TODO 还没有判断战斗失败
         self.can_run_times -= 1
         self.ctx.charge_plan_config.add_plan_run_times(self.plan)

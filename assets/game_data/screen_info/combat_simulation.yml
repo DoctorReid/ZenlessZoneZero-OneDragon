@@ -112,3 +112,47 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 外层-卡片1
+  pc_rect:
+  - 130
+  - 222
+  - 434
+  - 658
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 内层-已选择卡片1
+  pc_rect:
+  - 254
+  - 128
+  - 442
+  - 244
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 内层-卡片1
+  pc_rect:
+  - 546
+  - 170
+  - 758
+  - 450
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 保存方案
+  pc_rect:
+  - 1600
+  - 1008
+  - 1834
+  - 1048
+  text: 保存方案
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
