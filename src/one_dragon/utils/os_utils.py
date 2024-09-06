@@ -1,9 +1,8 @@
+import sys
+
 import datetime
 import os
-import subprocess
-import sys
-from functools import cached_property, lru_cache
-from typing import List
+from functools import lru_cache
 
 
 def join_dir_path_with_mk(path: str, *subs) -> str:
