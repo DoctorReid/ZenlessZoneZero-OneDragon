@@ -1,0 +1,332 @@
+description: |
+  专属配队-朱鸢
+  配队列表：击破-妮可-朱鸢
+  备注： 角色位置不可替换
+  版本号： 1.0
+  作者： 笙梦昱
+  特别感谢： 巡夜子 starlight
+
+#基础配置
+check_dodge_interval: 0.01
+check_agent_interval: [0.4, 0.6]
+check_special_attack_interval: [0.4, 0.6]
+check_ultimate_interval: [0.4, 0.6]
+check_chain_interval: 0.3
+check_quick_interval: 0.2
+
+#战场模板-击破
+t-q: &q
+  - states: "[前台-击破]"
+    sub_states:
+      - state_template: "站场模板-全角色"
+
+#速切模板-妮可
+t-n: &n
+  - states: "[按键可用-特殊攻击] & [前台-妮可]"
+    operations:
+      - op_name: "按键-特殊攻击-按下"
+        data: ["0.5"]
+      - op_name: "按键-闪避"
+        data: ["0.1"]
+      - op_name: "设置状态"
+        data: ["自定义-减防御"]
+  - states: "[前台-妮可]"
+    operations:
+      - op_name: "按键-闪避"
+        data: ["0.1"]
+      - op_name: "按键-普通攻击"
+        data: ["0.1"]
+      - op_name: "设置状态"
+        data: ["自定义-减防御"]
+#站场模板-朱鸢
+t-zy: &zy #切出来3秒内直接3a重击
+  - states: "[自定义-失衡期, 0, 3] & [前台-朱鸢]"
+    operations:
+      - op_name: "按键-普通攻击"
+        post_delay: 0.5
+      - op_name: "按键-普通攻击"
+        way: "按下"
+        press: 1
+      - op_name: "按键-普通攻击"
+        way: "按下"
+        press: 0.5
+        repeat: 3
+      - op_name: "等待秒数"
+        seconds: 0.3
+  #施放终结技
+  - states: "[按键可用-终结技] & [前台-朱鸢]"
+    operations:
+      - op_name: "按键-终结技"
+        post_delay: 2
+  # 子弹不满的情况再打E
+  - states: "[按键可用-特殊攻击] & ![自定义-朱鸢-特殊攻击] & [前台-朱鸢]"
+    sub_states:
+      - states: "[自定义-朱鸢-下发普攻前滑]"
+        operations:
+          - op_name: "按键-普通攻击"
+            post_delay: 0.8
+          - op_name: "按键-特殊攻击"
+            post_delay: 1.2
+          - op_name: "设置状态"
+            data: ["自定义-朱鸢-特殊攻击"]
+      - states: ""
+        operations:
+          - op_name: "按键-特殊攻击"
+            pre_delay: 0.8
+            post_delay: 1.2
+          - op_name: "设置状态"
+            data: ["自定义-朱鸢-特殊攻击"]
+  - states: "![自定义-朱鸢-3a重击] & [前台-朱鸢]"
+    operations:
+      - op_name: "按键-普通攻击"
+        post_delay: 0.5
+      - op_name: "按键-普通攻击"
+        way: "按下"
+        press: 1
+      - op_name: "按键-普通攻击"
+        way: "按下"
+        press: 0.5
+        repeat: 3
+      - op_name: "等待秒数"
+        seconds: 0.3
+      - op_name: "设置状态"
+        data: ["自定义-朱鸢-3a重击"]
+
+  # 特殊攻击后 先长按清空弹匣
+  - states: "[自定义-朱鸢-特殊攻击] & [前台-朱鸢]"
+    operations:
+      - op_name: "按键-普通攻击"
+        post_delay: 0.5
+      - op_name: "按键-普通攻击"
+        way: "按下"
+        press: 1
+      - op_name: "按键-普通攻击"
+        way: "按下"
+        press: 0.5
+        repeat: 3
+      - op_name: "等待秒数"
+        seconds: 1
+
+#连携模板-上一个
+t-up: &up
+  - op_name: "按键-连携技-左"
+    post_delay: 0.2
+    repeat: 2
+  - op_name: "设置状态"
+    data: ["自定义-失衡期"]
+  - op_name: "按键-特殊攻击"
+    post_delay: 1.4
+
+#连携模板-下一个
+t-down: &down
+  - op_name: "按键-连携技-右"
+    post_delay: 0.2
+    repeat: 2
+  - op_name: "设置状态"
+    data: ["自定义-失衡期"]
+  - op_name: "按键-特殊攻击"
+    post_delay: 1.4
+
+# #连携模板-取消
+# t-cancel: &cancel
+#   - op_name : "按键-连携技-取消"
+#     post_delay: 0.2
+#     repeat: 2
+#   - op_name: "按键-特殊攻击"
+#     post_delay: 1.4
+
+scenes:
+  - triggers: ["闪避识别-黄光", "闪避识别-红光", "闪避识别-声音"]
+    priority: 90
+    handlers:
+      - states: "[前台-击破] & [闪避识别-黄光] & ![按键-切换角色-上一个,0,10]" #10s内未触发过切人则触发朱鸢极限支援
+        operations:
+          - op_name: "按键-切换角色-上一个"
+            post_delay: 0.025
+          - op_name: "按键-普通攻击"
+            post_delay: 0.025
+            repeat: 8
+          - op_name: "按键-切换角色-上一个"
+      - states: "[前台-击破] & [闪避识别-黄光] & [按键-切换角色-上一个,0,10]" #10s内触发过切人则触发妮可格挡
+        operations:
+          - op_name: "按键-切换角色-下一个"
+            post_delay: 0.025
+          - op_name: "按键-普通攻击"
+            post_delay: 0.025
+            repeat: 8
+          - op_name: "按键-切换角色-下一个"
+          - op_name: "设置状态"
+            data: ["自定义-妮可格挡"]
+      - states: "[前台-击破] & ([闪避识别-黄光] | [闪避识别-红光] | [闪避识别-声音] ) & [按键-切换角色-下一个,0,10]" #击破前台闪避反击
+        operations:
+          - op_name: "按键-移动-前"
+            way: "按下"
+            post_delay: 0.01
+          - op_name: "按键-闪避"
+            way: "按下"
+            press: 0.01
+            post_delay: 0.15
+            repeat: 2
+          - op_name: "按键-普通攻击"
+            way: "按下"
+            press: 0.6
+            post_delay: 0.025
+          - op_name: "按键-移动-前"
+            way: "松开"
+            post_delay: 0.1
+      - states: "[前台-朱鸢] & [闪避识别-黄光] & ![自定义-失衡期, 0, 12]" #朱鸢在前台且不在失衡期间会切击破触发格挡反击
+        operations:
+          - op_name: "按键-切换角色-下一个"
+            post_delay: 0.025
+          - op_name: "按键-普通攻击"
+            post_delay: 0.025
+            repeat: 6
+          - op_name: "按键-切换角色-下一个"
+      - states: "[前台-朱鸢] & ([闪避识别-黄光] | [闪避识别-红光] | [闪避识别-声音] )" #朱鸢前台时只用闪避反击
+        operations:
+          - op_name: "按键-移动-前"
+            way: "按下"
+            post_delay: 0.01
+          - op_name: "按键-闪避"
+            way: "按下"
+            press: 0.01
+            post_delay: 0.15
+            repeat: 2
+          - op_name: "按键-普通攻击"
+            way: "按下"
+            press: 0.6
+            post_delay: 0.025
+          - op_name: "按键-移动-前"
+            way: "松开"
+            post_delay: 0.1
+      - states: "[前台-妮可] & [闪避识别-黄光]"   #妮可在前台切击破格挡
+        operations:
+          - op_name: "按键-切换角色-上一个"
+            post_delay: 0.025
+          - op_name: "按键-普通攻击"
+            post_delay: 0.025
+            repeat: 8
+          - op_name: "按键-切换角色-上一个"
+      - states: "[前台-妮可] & ([闪避识别-黄光] | [闪避识别-红光] | [闪避识别-声音] ) & [自定义-妮可格挡,0,2]" #妮可前台闪避反击
+        operations:
+          - op_name: "按键-移动-前"
+            way: "按下"
+            post_delay: 0.01
+          - op_name: "按键-闪避"
+            way: "按下"
+            press: 0.01
+            post_delay: 0.15
+            repeat: 2
+          - op_name: "按键-普通攻击"
+            way: "按下"
+            press: 0.6
+            post_delay: 0.025
+          - op_name: "按键-移动-前"
+            way: "松开"
+            post_delay: 0.1
+  - triggers: ["按键可用-连携技"]
+    priority: 99
+    interval: 0.2
+    handlers:
+      - states: "[按键可用-连携技]"
+        sub_states:
+          - states: "(![连携技-1-朱鸢] & ![连携技-1-击破] & ![连携技-1-妮可])"
+            operations:
+              - op_name : "按键-连携技-取消"
+                way: "按下"
+                press: 0.02
+                post_delay: 0.01
+                repeat: 2
+
+          - states: "([连携技-1-妮可] & [连携技-2-击破]) | [连携技-1-朱鸢]"
+            operations: *up
+          - states: "[连携技-2-朱鸢] | [连携技-1-击破] | [连携技-1-妮可]"
+            operations: *down
+
+  - triggers: ["按键可用-快速支援"]
+    priority: 98
+    handlers:
+      - states: "[按键可用-快速支援,0,0.2]" #快速支援触发时只有前台是妮可才会触发快速支援
+        sub_states:
+          - states: "[前台-妮可]"
+            operations:
+              - op_name: "按键-移动-前"
+                way: "松开"
+              - op_name: "按键-切换角色-下一个"
+                post_delay: 0.2
+              - op_name: "按键-闪避"
+                post_delay: 0.3
+
+  - triggers: ["前台-妮可"]
+    priority: 1
+    interval: 1
+    handlers:
+      - states: "[前台-妮可]"
+        sub_states: *n
+
+  - triggers: ["前台-击破"]
+    priority: 3
+    interval: 1
+    handlers:
+      - states: "[前台-击破]"
+        sub_states: *q
+
+  - triggers: ["前台-朱鸢"]
+    priority: 4
+    interval: 0.2
+    handlers:
+      - states: "[自定义-失衡期, 0, 12]" #检测到失衡期间时切朱鸢输出
+        sub_states:
+          - states: "![前台-朱鸢] & ![按键可用-快速支援]"
+            operations:
+              - op_name: "按键-移动-前"
+                way: "松开"
+              - op_name: "按键-切换角色-下一个"
+                post_delay: 0.1
+          - states: "[前台-击破]"
+            operations:
+              - op_name: "按键-移动-前"
+                way: "松开"
+              - op_name: "按键-切换角色-上一个"
+                post_delay: 0.1
+          - states: "[前台-朱鸢]"
+            sub_states: *zy
+  - triggers: ["按键可用-终结技"]
+    priority: 10
+    interval: 1
+    handlers:
+      - states: "[前台-朱鸢] & [按键可用-终结技] & ![按键-切换角色-下一个,0,5]"
+        operations:
+          - op_name: "按键-终结技"
+            post_delay: 0.2
+            repeat: 2
+
+  - triggers: []
+    priority: 2
+    interval: 0.2
+    handlers:
+      - state_template: "通用模板-锁定敌人"
+      #失衡期间过后切击破击破
+      - states: "![前台-击破]"
+        sub_states:
+          - states: "[前台-朱鸢] & ![自定义-失衡期, 0, 12]"
+            operations:
+              - op_name: "按键-特殊攻击"
+                post_delay: 0.025
+              - op_name: "按键-移动-前"
+                way: "松开"
+              - op_name: "等待秒数"
+                data: ["0.1"]
+              - op_name: "按键-切换角色-下一个"
+                post_delay: 0.1
+          # 错误处理
+          - states: "[前台-妮可] & ![自定义-失衡期, 0, 12]"
+            operations:
+              - op_name: "按键-移动-前"
+                way: "松开"
+              - op_name: "按键-闪避"
+                data: ["0.1"]
+              - op_name: "按键-普通攻击"
+                data: ["0.1"]
+              - op_name: "按键-切换角色-上一个"
+                post_delay: 0.1
