@@ -13,8 +13,8 @@ from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import Agent, AgentEnum
 from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroSpecialEvent
-from zzz_od.operation.hollow_zero.event import event_utils
-from zzz_od.operation.hollow_zero.event.event_ocr_result_handler import EventOcrResultHandler
+from zzz_od.hollow_zero.event import hollow_event_utils
+from zzz_od.hollow_zero.event.event_ocr_result_handler import EventOcrResultHandler
 from zzz_od.operation.zzz_operation import ZOperation
 
 

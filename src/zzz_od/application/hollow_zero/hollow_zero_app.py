@@ -9,23 +9,24 @@ from one_dragon.utils.i18_utils import gt
 from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroExtraTask
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
+from zzz_od.hollow_zero.event import hollow_event_utils
+from zzz_od.hollow_zero.hollow_runner import HollowRunner
 from zzz_od.operation.back_to_normal_world import BackToNormalWorld
 from zzz_od.operation.compendium.tp_by_compendium import TransportByCompendium
-from zzz_od.operation.hollow_zero.hollow_runner import HollowRunner
 
 
 class HollowZeroApp(ZApplication):
 
     STATUS_NO_REWARD: ClassVar[str] = '无奖励可领取'
-    STATUS_TIMES_FINISHED: ClassVar[str] = '完成基本次数'
-    STATUS_NO_EVAL_POINT: ClassVar[str] = '完成刷取业绩'
+    STATUS_TIMES_FINISHED: ClassVar[str] = '已完成基本次数'
+    STATUS_NO_EVAL_POINT: ClassVar[str] = '已完成刷取业绩'
 
     def __init__(self, ctx: ZContext):
         ZApplication.__init__(
             self,
             ctx=ctx, app_id='hollow_zero',
             op_name=gt('零号空洞', 'ui'),
-            run_record=None
+            run_record=ctx.hollow_zero_record
         )
 
         self.mission_name: str = '内部'
@@ -40,6 +41,11 @@ class HollowZeroApp(ZApplication):
         else:
             self.mission_name = mission_name
             self.mission_type_name = mission_name
+
+    def check_screen(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        event_name = hollow_event_utils.check_screen(self.ctx, screen)
+
 
     @operation_node(name='传送', is_start_node=True)
     def tp(self) -> OperationRoundResult:

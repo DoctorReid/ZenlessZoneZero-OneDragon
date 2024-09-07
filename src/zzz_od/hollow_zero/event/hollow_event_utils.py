@@ -9,29 +9,32 @@ from one_dragon.base.geometry.point import Point
 from one_dragon.base.geometry.rectangle import Rect
 from one_dragon.base.matcher.match_result import MatchResult, MatchResultList
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
+from one_dragon.base.screen import screen_utils
 from one_dragon.base.screen.screen_area import ScreenArea
+from one_dragon.base.screen.screen_utils import FindAreaResultEnum
 from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
-from zzz_od.operation.hollow_zero.event.event_ocr_result_handler import EventOcrResultHandler
-from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroSpecialEvent, HallowZeroEvent
+from zzz_od.context.zzz_context import ZContext
+from zzz_od.hollow_zero.event.event_ocr_result_handler import EventOcrResultHandler
+from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroSpecialEvent
 from zzz_od.operation.zzz_operation import ZOperation
 
 
-def check_event_at_right(op: ZOperation, screen: MatLike) -> Optional[str]:
+def check_event_at_right(ctx: ZContext, screen: MatLike) -> Optional[str]:
     """
     识别右边区域 当前是什么事件
     """
-    area = get_event_text_area(op)
+    area = get_event_text_area(ctx)
     part = cv2_utils.crop_image_only(screen, area.rect)
     white = cv2.inRange(part, (240, 240, 240), (255, 255, 255))
     white = cv2_utils.dilate(white, 5)
     to_ocr = cv2.bitwise_and(part, part, mask=white)
-    ocr_result_map = op.ctx.ocr.run_ocr(to_ocr)
+    ocr_result_map = ctx.ocr.run_ocr(to_ocr)
 
     event_name_list = []
     event_name_gt_list = []
-    for event in op.ctx.hollow.data_service.normal_events:
+    for event in ctx.hollow.data_service.normal_events:
         event_name_list.append(event.event_name)
         event_name_gt_list.append(gt(event.event_name))
 
@@ -139,11 +142,11 @@ def click_rect(op: ZOperation, status: str, rect: Rect, wait: float = 1) -> Oper
         return op.round_retry(f'点击失败 {status}', wait=1)
 
 
-def get_event_text_area(op: ZOperation) -> ScreenArea:
+def get_event_text_area(ctx: ZContext) -> ScreenArea:
     """
     获取事件文本区域
     """
-    return op.ctx.screen_loader.get_area('零号空洞-事件', '事件文本')
+    return ctx.screen_loader.get_area('零号空洞-事件', '事件文本')
 
 
 def run_event_handler(op: ZOperation, handler: EventOcrResultHandler, area: ScreenArea, mr: MatchResult) -> OperationRoundResult:
@@ -171,16 +174,16 @@ def check_dialog_confirm(op: ZOperation, screen: MatLike) -> Optional[str]:
         return None
 
 
-def check_bottom_choose(op: ZOperation, screen: MatLike) -> Optional[str]:
+def check_bottom_choose(ctx: ZContext, screen: MatLike) -> Optional[str]:
     """
     底部是否有 选择、确认、催化、丢弃、交换、抵押欠款
     - 鸣徽选择、催化
     - 奖励确认
     - 邦布选择
     """
-    area = op.ctx.screen_loader.get_area('零号空洞-事件', '底部-选择列表')
+    area = ctx.screen_loader.get_area('零号空洞-事件', '底部-选择列表')
     part = cv2_utils.crop_image_only(screen, area.rect)
-    ocr_result_map = op.ctx.ocr.run_ocr(part)
+    ocr_result_map = ctx.ocr.run_ocr(part)
 
     event_list = [
         HollowZeroSpecialEvent.RESONIUM_CHOOSE.value,
@@ -201,14 +204,14 @@ def check_bottom_choose(op: ZOperation, screen: MatLike) -> Optional[str]:
                 return event.event_name
 
 
-def check_bottom_remove(op: ZOperation, screen: MatLike) -> Optional[str]:
+def check_bottom_remove(ctx: ZContext, screen: MatLike) -> Optional[str]:
     """
     底部是否有 清除
     - 侵蚀症状
     """
-    area = op.ctx.screen_loader.get_area('零号空洞-事件', '底部-清除列表')
+    area = ctx.screen_loader.get_area('零号空洞-事件', '底部-清除列表')
     part = cv2_utils.crop_image_only(screen, area.rect)
-    ocr_result_map = op.ctx.ocr.run_ocr(part)
+    ocr_result_map = ctx.ocr.run_ocr(part)
 
     event = HollowZeroSpecialEvent.CORRUPTION_REMOVE.value
     for ocr_result in ocr_result_map.keys():
@@ -216,10 +219,66 @@ def check_bottom_remove(op: ZOperation, screen: MatLike) -> Optional[str]:
             return event.event_name
 
 
-def check_full_in_bag(op: ZOperation, screen: MatLike) -> Optional[str]:
+def check_full_in_bag(ctx: ZContext, screen: MatLike) -> Optional[str]:
     """
     中间是否有背包已满
     """
-    result = op.round_by_find_area(screen, '零号空洞-事件', '背包已满')
-    if result.is_success:
-        return result.status
+    result = screen_utils.find_area(ctx, screen, '零号空洞-事件', '背包已满')
+    if result == FindAreaResultEnum.TRUE:
+        return HollowZeroSpecialEvent.FULL_IN_BAG.value.event_name
+
+
+def check_screen(ctx: ZContext, screen: MatLike) -> Optional[str]:
+    """
+    识别当前画面的状态
+    """
+    choose = check_bottom_choose(ctx, screen)
+    if choose is not None:
+        return choose
+
+    event = check_event_at_right(ctx, screen)
+    if event is not None:
+        return event
+
+    # 不同的消息框高度不一样 很难捕捉到确定的按钮
+    # confirm = event_utils.check_dialog_confirm(op, screen)
+    # if confirm is not None:
+    #     return confirm
+
+    remove = check_bottom_remove(ctx, screen)
+    if remove is not None:
+        return remove
+
+    battle = check_battle_screen(ctx, screen)
+    if battle is not None:
+        return battle
+
+    complete = check_mission_complete(ctx, screen)
+    if complete is not None:
+        return complete
+
+    full_in_bag = check_full_in_bag(ctx, screen)
+    if full_in_bag is not None:
+        return full_in_bag
+
+
+def check_battle_screen(ctx: ZContext, screen: MatLike) -> Optional[str]:
+    result = screen_utils.find_area(ctx, screen, '战斗画面', '按键-普通攻击')
+
+    if result == FindAreaResultEnum.TRUE:
+        return HollowZeroSpecialEvent.IN_BATTLE.value.event_name
+
+
+def check_mission_complete(ctx: ZContext, screen: MatLike) -> Optional[str]:
+    result = screen_utils.find_area(ctx, screen, '零号空洞-事件', '通关-完成')
+
+    if result == FindAreaResultEnum.TRUE:
+        return HollowZeroSpecialEvent.MISSION_COMPLETE.value.event_name
+
+
+def check_in_hollow(ctx: ZContext, screen: MatLike) -> Optional[str]:
+    result = screen_utils.find_area(ctx=ctx, screen=screen,
+                                    screen_name='零号空洞-事件', area_name='背包')
+
+    if result == FindAreaResultEnum.TRUE:
+        return HollowZeroSpecialEvent.HOLLOW_INSIDE.value.event_name

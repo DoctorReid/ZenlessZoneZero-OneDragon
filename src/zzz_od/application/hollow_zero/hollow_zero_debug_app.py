@@ -3,7 +3,7 @@ from one_dragon.base.operation.operation_round_result import OperationRoundResul
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
-from zzz_od.operation.hollow_zero.hollow_runner import HollowRunner
+from zzz_od.hollow_zero.hollow_runner import HollowRunner
 
 
 class HollowZeroDebugApp(ZApplication):

@@ -9,21 +9,22 @@ from one_dragon.base.operation.operation_round_result import OperationRoundResul
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroExtraTask
 from zzz_od.context.zzz_context import ZContext
+from zzz_od.hollow_zero.event import hollow_event_utils
+from zzz_od.hollow_zero.event.bamboo_merchant import BambooMerchant
+from zzz_od.hollow_zero.event.call_for_support import CallForSupport
+from zzz_od.hollow_zero.event.choose_resonium import ChooseResonium
+from zzz_od.hollow_zero.event.confirm_resonium import ConfirmResonium
+from zzz_od.hollow_zero.event.critical_stage import CriticalStage
+from zzz_od.hollow_zero.event.drop_resonium import DropResonium, DropResonium2
+from zzz_od.hollow_zero.event.normal_event_handler import NormalEventHandler
+from zzz_od.hollow_zero.event.remove_corruption import RemoveCorruption
+from zzz_od.hollow_zero.event.swift_supply import SwiftSupply
+from zzz_od.hollow_zero.event.switch_resonium import SwitchResonium
+from zzz_od.hollow_zero.event.upgrade_resonium import UpgradeResonium
 from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroSpecialEvent
+from zzz_od.hollow_zero.hollow_battle import HollowBattle
+from zzz_od.hollow_zero.hollow_exit_by_menu import HollowExitByMenu
 from zzz_od.hollow_zero.hollow_map.hollow_zero_map import HollowZeroMapNode, HollowZeroMap
-from zzz_od.operation.hollow_zero import hollow_utils
-from zzz_od.operation.hollow_zero.event.bamboo_merchant import BambooMerchant
-from zzz_od.operation.hollow_zero.event.call_for_support import CallForSupport
-from zzz_od.operation.hollow_zero.event.choose_resonium import ChooseResonium
-from zzz_od.operation.hollow_zero.event.confirm_resonium import ConfirmResonium
-from zzz_od.operation.hollow_zero.event.critical_stage import CriticalStage
-from zzz_od.operation.hollow_zero.event.drop_resonium import DropResonium, DropResonium2
-from zzz_od.operation.hollow_zero.event.normal_event_handler import NormalEventHandler
-from zzz_od.operation.hollow_zero.event.remove_corruption import RemoveCorruption
-from zzz_od.operation.hollow_zero.event.swift_supply import SwiftSupply
-from zzz_od.operation.hollow_zero.event.switch_resonium import SwitchResonium
-from zzz_od.operation.hollow_zero.event.upgrade_resonium import UpgradeResonium
-from zzz_od.operation.hollow_zero.hollow_battle import HollowBattle
 from zzz_od.operation.zzz_operation import ZOperation
 
 
@@ -68,14 +69,15 @@ class HollowRunner(ZOperation):
     def check_screen(self) -> OperationRoundResult:
         now = time.time()
         screen = self.screenshot()
-        result = hollow_utils.check_screen(self, screen)
-        if result is not None:
+        result = hollow_event_utils.check_screen(self.ctx, screen)
+        if result is not None and result != HollowZeroSpecialEvent.HOLLOW_INSIDE.value.event_name:
             return self._handle_event(screen, result)
 
-        # 当前识别到地图
-        current_map = self.ctx.hollow.check_current_map(screen, now)
-        if current_map is not None and current_map.current_idx is not None:
-            return self._handle_map_move(screen, now, current_map)
+        if result == HollowZeroSpecialEvent.HOLLOW_INSIDE.value.event_name:
+            # 当前有显示背包 可以尝试识别地图
+            current_map = self.ctx.hollow.check_current_map(screen, now)
+            if current_map is not None and current_map.current_idx is not None:
+                return self._handle_map_move(screen, now, current_map)
 
         self.round_by_click_area('零号空洞-事件', '空白')
         return self.round_retry('未能识别当前画面', wait=1)
@@ -200,48 +202,10 @@ class HollowRunner(ZOperation):
         debug_utils.save_debug_image(screen, prefix='pathfinding_fail')
 
     @node_from(from_name='画面识别', status=STATUS_LEAVE)
-    @operation_node(name='点击菜单')
-    def click_menu(self) -> OperationRoundResult:
-        screen = self.screenshot()
-        result = self.round_by_find_area(screen, '零号空洞-事件', '放弃')
-        if result.is_success:
-            return self.round_success()
-
-        result = self.round_by_click_area('零号空洞-事件', '菜单')
-        if result.is_success:
-            return self.round_wait(wait=1)
-
-        return self.round_retry(result.status, wait=1)
-
-    @node_from(from_name='点击菜单')
-    @operation_node(name='点击离开')
-    def click_leave(self) -> OperationRoundResult:
-        screen = self.screenshot()
-        return self.round_by_find_and_click_area(screen, '零号空洞-事件', '放弃',
-                                                 success_wait=1, retry_wait=1)
-
-    @node_from(from_name='点击离开')
-    @operation_node(name='确认离开')
-    def confirm_leave(self) -> OperationRoundResult:
-        screen = self.screenshot()
-        return self.round_by_find_and_click_area(screen, '零号空洞-事件', '放弃-确认',
-                                                 success_wait=1, retry_wait=1)
-
-    @node_from(from_name='确认离开')
-    @operation_node(name='点击完成')
-    def click_finish(self) -> OperationRoundResult:
-        screen = self.screenshot()
-
-        # 这个按钮刚出现的时候可以按不到 需要重复按它
-        result = self.round_by_find_and_click_area(screen, '零号空洞-事件', '通关-完成')
-        if result.is_success:
-            return self.round_wait(wait=1)
-
-        result = self.round_by_find_area(screen, '零号空洞-入口', '街区')
-        if result.is_success:
-            return self.round_success()
-
-        return self.round_retry(wait=1)
+    @operation_node(name='离开空洞')
+    def exit_hollow(self) -> OperationRoundResult:
+        op = HollowExitByMenu(self.ctx)
+        return self.round_by_op(op.execute())
 
 
 def __debug():

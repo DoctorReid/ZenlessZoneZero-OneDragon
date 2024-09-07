@@ -1,6 +1,7 @@
 from cv2.typing import MatLike
 from typing import Union
 
+import zzz_od.hollow_zero.event.hollow_event_utils
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
