@@ -1,0 +1,47 @@
+- entry_name: "盗洞客集会"
+  event_name: "因缘际会"
+  options:
+    - option_name: "不需要"
+
+    - option_name: "理财条款"
+      desc: "获得的齿轮硬币+20%"
+
+    - option_name: "降压条款"
+      desc: "降低的压力值+40%"
+
+    - option_name: "医疗条款"
+      desc: "恢复的生命值+30%"
+
+    - option_name: "破产风险"
+      desc: "商店价格+15%"
+
+    - option_name: "伤害风险"
+      desc: "生命值无法超过80%"
+
+    - option_name: "高压风险"
+      desc: "每次行动增加的压力值+3"
+
+- entry_name: "盗洞客集会"
+  event_name: "因缘再会"
+  options:
+    - option_name: "战斗物资"
+      desc: "获得1枚鸣徽"
+
+    - option_name: "催化剂"
+      desc: "催化2枚鸣徽"
+
+    - option_name: "邦布插件包"
+      desc: "获得1个浓缩医疗"
+
+    - option_name: "呃··可以不要风险么？"
+
+    - option_name: "缴纳血样"
+      desc: "失去8%生命值"
+
+    - option_name: "接受压力实验"
+      desc: "承受1个侵蚀症状"
+
+    - option_name: "缴纳齿轮硬币"
+      desc: "失去持有的33%齿轮硬币"
+
+    - option_name: "离开"

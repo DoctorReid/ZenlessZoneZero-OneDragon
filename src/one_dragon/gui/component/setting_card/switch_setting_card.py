@@ -1,13 +1,13 @@
-from typing import Union
-
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QIcon, Qt
-from qfluentwidgets import SettingCard, FluentIconBase, SwitchButton, IndicatorPosition
+from qfluentwidgets import FluentIconBase, SwitchButton, IndicatorPosition
+from typing import Union
 
+from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
 from one_dragon.utils.i18_utils import gt
 
 
-class SwitchSettingCard(SettingCard):
+class SwitchSettingCard(SettingCardBase):
 
     value_changed = Signal(bool)
 
@@ -22,7 +22,7 @@ class SwitchSettingCard(SettingCard):
         :param content: 左侧的详细文本 中文
         :param parent: 组件的parent
         """
-        super().__init__(icon, title, content, parent)
+        SettingCardBase.__init__(self, icon, title, content, parent=parent)
         self.on_text_cn: str = on_text_cn
         self.off_text_cn: str = off_text_cn
 

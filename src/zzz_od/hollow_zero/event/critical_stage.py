@@ -6,9 +6,9 @@ from one_dragon.base.operation.operation_round_result import OperationRoundResul
 from one_dragon.utils.i18_utils import gt
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroSpecialEvent
-from zzz_od.operation.hollow_zero.event import event_utils
-from zzz_od.operation.hollow_zero.event.event_ocr_result_handler import EventOcrResultHandler
-from zzz_od.operation.hollow_zero.hollow_battle import HollowBattle
+from zzz_od.hollow_zero.event import hollow_event_utils
+from zzz_od.hollow_zero.event.event_ocr_result_handler import EventOcrResultHandler
+from zzz_od.hollow_zero.hollow_battle import HollowBattle
 from zzz_od.operation.zzz_operation import ZOperation
 
 
@@ -35,7 +35,7 @@ class CriticalStage(ZOperation):
     @operation_node(name='画面识别', is_start_node=True)
     def check_screen(self) -> OperationRoundResult:
         screen = self.screenshot()
-        return event_utils.check_event_text_and_run(self, screen, self._handlers)
+        return hollow_event_utils.check_event_text_and_run(self, screen, self._handlers)
 
     @node_from(from_name='画面识别', status=OPT_1)
     @operation_node(name='自动战斗')

@@ -408,7 +408,7 @@ def __debug_get_map():
 
     from one_dragon.utils import debug_utils
     img_list = [
-        '2',
+        '_1725682732540',
     ]
     for i in img_list:
         img = debug_utils.get_debug_image(i)

@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional, List, Callable
+from typing import Optional, Callable
 
 from one_dragon.base.conditional_operation.state_recorder import StateRecorder
 from one_dragon.utils.log_utils import log
@@ -275,11 +275,11 @@ def construct_state_cal_tree(expr_str: str, state_getter: Callable[[str], StateR
 def __debug():
     expr = "( [闪避识别-黄光, 0, 1] | [闪避识别-红光, 0, 1] ) & ![按键-闪避, 0, 1]{0, 1}"
     ctx = None
-    sr1 = StateRecorder(ctx, '闪避识别-黄光')
+    sr1 = StateRecorder('闪避识别-黄光')
     sr1.last_record_time = 1
-    sr2 = StateRecorder(ctx, '闪避识别-红光')
+    sr2 = StateRecorder('闪避识别-红光')
     sr2.last_record_time = 2
-    sr3 = StateRecorder(ctx, '按键-闪避')
+    sr3 = StateRecorder('按键-闪避')
     sr3.last_record_time = 1
     node = construct_state_cal_tree(expr, [sr1, sr2, sr3])
     assert node.in_time_range(2)  # True

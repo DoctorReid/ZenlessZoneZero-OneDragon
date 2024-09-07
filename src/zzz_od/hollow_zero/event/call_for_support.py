@@ -13,8 +13,8 @@ from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import Agent, AgentEnum
 from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroSpecialEvent
-from zzz_od.operation.hollow_zero.event import event_utils
-from zzz_od.operation.hollow_zero.event.event_ocr_result_handler import EventOcrResultHandler
+from zzz_od.hollow_zero.event import hollow_event_utils
+from zzz_od.hollow_zero.event.event_ocr_result_handler import EventOcrResultHandler
 from zzz_od.operation.zzz_operation import ZOperation
 
 
@@ -57,7 +57,7 @@ class CallForSupport(ZOperation):
     @operation_node(name='画面识别', is_start_node=True)
     def check_screen(self) -> OperationRoundResult:
         screen = self.screenshot()
-        return event_utils.check_event_text_and_run(self, screen, self._handlers)
+        return hollow_event_utils.check_event_text_and_run(self, screen, self._handlers)
 
     def check_team(self, text: str, rect: Rect) -> OperationRoundResult:
         """
@@ -152,7 +152,7 @@ class CallForSupport(ZOperation):
     @operation_node(name=STATUS_ACCEPT)
     def accept_backup(self) -> OperationRoundResult:
         screen = self.screenshot()
-        area = event_utils.get_event_text_area(self)
+        area = hollow_event_utils.get_event_text_area(self.ctx)
         result = self.round_by_ocr_and_click(screen, CallForSupport.STATUS_ACCEPT, area=area)
         if result.is_success:
             self.replace = False
@@ -169,7 +169,7 @@ class CallForSupport(ZOperation):
     @operation_node(name='选择位置')
     def choose_pos(self) -> OperationRoundResult:
         screen = self.screenshot()
-        area = event_utils.get_event_text_area(self)
+        area = hollow_event_utils.get_event_text_area(self.ctx)
         if self.replace:
             cn = '接替%d号队员的位置' % self.should_call_pos
         else:
@@ -181,13 +181,13 @@ class CallForSupport(ZOperation):
     @operation_node(name='确认')
     def confirm(self) -> OperationRoundResult:
         self.ctx.hollow.update_agent_list_after_support(self.new_agent, self.should_call_pos)
-        return event_utils.click_empty(self)
+        return hollow_event_utils.click_empty(self)
 
     @node_from(from_name='画面识别', status=STATUS_NO_NEED)
     @operation_node(name='拒绝')
     def reject_agent(self) -> OperationRoundResult:
         screen = self.screenshot()
-        area = event_utils.get_event_text_area(self)
+        area = hollow_event_utils.get_event_text_area(self.ctx)
         # 每个角色的不接受选项不一样
         opts = [
             RejectOption('下次再依靠你'),  # 本
@@ -278,7 +278,7 @@ def __debug_check_screen():
         os_utils.get_path_under_work_dir('.debug', 'devtools', 'screen', 'hollow_zero_support'),
         'empty.png'
     ))
-    event_utils.check_event_text_and_run(op, screen, op._handlers)
+    hollow_event_utils.check_event_text_and_run(op, screen, op._handlers)
 
 
 if __name__ == '__main__':

@@ -1,18 +1,16 @@
+from PySide6.QtCore import Signal, Qt, QEvent
+from PySide6.QtGui import QIcon, QColor
 from enum import Enum
-from typing import Union, Iterable, Optional, List
-
-from PySide6.QtCore import Signal, Qt, QEvent,QRectF
-from PySide6.QtGui import QIcon, QColor,QPainter
-from PySide6.QtWidgets import QPushButton,QGraphicsDropShadowEffect
 from qfluentwidgets import SettingCard, FluentIconBase, ComboBox, ToolTip
-from qfluentwidgets.common.style_sheet import CustomStyleSheet
+from typing import Union, Iterable, Optional, List
 
 # from one_dragon.gui.component.setting_card.tool_tip import ToolTip
 from one_dragon.base.config.config_item import ConfigItem
+from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
 from one_dragon.utils.i18_utils import gt
 
 
-class ComboBoxSettingCard(SettingCard):
+class ComboBoxSettingCard(SettingCardBase):
     """
     自定义设置卡片类，包含一个下拉框
     """
@@ -34,13 +32,13 @@ class ComboBoxSettingCard(SettingCard):
         :param show_tooltip: 是否在标题上显示提示
         :param parent: 组件的父对象
         """
-        super().__init__(icon, gt(title, 'ui'), "", parent)
+        self.show_tooltip = show_tooltip  # 由于里面会调用setContent 这个需要提前初始化
+        SettingCardBase.__init__(self, icon, title, content, parent)
         self.combo_box = ComboBox(self)
         self.hBoxLayout.addWidget(self.combo_box, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
         self.show_config_desc = show_config_desc
-        self.show_tooltip = show_tooltip
 
         self.tooltip_text = content
         self.tooltip: Optional[ToolTip] = None

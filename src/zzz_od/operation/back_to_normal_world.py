@@ -6,6 +6,8 @@ from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import AgentEnum
+from zzz_od.hollow_zero.event import hollow_event_utils
+from zzz_od.hollow_zero.hollow_exit_by_menu import HollowExitByMenu
 from zzz_od.operation.zzz_operation import ZOperation
 
 
@@ -43,6 +45,26 @@ class BackToNormalWorld(ZOperation):
         # 判断是否有好感度事件
         if self._check_agent_dialog(screen):
             return self._handle_agent_dialog(screen)
+
+        # 判断在战斗画面
+        result = self.round_by_find_area(screen, '战斗画面', '按键-普通攻击')
+        if result.is_success:
+            self.click_area('战斗画面', '菜单')
+            return self.round_retry(wait=1)
+        # 空洞内的撤退
+        result = self.round_by_find_and_click_area(screen, '零号空洞-战斗', '退出战斗')
+        if result.is_success:
+            return self.round_retry(wait=1)
+        # 空洞内撤退后的完成
+        result = self.round_by_find_and_click_area(screen, '零号空洞-事件', '通关-完成')
+        if result.is_success:
+            return self.round_retry(wait=1)
+        # 在空洞内
+        result = hollow_event_utils.check_in_hollow(self.ctx, screen)
+        if result is not None:
+            op = HollowExitByMenu(self.ctx)
+            op.execute()
+            return self.round_retry(wait=1)
 
         click_back = self.click_area('菜单', '返回')
         if click_back:

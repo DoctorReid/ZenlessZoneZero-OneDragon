@@ -9,6 +9,7 @@ from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils.i18_utils import gt
+from one_dragon.utils.log_utils import log
 from zzz_od.auto_battle import auto_battle_utils
 from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.context.zzz_context import ZContext
@@ -35,6 +36,10 @@ class HollowBattle(ZOperation):
 
         self.is_critical_stage: bool = is_critical_stage  # 是否关键进展
         self.auto_op: Optional[AutoBattleOperator] = None
+        self.move_times: int = 0  # 向前移动的次数
+        self.last_distance: Optional[float] = None  # 上次移动前的距离
+        self.last_stuck_distance: Optional[float] = None  # 上次受困显示的距离
+        self.stuck_move_direction: str = 'a'  # 受困时移动的方向
 
     def handle_init(self):
         self.distance_pos: Optional[Rect] = None  # 显示距离的区域
@@ -95,11 +100,34 @@ class HollowBattle(ZOperation):
             if self.ctx.battle.without_distance_times >= 10:
                 self.auto_op.start_running_async()
                 return self.round_success()
-            if self.ctx.battle.with_distance_times >= 20:
-                # 移动比较久也没到 就自动退出了
-                return self.round_fail(HollowBattle.STATUS_FAIL_TO_MOVE)
             else:
                 return self.round_wait(wait=0.02)
+
+        if self.move_times >= 20:
+            # 移动比较久也没到 就自动退出了
+            return self.round_fail(HollowBattle.STATUS_FAIL_TO_MOVE)
+
+        current_distance = self.ctx.battle.last_check_distance
+        if self.last_distance is not None and abs(self.last_distance - current_distance) < 2:
+            log.info('上次移动后距离没有发生变化 尝试脱困')
+            if self.last_stuck_distance is not None and abs(self.last_stuck_distance - current_distance) < 2:
+                # 困的时候显示的距离跟上次困住的一样 代表脱困方向不对 换一个
+                log.info('上次脱困后距离没有发生变化 更换脱困方向')
+                if self.stuck_move_direction == 'a':
+                    self.stuck_move_direction = 'd'
+                elif self.stuck_move_direction == 'd':
+                    self.stuck_move_direction = 'a'
+
+            self.last_distance = current_distance
+            self.last_stuck_distance = current_distance
+
+            log.info('本次脱困方向 %s' % self.stuck_move_direction)
+            if self.stuck_move_direction == 'a':
+                self.ctx.controller.move_a(press=True, press_time=1, release=True)
+            elif self.stuck_move_direction == 'd':
+                self.ctx.controller.move_d(press=True, press_time=1, release=True)
+
+            return self.round_wait(wait=0.5)
 
         pos = self.distance_pos.center
         if pos.x < 900:
@@ -109,14 +137,17 @@ class HollowBattle(ZOperation):
             self.ctx.controller.turn_by_distance(+50)
             return self.round_wait(wait=0.5)
         else:
+            self.last_distance = current_distance
             press_time = self.ctx.battle.last_check_distance / 7.2  # 朱鸢测出来的速度
             self.ctx.controller.move_w(press=True, press_time=press_time, release=True)
+            self.move_times += 1
             return self.round_wait(wait=0.5)
 
     @node_from(from_name='识别特殊移动', status=STATUS_NO_NEED_SPECIAL_MOVE)
     @node_from(from_name='向前移动准备战斗')
     @operation_node(name='自动战斗')
     def auto_battle(self) -> OperationRoundResult:
+        self.move_times = 0
         if self.ctx.battle.last_check_end_result is not None:
             auto_battle_utils.stop_running(self)
             return self.round_success(status=self.ctx.battle.last_check_end_result)

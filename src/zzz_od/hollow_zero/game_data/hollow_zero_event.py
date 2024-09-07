@@ -57,6 +57,8 @@ class HallowZeroEvent:
 
 class HollowZeroSpecialEvent(Enum):
 
+    HOLLOW_INSIDE = HallowZeroEvent('空洞内部')
+
     RESONIUM_CHOOSE = HallowZeroEvent('选择')
     RESONIUM_CONFIRM_1 = HallowZeroEvent('确认')
     RESONIUM_CONFIRM_2 = HallowZeroEvent('确定')

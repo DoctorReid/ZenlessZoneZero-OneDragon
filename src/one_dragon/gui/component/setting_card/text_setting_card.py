@@ -1,13 +1,13 @@
-from typing import Union
-
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QIcon, Qt
 from qfluentwidgets import SettingCard, FluentIconBase, LineEdit
+from typing import Union
 
+from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
 from one_dragon.utils.i18_utils import gt
 
 
-class TextSettingCard(SettingCard):
+class TextSettingCard(SettingCardBase):
 
     value_changed = Signal(str)
 
@@ -21,7 +21,8 @@ class TextSettingCard(SettingCard):
         :param input_placeholder: 输入提示
         :param input_max_width: 输入框的最大长度
         """
-        SettingCard.__init__(self, icon, gt(title, 'ui'), gt(content, 'ui'), parent)
+        SettingCardBase.__init__(self, icon, title, content, parent)
+
         self.line_edit = LineEdit(self)
         self.line_edit.setMaximumWidth(input_max_width)
         self.line_edit.setPlaceholderText(input_placeholder)

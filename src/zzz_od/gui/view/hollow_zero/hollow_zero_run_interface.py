@@ -59,14 +59,14 @@ class HollowZeroRunInterface(AppRunInterface):
         self.mission_opt.value_changed.connect(self._on_mission_changed)
         left_layout.addWidget(self.mission_opt)
 
-        # 创建一个组合框设置卡片，标题为“挑战配置”
-        self.challenge_config_opt = ComboBoxSettingCard(
-            icon=FluentIcon.SETTING,  # 选择与设置相关的图标
-            title='挑战配置',
-            content='选择角色、鸣徽和事件',
+        # 创建一个文本设置卡片
+        self.weekly_times_opt = TextSettingCard(
+            icon=FluentIcon.CALENDAR,  # 选择与时间相关的图标
+            title='每周基础',
+            content='完整通关，用于完成委托任务'
         )
-        self.challenge_config_opt.value_changed.connect(self._on_challenge_config_changed)
-        left_layout.addWidget(self.challenge_config_opt)
+        self.weekly_times_opt.value_changed.connect(self._on_weekly_times_changed)
+        left_layout.addWidget(self.weekly_times_opt)
 
         self.run_record_opt = PushSettingCard(
             icon=FluentIcon.SYNC,
@@ -85,24 +85,14 @@ class HollowZeroRunInterface(AppRunInterface):
         right_layout = QVBoxLayout(right_widget)
         right_widget.setLayout(right_layout)
 
-        # 创建一个推送设置卡片，标题为“调试”
-        self.debug_opt = PushSettingCard(
-            text='调试',
-            icon=FluentIcon.STOP_WATCH,  # 选择与停止相关的图标
-            title='调试',
-            content='在中断/停止状态下用于继续执行',
+        # 创建一个组合框设置卡片，标题为“挑战配置”
+        self.challenge_config_opt = ComboBoxSettingCard(
+            icon=FluentIcon.SETTING,  # 选择与设置相关的图标
+            title='挑战配置',
+            content='选择角色、鸣徽和事件',
         )
-        self.debug_opt.clicked.connect(self._on_debug_clicked)
-        right_layout.addWidget(self.debug_opt)
-
-        # 创建一个文本设置卡片，标题为“每周通关次数”
-        self.weekly_times_opt = TextSettingCard(
-            icon=FluentIcon.CALENDAR,  # 选择与时间相关的图标
-            title='每周基础次数',
-            content='完整的通关次数，用于完成委托任务',
-        )
-        self.weekly_times_opt.value_changed.connect(self._on_weekly_times_changed)
-        right_layout.addWidget(self.weekly_times_opt)
+        self.challenge_config_opt.value_changed.connect(self._on_challenge_config_changed)
+        right_layout.addWidget(self.challenge_config_opt)
 
         self.extra_task_opt = ComboBoxSettingCard(
             icon=FluentIcon.CALENDAR,  # 选择与时间相关的图标
@@ -112,6 +102,16 @@ class HollowZeroRunInterface(AppRunInterface):
         )
         self.extra_task_opt.value_changed.connect(self._on_extra_task_changed)
         right_layout.addWidget(self.extra_task_opt)
+
+        # 创建一个推送设置卡片，标题为“调试”
+        self.debug_opt = PushSettingCard(
+            text='调试',
+            icon=FluentIcon.STOP_WATCH,  # 选择与停止相关的图标
+            title='调试',
+            content='在中断/停止状态下用于继续执行'
+        )
+        self.debug_opt.clicked.connect(self._on_debug_clicked)
+        right_layout.addWidget(self.debug_opt)
 
         right_layout.addStretch(1)
         return right_widget
