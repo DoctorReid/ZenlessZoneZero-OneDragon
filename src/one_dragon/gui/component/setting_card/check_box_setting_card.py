@@ -1,13 +1,13 @@
-from typing import Union
-
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QIcon, Qt
 from qfluentwidgets import SettingCard, FluentIconBase, CheckBox
+from typing import Union
 
+from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
 from one_dragon.utils.i18_utils import gt
 
 
-class CheckBoxSettingCard(SettingCard):
+class CheckBoxSettingCard(SettingCardBase):
 
     value_changed = Signal(bool)
 
@@ -18,7 +18,7 @@ class CheckBoxSettingCard(SettingCard):
         :param content: 左侧的详细文本 中文
         :param parent: 组件的parent
         """
-        super().__init__(icon, gt(title, 'ui'), gt(content, 'ui'), parent)
+        SettingCardBase.__init__(self, icon, title, content, parent)
         self.check_box = CheckBox(self)
         self.hBoxLayout.addWidget(self.check_box, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)

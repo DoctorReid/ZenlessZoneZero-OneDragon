@@ -48,7 +48,6 @@ class ConditionalOperator(YamlConfig):
     def init(
             self,
             event_bus: ContextEventBus,
-            state_getter: Callable[[str], StateRecorder],
             op_getter: Callable[[OperationDef], AtomicOp],
             scene_handler_getter: Callable[[str], StateHandlerTemplate],
             operation_template_getter: Callable[[str], OperationTemplate],
@@ -69,7 +68,7 @@ class ConditionalOperator(YamlConfig):
         usage_states = []  # 已经监听的状态变更
 
         for scene_data in scenes:
-            handler = construct_scene_handler(scene_data, state_getter,
+            handler = construct_scene_handler(scene_data, self.get_state_recorder,
                                               op_getter, scene_handler_getter, operation_template_getter)
             states = scene_data.get('triggers', [])
             if len(states) > 0:
@@ -110,10 +109,7 @@ class ConditionalOperator(YamlConfig):
         self._running = True
         self._running_task_cnt.set(0)  # 每次重置计数器 防止有bug导致无法正常运行
 
-        if self._event_to_scene_handler is not None and self.event_bus is not None:
-            self.event_bus.unlisten_all_event(self)
-            for state_event, handler in self._event_to_scene_handler.items():
-                self.event_bus.listen_event(state_event, self._on_event)
+        self._start_listen_events()
 
         if self._normal_scene_handler is not None:
             future: Future = _od_conditional_op_executor.submit(self._normal_scene_loop)
@@ -158,20 +154,6 @@ class ConditionalOperator(YamlConfig):
                     time.sleep(to_sleep)
                 else:  # 没有命中的状态 或者 提交执行了 那就自旋等待
                     time.sleep(0.02)
-
-    def _on_event(self, event: ContextEventItem):
-        """
-        事件触发
-        :param event:
-        :return:
-        """
-        event_id = event.event_id
-        if event_id not in self._event_to_scene_handler:
-            return
-
-        # 由自己的线程处理事件 避免卡住事件线程
-        future: Future = _od_conditional_op_executor.submit(self._handle_trigger_event, event)
-        future.add_done_callback(thread_utils.handle_future_result)
 
     def _handle_trigger_event(self, event: ContextEventItem) -> None:
         """
@@ -273,3 +255,48 @@ class ConditionalOperator(YamlConfig):
             for handler in self._event_to_scene_handler.values():
                 states = states.union(handler.get_usage_states())
         return states
+
+    def get_state_recorder(self, state_name: str) -> Optional[StateRecorder]:
+        """
+        如何获取状态记录器 由具体子类实现
+        """
+        return None
+
+    def _start_listen_events(self) -> None:
+        """
+        开始监听事件
+        """
+        if self.event_bus is None:
+            return
+
+        self.event_bus.unlisten_all_event(self)
+
+        for event_id in self.get_usage_states():
+            self.event_bus.listen_event(event_id, self._on_battle_event)
+
+    def _on_battle_event(self, event: ContextEventItem) -> None:
+        # 由自己的线程处理事件 避免卡住事件线程
+        future: Future = _od_conditional_op_executor.submit(self._handle_battle_event, event)
+        future.add_done_callback(thread_utils.handle_future_result)
+
+    def _handle_battle_event(self, event: ContextEventItem) -> None:
+        """
+        处理战斗事件
+        """
+        event_id = event.event_id
+
+        # 先统一处理状态值
+        state_recorder = self.get_state_recorder(event_id)
+        if state_recorder is not None:
+            state_recorder.update_state_record(event)
+
+            if state_recorder.mutex_list is not None:
+                for mutex_state in state_recorder.mutex_list:
+                    mutex_recorder = self.get_state_recorder(mutex_state)
+                    if mutex_recorder is None:
+                        continue
+                    mutex_recorder.clear_state_record(event)
+
+        # 再去触发具体的场景
+        if event_id in self._event_to_scene_handler:
+            self._handle_trigger_event(event)

@@ -84,7 +84,6 @@ class AutoBattleOperator(ConditionalOperator):
         ConditionalOperator.init(
             self,
             event_bus=self.ctx,
-            state_getter=self.get_state_recorder,
             op_getter=self.get_atomic_op,
             scene_handler_getter=AutoBattleOperator.get_state_handler_template,
             operation_template_getter=AutoBattleOperator.get_operation_template
@@ -137,7 +136,7 @@ class AutoBattleOperator(ConditionalOperator):
             if state_name in self._state_recorders:
                 return self._state_recorders[state_name]
             else:
-                r = StateRecorder(self.ctx, state_name, mutex_list=self._mutex_list.get(state_name, None))
+                r = StateRecorder(state_name, mutex_list=self._mutex_list.get(state_name, None))
                 self._state_recorders[state_name] = r
                 return r
         else:

@@ -59,11 +59,11 @@ class HollowZeroRunInterface(AppRunInterface):
         self.mission_opt.value_changed.connect(self._on_mission_changed)
         left_layout.addWidget(self.mission_opt)
 
-        # 创建一个文本设置卡片，标题为“每周通关次数”
+        # 创建一个文本设置卡片
         self.weekly_times_opt = TextSettingCard(
             icon=FluentIcon.CALENDAR,  # 选择与时间相关的图标
-            title='每周基础次数',
-            content='完整的通关次数，用于完成委托任务',
+            title='每周基础',
+            content='完整通关，用于完成委托任务'
         )
         self.weekly_times_opt.value_changed.connect(self._on_weekly_times_changed)
         left_layout.addWidget(self.weekly_times_opt)
@@ -108,7 +108,7 @@ class HollowZeroRunInterface(AppRunInterface):
             text='调试',
             icon=FluentIcon.STOP_WATCH,  # 选择与停止相关的图标
             title='调试',
-            content='在中断/停止状态下用于继续执行',
+            content='在中断/停止状态下用于继续执行'
         )
         self.debug_opt.clicked.connect(self._on_debug_clicked)
         right_layout.addWidget(self.debug_opt)

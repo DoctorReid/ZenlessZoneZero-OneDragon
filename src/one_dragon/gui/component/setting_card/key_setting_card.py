@@ -1,10 +1,10 @@
-from typing import Union, Optional
-
 from PySide6.QtCore import Signal, QObject
 from PySide6.QtGui import QIcon, Qt
 from qfluentwidgets import SettingCard, FluentIconBase, PushButton
+from typing import Union, Optional
 
 from one_dragon.base.controller.pc_button.pc_button_listener import PcButtonListener
+from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
 from one_dragon.utils.i18_utils import gt
 
 
@@ -21,7 +21,7 @@ class KeyEventWorker(QObject):
         self.key_pressed.emit(key)
 
 
-class KeySettingCard(SettingCard):
+class KeySettingCard(SettingCardBase):
 
     value_changed = Signal(str)
 
@@ -36,7 +36,7 @@ class KeySettingCard(SettingCard):
         :param content: 左侧的详细文本 中文
         :param parent: 组件的parent
         """
-        super().__init__(icon, gt(title, 'ui'), gt(content, 'ui'), parent)
+        SettingCardBase.__init__(self, icon, title, content, parent)
         self.value: str = value
         self.btn = PushButton(text=value.upper(), parent=self)
         self.btn.setFocusPolicy(Qt.FocusPolicy.NoFocus)

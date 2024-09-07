@@ -85,7 +85,7 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
             self.agent_btn_list.append(agent_btn)
 
         self.agents_opt = MultiPushSettingCard(btn_list=self.agent_btn_list, icon=FluentIcon.PEOPLE,
-                                               title='目标配队', content='超过3人配队进入空洞时才需要配置，呼叫增援时保留这3个')
+                                               title='目标配队', content='按照自动战斗配置 选择角色位置')
         widget.add_widget(self.agents_opt)
 
         self.auto_battle_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='自动战斗')
