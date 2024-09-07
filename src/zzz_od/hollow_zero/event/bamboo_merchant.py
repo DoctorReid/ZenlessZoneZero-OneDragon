@@ -57,7 +57,7 @@ class BambooMerchant(ZOperation):
         if result.is_success:
             return self.round_wait(wait=1)
 
-        area = event_utils.get_event_text_area(self)
+        area = hollow_event_utils.get_event_text_area(self.ctx)
         result = self.round_by_ocr(screen, '血汗交易', area=area, lcs_percent=0.6)
         if result.is_success:
             return self.round_success(BambooMerchant.NOT_TO_BUY)
@@ -76,7 +76,7 @@ class BambooMerchant(ZOperation):
     @operation_node(name='鸣徽交易')
     def choose_buy(self) -> OperationRoundResult:
         screen = self.screenshot()
-        area = event_utils.get_event_text_area(self)
+        area = hollow_event_utils.get_event_text_area(self.ctx)
 
         result = self.round_by_ocr_and_click(screen, '鸣徽交易', area=area)
         if result.is_success:
@@ -233,7 +233,7 @@ def __debug_check_screen():
     from one_dragon.utils import debug_utils
     screen = debug_utils.get_debug_image('1')
     print(op._ocr_price_area(screen))
-    area = event_utils.get_event_text_area(op)
+    area = hollow_event_utils.get_event_text_area(op.ctx)
     print(op.round_by_ocr(screen, '鸣徽交易', area=area, lcs_percent=0.6).status)
 
 

@@ -66,7 +66,7 @@ def check_event_text_and_run(op: ZOperation, screen: MatLike, handlers: List[Eve
     """
     识别当前事件的文本 并做出选择
     """
-    area = get_event_text_area(op)
+    area = get_event_text_area(op.ctx)
     part = cv2_utils.crop_image_only(screen, area.rect)
     white = cv2.inRange(part, (240, 240, 240), (255, 255, 255))
     white = cv2_utils.dilate(white, 5)
@@ -241,7 +241,7 @@ def check_screen(ctx: ZContext, screen: MatLike) -> Optional[str]:
         return event
 
     # 不同的消息框高度不一样 很难捕捉到确定的按钮
-    # confirm = event_utils.check_dialog_confirm(op, screen)
+    # confirm = check_dialog_confirm(op, screen)
     # if confirm is not None:
     #     return confirm
 
@@ -260,6 +260,10 @@ def check_screen(ctx: ZContext, screen: MatLike) -> Optional[str]:
     full_in_bag = check_full_in_bag(ctx, screen)
     if full_in_bag is not None:
         return full_in_bag
+
+    in_hollow = check_in_hollow(ctx, screen)
+    if in_hollow is not None:
+        return in_hollow
 
 
 def check_battle_screen(ctx: ZContext, screen: MatLike) -> Optional[str]:

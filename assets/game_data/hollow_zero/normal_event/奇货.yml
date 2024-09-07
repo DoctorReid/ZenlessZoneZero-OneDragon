@@ -1,8 +1,8 @@
 - entry_name: "奇货"
-  event_name: "人工自动贩卖机"
+  event_name: "事件人工自动贩卖机"
   lcs_percent: 0.6
   options:
-    - option_name: "拆开贩卖机一探究竞"
+    - option_name: "拆开贩卖机一探究竞"  # 朱鸢事件
       desc: "获得1个稀有邦布插件"
 
     - option_name: "大量投币"
@@ -13,3 +13,6 @@
 
     - option_name: "恐吓贩卖机"
       desc: "压力值+50，获得2个稀有邦布插件"
+
+    - option_name: "搜集浓缩医疗"
+      desc: "压力值+50，获得2~4个浓缩医疗"

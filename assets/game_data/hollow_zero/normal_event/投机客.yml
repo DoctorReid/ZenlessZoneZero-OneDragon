@@ -34,3 +34,9 @@
 
     - option_name: "全部还款"
     - option_name: "我只能还齿轮硬币"
+
+- entry_name: "投机客"
+  event_name: "投机客的提醒"
+  options:
+    - option_name: "全部还款"
+    - option_name: "我只能还齿轮硬币"

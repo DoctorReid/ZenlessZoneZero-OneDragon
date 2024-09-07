@@ -35,7 +35,7 @@ class CriticalStage(ZOperation):
     @operation_node(name='画面识别', is_start_node=True)
     def check_screen(self) -> OperationRoundResult:
         screen = self.screenshot()
-        return event_utils.check_event_text_and_run(self, screen, self._handlers)
+        return hollow_event_utils.check_event_text_and_run(self, screen, self._handlers)
 
     @node_from(from_name='画面识别', status=OPT_1)
     @operation_node(name='自动战斗')
