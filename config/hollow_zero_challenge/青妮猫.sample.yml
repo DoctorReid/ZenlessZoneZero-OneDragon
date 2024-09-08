@@ -1,0 +1,15 @@
+resonium_priority:
+- 强袭
+- 闪避
+- 决斗
+- 能量
+- 通用
+- 邦布 左轮布
+auto_battle: 击破站场-强攻速切
+event_priority:
+- ''
+path_finding: 默认
+target_agents:
+- qingyi
+- nicole
+- nekomata
