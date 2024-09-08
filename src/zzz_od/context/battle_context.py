@@ -820,6 +820,12 @@ class BattleContext:
                     self.last_check_end_result = '鸣徽-确定'
                     return
 
+                result = screen_utils.find_area(ctx=self.ctx, screen=screen,
+                                                screen_name='零号空洞-战斗', area_name='结算周期上限-确认')
+                if result == FindAreaResultEnum.TRUE:
+                    self.last_check_end_result = '零号空洞-结算周期上限'
+                    return
+
             if check_battle_end_normal_result:
                 result = screen_utils.find_area(ctx=self.ctx, screen=screen,
                                                 screen_name='战斗画面', area_name='战斗结果-完成')

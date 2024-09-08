@@ -16,6 +16,7 @@ from zzz_od.hollow_zero.event.choose_resonium import ChooseResonium
 from zzz_od.hollow_zero.event.confirm_resonium import ConfirmResonium
 from zzz_od.hollow_zero.event.critical_stage import CriticalStage
 from zzz_od.hollow_zero.event.drop_resonium import DropResonium, DropResonium2
+from zzz_od.hollow_zero.event.full_in_bag import FullInBag
 from zzz_od.hollow_zero.event.normal_event_handler import NormalEventHandler
 from zzz_od.hollow_zero.event.remove_corruption import RemoveCorruption
 from zzz_od.hollow_zero.event.swift_supply import SwiftSupply
@@ -45,6 +46,7 @@ class HollowRunner(ZOperation):
             HollowZeroSpecialEvent.RESONIUM_STORE_1.value.event_name: BambooMerchant,
             HollowZeroSpecialEvent.RESONIUM_STORE_2.value.event_name: BambooMerchant,
             HollowZeroSpecialEvent.RESONIUM_STORE_3.value.event_name: BambooMerchant,
+            HollowZeroSpecialEvent.RESONIUM_STORE_4.value.event_name: BambooMerchant,
 
             HollowZeroSpecialEvent.RESONIUM_CHOOSE.value.event_name: ChooseResonium,
             HollowZeroSpecialEvent.RESONIUM_CONFIRM_1.value.event_name: ConfirmResonium,
@@ -61,6 +63,7 @@ class HollowRunner(ZOperation):
 
             HollowZeroSpecialEvent.CRITICAL_STAGE.value.event_name: CriticalStage,
             HollowZeroSpecialEvent.IN_BATTLE.value.event_name: HollowBattle,
+            HollowZeroSpecialEvent.FULL_IN_BAG.value.event_name: FullInBag,
         }
         self._last_save_image_time: float = 0
         self._last_move_time: float = 0  # 上一次移动的时间
