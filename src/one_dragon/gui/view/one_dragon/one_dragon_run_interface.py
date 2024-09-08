@@ -25,7 +25,6 @@ class OneDragonRunInterface(VerticalScrollInterface):
     def __init__(self, ctx: OneDragonContext, help_url: Optional[str] = None, parent=None):
         VerticalScrollInterface.__init__(
             self,
-            ctx=ctx,
             content_widget=None,
             nav_icon=FluentIcon.BUS,
             object_name='one_dragon_run_interface',
@@ -33,6 +32,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
             nav_text_cn='一条龙运行'
         )
 
+        self.ctx: OneDragonContext = ctx
         self._app_run_cards: List[AppRunCard] = []
         self._context_event_signal = ContextEventSignal()
         self.help_url: str = help_url  # 使用说明的链接

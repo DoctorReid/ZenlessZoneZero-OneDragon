@@ -30,7 +30,6 @@ try:
             self.ctx: ZContext = ctx
             FluentWindowBase.__init__(
                 self,
-                ctx=ctx,
                 win_title='%s %s' % (
                 gt(ctx.project_config.project_name, 'ui'), ctx.one_dragon_config.current_active_instance.name),
                 app_icon='zzz_logo.ico',

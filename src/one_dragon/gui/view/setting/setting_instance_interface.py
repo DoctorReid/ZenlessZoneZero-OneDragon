@@ -95,15 +95,13 @@ class InstanceSettingCard(MultiPushSettingCard):
 class SettingInstanceInterface(VerticalScrollInterface):
 
     def __init__(self, ctx: OneDragonContext, parent=None):
-        self.ctx: OneDragonContext = ctx
-
         VerticalScrollInterface.__init__(
             self,
-            ctx=ctx,
             object_name='setting_instance_interface',
             content_widget=None, parent=parent,
             nav_text_cn='实例设置'
         )
+        self.ctx: OneDragonContext = ctx
 
     def get_content_widget(self) -> QWidget:
         """

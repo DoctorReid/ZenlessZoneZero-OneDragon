@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout
 from qfluentwidgets import ProgressBar, IndeterminateProgressBar, SettingCardGroup, \
     FluentIcon
 
-from one_dragon.base.operation.one_dragon_context import OneDragonContext
+from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.log_display_card import LogDisplayCard
 from one_dragon.gui.install_card.all_install_card import AllInstallCard
@@ -15,10 +15,11 @@ from one_dragon.utils.i18_utils import gt
 
 class InstallerInterface(VerticalScrollInterface):
 
-    def __init__(self, ctx: OneDragonContext, parent=None):
-        VerticalScrollInterface.__init__(self, ctx=ctx, object_name='install_interface',
+    def __init__(self, ctx: OneDragonEnvContext, parent=None):
+        VerticalScrollInterface.__init__(self, object_name='install_interface',
                                          parent=parent, content_widget=None,
                                          nav_text_cn='一键安装', nav_icon=FluentIcon.CLOUD_DOWNLOAD)
+        self.ctx: OneDragonEnvContext = ctx
 
     def get_content_widget(self) -> QWidget:
         content_widget = QWidget()

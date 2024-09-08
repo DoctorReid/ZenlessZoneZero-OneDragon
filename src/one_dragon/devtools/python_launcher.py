@@ -10,6 +10,7 @@ from colorama import init, Fore, Style
 init(autoreset=True)
 
 # 设置当前工作目录
+# 最后exe存放的目录
 path = os.path.dirname(sys.argv[0])
 os.chdir(path)
 
@@ -93,12 +94,14 @@ def clean_old_logs(log_folder):
                 os.remove(os.path.join(root, file))
                 print_message(f"已删除旧日志文件: {file}", "PASS")
 
-def execute_python_script(log_folder):
+def execute_python_script(app_path, log_folder, no_windows: bool):
     # 执行 Python 脚本并重定向输出到日志文件
     timestamp = datetime.datetime.now().strftime("%H.%M")
     log_file_path = os.path.join(log_folder, f"python_{timestamp}.log")
     python_executable = os.environ.get('PYTHON')
-    app_script_path = os.path.join(os.environ.get('PYTHONPATH'), "zzz_od", "gui", "app.py")
+    app_script_path = os.environ.get('PYTHONPATH')
+    for sub_path in app_path:
+        app_script_path = os.path.join(app_script_path, sub_path)
 
     if not os.path.exists(app_script_path):
         print_message(f"PYTHONPATH 设置错误，无法找到 {app_script_path}", "ERROR")
@@ -109,10 +112,13 @@ def execute_python_script(log_folder):
         f"Start-Process '{python_executable}' -ArgumentList '{app_script_path}' -NoNewWindow -RedirectStandardOutput '{log_file_path}' -PassThru"
     )
     # 使用 subprocess.Popen 启动新的 PowerShell 窗口并执行命令
-    subprocess.Popen(["powershell", "-Command", powershell_command], creationflags=subprocess.CREATE_NO_WINDOW)
+    if no_windows:
+        subprocess.Popen(["powershell", "-Command", powershell_command], creationflags=subprocess.CREATE_NO_WINDOW)
+    else:
+        subprocess.Popen(["powershell", "-Command", powershell_command])
     print_message("绝区零一条龙 正在启动中，大约 5+ 秒...", "INFO")
 
-def main():
+def run_python(app_path, no_windows: bool = True):
     # 主函数
     try:
         print_message(f"当前工作目录：{path}", "INFO")
@@ -120,13 +126,10 @@ def main():
         configure_environment()
         log_folder = create_log_folder()
         clean_old_logs(log_folder)
-        execute_python_script(log_folder)
+        execute_python_script(app_path, log_folder, no_windows)
     except SystemExit as e:
         print_message(f"程序已退出，状态码：{e.code}", "ERROR")
     except Exception as e:
         print_message(f"出现未处理的异常：{e}", "ERROR")
     finally:
         time.sleep(5)
-
-if __name__ == "__main__":
-    main()

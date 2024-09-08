@@ -200,11 +200,13 @@ class HomeInterface(VerticalScrollInterface):
         content_layout.addWidget(banner)
         
         # 初始化父类并设置导航相关属性
-        super().__init__(
-            ctx=ctx, parent=parent,
+        VerticalScrollInterface.__init__(
+            self,
+            parent=parent,
             content_widget=content_widget, object_name='home_interface',
             nav_text_cn='主页', nav_icon=FluentIcon.HOME
         )
+        self.ctx: ZContext = ctx
 
         self._check_code_runner = CheckCodeRunner(self.ctx)
         self._check_code_runner.need_update.connect(self._need_to_update_code)

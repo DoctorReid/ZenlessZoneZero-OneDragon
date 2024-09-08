@@ -58,13 +58,13 @@ class AppRunInterface(VerticalScrollInterface):
                  ):
         VerticalScrollInterface.__init__(
             self,
-            ctx=ctx,
             content_widget=None,
             object_name=object_name,
             nav_text_cn=nav_text_cn,
             nav_icon=nav_icon,
             parent=parent
         )
+        self.ctx: OneDragonContext = ctx
 
     def get_content_widget(self) -> QWidget:
         content_widget = QWidget()

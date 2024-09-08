@@ -1,12 +1,10 @@
 import time
 
-import os
 from cv2.typing import MatLike
 
 from one_dragon.base.matcher.match_result import MatchResult, MatchResultList
 from one_dragon.base.matcher.ocr import ocr_utils
 from one_dragon.base.matcher.ocr.ocr_matcher import OcrMatcher
-from one_dragon.utils import os_utils
 from one_dragon.utils.log_utils import log
 
 

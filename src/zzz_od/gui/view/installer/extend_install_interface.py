@@ -2,20 +2,20 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout
 from qfluentwidgets import ProgressBar, IndeterminateProgressBar, SettingCardGroup, \
     FluentIcon
 
+from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.log_display_card import LogDisplayCard
 from one_dragon.utils.i18_utils import gt
-from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.installer.gamepad_install_card import GamepadInstallCard
 
 
 class ExtendInstallInterface(VerticalScrollInterface):
 
-    def __init__(self, ctx: ZContext, parent=None):
-        self.ctx: ZContext = ctx
-        VerticalScrollInterface.__init__(self, ctx=ctx, object_name='extend_install_interface',
+    def __init__(self, ctx: OneDragonEnvContext, parent=None):
+        VerticalScrollInterface.__init__(self, object_name='extend_install_interface',
                                          parent=parent, content_widget=None,
                                          nav_text_cn='扩展安装', nav_icon=FluentIcon.DEVELOPER_TOOLS)
+        self.ctx: OneDragonEnvContext = ctx
 
     def get_content_widget(self) -> QWidget:
         content_widget = QWidget()

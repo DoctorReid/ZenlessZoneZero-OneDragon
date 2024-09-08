@@ -1,11 +1,10 @@
-from typing import Optional, Callable, Tuple, List
-
 from PySide6.QtCore import Signal, QThread
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, PrimaryPushButton
+from typing import Optional, Callable, Tuple, List
 
-from one_dragon.base.operation.one_dragon_context import OneDragonContext
+from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiPushSettingCard
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
@@ -62,7 +61,7 @@ class BaseInstallCard(MultiPushSettingCard):
     finished = Signal(bool)
 
     def __init__(self,
-                 ctx: OneDragonContext,
+                 ctx: OneDragonEnvContext,
                  title_cn: str,
                  install_method: Callable[[Callable[[float, str], None]], Tuple[bool, str]],
                  install_btn_icon: FluentIcon = FluentIcon.DOWN,
@@ -71,7 +70,7 @@ class BaseInstallCard(MultiPushSettingCard):
                  left_widgets: List[QWidget] = None,
                  parent=None
                  ):
-        self.ctx: OneDragonContext = ctx
+        self.ctx: OneDragonEnvContext = ctx
         self.title: str = gt(title_cn, 'ui')
 
         btn_list = []

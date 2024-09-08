@@ -1,22 +1,20 @@
-from typing import Union
-
 from PySide6.QtCore import Qt
 from PySide6.QtGui import Qt, QIcon
 from PySide6.QtWidgets import QStackedWidget, QVBoxLayout
 from qfluentwidgets import FluentIconBase
 from qfluentwidgets import Pivot, qrouter
+from typing import Union
 
-from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.gui.component.interface.base_interface import BaseInterface
 
 
 class PivotNavigatorInterface(BaseInterface):
 
-    def __init__(self, ctx: OneDragonContext,
+    def __init__(self,
                  object_name: str, nav_text_cn: str, nav_icon: Union[FluentIconBase, QIcon, str] = None,
                  parent=None
                  ):
-        BaseInterface.__init__(self, ctx=ctx, object_name=object_name, parent=parent,
+        BaseInterface.__init__(self, object_name=object_name, parent=parent,
                                nav_text_cn=nav_text_cn, nav_icon=nav_icon)
 
         self.pivot = Pivot(self)

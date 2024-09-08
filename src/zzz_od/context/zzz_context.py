@@ -2,42 +2,18 @@ from typing import Optional
 
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils import i18_utils
-from zzz_od.application.battle_assistant.battle_assistant_config import BattleAssistantConfig
-from zzz_od.application.charge_plan.charge_plan_config import ChargePlanConfig
-from zzz_od.application.charge_plan.charge_plan_run_record import ChargePlanRunRecord
-from zzz_od.application.city_fund.city_fund_run_record import CityFundRunRecord
-from zzz_od.application.coffee.coffee_config import CoffeeConfig
-from zzz_od.application.coffee.coffee_run_record import CoffeeRunRecord
-from zzz_od.application.devtools.screenshot_helper.screenshot_helper_config import ScreenshotHelperConfig
-from zzz_od.application.email_app.email_run_record import EmailRunRecord
-from zzz_od.application.engagement_reward.engagement_reward_run_record import EngagementRewardRunRecord
-from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroConfig
-from zzz_od.application.hollow_zero.hollow_zero_run_record import HollowZeroRunRecord
-from zzz_od.application.life_on_line.life_on_line_config import LifeOnLineConfig
-from zzz_od.application.life_on_line.life_on_line_run_record import LifeOnLineRunRecord
-from zzz_od.application.notorious_hunt.notorious_hunt_config import NotoriousHuntConfig
-from zzz_od.application.notorious_hunt.notorious_hunt_run_record import NotoriousHuntRunRecord
-from zzz_od.application.random_play.random_play_run_record import RandomPlayRunRecord
-from zzz_od.application.scratch_card.scratch_card_run_record import ScratchCardRunRecord
-from zzz_od.config.game_config import GameConfig, GamePlatformEnum
-from zzz_od.config.yolo_config import YoloConfig
-from zzz_od.controller.zzz_pc_controller import ZPcController
-from zzz_od.game_data.compendium import CompendiumService
-from zzz_od.game_data.map_area import MapAreaService
-from zzz_od.hollow_zero.hollow_zero_challenge_config import HollowZeroChallengeConfig
 
 
 class ZContext(OneDragonContext):
 
-    def __init__(self, is_installer: bool = False):
+    def __init__(self, for_installer: bool = False):
         """
-        :param is_installer:
-        :param instance_idx: 指定实例 用于测试
+        :param for_installer: 给安装器用的
         """
-        OneDragonContext.__init__(self)
+        OneDragonContext.__init__(self, for_installer=for_installer)
 
         # 其它上下文
-        if is_installer:
+        if for_installer:
             return
 
         from zzz_od.context.battle_context import BattleContext
@@ -51,6 +27,10 @@ class ZContext(OneDragonContext):
 
         from zzz_od.context.hollow_context import HollowContext
         self.hollow: HollowContext = HollowContext(self)
+
+        from zzz_od.config.yolo_config import YoloConfig
+        from zzz_od.game_data.compendium import CompendiumService
+        from zzz_od.game_data.map_area import MapAreaService
 
         # 基础配置
         self.yolo_config: YoloConfig = YoloConfig()
@@ -70,6 +50,8 @@ class ZContext(OneDragonContext):
         OneDragonContext.init_by_config(self)
         i18_utils.update_default_lang(self.game_config.game_language)
 
+        from zzz_od.config.game_config import GamePlatformEnum
+        from zzz_od.controller.zzz_pc_controller import ZPcController
         if self.game_config.platform == GamePlatformEnum.PC.value.value:
             self.controller = ZPcController(
                 game_config=self.game_config,
@@ -86,6 +68,7 @@ class ZContext(OneDragonContext):
         对空洞配置进行初始化
         :return:
         """
+        from zzz_od.hollow_zero.hollow_zero_challenge_config import HollowZeroChallengeConfig
         challenge_config = self.hollow_zero_config.challenge_config
         if challenge_config is None:
             self.hollow_zero_challenge_config = HollowZeroChallengeConfig('', is_mock=True)
@@ -95,6 +78,26 @@ class ZContext(OneDragonContext):
 
     def load_instance_config(self) -> None:
         OneDragonContext.load_instance_config(self)
+
+        from zzz_od.application.battle_assistant.battle_assistant_config import BattleAssistantConfig
+        from zzz_od.application.charge_plan.charge_plan_config import ChargePlanConfig
+        from zzz_od.application.charge_plan.charge_plan_run_record import ChargePlanRunRecord
+        from zzz_od.application.city_fund.city_fund_run_record import CityFundRunRecord
+        from zzz_od.application.coffee.coffee_config import CoffeeConfig
+        from zzz_od.application.coffee.coffee_run_record import CoffeeRunRecord
+        from zzz_od.application.devtools.screenshot_helper.screenshot_helper_config import ScreenshotHelperConfig
+        from zzz_od.application.email_app.email_run_record import EmailRunRecord
+        from zzz_od.application.engagement_reward.engagement_reward_run_record import EngagementRewardRunRecord
+        from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroConfig
+        from zzz_od.application.hollow_zero.hollow_zero_run_record import HollowZeroRunRecord
+        from zzz_od.application.life_on_line.life_on_line_config import LifeOnLineConfig
+        from zzz_od.application.life_on_line.life_on_line_run_record import LifeOnLineRunRecord
+        from zzz_od.application.notorious_hunt.notorious_hunt_config import NotoriousHuntConfig
+        from zzz_od.application.notorious_hunt.notorious_hunt_run_record import NotoriousHuntRunRecord
+        from zzz_od.application.random_play.random_play_run_record import RandomPlayRunRecord
+        from zzz_od.application.scratch_card.scratch_card_run_record import ScratchCardRunRecord
+        from zzz_od.config.game_config import GameConfig
+        from zzz_od.hollow_zero.hollow_zero_challenge_config import HollowZeroChallengeConfig
         self.game_config: GameConfig = GameConfig(self.current_instance_idx)
 
         # 应用配置

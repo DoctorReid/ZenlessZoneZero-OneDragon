@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['src/zzz_od/win_exe/launcher.py'],
+    ['src/zzz_od/win_exe/scheduler_launcher.py'],
     pathex=[],
     binaries=[],
     datas=[],
@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='OneDragon Launcher',
+    name='OneDragon Scheduler',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -36,5 +36,5 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     uac_admin=True,
-    icon=['assets\\ui\\zzz_logo.ico'],
+    icon=['assets\\ui\\scheduler_logo.ico'],
 )

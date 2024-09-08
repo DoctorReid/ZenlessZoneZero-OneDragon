@@ -1,10 +1,9 @@
-from typing import Callable, List
-
 from PySide6.QtCore import QThread, Signal, Qt
 from PySide6.QtWidgets import QWidget, QTableWidgetItem
 from qfluentwidgets import TableWidget, PipsPager, FluentIcon, VBoxLayout
+from typing import Callable, List
 
-from one_dragon.base.operation.one_dragon_context import OneDragonContext
+from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon.envs.git_service import GitLog
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
@@ -40,7 +39,7 @@ class FetchPageRunner(QThread):
 
 class CodeInterface(VerticalScrollInterface):
 
-    def __init__(self, ctx: OneDragonContext, parent=None):
+    def __init__(self, ctx: OneDragonEnvContext, parent=None):
         content_widget = QWidget()
 
         self.page_num: int = -1
@@ -100,11 +99,11 @@ class CodeInterface(VerticalScrollInterface):
 
         VerticalScrollInterface.__init__(
             self,
-            ctx=ctx,
             object_name='code_interface',
             parent=parent, content_widget=content_widget,
             nav_text_cn='代码同步', nav_icon=FluentIcon.SYNC
         )
+        self.ctx: OneDragonEnvContext = ctx
 
         self.fetch_total_runner = FetchTotalRunner(ctx.git_service.fetch_total_commit)
         self.fetch_total_runner.finished.connect(self.update_total)

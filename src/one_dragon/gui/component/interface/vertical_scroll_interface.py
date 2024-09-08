@@ -3,13 +3,12 @@ from PySide6.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import FluentIconBase, SingleDirectionScrollArea
 from typing import Union, Optional
 
-from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.gui.component.interface.base_interface import BaseInterface
 
 
 class VerticalScrollInterface(BaseInterface):
 
-    def __init__(self, ctx: OneDragonContext, content_widget: Optional[QWidget], object_name: str,
+    def __init__(self, content_widget: Optional[QWidget], object_name: str,
                  nav_text_cn: str, nav_icon: Union[FluentIconBase, QIcon, str] = None,
                  parent=None
                  ):
@@ -21,7 +20,7 @@ class VerticalScrollInterface(BaseInterface):
         :param nav_icon: 子页面在导航处显示的图标
         :param parent:
         """
-        BaseInterface.__init__(self, ctx=ctx, object_name=object_name, parent=parent,
+        BaseInterface.__init__(self, object_name=object_name, parent=parent,
                                nav_text_cn=nav_text_cn, nav_icon=nav_icon)
 
         self._param_content_widget: QWidget = content_widget

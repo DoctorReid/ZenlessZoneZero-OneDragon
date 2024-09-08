@@ -12,7 +12,7 @@ class HollowZeroInterface(PivotNavigatorInterface):
                  ctx: ZContext,
                  parent=None):
         self.ctx: ZContext = ctx
-        PivotNavigatorInterface.__init__(self, ctx=ctx, object_name='hollow_interface', parent=parent,
+        PivotNavigatorInterface.__init__(self, object_name='hollow_interface', parent=parent,
                                          nav_text_cn='零号空洞', nav_icon=FluentIcon.IOT)
 
     def create_sub_interface(self):

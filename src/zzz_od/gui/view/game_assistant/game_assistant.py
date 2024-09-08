@@ -11,7 +11,7 @@ class GameAssistantInterface(PivotNavigatorInterface):
                  ctx: ZContext,
                  parent=None):
         self.ctx: ZContext = ctx
-        PivotNavigatorInterface.__init__(self, ctx=ctx, object_name='game_assistant_interface', parent=parent,
+        PivotNavigatorInterface.__init__(self, object_name='game_assistant_interface', parent=parent,
                                          nav_text_cn='游戏助手', nav_icon=FluentIcon.HELP)
 
     def create_sub_interface(self):

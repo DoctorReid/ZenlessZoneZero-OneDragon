@@ -3,20 +3,8 @@ from enum import Enum
 from pynput import keyboard, mouse
 from typing import Optional
 
-from one_dragon.base.config.one_dragon_app_config import OneDragonAppConfig
-from one_dragon.base.config.one_dragon_config import OneDragonConfig
-from one_dragon.base.controller.controller_base import ControllerBase
-from one_dragon.base.controller.pc_button.pc_button_listener import PcButtonListener
-from one_dragon.base.matcher.ocr.ocr_matcher import OcrMatcher
-from one_dragon.base.matcher.ocr.onnx_ocr_matcher import OnnxOcrMatcher
-from one_dragon.base.matcher.template_matcher import TemplateMatcher
 from one_dragon.base.operation.context_event_bus import ContextEventBus
-from one_dragon.base.screen.screen_loader import ScreenLoader
-from one_dragon.base.screen.template_loader import TemplateLoader
-from one_dragon.envs.env_config import EnvConfig
-from one_dragon.envs.git_service import GitService
-from one_dragon.envs.project_config import ProjectConfig
-from one_dragon.envs.python_service import PythonService
+from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon.utils import debug_utils, log_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
@@ -50,12 +38,25 @@ class ContextInstanceEventEnum(Enum):
     instance_active: str = 'instance_active'
 
 
-class OneDragonContext(ContextEventBus):
+class OneDragonContext(ContextEventBus, OneDragonEnvContext):
 
-    def __init__(self, controller: Optional[ControllerBase] = None):
+    def __init__(self, controller: Optional = None,
+                 for_installer: bool = False):
         ContextEventBus.__init__(self)
-        self.project_config: ProjectConfig = ProjectConfig()
-        self.env_config: EnvConfig = EnvConfig()
+        OneDragonEnvContext.__init__(self)
+
+        if for_installer:
+            return
+
+        from one_dragon.base.config.one_dragon_app_config import OneDragonAppConfig
+        from one_dragon.base.config.one_dragon_config import OneDragonConfig
+        from one_dragon.base.controller.controller_base import ControllerBase
+        from one_dragon.base.controller.pc_button.pc_button_listener import PcButtonListener
+        from one_dragon.base.matcher.ocr.ocr_matcher import OcrMatcher
+        from one_dragon.base.matcher.ocr.onnx_ocr_matcher import OnnxOcrMatcher
+        from one_dragon.base.matcher.template_matcher import TemplateMatcher
+        from one_dragon.base.screen.screen_loader import ScreenLoader
+        from one_dragon.base.screen.template_loader import TemplateLoader
         self.one_dragon_config: OneDragonConfig = OneDragonConfig()
 
         if self.one_dragon_config.current_active_instance is None:
@@ -63,9 +64,6 @@ class OneDragonContext(ContextEventBus):
         self.current_instance_idx = self.one_dragon_config.current_active_instance.idx
 
         self.one_dragon_app_config: OneDragonAppConfig = OneDragonAppConfig(self.current_instance_idx)
-
-        self.git_service: GitService = GitService(self.project_config, self.env_config)
-        self.python_service: PythonService = PythonService(self.project_config, self.env_config, self.git_service)
 
         self.context_running_state: ContextRunStateEnum = ContextRunStateEnum.STOP
 
@@ -204,4 +202,5 @@ class OneDragonContext(ContextEventBus):
         self.dispatch_event(ContextInstanceEventEnum.instance_active.value, instance_idx)
 
     def load_instance_config(self):
+        from one_dragon.base.config.one_dragon_app_config import OneDragonAppConfig
         self.one_dragon_app_config = OneDragonAppConfig(self.current_instance_idx)

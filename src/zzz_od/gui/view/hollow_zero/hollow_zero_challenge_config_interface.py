@@ -20,16 +20,15 @@ from zzz_od.hollow_zero.hollow_zero_challenge_config import HollowZeroChallengeC
 class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
 
     def __init__(self, ctx: ZContext, parent=None):
-        self.ctx: ZContext = ctx
         VerticalScrollInterface.__init__(
             self,
-            ctx=ctx,
             object_name='hollow_zero_challenge_config_interface',
             parent=parent,
             content_widget=None,
             nav_text_cn='挑战配置'
         )
 
+        self.ctx: ZContext = ctx
         self.chosen_config: Optional[HollowZeroChallengeConfig] = None
 
     def get_content_widget(self) -> QWidget:

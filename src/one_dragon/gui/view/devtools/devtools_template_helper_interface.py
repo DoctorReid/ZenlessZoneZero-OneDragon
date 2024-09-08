@@ -26,13 +26,13 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
     def __init__(self, ctx: OneDragonContext, parent=None):
         VerticalScrollInterface.__init__(
             self,
-            ctx=ctx,
             object_name='devtools_template_helper_interface',
             parent=parent,
             content_widget=None,
             nav_text_cn='模板管理'
         )
 
+        self.ctx: OneDragonContext = ctx
         self.chosen_template: Optional[TemplateInfo] = None
         self.last_screen_dir: Optional[str] = None  # 上一次选择的图片路径
 

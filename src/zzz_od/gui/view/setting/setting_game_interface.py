@@ -23,11 +23,11 @@ class SettingGameInterface(VerticalScrollInterface):
 
         VerticalScrollInterface.__init__(
             self,
-            ctx=ctx,
             object_name='setting_game_interface',
             content_widget=None, parent=parent,
             nav_text_cn='游戏设置'
         )
+        self.ctx: ZContext = ctx
 
     def get_content_widget(self) -> QWidget:
         content_widget = ColumnWidget()

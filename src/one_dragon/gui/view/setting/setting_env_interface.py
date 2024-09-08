@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, SettingCardGroup, setTheme, Theme, VBoxLayout
 
 from one_dragon.base.config.config_item import get_config_item_from_enum
-from one_dragon.base.operation.one_dragon_context import OneDragonContext
+from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon.envs.env_config import RepositoryTypeEnum, GitMethodEnum, ProxyTypeEnum, ThemeEnum
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
@@ -15,12 +15,11 @@ from one_dragon.utils.i18_utils import gt
 
 class SettingEnvInterface(VerticalScrollInterface):
 
-    def __init__(self, ctx: OneDragonContext, parent=None):
-        self.ctx: OneDragonContext = ctx
+    def __init__(self, ctx: OneDragonEnvContext, parent=None):
+        self.ctx: OneDragonEnvContext = ctx
 
         VerticalScrollInterface.__init__(
             self,
-            ctx=ctx,
             object_name='setting_env_interface',
             content_widget=None, parent=parent,
             nav_text_cn='脚本环境'
