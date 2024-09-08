@@ -10,7 +10,7 @@ def start_one_dragon(restart: bool):
     :param restart: 是否重启
     :return: 是否成功
     """
-    bat_path = os.path.join(os_utils.get_work_dir(), 'app.bat')
+    bat_path = os.path.join(os_utils.get_work_dir(), 'OneDragon Launcher.exe')
     subprocess.Popen(f'cmd /c "start "zzz-od-runner" "{bat_path}""',
                      shell=True)
     if restart:
