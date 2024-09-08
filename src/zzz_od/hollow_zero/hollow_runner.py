@@ -109,8 +109,7 @@ class HollowRunner(ZOperation):
                 return self.round_retry()
 
         if event_name == HollowZeroSpecialEvent.MISSION_COMPLETE.value.event_name:
-            return self.round_by_find_and_click_area(screen, '零号空洞-事件', '通关-完成',
-                                                     success_wait=5, retry_wait=1)
+            return self.round_success(status='通关-完成')
 
         return self.round_retry('当前事件未有对应指令', wait=1)
 
@@ -209,6 +208,21 @@ class HollowRunner(ZOperation):
     def exit_hollow(self) -> OperationRoundResult:
         op = HollowExitByMenu(self.ctx)
         return self.round_by_op(op.execute())
+
+    @node_from(from_name='画面识别', status='通关-完成')
+    @operation_node(name='通关-完成')
+    def mission_complete(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        result = self.round_by_find_and_click_area(screen, '零号空洞-事件', '通关-完成')
+        if result.is_success:
+            return self.round_wait(result.status, wait=1)
+
+        # 一直尝试点击直到出现街区
+        result = self.round_by_find_area(screen, '零号空洞-入口', '街区')
+        if result.is_success:
+            return self.round_success(result.status)
+
+        return self.round_retry(result.status, wait=1)
 
 
 def __debug():

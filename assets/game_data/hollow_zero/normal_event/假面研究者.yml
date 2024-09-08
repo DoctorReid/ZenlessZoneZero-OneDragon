@@ -24,6 +24,12 @@
     - option_name: "减缓侵蚀"
     - option_name: "邦布插件"
 
+    - option_name: "医疗资金"
+      desc: "每拥有一个侵蚀症状，获得200齿轮硬币"
+
+    - option_name: "呼叫帮手"
+      desc: "获得1个邦布"
+
     - option_name: "恢复身体"
       desc: "回复30%生命值"
 
@@ -38,3 +44,6 @@
 
     - option_name: "拿走一大筐炸弹"
       desc: "获得9个炸弹"
+
+    - option_name: "想要复制齿轮硬币"
+      desc: "获得1个立体复印 "
