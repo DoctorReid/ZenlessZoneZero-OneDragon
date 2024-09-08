@@ -70,7 +70,7 @@ class HollowZeroRunInterface(AppRunInterface):
             title='每周基础',
             content='完整通关，用于完成委托任务'
         )
-        self.weekly_plan_times_opt.value_changed.connect(self._on_daily_plan_times_changed)
+        self.weekly_plan_times_opt.value_changed.connect(self._on_weekly_plan_times_changed)
         left_layout.addWidget(self.weekly_plan_times_opt)
 
         self.extra_task_opt = ComboBoxSettingCard(
