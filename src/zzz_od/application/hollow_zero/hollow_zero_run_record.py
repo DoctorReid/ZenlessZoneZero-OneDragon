@@ -24,7 +24,7 @@ class HollowZeroRunRecord(AppRunRecord):
         """
         if self._should_reset_by_dt():
             return AppRunRecord.STATUS_WAIT
-        elif self.weekly_run_times >= self.config.weekly_times:
+        elif self.weekly_run_times >= self.config.weekly_plan_times:
             return AppRunRecord.STATUS_SUCCESS
         else:
             return self.run_status
@@ -41,6 +41,14 @@ class HollowZeroRunRecord(AppRunRecord):
     def weekly_run_times(self, new_value: int) -> None:
         self.update('weekly_run_times', new_value)
 
+    @property
+    def daily_run_times(self) -> int:
+        return self.get('daily_run_times', 0)
+
+    @daily_run_times.setter
+    def daily_run_times(self, new_value: int) -> None:
+        self.update('daily_run_times', new_value)
+
     def add_times(self) -> None:
         """
         增加通关次数
@@ -53,7 +61,8 @@ class HollowZeroRunRecord(AppRunRecord):
         从运行次数看 是否已经完成了
         :return:
         """
-        return self.weekly_run_times >= self.config.weekly_times
+        return (self.weekly_run_times >= self.config.weekly_plan_times
+                or self.daily_run_times >= self.config.daily_plan_times)
 
     @property
     def no_eval_point(self) -> bool:

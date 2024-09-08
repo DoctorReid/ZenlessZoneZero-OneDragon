@@ -1,10 +1,8 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
-from enum import Enum
-from qfluentwidgets import FluentIcon, SettingCardGroup, SubtitleLabel, PrimaryPushButton, PushButton
-from typing import List
+from qfluentwidgets import FluentIcon, SettingCardGroup, SubtitleLabel, PrimaryPushButton, PushButton, HyperlinkCard
+from typing import List, Optional
 
-from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.one_dragon_config import InstanceRun, AfterDoneOpEnum
 from one_dragon.base.operation.application_base import Application, ApplicationEventId
 from one_dragon.base.operation.context_event_bus import ContextEventItem
@@ -24,7 +22,7 @@ from one_dragon.utils.log_utils import log
 
 class OneDragonRunInterface(VerticalScrollInterface):
 
-    def __init__(self, ctx: OneDragonContext, parent=None):
+    def __init__(self, ctx: OneDragonContext, help_url: Optional[str] = None, parent=None):
         VerticalScrollInterface.__init__(
             self,
             ctx=ctx,
@@ -37,6 +35,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
 
         self._app_run_cards: List[AppRunCard] = []
         self._context_event_signal = ContextEventSignal()
+        self.help_url: str = help_url  # 使用说明的链接
 
     def get_content_widget(self) -> QWidget:
         """
@@ -87,6 +86,10 @@ class OneDragonRunInterface(VerticalScrollInterface):
 
         run_group = SettingCardGroup(gt('运行设置', 'ui'))
         layout.addWidget(run_group)
+
+        if self.help_url is not None:
+            self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='使用说明', text='前往', url=self.help_url)
+            run_group.addSettingCard(self.help_opt)
 
         self.instance_run_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='运行实例',
                                                     options_enum=InstanceRun)

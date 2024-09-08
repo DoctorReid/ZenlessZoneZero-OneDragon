@@ -39,12 +39,20 @@ class HollowZeroConfig(YamlConfig):
         self.update('challenge_config', new_value)
 
     @property
-    def weekly_times(self) -> int:
-        return self.get('weekly_times', 2)
+    def weekly_plan_times(self) -> int:
+        return self.get('weekly_plan_times', 2)
 
-    @weekly_times.setter
-    def weekly_times(self, new_value: int):
-        self.update('weekly_times', new_value)
+    @weekly_plan_times.setter
+    def weekly_plan_times(self, new_value: int):
+        self.update('weekly_plan_times', new_value)
+
+    @property
+    def daily_plan_times(self) -> int:
+        return self.get('daily_plan_times', 99)
+
+    @daily_plan_times.setter
+    def daily_plan_times(self, new_value: int):
+        self.update('daily_plan_times', new_value)
 
     @property
     def extra_task(self) -> str:
