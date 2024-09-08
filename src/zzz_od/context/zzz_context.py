@@ -13,6 +13,8 @@ from zzz_od.application.email_app.email_run_record import EmailRunRecord
 from zzz_od.application.engagement_reward.engagement_reward_run_record import EngagementRewardRunRecord
 from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroConfig
 from zzz_od.application.hollow_zero.hollow_zero_run_record import HollowZeroRunRecord
+from zzz_od.application.life_on_line.life_on_line_config import LifeOnLineConfig
+from zzz_od.application.life_on_line.life_on_line_run_record import LifeOnLineRunRecord
 from zzz_od.application.notorious_hunt.notorious_hunt_config import NotoriousHuntConfig
 from zzz_od.application.notorious_hunt.notorious_hunt_run_record import NotoriousHuntRunRecord
 from zzz_od.application.random_play.random_play_run_record import RandomPlayRunRecord
@@ -103,6 +105,7 @@ class ZContext(OneDragonContext):
         self.hollow_zero_config: HollowZeroConfig = HollowZeroConfig(self.current_instance_idx)
         self.hollow_zero_challenge_config: Optional[HollowZeroChallengeConfig] = None
         self.coffee_config: CoffeeConfig = CoffeeConfig(self.current_instance_idx)
+        self.life_on_line_config: LifeOnLineConfig = LifeOnLineConfig(self.current_instance_idx)
 
         # 运行记录
         game_refresh_hour_offset = self.game_config.game_refresh_hour_offset
@@ -124,3 +127,5 @@ class ZContext(OneDragonContext):
         self.coffee_record.check_and_update_status()
         self.city_fund_record: CityFundRunRecord = CityFundRunRecord(self.current_instance_idx, game_refresh_hour_offset)
         self.city_fund_record.check_and_update_status()
+        self.life_on_line_record: LifeOnLineRunRecord = LifeOnLineRunRecord(self.life_on_line_config, self.current_instance_idx, game_refresh_hour_offset)
+        self.life_on_line_record.check_and_update_status()

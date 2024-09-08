@@ -95,8 +95,8 @@ class HollowZeroRunInterface(AppRunInterface):
             text='调试',
             icon=FluentIcon.STOP_WATCH,  # 选择与停止相关的图标
             title='调试',
-            content='在中断/停止状态下用于继续执行',
         )
+        self.debug_opt.setContent(content='在中断/停止状态下用于继续执行')
         self.debug_opt.clicked.connect(self._on_debug_clicked)
         right_layout.addWidget(self.debug_opt)
 

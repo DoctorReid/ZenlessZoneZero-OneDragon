@@ -124,7 +124,7 @@ def construct_state_handler(
         )
         return StateHandler(states_expr, state_cal_tree, sub_states=sub_handler_list)
     else:
-        ops = _get_ops_from_data(
+        ops = get_ops_from_data(
             state_data.get('operations', []),
             op_getter, operation_template_getter,
             set())
@@ -148,7 +148,7 @@ def get_ops_by_template(
         raise ValueError('找不到指令模板 ' + template_name)
 
     usage_operation_templates.add(template_name)
-    ops = _get_ops_from_data(template.get('operations', []),
+    ops = get_ops_from_data(template.get('operations', []),
                              op_getter, operation_template_getter,
                              usage_operation_templates)
 
@@ -157,7 +157,7 @@ def get_ops_by_template(
     return ops
 
 
-def _get_ops_from_data(
+def get_ops_from_data(
         operation_data_list: List[dict],
         op_getter: Callable[[OperationDef], AtomicOp],
         operation_template_getter: Callable[[str], OperationTemplate],

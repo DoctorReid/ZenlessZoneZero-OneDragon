@@ -12,6 +12,7 @@ from one_dragon.utils.i18_utils import gt
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.battle_assistant.battle_assistant_interface import BattleAssistantInterface
 from zzz_od.gui.view.devtools.app_devtools_interface import AppDevtoolsInterface
+from zzz_od.gui.view.game_assistant.game_assistant import GameAssistantInterface
 from zzz_od.gui.view.hollow_zero.hollow_zero_interface import HollowZeroInterface
 from zzz_od.gui.view.home_interface import HomeInterface
 from zzz_od.gui.view.one_dragon.zzz_one_dragon_interface import ZOneDragonInterface
@@ -86,7 +87,10 @@ class AppWindow(FluentWindowBase):
         self.add_sub_interface(ZOneDragonInterface(self.ctx, parent=self))
 
         # 空洞
-        self.add_sub_interface(HollowZeroInterface(self.ctx, parent=self))  
+        self.add_sub_interface(HollowZeroInterface(self.ctx, parent=self))
+
+        # 游戏助手
+        self.add_sub_interface(GameAssistantInterface(self.ctx, parent=self))
 
         # 开发工具
         self.add_sub_interface(AppDevtoolsInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)
