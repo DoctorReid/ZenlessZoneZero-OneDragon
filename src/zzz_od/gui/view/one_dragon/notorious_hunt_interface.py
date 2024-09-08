@@ -163,7 +163,6 @@ class NotoriousHuntPlanInterface(VerticalScrollInterface):
 
         VerticalScrollInterface.__init__(
             self,
-            ctx=ctx,
             object_name='zzz_notorious_hunt_plan_interface',
             content_widget=None, parent=parent,
             nav_text_cn='恶名狩猎计划'

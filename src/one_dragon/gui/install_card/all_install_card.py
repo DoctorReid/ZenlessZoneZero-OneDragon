@@ -1,17 +1,16 @@
-from typing import List, Callable
-
 from qfluentwidgets import FluentIcon, FluentThemeColor, PushButton, HyperlinkButton
+from typing import List, Callable, Tuple, Optional
 
-from one_dragon.base.operation.one_dragon_context import OneDragonContext
+from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon.gui.install_card.base_install_card import BaseInstallCard
-from one_dragon.utils import cmd_utils, app_utils
+from one_dragon.utils import app_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 
 
 class AllInstallCard(BaseInstallCard):
 
-    def __init__(self, ctx: OneDragonContext, install_cards: List[BaseInstallCard]):
+    def __init__(self, ctx: OneDragonEnvContext, install_cards: List[BaseInstallCard]):
         self.install_cards: List[BaseInstallCard] = install_cards  # 按顺序进行安装的内容
         self.installing_idx: int = -1  # 正在进行安装的下标
 
@@ -36,7 +35,7 @@ class AllInstallCard(BaseInstallCard):
             left_widgets=[guide_btn, self.run_btn]
         )
 
-    def install_all(self, progress_callback: Callable[[float, str], None]) -> bool:
+    def install_all(self, progress_callback: Optional[Callable[[float, str], None]]) -> Tuple[bool, str]:
         """
         按顺序进行安装
         :return:
@@ -45,7 +44,7 @@ class AllInstallCard(BaseInstallCard):
         self.update_display(None, gt('安装中', 'ui'))
         self.installing_idx = 0
         self.install_cards[self.installing_idx].start_progress()
-        return True
+        return True, '成功'
 
     def on_install_done(self, success: bool) -> None:
         """

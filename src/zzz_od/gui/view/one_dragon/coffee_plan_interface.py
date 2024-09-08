@@ -16,7 +16,6 @@ class CoffeePlanInterface(VerticalScrollInterface):
 
         VerticalScrollInterface.__init__(
             self,
-            ctx=ctx,
             object_name='zzz_coffee_plan_interface',
             content_widget=None, parent=parent,
             nav_text_cn='咖啡计划'

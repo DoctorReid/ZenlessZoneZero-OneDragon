@@ -1,10 +1,8 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
-from enum import Enum
-from qfluentwidgets import FluentIcon, SettingCardGroup, SubtitleLabel, PrimaryPushButton, PushButton
-from typing import List
+from qfluentwidgets import FluentIcon, SettingCardGroup, SubtitleLabel, PrimaryPushButton, PushButton, HyperlinkCard
+from typing import List, Optional
 
-from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.one_dragon_config import InstanceRun, AfterDoneOpEnum
 from one_dragon.base.operation.application_base import Application, ApplicationEventId
 from one_dragon.base.operation.context_event_bus import ContextEventItem
@@ -24,10 +22,9 @@ from one_dragon.utils.log_utils import log
 
 class OneDragonRunInterface(VerticalScrollInterface):
 
-    def __init__(self, ctx: OneDragonContext, parent=None):
+    def __init__(self, ctx: OneDragonContext, help_url: Optional[str] = None, parent=None):
         VerticalScrollInterface.__init__(
             self,
-            ctx=ctx,
             content_widget=None,
             nav_icon=FluentIcon.BUS,
             object_name='one_dragon_run_interface',
@@ -35,8 +32,10 @@ class OneDragonRunInterface(VerticalScrollInterface):
             nav_text_cn='一条龙运行'
         )
 
+        self.ctx: OneDragonContext = ctx
         self._app_run_cards: List[AppRunCard] = []
         self._context_event_signal = ContextEventSignal()
+        self.help_url: str = help_url  # 使用说明的链接
 
     def get_content_widget(self) -> QWidget:
         """
@@ -87,6 +86,11 @@ class OneDragonRunInterface(VerticalScrollInterface):
 
         run_group = SettingCardGroup(gt('运行设置', 'ui'))
         layout.addWidget(run_group)
+
+        if self.help_url is not None:
+            self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='使用说明', text='前往', url=self.help_url)
+            self.help_opt.setContent('先看说明 再使用与提问')
+            run_group.addSettingCard(self.help_opt)
 
         self.instance_run_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='运行实例',
                                                     options_enum=InstanceRun)
@@ -163,6 +167,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
         self.instance_run_opt.value_changed.disconnect(self._on_instance_run_changed)
 
         self.instance_run_opt.setValue(self.ctx.one_dragon_config.instance_run)
+        self.after_done_opt.setValue(self.ctx.one_dragon_config.after_done)
 
         self.instance_run_opt.value_changed.connect(self._on_instance_run_changed)
 
@@ -174,7 +179,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
         self.ctx.unlisten_all_event(self)
         self._context_event_signal.instance_changed.disconnect(self._on_instance_changed)
 
-    def _on_after_done_changed(self, value: str) -> None:
+    def _on_after_done_changed(self, idx: int, value: str) -> None:
         """
         结束后的操作
         :param value:
@@ -226,9 +231,9 @@ class OneDragonRunInterface(VerticalScrollInterface):
             app_card.update_display()
 
         if self.ctx.is_context_stop:
-            if self.after_done_opt.getValue() == AfterDoneOpEnum.SHUTDOWN.value.value:
+            if self.ctx.one_dragon_config.after_done == AfterDoneOpEnum.SHUTDOWN.value.value:
                 cmd_utils.shutdown_sys(60)
-            elif self.after_done_opt.getValue() == AfterDoneOpEnum.CLOSE_GAME.value.value:
+            elif self.ctx.one_dragon_config.after_done == AfterDoneOpEnum.CLOSE_GAME.value.value:
                 self.ctx.controller.close_game()
 
     def _on_app_state_changed(self, event) -> None:

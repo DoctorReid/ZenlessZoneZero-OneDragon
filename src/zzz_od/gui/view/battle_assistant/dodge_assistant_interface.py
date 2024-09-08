@@ -2,7 +2,7 @@ import os.path
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget
-from qfluentwidgets import FluentIcon, PushButton
+from qfluentwidgets import FluentIcon, PushButton, HyperlinkCard
 from typing import Optional
 
 from one_dragon.gui.component.app_event_log_display_card import AppEventLogDisplayCard
@@ -38,6 +38,11 @@ class DodgeAssistantInterface(AppRunInterface):
 
     def get_widget_at_top(self) -> QWidget:
         top_widget = ColumnWidget()
+
+        self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='使用说明', text='前往',
+                                      url='https://one-dragon.org/zzz/zh/docs/feat_battle_assistant.html')
+        self.help_opt.setContent('先看说明 再使用与提问')
+        top_widget.add_widget(self.help_opt)
 
         self.dodge_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='闪避方式',
                                              content='配置文件在 config/dodge 文件夹，删除会恢复默认配置')

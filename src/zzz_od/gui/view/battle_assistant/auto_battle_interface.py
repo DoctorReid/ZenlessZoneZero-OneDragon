@@ -2,7 +2,7 @@ import os.path
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget
-from qfluentwidgets import FluentIcon, PushButton
+from qfluentwidgets import FluentIcon, PushButton, HyperlinkCard
 from typing import Optional
 
 from one_dragon.base.operation.context_event_bus import ContextEventItem
@@ -30,56 +30,52 @@ class AutoBattleInterface(AppRunInterface):
         self.ctx: ZContext = ctx
         self.app: Optional[ZApplication] = None
 
+    def get_widget_at_top(self) -> QWidget:
+        top_widget = ColumnWidget()
 
-        # 定义组件
+        self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='使用说明', text='前往',
+                                      url='https://one-dragon.org/zzz/zh/docs/feat_battle_assistant.html')
+        self.help_opt.setContent('先看说明 再使用与提问')
+        top_widget.add_widget(self.help_opt)
+
         self.config_opt = ComboBoxSettingCard(
             icon=FluentIcon.GAME, title='战斗配置',
             content='调试为以当前画面做一次判断执行。配置文件在 config/auto_battle 文件夹，删除会恢复默认配置',
             show_tooltip=True
         )
         self.debug_btn = PushButton(text='调试')
+        self.debug_btn.clicked.connect(self._on_debug_clicked)
+        self.config_opt.hBoxLayout.addWidget(self.debug_btn, alignment=Qt.AlignmentFlag.AlignRight)
+        self.config_opt.hBoxLayout.addSpacing(16)
         self.del_btn = PushButton(text='删除')
+        self.del_btn.clicked.connect(self._on_del_clicked)
+        self.config_opt.hBoxLayout.addWidget(self.del_btn, alignment=Qt.AlignmentFlag.AlignRight)
+        self.config_opt.hBoxLayout.addSpacing(16)
+        top_widget.add_widget(self.config_opt)
+        self.config_opt.value_changed.connect(self._on_auto_battle_config_changed)
 
         self.gpu_opt = SwitchSettingCard(
             icon=FluentIcon.GAME, title='GPU运算',
             content='游戏画面掉帧的话可以不启用，保证截图间隔+推理耗时在50ms内即可'
         )
+        self.gpu_opt.value_changed.connect(self._on_gpu_changed)
+        top_widget.add_widget(self.gpu_opt)
 
         self.screenshot_interval_opt = TextSettingCard(
             icon=FluentIcon.GAME, title='截图间隔(秒)',
             content='游戏画面掉帧的话可以适当加大截图间隔，保证截图间隔+推理耗时在50ms内即可'
         )
+        self.screenshot_interval_opt.value_changed.connect(self._on_screenshot_interval_changed)
+        top_widget.add_widget(self.screenshot_interval_opt)
 
         self.gamepad_type_opt = ComboBoxSettingCard(
             icon=FluentIcon.GAME, title='手柄类型',
             content='需先安装虚拟手柄依赖，参考文档或使用安装器。仅在战斗助手生效。',
             options_enum=GamepadTypeEnum
         )
-
-        # 配置样式
-        self.config_opt.hBoxLayout.addWidget(self.debug_btn, alignment=Qt.AlignmentFlag.AlignRight)
-        self.config_opt.hBoxLayout.addSpacing(16)
-        self.config_opt.hBoxLayout.addWidget(self.del_btn, alignment=Qt.AlignmentFlag.AlignRight)
-        self.config_opt.hBoxLayout.addSpacing(16)
-
-        # 关联函数
-        self.del_btn.clicked.connect(self._on_del_clicked)
-        self.debug_btn.clicked.connect(self._on_debug_clicked)
         self.gamepad_type_opt.value_changed.connect(self._on_gamepad_type_changed)
-        self.screenshot_interval_opt.value_changed.connect(self._on_screenshot_interval_changed)
-        self.gpu_opt.value_changed.connect(self._on_gpu_changed)
-        self.config_opt.value_changed.connect(self._on_auto_battle_config_changed)        
-
-    def get_widget_at_top(self) -> QWidget:
-        """获取界面顶部的 Widget"""
-
-        # 添加组件
-        top_widget = ColumnWidget()
-        top_widget.add_widget(self.config_opt)
-        top_widget.add_widget(self.gpu_opt)
-        top_widget.add_widget(self.screenshot_interval_opt)
         top_widget.add_widget(self.gamepad_type_opt)
-        
+
         return top_widget
 
     def get_app_event_log_card(self) -> Optional[AppEventLogDisplayCard]:

@@ -33,12 +33,12 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
     def __init__(self, ctx: OneDragonContext, parent=None):
         VerticalScrollInterface.__init__(
             self,
-            ctx=ctx,
             content_widget=None,
             object_name='devtools_screen_manage_interface',
             parent=parent,
             nav_text_cn='画面管理'
         )
+        self.ctx: OneDragonContext = ctx
 
         self.chosen_screen: Optional[ScreenInfo] = None
         self.last_screen_dir: Optional[str] = None  # 上一次选择的图片路径

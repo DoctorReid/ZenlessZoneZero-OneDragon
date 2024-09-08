@@ -1,7 +1,8 @@
 from typing import Optional
 
 from one_dragon.base.operation.application_run_record import AppRunRecord, AppRunRecordPeriod
-from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroConfig
+from one_dragon.utils import os_utils
+from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroConfig, HollowZeroExtraTask
 
 
 class HollowZeroRunRecord(AppRunRecord):
@@ -22,16 +23,37 @@ class HollowZeroRunRecord(AppRunRecord):
         基于当前时间显示的运行状态
         :return:
         """
-        if self._should_reset_by_dt():
+        current_dt = self.get_current_dt()
+        if os_utils.get_sunday_dt(self.dt) != os_utils.get_sunday_dt(current_dt):  # 上一次运行已经是上一周
+            # 必定是重置
             return AppRunRecord.STATUS_WAIT
-        elif self.weekly_run_times >= self.config.weekly_times:
-            return AppRunRecord.STATUS_SUCCESS
-        else:
-            return self.run_status
+        elif self.dt != current_dt:  # 上一次运行已经是一天前
+            if self.is_finished_by_week():  # 看本周是否已经完成
+                return AppRunRecord.STATUS_SUCCESS
+            else:
+                return AppRunRecord.STATUS_WAIT
+        else:  # 当天的
+            if self.is_finished_by_day():  # 看当天是否已经完成
+                return AppRunRecord.STATUS_SUCCESS
+            else:
+                return AppRunRecord.STATUS_WAIT
 
-    def reset_record(self) -> None:
-        AppRunRecord.reset_record(self)
-        self.weekly_run_times = 0
+    def check_and_update_status(self) -> None:
+        """
+        判断并更新状态
+        """
+        current_dt = self.get_current_dt()
+        if os_utils.get_sunday_dt(self.dt) != os_utils.get_sunday_dt(current_dt):  # 上一次运行已经是上一周
+            # 必定是重置
+            self.reset_record()
+            self.weekly_run_times = 0
+            self.daily_run_times = 0
+            self.no_eval_point = False
+        elif self.dt != current_dt:  # 上一次运行已经是一天前
+            self.reset_record()
+            self.daily_run_times = 0
+        else:  # 当天的
+            pass
 
     @property
     def weekly_run_times(self) -> int:
@@ -40,6 +62,14 @@ class HollowZeroRunRecord(AppRunRecord):
     @weekly_run_times.setter
     def weekly_run_times(self, new_value: int) -> None:
         self.update('weekly_run_times', new_value)
+
+    @property
+    def daily_run_times(self) -> int:
+        return self.get('daily_run_times', 0)
+
+    @daily_run_times.setter
+    def daily_run_times(self, new_value: int) -> None:
+        self.update('daily_run_times', new_value)
 
     def add_times(self) -> None:
         """
@@ -53,7 +83,30 @@ class HollowZeroRunRecord(AppRunRecord):
         从运行次数看 是否已经完成了
         :return:
         """
-        return self.weekly_run_times >= self.config.weekly_times
+        return (self.weekly_run_times >= self.config.weekly_plan_times
+                or self.daily_run_times >= self.config.daily_plan_times)
+
+    def is_finished_by_day(self) -> bool:
+        """
+        按天的角度看是否已经完成
+        """
+        if self.is_finished_by_week():
+            return True
+        return self.daily_run_times >= self.config.daily_plan_times
+
+    def is_finished_by_week(self) -> bool:
+        """
+        按周的角度看是否已经完成
+        """
+        if self.weekly_run_times < self.config.weekly_plan_times:
+            # 基础次数都还没有完成
+            return False
+        if self.config.extra_task == HollowZeroExtraTask.NONE.value.value:
+            # 完成基础次数 不需要刷业绩
+            return True
+        else:
+            # 完成基础次数 需要刷业绩 就看空业绩点出来没有
+            return self.no_eval_point
 
     @property
     def no_eval_point(self) -> bool:

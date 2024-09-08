@@ -12,6 +12,7 @@ class ZOneDragonRunInterface(OneDragonRunInterface):
             self,
             ctx=ctx,
             parent=parent,
+            help_url='https://one-dragon.org/zzz/zh/docs/feat_one_dragon.html'
         )
 
     def get_one_dragon_app(self) -> OneDragonApp:

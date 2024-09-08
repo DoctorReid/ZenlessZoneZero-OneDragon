@@ -66,6 +66,7 @@ def run_command(commands: List[str], cwd: Optional[str] = None,
         else:
             return None
     except Exception:
+        log.error("执行命令失败", exc_info=True)
         return None
 
 

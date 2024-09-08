@@ -17,15 +17,14 @@ from zzz_od.gui.view.setting.yolo_model_card import ModelDownloadSettingCard
 class SettingYoloInterface(VerticalScrollInterface):
 
     def __init__(self, ctx: ZContext, parent=None):
-        self.ctx: ZContext = ctx
-
         VerticalScrollInterface.__init__(
             self,
-            ctx=ctx,
             object_name='setting_yolo_interface',
             content_widget=None, parent=parent,
             nav_text_cn='模型选择'
         )
+
+        self.ctx: ZContext = ctx
 
     def get_content_widget(self) -> QWidget:
         content_widget = ColumnWidget()

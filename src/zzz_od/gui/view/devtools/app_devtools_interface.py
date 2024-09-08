@@ -13,7 +13,7 @@ class AppDevtoolsInterface(PivotNavigatorInterface):
                  ctx: ZContext,
                  parent=None):
         self.ctx: ZContext = ctx
-        PivotNavigatorInterface.__init__(self, ctx=ctx, object_name='app_devtools_interface', parent=parent,
+        PivotNavigatorInterface.__init__(self, object_name='app_devtools_interface', parent=parent,
                                          nav_text_cn='开发工具', nav_icon=FluentIcon.DEVELOPER_TOOLS)
 
     def create_sub_interface(self):

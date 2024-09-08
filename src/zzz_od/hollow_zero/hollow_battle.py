@@ -108,9 +108,9 @@ class HollowBattle(ZOperation):
             return self.round_fail(HollowBattle.STATUS_FAIL_TO_MOVE)
 
         current_distance = self.ctx.battle.last_check_distance
-        if self.last_distance is not None and abs(self.last_distance - current_distance) < 2:
+        if self.last_distance is not None and abs(self.last_distance - current_distance) < 0.5:
             log.info('上次移动后距离没有发生变化 尝试脱困')
-            if self.last_stuck_distance is not None and abs(self.last_stuck_distance - current_distance) < 2:
+            if self.last_stuck_distance is not None and abs(self.last_stuck_distance - current_distance) < 0.5:
                 # 困的时候显示的距离跟上次困住的一样 代表脱困方向不对 换一个
                 log.info('上次脱困后距离没有发生变化 更换脱困方向')
                 if self.stuck_move_direction == 'a':
@@ -166,14 +166,35 @@ class HollowBattle(ZOperation):
 
         return self.round_wait(wait=self.ctx.battle_assistant_config.screenshot_interval)
 
+
+    @node_from(from_name='自动战斗', status='零号空洞-结算周期上限')
+    @operation_node(name='结算周期上限')
+    def period_reward_full(self) -> OperationRoundResult:
+        time.sleep(1)  # 第一次稍等等一段时间 避免按键还不能响应
+        screen = self.screenshot()
+        return self.round_by_find_and_click_area(screen, '零号空洞-战斗', '结算周期上限-确认',
+                                           success_wait=1, retry_wait=1)
+
+    @node_from(from_name='结算周期上限')
     @node_from(from_name='自动战斗', status='零号空洞-挑战结果')
     @operation_node(name='战斗结果-确定')
     def after_battle(self) -> OperationRoundResult:
         time.sleep(2)  # 第一次稍等等一段时间 避免按键还不能响应
         screen = self.screenshot()
+
+        # 有时候可能会识别到背景上的挑战结果 这时候也尝试点
+        result = self.round_by_find_and_click_area(screen, '零号空洞-战斗', '结算周期上限-确认')
+        if result.is_success:
+            return self.round_wait()  # 每次开始都有等待 这里就不等了
+
         area = self.ctx.screen_loader.get_area('零号空洞-战斗', '战斗结果-确定')
-        return self.round_by_ocr_and_click(screen, '确定', area=area,
-                                           success_wait=1, retry_wait=1)
+        result = self.round_by_ocr_and_click(screen, '确定', area=area)
+        if result.is_success:
+            return self.round_success(wait=1)
+
+        # 匹配不到的时候 随便点击 防止有一些新的对话框出现没有处理到
+        self.click_area('零号空洞-战斗', '战斗结果-确定')
+        return self.round_retry(result.status, wait=1)
 
     @node_from(from_name='自动战斗', status='普通战斗-完成')
     @operation_node(name='普通战斗-完成')

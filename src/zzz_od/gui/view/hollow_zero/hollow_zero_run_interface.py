@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
-from qfluentwidgets import FluentIcon, PushSettingCard
+from qfluentwidgets import FluentIcon, PushSettingCard, HyperlinkCard
 from typing import Optional, List
 
 from one_dragon.base.config.config_item import ConfigItem
@@ -50,6 +50,11 @@ class HollowZeroRunInterface(AppRunInterface):
         left_layout = QVBoxLayout(left_widget)
         left_widget.setLayout(left_layout)
 
+        self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='使用说明', text='前往',
+                                      url='https://one-dragon.org/zzz/zh/docs/feat_hollow_zero.html')
+        self.help_opt.setContent('先看说明 再使用与提问')
+        left_layout.addWidget(self.help_opt)
+
         # 创建一个组合框设置卡片，标题为“挑战副本”
         self.mission_opt = ComboBoxSettingCard(
             icon=FluentIcon.GAME,  # 选择与挑战相关的图标
@@ -60,21 +65,22 @@ class HollowZeroRunInterface(AppRunInterface):
         left_layout.addWidget(self.mission_opt)
 
         # 创建一个文本设置卡片
-        self.weekly_times_opt = TextSettingCard(
+        self.weekly_plan_times_opt = TextSettingCard(
             icon=FluentIcon.CALENDAR,  # 选择与时间相关的图标
             title='每周基础',
             content='完整通关，用于完成委托任务'
         )
-        self.weekly_times_opt.value_changed.connect(self._on_weekly_times_changed)
-        left_layout.addWidget(self.weekly_times_opt)
+        self.weekly_plan_times_opt.value_changed.connect(self._on_weekly_plan_times_changed)
+        left_layout.addWidget(self.weekly_plan_times_opt)
 
-        self.run_record_opt = PushSettingCard(
-            icon=FluentIcon.SYNC,
-            title='运行记录',
-            text='重置业绩点记录'
+        self.extra_task_opt = ComboBoxSettingCard(
+            icon=FluentIcon.CALENDAR,  # 选择与时间相关的图标
+            title='刷业绩点',
+            content='完成基础次数后，继续挑战刷业绩点',
+            options_enum=HollowZeroExtraTask
         )
-        self.run_record_opt.clicked.connect(self._on_reset_record_clicked)
-        left_layout.addWidget(self.run_record_opt)
+        self.extra_task_opt.value_changed.connect(self._on_extra_task_changed)
+        left_layout.addWidget(self.extra_task_opt)
 
         left_layout.addStretch(1)
         return left_widget
@@ -85,6 +91,16 @@ class HollowZeroRunInterface(AppRunInterface):
         right_layout = QVBoxLayout(right_widget)
         right_widget.setLayout(right_layout)
 
+        # 创建一个推送设置卡片，标题为“调试”
+        self.debug_opt = PushSettingCard(
+            text='调试',
+            icon=FluentIcon.STOP_WATCH,  # 选择与停止相关的图标
+            title='调试',
+        )
+        self.debug_opt.setContent(content='在中断/停止状态下用于继续执行')
+        self.debug_opt.clicked.connect(self._on_debug_clicked)
+        right_layout.addWidget(self.debug_opt)
+
         # 创建一个组合框设置卡片，标题为“挑战配置”
         self.challenge_config_opt = ComboBoxSettingCard(
             icon=FluentIcon.SETTING,  # 选择与设置相关的图标
@@ -94,24 +110,21 @@ class HollowZeroRunInterface(AppRunInterface):
         self.challenge_config_opt.value_changed.connect(self._on_challenge_config_changed)
         right_layout.addWidget(self.challenge_config_opt)
 
-        self.extra_task_opt = ComboBoxSettingCard(
+        self.daily_plan_times_opt = TextSettingCard(
             icon=FluentIcon.CALENDAR,  # 选择与时间相关的图标
-            title='刷业绩点',
-            content='完成基础次数后，继续挑战刷业绩点',
-            options_enum=HollowZeroExtraTask
+            title='每天进入次数',
+            content='将空洞分摊到每天运行',
         )
-        self.extra_task_opt.value_changed.connect(self._on_extra_task_changed)
-        right_layout.addWidget(self.extra_task_opt)
+        self.daily_plan_times_opt.value_changed.connect(self._on_daily_plan_times_changed)
+        right_layout.addWidget(self.daily_plan_times_opt)
 
-        # 创建一个推送设置卡片，标题为“调试”
-        self.debug_opt = PushSettingCard(
-            text='调试',
-            icon=FluentIcon.STOP_WATCH,  # 选择与停止相关的图标
-            title='调试',
-            content='在中断/停止状态下用于继续执行'
+        self.run_record_opt = PushSettingCard(
+            icon=FluentIcon.SYNC,
+            title='运行记录',
+            text='重置业绩点记录'
         )
-        self.debug_opt.clicked.connect(self._on_debug_clicked)
-        right_layout.addWidget(self.debug_opt)
+        self.run_record_opt.clicked.connect(self._on_reset_record_clicked)
+        right_layout.addWidget(self.run_record_opt)
 
         right_layout.addStretch(1)
         return right_widget
@@ -128,7 +141,7 @@ class HollowZeroRunInterface(AppRunInterface):
         self.mission_opt.setValue(self.ctx.hollow_zero_config.mission_name)
         self.challenge_config_opt.setValue(self.ctx.hollow_zero_config.challenge_config)
 
-        if not self.ctx.hollow_zero_record.is_finished_by_times():
+        if not self.ctx.hollow_zero_record.weekly_run_times < self.ctx.hollow_zero_config.weekly_plan_times:
             content = '本周通关次数 %d' % self.ctx.hollow_zero_record.weekly_run_times
         elif not self.ctx.hollow_zero_record.no_eval_point:
             content = '已完成基础通关次数'
@@ -136,7 +149,8 @@ class HollowZeroRunInterface(AppRunInterface):
             content = '已完成刷取业绩 如错误可重置'
         self.run_record_opt.setContent(content)
 
-        self.weekly_times_opt.setValue(str(self.ctx.hollow_zero_config.weekly_times))
+        self.weekly_plan_times_opt.setValue(str(self.ctx.hollow_zero_config.weekly_plan_times))
+        self.daily_plan_times_opt.setValue(str(self.ctx.hollow_zero_config.daily_plan_times))
         self.extra_task_opt.setValue(self.ctx.hollow_zero_config.extra_task)
 
     def _update_mission_options(self) -> None:
@@ -200,8 +214,11 @@ class HollowZeroRunInterface(AppRunInterface):
         self.ctx.hollow.data_service.reload()
         AppRunInterface._on_start_clicked(self)
 
-    def _on_weekly_times_changed(self, value: str) -> None:
-        self.ctx.hollow_zero_config.weekly_times = int(value)
+    def _on_weekly_plan_times_changed(self, value: str) -> None:
+        self.ctx.hollow_zero_config.weekly_plan_times = int(value)
+
+    def _on_daily_plan_times_changed(self, value: str) -> None:
+        self.ctx.hollow_zero_config.daily_plan_times = int(value)
 
     def _on_extra_task_changed(self, idx: int, value: str) -> None:
         self.ctx.hollow_zero_config.extra_task = value

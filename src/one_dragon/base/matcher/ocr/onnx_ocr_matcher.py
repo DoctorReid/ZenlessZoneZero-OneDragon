@@ -1,12 +1,10 @@
 import time
 
-import os
 from cv2.typing import MatLike
 
 from one_dragon.base.matcher.match_result import MatchResult, MatchResultList
 from one_dragon.base.matcher.ocr import ocr_utils
 from one_dragon.base.matcher.ocr.ocr_matcher import OcrMatcher
-from one_dragon.utils import os_utils
 from one_dragon.utils.log_utils import log
 
 
@@ -25,6 +23,8 @@ class OnnxOcrMatcher(OcrMatcher):
 
         if self._model is None:
             from onnxocr.onnx_paddleocr import ONNXPaddleOcr
+            from one_dragon.utils import os_utils
+            import os
             models_dir = os_utils.get_path_under_work_dir('assets', 'models', 'onnx_ocr')
 
             try:
@@ -116,19 +116,3 @@ class OnnxOcrMatcher(OcrMatcher):
             return ""
         log.debug('OCR结果 %s 耗时 %.2f', scan_result, time.time() - start_time)
         return img_result[0][0]
-
-
-if __name__ == '__main__':
-    import os
-    from one_dragon.utils import os_utils, debug_utils
-
-    model = OnnxOcrMatcher()
-    model.init_model()
-    img = debug_utils.get_debug_image('1')
-    t1 = time.time()
-    result = model.run_ocr(img)
-    t2 = time.time()
-    print(result, t2-t1)
-    result = model.run_ocr_single_line(img)
-    t3 = time.time()
-    print(result, t3-t2)

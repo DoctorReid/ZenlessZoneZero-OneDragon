@@ -3,19 +3,18 @@ import sys
 from PySide6.QtWidgets import QApplication
 from qfluentwidgets import NavigationItemPosition, Theme, setTheme
 
-from one_dragon.gui.app.fluent_window_base import FluentWindowBase
+from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
+from one_dragon.gui.app.installer import InstallerWindowBase
 from one_dragon.gui.view.install_interface import InstallerInterface
 from one_dragon.gui.view.installer_setting_interface import InstallerSettingInterface
 from one_dragon.utils.i18_utils import gt
-from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.installer.extend_install_interface import ExtendInstallInterface
 
 
-class ZInstallerWindow(FluentWindowBase):
+class ZInstallerWindow(InstallerWindowBase):
 
-    def __init__(self, ctx: ZContext, win_title: str, parent=None):
-        self.ctx: ZContext = ctx
-        FluentWindowBase.__init__(
+    def __init__(self, ctx: OneDragonEnvContext, win_title: str, parent=None):
+        InstallerWindowBase.__init__(
             self,
             ctx=ctx,
             win_title=win_title,
@@ -31,7 +30,7 @@ class ZInstallerWindow(FluentWindowBase):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    _ctx = ZContext(is_installer=True)
+    _ctx = OneDragonEnvContext()
     setTheme(Theme[_ctx.env_config.theme.upper()])
     w = ZInstallerWindow(_ctx, gt(f'{_ctx.project_config.project_name}-installer', 'ui'))
     w.show()

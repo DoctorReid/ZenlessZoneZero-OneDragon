@@ -23,8 +23,6 @@ def check_cnt_by_color_range(
     part = cv2_utils.crop_image_only(screen, area.rect)
     if area.template_id is not None and len(area.template_id) > 0:
         part_mask = ctx.template_loader.get_template_mask(area.template_sub_dir, area.template_id)
-        print(part.shape)
-        print(part_mask.shape)
         to_check = cv2.bitwise_and(part, part, mask=part_mask)
     else:
         to_check = part

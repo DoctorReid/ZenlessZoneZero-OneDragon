@@ -206,6 +206,7 @@ class BambooMerchant(ZOperation):
     @node_from(from_name='画面识别', status=NOT_TO_BUY)
     @node_from(from_name='选择鸣徽', status=NOT_TO_BUY)
     @node_from(from_name='鸣徽催化')
+    @node_from(from_name='鸣徽交易', success=False)  # 在第一层找到选项 就退出
     @operation_node(name='返回')
     def back(self) -> OperationRoundResult:
         screen = self.screenshot()

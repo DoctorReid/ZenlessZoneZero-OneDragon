@@ -1,26 +1,21 @@
 import os
-from typing import Optional
 from PySide6.QtCore import QSize
 from PySide6.QtGui import QIcon
-
 from qfluentwidgets import NavigationItemPosition, SplashScreen
+from typing import Optional
 
-from one_dragon.base.operation.one_dragon_context import OneDragonContext
-from one_dragon.gui.component.interface.base_interface import BaseInterface
 from one_dragon.gui.app.one_dragon_window import OneDragonWindow
+from one_dragon.gui.component.interface.base_interface import BaseInterface
 from one_dragon.utils import os_utils
-from one_dragon.utils.i18_utils import gt
 
 
 class FluentWindowBase(OneDragonWindow):
 
     def __init__(self,
-                 ctx: OneDragonContext,
                  win_title: str,
                  app_icon: Optional[str] = None,
                  parent=None):
         OneDragonWindow.__init__(self, parent=parent)
-        self.ctx: OneDragonContext = ctx
         self._last_stack_idx: int = 0
         
         # 设置窗口标题

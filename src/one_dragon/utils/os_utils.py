@@ -99,6 +99,19 @@ def get_dt(utc_offset: int = None) -> str:
     return current_time.strftime("%Y%m%d")
 
 
+def add_dt_offset(dt: str, day_offset: int = None) -> str:
+    """
+    根据一个日期，获取对应星期天的日期
+    :param dt: 日期 yyyyMMdd 格式
+    :param day_offset: 天偏移量
+    :return: 星期天日期 yyyyMMdd 格式
+    """
+    date = datetime.datetime.strptime(dt, "%Y%m%d")
+    if day_offset is not None:
+        date = date + datetime.timedelta(days=day_offset)
+    return date.strftime("%Y%m%d")
+
+
 def get_sunday_dt(dt: str) -> str:
     """
     根据一个日期，获取对应星期天的日期

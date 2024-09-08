@@ -2,14 +2,14 @@ from PySide6.QtGui import QIcon
 from qfluentwidgets import FluentIcon, FluentThemeColor
 from typing import Tuple
 
-from one_dragon.base.operation.one_dragon_context import OneDragonContext
+from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon.gui.install_card.base_install_card import BaseInstallCard
 from one_dragon.utils.i18_utils import gt
 
 
 class VenvInstallCard(BaseInstallCard):
 
-    def __init__(self, ctx: OneDragonContext):
+    def __init__(self, ctx: OneDragonEnvContext):
         BaseInstallCard.__init__(
             self,
             ctx=ctx,

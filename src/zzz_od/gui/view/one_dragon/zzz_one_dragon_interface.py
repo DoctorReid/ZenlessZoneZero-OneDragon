@@ -16,7 +16,6 @@ class ZOneDragonInterface(PivotNavigatorInterface):
         self.ctx: ZContext = ctx
         PivotNavigatorInterface.__init__(
             self,
-            ctx=ctx,
             nav_icon=FluentIcon.BUS,
             object_name='one_dragon_interface',
             parent=parent,

@@ -244,7 +244,6 @@ class ChargePlanInterface(VerticalScrollInterface):
 
         VerticalScrollInterface.__init__(
             self,
-            ctx=ctx,
             object_name='zzz_charge_plan_interface',
             content_widget=None, parent=parent,
             nav_text_cn='体力计划'

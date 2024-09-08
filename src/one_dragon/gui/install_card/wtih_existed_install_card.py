@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QFileDialog
 from qfluentwidgets import FluentIcon, PushButton
 from typing import Callable, Optional, Tuple
 
-from one_dragon.base.operation.one_dragon_context import OneDragonContext
+from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon.gui.install_card.base_install_card import BaseInstallCard
 from one_dragon.utils import os_utils
 from one_dragon.utils.i18_utils import gt
@@ -13,7 +13,7 @@ from one_dragon.utils.log_utils import log
 class WithExistedInstallCard(BaseInstallCard):
 
     def __init__(self,
-                 ctx: OneDragonContext,
+                 ctx: OneDragonEnvContext,
                  title_cn: str,
                  install_method: Callable[[Callable[[float, str], None]], Tuple[bool, str]],
                  install_btn_icon: FluentIcon = FluentIcon.DOWN,

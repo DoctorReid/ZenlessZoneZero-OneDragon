@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='OneDragon Updater',
+    name='OneDragon Installer',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -35,5 +35,6 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['assets\\ui\\zzz_logo.ico'],
+    uac_admin=True,
+    icon=['assets\\ui\\installer_logo.ico'],
 )
