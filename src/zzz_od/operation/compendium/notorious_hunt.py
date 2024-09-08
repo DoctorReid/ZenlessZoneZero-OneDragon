@@ -259,7 +259,7 @@ class NotoriousHunt(ZOperation):
     def wait_back_to_entry(self) -> OperationRoundResult:
         screen = self.screenshot()
         return self.round_by_find_area(
-            screen, '恶名狩猎', '当期剩余奖励次数',
+            screen, '恶名狩猎', '剩余奖励次数',
             success_wait=1, retry_wait=1
         )
 
