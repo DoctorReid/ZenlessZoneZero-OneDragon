@@ -58,6 +58,8 @@ class EnterHddMission(ZOperation):
         if result.is_success:
             return self.round_success()
 
+        return self.round_retry(wait=1)
+
     @node_from(from_name='选择委托')
     @operation_node(name='选择副本')
     def choose_mission(self) -> OperationRoundResult:

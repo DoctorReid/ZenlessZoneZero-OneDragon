@@ -119,7 +119,7 @@ class LifeOnLineApp(ZApplication):
         return self.round_retry(wait=1)
 
     @node_from(from_name='对话')
-    @operation_node(name='完成')
+    @operation_node(name='完成', node_max_retry_times=60)
     def click_finished(self) -> OperationRoundResult:
         screen = self.screenshot()
 
