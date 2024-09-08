@@ -7,6 +7,7 @@ from zzz_od.application.coffee.coffee_app import CoffeeApp
 from zzz_od.application.email_app.email_app import EmailApp
 from zzz_od.application.engagement_reward.engagement_reward_app import EngagementRewardApp
 from zzz_od.application.hollow_zero.hollow_zero_app import HollowZeroApp
+from zzz_od.application.life_on_line.life_on_line_app import LifeOnLineApp
 from zzz_od.application.notorious_hunt.notorious_hunt_app import NotoriousHuntApp
 from zzz_od.application.random_play.random_play_app import RandomPlayApp
 from zzz_od.application.scratch_card.scratch_card_app import ScratchCardApp
@@ -39,6 +40,7 @@ class ZOneDragonApp(OneDragonApp, ZApplication):
             EngagementRewardApp(self.ctx),
             HollowZeroApp(self.ctx),
             CityFundApp(self.ctx),
+            LifeOnLineApp(self.ctx),
         ]
 
 
