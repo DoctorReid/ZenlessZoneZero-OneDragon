@@ -108,9 +108,9 @@ class HollowBattle(ZOperation):
             return self.round_fail(HollowBattle.STATUS_FAIL_TO_MOVE)
 
         current_distance = self.ctx.battle.last_check_distance
-        if self.last_distance is not None and abs(self.last_distance - current_distance) < 2:
+        if self.last_distance is not None and abs(self.last_distance - current_distance) < 0.5:
             log.info('上次移动后距离没有发生变化 尝试脱困')
-            if self.last_stuck_distance is not None and abs(self.last_stuck_distance - current_distance) < 2:
+            if self.last_stuck_distance is not None and abs(self.last_stuck_distance - current_distance) < 0.5:
                 # 困的时候显示的距离跟上次困住的一样 代表脱困方向不对 换一个
                 log.info('上次脱困后距离没有发生变化 更换脱困方向')
                 if self.stuck_move_direction == 'a':
