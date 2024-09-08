@@ -89,6 +89,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
 
         if self.help_url is not None:
             self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='使用说明', text='前往', url=self.help_url)
+            self.help_opt.setContent('先看说明 再使用与提问')
             run_group.addSettingCard(self.help_opt)
 
         self.instance_run_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='运行实例',

@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QWidget
-from qfluentwidgets import FluentIcon
+from qfluentwidgets import FluentIcon, HyperlinkCard
 from typing import Optional
 
 from one_dragon.base.operation.application_base import Application
@@ -29,6 +29,11 @@ class LifeOnLineRunInterface(AppRunInterface):
 
     def get_widget_at_top(self) -> QWidget:
         content = ColumnWidget()
+
+        self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='使用说明', text='前往',
+                                      url='https://one-dragon.org/zzz/zh/docs/feat_one_dragon.html')
+        self.help_opt.setContent('先看说明 再使用与提问')
+        content.add_widget(self.help_opt)
 
         self.daily_plan_times_opt = TextSettingCard(
             icon=FluentIcon.CALENDAR,  # 选择与时间相关的图标
