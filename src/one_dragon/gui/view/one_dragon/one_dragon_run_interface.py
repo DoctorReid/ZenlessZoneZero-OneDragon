@@ -167,6 +167,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
         self.instance_run_opt.value_changed.disconnect(self._on_instance_run_changed)
 
         self.instance_run_opt.setValue(self.ctx.one_dragon_config.instance_run)
+        self.after_done_opt.setValue(self.ctx.one_dragon_config.after_done)
 
         self.instance_run_opt.value_changed.connect(self._on_instance_run_changed)
 
@@ -178,7 +179,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
         self.ctx.unlisten_all_event(self)
         self._context_event_signal.instance_changed.disconnect(self._on_instance_changed)
 
-    def _on_after_done_changed(self, value: str) -> None:
+    def _on_after_done_changed(self, idx: int, value: str) -> None:
         """
         结束后的操作
         :param value:
@@ -230,9 +231,9 @@ class OneDragonRunInterface(VerticalScrollInterface):
             app_card.update_display()
 
         if self.ctx.is_context_stop:
-            if self.after_done_opt.getValue() == AfterDoneOpEnum.SHUTDOWN.value.value:
+            if self.ctx.one_dragon_config.after_done == AfterDoneOpEnum.SHUTDOWN.value.value:
                 cmd_utils.shutdown_sys(60)
-            elif self.after_done_opt.getValue() == AfterDoneOpEnum.CLOSE_GAME.value.value:
+            elif self.ctx.one_dragon_config.after_done == AfterDoneOpEnum.CLOSE_GAME.value.value:
                 self.ctx.controller.close_game()
 
     def _on_app_state_changed(self, event) -> None:
