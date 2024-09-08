@@ -252,7 +252,8 @@ class ConditionalOperator(YamlConfig):
         if self._normal_scene_handler is not None:
             states = states.union(self._normal_scene_handler.get_usage_states())
         if self._event_to_scene_handler is not None:
-            for handler in self._event_to_scene_handler.values():
+            for event_id, handler in self._event_to_scene_handler.items():
+                states.add(event_id)
                 states = states.union(handler.get_usage_states())
         return states
 
