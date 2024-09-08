@@ -131,7 +131,7 @@ class LifeOnLineApp(ZApplication):
         # 一直点击直到出现街区
         result = self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-完成')
         if result.is_success:
-            return self.round_wait(result.status, wait=1)
+            return self.round_wait(result.status, wait=0.5)
 
         # 过夜提醒的对话比较多 不进行识别 不断点击空白直到返回大世界
         result = self.round_by_find_area(screen, '大世界', '信息')
