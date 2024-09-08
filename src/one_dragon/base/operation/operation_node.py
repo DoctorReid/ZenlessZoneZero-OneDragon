@@ -15,7 +15,7 @@ class OperationNode:
                  wait_after_op: Optional[float] = None,
                  timeout_seconds: Optional[float] = None,
                  is_start_node: bool = False,
-                 node_max_retry_times: int = 5
+                 node_max_retry_times: int = 3
                  ):
         """
         带状态指令的节点
@@ -60,7 +60,7 @@ def operation_node(
         wait_after_op: Optional[float] = None,
         timeout_seconds: Optional[float] = None,
         is_start_node: bool = False,
-        node_max_retry_times: int = 5
+        node_max_retry_times: int = 3
 ):
     def decorator(func):
         @wraps(func)

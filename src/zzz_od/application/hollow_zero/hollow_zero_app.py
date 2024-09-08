@@ -66,11 +66,9 @@ class HollowZeroApp(ZApplication):
     @node_from(from_name='等待入口加载')
     @operation_node(name='选择副本类型')
     def choose_mission_type(self) -> OperationRoundResult:
-        if self.ctx.hollow_zero_record.no_eval_point:
-            return self.round_success(HollowZeroApp.STATUS_NO_EVAL_POINT)
-        elif self.ctx.hollow_zero_record.is_finished_by_times():
-            if self.ctx.hollow_zero_config.extra_task == HollowZeroExtraTask.NONE.value.value:
-                return self.round_success(HollowZeroApp.STATUS_TIMES_FINISHED)
+        if (self.ctx.hollow_zero_record.is_finished_by_week()
+            or self.ctx.hollow_zero_record.is_finished_by_day()):
+            return self.round_success(HollowZeroApp.STATUS_TIMES_FINISHED)
 
         screen = self.screenshot()
         return self.round_by_ocr_and_click(screen, self.mission_type_name,
@@ -119,6 +117,7 @@ class HollowZeroApp(ZApplication):
     def auto_run(self) -> OperationRoundResult:
         self.ctx.hollow.init_level_info(self.mission_type_name, self.mission_name)
         self.ctx.hollow.init_event_yolo(True)
+        self.ctx.hollow_zero_record.daily_run_times = self.ctx.hollow_zero_record.daily_run_times + 1
         op = HollowRunner(self.ctx)
         return self.round_by_op(op.execute())
 

@@ -113,7 +113,7 @@ class HollowZeroRunInterface(AppRunInterface):
         self.daily_plan_times_opt = TextSettingCard(
             icon=FluentIcon.CALENDAR,  # 选择与时间相关的图标
             title='每天进入次数',
-            content='将空洞运行分摊到每天',
+            content='将空洞分摊到每天运行',
         )
         self.daily_plan_times_opt.value_changed.connect(self._on_daily_plan_times_changed)
         right_layout.addWidget(self.daily_plan_times_opt)
@@ -141,7 +141,7 @@ class HollowZeroRunInterface(AppRunInterface):
         self.mission_opt.setValue(self.ctx.hollow_zero_config.mission_name)
         self.challenge_config_opt.setValue(self.ctx.hollow_zero_config.challenge_config)
 
-        if not self.ctx.hollow_zero_record.is_finished_by_times():
+        if not self.ctx.hollow_zero_record.weekly_run_times < self.ctx.hollow_zero_config.weekly_plan_times:
             content = '本周通关次数 %d' % self.ctx.hollow_zero_record.weekly_run_times
         elif not self.ctx.hollow_zero_record.no_eval_point:
             content = '已完成基础通关次数'
@@ -150,6 +150,7 @@ class HollowZeroRunInterface(AppRunInterface):
         self.run_record_opt.setContent(content)
 
         self.weekly_plan_times_opt.setValue(str(self.ctx.hollow_zero_config.weekly_plan_times))
+        self.daily_plan_times_opt.setValue(str(self.ctx.hollow_zero_config.daily_plan_times))
         self.extra_task_opt.setValue(self.ctx.hollow_zero_config.extra_task)
 
     def _update_mission_options(self) -> None:
