@@ -21,7 +21,12 @@ operations:
     press: 3
 
   # 到尽头后 先等待0.2秒
-    post_delay: 0.2
+  - op_name: "按键-移动-右"
+    way: "松开"
+    post_delay: 0.1
+  - op_name: "按键-移动-前"
+    way: "松开"
+    post_delay: 0.1
   # 用闪避后退触发交互
   - op_name: "按键-闪避"
     post_delay: 0.5
