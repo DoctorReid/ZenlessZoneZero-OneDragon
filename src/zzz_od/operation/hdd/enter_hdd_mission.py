@@ -88,4 +88,17 @@ class EnterHddMission(ZOperation):
     def click_deploy(self) -> OperationRoundResult:
         screen = self.screenshot()
         return self.round_by_find_and_click_area(screen, 'HDD', '出战',
-                                                 success_wait=2, retry_wait=1)
+                                                 success_wait=1, retry_wait=1)
+
+    @node_from(from_name='出战')
+    @operation_node(name='识别低等级')
+    def check_level(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        return self.round_by_find_and_click_area(screen, 'HDD', '确定并出战',
+                                                 retry_wait=1)
+
+    @node_from(from_name='识别低等级')
+    @node_from(from_name='识别低等级', success=False)
+    @operation_node(name='进入成功')
+    def finish(self) -> OperationRoundResult:
+        return self.round_success()
