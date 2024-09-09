@@ -15,7 +15,3 @@ handlers:
         data: [ ]
       - op_name: "等待秒数"
         data: [ "0.1" ]
-  - states: ""
-    sub_states:
-      - state_template: "站场模板-全角色"
-

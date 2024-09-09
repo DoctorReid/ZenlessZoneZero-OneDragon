@@ -17,9 +17,20 @@ scenes:
     handlers:
       - states: "![自定义-动作不打断, 0, 999]{1, 1} & [闪避识别-黄光]"
         sub_states:
-          - state_template: "双反模板-强攻"
-          - state_template: "双反模板-击破"
-          - state_template: "双反模板-下一个"
+          # 失衡期间 保持强攻在场上
+          - states: "[自定义-连携换人, 0, 12]"
+            sub_states:
+              - states: "![前台-强攻]"
+                state_template: "双反模板-强攻"
+              - states: ""
+                sub_states:
+                  - state_template: "闪A模板-全角色"
+          # 普通时间段
+          - states: ""
+            sub_states:
+              - state_template: "双反模板-强攻"
+              - state_template: "双反模板-击破"
+              - state_template: "双反模板-下一个"
       - states: "![自定义-动作不打断, 0, 999]{1, 1} & ([闪避识别-红光] | [闪避识别-声音])"
         sub_states:
           - state_template: "闪A模板-全角色"
@@ -51,7 +62,9 @@ scenes:
       - states: "[自定义-黄光切人, 0, 2] | [自定义-红光闪避, 0, 2] | [自定义-临时站场]"
         sub_states:
           - state_template: "站场模板-全角色"
-      - states: "[自定义-连携换人, 0, 12] | [自定义-连携换人, 0, 12]"
+      - states: "[自定义-连携换人, 0, 12]"
         sub_states:
           - state_template: "站场模板-强攻站场"
       - state_template: "站场模板-击破站场"
+      - state_template: "站场模板-强攻站场"
+      - state_template: "站场模板-支援站场"
