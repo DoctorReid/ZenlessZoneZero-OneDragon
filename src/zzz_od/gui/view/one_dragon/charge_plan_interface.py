@@ -5,13 +5,14 @@ from typing import Optional
 
 from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiPushSettingCard
+from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiPushSettingCard, MultiLineSettingCard
+from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_op_config_list
 from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem, CardNumEnum
 from zzz_od.context.zzz_context import ZContext
 
 
-class ChargePlanCard(MultiPushSettingCard):
+class ChargePlanCard(MultiLineSettingCard):
 
     changed = Signal(int, ChargePlanItem)
     delete = Signal(int)
@@ -53,22 +54,25 @@ class ChargePlanCard(MultiPushSettingCard):
         self.del_btn = ToolButton(FluentIcon.DELETE, None)
         self.del_btn.clicked.connect(self._on_del_clicked)
 
-        MultiPushSettingCard.__init__(
+        MultiLineSettingCard.__init__(
             self,
             icon=FluentIcon.CALENDAR,
             title='',
-            btn_list=[
-                self.category_combo_box,
-                self.mission_type_combo_box,
-                self.mission_combo_box,
-                self.card_num_box,
-                self.auto_battle_combo_box,
-                run_times_label,
-                self.run_times_input,
-                plan_times_label,
-                self.plan_times_input,
-                self.move_up_btn,
-                self.del_btn,
+            line_list=[
+                [
+                    self.category_combo_box,
+                    self.mission_type_combo_box,
+                    self.mission_combo_box,
+                    self.card_num_box,
+                    self.auto_battle_combo_box,
+                ],
+                [run_times_label,
+                 self.run_times_input,
+                 plan_times_label,
+                 self.plan_times_input,
+                 self.move_up_btn,
+                 self.del_btn,
+                 ]
             ]
         )
 
@@ -261,6 +265,11 @@ class ChargePlanInterface(VerticalScrollInterface):
     def update_plan_list_display(self):
         self.content_widget.clear_widgets()
 
+        self.loop_opt = SwitchSettingCard(icon=FluentIcon.SYNC, title='循环执行', content='开启时 会循环执行到体力用尽')
+        self.loop_opt.setValue(self.ctx.charge_plan_config.loop)
+        self.loop_opt.value_changed.connect(self._on_loop_changed)
+        self.content_widget.add_widget(self.loop_opt)
+
         for idx, plan_item in enumerate(self.ctx.charge_plan_config.plan_list):
             card = ChargePlanCard(self.ctx, idx, plan_item)
             card.changed.connect(self._on_plan_item_changed)
@@ -295,3 +304,6 @@ class ChargePlanInterface(VerticalScrollInterface):
     def _on_plan_item_move_up(self, idx: int) -> None:
         self.ctx.charge_plan_config.move_up(idx)
         self.update_plan_list_display()
+
+    def _on_loop_changed(self, new_value: bool) -> None:
+        self.ctx.charge_plan_config.loop = new_value

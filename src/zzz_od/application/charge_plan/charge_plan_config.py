@@ -53,11 +53,13 @@ class ChargePlanConfig(YamlConfig):
 
         for plan_item in self.data.get('plan_list', []):
             self.plan_list.append(ChargePlanItem(**plan_item))
+        self.loop = self.get('loop', True)
 
     def save(self):
         self.data = {}
         plan_list = []
         self.data['plan_list'] = plan_list
+        self.data['loop'] = self.loop
 
         for plan_item in self.plan_list:
             plan_list.append({
@@ -142,6 +144,21 @@ class ChargePlanConfig(YamlConfig):
                 return plan
 
         return None
+
+    def all_plan_finished(self) -> bool:
+        """
+        是否全部计划已完成
+        :return:
+        """
+        if self.plan_list is None:
+            return True
+
+        for plan in self.plan_list:
+            if plan.run_times < plan.plan_times:
+                return False
+
+        return True
+
 
     def add_plan_run_times(self, to_add: ChargePlanItem) -> None:
         """
