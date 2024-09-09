@@ -153,3 +153,7 @@
   options:
     - option_name: "接受补给包"
       desc: "回复少量生命值，并降低少量压力值"
+
+# 11
+- entry_name: "邂逅"
+  event_name: "防卫军的做法"

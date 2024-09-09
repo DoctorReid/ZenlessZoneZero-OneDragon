@@ -67,11 +67,11 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
 
         btn_row.add_stretch(1)
 
-        self.error_message = BodyLabel(text='测试')
+        self.error_message = BodyLabel(text='')
         self.error_message.setTextColor(FluentThemeColor.RED.value)
         widget.add_widget(self.error_message)
 
-        self.name_opt = TextSettingCard(icon=FluentIcon.GAME, title='配置名称', content='样例配置复制后可修改')
+        self.name_opt = TextSettingCard(icon=FluentIcon.GAME, title='配置名称', content='默认配置复制后可修改')
         self.name_opt.value_changed.connect(self._on_name_changed)
         widget.add_widget(self.name_opt)
 
@@ -197,6 +197,11 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
             self.event_priority_input.setPlainText(self.chosen_config.event_priority_str)
 
             self._update_pathfinding_input_display()
+
+        if is_sample:
+            self._update_error_message('当前为默认配置，点击复制后可修改')
+        else:
+            self._update_error_message('')
 
     def _update_existed_yml_options(self) -> None:
         """

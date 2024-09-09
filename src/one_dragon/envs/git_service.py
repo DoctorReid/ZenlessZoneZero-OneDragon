@@ -1,3 +1,5 @@
+import time
+
 import os
 import shutil
 from typing import Optional, Callable, List, Tuple
@@ -129,7 +131,6 @@ class GitService:
         克隆仓库
         :return: 是否成功
         """
-        temp_folder = '.temp_clone'
 
         msg = '清空临时文件夹'
         log.info(msg)
@@ -140,9 +141,23 @@ class GitService:
         cmd_utils.run_command(['taskkill', '/F', '/IM', 'git.exe'])
         cmd_utils.run_command(['taskkill', '/F', '/IM', 'ssh.exe'])
 
-        temp_dir_path = os.path.join(os_utils.get_work_dir(), temp_folder)
-        if os.path.exists(temp_dir_path):
-            shutil.rmtree(temp_dir_path)
+        curr_path = os_utils.get_work_dir()
+        for sub_dir_name in os.listdir(curr_path):
+            if not sub_dir_name.startswith('.temp_clone_'):
+                continue
+            sub_dir_path = os.path.join(curr_path, sub_dir_name)
+            if not os.path.isdir(sub_dir_path):
+                continue
+            if os.path.exists(sub_dir_path):
+                try:
+                    shutil.rmtree(sub_dir_path)
+                except:
+                    pass
+
+        # 使用随机文件夹名称 避免重复
+        current_time = time.strftime('%H%M%S')
+        temp_folder = f'.temp_clone_{current_time}'
+        temp_dir_path = os.path.join(curr_path, temp_folder)
 
         msg = '开始克隆仓库'
         log.info(msg)
