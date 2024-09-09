@@ -141,7 +141,7 @@ class HollowZeroRunInterface(AppRunInterface):
         self.mission_opt.setValue(self.ctx.hollow_zero_config.mission_name)
         self.challenge_config_opt.setValue(self.ctx.hollow_zero_config.challenge_config)
 
-        if not self.ctx.hollow_zero_record.weekly_run_times < self.ctx.hollow_zero_config.weekly_plan_times:
+        if self.ctx.hollow_zero_record.weekly_run_times < self.ctx.hollow_zero_config.weekly_plan_times:
             content = '本周通关次数 %d' % self.ctx.hollow_zero_record.weekly_run_times
         elif not self.ctx.hollow_zero_record.no_eval_point:
             content = '已完成基础通关次数'
