@@ -130,7 +130,7 @@ class HollowRunner(ZOperation):
 
         if pathfinding_success:
             self.ctx.hollow.check_info_before_move(screen, current_map)
-            self._try_click_speed_up(screen)
+            # self._try_click_speed_up(screen)  # 可以在游戏内设置继承上一次
             extra_finished = self._check_extra_task_finished(screen, current_map)
             if extra_finished:
                 return self.round_success(HollowRunner.STATUS_LEAVE)

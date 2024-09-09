@@ -157,3 +157,5 @@
 # 11
 - entry_name: "邂逅"
   event_name: "防卫军的做法"
+  options:
+    - option_name: "招呼小队成员休息"

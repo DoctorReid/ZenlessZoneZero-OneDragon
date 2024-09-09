@@ -4,6 +4,7 @@ from cv2.typing import MatLike
 from typing import Optional, ClassVar
 
 from one_dragon.base.geometry.rectangle import Rect
+from one_dragon.base.operation.operation import Operation
 from one_dragon.base.operation.operation_base import OperationResult
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
@@ -39,7 +40,7 @@ class HollowBattle(ZOperation):
         self.move_times: int = 0  # 向前移动的次数
         self.last_distance: Optional[float] = None  # 上次移动前的距离
         self.last_stuck_distance: Optional[float] = None  # 上次受困显示的距离
-        self.stuck_move_direction: str = 'a'  # 受困时移动的方向
+        self.stuck_move_direction: int = 0  # 受困时移动的方向
 
     def handle_init(self):
         self.distance_pos: Optional[Rect] = None  # 显示距离的区域
@@ -113,19 +114,14 @@ class HollowBattle(ZOperation):
             if self.last_stuck_distance is not None and abs(self.last_stuck_distance - current_distance) < 0.5:
                 # 困的时候显示的距离跟上次困住的一样 代表脱困方向不对 换一个
                 log.info('上次脱困后距离没有发生变化 更换脱困方向')
-                if self.stuck_move_direction == 'a':
-                    self.stuck_move_direction = 'd'
-                elif self.stuck_move_direction == 'd':
-                    self.stuck_move_direction = 'a'
+                self.stuck_move_direction += 1
+                if self.stuck_move_direction >= 6:
+                    self.stuck_move_direction = 0
 
             self.last_distance = current_distance
             self.last_stuck_distance = current_distance
 
-            log.info('本次脱困方向 %s' % self.stuck_move_direction)
-            if self.stuck_move_direction == 'a':
-                self.ctx.controller.move_a(press=True, press_time=1, release=True)
-            elif self.stuck_move_direction == 'd':
-                self.ctx.controller.move_d(press=True, press_time=1, release=True)
+            self._get_rid_of_stuck()
 
             return self.round_wait(wait=0.5)
 
@@ -143,9 +139,32 @@ class HollowBattle(ZOperation):
             self.move_times += 1
             return self.round_wait(wait=0.5)
 
+    def _get_rid_of_stuck(self):
+        log.info('本次脱困方向 %s' % self.stuck_move_direction)
+        if self.stuck_move_direction == 0:  # 向左走
+            self.ctx.controller.move_a(press=True, press_time=1, release=True)
+        elif self.stuck_move_direction == 1:  # 向右走
+            self.ctx.controller.move_d(press=True, press_time=1, release=True)
+        elif self.stuck_move_direction == 2:  # 后左前 1秒
+            self.ctx.controller.move_s(press=True, press_time=1, release=True)
+            self.ctx.controller.move_a(press=True, press_time=1, release=True)
+            self.ctx.controller.move_w(press=True, press_time=1, release=True)
+        elif self.stuck_move_direction == 3:  # 后右前 1秒
+            self.ctx.controller.move_s(press=True, press_time=1, release=True)
+            self.ctx.controller.move_d(press=True, press_time=1, release=True)
+            self.ctx.controller.move_w(press=True, press_time=1, release=True)
+        elif self.stuck_move_direction == 4:  # 后左前 2秒
+            self.ctx.controller.move_s(press=True, press_time=2, release=True)
+            self.ctx.controller.move_a(press=True, press_time=2, release=True)
+            self.ctx.controller.move_w(press=True, press_time=2, release=True)
+        elif self.stuck_move_direction == 5:  # 后右前 2秒
+            self.ctx.controller.move_s(press=True, press_time=2, release=True)
+            self.ctx.controller.move_d(press=True, press_time=2, release=True)
+            self.ctx.controller.move_w(press=True, press_time=2, release=True)
+
     @node_from(from_name='识别特殊移动', status=STATUS_NO_NEED_SPECIAL_MOVE)
     @node_from(from_name='向前移动准备战斗')
-    @operation_node(name='自动战斗')
+    @operation_node(name='自动战斗', timeout_seconds=600)
     def auto_battle(self) -> OperationRoundResult:
         self.move_times = 0
         if self.ctx.battle.last_check_end_result is not None:
@@ -217,9 +236,12 @@ class HollowBattle(ZOperation):
         return self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-撤退',
                                                  success_wait=1, retry_wait=1)
 
+    @node_from(from_name='自动战斗', success=False, status=Operation.STATUS_TIMEOUT)
     @node_from(from_name='向前移动准备战斗', success=False, status=STATUS_FAIL_TO_MOVE)
     @operation_node(name='移动失败')
     def move_fail(self) -> OperationRoundResult:
+        if self.auto_op is not None:
+            self.auto_op.stop_running()
         screen = self.screenshot()
 
         result = self.round_by_find_area(screen, '零号空洞-战斗', '退出战斗')
