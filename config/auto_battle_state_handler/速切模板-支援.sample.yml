@@ -1,0 +1,13 @@
+# created by idk500
+# 支援通常不需要打输出而是E完直接走人,(似乎妮可需要A一下), 因此速切支援只强行E
+# TODO: 后续分化支援, 针对不同角色提供支援模板, 在其中设定每个角色的E后摇
+template_name: "速切模板-支援"
+handlers:
+  - states: ""
+    operations:
+      - op_name: "按键-特殊攻击"
+        data: []
+      - op_name: "等待秒数"
+        data: [ "0.8" ]
+      - op_name: "设置状态"
+        data: [ "自定义-速切结束" ]
