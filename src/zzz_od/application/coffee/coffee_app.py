@@ -308,6 +308,17 @@ class CoffeeApp(ZApplication):
         if self.chosen_coffee.without_benefit:
             return self.round_fail('没有增益的咖啡')
 
+        coffee_plan: Optional[ChargePlanItem] = None
+        for plan in self.ctx.charge_plan_config.plan_list:
+            if self._is_coffee_for_plan(self.chosen_coffee, plan):
+                coffee_plan = plan
+                break
+
+        if coffee_plan is None:
+            card_num = self.ctx.coffee_config.card_num
+        else:
+            card_num = coffee_plan.card_num
+
         self.charge_plan = ChargePlanItem(
             tab_name=self.chosen_coffee.tab.tab_name,
             category_name=self.chosen_coffee.category.category_name,
@@ -316,7 +327,7 @@ class CoffeeApp(ZApplication):
             auto_battle_config=self.ctx.coffee_config.auto_battle,
             run_times=0,
             plan_times=1,
-            card_num=self.ctx.coffee_config.card_num
+            card_num=card_num
         )
 
         screen = self.screenshot()
