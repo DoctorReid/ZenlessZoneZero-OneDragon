@@ -5,4 +5,5 @@ handlers:
   - state_template: "速切模板-格莉丝"
   - state_template: "速切模板-妮可"
   - state_template: "速切模板-猫又"
+  - state_template: "速切模板-支援"
   - state_template: "速切模板-通用"
