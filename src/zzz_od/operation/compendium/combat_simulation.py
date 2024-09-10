@@ -15,6 +15,7 @@ from one_dragon.utils.log_utils import log
 from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem, CardNumEnum
 from zzz_od.auto_battle import auto_battle_utils
 from zzz_od.context.zzz_context import ZContext
+from zzz_od.operation.deploy import Deploy
 from zzz_od.operation.zzz_operation import ZOperation
 
 
@@ -187,7 +188,7 @@ class CombatSimulation(ZOperation):
         )
 
     @node_from(from_name='下一步')
-    @operation_node(name='出战')
+    @operation_node(name='点击出战')
     def click_start(self) -> OperationRoundResult:
         screen = self.screenshot()
 
@@ -196,12 +197,15 @@ class CombatSimulation(ZOperation):
         if result.is_success:
             return self.round_success(status=CombatSimulation.STATUS_CHARGE_NOT_ENOUGH)
 
-        return self.round_by_find_and_click_area(
-            screen, '实战模拟室', '出战',
-            success_wait=1, retry_wait=1
-        )
+        return self.round_by_find_area(screen, '实战模拟室', '出战', retry_wait=1)
 
-    @node_from(from_name='出战', status='出战')
+    @node_from(from_name='点击出战', status='出战')
+    @operation_node(name='出战')
+    def deploy(self) -> OperationRoundResult:
+        op = Deploy(self.ctx)
+        return self.round_by_op(op.execute())
+
+    @node_from(from_name='出战')
     @node_from(from_name='判断下一次', status='战斗结果-再来一次')
     @operation_node(name='加载自动战斗指令')
     def init_auto_battle(self) -> OperationRoundResult:

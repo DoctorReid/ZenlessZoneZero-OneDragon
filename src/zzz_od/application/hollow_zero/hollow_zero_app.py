@@ -13,6 +13,7 @@ from zzz_od.hollow_zero.event import hollow_event_utils
 from zzz_od.hollow_zero.hollow_runner import HollowRunner
 from zzz_od.operation.back_to_normal_world import BackToNormalWorld
 from zzz_od.operation.compendium.tp_by_compendium import TransportByCompendium
+from zzz_od.operation.deploy import Deploy
 
 
 class HollowZeroApp(ZApplication):
@@ -104,15 +105,23 @@ class HollowZeroApp(ZApplication):
 
         result = self.round_by_find_and_click_area(screen, '零号空洞-入口', '继续-确认')
         if result.is_success:
-            return self.round_success(wait=1)
+            return self.round_success(result.status, wait=1)
 
-        result = self.round_by_find_and_click_area(screen, '零号空洞-入口', '出战')
+        result = self.round_by_find_area(screen, '零号空洞-入口', '出战')
         if result.is_success:
-            return self.round_success(wait=1)
+            return self.round_success(result.status, wait=1)
 
         return self.round_retry(wait=1)
 
-    @node_from(from_name='继续或出战')
+
+    @node_from(from_name='继续或出战', status='出战')
+    @operation_node(name='出战')
+    def deploy(self) -> OperationRoundResult:
+        op = Deploy(self.ctx)
+        return self.round_by_op(op.execute())
+
+    @node_from(from_name='继续或出战', status='继续-确认')
+    @node_from(from_name='出战')
     @operation_node(name='自动运行')
     def auto_run(self) -> OperationRoundResult:
         self.ctx.hollow.init_level_info(self.mission_type_name, self.mission_name)
