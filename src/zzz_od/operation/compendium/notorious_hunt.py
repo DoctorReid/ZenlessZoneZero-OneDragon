@@ -52,10 +52,16 @@ class NotoriousHunt(ZOperation):
     @operation_node(name='等待入口加载', is_start_node=True, node_max_retry_times=60)
     def wait_entry_load(self) -> OperationRoundResult:
         screen = self.screenshot()
-        return self.round_by_find_area(
-            screen, '恶名狩猎', '当期剩余奖励次数',
-            success_wait=1, retry_wait=1
-        )
+        r1 = self.round_by_find_area(screen, '恶名狩猎', '当期剩余奖励次数')
+        if r1.is_success:
+            return self.round_success(r1.status)
+
+        r2 = self.round_by_find_area(screen, '恶名狩猎', '剩余奖励次数')
+        if r2.is_success:
+            self.click_area('菜单', '返回')
+            return self.round_wait(r2.status, wait=1)
+
+        return self.round_retry(r1.status, wait=1)
 
     @node_from(from_name='等待入口加载')
     @operation_node(name='识别剩余次数')
