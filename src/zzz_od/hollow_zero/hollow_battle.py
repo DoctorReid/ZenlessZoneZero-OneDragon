@@ -26,7 +26,8 @@ class HollowBattle(ZOperation):
 
     def __init__(self, ctx: ZContext, is_critical_stage: bool = False):
         """
-        确定出现事件后调用
+        确定进入战斗后调用
+        战斗后的按钮点击退出交由外层实现
         :param ctx:
         """
         event_name = HollowZeroSpecialEvent.IN_BATTLE.value.event_name
@@ -191,6 +192,7 @@ class HollowBattle(ZOperation):
     def period_reward_full(self) -> OperationRoundResult:
         time.sleep(1)  # 第一次稍等等一段时间 避免按键还不能响应
         screen = self.screenshot()
+        self.ctx.hollow_zero_record.period_reward_complete = True
         return self.round_by_find_and_click_area(screen, '零号空洞-战斗', '结算周期上限-确认',
                                            success_wait=1, retry_wait=1)
 
@@ -209,7 +211,7 @@ class HollowBattle(ZOperation):
         area = self.ctx.screen_loader.get_area('零号空洞-战斗', '战斗结果-确定')
         result = self.round_by_ocr_and_click(screen, '确定', area=area)
         if result.is_success:
-            return self.round_success(wait=1)
+            return self.round_success(result.status, wait=1)
 
         # 匹配不到的时候 随便点击 防止有一些新的对话框出现没有处理到
         self.click_area('零号空洞-战斗', '战斗结果-确定')
@@ -225,8 +227,7 @@ class HollowBattle(ZOperation):
     @node_from(from_name='战斗结果-确定')
     @operation_node(name='更新楼层信息')
     def update_level_info(self) -> OperationRoundResult:
-        if self.is_critical_stage:
-            self.ctx.hollow.update_to_next_level()
+        self.ctx.hollow.update_to_next_level()
         return self.round_success()
 
     @node_from(from_name='自动战斗', status='普通战斗-撤退')

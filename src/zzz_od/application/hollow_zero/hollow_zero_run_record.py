@@ -46,14 +46,23 @@ class HollowZeroRunRecord(AppRunRecord):
         if os_utils.get_sunday_dt(self.dt) != os_utils.get_sunday_dt(current_dt):  # 上一次运行已经是上一周
             # 必定是重置
             self.reset_record()
-            self.weekly_run_times = 0
-            self.daily_run_times = 0
-            self.no_eval_point = False
+            self.reset_for_weekly()
         elif self.dt != current_dt:  # 上一次运行已经是一天前
             self.reset_record()
             self.daily_run_times = 0
         else:  # 当天的
-            pass
+            if self.is_finished_by_week():
+                pass
+            elif self.is_finished_by_day():
+                pass
+            else:
+                self.reset_record()
+
+    def reset_for_weekly(self) -> None:
+        self.weekly_run_times = 0
+        self.daily_run_times = 0
+        self.no_eval_point = False
+        self.period_reward_complete = False
 
     @property
     def weekly_run_times(self) -> int:
@@ -86,6 +95,13 @@ class HollowZeroRunRecord(AppRunRecord):
         return (self.weekly_run_times >= self.config.weekly_plan_times
                 or self.daily_run_times >= self.config.daily_plan_times)
 
+    def is_finished_by_weekly_times(self) -> bool:
+        """
+        从每周运行次数看 是否已经完成了
+        :return:
+        """
+        return self.weekly_run_times >= self.config.weekly_plan_times
+
     def is_finished_by_day(self) -> bool:
         """
         按天的角度看是否已经完成
@@ -102,11 +118,15 @@ class HollowZeroRunRecord(AppRunRecord):
             # 基础次数都还没有完成
             return False
         if self.config.extra_task == HollowZeroExtraTask.NONE.value.value:
-            # 完成基础次数 不需要刷业绩
+            # 完成基础次数 不需要额外刷取
             return True
-        else:
+        elif self.config.extra_task == HollowZeroExtraTask.EVA_POINT.value.value:
             # 完成基础次数 需要刷业绩 就看空业绩点出来没有
             return self.no_eval_point
+        elif self.config.extra_task == HollowZeroExtraTask.PERIOD_REWARD.value.value:
+            return self.period_reward_complete
+        else:
+            return False
 
     @property
     def no_eval_point(self) -> bool:
@@ -115,4 +135,12 @@ class HollowZeroRunRecord(AppRunRecord):
     @no_eval_point.setter
     def no_eval_point(self, new_value: bool) -> None:
         self.update('no_eval_point', new_value)
+
+    @property
+    def period_reward_complete(self) -> bool:
+        return self.get('period_reward_complete', False)
+
+    @period_reward_complete.setter
+    def period_reward_complete(self, new_value: bool) -> None:
+        self.update('period_reward_complete', new_value)
 

@@ -270,11 +270,12 @@ class HollowContext:
             self.level_info.to_next_level()
         self._last_route = None
 
-    def init_level_info(self, mission_type_name: str, mission_name: str) -> None:
+    def init_level_info(self, mission_type_name: str, mission_name: str,
+                        level: int = 1, phase: int = 1) -> None:
         """
         重新开始空洞时 初始化空洞的信息
         """
-        self.level_info = HollowLevelInfo(mission_type_name, mission_name, 1, 1)
+        self.level_info = HollowLevelInfo(mission_type_name, mission_name, level, phase)
 
     def update_agent_list_after_support(self, new_agent: Agent, pos: int) -> None:
         """

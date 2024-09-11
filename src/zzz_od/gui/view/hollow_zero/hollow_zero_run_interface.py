@@ -8,7 +8,7 @@ from one_dragon.gui.component.setting_card.text_setting_card import TextSettingC
 from one_dragon.gui.view.app_run_interface import AppRunInterface
 from one_dragon.utils.log_utils import log
 from zzz_od.application.hollow_zero.hollow_zero_app import HollowZeroApp
-from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroExtraTask
+from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroExtraTask, HollowZeroExtraExitEnum
 from zzz_od.application.hollow_zero.hollow_zero_debug_app import HollowZeroDebugApp
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
@@ -67,7 +67,7 @@ class HollowZeroRunInterface(AppRunInterface):
         # 创建一个文本设置卡片
         self.weekly_plan_times_opt = TextSettingCard(
             icon=FluentIcon.CALENDAR,  # 选择与时间相关的图标
-            title='每周基础',
+            title='每周基础次数',
             content='完整通关，用于完成委托任务'
         )
         self.weekly_plan_times_opt.value_changed.connect(self._on_weekly_plan_times_changed)
@@ -75,8 +75,8 @@ class HollowZeroRunInterface(AppRunInterface):
 
         self.extra_task_opt = ComboBoxSettingCard(
             icon=FluentIcon.CALENDAR,  # 选择与时间相关的图标
-            title='刷业绩点',
-            content='完成基础次数后，继续挑战刷业绩点',
+            title='额外刷取',
+            content='完成基础次数后，继续刷取',
             options_enum=HollowZeroExtraTask
         )
         self.extra_task_opt.value_changed.connect(self._on_extra_task_changed)
@@ -91,15 +91,13 @@ class HollowZeroRunInterface(AppRunInterface):
         right_layout = QVBoxLayout(right_widget)
         right_widget.setLayout(right_layout)
 
-        # 创建一个推送设置卡片，标题为“调试”
-        self.debug_opt = PushSettingCard(
-            text='调试',
-            icon=FluentIcon.STOP_WATCH,  # 选择与停止相关的图标
-            title='调试',
+        self.run_record_opt = PushSettingCard(
+            icon=FluentIcon.SYNC,
+            title='运行记录',
+            text='重置记录'
         )
-        self.debug_opt.setContent(content='在中断/停止状态下用于继续执行')
-        self.debug_opt.clicked.connect(self._on_debug_clicked)
-        right_layout.addWidget(self.debug_opt)
+        self.run_record_opt.clicked.connect(self._on_reset_record_clicked)
+        right_layout.addWidget(self.run_record_opt)
 
         # 创建一个组合框设置卡片，标题为“挑战配置”
         self.challenge_config_opt = ComboBoxSettingCard(
@@ -118,13 +116,14 @@ class HollowZeroRunInterface(AppRunInterface):
         self.daily_plan_times_opt.value_changed.connect(self._on_daily_plan_times_changed)
         right_layout.addWidget(self.daily_plan_times_opt)
 
-        self.run_record_opt = PushSettingCard(
-            icon=FluentIcon.SYNC,
-            title='运行记录',
-            text='重置业绩点记录'
+        self.extra_exit_opt = ComboBoxSettingCard(
+            icon=FluentIcon.CALENDAR,  # 选择与时间相关的图标
+            title='额外刷取方式',
+            content='额外刷取时，选择何时退出',
+            options_enum=HollowZeroExtraExitEnum
         )
-        self.run_record_opt.clicked.connect(self._on_reset_record_clicked)
-        right_layout.addWidget(self.run_record_opt)
+        self.extra_exit_opt.value_changed.connect(self._on_extra_exit_changed)
+        right_layout.addWidget(self.extra_exit_opt)
 
         right_layout.addStretch(1)
         return right_widget
@@ -152,6 +151,7 @@ class HollowZeroRunInterface(AppRunInterface):
         self.weekly_plan_times_opt.setValue(str(self.ctx.hollow_zero_config.weekly_plan_times))
         self.daily_plan_times_opt.setValue(str(self.ctx.hollow_zero_config.daily_plan_times))
         self.extra_task_opt.setValue(self.ctx.hollow_zero_config.extra_task)
+        self.extra_exit_opt.setValue(self.ctx.hollow_zero_config.extra_exit)
 
     def _update_mission_options(self) -> None:
         try:
@@ -194,6 +194,7 @@ class HollowZeroRunInterface(AppRunInterface):
 
     def _on_reset_record_clicked(self) -> None:
         self.ctx.hollow_zero_record.no_eval_point = False
+        self.ctx.hollow_zero_record.period_reward_complete = False
         log.info('重置成功')
 
     def get_app(self) -> ZApplication:
@@ -222,3 +223,6 @@ class HollowZeroRunInterface(AppRunInterface):
 
     def _on_extra_task_changed(self, idx: int, value: str) -> None:
         self.ctx.hollow_zero_config.extra_task = value
+
+    def _on_extra_exit_changed(self, idx: int, value: str) -> None:
+        self.ctx.hollow_zero_config.extra_exit = value

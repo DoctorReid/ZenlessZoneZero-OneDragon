@@ -9,8 +9,15 @@ from one_dragon.base.config.yaml_config import YamlConfig
 class HollowZeroExtraTask(Enum):
 
     NONE = ConfigItem('不进行')
-    LEVEL_2 = ConfigItem('2层业绩后退出')
-    LEVEL_3 = ConfigItem('3层业绩后退出')
+    EVA_POINT = ConfigItem('刷满业绩点')
+    PERIOD_REWARD = ConfigItem('刷满周期奖励')
+
+
+class HollowZeroExtraExitEnum(Enum):
+
+    COMPLETE = ConfigItem('通关')
+    LEVEL_2_EVA = ConfigItem('2层业绩后退出')
+    LEVEL_3_EVA = ConfigItem('3层业绩后退出')
 
 
 class HollowZeroConfig(YamlConfig):
@@ -56,8 +63,16 @@ class HollowZeroConfig(YamlConfig):
 
     @property
     def extra_task(self) -> str:
-        return self.get('extra_task', HollowZeroExtraTask.LEVEL_3.value.value)
+        return self.get('extra_task', HollowZeroExtraTask.PERIOD_REWARD.value.value)
 
     @extra_task.setter
     def extra_task(self, new_value: str):
         self.update('extra_task', new_value)
+
+    @property
+    def extra_exit(self) -> str:
+        return self.get('extra_exit', HollowZeroExtraExitEnum.COMPLETE.value.value)
+
+    @extra_exit.setter
+    def extra_exit(self, new_value: str):
+        self.update('extra_exit', new_value)
