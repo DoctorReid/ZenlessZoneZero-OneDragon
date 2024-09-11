@@ -159,3 +159,10 @@
   event_name: "防卫军的做法"
   options:
     - option_name: "招呼小队成员休息"
+
+# 简
+- entry_name: "邂逅"
+  event_name: "特别对策"
+  options:
+    - option_name: "对对不起"
+    - option_name: "私闯民宅是违反规定的吧"
