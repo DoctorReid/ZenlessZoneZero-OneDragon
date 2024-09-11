@@ -82,9 +82,14 @@ def check_event_text_and_run(op: ZOperation, screen: MatLike, handlers: List[Eve
 
     ocr_result_list: List[str] = []
     mrl_list: List[MatchResultList] = []
+    bottom_opt_pos: Optional[MatchResult] = None  # 最下面的文本 用于兜底时候选择
     for ocr_result, mrl in ocr_result_map.items():
+        mrl.add_offset(area.left_top)
         ocr_result_list.append(ocr_result)
         mrl_list.append(mrl)
+
+        if bottom_opt_pos is None or mrl.max.center.y > bottom_opt_pos.center.y:
+            bottom_opt_pos = mrl.max
 
     handler_str_list = [gt(handler.target_cn) for handler in handlers]
 
@@ -113,18 +118,25 @@ def check_event_text_and_run(op: ZOperation, screen: MatLike, handlers: List[Eve
             target_handler = handler
             target_mrl = mrl
 
+    if op.ctx.env_config.is_debug:
+        # 调试模式下 不进行兜底 尽量补全事件选项
+        bottom_opt_pos = None
+
     if target_handler is not None:
         log.debug('识别事件选项 %s' % target_handler.target_cn)
-        return run_event_handler(op, target_handler, area, target_mrl.max)
+        return run_event_handler(op, target_handler, target_mrl.max)
     elif event_mark_handler is not None:
         log.debug('识别事件无选项 %s' % event_mark_handler.target_cn)
-        return click_empty(op)
+        return click_empty(op, bottom_opt_pos)
     else:
-        click_empty(op)  # 做一个兜底点击 感觉可以跟上面合并
+        click_empty(op, bottom_opt_pos)  # 做一个兜底点击 感觉可以跟上面合并
         return op.round_retry('未匹配合适的处理方法', wait=1)
 
 
-def click_empty(op: ZOperation) -> OperationRoundResult:
+def click_empty(op: ZOperation, bottom_opt_pos: Optional[MatchResult] = None) -> OperationRoundResult:
+    if bottom_opt_pos is not None:
+        op.ctx.controller.click(bottom_opt_pos.center)
+        time.sleep(0.2)
     return op.round_by_click_area('零号空洞-事件', '事件文本', click_left_top=True,
                                   success_wait=0.2, retry_wait=0.2)
 
@@ -149,16 +161,12 @@ def get_event_text_area(ctx: ZContext) -> ScreenArea:
     return ctx.screen_loader.get_area('零号空洞-事件', '事件文本')
 
 
-def run_event_handler(op: ZOperation, handler: EventOcrResultHandler, area: ScreenArea, mr: MatchResult) -> OperationRoundResult:
-    lt: Point = mr.left_top + area.left_top
-    rb: Point = mr.right_bottom + area.left_top
-    rect = Rect(lt.x, lt.y, rb.x, rb.y)
-
+def run_event_handler(op: ZOperation, handler: EventOcrResultHandler, mr: MatchResult) -> OperationRoundResult:
     if handler.method is None:
         if handler.click_result:
-            return click_rect(op, handler.status, rect, wait=handler.click_wait)
+            return click_rect(op, handler.status, mr.rect, wait=handler.click_wait)
     else:
-        return handler.method(handler.target_cn, rect)
+        return handler.method(handler.target_cn, mr.rect)
 
     return op.round_retry(f'未配置应对方法 {handler.status}', wait=1)
 
