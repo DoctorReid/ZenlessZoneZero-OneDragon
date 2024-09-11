@@ -123,7 +123,7 @@ class RoutineCleanup(ZOperation):
         )
 
     @node_from(from_name='下一步')
-    @operation_node(name='出战')
+    @operation_node(name='点击出战')
     def click_start(self) -> OperationRoundResult:
         screen = self.screenshot()
 
