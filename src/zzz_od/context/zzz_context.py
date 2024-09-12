@@ -2,6 +2,7 @@ from typing import Optional
 
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils import i18_utils
+from zzz_od.application.redemption_code.redemption_code_run_record import RedemptionCodeRunRecord
 
 
 class ZContext(OneDragonContext):
@@ -132,3 +133,5 @@ class ZContext(OneDragonContext):
         self.city_fund_record.check_and_update_status()
         self.life_on_line_record: LifeOnLineRunRecord = LifeOnLineRunRecord(self.life_on_line_config, self.current_instance_idx, game_refresh_hour_offset)
         self.life_on_line_record.check_and_update_status()
+        self.redemption_code_record: RedemptionCodeRunRecord = RedemptionCodeRunRecord(self.current_instance_idx, game_refresh_hour_offset)
+        self.redemption_code_record.check_and_update_status()

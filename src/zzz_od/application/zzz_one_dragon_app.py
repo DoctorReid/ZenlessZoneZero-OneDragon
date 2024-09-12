@@ -10,6 +10,7 @@ from zzz_od.application.hollow_zero.hollow_zero_app import HollowZeroApp
 from zzz_od.application.life_on_line.life_on_line_app import LifeOnLineApp
 from zzz_od.application.notorious_hunt.notorious_hunt_app import NotoriousHuntApp
 from zzz_od.application.random_play.random_play_app import RandomPlayApp
+from zzz_od.application.redemption_code.redemption_code_app import RedemptionCodeApp
 from zzz_od.application.scratch_card.scratch_card_app import ScratchCardApp
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
@@ -31,6 +32,7 @@ class ZOneDragonApp(OneDragonApp, ZApplication):
 
     def get_app_list(self) -> List[ZApplication]:
         return [
+            RedemptionCodeApp(self.ctx),
             EmailApp(self.ctx),
             RandomPlayApp(self.ctx),
             ScratchCardApp(self.ctx),

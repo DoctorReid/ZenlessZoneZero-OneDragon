@@ -1,3 +1,5 @@
+from one_dragon.gui.view.like_interface import LikeInterface
+
 try:
     import sys
 
@@ -94,6 +96,9 @@ try:
 
             # 游戏助手
             self.add_sub_interface(GameAssistantInterface(self.ctx, parent=self))
+
+            # 点赞
+            self.add_sub_interface(LikeInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)
 
             # 开发工具
             self.add_sub_interface(AppDevtoolsInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)

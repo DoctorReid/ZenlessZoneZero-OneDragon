@@ -46,3 +46,36 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 更多功能区域
+  pc_rect:
+  - 474
+  - 280
+  - 1440
+  - 904
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 兑换码输入框
+  pc_rect:
+  - 718
+  - 536
+  - 1198
+  - 610
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 兑换码兑换
+  pc_rect:
+  - 1030
+  - 688
+  - 1218
+  - 742
+  text: 兑换
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
