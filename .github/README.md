@@ -38,9 +38,11 @@
 
 <img alt="App" src="./image/app.png" width="512" height="256" />
 
-## 快速开始
+## 常见问题
 
-[快速开始](https://one-dragon.org/zzz/zh/quickstart.html)
+### **如遇问题请先阅读以下文档！⚠️**
+
+### [常见问题](https://one-dragon.org/zzz/zh/quickstart.html "安装失败先看这里！")
 
 ## 免责声明
 
