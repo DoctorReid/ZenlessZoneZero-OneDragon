@@ -54,7 +54,7 @@ def __debug_opts():
     from zzz_od.hollow_zero.hollow_runner import HollowRunner
     op = HollowRunner(ctx)
     from one_dragon.utils import debug_utils
-    screen = debug_utils.get_debug_image('13')
+    screen = debug_utils.get_debug_image('1')
     # from one_dragon.utils import os_utils
     # import os
     # from one_dragon.utils import cv2_utils

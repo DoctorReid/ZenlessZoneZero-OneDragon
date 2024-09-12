@@ -40,3 +40,4 @@
   options:
     - option_name: "全部还款"
     - option_name: "我只能还齿轮硬币"
+    - option_name: "不需要"
