@@ -1,0 +1,146 @@
+description: |
+  卡吕冬之简
+  配队：简-妮可-派派
+  作者：凯撒的小男友@bazhabazha
+  「简，你应该加入卡吕冬！」
+
+allow_ultimate:
+  - agent_name: "简"
+
+check_dodge_interval: 0.02
+check_agent_interval: [0.4, 0.6]
+check_special_attack_interval: [0.4, 0.6]
+check_ultimate_interval: [0.4, 0.6]
+check_chain_interval: 0.3
+check_quick_interval: 0.2
+
+t-carry: &carry
+  - states: "[前台-简]"
+    sub_states:
+      - state_template: "卡吕冬之简"
+
+t-support: &support
+  - states: "[前台-支援]"
+    sub_states:
+      - state_template: "站场模板-妮可站场"
+
+t-roamer: &roamer
+  - states: "[前台-派派]"
+    sub_states:
+      - state_template: "站场模板-派派"
+
+t-up: &up
+  - op_name: "按键-连携技-左"
+    post_delay: 0.2
+    repeat: 3
+
+t-down: &down
+  - op_name: "按键-连携技-右"
+    post_delay: 0.2
+    repeat: 3
+
+scenes:
+  - triggers: ["闪避识别-黄光", "闪避识别-红光", "闪避识别-声音"]
+    priority: 90
+    handlers:
+      - states: "[前台-简] & [闪避识别-黄光] & ![按键-切换角色-下一个,0,7]"
+        operations:
+          - op_name: "按键-切换角色-下一个"
+            post_delay: 0.1
+      - states: "[前台-简] & [闪避识别-黄光] & ![按键-切换角色-上一个,0,7]"
+        operations:
+          - op_name: "按键-切换角色-上一个"
+            post_delay: 0.1
+      - states: "[前台-简] & ([闪避识别-黄光] | [闪避识别-红光] | [闪避识别-声音] )"
+        operations:
+          - op_name: "按键-闪避"
+            way: "按下"
+            press: 0.1
+            post_delay: 0.15
+            repeat: 2
+          - op_name: "按键-普通攻击"
+            press: 0.3
+            post_delay: 0.1
+            repeat: 2
+      - states: "[前台-支援] & [闪避识别-黄光]"
+        operations:
+          - op_name: "按键-切换角色-上一个"
+            post_delay: 0.1
+          - op_name: "按键-普通攻击"
+            press: 0.3
+            post_delay: 0.05
+            repeat: 4
+      - states: "[前台-派派] & [闪避识别-黄光]"
+        operations:
+          - op_name: "按键-切换角色-下一个"
+            post_delay: 0.1
+      - states: "![前台-简] & ([闪避识别-黄光] | [闪避识别-红光] | [闪避识别-声音] )"
+        operations:
+          - op_name: "按键-闪避"
+            press: 0.01
+            post_delay: 0.15
+            repeat: 2
+          - op_name: "按键-普通攻击"
+            press: 0.3
+            post_delay: 0.1
+            repeat: 2
+
+  - triggers: ["按键可用-连携技"]
+    priority: 99
+    interval: 0.2
+    handlers:
+      - states: "(![连携技-1-支援] & ![连携技-1-派派] & ![连携技-1-简]) | (![连携技-1-派派] & [连携技-2-简])"
+        operations: *down
+      - states: "[连携技-1-支援] | [连携技-1-派派] | [连携技-1-简]"
+        operations: *up
+
+  - triggers: ["按键可用-快速支援"]
+    priority: 98
+    handlers:
+      - states: "[按键可用-快速支援,0,0.2]"
+        sub_states:
+          - states: "![前台-简]"
+            operations:
+              - op_name: "按键-移动-前"
+                way: "松开"
+              - op_name: "按键-切换角色-下一个"
+                post_delay: 0.2
+              - op_name: "按键-闪避"
+                post_delay: 0.3
+
+  - triggers: ["前台-支援"]
+    priority: 3
+    interval: 1
+    handlers:
+      - states: "[前台-支援]"
+        sub_states: *support
+
+  - triggers: ["前台-派派"]
+    priority: 1
+    interval: 1
+    handlers:
+      - states: "[前台-派派]"
+        sub_states: *roamer
+
+  - triggers: ["前台-简"]
+    priority: 4
+    interval: 0.2
+    handlers:
+      - states: "[前台-简]"
+        sub_states: *carry
+
+  - triggers: []
+    priority: 2
+    interval: 0.2
+    handlers:
+      - state_template: "通用模板-锁定敌人"
+      - states: "![前台-简]"
+        sub_states:
+          - states: "[前台-支援] & ![按键-切换角色-上一个,0,3]"
+            operations:
+              - op_name: "按键-切换角色-上一个"
+                post_delay: 0.1
+          - states: "[前台-派派] & ![按键-切换角色-下一个,0,3]"
+            operations:
+              - op_name: "按键-切换角色-下一个"
+                post_delay: 0.1
