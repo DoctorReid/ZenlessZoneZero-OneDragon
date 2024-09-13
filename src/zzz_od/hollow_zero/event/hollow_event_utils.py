@@ -273,6 +273,10 @@ def check_screen(ctx: ZContext, screen: MatLike) -> Optional[str]:
     if in_hollow is not None:
         return in_hollow
 
+    old_capital = check_old_capital(ctx, screen)
+    if old_capital is not None:
+        return old_capital
+
 
 def check_battle_screen(ctx: ZContext, screen: MatLike) -> Optional[str]:
     result = screen_utils.find_area(ctx, screen, '战斗画面', '按键-普通攻击')
@@ -294,3 +298,14 @@ def check_in_hollow(ctx: ZContext, screen: MatLike) -> Optional[str]:
 
     if result == FindAreaResultEnum.TRUE:
         return HollowZeroSpecialEvent.HOLLOW_INSIDE.value.event_name
+
+
+def check_old_capital(ctx: ZContext, screen: MatLike) -> Optional[str]:
+    """
+    旧都失物 左上角的返回
+    """
+    result = screen_utils.find_area(ctx=ctx, screen=screen,
+                                    screen_name='零号空洞-事件', area_name='旧都失物-返回')
+
+    if result == FindAreaResultEnum.TRUE:
+        return HollowZeroSpecialEvent.OLD_CAPITAL.value.event_name

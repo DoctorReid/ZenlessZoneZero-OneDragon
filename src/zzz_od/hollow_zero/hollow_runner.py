@@ -18,6 +18,7 @@ from zzz_od.hollow_zero.event.critical_stage import CriticalStage
 from zzz_od.hollow_zero.event.drop_resonium import DropResonium, DropResonium2
 from zzz_od.hollow_zero.event.full_in_bag import FullInBag
 from zzz_od.hollow_zero.event.normal_event_handler import NormalEventHandler
+from zzz_od.hollow_zero.event.old_capital import OldCapital
 from zzz_od.hollow_zero.event.remove_corruption import RemoveCorruption
 from zzz_od.hollow_zero.event.swift_supply import SwiftSupply
 from zzz_od.hollow_zero.event.switch_resonium import SwitchResonium
@@ -64,6 +65,7 @@ class HollowRunner(ZOperation):
             HollowZeroSpecialEvent.CRITICAL_STAGE.value.event_name: CriticalStage,
             HollowZeroSpecialEvent.IN_BATTLE.value.event_name: HollowBattle,
             HollowZeroSpecialEvent.FULL_IN_BAG.value.event_name: FullInBag,
+            HollowZeroSpecialEvent.OLD_CAPITAL.value.event_name: OldCapital,
         }
         self._last_save_image_time: float = 0
         self._last_move_time: float = 0  # 上一次移动的时间

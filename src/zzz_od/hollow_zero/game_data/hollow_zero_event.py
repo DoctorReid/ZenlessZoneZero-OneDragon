@@ -86,3 +86,4 @@ class HollowZeroSpecialEvent(Enum):
     MISSION_COMPLETE = HallowZeroEvent('副本通关')
 
     FULL_IN_BAG = HallowZeroEvent('背包已满')
+    OLD_CAPITAL = HallowZeroEvent('旧都失物')

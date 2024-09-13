@@ -263,8 +263,11 @@ def __debug_current_agent():
         os_utils.get_path_under_work_dir('.debug', 'devtools', 'screen', 'hollow_zero_support'),
         'laikaen.png'
     ))
+    from one_dragon.utils import debug_utils
+    screen = debug_utils.get_debug_image('3')
     agent_list = ctx.hollow.check_agent_list(screen)
     print([i.agent_name for i in agent_list if i is not None])
+    print(op._get_support_agent(screen).agent_name)
 
 
 def __debug_check_screen():
@@ -284,5 +287,5 @@ def __debug_check_screen():
 if __name__ == '__main__':
     # __debug()
     # __debug_support_agent()
-    # __debug_current_agent()
-    __debug_check_screen()
+    __debug_current_agent()
+    # __debug_check_screen()
