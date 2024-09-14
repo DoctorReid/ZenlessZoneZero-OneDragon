@@ -142,7 +142,8 @@ class Transport(ZOperation):
         for area_tp in area_tp_list:
             if area_tp == self.tp_name:
                 break
-            left_cnt += 1
+            if area_tp in display_tp_list:
+                left_cnt += 1
 
         if left_cnt > 0:  # 往右滑
             from_point = area.center
@@ -153,7 +154,8 @@ class Transport(ZOperation):
             end_point = from_point + Point(150, 0)  # 跟上面滑动距离稍微不一样 防止一直重复左右都找不到
             self.ctx.controller.drag_to(start=from_point, end=end_point)
 
-        return self.round_retry(wait=0.5)
+        # 返回数量只是为了测试 实际不会用到
+        return self.round_retry(wait=0.5, data=left_cnt)
 
     @node_from(from_name='选择传送点')
     @operation_node(name='点击传送')
