@@ -15,10 +15,10 @@ area_list:
   template_match_threshold: 0.7
 - area_name: 账号密码
   pc_rect:
-  - 800
-  - 738
-  - 922
-  - 808
+  - 608
+  - 728
+  - 1314
+  - 804
   text: 账号密码
   lcs_percent: 0.6
   template_sub_dir: ''

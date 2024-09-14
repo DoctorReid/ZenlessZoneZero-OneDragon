@@ -40,10 +40,12 @@ class EnterGame(ZOperation):
         self.click_area('打开游戏', '账号输入区域')
         time.sleep(0.5)
         self.ctx.controller.keyboard_controller.keyboard.type(self.ctx.game_config.account)
+        time.sleep(1.5)
 
         self.click_area('打开游戏', '密码输入区域')
         time.sleep(0.5)
         self.ctx.controller.keyboard_controller.keyboard.type(self.ctx.game_config.password)
+        time.sleep(1.5)
 
         self.click_area('打开游戏', '同意按钮')
         time.sleep(0.5)
