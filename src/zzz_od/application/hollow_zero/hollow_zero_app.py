@@ -10,6 +10,7 @@ from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroExtraTas
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.hollow_zero.event import hollow_event_utils
+from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroSpecialEvent
 from zzz_od.hollow_zero.hollow_runner import HollowRunner
 from zzz_od.operation.back_to_normal_world import BackToNormalWorld
 from zzz_od.operation.compendium.tp_by_compendium import TransportByCompendium
@@ -51,7 +52,10 @@ class HollowZeroApp(ZApplication):
         screen = self.screenshot()
         event_name = hollow_event_utils.check_screen(self.ctx, screen)
 
-        if event_name is not None:
+        if (event_name is not None
+                and event_name not in [
+                    HollowZeroSpecialEvent.OLD_CAPITAL.value.event_name,  # 旧都失物是左上角的返回符合 有较多地方存在 不适合这里判断
+                ]):
             self.level = -1
             self.phase = -1
             return self.round_success(HollowZeroApp.STATUS_IN_HOLLOW)
@@ -144,8 +148,7 @@ class HollowZeroApp(ZApplication):
     @node_from(from_name='出战')
     @operation_node(name='自动运行')
     def auto_run(self) -> OperationRoundResult:
-        self.ctx.hollow.init_level_info(self.mission_type_name, self.mission_name, self.level, self.phase)
-        self.ctx.hollow.init_event_yolo(True)
+        self.ctx.hollow.init_before_hollow_start(self.mission_type_name, self.mission_name, self.level, self.phase)
         self.ctx.hollow_zero_record.daily_run_times = self.ctx.hollow_zero_record.daily_run_times + 1
         op = HollowRunner(self.ctx)
         return self.round_by_op(op.execute())

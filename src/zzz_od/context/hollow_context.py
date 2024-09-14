@@ -4,6 +4,7 @@ import random
 
 import cv2
 from cv2.typing import MatLike
+from paddle.jit import set_code_level
 from typing import List, Optional
 
 from one_dragon.base.geometry.point import Point
@@ -40,41 +41,6 @@ class HollowContext:
         self._last_route: Optional[RouteSearchRoute] = None  # 上一次想走的路
         self._last_current_node: Optional[HollowZeroMapNode] = None  # 上一次当前所在的点
         self.speed_up_clicked: bool = False  # 是否已经点击加速
-
-    def check_agent_list(self, screen: MatLike) -> Optional[List[Agent]]:
-        """
-        识别空洞画面里的角色列表
-        """
-        check_agent_area = [
-            self.ctx.screen_loader.get_area('零号空洞-事件', ('角色-%d' % i))
-            for i in range(1, 4)
-        ]
-        area_img = [
-            cv2_utils.crop_image_only(screen, i.rect)
-            for i in check_agent_area
-        ]
-
-        result_agent_list: List[Optional[Agent]] = []
-        future_list: List[Future] = []
-
-        for img in area_img:
-            future_list.append(_hollow_context_executor.submit(self._match_agent_in, img, self.agent_list))
-
-        any_not_none: bool = False
-        for future in future_list:
-            try:
-                result = future.result()
-                result_agent_list.append(result)
-                if result is not None:
-                    any_not_none = True
-            except Exception:
-                log.error('识别角色头像失败', exc_info=True)
-                result_agent_list.append(None)
-
-        if not any_not_none:
-            return None
-        self.agent_list = result_agent_list
-        return self.agent_list
 
     def _match_agent_in(self, img: MatLike, possible_agents: Optional[List[Agent]] = None) -> Optional[Agent]:
         """
@@ -131,17 +97,6 @@ class HollowContext:
         merge_map = hollow_map_utils.merge_map(self.map_results)
 
         return merge_map
-
-    def check_before_move(self, screen: MatLike) -> None:
-        """
-        移动前 进行识别
-        :param screen:
-        :return:
-        """
-        if self.agent_list is None:
-            self.check_agent_list(screen)
-        if self.level_info is None or self.level_info.level is None:
-            pass
 
     def get_next_to_move(self, current_map: HollowZeroMap) -> Optional[HollowZeroMapNode]:
         """
@@ -286,9 +241,23 @@ class HollowContext:
         """
         if self.agent_list is None:
             return
-        if pos - 1 >= len(self.agent_list):
+        idx = pos - 1
+        if idx >= len(self.agent_list):
             return
-        self.agent_list[pos - 1] = new_agent
+        if self.agent_list[idx] is None:  # 接替的位置为空 直接赋值
+            self.agent_list[idx] = new_agent
+        else:
+            none_idx: int = -1
+            for i in range(len(self.agent_list)):
+                if self.agent_list[i] is None:
+                    none_idx = i
+                    break
+
+            if none_idx == -1:  # 原来就是满人 直接替换赋值
+                self.agent_list[idx] = new_agent
+            else:  # 原来不是满人 新加入的按位置赋值 原位置的角色移动到空位
+                self.agent_list[none_idx] = self.agent_list[idx]
+                self.agent_list[idx] = new_agent
 
     def had_been_entry(self, entry_name: str) -> bool:
         """
@@ -343,14 +312,9 @@ class HollowContext:
         else:
             return []
 
-    def check_info_before_move(self, screen: MatLike, current_map: HollowZeroMap) -> bool:
-        self._check_agent_list(screen)
+    def check_info_before_move(self, screen: MatLike, current_map: HollowZeroMap):
+        self.check_agent_list(screen, skip_if_checked=True)  # 平时可以不识别
         self._check_mission_level(screen, current_map)
-
-    def _check_agent_list(self, screen: MatLike) -> None:
-        if self.agent_list is not None:
-            return
-        self.check_agent_list(screen)
 
     def _check_mission_level(self, screen: MatLike, current_map: HollowZeroMap) -> None:
         """
@@ -386,6 +350,63 @@ class HollowContext:
             if current_map.contains_entry('投机客') or current_map.contains_entry('门扉禁闭-财富'):
                 level_info.mission_type_name = '施工废墟'
 
+    def check_agent_list(self, screen: MatLike, skip_if_checked: bool = False) -> Optional[List[Agent]]:
+        """
+        识别空洞画面里的角色列表
+        """
+        if skip_if_checked and self.agent_list is not None:
+            return self.agent_list
+
+        check: bool = False
+        if self.agent_list is not None:
+            check = self._check_agent_list_in_parallel(screen, self.agent_list)
+        if not check: # 靠原来的识别不到 尝试全部识别
+            self._check_agent_list_in_parallel(screen, None)
+
+        return self.agent_list
+
+    def _check_agent_list_in_parallel(self, screen: MatLike, possible_agents: Optional[List[Agent]] = None) -> bool:
+        check_agent_area = [
+            self.ctx.screen_loader.get_area('零号空洞-事件', ('角色-%d' % i))
+            for i in range(1, 4)
+        ]
+        area_img = [
+            cv2_utils.crop_image_only(screen, i.rect)
+            for i in check_agent_area
+        ]
+
+        result_agent_list: List[Optional[Agent]] = []
+        future_list: List[Future] = []
+
+        for img in area_img:
+            future_list.append(_hollow_context_executor.submit(self._match_agent_in, img, possible_agents))
+
+        any_not_none: bool = False
+        for future in future_list:
+            try:
+                result = future.result()
+                result_agent_list.append(result)
+                if result is not None:
+                    any_not_none = True
+            except Exception:
+                log.error('识别角色头像失败', exc_info=True)
+                result_agent_list.append(None)
+
+        if any_not_none:  # 由于有空格存在 任意一个识别到就算ok
+            self.agent_list = result_agent_list
+            return True
+        else:
+            return False
+
+    def init_before_hollow_start(self, mission_type_name: str, mission_name: str,
+                                 level: int = 1, phase: int = 1) -> None:
+        """
+        进入空洞时 进行对应的初始化
+        :return:
+        """
+        self.ctx.hollow.init_event_yolo(True)
+        self.init_level_info(mission_type_name, mission_name, level, phase)
+        self.agent_list = None
 
 def __debug_draw_detect():
     ctx = ZContext()

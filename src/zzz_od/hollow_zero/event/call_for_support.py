@@ -128,7 +128,12 @@ class CallForSupport(ZOperation):
         order_targets = targets[start_idx:] + targets[:start_idx]
 
         if agent_list[1] is None:
-            return 2
+            if new_agent.agent_id == order_targets[1]:  # 新的应该在2号位
+                return 2
+            elif new_agent.agent_id == order_targets[2]:  # 新的应该在3号位 需要先插入到1号位
+                return 1
+            else:  # 新角色不在目标列表 随便放置到2号位
+                return 2
         elif agent_list[2] is None:
             if agent_list[1].agent_id == order_targets[1]:  # 当前第2位位置正确
                 return 3
@@ -208,6 +213,7 @@ class CallForSupport(ZOperation):
             RejectOption('这次不用快回去吃饭吧'),  # 苍角
             RejectOption('谢谢你的好意下次一定'),  # 赛斯
             RejectOption('这点小事不用专家出马'),  # 简
+            RejectOption('下一次一起玩'),  # 猫又
         ]
 
         part = cv2_utils.crop_image_only(screen, area.rect)
@@ -264,7 +270,7 @@ def __debug_current_agent():
         'laikaen.png'
     ))
     from one_dragon.utils import debug_utils
-    screen = debug_utils.get_debug_image('3')
+    screen = debug_utils.get_debug_image('1')
     agent_list = ctx.hollow.check_agent_list(screen)
     print([i.agent_name for i in agent_list if i is not None])
     print(op._get_support_agent(screen).agent_name)
