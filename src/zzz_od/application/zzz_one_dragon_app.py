@@ -50,6 +50,11 @@ def __debug():
     ctx = ZContext()
     ctx.init_by_config()
 
+    if ctx.env_config.auto_update:
+        from one_dragon.utils.log_utils import log
+        log.info('开始自动更新...')
+        ctx.git_service.fetch_latest_code()
+
     app = ZOneDragonApp(ctx)
     app.execute()
 

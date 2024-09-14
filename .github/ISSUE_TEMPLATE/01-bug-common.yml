@@ -9,10 +9,8 @@ body:
       value: |
         ## 前置须知
         
-        请先将代码更新至最新版本尝试是否依然有问题。
-
-        请先阅读以下文档，里面可能就有你想要的答案
-        - [运行前须知](https://github.com/DoctorReid/ZenlessZoneZero-OneDragon/wiki#2-%E8%BF%90%E8%A1%8C%E5%89%8D%E9%A1%BB%E7%9F%A5)
+        - 请先将代码更新至最新版本尝试是否依然有问题。
+        - 请先阅读最新的[使用前须知](https://one-dragon.org/zzz/zh/quickstart.html#_2-%E4%BD%BF%E7%94%A8%E5%89%8D%E9%A1%BB%E7%9F%A5)，确保设置正确。
 
   - type: markdown
     attributes:
