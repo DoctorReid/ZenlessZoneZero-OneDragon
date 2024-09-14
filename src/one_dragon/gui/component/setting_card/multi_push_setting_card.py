@@ -31,9 +31,14 @@ class MultiPushSettingCard(SettingCardBase):
         """
         SettingCardBase.__init__(self, icon, title, content, parent)
 
+        btn_layout = QHBoxLayout()
+        btn_layout.setSpacing(16)
+        btn_layout.addStretch(1)
         for i in range(len(btn_list)):
-            self.hBoxLayout.addWidget(btn_list[i], alignment=Qt.AlignmentFlag.AlignRight)
-        self.hBoxLayout.setSpacing(16)
+            btn_layout.addWidget(btn_list[i], alignment=Qt.AlignmentFlag.AlignRight)
+        btn_layout.addSpacing(16)
+
+        self.hBoxLayout.addLayout(btn_layout, 1)
 
 
 class MultiLineSettingCard(SettingCardBase):

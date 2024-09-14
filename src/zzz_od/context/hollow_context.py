@@ -1,10 +1,9 @@
 import time
 from concurrent.futures import ThreadPoolExecutor, Future
-import random
 
 import cv2
+import random
 from cv2.typing import MatLike
-from paddle.jit import set_code_level
 from typing import List, Optional
 
 from one_dragon.base.geometry.point import Point

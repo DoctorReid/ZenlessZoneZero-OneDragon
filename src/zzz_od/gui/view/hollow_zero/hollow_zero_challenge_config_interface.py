@@ -8,6 +8,7 @@ from one_dragon.gui.component.interface.vertical_scroll_interface import Vertica
 from one_dragon.gui.component.row_widget import RowWidget
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiPushSettingCard
+from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_op_config_list
@@ -86,6 +87,11 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
         self.agents_opt = MultiPushSettingCard(btn_list=self.agent_btn_list, icon=FluentIcon.PEOPLE,
                                                title='目标配队', content='按照自动战斗配置 选择角色位置')
         widget.add_widget(self.agents_opt)
+
+        self.buy_only_priority_opt = SwitchSettingCard(icon=FluentIcon.BROOM,
+                                                       title='仅购买优先级', content='邦布商人购买时只购买符合优先级的')
+        self.buy_only_priority_opt.value_changed.connect(self._on_buy_only_priority_changed)
+        widget.add_widget(self.buy_only_priority_opt)
 
         self.auto_battle_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='自动战斗')
         self.auto_battle_opt.value_changed.connect(self._on_auto_battle_config_changed)
@@ -176,6 +182,7 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
         self.agents_opt.setDisabled(not chosen or is_sample)
         for agent_btn in self.agent_btn_list:
             agent_btn.setDisabled(not chosen or is_sample)
+        self.buy_only_priority_opt.setDisabled(not chosen or is_sample)
         self.resonium_priority_input.setDisabled(not chosen or is_sample)
         self.event_priority_input.setDisabled(not chosen or is_sample)
 
@@ -193,6 +200,7 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
                     btn.setCurrentIndex(-1)
                 else:
                     btn.setCurrentIndex(btn.findData(agents[i]))
+            self.buy_only_priority_opt.setValue(self.chosen_config.buy_only_priority)
             self.resonium_priority_input.setPlainText(self.chosen_config.resonium_priority_str)
             self.event_priority_input.setPlainText(self.chosen_config.event_priority_str)
 
@@ -327,6 +335,11 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
 
         self.chosen_config.module_name = value
         self.chosen_config.save()
+
+    def _on_buy_only_priority_changed(self, value: bool):
+        if self.chosen_config is None:
+            return
+        self.chosen_config.buy_only_priority = value
 
     def _on_auto_battle_config_changed(self, index, value) -> None:
         if self.chosen_config is None:

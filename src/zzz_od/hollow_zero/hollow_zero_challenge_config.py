@@ -140,6 +140,19 @@ class HollowZeroChallengeConfig(YamlConfig):
     def avoid(self, new_value: List[str]):
         self.update('avoid', new_value)
 
+    @property
+    def buy_only_priority(self) -> bool:
+        """
+        只购买优先级中的内容
+        :return:
+        """
+        return self.get('buy_only_priority', True)
+
+    @buy_only_priority.setter
+    def buy_only_priority(self, new_value: bool):
+        self.update('buy_only_priority', new_value)
+
+
 
 def get_all_hollow_zero_challenge_config() -> List[HollowZeroChallengeConfig]:
     config_list: List[HollowZeroChallengeConfig] = []

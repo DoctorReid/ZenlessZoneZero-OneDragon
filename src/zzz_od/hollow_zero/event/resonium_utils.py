@@ -48,11 +48,12 @@ def get_to_choose_list(ctx: ZContext, screen: MatLike, target_cn: str, target_lc
     return result_list
 
 
-def choose_resonium_by_priority(item_list: List[Resonium], priority_list: List[str]):
+def choose_resonium_by_priority(item_list: List[Resonium], priority_list: List[str], only_priority: bool = False):
     """
     按优先级 找出第一个
     :param item_list:
     :param priority_list:
+    :param only_priority: 结果只保留优先级的
     :return:
     """
     idx_list: List[int] = []  # 最终的下标排序结果
@@ -71,6 +72,9 @@ def choose_resonium_by_priority(item_list: List[Resonium], priority_list: List[s
                 if item.name == priority_item:  # 名称符合
                     idx_list.append(i)
                     break
+
+    if only_priority:
+        return idx_list
 
     # 不符合优先级的
     for level in ['S', 'A', 'B', '']:
