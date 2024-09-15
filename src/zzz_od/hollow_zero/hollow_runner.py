@@ -163,6 +163,11 @@ class HollowRunner(ZOperation):
         :return:
         """
         level_info = self.ctx.hollow.level_info
+
+        if self.ctx.hollow_zero_record.is_finished_by_day():
+            # 已经完成了
+            return True
+
         # 完成指定次数后才会触发刷业绩的选项
         if not self.ctx.hollow_zero_record.is_finished_by_weekly_times():
             return False

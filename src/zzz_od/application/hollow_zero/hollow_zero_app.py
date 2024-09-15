@@ -67,7 +67,7 @@ class HollowZeroApp(ZApplication):
         else:
             return self.round_retry(result.status, wait=1)
 
-
+    @node_from(from_name='初始画面识别', success=False)
     @node_from(from_name='初始画面识别', status='信息')
     @operation_node(name='传送')
     def tp(self) -> OperationRoundResult:
