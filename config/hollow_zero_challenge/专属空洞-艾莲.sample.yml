@@ -8,3 +8,4 @@ resonium_priority:
 auto_battle: 专属配队-艾莲
 event_priority:
 - ''
+path_finding: 默认
