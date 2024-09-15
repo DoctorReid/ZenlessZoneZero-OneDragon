@@ -31,7 +31,7 @@ class LifeOnLineRunInterface(AppRunInterface):
         content = ColumnWidget()
 
         self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='使用说明', text='前往',
-                                      url='https://one-dragon.org/zzz/zh/docs/feat_one_dragon.html')
+                                      url='https://one-dragon.org/zzz/zh/docs/feat_game_assistant.html#_2-%E6%8B%BF%E5%91%BD%E9%AA%8C%E6%94%B6')
         self.help_opt.setContent('先看说明 再使用与提问')
         content.add_widget(self.help_opt)
 

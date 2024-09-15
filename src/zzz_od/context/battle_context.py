@@ -15,7 +15,7 @@ from one_dragon.utils import cv2_utils, debug_utils, thread_utils, cal_utils, st
 from one_dragon.utils.log_utils import log
 from zzz_od.auto_battle.agent_state import agent_state_checker
 from zzz_od.context.zzz_context import ZContext
-from zzz_od.game_data.agent import Agent, AgentEnum, AgentStateCheckWay
+from zzz_od.game_data.agent import Agent, AgentEnum, AgentStateCheckWay, CommonAgentStateEnum, AgentStateDef
 
 _battle_check_executor = ThreadPoolExecutor(thread_name_prefix='od_battle_check', max_workers=16)
 
@@ -47,7 +47,7 @@ class AgentInfo:
 
     def __init__(self):
         self.agent: Optional[Agent] = None
-        self.energy: float = 0  # 能量
+        self.energy: int = 0  # 能量
 
 
 class TeamInfo:
@@ -407,6 +407,7 @@ class BattleContext:
 
             screen_agent_list = self._check_agent_in_parallel(screen, screenshot_time)
             self._check_front_agent_state(screen, screenshot_time, screen_agent_list)
+            self._check_energy_in_parallel(screen, screenshot_time, screen_agent_list)
 
         except Exception:
             log.error('识别画面角色失败', exc_info=True)
@@ -938,23 +939,78 @@ class BattleContext:
         if front_agent.state_list is None:
             return
 
-        for state in front_agent.state_list:
-            if self._to_check_states is not None and state.state_name not in self._to_check_states:
-                continue
-            if state.check_way == AgentStateCheckWay.COLOR_RANGE_CONNECT:
-                value = agent_state_checker.check_cnt_by_color_range(self.ctx, screen, state)
-                self.ctx.dispatch_event(state.state_name, StateEvent(screenshot_time, value=value))
-            if state.check_way == AgentStateCheckWay.COLOR_RANGE_EXIST:
-                value = agent_state_checker.check_exist_by_color_range(self.ctx, screen, state)
-                if value:
-                    self.ctx.dispatch_event(state.state_name, StateEvent(screenshot_time))
-            elif state.check_way == AgentStateCheckWay.BACKGROUND_COLOR_RANGE_LENGTH:
-                value = agent_state_checker.check_length_by_background(self.ctx, screen, state)
-                self.ctx.dispatch_event(state.state_name, StateEvent(screenshot_time, value=value))
-            elif state.check_way == AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH:
-                value = agent_state_checker.check_length_by_color_range(self.ctx, screen, state)
-                self.ctx.dispatch_event(state.state_name, StateEvent(screenshot_time, value=value))
+        self._check_agent_state_in_parallel(screen, screenshot_time, front_agent.state_list)
 
+    def _check_agent_state_in_parallel(self, screen: MatLike, screenshot_time: float, agent_state_list: List[AgentStateDef]) -> None:
+        """
+        并行识别多个角色状态
+        :param screen: 游戏画面
+        :param screenshot_time: 截图时间
+        :param agent_state_list: 需要识别的状态列表
+        :return:
+        """
+        future_list: List[Future] = []
+        for state in agent_state_list:
+            future_list.append(_battle_check_executor.submit(self._check_agent_state, screen, screenshot_time, state))
+
+        for future in future_list:
+            try:
+                future.result()
+            except Exception:
+                log.error('识别角色状态失败', exc_info=True)
+
+    def _check_agent_state(self, screen: MatLike, screenshot_time: float, state: AgentStateDef) -> None:
+        """
+        识别一个角色状态
+        :param screen:
+        :param screenshot_time:
+        :return:
+        """
+        if self._to_check_states is not None and state.state_name not in self._to_check_states:
+            return
+        if state.check_way == AgentStateCheckWay.COLOR_RANGE_CONNECT:
+            value = agent_state_checker.check_cnt_by_color_range(self.ctx, screen, state)
+            self.ctx.dispatch_event(state.state_name, StateEvent(screenshot_time, value=value))
+        if state.check_way == AgentStateCheckWay.COLOR_RANGE_EXIST:
+            value = agent_state_checker.check_exist_by_color_range(self.ctx, screen, state)
+            if value:
+                self.ctx.dispatch_event(state.state_name, StateEvent(screenshot_time))
+        elif state.check_way == AgentStateCheckWay.BACKGROUND_GRAY_RANGE_LENGTH:
+            value = agent_state_checker.check_length_by_background_gray(self.ctx, screen, state)
+            self.ctx.dispatch_event(state.state_name, StateEvent(screenshot_time, value=value))
+        elif state.check_way == AgentStateCheckWay.FOREGROUND_GRAY_RANGE_LENGTH:
+            value = agent_state_checker.check_length_by_foreground_gray(self.ctx, screen, state)
+            self.ctx.dispatch_event(state.state_name, StateEvent(screenshot_time, value=value))
+        elif state.check_way == AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH:
+            value = agent_state_checker.check_length_by_color_range(self.ctx, screen, state)
+            self.ctx.dispatch_event(state.state_name, StateEvent(screenshot_time, value=value))
+
+    def _check_energy_in_parallel(self, screen: MatLike, screenshot_time: float, screen_agent_list: List[Agent]) -> None:
+        """
+        识别角色能量
+        :param screen:
+        :param screenshot_time:
+        :param screen_agent_list:
+        :return:
+        """
+        if screen_agent_list is None or len(screen_agent_list) == 0:
+            return
+
+        if len(screen_agent_list) == 3:
+            state_list = [
+                CommonAgentStateEnum.ENERGY_31.value,
+                CommonAgentStateEnum.ENERGY_32.value,
+                CommonAgentStateEnum.ENERGY_33.value,
+            ]
+        elif len(screen_agent_list) == 2:
+            state_list = [
+                CommonAgentStateEnum.ENERGY_21.value,
+                CommonAgentStateEnum.ENERGY_22.value,
+            ]
+        else:
+            state_list = [CommonAgentStateEnum.ENERGY_21.value]
+
+        self._check_agent_state_in_parallel(screen, screenshot_time, state_list)
 
 def __debug():
     ctx = ZContext()

@@ -19,13 +19,9 @@ def check_cnt_by_color_range(
     :param state_def: 角色状态定义
     :return:
     """
-    area = ctx.screen_loader.get_area('角色状态', state_def.state_name)
-    part = cv2_utils.crop_image_only(screen, area.rect)
-    if area.template_id is not None and len(area.template_id) > 0:
-        part_mask = ctx.template_loader.get_template_mask(area.template_sub_dir, area.template_id)
-        to_check = cv2.bitwise_and(part, part, mask=part_mask)
-    else:
-        to_check = part
+    template = ctx.template_loader.get_template('agent_state', state_def.template_id)
+    part = cv2_utils.crop_image_only(screen, template.get_template_rect_by_point())
+    to_check = cv2.bitwise_and(part, part, mask=template.mask)
 
     mask = cv2.inRange(to_check, state_def.lower_color, state_def.upper_color)
     # cv2_utils.show_image(mask, wait=0)
@@ -57,27 +53,76 @@ def check_exist_by_color_range(
     return cnt > 0
 
 
-def check_length_by_background(
+def check_length_by_background_gray(
         ctx: ZContext,
         screen: MatLike,
         state_def: AgentStateDef
 ) -> int:
     """
-    在指定区域内，按背景色(黑色)来反推横条的长度
+    在指定区域内，按背景的灰度色来反推横条的长度
     :param ctx: 上下文
     :param screen: 游戏画面
     :param state_def: 角色状态定义
     :return: 0~100
     """
-    area = ctx.screen_loader.get_area('角色状态', state_def.state_name)
-    part = cv2_utils.crop_image_only(screen, area.rect)
+    template = ctx.template_loader.get_template('agent_state', state_def.template_id)
+    part = cv2_utils.crop_image_only(screen, template.get_template_rect_by_point())
+    # 模版需要保证高度是1
     to_check = part
 
     gray = cv2.cvtColor(to_check, cv2.COLOR_RGB2GRAY).mean(axis=0)
-    bg_cnt = np.sum((gray >= state_def.lower_color) & (gray <= state_def.upper_color))
+    mask = (gray >= state_def.lower_color) & (gray <= state_def.upper_color)
+    mask_idx = np.where(mask)
     total_cnt = len(gray)
 
-    return 100 - int(bg_cnt * 100.0 / total_cnt)
+    left = np.min(mask_idx, initial=total_cnt+1)
+    right = np.max(mask_idx, initial=0)
+    bg_cnt = right - left + 1
+
+    if bg_cnt < 0:
+        bg_cnt = 0
+    if bg_cnt > total_cnt:
+        bg_cnt = total_cnt
+
+    fg_cnt = total_cnt - bg_cnt
+
+    return int(fg_cnt * 100.0 / total_cnt)
+
+
+def check_length_by_foreground_gray(
+        ctx: ZContext,
+        screen: MatLike,
+        state_def: AgentStateDef
+) -> int:
+    """
+    在指定区域内，按背景的灰度色来反推横条的长度
+    :param ctx: 上下文
+    :param screen: 游戏画面
+    :param state_def: 角色状态定义
+    :return: 0~100
+    """
+    template = ctx.template_loader.get_template('agent_state', state_def.template_id)
+    part = cv2_utils.crop_image_only(screen, template.get_template_rect_by_point())
+    # 模版需要保证高度是1
+    gray = cv2.cvtColor(part, cv2.COLOR_RGB2GRAY).mean(axis=0)
+    if state_def.split_color_range is not None:
+        split_mask = (gray >= state_def.split_color_range[0]) & (gray <= state_def.split_color_range[1])
+        gray = gray[np.where(split_mask == False)]
+
+    mask = (gray >= state_def.lower_color) & (gray <= state_def.upper_color)
+    mask_idx = np.where(mask)
+    total_cnt = len(gray)
+
+    left = np.min(mask_idx, initial=total_cnt+1)
+    right = np.max(mask_idx, initial=0)
+    fg_cnt = right - left + 1
+
+    if fg_cnt < 0:
+        fg_cnt = 0
+    if fg_cnt > total_cnt:
+        fg_cnt = total_cnt
+
+    return int(fg_cnt * state_def.max_length / total_cnt)
 
 
 def check_length_by_color_range(
@@ -92,14 +137,22 @@ def check_length_by_color_range(
     :param state_def: 角色状态定义
     :return: 0~100
     """
-    area = ctx.screen_loader.get_area('角色状态', state_def.state_name)
-    part = cv2_utils.crop_image_only(screen, area.rect)
+    template = ctx.template_loader.get_template('agent_state', state_def.template_id)
+    part = cv2_utils.crop_image_only(screen, template.get_template_rect_by_point())
     to_check = part
 
     mask = cv2.inRange(to_check, state_def.lower_color, state_def.upper_color)
-
-    bg_cnt = np.sum(mask == 255)
+    mask_idx = np.where(mask == 255)
     total_cnt = mask.shape[1]
+
+    left = np.min(mask_idx, initial=total_cnt+1)
+    right = np.max(mask_idx, initial=0)
+    bg_cnt = right - left + 1
+
+    if bg_cnt < 0:
+        bg_cnt = 0
+    if bg_cnt > total_cnt:
+        bg_cnt = total_cnt
 
     return int(bg_cnt * 100.0 / total_cnt)
 
@@ -137,7 +190,7 @@ def __debug_qingyi():
         )
         screen = cv2_utils.read_image(img_path)
         for state in agent.state_list:
-            print(check_length_by_background(ctx, screen, state))
+            print(check_length_by_background_gray(ctx, screen, state))
 
 
 if __name__ == '__main__':

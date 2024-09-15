@@ -1,0 +1,8 @@
+sub_dir: agent_state
+template_id: energy_31
+template_name: 能量-31
+template_shape: rectangle
+auto_mask: true
+point_list:
+- 379, 74
+- 493, 75

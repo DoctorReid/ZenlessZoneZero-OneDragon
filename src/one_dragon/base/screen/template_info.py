@@ -186,9 +186,6 @@ class TemplateInfo(YamlOperator):
         根据点位 得到模板在游戏画面的位置矩阵
         :return:
         """
-        if self.screen_image is None:
-            return None
-
         point_list: List[Point] = []
         if self.template_shape == TemplateShapeEnum.RECTANGLE.value.value:
             if len(self.point_list) != 2:
@@ -225,6 +222,8 @@ class TemplateInfo(YamlOperator):
         根据配置和画面 扣出模板原图
         :return:
         """
+        if self.screen_image is None:
+            return None
         rect = self.get_template_rect_by_point()
         return cv2_utils.crop_image_only(self.screen_image, rect, copy=True) if rect is not None else None
 

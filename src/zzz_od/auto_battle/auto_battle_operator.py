@@ -32,7 +32,7 @@ from zzz_od.auto_battle.atomic_op.wait import AtomicWait
 from zzz_od.context.battle_context import BattleEventEnum
 from zzz_od.context.battle_dodge_context import YoloStateEventEnum
 from zzz_od.context.zzz_context import ZContext
-from zzz_od.game_data.agent import AgentEnum, AgentTypeEnum
+from zzz_od.game_data.agent import AgentEnum, AgentTypeEnum, CommonAgentStateEnum
 
 
 class AutoBattleOperator(ConditionalOperator):
@@ -80,7 +80,7 @@ class AutoBattleOperator(ConditionalOperator):
             self._mutex_list['连携技-1-' + agent_type_enum.value] = ['连携技-1-' + i for i in mutex_list]
             self._mutex_list['连携技-2-' + agent_type_enum.value] = ['连携技-2-' + i for i in mutex_list]
             self._mutex_list['快速支援-' + agent_type_enum.value] = ['快速支援-' + i for i in mutex_list]
-            
+
         ConditionalOperator.init(
             self,
             event_bus=self.ctx,
@@ -123,6 +123,11 @@ class AutoBattleOperator(ConditionalOperator):
             event_ids.append('连携技-1-' + agent_type_enum.value)
             event_ids.append('连携技-2-' + agent_type_enum.value)
             event_ids.append('快速支援-' + agent_type_enum.value)
+
+        for state_enum in CommonAgentStateEnum:
+            common_agent_state = state_enum.value
+            if common_agent_state.state_name not in event_ids:
+                event_ids.append(common_agent_state.state_name)
 
         return event_ids
 
