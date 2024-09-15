@@ -333,8 +333,7 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
         if self.chosen_config is None:
             return
 
-        self.chosen_config.module_name = value
-        self.chosen_config.save()
+        self.chosen_config.update_module_name(value)
 
     def _on_buy_only_priority_changed(self, value: bool):
         if self.chosen_config is None:

@@ -34,8 +34,7 @@ class HollowZeroChallengeConfig(YamlConfig):
         :return:
         """
         self.module_name = self.module_name + '_copy'
-        if self.is_sample:
-            self.old_module_name = self.module_name
+        self.old_module_name = self.module_name
         self.remove_sample()
 
     def remove_sample(self) -> None:
@@ -45,6 +44,16 @@ class HollowZeroChallengeConfig(YamlConfig):
         """
         self._sample = False
         self.file_path = self._get_yaml_file_path()
+
+    def update_module_name(self, value: str) -> None:
+        """
+        更新模块名称
+        :param value: 新名字
+        """
+        self.module_name = value
+        self._sample = False
+
+        self.save()
 
     def save(self) -> None:
         if self.old_module_name != self.module_name:

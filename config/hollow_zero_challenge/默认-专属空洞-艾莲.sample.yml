@@ -3,8 +3,9 @@ resonium_priority:
 - 决斗
 - 闪避
 - 能量
-- 通用
+- 诡术 华丽手杖
 - 邦布 鲨牙布
+- 邦布 企鹅布
 auto_battle: 专属配队-艾莲
 event_priority:
 - ''
