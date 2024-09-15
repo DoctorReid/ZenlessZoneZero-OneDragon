@@ -1,0 +1,81 @@
+screen_id: commission_assistant
+screen_name: 委托助手
+pc_alt: false
+area_list:
+- area_name: 对话框标题
+  pc_rect:
+  - 874
+  - 798
+  - 1056
+  - 832
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 右侧选项区域
+  pc_rect:
+  - 1438
+  - 536
+  - 1914
+  - 830
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 中间选项区域
+  pc_rect:
+  - 578
+  - 312
+  - 1388
+  - 798
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 左上角街区
+  pc_rect:
+  - 234
+  - 26
+  - 394
+  - 78
+  text: 街区
+  lcs_percent: 1.0
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 对话框确认
+  pc_rect:
+  - 1022
+  - 544
+  - 1238
+  - 750
+  text: 确认
+  lcs_percent: 1.0
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 左上角返回
+  pc_rect:
+  - 82
+  - 13
+  - 150
+  - 90
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: menu
+  template_id: back
+  template_match_threshold: 0.7
+- area_name: 右上角自动
+  pc_rect:
+  - 1680
+  - 106
+  - 1840
+  - 164
+  text: 自动
+  lcs_percent: 1.0
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

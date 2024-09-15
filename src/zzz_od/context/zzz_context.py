@@ -2,7 +2,6 @@ from typing import Optional
 
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils import i18_utils
-from zzz_od.application.redemption_code.redemption_code_run_record import RedemptionCodeRunRecord
 
 
 class ZContext(OneDragonContext):
@@ -99,6 +98,8 @@ class ZContext(OneDragonContext):
         from zzz_od.application.scratch_card.scratch_card_run_record import ScratchCardRunRecord
         from zzz_od.config.game_config import GameConfig
         from zzz_od.hollow_zero.hollow_zero_challenge_config import HollowZeroChallengeConfig
+        from zzz_od.application.redemption_code.redemption_code_run_record import RedemptionCodeRunRecord
+        from zzz_od.application.commission_assistant.commission_assistant_config import CommissionAssistantConfig
         self.game_config: GameConfig = GameConfig(self.current_instance_idx)
 
         # 应用配置
@@ -110,6 +111,7 @@ class ZContext(OneDragonContext):
         self.hollow_zero_challenge_config: Optional[HollowZeroChallengeConfig] = None
         self.coffee_config: CoffeeConfig = CoffeeConfig(self.current_instance_idx)
         self.life_on_line_config: LifeOnLineConfig = LifeOnLineConfig(self.current_instance_idx)
+        self.commission_assistant_config: CommissionAssistantConfig = CommissionAssistantConfig(self.current_instance_idx)
 
         # 运行记录
         game_refresh_hour_offset = self.game_config.game_refresh_hour_offset

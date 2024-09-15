@@ -4,9 +4,9 @@ from enum import Enum
 from qfluentwidgets import SettingCard, FluentIconBase, ComboBox, ToolTip
 from typing import Union, Iterable, Optional, List
 
-# from one_dragon.gui.component.setting_card.tool_tip import ToolTip
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
+from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
 from one_dragon.utils.i18_utils import gt
 
 
@@ -20,7 +20,8 @@ class ComboBoxSettingCard(SettingCardBase):
                  options_enum: Optional[Iterable[Enum]] = None,
                  options_list: Optional[List[ConfigItem]] = None,
                  content=None, show_config_desc: bool = False,
-                 show_tooltip: bool = False, parent=None):
+                 show_tooltip: bool = False, parent=None,
+                 adapter: Optional[YamlConfigAdapter] = None):
         """
         初始化函数
         :param icon: 左侧显示的图标
@@ -31,9 +32,12 @@ class ComboBoxSettingCard(SettingCardBase):
         :param show_config_desc: 是否显示选项的描述
         :param show_tooltip: 是否在标题上显示提示
         :param parent: 组件的父对象
+        :param adapter: 配置适配器 自动更新对应配置文件
         """
         self.show_tooltip = show_tooltip  # 由于里面会调用setContent 这个需要提前初始化
         SettingCardBase.__init__(self, icon, title, content, parent)
+        self.adapter: YamlConfigAdapter = adapter
+
         self.combo_box = ComboBox(self)
         self.hBoxLayout.addWidget(self.combo_box, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
@@ -103,12 +107,21 @@ class ComboBoxSettingCard(SettingCardBase):
         通过ConfigItem列表设置下拉框选项
         :param options: ConfigItem列表
         """
+        self.combo_box.blockSignals(True)
         self.combo_box.setCurrentIndex(-1)
         self.combo_box.clear()
         self._opts_list.clear()
         for opt_item in options:
             self._opts_list.append(opt_item)
             self.combo_box.addItem(opt_item.ui_text, userData=opt_item.value)
+        self.combo_box.blockSignals(False)
+
+    def init_value(self) -> None:
+        """
+        初始化值
+        """
+        if self.adapter is not None:
+            self.setValue(self.adapter.get_value(), emit_signal=False)
 
     def _on_index_changed(self, index: int) -> None:
         """
@@ -119,7 +132,11 @@ class ComboBoxSettingCard(SettingCardBase):
             return
         self.last_index = index
         self._update_desc()
-        self.value_changed.emit(index, self.combo_box.itemData(index))
+        val = self.combo_box.itemData(index)
+        self.value_changed.emit(index, val)
+
+        if self.adapter is not None:
+            self.adapter.set_value(val)
 
     def _update_desc(self) -> None:
         """
@@ -139,16 +156,21 @@ class ComboBoxSettingCard(SettingCardBase):
         else:
             self.tooltip_text = gt(content, 'ui')
 
-    def setValue(self, value: object) -> None:
+    def setValue(self, value: object, emit_signal: bool = True) -> None:
         """
         设置下拉框的值
         :param value: 要设置的值
         """
+        if not emit_signal:
+            self.combo_box.blockSignals(True)
         for idx, item in enumerate(self.combo_box.items):
             if item.userData == value:
+                self.last_index = idx
                 self.combo_box.setCurrentIndex(idx)
                 self._update_desc()
-                return
+                break
+        if not emit_signal:
+            self.combo_box.blockSignals(False)
 
     def getValue(self):
         """

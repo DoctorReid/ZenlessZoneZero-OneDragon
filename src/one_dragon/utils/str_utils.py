@@ -156,3 +156,4 @@ def with_chinese(s: str) -> bool:
     """
     判断一个字符串是否包含中文
     """
+    return _WITH_CHINESE_PATTERN.search(s) is not None

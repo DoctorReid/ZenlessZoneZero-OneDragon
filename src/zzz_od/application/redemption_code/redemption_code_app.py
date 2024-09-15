@@ -105,7 +105,6 @@ class RedemptionCodeApp(ZApplication):
         return self.round_by_op(op.execute())
 
 
-
 def __debug():
     ctx = ZContext()
     ctx.init_by_config()

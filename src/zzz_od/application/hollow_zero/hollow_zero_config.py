@@ -4,6 +4,7 @@ from typing import Optional
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
+from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
 
 
 class HollowZeroExtraTask(Enum):
@@ -44,6 +45,10 @@ class HollowZeroConfig(YamlConfig):
     @challenge_config.setter
     def challenge_config(self, new_value: str):
         self.update('challenge_config', new_value)
+
+    @property
+    def challenge_config_adapter(self) -> YamlConfigAdapter:
+        return YamlConfigAdapter(self, 'challenge_config', '以太')
 
     @property
     def weekly_plan_times(self) -> int:

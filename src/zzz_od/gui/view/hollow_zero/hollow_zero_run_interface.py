@@ -102,10 +102,9 @@ class HollowZeroRunInterface(AppRunInterface):
         # 创建一个组合框设置卡片，标题为“挑战配置”
         self.challenge_config_opt = ComboBoxSettingCard(
             icon=FluentIcon.SETTING,  # 选择与设置相关的图标
-            title='挑战配置',
-            content='选择角色、鸣徽和事件',
+            title='挑战配置', content='选择角色、鸣徽和事件',
+            adapter=self.ctx.hollow_zero_config.challenge_config_adapter
         )
-        self.challenge_config_opt.value_changed.connect(self._on_challenge_config_changed)
         right_layout.addWidget(self.challenge_config_opt)
 
         self.daily_plan_times_opt = TextSettingCard(
@@ -136,9 +135,9 @@ class HollowZeroRunInterface(AppRunInterface):
         AppRunInterface.on_interface_shown(self)
         self._update_mission_options()
         self._update_challenge_config_options()
+        self.challenge_config_opt.init_value()
 
         self.mission_opt.setValue(self.ctx.hollow_zero_config.mission_name)
-        self.challenge_config_opt.setValue(self.ctx.hollow_zero_config.challenge_config)
 
         if self.ctx.hollow_zero_record.weekly_run_times < self.ctx.hollow_zero_config.weekly_plan_times:
             content = '本周通关次数 %d' % self.ctx.hollow_zero_record.weekly_run_times
@@ -172,18 +171,12 @@ class HollowZeroRunInterface(AppRunInterface):
         更新已有的yml选项
         :return:
         """
-        try:
-            # 更新之前 先取消原来的监听 防止触发事件
-            self.challenge_config_opt.value_changed.disconnect(self._on_challenge_config_changed)
-        except Exception:
-            pass
         config_list: List[HollowZeroChallengeConfig] = get_all_hollow_zero_challenge_config()
         opt_list = [
             ConfigItem(config.module_name, config.module_name)
             for config in config_list
         ]
         self.challenge_config_opt.set_options_by_list(opt_list)
-        self.challenge_config_opt.value_changed.connect(self._on_challenge_config_changed)
 
     def _on_mission_changed(self, idx, value) -> None:
         self.ctx.hollow_zero_config.mission_name = value

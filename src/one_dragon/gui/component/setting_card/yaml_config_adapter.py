@@ -1,0 +1,38 @@
+from typing import Optional, Any
+
+from one_dragon.base.config.yaml_config import YamlConfig
+
+
+class YamlConfigAdapter:
+
+    def __init__(self, config: YamlConfig, field: str, default_val: Any,
+                 getter_convert: Optional[str] = None,
+                 setter_convert: Optional[str] = None):
+        self.config: YamlConfig = config
+        self.field: str = field
+        self.default_val: Any = default_val
+        self.getter_convert: Optional[str] = getter_convert
+        self.setter_convert: Optional[str] = setter_convert
+
+    def get_value(self) -> Any:
+        val = self.config.get(self.field, self.default_val)
+        if self.getter_convert == 'str':
+            return str(val)
+        elif self.getter_convert == 'int':
+            return int(val)
+        elif self.getter_convert == 'float':
+            return float(val)
+        else:
+            return val
+
+    def set_value(self, new_value: Any) -> None:
+        if self.setter_convert == 'str':
+            val = str(new_value)
+        elif self.setter_convert == 'int':
+            val = int(new_value)
+        elif self.setter_convert == 'float':
+            val = float(new_value)
+        else:
+            val = new_value
+
+        self.config.update(self.field, val)

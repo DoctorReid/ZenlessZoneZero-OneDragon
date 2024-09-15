@@ -5,6 +5,7 @@ from typing import Union, Optional
 
 from one_dragon.base.controller.pc_button.pc_button_listener import PcButtonListener
 from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
+from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
 from one_dragon.utils.i18_utils import gt
 
 
@@ -27,6 +28,7 @@ class KeySettingCard(SettingCardBase):
 
     def __init__(self, icon: Union[str, QIcon, FluentIconBase], title: str, value: str = '',
                  content: Optional[str] = None, parent=None,
+                 adapter: Optional[YamlConfigAdapter] = None
                  ):
         """
         更改按键的
@@ -35,8 +37,11 @@ class KeySettingCard(SettingCardBase):
         :parma value: 当前值
         :param content: 左侧的详细文本 中文
         :param parent: 组件的parent
+        :param adapter: 配置适配器 自动更新对应配置文件
         """
         SettingCardBase.__init__(self, icon, title, content, parent)
+        self.adapter: YamlConfigAdapter = adapter
+
         self.value: str = value
         self.btn = PushButton(text=value.upper(), parent=self)
         self.btn.setFocusPolicy(Qt.FocusPolicy.NoFocus)
@@ -77,7 +82,16 @@ class KeySettingCard(SettingCardBase):
         :return:
         """
         self.setValue(key)
-        self.value_changed.emit(key)
+
+        if self.adapter is not None:
+            self.adapter.set_value(key)
+
+    def init_value(self) -> None:
+        """
+        初始化值
+        """
+        if self.adapter is not None:
+            self.setValue(self.adapter.get_value(), emit_signal=False)
 
     def setContent(self, content: str) -> None:
         """
@@ -87,13 +101,16 @@ class KeySettingCard(SettingCardBase):
         """
         SettingCard.setContent(self, gt(content, 'ui'))
 
-    def setValue(self, value: str) -> None:
+    def setValue(self, value: str, emit_signal: bool = True) -> None:
         """
         设置值
         :param value:
+        :param emit_signal: 是否发送信号
         :return:
         """
         self.btn.setText(value.upper())
+        if emit_signal:
+            self.value_changed.emit(value)
 
     def _stop_listener(self) -> None:
         """
