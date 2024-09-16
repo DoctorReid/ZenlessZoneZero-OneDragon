@@ -182,6 +182,9 @@ def get_all_hollow_zero_challenge_config() -> List[HollowZeroChallengeConfig]:
 
         try:
             config = HollowZeroChallengeConfig(module_name)
+            # 验证 path_finding
+            if not config.path_finding in HollowZeroChallengePathFinding.__members__.values():
+                config.update("path_finding", HollowZeroChallengePathFinding.DEFAULT.value.value)
             config_list.append(config)
         except Exception:
             log.error('配置文件读取错误 跳过 %s', config_name)
