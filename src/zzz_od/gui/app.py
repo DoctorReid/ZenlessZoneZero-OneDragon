@@ -1,11 +1,8 @@
-from one_dragon.gui.view.like_interface import LikeInterface
-
 try:
     import sys
-
     from PySide6.QtWidgets import QApplication
     from qfluentwidgets import NavigationItemPosition, setTheme, Theme
-
+    from one_dragon.gui.view.like_interface import LikeInterface
     from one_dragon.base.operation.one_dragon_context import ContextInstanceEventEnum
     from one_dragon.gui.app.fluent_window_base import FluentWindowBase
     from one_dragon.gui.common.od_style_sheet import OdStyleSheet
@@ -127,11 +124,14 @@ try:
                     self.ctx.one_dragon_config.current_active_instance.name
                 )
             )
+
+# 调用Windows错误弹窗
 except Exception as e:
+    import ctypes
     import traceback
     stack_trace = traceback.format_exc()
-    _init_error = f'启动一条龙失败 {stack_trace}'
-
+    _init_error = f"启动一条龙失败，报错信息如下:\n{stack_trace}"
+    ctypes.windll.user32.MessageBoxW(0, _init_error, "错误", 0x10)
 
 # 初始化应用程序，并启动主窗口
 if __name__ == '__main__':
