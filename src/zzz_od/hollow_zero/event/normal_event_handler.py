@@ -54,6 +54,8 @@ def __debug_opts():
     from zzz_od.hollow_zero.hollow_runner import HollowRunner
     op = HollowRunner(ctx)
     from one_dragon.utils import debug_utils
+    from zzz_od.hollow_zero.hollow_zero_challenge_config import HollowZeroChallengePathFinding
+    print('默认' in HollowZeroChallengePathFinding.__members__.values())  # False
     screen = debug_utils.get_debug_image('1')
     # from one_dragon.utils import os_utils
     # import os

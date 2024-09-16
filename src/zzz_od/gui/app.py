@@ -1,5 +1,6 @@
 try:
     import sys
+
     from PySide6.QtWidgets import QApplication
     from qfluentwidgets import NavigationItemPosition, setTheme, Theme
     from one_dragon.gui.view.like_interface import LikeInterface
@@ -131,14 +132,11 @@ except Exception as e:
     import traceback
     stack_trace = traceback.format_exc()
     _init_error = f"启动一条龙失败，报错信息如下:\n{stack_trace}"
-    ctypes.windll.user32.MessageBoxW(0, _init_error, "错误", 0x10)
 
 # 初始化应用程序，并启动主窗口
 if __name__ == '__main__':
     if _init_error is not None:
-        print(_init_error)
-        import subprocess
-        subprocess.Popen(['msg', '*', _init_error])
+        ctypes.windll.user32.MessageBoxW(0, _init_error, "错误", 0x10)
         sys.exit(1)
     app = QApplication(sys.argv)
 
