@@ -426,6 +426,7 @@ def __debug_get_map():
     ctx = ZContext()
     ctx.init_by_config()
     ctx.ocr.init_model()
+    print(ctx.hollow_zero_challenge_config.module_name)
 
     from one_dragon.utils import debug_utils
     img_list = [

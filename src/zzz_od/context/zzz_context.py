@@ -75,7 +75,6 @@ class ZContext(OneDragonContext):
         else:
             self.hollow_zero_challenge_config = HollowZeroChallengeConfig(challenge_config)
 
-
     def load_instance_config(self) -> None:
         OneDragonContext.load_instance_config(self)
 
@@ -109,6 +108,7 @@ class ZContext(OneDragonContext):
         self.notorious_hunt_config: NotoriousHuntConfig = NotoriousHuntConfig(self.current_instance_idx)
         self.hollow_zero_config: HollowZeroConfig = HollowZeroConfig(self.current_instance_idx)
         self.hollow_zero_challenge_config: Optional[HollowZeroChallengeConfig] = None
+        self.init_hollow_config()
         self.coffee_config: CoffeeConfig = CoffeeConfig(self.current_instance_idx)
         self.life_on_line_config: LifeOnLineConfig = LifeOnLineConfig(self.current_instance_idx)
         self.commission_assistant_config: CommissionAssistantConfig = CommissionAssistantConfig(self.current_instance_idx)

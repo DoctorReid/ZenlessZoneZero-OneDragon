@@ -38,6 +38,7 @@ class HollowZeroApp(ZApplication):
         self.phase: int = 1
 
     def handle_init(self):
+        self.ctx.init_hollow_config()
         mission_name = self.ctx.hollow_zero_config.mission_name
         idx = mission_name.find('-')
         if idx != -1:
