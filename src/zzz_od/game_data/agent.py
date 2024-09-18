@@ -107,6 +107,8 @@ class CommonAgentStateEnum(Enum):
     ENERGY_22 = AgentStateDef('后台-1-能量', AgentStateCheckWay.FOREGROUND_GRAY_RANGE_LENGTH,
                               lower_color=100, upper_color=255, template_id='energy_22',
                               split_color_range=[0, 20], max_length=120)
+    LIFE_DEDUCTION = AgentStateDef('前台-血量扣减', AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH,
+                              lower_color=(140, 30, 30), upper_color=(160, 50, 50), template_id='life_deduction')
 
 
 class Agent:

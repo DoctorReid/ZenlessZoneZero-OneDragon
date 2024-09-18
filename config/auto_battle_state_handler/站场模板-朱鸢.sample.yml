@@ -105,5 +105,14 @@ handlers:
         - op_name: "设置状态"
           state: "自定义-临时站场"
 
+    - states: "[自定义-血量扣减]"
+      operations:
+        - op_name: "按键-闪避"
+          post_delay: 0.5
+        - op_name: "按键-普通攻击"
+          post_delay: 0.5
+        - op_name: "清除状态"
+          data: [ "自定义-血量扣减" ]
+
     - states: ""
       sub_states: *main

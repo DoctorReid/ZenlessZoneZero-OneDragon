@@ -408,6 +408,7 @@ class BattleContext:
             screen_agent_list = self._check_agent_in_parallel(screen, screenshot_time)
             self._check_front_agent_state(screen, screenshot_time, screen_agent_list)
             self._check_energy_in_parallel(screen, screenshot_time, screen_agent_list)
+            self._check_life_deduction(screen, screenshot_time, screen_agent_list)
 
         except Exception:
             log.error('识别画面角色失败', exc_info=True)
@@ -980,7 +981,7 @@ class BattleContext:
             value = agent_state_checker.check_length_by_foreground_gray(self.ctx, screen, state)
             self.ctx.dispatch_event(state.state_name, StateEvent(screenshot_time, value=value))
         elif state.check_way == AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH:
-            value = agent_state_checker.check_length_by_color_range(self.ctx, screen, state)
+            value = agent_state_checker.check_length_by_foreground_color(self.ctx, screen, state)
             self.ctx.dispatch_event(state.state_name, StateEvent(screenshot_time, value=value))
 
     def _check_energy_in_parallel(self, screen: MatLike, screenshot_time: float, screen_agent_list: List[Agent]) -> None:
@@ -1009,6 +1010,21 @@ class BattleContext:
             state_list = [CommonAgentStateEnum.ENERGY_21.value]
 
         self._check_agent_state_in_parallel(screen, screenshot_time, state_list)
+
+    def _check_life_deduction(self, screen: MatLike, screenshot_time: float, screen_agent_list: List[Agent]) -> None:
+        """
+        识别血量扣减
+        :param screen:
+        :param screenshot_time:
+        :param screen_agent_list:
+        :return:
+        """
+        if screen_agent_list is None or len(screen_agent_list) == 0:
+            return
+
+        state_list = [CommonAgentStateEnum.LIFE_DEDUCTION.value]
+        self._check_agent_state_in_parallel(screen, screenshot_time, state_list)
+
 
 def __debug():
     ctx = ZContext()

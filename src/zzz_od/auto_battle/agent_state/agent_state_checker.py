@@ -4,7 +4,7 @@ from cv2.typing import MatLike
 
 from one_dragon.utils import cv2_utils
 from zzz_od.context.zzz_context import ZContext
-from zzz_od.game_data.agent import AgentStateDef, AgentEnum
+from zzz_od.game_data.agent import AgentStateDef
 
 
 def check_cnt_by_color_range(
@@ -125,13 +125,13 @@ def check_length_by_foreground_gray(
     return int(fg_cnt * state_def.max_length / total_cnt)
 
 
-def check_length_by_color_range(
+def check_length_by_foreground_color(
         ctx: ZContext,
         screen: MatLike,
         state_def: AgentStateDef
 ) -> int:
     """
-    在指定区域内，按背景色(黑色)来反推横条的长度
+    在指定区域内，按前景色(彩色)来计算横条的长度
     :param ctx: 上下文
     :param screen: 游戏画面
     :param state_def: 角色状态定义
@@ -142,56 +142,7 @@ def check_length_by_color_range(
     to_check = part
 
     mask = cv2.inRange(to_check, state_def.lower_color, state_def.upper_color)
-    mask_idx = np.where(mask == 255)
+    fg_cnt = np.sum(mask == 255)
     total_cnt = mask.shape[1]
 
-    left = np.min(mask_idx, initial=total_cnt+1)
-    right = np.max(mask_idx, initial=0)
-    bg_cnt = right - left + 1
-
-    if bg_cnt < 0:
-        bg_cnt = 0
-    if bg_cnt > total_cnt:
-        bg_cnt = total_cnt
-
-    return int(bg_cnt * 100.0 / total_cnt)
-
-
-def __debug_zhu_yuan():
-    ctx = ZContext()
-    ctx.init_by_config()
-
-    from one_dragon.utils import os_utils
-    import os
-    agent = AgentEnum.ZHU_YUAN.value
-    img_path = os.path.join(
-        os_utils.get_path_under_work_dir('.debug', 'devtools', 'screen', 'agent_state'),
-        f'{agent.agent_id}.png'
-    )
-    screen = cv2_utils.read_image(img_path)
-    for state in agent.state_list:
-        import time
-        t1 = time.time()
-        print(check_cnt_by_color_range(ctx, screen, state))
-        print(time.time() - t1)
-
-
-def __debug_qingyi():
-    ctx = ZContext()
-    ctx.init_by_config()
-
-    from one_dragon.utils import os_utils
-    import os
-    agent = AgentEnum.QINGYI.value
-    for i in ['0', 'x', '100']:
-        img_path = os.path.join(
-            os_utils.get_path_under_work_dir('.debug', 'devtools', 'screen', 'agent_state'),
-            f'{agent.agent_id}_{i}.png'
-        )
-        screen = cv2_utils.read_image(img_path)
-        for state in agent.state_list:
-            print(check_length_by_background_gray(ctx, screen, state))
-
-
-if __name__ == '__main__':
-    __debug_qingyi()
+    return int(fg_cnt * 100.0 / total_cnt)
