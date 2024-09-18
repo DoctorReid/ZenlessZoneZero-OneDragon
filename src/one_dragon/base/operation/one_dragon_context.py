@@ -75,7 +75,7 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
 
         self.keyboard_controller = keyboard.Controller()
         self.mouse_controller = mouse.Controller()
-        self.btn_listener = PcButtonListener(on_button_tap=self._on_key_press, listen_keyboard=True)
+        self.btn_listener = PcButtonListener(on_button_tap=self._on_key_press, listen_keyboard=True, listen_mouse=True)
         self.btn_listener.start()
 
     def init_by_config(self) -> None:

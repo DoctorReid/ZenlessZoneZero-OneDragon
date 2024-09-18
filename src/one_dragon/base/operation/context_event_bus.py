@@ -19,16 +19,13 @@ class ContextEventBus:
     def __init__(self):
         self.callbacks: dict[str, List[Callable[[Any], None]]] = {}
 
-    def dispatch_event(self, event_id: str, event_obj: Any = None, output_log: bool = True):
+    def dispatch_event(self, event_id: str, event_obj: Any = None):
         """
         下发事件
         :param event_id: 事件ID
         :param event_obj: 事件体
-        :param output_log: 输出日志
         :return:
         """
-        if output_log:
-            log.debug("事件触发 %s %s", event_id, event_obj)
         if event_id not in self.callbacks:
             return
         for callback in self.callbacks[event_id]:

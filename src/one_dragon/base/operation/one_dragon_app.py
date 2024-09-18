@@ -149,8 +149,8 @@ class OneDragonApp(Application):
         if self._op_to_switch_account is None:
             return self.round_fail('未实现切换账号')
         else:
-            return self.round_success(wait=1)  # 调试用
-            # return self.round_by_op(self._op_to_switch_account.execute())
+            # return self.round_success(wait=1)  # 调试用
+            return self.round_by_op(self._op_to_switch_account.execute())
 
     @node_from(from_name='切换账号')
     @operation_node(name='切换账号后处理')
