@@ -202,5 +202,6 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
         self.dispatch_event(ContextInstanceEventEnum.instance_active.value, instance_idx)
 
     def load_instance_config(self):
+        log.info('开始加载实例配置 %d' % self.current_instance_idx)
         from one_dragon.base.config.one_dragon_app_config import OneDragonAppConfig
         self.one_dragon_app_config = OneDragonAppConfig(self.current_instance_idx)

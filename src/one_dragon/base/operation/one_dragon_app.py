@@ -3,7 +3,7 @@ from typing import List, Optional, ClassVar
 from one_dragon.base.config.one_dragon_config import OneDragonInstance, InstanceRun
 from one_dragon.base.operation.application_base import Application
 from one_dragon.base.operation.application_run_record import AppRunRecord
-from one_dragon.base.operation.one_dragon_context import OneDragonContext, ContextInstanceEventEnum
+from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.base.operation.operation import Operation
 from one_dragon.base.operation.operation_base import OperationResult
 from one_dragon.base.operation.operation_edge import node_from
@@ -29,7 +29,6 @@ class OneDragonApp(Application):
             op_to_enter_game=op_to_enter_game
         )
 
-        self.app_list: List[Application] = self.get_app_list()
         self._to_run_app_list: List[Application] = []  # 需要执行的app列表 有序
         self._current_app_idx: int = 0  # 当前运行的app 下标
         self._instance_list: List[OneDragonInstance] = []  # 需要运行的实例
@@ -45,10 +44,6 @@ class OneDragonApp(Application):
         执行前的初始化 由子类实现
         注意初始化要全面 方便一个指令重复使用
         """
-        for app in self.app_list:  # 运行一条龙时 各app不需要改变上下文
-            app.init_context_before_start = False
-            app.stop_context_after_stop = False
-
         current_instance = self.ctx.one_dragon_config.current_active_instance
         if self.ctx.one_dragon_config.instance_run == InstanceRun.ALL.value.value:
             self._instance_list = []
@@ -69,7 +64,7 @@ class OneDragonApp(Application):
         按运行顺序配置 返回需要在一条龙中运行的app
         :return:
         """
-        all_apps = self.app_list
+        all_apps = self.get_app_list()
         app_orders = self.ctx.one_dragon_app_config.app_order
 
         result_list: List[Application] = []
@@ -91,18 +86,6 @@ class OneDragonApp(Application):
 
         return result_list
 
-    def get_app(self, app_id: str) -> Optional[Application]:
-        """
-        获取应用
-        :param app_id:
-        :return:
-        """
-        for app in self.app_list:
-            if app.app_id == app_id:
-                return app
-
-        return None
-
     @node_from(from_name='切换账号后处理', status=STATUS_NEXT)  # 切换实例后重新开始
     @operation_node(name='检测任务状态', is_start_node=True)
     def check_app(self) -> OperationRoundResult:
@@ -120,6 +103,10 @@ class OneDragonApp(Application):
             if app.run_record.run_status_under_now == AppRunRecord.STATUS_SUCCESS:
                 continue
             self._to_run_app_list.append(app)
+
+        for app in self._to_run_app_list:  # 运行一条龙时 各app不需要改变上下文
+            app.init_context_before_start = False
+            app.stop_context_after_stop = False
 
         self._current_app_idx = 0
 
@@ -150,9 +137,7 @@ class OneDragonApp(Application):
             self._instance_idx = 0
 
         self.ctx.switch_instance(self._instance_list[self._instance_idx].idx)
-        self.ctx.dispatch_event(ContextInstanceEventEnum.instance_active.value)
         log.info('下一个实例 %s', self.ctx.one_dragon_config.current_active_instance.name)
-        self.app_list = self.get_one_dragon_apps_in_order()
 
         return self.round_success()
 
@@ -164,7 +149,8 @@ class OneDragonApp(Application):
         if self._op_to_switch_account is None:
             return self.round_fail('未实现切换账号')
         else:
-            return self.round_by_op(self._op_to_switch_account.execute())
+            return self.round_success(wait=1)  # 调试用
+            # return self.round_by_op(self._op_to_switch_account.execute())
 
     @node_from(from_name='切换账号')
     @operation_node(name='切换账号后处理')
@@ -176,6 +162,6 @@ class OneDragonApp(Application):
 
     def _after_operation_done(self, result: OperationResult):
         Application._after_operation_done(self, result)
-        for app in self.app_list:   # 一条龙结束后 各app恢复
+        for app in self._to_run_app_list:   # 一条龙结束后 各app恢复
             app.init_context_before_start = True
             app.stop_context_after_stop = True
