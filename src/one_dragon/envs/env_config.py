@@ -4,6 +4,7 @@ from typing import Optional
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
+from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
 from one_dragon.utils import os_utils
 
 DEFAULT_ENV_PATH = os_utils.get_path_under_work_dir('.env')
@@ -42,6 +43,12 @@ class ThemeEnum(Enum):
     LIGHT = ConfigItem('浅色', 'Light')
     DARK = ConfigItem('深色', 'Dark')
     AUTO = ConfigItem('跟随系统', 'Auto')
+
+
+class PipSourceEnum(Enum):
+
+    PYPI = ConfigItem('官方', 'https://pypi.org/simple')
+    TSING_HUA = ConfigItem('清华', 'https://pypi.tuna.tsinghua.edu.cn/simple')
 
 
 class EnvConfig(YamlConfig):
@@ -238,7 +245,7 @@ class EnvConfig(YamlConfig):
         pip源
         :return:
         """
-        return self.get('pip_source', 'https://pypi.tuna.tsinghua.edu.cn/simple')
+        return self.get('pip_source', PipSourceEnum.TSING_HUA.value.value)
 
     @pip_source.setter
     def pip_source(self, new_value: str) -> None:
@@ -247,6 +254,11 @@ class EnvConfig(YamlConfig):
         :return:
         """
         self.update('pip_source', new_value)
+
+    @property
+    def pip_source_adapter(self) -> YamlConfigAdapter:
+        return YamlConfigAdapter(self, 'pip_source', PipSourceEnum.TSING_HUA.value.value,
+                                 'str', 'str')
 
     def write_env_bat(self) -> None:
         """

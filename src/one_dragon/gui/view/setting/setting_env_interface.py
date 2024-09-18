@@ -4,7 +4,7 @@ from qfluentwidgets import FluentIcon, SettingCardGroup, setTheme, Theme, VBoxLa
 
 from one_dragon.base.config.config_item import get_config_item_from_enum
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
-from one_dragon.envs.env_config import RepositoryTypeEnum, GitMethodEnum, ProxyTypeEnum, ThemeEnum
+from one_dragon.envs.env_config import RepositoryTypeEnum, GitMethodEnum, ProxyTypeEnum, ThemeEnum, PipSourceEnum
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.key_setting_card import KeySettingCard
@@ -31,7 +31,7 @@ class SettingEnvInterface(VerticalScrollInterface):
         content_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         content_layout.addWidget(self._init_basic_group())
-        content_layout.addWidget(self._init_git_group())
+        content_layout.addWidget(self._init_code_group())
         content_layout.addWidget(self._init_web_group())
         content_layout.addWidget(self._init_key_group())
 
@@ -55,36 +55,40 @@ class SettingEnvInterface(VerticalScrollInterface):
 
         return basic_group
 
-    def _init_git_group(self) -> SettingCardGroup:
-        git_group = SettingCardGroup(gt('Git相关', 'ui'))
+    def _init_code_group(self) -> SettingCardGroup:
+        code_group = SettingCardGroup(gt('Git相关', 'ui'))
 
         self.repository_type_opt = ComboBoxSettingCard(
             icon=FluentIcon.APPLICATION, title='代码源', content='国内无法访问Github则选择Gitee',
             options_enum=RepositoryTypeEnum
         )
         self.repository_type_opt.value_changed.connect(self._on_repo_type_changed)
-        git_group.addSettingCard(self.repository_type_opt)
+        code_group.addSettingCard(self.repository_type_opt)
 
         self.git_method_opt = ComboBoxSettingCard(
             icon=FluentIcon.SYNC, title='拉取方式', content='不懂什么是ssh就选https',
             options_enum=GitMethodEnum
         )
         self.git_method_opt.value_changed.connect(self._on_git_method_changed)
-        git_group.addSettingCard(self.git_method_opt)
+        code_group.addSettingCard(self.git_method_opt)
 
         self.force_update_opt = SwitchSettingCard(
             icon=FluentIcon.SYNC, title='强制更新', content='不懂代码请开启，会将脚本更新到最新并将你的改动覆盖，不会使你的配置失效',
         )
         self.force_update_opt.value_changed.connect(self._on_force_update_changed)
-        git_group.addSettingCard(self.force_update_opt)
+        code_group.addSettingCard(self.force_update_opt)
 
         self.auto_update_opt = SwitchSettingCard(
             icon=FluentIcon.SYNC, title='自动更新', content='脚本启动时，自动检测并更新代码',
         )
         self.auto_update_opt.value_changed.connect(self._on_auto_update_changed)
-        git_group.addSettingCard(self.auto_update_opt)
+        code_group.addSettingCard(self.auto_update_opt)
 
-        return git_group
+        self.pip_source_opt = ComboBoxSettingCard(icon=FluentIcon.GLOBE, title='Pip源', options_enum=PipSourceEnum,
+                                                  adapter=self.ctx.env_config.pip_source_adapter)
+        code_group.addSettingCard(self.pip_source_opt)
+
+        return code_group
 
     def _init_web_group(self) -> SettingCardGroup:
         web_group = SettingCardGroup(gt('网络相关', 'ui'))
@@ -161,6 +165,7 @@ class SettingEnvInterface(VerticalScrollInterface):
 
         self.force_update_opt.setValue(self.ctx.env_config.force_update)
         self.auto_update_opt.setValue(self.ctx.env_config.auto_update)
+        self.pip_source_opt.init_value()
 
         proxy_type = get_config_item_from_enum(ProxyTypeEnum, self.ctx.env_config.proxy_type)
         if proxy_type is not None:
