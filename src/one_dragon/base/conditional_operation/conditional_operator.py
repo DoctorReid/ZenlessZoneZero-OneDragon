@@ -37,7 +37,7 @@ class ConditionalOperator(YamlConfig):
         self._trigger_scene_handler: dict[str, SceneHandler] = {}  # 需要状态触发的场景处理
         self._last_trigger_time: dict[str, float] = {}  # 各状态场景最后一次的触发时间
         self._normal_scene_handler: Optional[SceneHandler] = None  # 不需要状态触发的场景处理
-        self._running: bool = False  # 整体是否正在运行
+        self.is_running: bool = False  # 整体是否正在运行
 
         self._task_lock: Lock = Lock()
         self._running_task: Optional[OperationTask] = None  # 正在运行的任务
@@ -99,10 +99,10 @@ class ConditionalOperator(YamlConfig):
         if not self._inited:
             log.error('自动指令 [ %s ] 未完成初始化 无法运行', self.module_name)
             return False
-        if self._running:
+        if self.is_running:
             return False
 
-        self._running = True
+        self.is_running = True
         self._running_task_cnt.set(0)  # 每次重置计数器 防止有bug导致无法正常运行
 
         if self._normal_scene_handler is not None:
@@ -116,7 +116,7 @@ class ConditionalOperator(YamlConfig):
         主循环
         :return:
         """
-        while self._running:
+        while self.is_running:
             if self._running_task_cnt.get() > 0:
                 # 有其它场景在运行 等待
                 time.sleep(0.02)
@@ -125,7 +125,7 @@ class ConditionalOperator(YamlConfig):
 
                 # 上锁后确保运行状态不会被篡改
                 with self._task_lock:
-                    if not self._running:
+                    if not self.is_running:
                         # 已经被stop_running中断了 不继续
                         break
 
@@ -162,7 +162,7 @@ class ConditionalOperator(YamlConfig):
 
         # 上锁后确保运行状态不会被篡改
         with self._task_lock:
-            if not self._running:
+            if not self.is_running:
                 # 已经被stop_running中断了 不继续
                 return
 
@@ -207,7 +207,7 @@ class ConditionalOperator(YamlConfig):
         """
         # 上锁后停止 上锁后确保运行状态不会被篡改
         with self._task_lock:
-            self._running = False
+            self.is_running = False
             self._stop_running_task()
 
     def _stop_running_task(self) -> None:

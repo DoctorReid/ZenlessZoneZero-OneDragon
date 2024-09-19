@@ -1,6 +1,6 @@
 import os.path
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
 from qfluentwidgets import FluentIcon, PushButton, HyperlinkCard
 
@@ -22,6 +22,8 @@ from zzz_od.gui.view.battle_assistant.battle_state_display import BattleStateDis
 
 class DodgeAssistantInterface(AppRunInterface):
 
+    auto_op_loaded_signal = Signal()
+
     def __init__(self,
                  ctx: ZContext,
                  parent=None):
@@ -36,6 +38,8 @@ class DodgeAssistantInterface(AppRunInterface):
             parent=parent,
         )
 
+        self.auto_op_loaded_signal.connect(self._on_auto_op_loaded_signal)
+
     def get_widget_at_top(self) -> QWidget:
         top_widget = ColumnWidget()
 
@@ -44,8 +48,7 @@ class DodgeAssistantInterface(AppRunInterface):
         self.help_opt.setContent('先看说明 再使用与提问')
         top_widget.add_widget(self.help_opt)
 
-        self.dodge_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='闪避方式',
-                                             content='配置文件在 config/dodge 文件夹，删除会恢复默认配置')
+        self.dodge_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='闪避方式')
         top_widget.add_widget(self.dodge_opt)
 
         self.del_btn = PushButton(text='删除')
@@ -108,14 +111,19 @@ class DodgeAssistantInterface(AppRunInterface):
         self.gpu_opt.setValue(self.ctx.battle_assistant_config.use_gpu)
         self.screenshot_interval_opt.setValue(str(self.ctx.battle_assistant_config.screenshot_interval))
         self.gamepad_type_opt.setValue(self.ctx.battle_assistant_config.gamepad_type)
-        self.ctx.listen_event(AutoBattleApp.EVENT_OP_LOADED, self._on_op_loaded)
+        self.ctx.listen_event(AutoBattleApp.EVENT_OP_LOADED, self._on_auto_op_loaded_event)
 
-        # 调试用
+        # # 调试用
         # from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
         # auto_op = AutoBattleOperator(self.ctx, 'auto_battle', '专属配队-简')
         # auto_op.init_before_running()
         # auto_op.start_running_async()
-        # self._on_op_loaded(ContextEventItem('', auto_op))
+        # self._on_auto_op_loaded_event(ContextEventItem('', auto_op))
+
+    def on_interface_hidden(self) -> None:
+        AppRunInterface.on_interface_hidden(self)
+        self.ctx.unlisten_all_event(self)
+        self.battle_state_display.set_update_display(False)
 
     def _update_dodge_way_opts(self) -> None:
         """
@@ -128,8 +136,6 @@ class DodgeAssistantInterface(AppRunInterface):
             pass
         self.dodge_opt.set_options_by_list(get_auto_battle_op_config_list('dodge'))
         self.dodge_opt.value_changed.connect(self._on_dodge_way_changed)
-        self.ctx.unlisten_all_event(self)
-        self.battle_state_display.set_update_display(False)
 
     def _on_dodge_way_changed(self, index, value):
         self.ctx.battle_assistant_config.dodge_assistant_config = value
@@ -161,13 +167,32 @@ class DodgeAssistantInterface(AppRunInterface):
     def _on_gamepad_type_changed(self, idx: int, value: str) -> None:
         self.ctx.battle_assistant_config.gamepad_type = value
 
-    def _on_op_loaded(self, event: ContextEventItem) -> None:
+    def _on_context_state_changed(self) -> None:
         """
-        指令加载之后 更新需要监听的事件
+        按运行状态更新显示
+        :return:
+        """
+        AppRunInterface._on_context_state_changed(self)
+
+        if self.battle_state_display is not None:
+            self.battle_state_display.set_update_display(self.ctx.is_context_running)
+
+    def _on_auto_op_loaded_event(self, event: ContextEventItem) -> None:
+        """
+        自动战斗指令加载之后
         :param event:
         :return:
         """
         if self.battle_state_display is None:
             return
         self.battle_state_display.auto_op = event.data
+        self.auto_op_loaded_signal.emit()
+
+    def _on_auto_op_loaded_signal(self) -> None:
+        """
+        指令加载之后 更新需要监听的事件
+        :return:
+        """
+        if self.battle_state_display is None:
+            return
         self.battle_state_display.set_update_display(True)

@@ -46,6 +46,9 @@ class StateRecorder:
         """
         互斥事件发生时 清空
         """
+        if self.last_record_time == -1:
+            # 原来没有出现过的话 就不重置
+            return
         self.last_record_time = 0
         self.last_value = None
 

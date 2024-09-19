@@ -1,34 +1,7 @@
-handlers:
+# 朱鸢站场的主要动作
+main_qingyi: &main
   - states: "[前台-青衣]"
     sub_states:
-    # 格挡出场后
-    - states: "[自定义-黄光切人]"
-      operations:
-        - op_name: "按键-普通攻击"
-          post_delay: 0.2
-          repeat: 8
-        - op_name: "清除状态"
-          state: "自定义-黄光切人"
-
-    # 闪避后
-    - states: "[自定义-红光闪避]"
-      operations:
-        - op_name: "等待秒数"
-          seconds: 1.2
-        - op_name: "清除状态"
-          state:  "自定义-红光闪避"
-        - op_name: "清除状态"
-          state:  "自定义-青衣-普攻次数"
-
-    # 连携后
-    - states: "[自定义-连携换人]"
-      operations:
-        - op_name: "等待秒数"
-          seconds: 2
-        - op_name: "清除状态"
-          state:  "自定义-连携换人"
-        - op_name: "清除状态"
-          state:  "自定义-青衣-普攻次数"
 
     # 连续普攻一段时间就往前闪一下 防止打不到远程敌人
     - states: "[自定义-青衣-普攻次数]{40, 999}"
@@ -51,7 +24,8 @@ handlers:
           value: 1
         - op_name: "按键-普通攻击"
           way: "按下"
-          press: 3.5
+          press: 2.5
+          post_delay: 1
         - op_name: "清除状态"
           state: "自定义-动作不打断"
         - op_name: "清除状态"
@@ -73,3 +47,52 @@ handlers:
       - op_name: "设置状态"
         state: "自定义-青衣-普攻次数"
         add: 1
+
+
+handlers:
+  - states: "[前台-青衣]"
+    sub_states:
+    - states: "[自定义-黄光切人]"
+      operations:
+        - op_name: "按键-普通攻击"
+          post_delay: 0.2
+          repeat: 8
+        - op_name: "清除状态"
+          state: "自定义-黄光切人"
+
+    - states: "[自定义-红光闪避]"
+      operations:
+        - op_name: "等待秒数"
+          seconds: 1.2
+        - op_name: "清除状态"
+          state:  "自定义-红光闪避"
+        - op_name: "清除状态"
+          state:  "自定义-青衣-普攻次数"
+
+    - states: "[自定义-连携换人]"
+      operations:
+        - op_name: "等待秒数"
+          seconds: 2
+        - op_name: "清除状态"
+          state:  "自定义-连携换人"
+        - op_name: "清除状态"
+          state:  "自定义-青衣-普攻次数"
+
+    - states: "[自定义-快速支援换人]"
+      operations:
+        - op_name: "等待秒数"
+          data: [ "0.5" ]
+        - op_name: "清除状态"
+          data: [ "自定义-快速支援换人" ]
+
+    - states: "[自定义-血量扣减]"
+      operations:
+        - op_name: "按键-闪避"
+          post_delay: 0.5
+        - op_name: "按键-普通攻击"
+          post_delay: 0.5
+        - op_name: "清除状态"
+          data: [ "自定义-血量扣减" ]
+
+    - states: ""
+      sub_states: *main

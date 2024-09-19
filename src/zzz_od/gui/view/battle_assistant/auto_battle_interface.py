@@ -1,6 +1,6 @@
 import os.path
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
 from qfluentwidgets import FluentIcon, PushButton, HyperlinkCard
 from typing import Optional
@@ -22,12 +22,16 @@ from zzz_od.gui.view.battle_assistant.battle_state_display import BattleStateDis
 
 
 class AutoBattleInterface(AppRunInterface):
+
+    auto_op_loaded_signal = Signal()
+
     def __init__(self, ctx: ZContext, parent=None):
         """初始化 AutoBattleInterface 类"""
         AppRunInterface.__init__(self,
                                  ctx=ctx, object_name='auto_battle_interface', nav_text_cn='自动战斗', nav_icon=FluentIcon.GAME, parent=parent)
         self.ctx: ZContext = ctx
         self.app: Optional[ZApplication] = None
+        self.auto_op_loaded_signal.connect(self._on_auto_op_loaded_signal)
 
     def get_widget_at_top(self) -> QWidget:
         top_widget = ColumnWidget()
@@ -113,7 +117,7 @@ class AutoBattleInterface(AppRunInterface):
         self.screenshot_interval_opt.setValue(str(self.ctx.battle_assistant_config.screenshot_interval))
         self.gamepad_type_opt.setValue(self.ctx.battle_assistant_config.gamepad_type)
         self.debug_btn.setText('%s %s' % (self.ctx.key_debug.upper(), '调试'))
-        self.ctx.listen_event(AutoBattleApp.EVENT_OP_LOADED, self._on_op_loaded)
+        self.ctx.listen_event(AutoBattleApp.EVENT_OP_LOADED, self._on_auto_op_loaded_event)
 
     def on_interface_hidden(self) -> None:
         AppRunInterface.on_interface_hidden(self)
@@ -186,13 +190,32 @@ class AutoBattleInterface(AppRunInterface):
         elif key == self.ctx.key_debug and self.ctx.is_context_stop:
             self._on_debug_clicked()
 
-    def _on_op_loaded(self, event: ContextEventItem) -> None:
+    def _on_context_state_changed(self) -> None:
         """
-        指令加载之后 更新需要监听的事件
+        按运行状态更新显示
+        :return:
+        """
+        AppRunInterface._on_context_state_changed(self)
+
+        if self.battle_state_display is not None:
+            self.battle_state_display.set_update_display(self.ctx.is_context_running)
+
+    def _on_auto_op_loaded_event(self, event: ContextEventItem) -> None:
+        """
+        自动战斗指令加载之后
         :param event:
         :return:
         """
         if self.battle_state_display is None:
             return
         self.battle_state_display.auto_op = event.data
+        self.auto_op_loaded_signal.emit()
+
+    def _on_auto_op_loaded_signal(self) -> None:
+        """
+        指令加载之后 更新需要监听的事件
+        :return:
+        """
+        if self.battle_state_display is None:
+            return
         self.battle_state_display.set_update_display(True)

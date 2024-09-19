@@ -72,7 +72,7 @@ class AutoBattleDebugApp(ZApplication):
         if result.is_success:
             self.ctx.dispatch_event(
                 AutoBattleApp.EVENT_OP_LOADED,
-                self.auto_op.get_usage_states(),
+                self.auto_op,
             )
 
         return result

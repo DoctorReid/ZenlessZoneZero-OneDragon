@@ -45,19 +45,15 @@ class BattleStateDisplay(TableWidget):
             self.update_timer.stop()
 
     def _update_display(self) -> None:
-        if self.auto_op is None:
+        if self.auto_op is None or not self.auto_op.is_running:
             self.setRowCount(0)
             return
 
         states = self.auto_op.get_usage_states()
         states = sorted(states)
 
-        state_recorders: List[StateRecorder] = []
-        for i in states:
-            recorder = self.auto_op.get_state_recorder(i)
-            if recorder is None:
-                continue
-            state_recorders.append(recorder)
+        state_recorders: List[StateRecorder] = sorted([i for i in self.auto_op.state_recorders.values()],
+                                                      key=lambda x: x.state_name)
 
         now = time.time()
         new_states = []

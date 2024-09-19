@@ -414,9 +414,9 @@ class AutoBattleContext:
             self._last_check_special_attack_time = screenshot_time
 
             part = cv2_utils.crop_image_only(screen, self.area_btn_special.rect)
-            mrl = self.ctx.tm.match_template(part, 'battle', 'btn_special_attack_1',
+            mrl = self.ctx.tm.match_template(part, 'battle', 'btn_special_attack_2',
                                              threshold=0.9)
-            is_ready = mrl.max is None
+            is_ready = mrl.max is not None
             if is_ready:
                 self.auto_op.update_state(StateRecord(BattleStateEnum.STATUS_SPECIAL_READY.value, screenshot_time))
         except Exception:
@@ -439,9 +439,9 @@ class AutoBattleContext:
 
             part = cv2_utils.crop_image_only(screen, self.area_btn_ultimate.rect)
             # 判断灰色按钮比较容易 发光时颜色会变
-            mrl = self.ctx.tm.match_template(part, 'battle', 'btn_ultimate_1',
+            mrl = self.ctx.tm.match_template(part, 'battle', 'btn_ultimate_2',
                                              threshold=0.9)
-            is_ready = mrl.max is None
+            is_ready = mrl.max is not None
 
             if is_ready and self._allow_ultimate_list is not None:  # 有限制可使用的终结技
                 try:  # 等待识别代理人

@@ -47,7 +47,7 @@ class AutoBattleOperator(ConditionalOperator):
             is_mock=is_mock
         )
 
-        self._state_recorders: dict[str, StateRecorder] = {}
+        self.state_recorders: dict[str, StateRecorder] = {}
         self._mutex_list: dict[str, List[str]] = {}
 
         self.auto_battle_context: AutoBattleContext = AutoBattleContext(ctx)
@@ -75,6 +75,8 @@ class AutoBattleOperator(ConditionalOperator):
 
                 allow_ultimate_list=self.get('allow_ultimate', None)
             )
+
+            return True, ''
         except Exception as e:
             log.error('自动战斗初始化失败', exc_info=True)
             return False, '初始化失败'
@@ -170,11 +172,11 @@ class AutoBattleOperator(ConditionalOperator):
         :return:
         """
         if AutoBattleOperator.is_valid_state(state_name):
-            if state_name in self._state_recorders:
-                return self._state_recorders[state_name]
+            if state_name in self.state_recorders:
+                return self.state_recorders[state_name]
             else:
                 r = StateRecorder(state_name, mutex_list=self._mutex_list.get(state_name, None))
-                self._state_recorders[state_name] = r
+                self.state_recorders[state_name] = r
                 return r
         else:
             return None
@@ -302,9 +304,9 @@ class AutoBattleOperator(ConditionalOperator):
         :return:
         """
         ConditionalOperator.dispose(self)
-        for sr in self._state_recorders.values():
+        for sr in self.state_recorders.values():
             sr.dispose()
-        self._state_recorders.clear()
+        self.state_recorders.clear()
 
     def stop_running(self) -> None:
         """

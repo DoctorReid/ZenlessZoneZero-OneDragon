@@ -56,6 +56,7 @@ class TeamInfo:
         with self.update_agent_lock:
             if update_time < self.agent_update_time:  # 可能是过时的截图 这时候不更新
                 return False
+            self.agent_update_time = update_time
 
             if self.should_check_all_agents:
                 if self.is_same_agent_list(current_agent_list):
@@ -74,7 +75,6 @@ class TeamInfo:
                 else:
                     self.check_agent_diff_times = 0
 
-            self.agent_update_time = update_time
             if not self.should_check_all_agents and not self.is_same_agent_list(current_agent_list):
                 # 如果已经确定角色列表了 那识别出来的应该是一样的
                 # 不一样的话 就不更新了
@@ -130,6 +130,7 @@ class TeamInfo:
 
             if self.agent_list is None or len(self.agent_list) == 0:
                 return False
+            self.agent_update_time = update_time
 
             not_none_agent_list = []
             none_cnt: int = 0
@@ -140,12 +141,15 @@ class TeamInfo:
                     not_none_agent_list.append(i)
 
             next_agent_list = []
-            for i in range(1, len(not_none_agent_list)):
-                next_agent_list.append(not_none_agent_list[i])
-            next_agent_list.append(not_none_agent_list[0])
+            if len(not_none_agent_list) > 0:
+                for i in range(1, len(not_none_agent_list)):
+                    next_agent_list.append(not_none_agent_list[i])
+                next_agent_list.append(not_none_agent_list[0])
 
             for i in range(none_cnt):
                 next_agent_list.append(AgentInfo(None, 0))
+
+            self.agent_list = next_agent_list
             return True
 
     def switch_prev_agent(self, update_time: float) -> bool:
@@ -160,6 +164,7 @@ class TeamInfo:
 
             if self.agent_list is None or len(self.agent_list) == 0:
                 return False
+            self.agent_update_time = update_time
 
             not_none_agent_list = []
             none_cnt: int = 0
@@ -170,12 +175,14 @@ class TeamInfo:
                     not_none_agent_list.append(i)
 
             next_agent_list = []
-            next_agent_list.append(not_none_agent_list[-1])
-            for i in range(0, len(not_none_agent_list)-1):
-                next_agent_list.append(not_none_agent_list[i])
+            if len(not_none_agent_list) > 0:
+                next_agent_list.append(not_none_agent_list[-1])
+                for i in range(0, len(not_none_agent_list)-1):
+                    next_agent_list.append(not_none_agent_list[i])
 
             for i in range(none_cnt):
                 next_agent_list.append(AgentInfo(None, 0))
+            self.agent_list = next_agent_list
             return True
 
     def get_agent_pos(self, agent: Agent) -> int:
@@ -407,10 +414,11 @@ class AutoBattleAgentContext:
         result_list: List[Optional[StateRecord]] = []
         for future in future_list:
             try:
-                result_list.append(future.result())
+                record = future.result()
+                if record is not None:
+                    result_list.append(record)
             except Exception:
                 log.error('识别角色状态失败', exc_info=True)
-                result_list.append(None)
 
         return result_list
 
@@ -547,6 +555,7 @@ class AutoBattleAgentContext:
             agent = agent_info.agent
             if agent is not None:
                 state_records.append(StateRecord(prefix + agent.agent_name, update_time))
+                state_records.append(StateRecord(prefix + agent.agent_type.value, update_time))
 
             state_records.append(StateRecord(prefix + '能量', update_time, agent_info.energy))
 
