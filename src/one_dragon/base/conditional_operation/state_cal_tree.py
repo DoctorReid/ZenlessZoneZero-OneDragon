@@ -134,7 +134,7 @@ def construct_state_cal_tree(expr_str: str, state_getter: Callable[[str], StateR
     """
     if len(expr_str) == 0:
         return StateCalNode(StateCalNodeType.TRUE)
-    log.info('构造状态判断树 ' + expr_str)
+    log.debug('构造状态判断树 ' + expr_str)
 
     op_stack = []  # 运算符的压栈
     op_idx_stack = []  # 运算符下标

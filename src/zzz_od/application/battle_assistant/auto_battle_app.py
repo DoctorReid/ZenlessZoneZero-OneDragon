@@ -2,14 +2,15 @@ import time
 
 from typing import Optional, ClassVar
 
-from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
 from one_dragon.base.controller.pc_button import pc_button_utils
 from one_dragon.base.operation.operation_base import OperationResult
-from one_dragon.base.operation.operation_node import OperationNode
+from one_dragon.base.operation.operation_edge import node_from
+from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.auto_battle import auto_battle_utils
+from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.config.game_config import GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
 
@@ -29,23 +30,7 @@ class AutoBattleApp(ZApplication):
             need_ocr=False
         )
 
-        self.auto_op: Optional[ConditionalOperator] = None
-
-    def add_edges_and_nodes(self) -> None:
-        """
-        初始化前 添加边和节点 由子类实行
-        :return:
-        """
-        check_gamepad = OperationNode('手柄检测', self.check_gamepad)
-
-        load_op = OperationNode('加载自动战斗指令', self.load_op)
-        self.add_edge(check_gamepad, load_op)
-
-        init_context = OperationNode('初始化上下文', self.init_context)
-        self.add_edge(load_op, init_context)
-
-        check = OperationNode('画面识别', self.check_screen)
-        self.add_edge(init_context, check)
+        self.auto_op: Optional[AutoBattleOperator] = None
 
     def handle_init(self) -> None:
         """
@@ -54,6 +39,7 @@ class AutoBattleApp(ZApplication):
         """
         pass
 
+    @operation_node(name='手柄检测', is_start_node=True)
     def check_gamepad(self) -> OperationRoundResult:
         """
         检测手柄
@@ -73,14 +59,8 @@ class AutoBattleApp(ZApplication):
             self.ctx.controller.btn_controller.set_key_press_time(self.ctx.game_config.ds4_key_press_time)
         return self.round_success(status='已安装虚拟手柄依赖')
 
-    def load_model(self) -> OperationRoundResult:
-        """
-        加载模型
-        :return:
-        """
-        self.ctx.battle_dodge.init_dodge_model(use_gpu=self.ctx.battle_assistant_config.use_gpu)
-        return self.round_success()
-
+    @node_from(from_name='手柄检测')
+    @operation_node(name='加载自动战斗指令')
     def load_op(self) -> OperationRoundResult:
         """
         加载战斗指令
@@ -98,15 +78,8 @@ class AutoBattleApp(ZApplication):
 
         return result
 
-    def init_context(self) -> OperationRoundResult:
-        """
-        初始初始化上下文
-        :return:
-        """
-        auto_battle_utils.init_context(self)
-
-        return self.round_success()
-
+    @node_from(from_name='加载自动战斗指令')
+    @operation_node(name='画面识别')
     def check_screen(self) -> OperationRoundResult:
         """
         识别当前画面 并进行点击
@@ -115,21 +88,20 @@ class AutoBattleApp(ZApplication):
         now = time.time()
 
         screen = self.screenshot()
-        auto_battle_utils.run_screen_check(self, screen, now)
+        self.auto_op.auto_battle_context.check_battle_state(screen, now)
 
         return self.round_wait(wait_round_time=self.ctx.battle_assistant_config.screenshot_interval)
 
     def _on_pause(self, e=None):
         ZApplication._on_pause(self, e)
-        auto_battle_utils.stop_running(self)
+        auto_battle_utils.stop_running(self.auto_op)
 
     def _on_resume(self, e=None):
         ZApplication._on_resume(self, e)
-        auto_battle_utils.resume_running(self)
+        auto_battle_utils.resume_running(self.auto_op)
 
     def _after_operation_done(self, result: OperationResult):
         ZApplication._after_operation_done(self, result)
-        auto_battle_utils.stop_running(self)
         if self.auto_op is not None:
             self.auto_op.dispose()
             self.auto_op = None

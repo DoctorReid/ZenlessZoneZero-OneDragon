@@ -5,7 +5,7 @@ from one_dragon.base.operation.operation_round_result import OperationRoundResul
 from one_dragon.base.operation.operation_node import OperationNode
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.zzz_application import ZApplication
-from zzz_od.context.battle_context import BattleEventEnum
+from zzz_od.auto_battle.auto_battle_state import BattleStateEnum
 from zzz_od.context.zzz_context import ZContext
 
 
@@ -33,8 +33,8 @@ class LogTestApp(ZApplication):
         self.param_start_node = log
 
     def log(self) -> OperationRoundResult:
-        self.ctx.dispatch_event(BattleEventEnum.BTN_MOVE_W.value)
-        self.ctx.dispatch_event(BattleEventEnum.BTN_MOVE_S.value)
-        self.ctx.dispatch_event(BattleEventEnum.BTN_MOVE_A.value)
-        self.ctx.dispatch_event(BattleEventEnum.BTN_MOVE_D.value)
+        self.ctx.dispatch_event(BattleStateEnum.BTN_MOVE_W.value)
+        self.ctx.dispatch_event(BattleStateEnum.BTN_MOVE_S.value)
+        self.ctx.dispatch_event(BattleStateEnum.BTN_MOVE_A.value)
+        self.ctx.dispatch_event(BattleStateEnum.BTN_MOVE_D.value)
         return self.round_wait(wait_round_time=0.001)

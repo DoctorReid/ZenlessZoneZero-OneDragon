@@ -1,23 +1,23 @@
 import os.path
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
 from qfluentwidgets import FluentIcon, PushButton, HyperlinkCard
-from typing import Optional
 
-from one_dragon.gui.component.app_event_log_display_card import AppEventLogDisplayCard
+from one_dragon.base.operation.context_event_bus import ContextEventItem
 from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.gui.view.app_run_interface import AppRunInterface
+from zzz_od.application.battle_assistant.auto_battle_app import AutoBattleApp
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_config_file_path, \
     get_auto_battle_op_config_list
 from zzz_od.application.battle_assistant.dodge_assistant_app import DodgeAssistantApp
 from zzz_od.application.zzz_application import ZApplication
-from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.config.game_config import GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
+from zzz_od.gui.view.battle_assistant.battle_state_display import BattleStateDisplay
 
 
 class DodgeAssistantInterface(AppRunInterface):
@@ -54,12 +54,12 @@ class DodgeAssistantInterface(AppRunInterface):
         self.del_btn.clicked.connect(self._on_del_clicked)
 
         self.gpu_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='GPU运算',
-                                         content='游戏画面掉帧的话 可以不启用 保证截图间隔+推理耗时在50ms内即可')
+                                         content='游戏画面掉帧的话 可以不启用')
         self.gpu_opt.value_changed.connect(self._on_gpu_changed)
         top_widget.add_widget(self.gpu_opt)
 
         self.screenshot_interval_opt = TextSettingCard(icon=FluentIcon.GAME, title='截图间隔(秒)',
-                                                       content='游戏画面掉帧的话 可以适当加大截图间隔 保证截图间隔+推理耗时在50ms内即可')
+                                                       content='游戏画面掉帧的话 可以适当加大截图间隔')
         self.screenshot_interval_opt.value_changed.connect(self._on_screenshot_interval_changed)
         top_widget.add_widget(self.screenshot_interval_opt)
 
@@ -73,8 +73,29 @@ class DodgeAssistantInterface(AppRunInterface):
 
         return top_widget
 
-    def get_app_event_log_card(self) -> Optional[AppEventLogDisplayCard]:
-        return AppEventLogDisplayCard(self.ctx, AutoBattleOperator.get_all_state_event_ids())
+    def get_content_widget(self) -> QWidget:
+        content_widget = QWidget()
+        # 创建 QVBoxLayout 作为主布局
+        main_layout = QVBoxLayout(content_widget)
+
+        # 创建 QHBoxLayout 作为中间布局
+        horizontal_layout = QHBoxLayout()
+
+        # 将 QVBoxLayouts 加入 QHBoxLayout
+        left_layout = QVBoxLayout()
+        left_layout.addWidget(AppRunInterface.get_content_widget(self))
+
+        right_layout = QVBoxLayout()
+        self.battle_state_display = BattleStateDisplay()
+        right_layout.addWidget(self.battle_state_display)
+
+        horizontal_layout.addLayout(left_layout, stretch=1)
+        horizontal_layout.addLayout(right_layout, stretch=1)
+
+        # 设置伸缩因子，让 QHBoxLayout 占据空间
+        main_layout.addLayout(horizontal_layout, stretch=1)
+
+        return content_widget
 
     def on_interface_shown(self) -> None:
         """
@@ -87,6 +108,14 @@ class DodgeAssistantInterface(AppRunInterface):
         self.gpu_opt.setValue(self.ctx.battle_assistant_config.use_gpu)
         self.screenshot_interval_opt.setValue(str(self.ctx.battle_assistant_config.screenshot_interval))
         self.gamepad_type_opt.setValue(self.ctx.battle_assistant_config.gamepad_type)
+        self.ctx.listen_event(AutoBattleApp.EVENT_OP_LOADED, self._on_op_loaded)
+
+        # 调试用
+        # from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
+        # auto_op = AutoBattleOperator(self.ctx, 'auto_battle', '专属配队-简')
+        # auto_op.init_before_running()
+        # auto_op.start_running_async()
+        # self._on_op_loaded(ContextEventItem('', auto_op))
 
     def _update_dodge_way_opts(self) -> None:
         """
@@ -99,6 +128,8 @@ class DodgeAssistantInterface(AppRunInterface):
             pass
         self.dodge_opt.set_options_by_list(get_auto_battle_op_config_list('dodge'))
         self.dodge_opt.value_changed.connect(self._on_dodge_way_changed)
+        self.ctx.unlisten_all_event(self)
+        self.battle_state_display.set_update_display(False)
 
     def _on_dodge_way_changed(self, index, value):
         self.ctx.battle_assistant_config.dodge_assistant_config = value
@@ -111,8 +142,6 @@ class DodgeAssistantInterface(AppRunInterface):
 
     def get_app(self) -> ZApplication:
         return DodgeAssistantApp(self.ctx)
-        # from zzz_od.application.battle_assistant.log_app import LogTestApp
-        # return LogTestApp(self.ctx)
 
     def _on_del_clicked(self) -> None:
         """
@@ -131,3 +160,14 @@ class DodgeAssistantInterface(AppRunInterface):
 
     def _on_gamepad_type_changed(self, idx: int, value: str) -> None:
         self.ctx.battle_assistant_config.gamepad_type = value
+
+    def _on_op_loaded(self, event: ContextEventItem) -> None:
+        """
+        指令加载之后 更新需要监听的事件
+        :param event:
+        :return:
+        """
+        if self.battle_state_display is None:
+            return
+        self.battle_state_display.auto_op = event.data
+        self.battle_state_display.set_update_display(True)

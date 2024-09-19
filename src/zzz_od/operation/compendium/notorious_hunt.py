@@ -1,9 +1,7 @@
 import time
 
-from PIL.ImageChops import screen
 from typing import Optional, ClassVar
 
-from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.operation.operation_base import OperationResult
 from one_dragon.base.operation.operation_edge import node_from
@@ -14,6 +12,7 @@ from one_dragon.utils.i18_utils import gt
 from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem
 from zzz_od.application.notorious_hunt.notorious_hunt_config import NotoriousHuntLevelEnum
 from zzz_od.auto_battle import auto_battle_utils
+from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.zzz_operation import ZOperation
 
@@ -47,7 +46,7 @@ class NotoriousHunt(ZOperation):
         self.charge_left: Optional[int] = None
         self.charge_need: Optional[int] = None
 
-        self.auto_op: Optional[ConditionalOperator] = None
+        self.auto_op: Optional[AutoBattleOperator] = None
 
     @operation_node(name='等待入口加载', is_start_node=True, node_max_retry_times=60)
     def wait_entry_load(self) -> OperationRoundResult:
@@ -144,13 +143,6 @@ class NotoriousHunt(ZOperation):
     def init_auto_battle(self) -> OperationRoundResult:
         return auto_battle_utils.load_auto_op(self, 'auto_battle', self.plan.auto_battle_config)
 
-        self.ctx.battle_dodge.init_context(True)
-        self.ctx.battle.init_context(
-            allow_ultimate_list=self.auto_op.get('allow_ultimate', None)
-        )
-
-        return self.round_success()
-
     @node_from(from_name='加载自动战斗指令')
     @operation_node(name='等待战斗画面加载', node_max_retry_times=60)
     def wait_battle_screen(self) -> OperationRoundResult:
@@ -188,7 +180,6 @@ class NotoriousHunt(ZOperation):
     @operation_node(name='向前移动准备战斗')
     def move_to_battle(self) -> OperationRoundResult:
         self.ctx.controller.move_w(press=True, press_time=3, release=True)
-        auto_battle_utils.init_context(self)
         self.auto_op.start_running_async()
         return self.round_success()
 
@@ -196,13 +187,13 @@ class NotoriousHunt(ZOperation):
     @node_from(from_name='战斗失败', status='战斗结果-倒带')
     @operation_node(name='自动战斗')
     def auto_battle(self) -> OperationRoundResult:
-        if self.ctx.battle.last_check_end_result is not None:
-            auto_battle_utils.stop_running(self)
-            return self.round_success(status=self.ctx.battle.last_check_end_result)
+        if self.auto_op.auto_battle_context.last_check_end_result is not None:
+            auto_battle_utils.stop_running(self.auto_op)
+            return self.round_success(status=self.auto_op.auto_battle_context.last_check_end_result)
         now = time.time()
         screen = self.screenshot()
 
-        auto_battle_utils.run_screen_check(self, screen, now, check_battle_end_normal_result=True)
+        self.auto_op.auto_battle_context.check_battle_state(screen, now, check_battle_end_normal_result=True)
 
         return self.round_wait(wait=self.ctx.battle_assistant_config.screenshot_interval)
 
@@ -213,7 +204,6 @@ class NotoriousHunt(ZOperation):
         result = self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-倒带')
 
         if result.is_success:
-            auto_battle_utils.init_context(self)
             self.auto_op.start_running_async()
             return self.round_success(result.status, wait=1)
 
@@ -271,15 +261,15 @@ class NotoriousHunt(ZOperation):
 
     def _on_pause(self, e=None):
         ZOperation._on_pause(self, e)
-        auto_battle_utils.stop_running(self)
+        if self.auto_op is not None:
+            self.auto_op.stop_running()
 
     def _on_resume(self, e=None):
         ZOperation._on_resume(self, e)
-        auto_battle_utils.resume_running(self)
+        auto_battle_utils.resume_running(self.auto_op)
 
     def _after_operation_done(self, result: OperationResult):
         ZOperation._after_operation_done(self, result)
-        auto_battle_utils.stop_running(self)
         if self.auto_op is not None:
             self.auto_op.dispose()
             self.auto_op = None

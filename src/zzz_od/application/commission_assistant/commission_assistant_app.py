@@ -3,7 +3,6 @@ import time
 from cv2.typing import MatLike
 from typing import Optional
 
-from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.operation.context_event_bus import ContextEventItem
 from one_dragon.base.operation.one_dragon_context import ContextKeyboardEventEnum
@@ -16,6 +15,7 @@ from one_dragon.utils.i18_utils import gt
 from zzz_od.application.commission_assistant.commission_assistant_config import DialogOptionEnum
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.auto_battle import auto_battle_utils
+from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.context.zzz_context import ZContext
 
 
@@ -29,7 +29,7 @@ class CommissionAssistantApp(ZApplication):
         )
 
         self.run_mode: int = 0  # 0=对话 1=闪避 2=自动战斗
-        self.auto_op: Optional[ConditionalOperator] = None  # 战斗指令
+        self.auto_op: Optional[AutoBattleOperator] = None  # 战斗指令
 
     def handle_init(self):
         self._listen_btn()
@@ -144,7 +144,7 @@ class CommissionAssistantApp(ZApplication):
         now = time.time()
 
         screen = self.screenshot()
-        auto_battle_utils.run_screen_check(self, screen, now)
+        self.auto_op.auto_battle_context.check_battle_state(screen, now)
 
         return self.round_wait(wait_round_time=self.ctx.battle_assistant_config.screenshot_interval)
 
@@ -156,23 +156,21 @@ class CommissionAssistantApp(ZApplication):
             auto_battle_utils.load_auto_op(self,
                                            'auto_battle' if self.run_mode == 2 else 'dodge',
                                            self.ctx.commission_assistant_config.auto_battle if self.run_mode == 2 else self.ctx.commission_assistant_config.dodge_config)
-            auto_battle_utils.init_context(self)
-            self.auto_op.start_running_async()
+        self.auto_op.start_running_async()
 
     def handle_pause(self):
         ZApplication.handle_pause(self)
         self._unlisten_btn()
-        auto_battle_utils.stop_running(self)
+        auto_battle_utils.stop_running(self.auto_op)
 
     def handle_resume(self) -> None:
         ZApplication.handle_resume(self)
         self._listen_btn()
-        auto_battle_utils.resume_running(self)
+        auto_battle_utils.resume_running(self.auto_op)
 
     def _after_operation_done(self, result: OperationResult):
         ZApplication._after_operation_done(self, result)
         self._unlisten_btn()
-        auto_battle_utils.stop_running(self)
         if self.auto_op is not None:
             self.auto_op.dispose()
             self.auto_op = None

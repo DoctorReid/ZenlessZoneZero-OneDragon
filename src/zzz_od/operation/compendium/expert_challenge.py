@@ -2,7 +2,6 @@ import time
 
 from typing import Optional, ClassVar
 
-from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
 from one_dragon.base.operation.operation_base import OperationResult
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
@@ -11,6 +10,7 @@ from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem
 from zzz_od.auto_battle import auto_battle_utils
+from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.deploy import Deploy
 from zzz_od.operation.zzz_operation import ZOperation
@@ -46,7 +46,7 @@ class ExpertChallenge(ZOperation):
         self.charge_left: Optional[int] = None
         self.charge_need: Optional[int] = None
 
-        self.auto_op: Optional[ConditionalOperator] = None
+        self.auto_op: Optional[AutoBattleOperator] = None
 
     @operation_node(name='等待入口加载', is_start_node=True, node_max_retry_times=60)
     def wait_entry_load(self) -> OperationRoundResult:
@@ -131,20 +131,19 @@ class ExpertChallenge(ZOperation):
     @operation_node(name='向前移动准备战斗')
     def move_to_battle(self) -> OperationRoundResult:
         self.ctx.controller.move_w(press=True, press_time=1, release=True)
-        auto_battle_utils.init_context(self)
         self.auto_op.start_running_async()
         return self.round_success()
 
     @node_from(from_name='向前移动准备战斗')
     @operation_node(name='自动战斗')
     def auto_battle(self) -> OperationRoundResult:
-        if self.ctx.battle.last_check_end_result is not None:
-            auto_battle_utils.stop_running(self)
-            return self.round_success(status=self.ctx.battle.last_check_end_result)
+        if self.auto_op.auto_battle_context.last_check_end_result is not None:
+            auto_battle_utils.stop_running(self.auto_op)
+            return self.round_success(status=self.auto_op.auto_battle_context.last_check_end_result)
         now = time.time()
         screen = self.screenshot()
 
-        auto_battle_utils.run_screen_check(self, screen, now, check_battle_end_normal_result=True)
+        self.auto_op.auto_battle_context.check_battle_state(screen, now, check_battle_end_normal_result=True)
 
         return self.round_wait(wait=self.ctx.battle_assistant_config.screenshot_interval)
 
@@ -169,15 +168,15 @@ class ExpertChallenge(ZOperation):
 
     def _on_pause(self, e=None):
         ZOperation._on_pause(self, e)
-        auto_battle_utils.stop_running(self)
+        if self.auto_op is not None:
+            self.auto_op.stop_running()
 
     def _on_resume(self, e=None):
         ZOperation._on_resume(self, e)
-        auto_battle_utils.resume_running(self)
+        auto_battle_utils.resume_running(self.auto_op)
 
     def _after_operation_done(self, result: OperationResult):
         ZOperation._after_operation_done(self, result)
-        auto_battle_utils.stop_running(self)
         if self.auto_op is not None:
             self.auto_op.dispose()
             self.auto_op = None

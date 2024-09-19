@@ -1,12 +1,16 @@
 import time
 
+from typing import Optional
+
 from one_dragon.base.operation.context_event_bus import ContextEventItem
 from one_dragon.base.operation.one_dragon_context import ContextKeyboardEventEnum
-from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.base.operation.operation_node import OperationNode
+from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils import debug_utils
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.zzz_application import ZApplication
+from zzz_od.auto_battle import auto_battle_utils
+from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.context.zzz_context import ZContext
 
 
@@ -24,6 +28,8 @@ class ScreenshotHelperApp(ZApplication):
 
         self.to_save_screenshot: bool = False  # 去保存截图 由按键触发
         self.last_save_screenshot_time: float = 0  # 上次保存截图时间
+
+        self.auto_op: Optional[AutoBattleOperator] = None
 
     def add_edges_and_nodes(self) -> None:
         """
@@ -50,7 +56,8 @@ class ScreenshotHelperApp(ZApplication):
         self.ctx.listen_event(ContextKeyboardEventEnum.PRESS.value, self._on_key_press)
 
     def init_context(self) -> OperationRoundResult:
-        self.ctx.battle_dodge.init_context(self.ctx.battle_assistant_config.use_gpu)
+        auto_battle_utils.load_auto_op(self, 'dodge',
+                                       self.ctx.battle_assistant_config.dodge_assistant_config)
         return self.round_success()
 
     def repeat_screenshot(self) -> OperationRoundResult:
@@ -61,7 +68,7 @@ class ScreenshotHelperApp(ZApplication):
         screen = self.screenshot()
 
         if self.ctx.screenshot_helper_config.dodge_detect:
-            if self.ctx.battle_dodge.check_dodge_flash(screen, now):
+            if self.auto_op.auto_battle_context.dodge_context.check_dodge_flash(screen, now):
                 debug_utils.save_debug_image(screen, prefix='dodge_wrong')
 
         if self.to_save_screenshot:

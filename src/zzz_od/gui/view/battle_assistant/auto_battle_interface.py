@@ -1,12 +1,11 @@
 import os.path
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
 from qfluentwidgets import FluentIcon, PushButton, HyperlinkCard
 from typing import Optional
 
 from one_dragon.base.operation.context_event_bus import ContextEventItem
-from one_dragon.gui.component.app_event_log_display_card import AppEventLogDisplayCard
 from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
@@ -17,9 +16,9 @@ from zzz_od.application.battle_assistant.auto_battle_config import get_auto_batt
     get_auto_battle_op_config_list
 from zzz_od.application.battle_assistant.auto_battle_debug_app import AutoBattleDebugApp
 from zzz_od.application.zzz_application import ZApplication
-from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.config.game_config import GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
+from zzz_od.gui.view.battle_assistant.battle_state_display import BattleStateDisplay
 
 
 class AutoBattleInterface(AppRunInterface):
@@ -56,14 +55,14 @@ class AutoBattleInterface(AppRunInterface):
 
         self.gpu_opt = SwitchSettingCard(
             icon=FluentIcon.GAME, title='GPU运算',
-            content='游戏画面掉帧的话可以不启用，保证截图间隔+推理耗时在50ms内即可'
+            content='游戏画面掉帧的话 可以不启用'
         )
         self.gpu_opt.value_changed.connect(self._on_gpu_changed)
         top_widget.add_widget(self.gpu_opt)
 
         self.screenshot_interval_opt = TextSettingCard(
             icon=FluentIcon.GAME, title='截图间隔(秒)',
-            content='游戏画面掉帧的话可以适当加大截图间隔，保证截图间隔+推理耗时在50ms内即可'
+            content='游戏画面掉帧的话 可以适当加大截图间隔'
         )
         self.screenshot_interval_opt.value_changed.connect(self._on_screenshot_interval_changed)
         top_widget.add_widget(self.screenshot_interval_opt)
@@ -78,8 +77,29 @@ class AutoBattleInterface(AppRunInterface):
 
         return top_widget
 
-    def get_app_event_log_card(self) -> Optional[AppEventLogDisplayCard]:
-        return AppEventLogDisplayCard(self.ctx, AutoBattleOperator.get_all_state_event_ids())
+    def get_content_widget(self) -> QWidget:
+        content_widget = QWidget()
+        # 创建 QVBoxLayout 作为主布局
+        main_layout = QVBoxLayout(content_widget)
+
+        # 创建 QHBoxLayout 作为中间布局
+        horizontal_layout = QHBoxLayout()
+
+        # 将 QVBoxLayouts 加入 QHBoxLayout
+        left_layout = QVBoxLayout()
+        left_layout.addWidget(AppRunInterface.get_content_widget(self))
+
+        right_layout = QVBoxLayout()
+        self.battle_state_display = BattleStateDisplay()
+        right_layout.addWidget(self.battle_state_display)
+
+        horizontal_layout.addLayout(left_layout, stretch=1)
+        horizontal_layout.addLayout(right_layout, stretch=1)
+
+        # 设置伸缩因子，让 QHBoxLayout 占据空间
+        main_layout.addLayout(horizontal_layout, stretch=1)
+
+        return content_widget
 
     def on_interface_shown(self) -> None:
         """
@@ -94,6 +114,11 @@ class AutoBattleInterface(AppRunInterface):
         self.gamepad_type_opt.setValue(self.ctx.battle_assistant_config.gamepad_type)
         self.debug_btn.setText('%s %s' % (self.ctx.key_debug.upper(), '调试'))
         self.ctx.listen_event(AutoBattleApp.EVENT_OP_LOADED, self._on_op_loaded)
+
+    def on_interface_hidden(self) -> None:
+        AppRunInterface.on_interface_hidden(self)
+        self.ctx.unlisten_all_event(self)
+        self.battle_state_display.set_update_display(False)
 
     def _update_auto_battle_config_opts(self) -> None:
         """
@@ -167,6 +192,7 @@ class AutoBattleInterface(AppRunInterface):
         :param event:
         :return:
         """
-        if self.app_event_log_card is None:
+        if self.battle_state_display is None:
             return
-        self.app_event_log_card.set_target_event_ids(event.data)
+        self.battle_state_display.auto_op = event.data
+        self.battle_state_display.set_update_display(True)

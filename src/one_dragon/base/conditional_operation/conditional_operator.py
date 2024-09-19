@@ -2,7 +2,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor, Future
 
 from threading import Lock
-from typing import Optional, Callable
+from typing import Optional, Callable, List
 
 from one_dragon.base.conditional_operation.atomic_op import AtomicOp
 from one_dragon.base.conditional_operation.operation_def import OperationDef
@@ -10,10 +10,9 @@ from one_dragon.base.conditional_operation.operation_task import OperationTask
 from one_dragon.base.conditional_operation.operation_template import OperationTemplate
 from one_dragon.base.conditional_operation.scene_handler import SceneHandler
 from one_dragon.base.conditional_operation.state_handler_template import StateHandlerTemplate
-from one_dragon.base.conditional_operation.state_recorder import StateRecorder
+from one_dragon.base.conditional_operation.state_recorder import StateRecorder, StateRecord
 from one_dragon.base.conditional_operation.utils import construct_scene_handler
 from one_dragon.base.config.yaml_config import YamlConfig
-from one_dragon.base.operation.context_event_bus import ContextEventBus, ContextEventItem
 from one_dragon.thread.atomic_int import AtomicInt
 from one_dragon.utils import thread_utils
 from one_dragon.utils.log_utils import log
@@ -35,9 +34,8 @@ class ConditionalOperator(YamlConfig):
 
         self._inited: bool = False  # 是否已经完成初始化
 
-        self.event_bus: Optional[ContextEventBus] = None
-        self._event_to_scene_handler: dict[str, SceneHandler] = {}  # 需要状态触发的场景处理
-        self._event_trigger_time: dict[str, float] = {}  # 触发时间
+        self._trigger_scene_handler: dict[str, SceneHandler] = {}  # 需要状态触发的场景处理
+        self._last_trigger_time: dict[str, float] = {}  # 各状态场景最后一次的触发时间
         self._normal_scene_handler: Optional[SceneHandler] = None  # 不需要状态触发的场景处理
         self._running: bool = False  # 整体是否正在运行
 
@@ -47,7 +45,6 @@ class ConditionalOperator(YamlConfig):
 
     def init(
             self,
-            event_bus: ContextEventBus,
             op_getter: Callable[[OperationDef], AtomicOp],
             scene_handler_getter: Callable[[str], StateHandlerTemplate],
             operation_template_getter: Callable[[str], OperationTemplate],
@@ -58,10 +55,9 @@ class ConditionalOperator(YamlConfig):
         self._inited = False
 
         self.dispose()  # 先把旧的清除掉
-        self.event_bus = event_bus
-        self._event_to_scene_handler: dict[str, SceneHandler] = {}
+        self._trigger_scene_handler: dict[str, SceneHandler] = {}
         self._normal_scene_handler = None
-        self._event_trigger_time = {}
+        self._last_trigger_time = {}
 
         scenes = self.get('scenes', [])
 
@@ -75,7 +71,7 @@ class ConditionalOperator(YamlConfig):
                 for state in states:
                     if state in usage_states:
                         raise ValueError('状态监听 %s 出现在多个场景中' % state)
-                    self._event_to_scene_handler[state] = handler
+                    self._trigger_scene_handler[state] = handler
             elif self._normal_scene_handler is not None:
                 raise ValueError('存在多个无状态监听的场景')
             else:
@@ -89,8 +85,8 @@ class ConditionalOperator(YamlConfig):
         :return:
         """
         self.stop_running()  # 在这里强制停止运行
-        if self._event_to_scene_handler is not None:
-            for _, handler in self._event_to_scene_handler.items():
+        if self._trigger_scene_handler is not None:
+            for _, handler in self._trigger_scene_handler.items():
                 handler.dispose()
         if self._normal_scene_handler is not None:
             self._normal_scene_handler.dispose()
@@ -108,8 +104,6 @@ class ConditionalOperator(YamlConfig):
 
         self._running = True
         self._running_task_cnt.set(0)  # 每次重置计数器 防止有bug导致无法正常运行
-
-        self._start_listen_events()
 
         if self._normal_scene_handler is not None:
             future: Future = _od_conditional_op_executor.submit(self._normal_scene_loop)
@@ -136,7 +130,7 @@ class ConditionalOperator(YamlConfig):
                         break
 
                     trigger_time = time.time()
-                    last_trigger_time = self._event_trigger_time.get('', 0)
+                    last_trigger_time = self._last_trigger_time.get('', 0)
                     past_time = trigger_time - last_trigger_time
                     if past_time < self._normal_scene_handler.interval_seconds:
                         to_sleep = self._normal_scene_handler.interval_seconds - past_time
@@ -144,7 +138,7 @@ class ConditionalOperator(YamlConfig):
                         ops = self._normal_scene_handler.get_operations(trigger_time)
                         if ops is not None:
                             self._running_task = OperationTask(False, ops)
-                            self._event_trigger_time[''] = trigger_time
+                            self._last_trigger_time[''] = trigger_time
                             self._running_task_cnt.inc()
                             future = self._running_task.run_async()
                             future.add_done_callback(self._on_task_done)
@@ -155,15 +149,16 @@ class ConditionalOperator(YamlConfig):
                 else:  # 没有命中的状态 或者 提交执行了 那就自旋等待
                     time.sleep(0.02)
 
-    def _handle_trigger_event(self, event: ContextEventItem) -> None:
+    def _trigger_scene(self, state_name: str) -> None:
         """
-        处理触发器事件
-        :param event:
+        触发对应的场景
+        :param state_name: 触发的状态
         :return:
         """
-        event_id = event.event_id
-        log.debug('场景触发 %s', event.event_id)
-        handler = self._event_to_scene_handler[event_id]
+        if state_name not in self._trigger_scene_handler:
+            return
+        log.debug('场景触发 %s', state_name)
+        handler = self._trigger_scene_handler[state_name]
 
         # 上锁后确保运行状态不会被篡改
         with self._task_lock:
@@ -172,7 +167,7 @@ class ConditionalOperator(YamlConfig):
                 return
 
             trigger_time: float = time.time()  # 这里不应该使用事件发生时间 而是应该使用当前的实际操作时间
-            last_trigger_time = self._event_trigger_time.get(event_id, 0)
+            last_trigger_time = self._last_trigger_time.get(state_name, 0)
             if trigger_time - last_trigger_time < handler.interval_seconds:  # 冷却时间没过 不触发
                 return
 
@@ -201,7 +196,7 @@ class ConditionalOperator(YamlConfig):
             self._stop_running_task()
 
             self._running_task = OperationTask(True, ops, priority=handler.priority)
-            self._event_trigger_time[event_id] = trigger_time
+            self._last_trigger_time[state_name] = trigger_time
             future = self._running_task.run_async()
             future.add_done_callback(self._on_task_done)
 
@@ -210,9 +205,6 @@ class ConditionalOperator(YamlConfig):
         停止执行
         :return:
         """
-        if self.event_bus is not None:
-            self.event_bus.unlisten_all_event(self)
-
         # 上锁后停止 上锁后确保运行状态不会被篡改
         with self._task_lock:
             self._running = False
@@ -251,8 +243,8 @@ class ConditionalOperator(YamlConfig):
         states: set[str] = set()
         if self._normal_scene_handler is not None:
             states = states.union(self._normal_scene_handler.get_usage_states())
-        if self._event_to_scene_handler is not None:
-            for event_id, handler in self._event_to_scene_handler.items():
+        if self._trigger_scene_handler is not None:
+            for event_id, handler in self._trigger_scene_handler.items():
                 states.add(event_id)
                 states = states.union(handler.get_usage_states())
         return states
@@ -263,41 +255,86 @@ class ConditionalOperator(YamlConfig):
         """
         return None
 
-    def _start_listen_events(self) -> None:
+    def update_state(self, state_record: StateRecord) -> None:
         """
-        开始监听事件
+        更新一个状态
+        然后看是否需要触发对应的场景 清除状态的不进行触发
+        :param state_record: 状态记录
+        :return:
         """
-        if self.event_bus is None:
+        # 先统一更新状态值
+        state_recorder = self._update_state_recorder(state_record)
+        if state_recorder is None:
             return
 
-        self.event_bus.unlisten_all_event(self)
+        # 再去触发具体的场景 由自己的线程处理
+        if not state_record.is_clear:
+            future: Future = _od_conditional_op_executor.submit(self._trigger_scene, state_recorder.state_name)
+            future.add_done_callback(thread_utils.handle_future_result)
 
-        for event_id in self.get_usage_states():
-            self.event_bus.listen_event(event_id, self._on_battle_event)
-
-    def _on_battle_event(self, event: ContextEventItem) -> None:
-        # 由自己的线程处理事件 避免卡住事件线程
-        future: Future = _od_conditional_op_executor.submit(self._handle_battle_event, event)
-        future.add_done_callback(thread_utils.handle_future_result)
-
-    def _handle_battle_event(self, event: ContextEventItem) -> None:
+    def batch_update_states(self, state_records: List[StateRecord]) -> None:
         """
-        处理战斗事件
+        批量更新多个状态
+        然后看是否需要触发对应的场景 清除状态的不进行触发
+        只触发优先级最高的一个
+        多个相同优先级时 随机触发一个
+        :param state_records: 状态记录列表
+        :return:
         """
-        event_id = event.event_id
+        top_priority_handler: Optional[SceneHandler] = None
+        top_priority_state: Optional[str] = None
 
-        # 先统一处理状态值
-        state_recorder = self.get_state_recorder(event_id)
-        if state_recorder is not None:
-            state_recorder.update_state_record(event)
+        for state_record in state_records:
+            state_name = state_record.state_name
+            state_recorder = self._update_state_recorder(state_record)
+            if state_recorder is None:
+                continue
+            if state_record.is_clear:
+                continue
 
-            if state_recorder.mutex_list is not None:
-                for mutex_state in state_recorder.mutex_list:
+            # 找优先级最高的场景
+            handler = self._trigger_scene_handler.get(state_name)
+            if handler is None:
+                continue
+
+            replace = False
+            if top_priority_handler is None:
+                replace = True
+            elif top_priority_handler.priority is None:  # 可随意打断
+                replace = True
+            elif handler.priority is None:  # 可随意打断
+                pass
+            elif handler.priority > top_priority_handler.priority:  # 新触发场景优先级更高
+                replace = True
+
+            if replace:
+                top_priority_handler = handler
+                top_priority_state = state_name
+
+        # 触发具体的场景 由自己的线程处理
+        if top_priority_state is not None:
+            future: Future = _od_conditional_op_executor.submit(self._trigger_scene, top_priority_state)
+            future.add_done_callback(thread_utils.handle_future_result)
+
+    def _update_state_recorder(self, new_record: StateRecord) -> Optional[StateRecorder]:
+        """
+        更新一个状态记录
+        :param new_record: 新的状态记录
+        :return:
+        """
+        recorder = self.get_state_recorder(new_record.state_name)
+        if recorder is None:
+            return
+
+        if new_record.is_clear:
+            recorder.clear_state_record()
+        else:
+            recorder.update_state_record(new_record)
+            if recorder.mutex_list is not None:
+                for mutex_state in recorder.mutex_list:
                     mutex_recorder = self.get_state_recorder(mutex_state)
                     if mutex_recorder is None:
                         continue
-                    mutex_recorder.clear_state_record(event)
+                    mutex_recorder.clear_state_record()
 
-        # 再去触发具体的场景
-        if event_id in self._event_to_scene_handler:
-            self._handle_trigger_event(event)
+        return recorder

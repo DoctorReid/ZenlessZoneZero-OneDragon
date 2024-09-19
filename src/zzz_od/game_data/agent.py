@@ -71,11 +71,13 @@ class AgentStateDef:
                  upper_color: Union[MatLike, int] = None,
                  connect_cnt: Optional[int] = None,
                  split_color_range: Optional[List[Union[MatLike, int]]] = None,
-                 max_length: int = 100
+                 max_length: int = 100,
+                 min_value_trigger_state: Optional[int] = None
                  ):
         self.state_name: str = state_name
         self.template_id: str = template_id
         self.check_way: AgentStateCheckWay = check_way
+        self.should_check_in_battle: bool = True  # 是否需要在战斗中检测 自动战斗开始前进行初始化
 
         # 需要匹配的颜色范围
         self.lower_color: Union[MatLike, int] = lower_color
@@ -88,6 +90,14 @@ class AgentStateDef:
 
         # 判断长度时 用于调整最大长度 例如能量最大值是120
         self.max_length: int = max_length
+
+        # 触发这个状态的最小状态值
+        self.min_value_trigger_state: int = 0  # 默认为0 即有识别就触发
+        if min_value_trigger_state is not None:
+            self.min_value_trigger_state = min_value_trigger_state
+        elif self.check_way == AgentStateCheckWay.COLOR_RANGE_EXIST:
+            # 判断存在与否的话 默认为1
+            self.min_value_trigger_state = 1
 
 
 class CommonAgentStateEnum(Enum):
@@ -108,7 +118,8 @@ class CommonAgentStateEnum(Enum):
                               lower_color=100, upper_color=255, template_id='energy_22',
                               split_color_range=[0, 20], max_length=120)
     LIFE_DEDUCTION = AgentStateDef('前台-血量扣减', AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH,
-                              lower_color=(140, 30, 30), upper_color=(160, 50, 50), template_id='life_deduction')
+                                   lower_color=(140, 30, 30), upper_color=(160, 50, 50), template_id='life_deduction',
+                                   min_value_trigger_state=1)
 
 
 class Agent:

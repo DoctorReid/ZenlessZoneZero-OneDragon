@@ -1,7 +1,7 @@
 import time
 
 import os
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from one_dragon.base.conditional_operation.atomic_op import AtomicOp
 from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
@@ -11,7 +11,6 @@ from one_dragon.base.conditional_operation.state_handler_template import StateHa
 from one_dragon.base.conditional_operation.state_recorder import StateRecorder
 from one_dragon.utils import os_utils
 from one_dragon.utils.log_utils import log
-from zzz_od.auto_battle.atomic_op.btn_chain_cancel import AtomicBtnChainCancel
 from zzz_od.auto_battle.atomic_op.btn_chain_left import AtomicBtnChainLeft
 from zzz_od.auto_battle.atomic_op.btn_chain_right import AtomicBtnChainRight
 from zzz_od.auto_battle.atomic_op.btn_common import AtomicBtnCommon
@@ -29,8 +28,9 @@ from zzz_od.auto_battle.atomic_op.btn_ultimate import AtomicBtnUltimate
 from zzz_od.auto_battle.atomic_op.state_clear import AtomicClearState
 from zzz_od.auto_battle.atomic_op.state_set import AtomicSetState
 from zzz_od.auto_battle.atomic_op.wait import AtomicWait
-from zzz_od.context.battle_context import BattleEventEnum
-from zzz_od.context.battle_dodge_context import YoloStateEventEnum
+from zzz_od.auto_battle.auto_battle_context import AutoBattleContext
+from zzz_od.auto_battle.auto_battle_dodge_context import YoloStateEventEnum
+from zzz_od.auto_battle.auto_battle_state import BattleStateEnum
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import AgentEnum, AgentTypeEnum, CommonAgentStateEnum
 
@@ -50,7 +50,39 @@ class AutoBattleOperator(ConditionalOperator):
         self._state_recorders: dict[str, StateRecorder] = {}
         self._mutex_list: dict[str, List[str]] = {}
 
-    def init_operator(self):
+        self.auto_battle_context: AutoBattleContext = AutoBattleContext(ctx)
+
+    def init_before_running(self) -> Tuple[bool, str]:
+        """
+        运行前进行初始化
+        :return:
+        """
+        try:
+            success, msg = self._init_operator()
+            if not success:
+                return success, msg
+
+            self.auto_battle_context.init_battle_context(
+                auto_op=self,
+                use_gpu=self.ctx.battle_assistant_config.use_gpu,
+                check_dodge_interval=self.get('check_dodge_interval', 0.02),
+                check_agent_interval=self.get('check_agent_interval', 0.5),
+                check_special_attack_interval=self.get('check_special_attack_interval', 0.5),
+                check_ultimate_interval=self.get('check_ultimate_interval', 0.5),
+                check_chain_interval=self.get('check_chain_interval', 1),
+                check_quick_interval=self.get('check_quick_interval', 0.5),
+                check_end_interval=self.get('check_end_interval', 5),
+
+                allow_ultimate_list=self.get('allow_ultimate', None)
+            )
+        except Exception as e:
+            log.error('自动战斗初始化失败', exc_info=True)
+            return False, '初始化失败'
+
+    def _init_operator(self) -> Tuple[bool, str]:
+        if not self.is_file_exists():
+            return False, '自动战斗配置不存在 请重新选择'
+
         self._mutex_list: dict[str, List[str]] = {}
 
         for agent_enum in AgentEnum:
@@ -83,11 +115,11 @@ class AutoBattleOperator(ConditionalOperator):
 
         ConditionalOperator.init(
             self,
-            event_bus=self.ctx,
             op_getter=self.get_atomic_op,
             scene_handler_getter=AutoBattleOperator.get_state_handler_template,
             operation_template_getter=AutoBattleOperator.get_operation_template
         )
+        return True, ''
 
     @staticmethod
     def get_all_state_event_ids() -> List[str]:
@@ -100,7 +132,7 @@ class AutoBattleOperator(ConditionalOperator):
         for event_enum in YoloStateEventEnum:
             event_ids.append(event_enum.value)
 
-        for event_enum in BattleEventEnum:
+        for event_enum in BattleStateEnum:
             event_ids.append(event_enum.value)
 
         for agent_enum in AgentEnum:
@@ -177,39 +209,39 @@ class AutoBattleOperator(ConditionalOperator):
             press_time = None
 
         if op_name.startswith('按键') and not op_name.endswith('按下') and not op_name.endswith('松开'):
-            return AtomicBtnCommon(self.ctx, op_def)
-        elif op_name.startswith(BattleEventEnum.BTN_DODGE.value):
-            return AtomicBtnDodge(self.ctx, press=press, press_time=press_time, release=release)
-        elif op_name.startswith(BattleEventEnum.BTN_SWITCH_NEXT.value):
-            return AtomicBtnSwitchNext(self.ctx, press=press, press_time=press_time, release=release)
-        elif op_name.startswith(BattleEventEnum.BTN_SWITCH_PREV.value):
-            return AtomicBtnSwitchPrev(self.ctx, press=press, press_time=press_time, release=release)
-        elif op_name.startswith(BattleEventEnum.BTN_SWITCH_NORMAL_ATTACK.value):
-            return AtomicBtnNormalAttack(self.ctx, press=press, press_time=press_time, release=release)
-        elif op_name.startswith(BattleEventEnum.BTN_SWITCH_SPECIAL_ATTACK.value):
-            return AtomicBtnSpecialAttack(self.ctx, press=press, press_time=press_time, release=release)
-        elif op_name.startswith(BattleEventEnum.BTN_ULTIMATE.value):
-            return AtomicBtnUltimate(self.ctx, press=press, press_time=press_time, release=release)
-        elif op_name.startswith(BattleEventEnum.BTN_CHAIN_LEFT.value):
-            return AtomicBtnChainLeft(self.ctx, press=press, press_time=press_time, release=release)
-        elif op_name.startswith(BattleEventEnum.BTN_CHAIN_RIGHT.value):
-            return AtomicBtnChainRight(self.ctx, press=press, press_time=press_time, release=release)
-        elif op_name.startswith(BattleEventEnum.BTN_MOVE_W.value):
-            return AtomicBtnMoveW(self.ctx, press=press, press_time=press_time, release=release)
-        elif op_name.startswith(BattleEventEnum.BTN_MOVE_S.value):
-            return AtomicBtnMoveS(self.ctx, press=press, press_time=press_time, release=release)
-        elif op_name.startswith(BattleEventEnum.BTN_MOVE_A.value):
-            return AtomicBtnMoveA(self.ctx, press=press, press_time=press_time, release=release)
-        elif op_name.startswith(BattleEventEnum.BTN_MOVE_D.value):
-            return AtomicBtnMoveD(self.ctx, press=press, press_time=press_time, release=release)
-        elif op_name.startswith(BattleEventEnum.BTN_LOCK.value):
-            return AtomicBtnLock(self.ctx, press=press, press_time=press_time, release=release)
+            return AtomicBtnCommon(self.auto_battle_context, op_def)
+        elif op_name.startswith(BattleStateEnum.BTN_DODGE.value):
+            return AtomicBtnDodge(self.auto_battle_context, press=press, press_time=press_time, release=release)
+        elif op_name.startswith(BattleStateEnum.BTN_SWITCH_NEXT.value):
+            return AtomicBtnSwitchNext(self.auto_battle_context, press=press, press_time=press_time, release=release)
+        elif op_name.startswith(BattleStateEnum.BTN_SWITCH_PREV.value):
+            return AtomicBtnSwitchPrev(self.auto_battle_context, press=press, press_time=press_time, release=release)
+        elif op_name.startswith(BattleStateEnum.BTN_SWITCH_NORMAL_ATTACK.value):
+            return AtomicBtnNormalAttack(self.auto_battle_context, press=press, press_time=press_time, release=release)
+        elif op_name.startswith(BattleStateEnum.BTN_SWITCH_SPECIAL_ATTACK.value):
+            return AtomicBtnSpecialAttack(self.auto_battle_context, press=press, press_time=press_time, release=release)
+        elif op_name.startswith(BattleStateEnum.BTN_ULTIMATE.value):
+            return AtomicBtnUltimate(self.auto_battle_context, press=press, press_time=press_time, release=release)
+        elif op_name.startswith(BattleStateEnum.BTN_CHAIN_LEFT.value):
+            return AtomicBtnChainLeft(self.auto_battle_context, press=press, press_time=press_time, release=release)
+        elif op_name.startswith(BattleStateEnum.BTN_CHAIN_RIGHT.value):
+            return AtomicBtnChainRight(self.auto_battle_context, press=press, press_time=press_time, release=release)
+        elif op_name.startswith(BattleStateEnum.BTN_MOVE_W.value):
+            return AtomicBtnMoveW(self.auto_battle_context, press=press, press_time=press_time, release=release)
+        elif op_name.startswith(BattleStateEnum.BTN_MOVE_S.value):
+            return AtomicBtnMoveS(self.auto_battle_context, press=press, press_time=press_time, release=release)
+        elif op_name.startswith(BattleStateEnum.BTN_MOVE_A.value):
+            return AtomicBtnMoveA(self.auto_battle_context, press=press, press_time=press_time, release=release)
+        elif op_name.startswith(BattleStateEnum.BTN_MOVE_D.value):
+            return AtomicBtnMoveD(self.auto_battle_context, press=press, press_time=press_time, release=release)
+        elif op_name.startswith(BattleStateEnum.BTN_LOCK.value):
+            return AtomicBtnLock(self.auto_battle_context, press=press, press_time=press_time, release=release)
         elif op_name == AtomicWait.OP_NAME:
             return AtomicWait(op_def)
         elif op_name == AtomicSetState.OP_NAME:
-            return AtomicSetState(self.ctx.custom_battle, op_def)
+            return AtomicSetState(self.auto_battle_context.custom_context, op_def)
         elif op_name == AtomicClearState.OP_NAME:
-            return AtomicClearState(self.ctx.custom_battle, op_def)
+            return AtomicClearState(self.auto_battle_context.custom_context, op_def)
         else:
             raise ValueError('非法的指令 %s' % op_name)
 
@@ -279,33 +311,20 @@ class AutoBattleOperator(ConditionalOperator):
         停止运行 要松开所有按钮
         """
         ConditionalOperator.stop_running(self)
+        self.auto_battle_context.stop_context()
 
-        log.info('松开所有按键')
-        ops = [
-            AtomicBtnDodge(self.ctx, release=True),
-            AtomicBtnSwitchNext(self.ctx, release=True),
-            AtomicBtnSwitchPrev(self.ctx, release=True),
-            AtomicBtnNormalAttack(self.ctx, release=True),
-            AtomicBtnSpecialAttack(self.ctx, release=True),
-            AtomicBtnUltimate(self.ctx, release=True),
-            AtomicBtnChainLeft(self.ctx, release=True),
-            AtomicBtnChainRight(self.ctx, release=True),
-            AtomicBtnMoveW(self.ctx, release=True),
-            AtomicBtnMoveS(self.ctx, release=True),
-            AtomicBtnMoveA(self.ctx, release=True),
-            AtomicBtnMoveD(self.ctx, release=True),
-            AtomicBtnLock(self.ctx, release=True),
-            AtomicBtnChainCancel(self.ctx, release=True)
-        ]
-        for op in ops:
-            op.execute()
+    def start_running_async(self) -> bool:
+        success = ConditionalOperator.start_running_async(self)
+        if success:
+            self.auto_battle_context.start_context()
+        return success
 
 
 if __name__ == '__main__':
     ctx = ZContext()
     ctx.init_by_config()
-    op = AutoBattleOperator(ctx, 'auto_battle', '测试')
-    op.init_operator()
-    op.start_running_async()
+    auto_op = AutoBattleOperator(ctx, 'auto_battle', '专属配队-简')
+    auto_op.init_before_running()
+    auto_op.start_running_async()
     time.sleep(5)
-    op.stop_running()
+    auto_op.stop_running()

@@ -5,7 +5,6 @@ from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, PushButton
 from typing import Optional
 
-from one_dragon.gui.component.app_event_log_display_card import AppEventLogDisplayCard
 from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
@@ -65,9 +64,6 @@ class OperationDebugInterface(AppRunInterface):
         top_widget.add_widget(self.gamepad_type_opt)
 
         return top_widget
-
-    def get_app_event_log_card(self) -> Optional[AppEventLogDisplayCard]:
-        return AppEventLogDisplayCard(self.ctx, AutoBattleOperator.get_all_state_event_ids())
 
     def on_interface_shown(self) -> None:
         """

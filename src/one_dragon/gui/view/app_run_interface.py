@@ -8,10 +8,8 @@ from one_dragon.base.operation.application_base import Application
 from one_dragon.base.operation.context_event_bus import ContextEventItem
 from one_dragon.base.operation.one_dragon_context import ContextKeyboardEventEnum, ContextRunningStateEventEnum, \
     OneDragonContext
-from one_dragon.gui.component.app_event_log_display_card import AppEventLogDisplayCard
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.log_display_card import LogDisplayCard
-from one_dragon.gui.component.row_widget import RowWidget
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 
@@ -100,16 +98,7 @@ class AppRunInterface(VerticalScrollInterface):
         btn_row_layout.addWidget(self.stop_btn)
 
         self.log_card = LogDisplayCard()
-        self.app_event_log_card: AppEventLogDisplayCard = self.get_app_event_log_card()
-        if self.app_event_log_card is not None:
-            log_row = RowWidget()
-            content_layout.addWidget(log_row)
-
-            log_row.h_layout.addWidget(self.log_card, stretch=1)
-
-            log_row.h_layout.addWidget(self.app_event_log_card, stretch=1)
-        else:
-            content_layout.addWidget(self.log_card)
+        content_layout.addWidget(self.log_card)
 
         self.app_runner = AppRunner(self.ctx)
         self.app_runner.state_changed.connect(self._on_context_state_changed)
@@ -126,9 +115,6 @@ class AppRunInterface(VerticalScrollInterface):
         pass
 
     def get_widget_at_bottom(self) -> QWidget:
-        pass
-
-    def get_app_event_log_card(self) -> Optional[AppEventLogDisplayCard]:
         pass
 
     def on_interface_shown(self) -> None:
@@ -160,8 +146,6 @@ class AppRunInterface(VerticalScrollInterface):
         if app is None:
             log.error('未提供对应应用')
             return
-        if self.app_event_log_card is not None:
-            self.app_event_log_card.set_update_log(True)
         self.app_runner.app = app
         self.app_runner.start()
 
@@ -191,9 +175,6 @@ class AppRunInterface(VerticalScrollInterface):
         self.start_btn.setText('%s %s' % (text, self.ctx.key_start_running.upper()))
         self.start_btn.setIcon(icon)
         self.state_text.setText('%s %s' % (gt('当前状态', 'ui'), self.ctx.context_running_status_text))
-
-        if self.app_event_log_card is not None:
-            self.app_event_log_card.set_update_log(not self.ctx.is_context_stop)
 
     def _on_start_clicked(self) -> None:
         if self.ctx.is_context_stop:

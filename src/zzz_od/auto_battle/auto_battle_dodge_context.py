@@ -1,4 +1,3 @@
-import time
 from concurrent.futures import ThreadPoolExecutor, Future
 
 import librosa
@@ -11,7 +10,8 @@ from scipy.signal import correlate, butter, filtfilt
 from sklearn.preprocessing import scale
 from typing import Optional, List, Union
 
-from one_dragon.base.conditional_operation.state_event import StateEvent
+from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
+from one_dragon.base.conditional_operation.state_recorder import StateRecord
 from one_dragon.utils import cal_utils, yolo_config_utils
 from one_dragon.utils import thread_utils, os_utils
 from one_dragon.utils.log_utils import log
@@ -19,7 +19,7 @@ from zzz_od.context.zzz_context import ZContext
 from zzz_od.yolo.flash_classifier import FlashClassifier
 
 # 创建一个线程池执行器，用于异步执行任务
-_dodge_check_executor = ThreadPoolExecutor(thread_name_prefix='od_yolo_check', max_workers=16)
+_dodge_check_executor = ThreadPoolExecutor(thread_name_prefix='od_dodge_check', max_workers=16)
 
 
 class AudioRecorder:
@@ -47,10 +47,9 @@ class AudioRecorder:
         self.latest_audio = np.empty(shape=(0,), dtype=np.float64)  # 存储最新的音频数据
         self._update_audio_lock = threading.Lock()
 
-    def start_running_async(self, interval: float = 0.01) -> None:
+    def start_running_async(self) -> None:
         """
         异步启动音频录制。
-        :param interval: 录制间隔时间
         """
         with self._run_lock:
             if self.running:
@@ -106,13 +105,15 @@ class YoloStateEventEnum(Enum):
     DODGE_AUDIO = '闪避识别-声音'
 
 
-class BattleDodgeContext:
+class AutoBattleDodgeContext:
     """
     战斗闪避上下文类，用于管理和处理闪避识别相关的逻辑。
     """
 
     def __init__(self, ctx: ZContext):
         self.ctx: ZContext = ctx  # 上下文对象
+        self.auto_op: ConditionalOperator = ConditionalOperator('', '', is_mock=True)
+
         self._flash_model: Optional[FlashClassifier] = None  # 闪避分类器
         self._audio_recorder: AudioRecorder = AudioRecorder()  # 音频录制器
         self._audio_template: Optional[np.ndarray] = None  # 音频模板
@@ -133,19 +134,21 @@ class BattleDodgeContext:
         self._audio_event_interval: float = 0.1
         self._last_audio_event_time: float = 0
 
-    def init_context(self,
-                     use_gpu: bool = True,
-                     check_dodge_interval: Union[float, List[float]] = 0,
-                     audio_recorder_interval: float = 0.01,
-                     check_audio_interval: float = 0.02
-                     ) -> None:
+    def init_battle_dodge_context(
+            self,
+            auto_op: ConditionalOperator,
+            use_gpu: bool = True,
+            check_dodge_interval: Union[float, List[float]] = 0,
+            check_audio_interval: float = 0.02
+    ) -> None:
         """
         初始化上下文，在运行前调用。
         :param use_gpu: 是否使用GPU
         :param check_dodge_interval: 闪避识别间隔
-        :param audio_recorder_interval: 音频录制间隔
         :param check_audio_interval: 音频识别间隔
         """
+        self.auto_op = auto_op
+
         if self._flash_model is None or self._flash_model.gpu != use_gpu:
             use_gh_proxy = self.ctx.env_config.is_ghproxy
             self._flash_model = FlashClassifier(
@@ -163,8 +166,6 @@ class BattleDodgeContext:
         # 上一次识别的时间
         self._last_check_dodge_time = 0
         self._last_check_audio_time = 0
-
-        self._audio_recorder.start_running_async(audio_recorder_interval)
 
         # 异步加载音频模板
         _dodge_check_executor.submit(self.init_audio_template)
@@ -185,35 +186,13 @@ class BattleDodgeContext:
 
         log.info('加载声音模板完成')
 
-    def check_screen(self, screen: MatLike, screenshot_time: float,
-                     sync: bool = False, in_battle: bool = True) -> None:
-        """
-        异步识别画面。
-        :param screen: 屏幕截图
-        :param screenshot_time: 截图时间
-        :param sync: 是否同步执行
-        :param in_battle: 是否在战斗画面
-        """
-        future_list: List[Future] = []
-        if in_battle:
-            audio_future = _dodge_check_executor.submit(self.check_dodge_audio, screenshot_time)
-            future_list.append(audio_future)
-            future_list.append(_dodge_check_executor.submit(self.check_dodge_flash, screen, screenshot_time, audio_future))
-
-        for future in future_list:
-            future.add_done_callback(thread_utils.handle_future_result)
-
-        if sync:
-            for future in future_list:
-                future.result()
-
     def check_dodge_flash(self, screen: MatLike, screenshot_time: float, audio_future: Optional[Future[bool]] = None) -> bool:
         """
         识别画面是否有闪光。
         :param screen: 屏幕截图
         :param screenshot_time: 截图时间
         :param audio_future: 音频识别结果的Future对象
-        :return: 是否识别到闪光
+        :return: 是否应该闪避 （识别到闪光或者声音）
         """
         if not self._check_dodge_flash_lock.acquire(blocking=False):
             return False
@@ -226,23 +205,21 @@ class BattleDodgeContext:
             self._last_check_dodge_time = screenshot_time
 
             result = self._flash_model.run(screen)
-            with_flash: bool = False
+            state_name: Optional[str] = None
             if result.class_idx == 1:
-                e = YoloStateEventEnum.DODGE_RED.value
-                self.ctx.dispatch_event(e, StateEvent(screenshot_time))
-                with_flash = True
+                state_name = YoloStateEventEnum.DODGE_RED.value
             elif result.class_idx == 2:
-                e = YoloStateEventEnum.DODGE_YELLOW.value
-                self.ctx.dispatch_event(e, StateEvent(screenshot_time))
-                with_flash = True
+                state_name = YoloStateEventEnum.DODGE_YELLOW.value
             elif audio_future is not None:
                 audio_result = audio_future.result()
                 if audio_result:
-                    e = YoloStateEventEnum.DODGE_AUDIO.value
-                    self.ctx.dispatch_event(e, StateEvent(screenshot_time))
-                    with_flash = True
+                    state_name = YoloStateEventEnum.DODGE_AUDIO.value
 
-            return with_flash
+            should_dodge = state_name is not None
+            if should_dodge:
+                self.auto_op.update_state(StateRecord(state_name, screenshot_time))
+
+            return should_dodge
         except Exception:
             log.error('识别画面闪光失败', exc_info=True)
         finally:
@@ -314,36 +291,14 @@ class BattleDodgeContext:
                       x)
         return wx
 
+    def start_context(self) -> None:
+        """
+        启动上下文，启动音频录制。
+        """
+        self._audio_recorder.start_running_async()
+
     def stop_context(self) -> None:
         """
         停止上下文，停止音频录制。
         """
         self._audio_recorder.stop_running()
-
-    def resume_context(self) -> None:
-        """
-        恢复上下文，重新启动音频录制。
-        """
-        self._audio_recorder.start_running_async(self._check_audio_interval)
-
-
-def __debug():
-    """
-    调试函数，用于测试战斗闪避上下文的功能。
-    """
-    ctx = ZContext()
-    ctx.init_by_config()
-
-    from one_dragon.utils import debug_utils
-    img = debug_utils.get_debug_image('flash')
-
-    ctx.battle_dodge.init_audio_template()
-    ctx.battle_dodge._audio_recorder.start_running_async(0.01)
-    while True:
-        ctx.battle_dodge.check_dodge_audio(time.time())
-        time.sleep(0.02)
-    print(ctx.battle_dodge.get_max_corr(ctx.battle_dodge._audio_template, ctx.battle_dodge._audio_template))
-
-
-if __name__ == '__main__':
-    __debug()
