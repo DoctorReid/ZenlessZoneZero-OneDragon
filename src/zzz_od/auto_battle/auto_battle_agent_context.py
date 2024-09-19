@@ -494,6 +494,7 @@ class AutoBattleAgentContext:
         """
         if self.team_info.switch_next_agent(update_time):
             records = self._get_agent_state_records(update_time)
+            records.append(StateRecord(BattleStateEnum.STATUS_SPECIAL_READY.value, is_clear=True))
             if update_state:
                 self.auto_op.batch_update_states(records)
             return records
@@ -507,6 +508,7 @@ class AutoBattleAgentContext:
         """
         if self.team_info.switch_prev_agent(update_time):
             records = self._get_agent_state_records(update_time)
+            records.append(StateRecord(BattleStateEnum.STATUS_SPECIAL_READY.value, is_clear=True))
             if update_state:
                 self.auto_op.batch_update_states(records)
             return records
@@ -560,7 +562,7 @@ class AutoBattleAgentContext:
             state_records.append(StateRecord(prefix + '能量', update_time, agent_info.energy))
 
         if not self.allow_to_use_ultimate():
-            state_records.append(StateRecord(BattleStateEnum.BTN_ULTIMATE.value, is_clear=True))
+            state_records.append(StateRecord(BattleStateEnum.STATUS_ULTIMATE_READY.value, is_clear=True))
 
         return state_records
 
