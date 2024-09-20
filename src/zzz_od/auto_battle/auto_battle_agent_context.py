@@ -203,6 +203,7 @@ class AutoBattleAgentContext:
     def __init__(self, ctx: ZContext):
         self.ctx: ZContext = ctx
         self.auto_op: ConditionalOperator = ConditionalOperator('', '', is_mock=True)
+        self.team_info: TeamInfo = TeamInfo()
 
         # 识别锁 保证每种类型只有1实例在进行识别
         self._check_agent_lock = threading.Lock()
