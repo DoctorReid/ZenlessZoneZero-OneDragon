@@ -1,8 +1,8 @@
 @echo off
-chcp 65001 2>&1
+chcp 65001 >nul 2>&1
 
 rem 检查是否以管理员权限运行
-net session 2>&1
+net session  >nul 2>&1
 if %errorlevel% neq 0 (
     echo -------------------------------
     echo 尝试获取管理员权限中...
@@ -13,103 +13,151 @@ if %errorlevel% neq 0 (
     exit /b
 )
 
+rem 检查路径是否包含中文或空格
+powershell -command "if ('%~dp0' -match '[\u4e00-\u9fff]') { exit 1 } else { exit 0 }"
+if %errorlevel% equ 1 echo [WARN] 当前路径包含中文字符
+
+set "path_check=%~dp0"
+if "%path_check%" neq "%path_check: =%" echo [WARN] 路径中包含空格
+
+:MENU
 echo -------------------------------
 echo 正在以管理员权限运行...
+echo -------------------------------
+echo.&echo 1. 强制配置 Python 环境&echo 2. 添加 Git 安全目录&echo 3. 重新安装 Pyautogui 库&echo 4. 检查 PowerShell 路径&echo 5. 以DEBUG模式运行一条龙&echo 6. 退出
+echo.
+set /p choice=请输入选项数字并按 Enter：
+
+if "%choice%"=="1" goto :CONFIG_PYTHON_ENV
+if "%choice%"=="2" goto :ADD_GIT_SAFE_DIR
+if "%choice%"=="3" goto :REINSTALL_PY_LIBS
+if "%choice%"=="4" goto :CHECK_PS_PATH
+if "%choice%"=="5" goto :DEBUG
+if "%choice%"=="6" exit /b
+echo [ERROR] 无效选项，请重新选择。
+
+goto :MENU
+
+:CONFIG_PYTHON_ENV
+echo -------------------------------
+echo 正在配置 Python 环境...
 echo -------------------------------
 
 set "MAINPATH=zzz_od\gui\app.py"
 set "ENV_DIR=%~dp0.env"
 
-REM 调用环境配置脚本
+rem 调用环境配置脚本
+call "%~dp0env.bat"
+setx "PYTHON" "%~dp0.env\venv\scripts\python.exe"
+setx "PYTHONPATH" "%~dp0src"
+setx "PYTHONUSERBASE" "%~dp0.env"
+
+set "PYTHON=%~dp0.env\venv\scripts\python.exe"
+set "PYTHONPATH=%~dp0src"
+set "APPPATH=%PYTHONPATH%\%MAINPATH%"
+set "PYTHONUSERBASE=%~dp0.env"
+
+if not exist "%PYTHON%" echo [WARN] 未配置Python.exe & pause & exit /b 1
+if not exist "%PYTHONPATH%" echo [WARN] PYTHONPATH 未设置 & pause & exit /b 1
+if not exist "%PYTHONUSERBASE%" echo [WARN] PYTHONUSERBASE 未设置 & pause & exit /b 1
+if not exist "%APPPATH%" echo [WARN] PYTHONPATH 设置错误 无法找到 %APPPATH% & pause & exit /b 1
+
+goto :END
+
+:ADD_GIT_SAFE_DIR
+echo -------------------------------
+echo 尝试添加 Git 安全目录...
+echo -------------------------------
+
+set "GIT_PATH=%~dp0.env\PortableGit\bin\git.exe"
+"%GIT_PATH%" config --global --add safe.directory "%~dp0"
+if %errorlevel% neq 0 echo [ERROR] 添加失败 & exit /b 1
+echo [PASS] Git 安全目录添加成功
+
+goto :END
+
+:REINSTALL_PY_LIBS
+echo -------------------------------
+echo 重新安装 Python 库...
+echo -------------------------------
+
+call "%~dp0env.bat"
+
+set "PYTHON=%~dp0.env\venv\scripts\python.exe"
+set "PYTHONPATH=%~dp0src"
+set "APPPATH=%PYTHONPATH%\%MAINPATH%"
+set "PYTHONUSERBASE=%~dp0.env"
+
+if not exist "%PYTHON%" echo [WARN] 未配置Python.exe & pause & exit /b 1
+if not exist "%PYTHONPATH%" echo [WARN] PYTHONPATH 未设置 & pause & exit /b 1
+if not exist "%PYTHONUSERBASE%" echo [WARN] PYTHONUSERBASE 未设置 & pause & exit /b 1
+if not exist "%APPPATH%" echo [WARN] PYTHONPATH 设置错误 无法找到 %APPPATH% & pause & exit /b 1
+
+%PYTHON% -m pip uninstall pyautogui -y
+%PYTHON% -m pip install -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple pyautogui
+%PYTHON% -m pip uninstall pygetwindow -y
+%PYTHON% -m pip install -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple pygetwindow
+
+echo 安装完成...
+
+goto :END
+
+:CHECK_PS_PATH
+echo -------------------------------
+echo 检查并添加 PowerShell 路径...
+echo -------------------------------
+
+set PS_PATH=C:\Windows\System32\WindowsPowerShell\v1.0\
+where powershell >nul 2>&1
+if %errorlevel% neq 0 (
+    echo PowerShell路径未找到，正在尝试添加...
+    setx PATH "%PATH%;C:\Windows\System32\WindowsPowerShell\v1.0\"
+    echo PowerShell路径已添加到系统路径中...
+) else (
+    echo PowerShell路径已存在
+)
+
+goto :END
+
+:DEBUG
+set "MAINPATH=zzz_od\gui\app.py"
+set "ENV_DIR=%~dp0.env"
+
+rem 调用环境配置脚本
 call "%~dp0env.bat"
 set "PYTHON=%~dp0.env\venv\scripts\python.exe"
 set "PYTHONPATH=%~dp0src"
 set "APPPATH=%PYTHONPATH%\%MAINPATH%"
 set "PYTHONUSERBASE=%~dp0.env"
 
-REM 打印信息
+rem 打印信息
 echo [PASS] PYTHON：%PYTHON%
 echo [PASS] PYTHONPATH：%PYTHONPATH%
 echo [PASS] APPPATH：%APPPATH%
 echo [PASS] PYTHONUSERBASE：%PYTHONUSERBASE%
 
-REM 使用 PowerShell 检查路径中是否有中文字符
-powershell -command "if ('%~dp0' -match '[\u4e00-\u9fff]') { exit 1 } else { exit 0 }"
-if %errorlevel% equ 1 (
-    echo [WARN] 当前路径包含中文字符
-)
-
-REM 检查路径中是否有空格
-set "path_check=%~dp0"
-if "%path_check%" neq "%path_check: =%" (
-    echo [WARN] 路径中包含空格
-)
-
-REM 获取当前日期并格式化为 YYYYMMDD
-for /f "tokens=2-4 delims=/ " %%a in ('echo %date%') do (
-    set year=%%c
-    set month=%%a
-    set day=%%b
-)
-
-REM 获取当前时间
-for /f "tokens=1-3 delims=/: " %%i in ('echo %time%') do (
-    set hour=%%i
-    set minute=%%j
-    set second=%%k
-)
-
-REM 将小时和分钟格式化为两位数
-set hour=%hour: =0%
-set minute=%minute: =0%
-set second=%second: =0%
-
-REM 生成日志目录和文件名，格式为 YYYYMMDD 和 HH.MM.SS
-set log_dir=%~dp0.log\%year%%month%%day%
-set timestamp=%hour%.%minute%.%second%
-set "BAT_LOG=%log_dir%\bat_%timestamp%.log"
-set "PYTHON_LOG=%log_dir%\python_%timestamp%.log"
-
-REM 检查并创建日志目录
-if not exist "%log_dir%" (
-    echo [WARN] 日志目录不存在，正在创建...
-    mkdir "%log_dir%"
-    if %errorlevel% neq 0 (
-        echo [WARN] 创建日志目录失败。
-        pause
-        exit /b 1
-    )
-    echo [PASS] 日志目录创建成功。
-)
-
-REM 删除所有以 'bat_' 开头且以 '.log' 结尾的文件
-for /r "%log_dir%" %%F in (bat_*.log) do (
-    del "%%F"
-    echo [INFO] 删除旧日志文件: %%F
-)
-
-REM 检查 Python 可执行文件路径
+rem 检查 Python 可执行文件路径
 if not exist "%PYTHON%" (
     echo [WARN] 未配置Python.exe
     pause
     exit /b 1
 )
 
-REM 检查 PythonPath 目录
+rem 检查 PythonPath 目录
 if not exist "%PYTHONPATH%" (
     echo [WARN] PYTHONPATH 未设置
     pause
     exit /b 1
 )
 
-REM 检查 PythonUserBase 目录
+rem 检查 PythonUserBase 目录
 if not exist "%PYTHONUSERBASE%" (
     echo [WARN] PYTHONUSERBASE 未设置
     pause
     exit /b 1
 )
 
-REM 检查应用程序脚本路径
+rem 检查应用程序脚本路径
 if not exist "%APPPATH%" (
     echo [WARN] PYTHONPATH 设置错误 无法找到 %APPPATH%
     pause
@@ -119,3 +167,11 @@ if not exist "%APPPATH%" (
 echo [INFO]启动中...切换到DEBUG模式
 
 %PYTHON% %APPPATH%
+
+goto :END
+
+:END
+echo 操作已完成。
+pause
+cls
+goto :MENU
