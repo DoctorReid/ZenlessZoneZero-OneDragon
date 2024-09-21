@@ -83,21 +83,21 @@ class PreProcessor:
     def __init__(self):
         # 直接读取log中保存的信息
         keyboard_action_file_path = os.path.join(os_utils.get_path_under_work_dir('.log'), 'keyboard_actions.pkl')
-        with open(keyboard_action_file_path, 'rb') as file:  # 使用 'wb' 模式写入二进制文件
+        with open(keyboard_action_file_path, 'rb') as file:  # 使用 'rb' 模式读取二进制文件
             self.keyboard_flows = pickle.load(file)
 
         mouse_action_file_path = os.path.join(os_utils.get_path_under_work_dir('.log'), 'mouse_actions.pkl')
-        with open(mouse_action_file_path, 'rb') as file:  # 使用 'wb' 模式写入二进制文件
+        with open(mouse_action_file_path, 'rb') as file:  # 使用 'rb' 模式读取二进制文件
             self.mouse_flows = pickle.load(file)
 
         status_file_path = os.path.join(os_utils.get_path_under_work_dir('.log'), 'status.pkl')
-        with open(status_file_path, 'rb') as file:  # 使用 'wb' 模式写入二进制文件
+        with open(status_file_path, 'rb') as file:  # 使用 'rb' 模式读取二进制文件
             self.status_flows = pickle.load(file)
 
         for index in range(len(self.status_flows)):
             agent_info = self.status_flows[index][1]['代理人顺序']
             if agent_info is not None:
-                self.agent_info = agent_info  # 代理人配对信息
+                self.agent_info = agent_info  # 代理人配队信息
                 break
         self.agent_names = [ag.split('-')[-1] for ag in self.agent_info[0]]
         self.agent_types = [ag.split('-')[-1] for ag in self.agent_info[1]]
