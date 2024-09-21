@@ -143,8 +143,10 @@ class HollowZeroRunInterface(AppRunInterface):
             content = '本周通关次数 %d' % self.ctx.hollow_zero_record.weekly_run_times
         elif not self.ctx.hollow_zero_record.no_eval_point:
             content = '已完成基础通关次数'
-        else:
+        elif not self.ctx.hollow_zero_record.no_eval_point:
             content = '已完成刷取业绩 如错误可重置'
+        else:
+            content = '已完成刷取周期性奖励 如错误可重置'
         self.run_record_opt.setContent(content)
 
         self.weekly_plan_times_opt.setValue(str(self.ctx.hollow_zero_config.weekly_plan_times))

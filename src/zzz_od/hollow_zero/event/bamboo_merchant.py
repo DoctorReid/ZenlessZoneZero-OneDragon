@@ -8,6 +8,7 @@ from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
+from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.hollow_zero.event import hollow_event_utils, resonium_utils
 from zzz_od.operation.zzz_operation import ZOperation
@@ -102,7 +103,8 @@ class BambooMerchant(ZOperation):
         pos_list = []
         # 只保留有价格的
         for ocr_result, mrl in desc_ocr_result_map.items():
-            item = self.ctx.hollow.data_service.match_resonium_by_ocr_name(ocr_result)
+            item = self.ctx.hollow.data_service.match_resonium_by_ocr_full(ocr_result)
+            log.info('%s 匹配鸣徽 %s' % (ocr_result, item.name if item is not None else 'none'))
             if item is None:
                 continue
             with_price: bool = False

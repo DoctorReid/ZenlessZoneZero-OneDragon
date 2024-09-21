@@ -120,15 +120,21 @@ class HallowZeroDataService:
         resonium_idx = resonium_name_list.index(results[0])
         return resonium_list[resonium_idx]
 
-    def match_resonium_by_ocr_name(self, name_str: str) -> Optional[Resonium]:
-        resonium_name_list = [gt(i.name) for i in self.resonium_list]
-        results = difflib.get_close_matches(name_str, resonium_name_list, n=1)
-
-        if results is None or len(results) == 0:
+    def match_resonium_by_ocr_full(self, name_full_str: str) -> Optional[Resonium]:
+        """
+        使用 [类型]名称 的文本匹配鸣徽
+        :param name_full_str: 识别的文本 [类型]名称
+        :return 鸣徽
+        """
+        idx = name_full_str.find('】')
+        if idx == -1:
+            idx = name_full_str.find(']')
+        if idx == -1:
             return None
 
-        resonium_idx = resonium_name_list.index(results[0])
-        return self.resonium_list[resonium_idx]
+        cate_str = name_full_str[:idx]
+        name_str = name_full_str[idx+1:]
+        return self.match_resonium_by_ocr(cate_str, name_str)
 
     def check_resonium_priority(self, input_str: str) -> Tuple[List[str], str]:
         """
