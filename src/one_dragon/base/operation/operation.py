@@ -1,7 +1,7 @@
-import difflib
 import time
 
 import cv2
+import difflib
 import inspect
 from cv2.typing import MatLike
 from typing import Optional, ClassVar, Callable, List, Any
@@ -22,9 +22,6 @@ from one_dragon.utils.log_utils import log
 
 
 class Operation(OperationBase):
-    """
-    指令 本身可暂停 但不由自身恢复
-    """
     STATUS_TIMEOUT: ClassVar[str] = '执行超时'
 
     def __init__(self, ctx: OneDragonContext,
@@ -35,6 +32,9 @@ class Operation(OperationBase):
                  need_check_game_win: bool = True,
                  op_to_enter_game:  Optional[OperationBase] = None
                  ):
+        """
+        指令 运行状态由 OneDragonContext 控制
+        """
         OperationBase.__init__(self)
 
         self.op_name: str = op_name
@@ -259,7 +259,7 @@ class Operation(OperationBase):
         if self.op_to_enter_game is None:
             return self.round_fail('未提供打开游戏方式')
         else:
-            return self.round_by_op(self.op_to_enter_game.execute())
+            return self.round_by_op_result(self.op_to_enter_game.execute())
 
     def handle_init(self):
         """
@@ -335,7 +335,7 @@ class Operation(OperationBase):
                 self._current_node_start_time = time.time()  # 每个节点单独计算耗时
                 continue
 
-        self._after_operation_done(op_result)
+        self.after_operation_done(op_result)
         return op_result
 
     def _execute_one_round(self) -> OperationRoundResult:
@@ -357,9 +357,9 @@ class Operation(OperationBase):
             current_round_result: OperationRoundResult = self._current_node.op_method(self)
         elif self._current_node.op is not None:
             op_result = self._current_node.op.execute()
-            current_round_result = self.round_by_op(op_result,
-                                                    retry_on_fail=self._current_node.retry_on_op_fail,
-                                                    wait=self._current_node.wait_after_op)
+            current_round_result = self.round_by_op_result(op_result,
+                                                           retry_on_fail=self._current_node.retry_on_op_fail,
+                                                           wait=self._current_node.wait_after_op)
         else:
             return self.round_fail('节点处理函数和指令都没有设置')
 
@@ -482,9 +482,9 @@ class Operation(OperationBase):
         """
         return '指令[ %s ]' % self.op_name
 
-    def _after_operation_done(self, result: OperationResult):
+    def after_operation_done(self, result: OperationResult):
         """
-        动作结算后的处理
+        指令结算后的处理
         :param result:
         :return:
         """
@@ -563,8 +563,8 @@ class Operation(OperationBase):
             if to_wait > 0:
                 time.sleep(to_wait)
 
-    def round_by_op(self, op_result: OperationResult, retry_on_fail: bool = False,
-                    wait: Optional[float] = None, wait_round_time: Optional[float] = None) -> OperationRoundResult:
+    def round_by_op_result(self, op_result: OperationResult, retry_on_fail: bool = False,
+                           wait: Optional[float] = None, wait_round_time: Optional[float] = None) -> OperationRoundResult:
         """
         根据一个指令的结果获取当前轮的结果
         :param op_result: 指令结果
@@ -583,9 +583,6 @@ class Operation(OperationBase):
             return self.round_fail(status=op_result.status, data=op_result.data, wait=wait,
                                    wait_round_time=wait_round_time)
 
-    def round_fail_by_op(self, op_result: OperationResult) -> OperationRoundResult:
-        return self.round_fail(status=op_result.status, data=op_result.data)
-
     def round_by_find_and_click_area(self, screen: MatLike, screen_name: str, area_name: str,
                                      success_wait: Optional[float] = 1, success_wait_round: Optional[float] = None,
                                      retry_wait: Optional[float] = 1, retry_wait_round: Optional[float] = None,
@@ -599,17 +596,17 @@ class Operation(OperationBase):
         :param success_wait_round: 成功后等待当前轮的运行时间到达这个时间时再结束 优先success_wait
         :param retry_wait: 失败后等待的秒数
         :param retry_wait_round: 失败后等待当前轮的运行时间到达这个时间时再结束 优先success_wait
-        :return:
+        :return: 点击结果
         """
         click = screen_utils.find_and_click_area(ctx=self.ctx, screen=screen, screen_name=screen_name, area_name=area_name)
         if click == OcrClickResultEnum.OCR_CLICK_SUCCESS:
             return self.round_success(status=area_name, wait=success_wait, wait_round_time=success_wait_round)
         elif click == OcrClickResultEnum.OCR_CLICK_NOT_FOUND:
-            return self.round_retry(status=f'未找到{area_name}', wait=retry_wait, wait_round_time=retry_wait_round)
+            return self.round_retry(status=f'未找到 {area_name}', wait=retry_wait, wait_round_time=retry_wait_round)
         elif click == OcrClickResultEnum.OCR_CLICK_FAIL:
-            return self.round_retry(status=f'点击{area_name}失败', wait=retry_wait, wait_round_time=retry_wait_round)
+            return self.round_retry(status=f'点击失败 {area_name}', wait=retry_wait, wait_round_time=retry_wait_round)
         elif click == OcrClickResultEnum.AREA_NO_CONFIG:
-            return self.round_fail(status=f'区域{area_name}未配置')
+            return self.round_fail(status=f'区域未配置 {area_name}')
         else:
             return self.round_retry(status='未知状态', wait=retry_wait, wait_round_time=retry_wait_round)
 
@@ -625,43 +622,46 @@ class Operation(OperationBase):
         :param success_wait: 成功后等待的秒数
         :param success_wait_round: 成功后等待当前轮的运行时间到达这个时间时再结束 优先success_wait
         :param retry_wait: 失败后等待的秒数
-        :param retry_wait_round: 失败后等待当前轮的运行时间到达这个时间时再结束 优先success_wait
-        :return:
+        :param retry_wait_round: 失败后等待当前轮的运行时间到达这个时间时再结束 优先retry_wait
+        :return: 匹配结果
         """
         result = screen_utils.find_area(ctx=self.ctx, screen=screen, screen_name=screen_name, area_name=area_name)
         if result == FindAreaResultEnum.AREA_NO_CONFIG:
-            return self.round_fail(status=f'区域{area_name}未配置')
+            return self.round_fail(status=f'区域未配置 {area_name}')
         elif result == FindAreaResultEnum.TRUE:
             return self.round_success(status=area_name, wait=success_wait, wait_round_time=success_wait_round)
         else:
             return self.round_retry(status=f'未找到 {area_name}', wait=retry_wait, wait_round_time=retry_wait_round)
-
-    def click_area(self, screen_name: str, area_name: str, click_left_top: bool = False) -> bool:
-        """
-        无脑点击某个区域一次
-        :param screen_name:
-        :param area_name:
-        :param click_left_top: 点击左上方
-        :return: 是否点击成功
-        """
-        area = self.ctx.screen_loader.get_area(screen_name, area_name)
-        if area is None:
-            return False
-        if click_left_top:
-            to_click = area.left_top
-        else:
-            to_click = area.center
-        return self.ctx.controller.click(pos=to_click, pc_alt=area.pc_alt)
 
     def round_by_click_area(
             self, screen_name: str, area_name: str, click_left_top: bool = False,
             success_wait: Optional[float] = None, success_wait_round: Optional[float] = None,
             retry_wait: Optional[float] = None, retry_wait_round: Optional[float] = None
     ) -> OperationRoundResult:
-        if self.click_area(screen_name, area_name, click_left_top=click_left_top):
+        """
+        点击某个区域
+        :param screen_name: 画面名称
+        :param area_name: 区域名称
+        :param click_left_top: 是否点击左上角
+        :param success_wait: 成功后等待的秒数
+        :param success_wait_round: 成功后等待当前轮的运行时间到达这个时间时再结束 优先success_wait
+        :param retry_wait: 失败后等待的秒数
+        :param retry_wait_round: 失败后等待当前轮的运行时间到达这个时间时再结束 优先retry_wait
+        :return 点击结果
+        """
+        area = self.ctx.screen_loader.get_area(screen_name, area_name)
+        if area is None:
+            return self.round_fail(status=f'区域未配置 {area_name}')
+
+        if click_left_top:
+            to_click = area.left_top
+        else:
+            to_click = area.center
+        click = self.ctx.controller.click(pos=to_click, pc_alt=area.pc_alt)
+        if click:
             return self.round_success(status=area_name, wait=success_wait, wait_round_time=success_wait_round)
         else:
-            return self.round_retry(status=f'点击{area_name}失败', wait=retry_wait, wait_round_time=retry_wait_round)
+            return self.round_retry(status=f'点击失败 {area_name}', wait=retry_wait, wait_round_time=retry_wait_round)
 
     def round_by_ocr_and_click(self, screen: MatLike, target_cn: str,
                                area: Optional[ScreenArea] = None, lcs_percent: float = 0.5,
@@ -669,6 +669,19 @@ class Operation(OperationBase):
                                retry_wait: Optional[float] = None, retry_wait_round: Optional[float] = None,
                                color_range: Optional[List] = None
                                ):
+        """
+        在目标区域内 找到对应文本 并进行点击
+        :param screen: 游戏画面
+        :param target_cn: 目标文本
+        :param area: 区域
+        :param lcs_percent: 文本匹配阈值
+        :param success_wait: 成功后等待的秒数
+        :param success_wait_round: 成功后等待当前轮的运行时间到达这个时间时再结束 优先success_wait
+        :param retry_wait: 失败后等待的秒数
+        :param retry_wait_round: 失败后等待当前轮的运行时间到达这个时间时再结束 优先retry_wait
+        :param color_range: 文本匹配的颜色范围
+        :return: 点击结果
+        """
         to_ocr_part = screen if area is None else cv2_utils.crop_image_only(screen, area.rect)
         if color_range is not None:
             mask = cv2.inRange(to_ocr_part, color_range[0], color_range[1])
@@ -715,6 +728,19 @@ class Operation(OperationBase):
                      retry_wait: Optional[float] = None, retry_wait_round: Optional[float] = None,
                      color_range: Optional[List] = None
                      ):
+        """
+        在目标区域内 找到对应文本
+        :param screen: 游戏画面
+        :param target_cn: 目标文本
+        :param area: 区域
+        :param lcs_percent: 文本匹配阈值
+        :param success_wait: 成功后等待的秒数
+        :param success_wait_round: 成功后等待当前轮的运行时间到达这个时间时再结束 优先success_wait
+        :param retry_wait: 失败后等待的秒数
+        :param retry_wait_round: 失败后等待当前轮的运行时间到达这个时间时再结束 优先retry_wait
+        :param color_range: 文本匹配的颜色范围
+        :return: 匹配结果
+        """
         to_ocr_part = screen if area is None else cv2_utils.crop_image_only(screen, area.rect)
         if color_range is not None:
             mask = cv2.inRange(to_ocr_part, color_range[0], color_range[1])

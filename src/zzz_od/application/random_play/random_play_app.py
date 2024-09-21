@@ -44,13 +44,13 @@ class RandomPlayApp(ZApplication):
     @operation_node(name='传送', is_start_node=True)
     def transport(self) -> OperationRoundResult:
         op = Transport(self.ctx, 'Random Play', '柜台')
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='传送')
     @operation_node(name='等待加载')
     def wait_world(self) -> OperationRoundResult:
         op = WaitNormalWorld(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='等待加载')
     @operation_node(name='移动交互')
@@ -123,7 +123,7 @@ class RandomPlayApp(ZApplication):
         dt = self.run_record.get_current_dt()
         idx = (int(dt[-1]) % 2) + 1
 
-        self.click_area('影像店营业', '宣传员-%d' % idx)
+        self.round_by_click_area('影像店营业', '宣传员-%d' % idx)
         time.sleep(0.5)
 
         return self.round_by_find_and_click_area(screen, '影像店营业', '确认', success_wait=1, retry_wait=1)
@@ -295,7 +295,7 @@ class RandomPlayApp(ZApplication):
     @operation_node(name='返回大世界')
     def back_to_world(self) -> OperationRoundResult:
         op = BackToNormalWorld(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
 
 def __debug():

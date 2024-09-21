@@ -46,7 +46,7 @@ class OpenMenu(ZOperation):
     @operation_node(name='返回大世界')
     def back_to_world(self) -> OperationRoundResult:
         op = BackToNormalWorld(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='画面识别', status='信息')
     @node_from(from_name='返回大世界')
@@ -56,8 +56,8 @@ class OpenMenu(ZOperation):
         在大世界画面 点击菜单的按钮
         :return:
         """
-        click = self.click_area('大世界', '菜单')
-        if click:
+        click = self.round_by_click_area('大世界', '菜单')
+        if click.is_success:
             return self.round_success(wait=2)
         else:
             return self.round_retry(wait=1)

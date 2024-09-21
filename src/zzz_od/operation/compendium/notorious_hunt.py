@@ -57,7 +57,7 @@ class NotoriousHunt(ZOperation):
 
         r2 = self.round_by_find_area(screen, '恶名狩猎', '剩余奖励次数')
         if r2.is_success:
-            self.click_area('菜单', '返回')
+            self.round_by_click_area('菜单', '返回')
             return self.round_wait(r2.status, wait=1)
 
         return self.round_retry(r1.status, wait=1)
@@ -104,7 +104,7 @@ class NotoriousHunt(ZOperation):
         if self.plan.level == NotoriousHuntLevelEnum.DEFAULT.value.value:
             return self.round_success()
 
-        self.click_area('恶名狩猎', '难度选择入口')
+        self.round_by_click_area('恶名狩猎', '难度选择入口')
         time.sleep(1)
 
         screen = self.screenshot()
@@ -268,8 +268,8 @@ class NotoriousHunt(ZOperation):
         ZOperation._on_resume(self, e)
         auto_battle_utils.resume_running(self.auto_op)
 
-    def _after_operation_done(self, result: OperationResult):
-        ZOperation._after_operation_done(self, result)
+    def after_operation_done(self, result: OperationResult):
+        ZOperation.after_operation_done(self, result)
         if self.auto_op is not None:
             self.auto_op.dispose()
             self.auto_op = None

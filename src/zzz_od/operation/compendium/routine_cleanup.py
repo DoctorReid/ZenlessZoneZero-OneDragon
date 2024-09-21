@@ -138,7 +138,7 @@ class RoutineCleanup(ZOperation):
     @operation_node(name='出战')
     def deploy(self) -> OperationRoundResult:
         op = Deploy(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='出战')
     @node_from(from_name='判断下一次', status='战斗结果-再来一次')
@@ -200,8 +200,8 @@ class RoutineCleanup(ZOperation):
         ZOperation._on_resume(self, e)
         auto_battle_utils.resume_running(self.auto_op)
 
-    def _after_operation_done(self, result: OperationResult):
-        ZOperation._after_operation_done(self, result)
+    def after_operation_done(self, result: OperationResult):
+        ZOperation.after_operation_done(self, result)
         if self.auto_op is not None:
             self.auto_op.dispose()
             self.auto_op = None

@@ -213,7 +213,7 @@ class HollowBattle(ZOperation):
             return self.round_success(result.status, wait=1)
 
         # 匹配不到的时候 随便点击 防止有一些新的对话框出现没有处理到
-        self.click_area('零号空洞-战斗', '战斗结果-确定')
+        self.round_by_click_area('零号空洞-战斗', '战斗结果-确定')
         return self.round_retry(result.status, wait=1)
 
     @node_from(from_name='自动战斗', status='普通战斗-完成')
@@ -294,8 +294,8 @@ class HollowBattle(ZOperation):
         ZOperation._on_resume(self, e)
         auto_battle_utils.resume_running(self.auto_op)
 
-    def _after_operation_done(self, result: OperationResult):
-        ZOperation._after_operation_done(self, result)
+    def after_operation_done(self, result: OperationResult):
+        ZOperation.after_operation_done(self, result)
         if self.auto_op is not None:
             self.auto_op.dispose()
             self.auto_op = None

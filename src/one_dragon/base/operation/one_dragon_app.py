@@ -150,7 +150,7 @@ class OneDragonApp(Application):
             return self.round_fail('未实现切换账号')
         else:
             # return self.round_success(wait=1)  # 调试用
-            return self.round_by_op(self._op_to_switch_account.execute())
+            return self.round_by_op_result(self._op_to_switch_account.execute())
 
     @node_from(from_name='切换账号')
     @operation_node(name='切换账号后处理')
@@ -160,8 +160,8 @@ class OneDragonApp(Application):
         else:
             return self.round_success(OneDragonApp.STATUS_NEXT)
 
-    def _after_operation_done(self, result: OperationResult):
-        Application._after_operation_done(self, result)
+    def after_operation_done(self, result: OperationResult):
+        Application.after_operation_done(self, result)
         for app in self._to_run_app_list:   # 一条龙结束后 各app恢复
             app.init_context_before_start = True
             app.stop_context_after_stop = True

@@ -225,7 +225,7 @@ class HollowRunner(ZOperation):
     @operation_node(name='离开空洞')
     def exit_hollow(self) -> OperationRoundResult:
         op = HollowExitByMenu(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='画面识别', status='通关-完成')
     @operation_node(name='通关-完成')

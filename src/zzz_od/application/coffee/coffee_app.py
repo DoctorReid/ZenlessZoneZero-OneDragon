@@ -54,13 +54,13 @@ class CoffeeApp(ZApplication):
     @operation_node(name='传送', is_start_node=True)
     def transport(self) -> OperationRoundResult:
         op = Transport(self.ctx, '六分街', '咖啡店')
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='传送')
     @operation_node(name='等待大世界加载')
     def wait_world(self) -> OperationRoundResult:
         op = WaitNormalWorld(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='等待大世界加载')
     @operation_node(name='移动交互')
@@ -343,19 +343,19 @@ class CoffeeApp(ZApplication):
     @operation_node(name='实战模拟室')
     def combat_simulation(self) -> OperationRoundResult:
         op = CombatSimulation(self.ctx, self.charge_plan)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='传送副本', status='定期清剿')
     @operation_node(name='定期清剿')
     def routine_cleanup(self) -> OperationRoundResult:
         op = RoutineCleanup(self.ctx, self.charge_plan)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='传送副本', status='专业挑战室')
     @operation_node(name='专业挑战室')
     def expert_challenge(self) -> OperationRoundResult:
         op = ExpertChallenge(self.ctx, self.charge_plan)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='不占用点单确认', status='不可贪杯确认')  # 已经喝过了
     @node_from(from_name='点单后跳过', status='不可贪杯确认')  # 已经喝过了
@@ -366,7 +366,7 @@ class CoffeeApp(ZApplication):
     @operation_node(name='返回大世界')
     def back_to_world(self) -> OperationRoundResult:
         op = BackToNormalWorld(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
 
 def __debug():

@@ -58,7 +58,7 @@ class Transport(ZOperation):
     @operation_node(name='返回大世界')
     def back_to_world(self) -> OperationRoundResult:
         op = BackToNormalWorld(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='返回大世界')
     @operation_node(name='打开地图')
@@ -171,4 +171,4 @@ class Transport(ZOperation):
     @operation_node(name='等待加载')
     def wait_in_world(self) -> OperationRoundResult:
         op = WaitNormalWorld(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())

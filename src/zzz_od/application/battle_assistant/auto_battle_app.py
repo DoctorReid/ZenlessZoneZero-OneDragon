@@ -100,8 +100,8 @@ class AutoBattleApp(ZApplication):
         ZApplication._on_resume(self, e)
         auto_battle_utils.resume_running(self.auto_op)
 
-    def _after_operation_done(self, result: OperationResult):
-        ZApplication._after_operation_done(self, result)
+    def after_operation_done(self, result: OperationResult):
+        ZApplication.after_operation_done(self, result)
         if self.auto_op is not None:
             self.auto_op.dispose()
             self.auto_op = None

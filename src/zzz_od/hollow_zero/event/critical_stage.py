@@ -41,7 +41,7 @@ class CriticalStage(ZOperation):
     @operation_node(name='自动战斗')
     def load_auto_op(self) -> OperationRoundResult:
         op = HollowBattle(self.ctx, is_critical_stage=True)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='自动战斗', status='普通战斗-完成')
     @operation_node(name='通关次数')

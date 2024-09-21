@@ -39,13 +39,13 @@ class LifeOnLineApp(ZApplication):
     @operation_node(name='传送', is_start_node=True)
     def tp(self) -> OperationRoundResult:
         op = Transport(self.ctx, 'Random Play', 'HDD')
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='传送')
     @operation_node(name='等待加载')
     def wait_world(self) -> OperationRoundResult:
         op = WaitNormalWorld(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='等待加载')
     @operation_node(name='交互')
@@ -65,7 +65,7 @@ class LifeOnLineApp(ZApplication):
     @operation_node(name='进入副本')
     def enter_mission(self) -> OperationRoundResult:
         op = EnterHddMission(self.ctx, '第二章间章', '战斗委托', '作战真拿命验收')
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='进入副本')
     @operation_node(name='等待战斗画面加载', node_max_retry_times=60)
@@ -78,7 +78,7 @@ class LifeOnLineApp(ZApplication):
     @operation_node(name='模拟按键')
     def run_key_sim(self) -> OperationRoundResult:
         op = KeySimRunner(self.ctx, '真拿命验收')
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='模拟按键')
     @operation_node(name='通关交互')
@@ -113,7 +113,7 @@ class LifeOnLineApp(ZApplication):
             return self.round_wait(status=ocr_result, wait=1)
 
         # 一直点击到出现完成按钮
-        self.click_area('菜单', '返回')
+        self.round_by_click_area('菜单', '返回')
 
         return self.round_retry(wait=1)
 
@@ -158,7 +158,7 @@ class LifeOnLineApp(ZApplication):
     @operation_node(name='返回大世界')
     def back_to_world(self) -> OperationRoundResult:
         op = BackToNormalWorld(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
 
 
