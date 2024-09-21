@@ -63,3 +63,4 @@ sympy==1.13.0             # via onnxruntime-directml
 threadpoolctl==3.5.0      # via scikit-learn
 typing-extensions==4.12.2  # via librosa
 urllib3==2.2.2            # via requests
+gensim==4.3.3
