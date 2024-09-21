@@ -166,3 +166,16 @@
   options:
     - option_name: "对对不起"
     - option_name: "私闯民宅是违反规定的吧"
+
+# 珂蕾妲
+- entry_name: "邂逅"
+  event_name: "文明施工"
+  options:
+    - option_name: "好吧我带你去个没人的安全区域"
+
+# 珂蕾妲
+- entry_name: "邂逅"
+  event_name: "举手之劳"
+  options:
+    - option_name: "要调查什么呢"
+    - option_name: "我陪你去"

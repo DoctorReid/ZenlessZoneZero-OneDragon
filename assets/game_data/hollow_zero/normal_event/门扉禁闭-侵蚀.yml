@@ -2,4 +2,5 @@
   event_name: "异化检疫门"
   options:
     - option_name: "接受检疫扫描"
+    - option_name: "使用共犯的钥匙扣"
     - option_name: "强行闯入通道"
