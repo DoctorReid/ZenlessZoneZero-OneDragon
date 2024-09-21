@@ -1,6 +1,7 @@
 # 朱鸢站场的主要动作
 main_zhu_yuan: &main
-  - states: "[按键可用-终结技] & ![自定义-临时站场]"
+  # 子弹不满的情况再打终结技
+  - states: "[按键可用-终结技] & ![自定义-临时站场] & ![朱鸢-子弹数, 0, 999]{7, 9}"
     operations:
       - operation_template: "朱鸢-闪前A"
       - op_name: "等待秒数"
@@ -9,7 +10,7 @@ main_zhu_yuan: &main
         post_delay: 4
 
   # 子弹不满的情况再打E
-  - states: "[按键可用-特殊攻击] & ![自定义-朱鸢-特殊攻击] & ![朱鸢-子弹数, 0, 999]{7, 10}"
+  - states: "[按键可用-特殊攻击] & ![自定义-朱鸢-特殊攻击] & ![朱鸢-子弹数, 0, 999]{7, 9}"
     sub_states:
       - states: "[自定义-朱鸢-下发普攻前滑]"
         operations:
@@ -38,8 +39,8 @@ main_zhu_yuan: &main
         press: 1
       - operation_template: "朱鸢-蓄力3A"
 
-  # 5发子弹就能打一次3A
-  - states: "[朱鸢-子弹数, 0, 999]{5, 10}"
+  # 尽量多打3A
+  - states: "[朱鸢-子弹数, 0, 999]{2, 9}"
     operations:
       - operation_template: "朱鸢-闪前A"
       - op_name: "按键-普通攻击"
@@ -113,7 +114,7 @@ handlers:
         - op_name: "按键-普通攻击"
           post_delay: 0.5
         - op_name: "清除状态"
-          data: [ "自定义-血量扣减" ]
+          state: "自定义-血量扣减"
 
     - states: ""
       sub_states: *main

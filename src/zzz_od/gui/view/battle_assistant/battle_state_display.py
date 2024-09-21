@@ -26,7 +26,7 @@ class BattleStateDisplay(TableWidget):
         self.setColumnCount(3)
         self.setColumnWidth(0, 150)
         self.setColumnWidth(1, 100)
-        self.setColumnWidth(2, 50)
+        self.setColumnWidth(2, 60)
         self.verticalHeader().hide()
         self.setHorizontalHeaderLabels([
             gt('状态', 'ui'),
@@ -52,13 +52,23 @@ class BattleStateDisplay(TableWidget):
         states = self.auto_op.get_usage_states()
         states = sorted(states)
 
-        state_recorders: List[StateRecorder] = sorted([i for i in self.auto_op.state_recorders.values()],
+        state_recorders: List[StateRecorder] = sorted([i for i in self.auto_op.state_recorders.values()
+                                                       if i.state_name in states],
                                                       key=lambda x: x.state_name)
 
         now = time.time()
         new_states = []
         for recorder in state_recorders:
             if recorder.last_record_time == -1:
+                continue
+            if (
+                    recorder.last_record_time == 0
+                    and
+                    (
+                            recorder.state_name.startswith('前台-')
+                            or recorder.state_name.startswith('后台-')
+                    )
+            ):
                 continue
             new_states.append(StateRecord(recorder.state_name, recorder.last_record_time, recorder.last_value))
 

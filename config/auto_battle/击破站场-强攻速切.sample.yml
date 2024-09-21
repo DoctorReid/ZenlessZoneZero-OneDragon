@@ -54,7 +54,7 @@ scenes:
           - state_template: "连携模板-跳过"
 
   - triggers: [ "前台-血量扣减" ]
-    interval: 1
+    interval: 2
     handlers:
       - states: "[前台-血量扣减]{1, 100} & ![自定义-动作不打断, 0, 999]"
         operations:
