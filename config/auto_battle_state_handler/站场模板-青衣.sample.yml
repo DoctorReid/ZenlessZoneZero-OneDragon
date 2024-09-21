@@ -36,7 +36,7 @@ main_qingyi: &main
         - op_name: "按键-闪避"
           post_delay: 0.1
         - op_name: "按键-特殊攻击"
-          post_delay: 1
+          post_delay: 1.5
         - op_name: "清除状态"
           state:  "自定义-青衣-普攻次数"
 
@@ -88,6 +88,7 @@ handlers:
     - states: "[自定义-血量扣减]"
       operations:
         - op_name: "按键-闪避"
+          pre_delay: 0.8
           post_delay: 0.5
         - op_name: "按键-普通攻击"
           post_delay: 0.5
