@@ -54,9 +54,6 @@ class TeamInfo:
         :return: 本次是否更新了
         """
         with self.update_agent_lock:
-            if update_time < self.agent_update_time:  # 可能是过时的截图 这时候不更新
-                return False
-            self.agent_update_time = update_time
 
             if self.should_check_all_agents:
                 if self.is_same_agent_list(current_agent_list):
@@ -79,6 +76,10 @@ class TeamInfo:
                 # 如果已经确定角色列表了 那识别出来的应该是一样的
                 # 不一样的话 就不更新了
                 return False
+
+            if update_time < self.agent_update_time:  # 可能是过时的截图 这时候不更新
+                return False
+            self.agent_update_time = update_time
 
             log.debug('当前角色列表 %s', [
                 i.agent.agent_name if i.agent is not None else 'none'
