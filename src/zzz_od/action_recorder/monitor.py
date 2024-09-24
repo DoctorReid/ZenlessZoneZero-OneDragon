@@ -665,7 +665,7 @@ class RecordContext:
             in_battle = self.battle.is_normal_attack_btn_available(screen)
             time.sleep(0.5)  # 防止循环过快导致卡顿
 
-        log.info("开始记录...")
+        log.error("开始记录...")
 
         self.button_listener.start()  # 动作流记录器
         while self.battle.last_check_end_result is None:  # check_screen内会检查
@@ -688,7 +688,7 @@ class RecordContext:
         self.button_listener.stop()
         self.battle.stop_context()
 
-        log.info("记录完毕...")
+        log.error("记录完毕...")
 
     def output_records(self):
         # 临时保存至LOG日志文件夹,再进行后续处理,避免动作和状态数据丢失

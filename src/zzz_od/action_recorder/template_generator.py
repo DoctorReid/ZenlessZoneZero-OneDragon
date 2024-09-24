@@ -12,6 +12,7 @@ from sklearn.metrics import euclidean_distances
 from gensim.models import Word2Vec as GSWord2Vec
 
 from one_dragon.utils import os_utils
+from one_dragon.utils.log_utils import log
 from zzz_od.auto_battle.auto_battle_state import BattleStateEnum
 
 from enum import Enum
@@ -774,7 +775,7 @@ class SelfAdaptiveGenerator:
         with open(yaml_path, 'w', encoding='utf-8') as file:
             file.write(content)
 
-        print("导出到YAML模板完毕...")
+        log.error("导出到YAML模板完毕...")
 
 def _debug():
     pp = PreProcessor()
