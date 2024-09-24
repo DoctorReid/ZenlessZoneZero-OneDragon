@@ -121,37 +121,58 @@ class CallForSupport(ZOperation):
             ta = targets[i]
             if ta is None:
                 continue
-            if ta == agent_list[0].agent_id:
+            if self._is_agent_for_target(agent_list[0], ta):
                 start_idx = i
                 break
 
         order_targets = targets[start_idx:] + targets[:start_idx]
 
-        if agent_list[1] is None:
-            if new_agent.agent_id == order_targets[1]:  # 新的应该在2号位
+        if agent_list[1] is None:  # 当前有1个代理人
+            if self._is_agent_for_target(new_agent, order_targets[1]):  # 新的应该在2号位
                 return 2
-            elif new_agent.agent_id == order_targets[2]:  # 新的应该在3号位 需要先插入到1号位
+            elif self._is_agent_for_target(new_agent, order_targets[2]):  # 新的应该在3号位 需要先插入到1号位
                 return 1
             else:  # 新角色不在目标列表 随便放置到2号位
                 return 2
-        elif agent_list[2] is None:
-            if agent_list[1].agent_id == order_targets[1]:  # 当前第2位位置正确
+        elif agent_list[2] is None:  # 当前有2个代理人
+            if self._is_agent_for_target(agent_list[1], order_targets[1]):  # 当前第2位位置正确
                 return 3
-            elif agent_list[1].agent_id == order_targets[2]:  # 当前第2位应该在第3位
+            elif self._is_agent_for_target(agent_list[1], order_targets[2]):  # 当前第2位应该在第3位
                 return 2
-            elif new_agent.agent_id == order_targets[1]:  # 当前第2位不在目标列表 新的应该在第2位
+            elif self._is_agent_for_target(new_agent, order_targets[1]):  # 当前第2位不在目标列表 新的应该在第2位
                 return 2
-            elif new_agent.agent_id == order_targets[2]:  # 当前第2位不在目标列表 新的应该在第3位
+            elif self._is_agent_for_target(new_agent, order_targets[2]):  # 当前第2位不在目标列表 新的应该在第3位
                 return 3
             else:  # 兜底第3位
                 return 3
-        else:
-            if new_agent is None or new_agent.agent_id not in targets:  # 不在目标中
+        else:  # 当前有3个代理人
+            if new_agent is None:
+                return None
+
+            # 新代理人匹配的位置
+            new_target_idx = -1
+            for i in range(len(order_targets)):
+                if self._is_agent_for_target(new_agent, order_targets[i]):
+                    new_target_idx = i
+                    break
+
+            if new_target_idx == -1:  # 不在目标中
                 return None
             else:
                 # 如果之前已经有2人符合目标 则这2人一定会在指定位置上
                 # 因此第3人只需要直接放到指定位置上即可
-                return order_targets.index(new_agent.agent_id) + 1
+                return new_target_idx + 1
+
+    def _is_agent_for_target(self, agent: Agent, target: str) -> bool:
+        """
+        代理人是否符合目标配队
+        :param agent: 代理人
+        :param target: 目标配队的名称 = 代理人ID or 类型名称
+        :return:
+        """
+        if agent is None:
+            return False
+        return agent.agent_id == target or agent.agent_type.value == target
 
     @node_from(from_name='画面识别', status=STATUS_ACCEPT)
     @operation_node(name=STATUS_ACCEPT)
