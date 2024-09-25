@@ -29,7 +29,8 @@ class Application(Operation):
                  init_context_before_start: bool = True,
                  stop_context_after_stop: bool = True,
                  run_record: Optional[AppRunRecord] = None,
-                 need_ocr: bool = True
+                 need_ocr: bool = True,
+                 retry_in_od: bool = False
                  ):
         super().__init__(ctx, node_max_retry_times=node_max_retry_times, op_name=op_name,
                          timeout_seconds=timeout_seconds,
@@ -51,6 +52,8 @@ class Application(Operation):
 
         self.need_ocr: bool = need_ocr
         """需要OCR"""
+
+        self._retry_in_od: bool = retry_in_od  # 在一条龙中进行重试
 
     def _init_before_execute(self) -> None:
         Operation._init_before_execute(self)

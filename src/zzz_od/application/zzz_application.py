@@ -19,6 +19,7 @@ class ZApplication(Application):
                  stop_context_after_stop: bool = True,
                  run_record: Optional[AppRunRecord] = None,
                  need_ocr: bool = True,
+                 retry_in_od: bool = False
                  ):
         self.ctx: ZContext = ctx
         op_to_enter_game = OpenAndEnterGame(ctx)
@@ -33,7 +34,8 @@ class ZApplication(Application):
                              init_context_before_start=init_context_before_start,
                              stop_context_after_stop=stop_context_after_stop,
                              run_record=run_record,
-                             need_ocr=need_ocr
+                             need_ocr=need_ocr,
+                             retry_in_od=retry_in_od
                              )
 
     def handle_resume(self) -> None:

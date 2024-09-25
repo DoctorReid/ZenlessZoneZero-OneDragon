@@ -1,7 +1,6 @@
 import time
 
 import difflib
-from cv2.typing import MatLike
 from typing import Optional, List, ClassVar
 
 from one_dragon.base.geometry.point import Point
@@ -12,7 +11,7 @@ from one_dragon.base.operation.operation_round_result import OperationRoundResul
 from one_dragon.utils import os_utils, cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem
-from zzz_od.application.coffee.coffee_config import CoffeeChooseWay, CoffeeChallengeWay, CoffeeCardNumEnum
+from zzz_od.application.coffee.coffee_config import CoffeeChooseWay, CoffeeChallengeWay
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.compendium import Coffee
@@ -37,7 +36,8 @@ class CoffeeApp(ZApplication):
             self,
             ctx=ctx, app_id='coffee',
             op_name=gt('咖啡店', 'ui'),
-            run_record=ctx.coffee_record
+            run_record=ctx.coffee_record,
+            retry_in_od=True,  # 传送落地有可能会歪 重试
         )
 
         self.chosen_coffee: Optional[Coffee] = None  # 选择的咖啡

@@ -26,7 +26,8 @@ class RandomPlayApp(ZApplication):
             self,
             ctx=ctx, app_id='random_play',
             op_name=gt('影像店营业', 'ui'),
-            run_record=ctx.random_play_run_record
+            run_record=ctx.random_play_run_record,
+            retry_in_od=True,  # 传送落地有可能会歪 重试
         )
 
     def handle_init(self) -> None:
