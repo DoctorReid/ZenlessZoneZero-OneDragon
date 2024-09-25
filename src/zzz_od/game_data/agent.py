@@ -184,3 +184,5 @@ class AgentEnum(Enum):
     SETH_LOWELL = Agent('seth_lowell', '赛斯', RareTypeEnum.A, AgentTypeEnum.DEFENSE, DmgTypeEnum.ELECTRIC,
                      state_list=[AgentStateDef('赛斯-意气', AgentStateCheckWay.BACKGROUND_GRAY_RANGE_LENGTH,
                                                template_id='seth_lowell', lower_color=0, upper_color=10)])
+
+    CAESAR_KING = Agent('caesar_king', '凯撒', RareTypeEnum.S, AgentTypeEnum.DEFENSE, DmgTypeEnum.PHYSICAL)
