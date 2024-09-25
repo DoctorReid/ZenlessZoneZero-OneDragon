@@ -178,3 +178,14 @@ area_list:
   template_sub_dir: battle
   template_id: avatar_2_anton
   template_match_threshold: 0.7
+- area_name: 头像-2-2
+  pc_rect:
+  - 612
+  - 40
+  - 715
+  - 91
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: battle
+  template_id: avatar_2_piper
+  template_match_threshold: 0.7

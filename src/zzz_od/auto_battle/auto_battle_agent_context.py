@@ -324,26 +324,48 @@ class AutoBattleAgentContext:
             cv2_utils.crop_image_only(screen, self.area_agent_3_1.rect),
             cv2_utils.crop_image_only(screen, self.area_agent_3_2.rect),
             cv2_utils.crop_image_only(screen, self.area_agent_3_3.rect),
+            cv2_utils.crop_image_only(screen, self.area_agent_2_2.rect)
         ]
 
         possible_agents = self.get_possible_agent_list()
 
-        current_agent_list: List[Optional[Agent]] = []
+        result_agent_list: List[Optional[Agent]] = []
         future_list: List[Optional[Future]] = []
+        should_check: List[bool] = [True, False, False, False]
 
-        for i in range(len(area_img)):
-            future_list.append(_battle_agent_context_executor.submit(self._match_agent_in, area_img[i], i == 0, possible_agents))
+        if not self.team_info.should_check_all_agents:
+            if len(self.team_info.agent_list) == 3:
+                should_check[1] = True
+                should_check[2] = True
+            elif len(self.team_info.agent_list) == 2:
+                should_check[3] = True
+        else:
+            for i in range(4):
+                should_check[i] = True
+
+        for i in range(4):
+            if should_check[i]:
+                future_list.append(_battle_agent_context_executor.submit(self._match_agent_in, area_img[i], i == 0, possible_agents))
+            else:
+                future_list.append(None)
 
         for future in future_list:
             if future is None:
-                current_agent_list.append(None)
+                result_agent_list.append(None)
                 continue
             try:
                 result = future.result()
-                current_agent_list.append(result)
+                result_agent_list.append(result)
             except Exception:
                 log.error('识别角色头像失败', exc_info=True)
-                current_agent_list.append(None)
+                result_agent_list.append(None)
+
+        if result_agent_list[1] is not None and result_agent_list[2] is not None:  # 3人
+            current_agent_list = result_agent_list[:3]
+        elif result_agent_list[3] is not None:  # 2人
+            current_agent_list = [result_agent_list[0], result_agent_list[3]]
+        else:  # 1人
+            current_agent_list = [result_agent_list[0]]
 
         return current_agent_list
 
@@ -436,11 +458,19 @@ class AutoBattleAgentContext:
         if screen_agent_list is None or len(screen_agent_list) == 0:
             return []
 
-        state_list = [
-            CommonAgentStateEnum.ENERGY_31.value,
-            CommonAgentStateEnum.ENERGY_32.value,
-            CommonAgentStateEnum.ENERGY_33.value,
-        ]
+        if len(screen_agent_list) == 3:
+            state_list = [
+                CommonAgentStateEnum.ENERGY_31.value,
+                CommonAgentStateEnum.ENERGY_32.value,
+                CommonAgentStateEnum.ENERGY_33.value,
+            ]
+        elif len(screen_agent_list) == 2:
+            state_list = [
+                CommonAgentStateEnum.ENERGY_21.value,
+                CommonAgentStateEnum.ENERGY_22.value,
+            ]
+        else:
+            state_list = [CommonAgentStateEnum.ENERGY_21.value]
 
         return self._check_agent_state_in_parallel(screen, screenshot_time, state_list)
 
@@ -564,6 +594,7 @@ class AutoBattleAgentContext:
         return True
 
 
+
 def __debug_agent():
     ctx = ZContext()
     ctx.init_by_config()
@@ -574,7 +605,7 @@ def __debug_agent():
 
     from one_dragon.utils import debug_utils
     import time
-    screen = debug_utils.get_debug_image('1')
+    screen = debug_utils.get_debug_image('_1727276153997')
     agent_ctx.check_agent_related(screen, time.time())
     for i in agent_ctx.team_info.agent_list:
         print('角色 %s 能量 %d' % (i.agent.agent_name if i.agent is not None else 'none', i.energy))
