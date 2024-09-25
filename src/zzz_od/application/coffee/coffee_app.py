@@ -231,15 +231,8 @@ class CoffeeApp(ZApplication):
 
         return self.round_retry(wait=1)
 
-    @node_from(from_name='点单', status=STATUS_WITHOUT_BENEFIT)
-    @operation_node(name='无增益点单确认')
-    def without_benefit_confirm(self) -> OperationRoundResult:
-        screen = self.screenshot()
-        return self.round_by_find_and_click_area(screen, '咖啡店', '对话框确认')
-
     @node_from(from_name='点单')
     @node_from(from_name='不占用点单确认')
-    @node_from(from_name='无增益点单确认')
     @operation_node(name='点单后跳过')
     def skip_after_order(self) -> OperationRoundResult:
         screen = self.screenshot()

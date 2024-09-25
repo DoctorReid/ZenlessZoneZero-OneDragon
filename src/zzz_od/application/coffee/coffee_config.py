@@ -66,7 +66,7 @@ class CoffeeConfig(YamlConfig):
 
     @property
     def day_coffee_1(self) -> str:
-        return self.get('day_coffee_1', '新艾利都特调')
+        return self.get('day_coffee_1', '汀曼特调')
 
     @day_coffee_1.setter
     def day_coffee_1(self, new_value: str) -> None:
@@ -74,7 +74,7 @@ class CoffeeConfig(YamlConfig):
 
     @property
     def day_coffee_2(self) -> str:
-        return self.get('day_coffee_2', '新艾利都特调')
+        return self.get('day_coffee_2', '汀曼特调')
 
     @day_coffee_2.setter
     def day_coffee_2(self, new_value: str) -> None:
@@ -82,7 +82,7 @@ class CoffeeConfig(YamlConfig):
 
     @property
     def day_coffee_3(self) -> str:
-        return self.get('day_coffee_3', '新艾利都特调')
+        return self.get('day_coffee_3', '汀曼特调')
 
     @day_coffee_3.setter
     def day_coffee_3(self, new_value: str) -> None:
@@ -90,7 +90,7 @@ class CoffeeConfig(YamlConfig):
 
     @property
     def day_coffee_4(self) -> str:
-        return self.get('day_coffee_4', '新艾利都特调')
+        return self.get('day_coffee_4', '汀曼特调')
 
     @day_coffee_4.setter
     def day_coffee_4(self, new_value: str) -> None:
@@ -98,7 +98,7 @@ class CoffeeConfig(YamlConfig):
 
     @property
     def day_coffee_5(self) -> str:
-        return self.get('day_coffee_5', '新艾利都特调')
+        return self.get('day_coffee_5', '汀曼特调')
 
     @day_coffee_5.setter
     def day_coffee_5(self, new_value: str) -> None:
@@ -106,7 +106,7 @@ class CoffeeConfig(YamlConfig):
 
     @property
     def day_coffee_6(self) -> str:
-        return self.get('day_coffee_6', '新艾利都特调')
+        return self.get('day_coffee_6', '汀曼特调')
 
     @day_coffee_6.setter
     def day_coffee_6(self, new_value: str) -> None:
@@ -114,7 +114,7 @@ class CoffeeConfig(YamlConfig):
 
     @property
     def day_coffee_7(self) -> str:
-        return self.get('day_coffee_7', '新艾利都特调')
+        return self.get('day_coffee_7', '汀曼特调')
 
     @day_coffee_7.setter
     def day_coffee_7(self, new_value: str) -> None:
