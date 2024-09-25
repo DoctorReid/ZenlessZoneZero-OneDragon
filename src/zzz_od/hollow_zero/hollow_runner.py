@@ -48,6 +48,7 @@ class HollowRunner(ZOperation):
             HollowZeroSpecialEvent.RESONIUM_STORE_2.value.event_name: BambooMerchant,
             HollowZeroSpecialEvent.RESONIUM_STORE_3.value.event_name: BambooMerchant,
             HollowZeroSpecialEvent.RESONIUM_STORE_4.value.event_name: BambooMerchant,
+            HollowZeroSpecialEvent.RESONIUM_STORE_5.value.event_name: BambooMerchant,
 
             HollowZeroSpecialEvent.RESONIUM_CHOOSE.value.event_name: ChooseResonium,
             HollowZeroSpecialEvent.RESONIUM_CONFIRM_1.value.event_name: ConfirmResonium,
@@ -62,7 +63,7 @@ class HollowRunner(ZOperation):
 
             HollowZeroSpecialEvent.CORRUPTION_REMOVE.value.event_name: RemoveCorruption,
 
-            HollowZeroSpecialEvent.CRITICAL_STAGE.value.event_name: CriticalStage,
+            HollowZeroSpecialEvent.CRITICAL_STAGE_ENTRY.value.event_name: CriticalStage,
             HollowZeroSpecialEvent.IN_BATTLE.value.event_name: HollowBattle,
             HollowZeroSpecialEvent.FULL_IN_BAG.value.event_name: FullInBag,
             HollowZeroSpecialEvent.OLD_CAPITAL.value.event_name: OldCapital,
@@ -70,11 +71,13 @@ class HollowRunner(ZOperation):
         self._last_save_image_time: float = 0
         self._last_move_time: float = 0  # 上一次移动的时间
 
+        self._handled_events: set[str] = set()  # 当前已处理过的事件 移动后清空
+
     @operation_node(name='画面识别', is_start_node=True, node_max_retry_times=60)
     def check_screen(self) -> OperationRoundResult:
         now = time.time()
         screen = self.screenshot()
-        result = hollow_event_utils.check_screen(self.ctx, screen)
+        result = hollow_event_utils.check_screen(self.ctx, screen, self._handled_events)
         if result is not None and result != HollowZeroSpecialEvent.HOLLOW_INSIDE.value.event_name:
             return self._handle_event(screen, result)
 
@@ -95,6 +98,8 @@ class HollowRunner(ZOperation):
         """
         normal_event = self.ctx.hollow.data_service.get_normal_event_by_name(event_name=event_name)
         if normal_event is not None:
+            if normal_event.is_entry_opt:
+                self._handled_events.add(event_name)
             op = NormalEventHandler(self.ctx, normal_event)
             op_result = op.execute()
             if op_result.success:
@@ -103,6 +108,10 @@ class HollowRunner(ZOperation):
                 return self.round_retry()
 
         if event_name in self._special_event_handlers:
+            special_event = hollow_event_utils.get_special_event_by_name(event_name)
+            if special_event.is_entry_opt:
+                self._handled_events.add(event_name)
+
             op: ZOperation = self._special_event_handlers[event_name](self.ctx)
             op_result = op.execute()
             if op_result.success:
@@ -144,6 +153,7 @@ class HollowRunner(ZOperation):
         self._last_move_time = screen_time
         self.ctx.controller.click(next_to_move.pos.center)
         self.ctx.hollow.update_context_after_move(next_to_move)
+        self._handled_events.clear()
 
         return self.round_wait(wait=1)
 

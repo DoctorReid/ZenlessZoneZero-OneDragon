@@ -17,11 +17,11 @@ from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.hollow_zero.event.event_ocr_result_handler import EventOcrResultHandler
-from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroSpecialEvent
+from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroSpecialEvent, HallowZeroEvent
 from zzz_od.operation.zzz_operation import ZOperation
 
 
-def check_event_at_right(ctx: ZContext, screen: MatLike) -> Optional[str]:
+def check_event_at_right(ctx: ZContext, screen: MatLike, ignore_events: set[str]) -> Optional[str]:
     """
     识别右边区域 当前是什么事件
     """
@@ -35,12 +35,16 @@ def check_event_at_right(ctx: ZContext, screen: MatLike) -> Optional[str]:
     event_name_list = []
     event_name_gt_list = []
     for event in ctx.hollow.data_service.normal_events:
+        if event.event_name in ignore_events:
+            continue
         event_name_list.append(event.event_name)
         event_name_gt_list.append(gt(event.event_name))
 
     for event_enum in HollowZeroSpecialEvent:
         event = event_enum.value
         if not event.on_the_right:
+            continue
+        if event.event_name in ignore_events:
             continue
         event_name_list.append(event.event_name)
         event_name_gt_list.append(gt(event.event_name))
@@ -236,15 +240,16 @@ def check_full_in_bag(ctx: ZContext, screen: MatLike) -> Optional[str]:
         return HollowZeroSpecialEvent.FULL_IN_BAG.value.event_name
 
 
-def check_screen(ctx: ZContext, screen: MatLike) -> Optional[str]:
+def check_screen(ctx: ZContext, screen: MatLike, ignore_events: set[str]) -> Optional[str]:
     """
     识别当前画面的状态
+    :param ignore_events: 忽略的事件 当前只有格子的入口选项需要忽略
     """
     choose = check_bottom_choose(ctx, screen)
     if choose is not None:
         return choose
 
-    event = check_event_at_right(ctx, screen)
+    event = check_event_at_right(ctx, screen, ignore_events)
     if event is not None:
         return event
 
@@ -309,3 +314,13 @@ def check_old_capital(ctx: ZContext, screen: MatLike) -> Optional[str]:
 
     if result == FindAreaResultEnum.TRUE:
         return HollowZeroSpecialEvent.OLD_CAPITAL.value.event_name
+
+
+def get_special_event_by_name(event_name: str) -> Optional[HallowZeroEvent]:
+    """
+    根据事件名称 获取对应的特殊事件
+    """
+    for event_enum in HollowZeroSpecialEvent:
+        event = event_enum.value
+        if event.event_name == event_name:
+            return event

@@ -51,7 +51,7 @@ class HollowZeroApp(ZApplication):
     @operation_node(name='初始画面识别', is_start_node=True)
     def check_first_screen(self) -> OperationRoundResult:
         screen = self.screenshot()
-        event_name = hollow_event_utils.check_screen(self.ctx, screen)
+        event_name = hollow_event_utils.check_screen(self.ctx, screen, set())
 
         if (event_name is not None
                 and event_name not in [
