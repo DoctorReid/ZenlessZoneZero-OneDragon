@@ -21,11 +21,12 @@ class CriticalStage(ZOperation):
         """
         ZOperation.__init__(
             self, ctx,
-            op_name=gt(HollowZeroSpecialEvent.CRITICAL_STAGE_ENTRY.value.event_name)
+            op_name=gt('关键进展')
         )
 
         self._handlers: List[EventOcrResultHandler] = [
             EventOcrResultHandler(HollowZeroSpecialEvent.CRITICAL_STAGE_ENTRY.value.event_name),
+            EventOcrResultHandler(HollowZeroSpecialEvent.CRITICAL_STAGE_ENTRY_2.value.event_name),
         ]
 
     @operation_node(name='画面识别', is_start_node=True)
@@ -34,6 +35,7 @@ class CriticalStage(ZOperation):
         return hollow_event_utils.check_event_text_and_run(self, screen, self._handlers)
 
     @node_from(from_name='画面识别', status=HollowZeroSpecialEvent.CRITICAL_STAGE_ENTRY.value.event_name)
+    @node_from(from_name='画面识别', status=HollowZeroSpecialEvent.CRITICAL_STAGE_ENTRY_2.value.event_name)
     @operation_node(name='自动战斗')
     def load_auto_op(self) -> OperationRoundResult:
         op = HollowBattle(self.ctx, is_critical_stage=True)

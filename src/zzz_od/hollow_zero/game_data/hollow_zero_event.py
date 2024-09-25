@@ -84,6 +84,7 @@ class HollowZeroSpecialEvent(Enum):
     RESONIUM_STORE_5 = HallowZeroEvent('进入商店', on_the_right=True, is_entry_opt=True)
 
     CRITICAL_STAGE_ENTRY = HallowZeroEvent('进入守门人决斗', on_the_right=True, is_entry_opt=True)
+    CRITICAL_STAGE_ENTRY_2 = HallowZeroEvent('进入危险目标决斗', on_the_right=True, is_entry_opt=True)
 
     IN_BATTLE = HallowZeroEvent('战斗画面')
     MISSION_COMPLETE = HallowZeroEvent('副本通关')

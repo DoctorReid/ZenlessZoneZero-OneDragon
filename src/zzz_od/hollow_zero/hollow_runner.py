@@ -65,6 +65,8 @@ class HollowRunner(ZOperation):
             HollowZeroSpecialEvent.CORRUPTION_REMOVE.value.event_name: RemoveCorruption,
 
             HollowZeroSpecialEvent.CRITICAL_STAGE_ENTRY.value.event_name: CriticalStage,
+            HollowZeroSpecialEvent.CRITICAL_STAGE_ENTRY_2.value.event_name: CriticalStage,
+
             HollowZeroSpecialEvent.IN_BATTLE.value.event_name: HollowBattle,
             HollowZeroSpecialEvent.FULL_IN_BAG.value.event_name: FullInBag,
             HollowZeroSpecialEvent.OLD_CAPITAL.value.event_name: OldCapital,
