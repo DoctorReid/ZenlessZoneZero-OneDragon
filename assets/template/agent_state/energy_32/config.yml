@@ -4,5 +4,5 @@ template_name: 能量-32
 template_shape: rectangle
 auto_mask: true
 point_list:
-- 578, 74
-- 656, 75
+- 686, 74
+- 764, 75
