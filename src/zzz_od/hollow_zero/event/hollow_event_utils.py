@@ -44,6 +44,8 @@ def check_event_at_right(ctx: ZContext, screen: MatLike, ignore_events: set[str]
         event = event_enum.value
         if not event.on_the_right:
             continue
+        if event.is_entry_opt:
+            continue
         if event.event_name in ignore_events:
             continue
         event_name_list.append(event.event_name)
@@ -65,6 +67,47 @@ def check_event_at_right(ctx: ZContext, screen: MatLike, ignore_events: set[str]
     if event_idx is not None:
         return event_name_list[event_idx]
 
+
+def check_entry_opt_at_right(ctx: ZContext, screen: MatLike, ignore_events: set[str]) -> Optional[str]:
+    """
+    识别右边区域 当前是否有事件的入口
+    """
+    area = ctx.screen_loader.get_area('零号空洞-事件', '格子入口选项')
+    part = cv2_utils.crop_image_only(screen, area.rect)
+    white = cv2.inRange(part, (240, 240, 240), (255, 255, 255))
+    white = cv2_utils.dilate(white, 5)
+    to_ocr = cv2.bitwise_and(part, part, mask=white)
+    ocr_result_map = ctx.ocr.run_ocr(to_ocr)
+
+    event_name_list = []
+    event_name_gt_list = []
+
+    for event_enum in HollowZeroSpecialEvent:
+        event = event_enum.value
+        if not event.on_the_right:
+            continue
+        if not event.is_entry_opt:
+            continue
+        if event.event_name in ignore_events:
+            continue
+        event_name_list.append(event.event_name)
+        event_name_gt_list.append(gt(event.event_name))
+
+    # 事件标题一定在最上方 因此找y最小的
+    min_y = 9999
+    for ocr_result, mrl in ocr_result_map.items():
+        if mrl.max.y < min_y:
+            min_y = mrl.max.y
+
+    ocr_result_list = []
+    for ocr_result, mrl in ocr_result_map.items():
+        if mrl.max.y - min_y < 20:
+            ocr_result_list.append(ocr_result)
+
+    event_idx, _ = str_utils.find_most_similar(event_name_gt_list, ocr_result_list)
+
+    if event_idx is not None:
+        return event_name_list[event_idx]
 
 def check_event_text_and_run(op: ZOperation, screen: MatLike, handlers: List[EventOcrResultHandler]) -> OperationRoundResult:
     """
@@ -250,6 +293,10 @@ def check_screen(ctx: ZContext, screen: MatLike, ignore_events: set[str]) -> Opt
         return choose
 
     event = check_event_at_right(ctx, screen, ignore_events)
+    if event is not None:
+        return event
+
+    event = check_entry_opt_at_right(ctx, screen, ignore_events)
     if event is not None:
         return event
 
