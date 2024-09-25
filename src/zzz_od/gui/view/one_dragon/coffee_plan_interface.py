@@ -62,7 +62,7 @@ class CoffeePlanInterface(VerticalScrollInterface):
                                              options_list=self.ctx.compendium_service.get_coffee_config_list_by_day(6))
         content_widget.add_widget(self.day_opt_6)
 
-        self.day_opt_7 = ComboBoxSettingCard(icon=FluentIcon.CALENDAR, title='星期七',
+        self.day_opt_7 = ComboBoxSettingCard(icon=FluentIcon.CALENDAR, title='星期日',
                                              options_list=self.ctx.compendium_service.get_coffee_config_list_by_day(7))
         content_widget.add_widget(self.day_opt_7)
 
