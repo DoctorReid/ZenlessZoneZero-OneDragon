@@ -1,6 +1,6 @@
 sub_dir: agent_state
-template_id: energy_33
-template_name: 能量-33
+template_id: energy_3_3
+template_name: 角色状态-能量-33
 template_shape: rectangle
 auto_mask: true
 point_list:

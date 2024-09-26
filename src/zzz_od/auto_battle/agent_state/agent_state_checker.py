@@ -1,25 +1,53 @@
 import cv2
 import numpy as np
 from cv2.typing import MatLike
+from typing import Optional
 
 from one_dragon.utils import cv2_utils
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import AgentStateDef
 
 
+def get_template(ctx: ZContext, state_def: AgentStateDef,
+                 total: Optional[int] = None, pos: Optional[int] = None):
+    """
+    获取对应的角色状态模版
+    :param ctx: 上下文
+    :param state_def: 角色状态定义
+    :param total: 总角色数量
+    :param pos: 角色位置
+    :return:
+    """
+    if total is None or pos is None:
+        template_id = state_def.template_id
+    else:
+        if total == 2 and pos == 2:  # 只有22位置比较特殊
+            template_id = ('%s_%d_%d' % (state_def.template_id, total, pos))
+        else:
+            template_id = ('%s_%d_%d' % (state_def.template_id, 3, pos))
+    template = ctx.template_loader.get_template('agent_state', template_id)
+    return template
+
+
 def check_cnt_by_color_range(
         ctx: ZContext,
         screen: MatLike,
-        state_def: AgentStateDef
+        state_def: AgentStateDef,
+        total: Optional[int] = None,
+        pos: Optional[int] = None
 ) -> int:
     """
     在指定区域内，按颜色判断连通块有多少个
     :param ctx: 上下文
     :param screen: 游戏画面
     :param state_def: 角色状态定义
+    :param total: 总角色数量
+    :param pos: 角色位置
     :return:
     """
-    template = ctx.template_loader.get_template('agent_state', state_def.template_id)
+    template = get_template(ctx, state_def, total, pos)
+    if template is None:
+        return 0
     part = cv2_utils.crop_image_only(screen, template.get_template_rect_by_point())
     to_check = cv2.bitwise_and(part, part, mask=template.mask)
 
@@ -27,12 +55,12 @@ def check_cnt_by_color_range(
     # cv2_utils.show_image(mask, wait=0)
 
     # 查找连通区域
-    num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(mask)
+    num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(mask, connectivity=8)
 
     # 统计连通区域数量
     count = 0
     for i in range(1, num_labels):
-        if stats[i, cv2.CC_STAT_AREA] > state_def.connect_cnt:
+        if stats[i, cv2.CC_STAT_AREA] >= state_def.connect_cnt:
             count += 1
 
     return count
@@ -41,31 +69,41 @@ def check_cnt_by_color_range(
 def check_exist_by_color_range(
         ctx: ZContext,
         screen: MatLike,
-        state_def: AgentStateDef
+        state_def: AgentStateDef,
+        total: Optional[int] = None,
+        pos: Optional[int] = None
 ) -> bool:
     """
     在指定区域内，按颜色判断是否有出现
     :param ctx: 上下文
     :param screen: 游戏画面
     :param state_def: 角色状态定义
+    :param total: 总角色数量
+    :param pos: 角色位置
     """
-    cnt = check_cnt_by_color_range(ctx, screen, state_def)
+    cnt = check_cnt_by_color_range(ctx, screen, state_def, pos)
     return cnt > 0
 
 
 def check_length_by_background_gray(
         ctx: ZContext,
         screen: MatLike,
-        state_def: AgentStateDef
+        state_def: AgentStateDef,
+        total: Optional[int] = None,
+        pos: Optional[int] = None
 ) -> int:
     """
     在指定区域内，按背景的灰度色来反推横条的长度
     :param ctx: 上下文
     :param screen: 游戏画面
     :param state_def: 角色状态定义
+    :param total: 总角色数量
+    :param pos: 角色位置
     :return: 0~100
     """
-    template = ctx.template_loader.get_template('agent_state', state_def.template_id)
+    template = get_template(ctx, state_def, total, pos)
+    if template is None:
+        return 0
     part = cv2_utils.crop_image_only(screen, template.get_template_rect_by_point())
     # 模版需要保证高度是1
     to_check = part
@@ -92,16 +130,22 @@ def check_length_by_background_gray(
 def check_length_by_foreground_gray(
         ctx: ZContext,
         screen: MatLike,
-        state_def: AgentStateDef
+        state_def: AgentStateDef,
+        total: Optional[int] = None,
+        pos: Optional[int] = None
 ) -> int:
     """
     在指定区域内，按背景的灰度色来反推横条的长度
     :param ctx: 上下文
     :param screen: 游戏画面
     :param state_def: 角色状态定义
+    :param total: 总角色数量
+    :param pos: 角色位置
     :return: 0~100
     """
-    template = ctx.template_loader.get_template('agent_state', state_def.template_id)
+    template = get_template(ctx, state_def, total, pos)
+    if template is None:
+        return 0
     part = cv2_utils.crop_image_only(screen, template.get_template_rect_by_point())
     # 模版需要保证高度是1
     gray = cv2.cvtColor(part, cv2.COLOR_RGB2GRAY).mean(axis=0)
@@ -128,16 +172,22 @@ def check_length_by_foreground_gray(
 def check_length_by_foreground_color(
         ctx: ZContext,
         screen: MatLike,
-        state_def: AgentStateDef
+        state_def: AgentStateDef,
+        total: Optional[int] = None,
+        pos: Optional[int] = None
 ) -> int:
     """
     在指定区域内，按前景色(彩色)来计算横条的长度
     :param ctx: 上下文
     :param screen: 游戏画面
     :param state_def: 角色状态定义
+    :param total: 总角色数量
+    :param pos: 角色位置
     :return: 0~100
     """
-    template = ctx.template_loader.get_template('agent_state', state_def.template_id)
+    template = get_template(ctx, state_def, total, pos)
+    if template is None:
+        return 0
     part = cv2_utils.crop_image_only(screen, template.get_template_rect_by_point())
     to_check = part
 

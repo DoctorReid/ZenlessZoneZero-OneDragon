@@ -199,6 +199,14 @@ class TeamInfo:
         return 0
 
 
+class CheckAgentState:
+
+    def __init__(self, state: AgentStateDef, total: Optional[int] = None, pos: Optional[int] = None):
+        self.state: AgentStateDef = state
+        self.total: int = total
+        self.pos: int = pos
+
+
 class AutoBattleAgentContext:
 
     def __init__(self, ctx: ZContext):
@@ -290,7 +298,7 @@ class AutoBattleAgentContext:
             screen_agent_list = self._check_agent_in_parallel(screen)
             energy_state_list = self._check_energy_in_parallel(screen, screenshot_time, screen_agent_list)
 
-            front_state_list = self._check_front_agent_state(screen, screenshot_time, screen_agent_list)
+            front_state_list = self._check_agent_special_state(screen, screenshot_time, screen_agent_list)
             life_state_list = self._check_life_deduction(screen, screenshot_time, screen_agent_list)
 
             update_state_record_list = []
@@ -383,23 +391,29 @@ class AutoBattleAgentContext:
 
         return None
 
-    def _check_front_agent_state(self, screen: MatLike, screenshot_time: float, screen_agent_list: List[Agent]) -> List[StateRecord]:
+    def _check_agent_special_state(self, screen: MatLike, screenshot_time: float, screen_agent_list: List[Agent]) -> List[StateRecord]:
         """
-        识别前台角色的状态
+        识别角色独有的状态
         :param screen: 游戏画面
         :param screenshot_time: 截图时间
         :param screen_agent_list: 当前画面前台角色
         :return:
         """
-        if screen_agent_list is None or len(screen_agent_list) == 0 or screen_agent_list[0] is None:
-            return []
-        front_agent: Agent = screen_agent_list[0]
-        if front_agent.state_list is None:
+        if screen_agent_list is None or len(screen_agent_list) == 0:
             return []
 
-        return self._check_agent_state_in_parallel(screen, screenshot_time, front_agent.state_list)
+        to_check_list: List[CheckAgentState] = []
+        total = len(screen_agent_list)
+        for idx in range(total):
+            agent: Agent = screen_agent_list[idx]
+            if agent.state_list is None or len(agent.state_list) == 0:
+                continue
+            for state in agent.state_list:
+                to_check_list.append(CheckAgentState(state, total, idx + 1))
 
-    def _check_agent_state_in_parallel(self, screen: MatLike, screenshot_time: float, agent_state_list: List[AgentStateDef]) -> List[StateRecord]:
+        return self._check_agent_state_in_parallel(screen, screenshot_time, to_check_list)
+
+    def _check_agent_state_in_parallel(self, screen: MatLike, screenshot_time: float, agent_state_list: List[CheckAgentState]) -> List[StateRecord]:
         """
         并行识别多个角色状态
         :param screen: 游戏画面
@@ -409,7 +423,7 @@ class AutoBattleAgentContext:
         """
         future_list: List[Future] = []
         for state in agent_state_list:
-            if not state.should_check_in_battle:
+            if not state.state.should_check_in_battle:
                 continue
             future_list.append(_battle_agent_context_executor.submit(self._check_agent_state, screen, screenshot_time, state))
 
@@ -424,25 +438,32 @@ class AutoBattleAgentContext:
 
         return result_list
 
-    def _check_agent_state(self, screen: MatLike, screenshot_time: float, state: AgentStateDef) -> Optional[StateRecord]:
+    def _check_agent_state(self, screen: MatLike, screenshot_time: float, to_check: CheckAgentState) -> Optional[StateRecord]:
         """
         识别一个角色状态
         :param screen:
         :param screenshot_time:
+        :param to_check: 需要识别的状态
         :return:
         """
         value: int = -1
+        state = to_check.state
         if state.check_way == AgentStateCheckWay.COLOR_RANGE_CONNECT:
-            value = agent_state_checker.check_cnt_by_color_range(self.ctx, screen, state)
+            value = agent_state_checker.check_cnt_by_color_range(self.ctx, screen, state,
+                                                                 total=to_check.total, pos=to_check.pos)
         if state.check_way == AgentStateCheckWay.COLOR_RANGE_EXIST:
-            value = agent_state_checker.check_exist_by_color_range(self.ctx, screen, state)
+            value = agent_state_checker.check_exist_by_color_range(self.ctx, screen, state,
+                                                                 total=to_check.total, pos=to_check.pos)
             value = 1 if value else 0
         elif state.check_way == AgentStateCheckWay.BACKGROUND_GRAY_RANGE_LENGTH:
-            value = agent_state_checker.check_length_by_background_gray(self.ctx, screen, state)
+            value = agent_state_checker.check_length_by_background_gray(self.ctx, screen, state,
+                                                                 total=to_check.total, pos=to_check.pos)
         elif state.check_way == AgentStateCheckWay.FOREGROUND_GRAY_RANGE_LENGTH:
-            value = agent_state_checker.check_length_by_foreground_gray(self.ctx, screen, state)
+            value = agent_state_checker.check_length_by_foreground_gray(self.ctx, screen, state,
+                                                                 total=to_check.total, pos=to_check.pos)
         elif state.check_way == AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH:
-            value = agent_state_checker.check_length_by_foreground_color(self.ctx, screen, state)
+            value = agent_state_checker.check_length_by_foreground_color(self.ctx, screen, state,
+                                                                 total=to_check.total, pos=to_check.pos)
 
         if value > -1 and value >= state.min_value_trigger_state:
             return StateRecord(state.state_name, screenshot_time, value)
@@ -472,7 +493,12 @@ class AutoBattleAgentContext:
         else:
             state_list = [CommonAgentStateEnum.ENERGY_21.value]
 
-        return self._check_agent_state_in_parallel(screen, screenshot_time, state_list)
+        to_check_list = [
+            CheckAgentState(i)
+            for i in state_list
+        ]
+
+        return self._check_agent_state_in_parallel(screen, screenshot_time, to_check_list)
 
     def _check_life_deduction(self, screen: MatLike, screenshot_time: float, screen_agent_list: List[Agent]) -> List[StateRecord]:
         """
@@ -486,7 +512,11 @@ class AutoBattleAgentContext:
             return []
 
         state_list = [CommonAgentStateEnum.LIFE_DEDUCTION.value]
-        return self._check_agent_state_in_parallel(screen, screenshot_time, state_list)
+        to_check_list = [
+            CheckAgentState(i)
+            for i in state_list
+        ]
+        return self._check_agent_state_in_parallel(screen, screenshot_time, to_check_list)
 
     def switch_next_agent(self, update_time: float, update_state: bool = True) -> List[StateRecord]:
         """
