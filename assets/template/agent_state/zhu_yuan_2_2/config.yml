@@ -1,0 +1,10 @@
+sub_dir: agent_state
+template_id: zhu_yuan_2_2
+template_name: 角色状态-朱鸢-22
+template_shape: quadrilateral
+auto_mask: true
+point_list:
+- 640, 91
+- 644, 105
+- 672, 105
+- 676, 91
