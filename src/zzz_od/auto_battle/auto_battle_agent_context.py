@@ -517,11 +517,11 @@ class AutoBattleAgentContext:
         if screen_agent_list is None or len(screen_agent_list) == 0:
             return []
 
-        state_list = [CommonAgentStateEnum.LIFE_DEDUCTION.value]
-        to_check_list = [
-            CheckAgentState(i)
-            for i in state_list
-        ]
+        if len(screen_agent_list) == 3:
+            state = CommonAgentStateEnum.LIFE_DEDUCTION_31.value
+        else:
+            state = CommonAgentStateEnum.LIFE_DEDUCTION_21.value
+        to_check_list = [CheckAgentState(state)]
         return self._check_agent_state_in_parallel(screen, screenshot_time, to_check_list)
 
     def switch_next_agent(self, update_time: float, update_state: bool = True) -> List[StateRecord]:
