@@ -57,20 +57,26 @@ class TeamInfo:
 
             if self.should_check_all_agents:
                 if self.is_same_agent_list(current_agent_list):
+                    self.check_agent_diff_times = 0
                     self.check_agent_same_times += 1
+
                     if self.check_agent_same_times >= 5:  # 连续5次一致时 就不验证了
                         self.should_check_all_agents = False
                         log.debug("停止识别新角色")
                 else:
+                    self.check_agent_diff_times += 1
                     self.check_agent_same_times = 0
             else:
                 if not self.is_same_agent_list(current_agent_list):
                     self.check_agent_diff_times += 1
+                    self.check_agent_same_times = 0
+
                     if self.check_agent_diff_times >= 250:  # 0.02秒1次 大概5s不一致就重新识别 除了减员情况外基本不可能出现
                         self.should_check_all_agents = True
                         log.debug("重新识别新角色")
                 else:
                     self.check_agent_diff_times = 0
+                    self.check_agent_same_times += 0
 
             if not self.should_check_all_agents and not self.is_same_agent_list(current_agent_list):
                 # 如果已经确定角色列表了 那识别出来的应该是一样的

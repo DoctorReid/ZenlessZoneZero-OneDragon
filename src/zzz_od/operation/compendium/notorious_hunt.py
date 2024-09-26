@@ -37,6 +37,7 @@ class NotoriousHunt(ZOperation):
         )
 
         self.plan: ChargePlanItem = plan
+        self.auto_op: Optional[AutoBattleOperator] = None
 
     def handle_init(self) -> None:
         """
@@ -45,8 +46,6 @@ class NotoriousHunt(ZOperation):
         """
         self.charge_left: Optional[int] = None
         self.charge_need: Optional[int] = None
-
-        self.auto_op: Optional[AutoBattleOperator] = None
 
     @operation_node(name='等待入口加载', is_start_node=True, node_max_retry_times=60)
     def wait_entry_load(self) -> OperationRoundResult:
@@ -204,6 +203,7 @@ class NotoriousHunt(ZOperation):
         result = self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-倒带')
 
         if result.is_success:
+            self.auto_op.auto_battle_context.last_check_end_result = None
             self.auto_op.start_running_async()
             return self.round_success(result.status, wait=1)
 
@@ -286,6 +286,9 @@ def __debug():
         level=NotoriousHuntLevelEnum.DEFAULT.value.value
     ))
     op.can_run_times = 1
+    op.auto_op = None
+    op.init_auto_battle()
+
     op.execute()
 
 
