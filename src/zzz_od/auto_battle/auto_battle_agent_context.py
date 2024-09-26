@@ -304,7 +304,7 @@ class AutoBattleAgentContext:
             screen_agent_list = self._check_agent_in_parallel(screen)
             energy_state_list = self._check_energy_in_parallel(screen, screenshot_time, screen_agent_list)
 
-            front_state_list = self._check_agent_special_state(screen, screenshot_time, screen_agent_list)
+            special_state_list = self._check_agent_special_state(screen, screenshot_time, screen_agent_list)
             life_state_list = self._check_life_deduction(screen, screenshot_time, screen_agent_list)
 
             update_state_record_list = []
@@ -318,7 +318,7 @@ class AutoBattleAgentContext:
                 for i in self._get_agent_state_records(screenshot_time):
                     update_state_record_list.append(i)
 
-            for i in front_state_list:
+            for i in special_state_list:
                 update_state_record_list.append(i)
             for i in life_state_list:
                 update_state_record_list.append(i)

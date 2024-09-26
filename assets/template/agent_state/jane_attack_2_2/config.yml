@@ -1,0 +1,8 @@
+sub_dir: agent_state
+template_id: jane_attack_2_2
+template_name: 角色状态-简-萨霍夫跳-22
+template_shape: circle
+auto_mask: true
+point_list:
+- 679, 96
+- 679, 93

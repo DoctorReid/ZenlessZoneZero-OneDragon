@@ -81,7 +81,7 @@ def check_exist_by_color_range(
     :param total: 总角色数量
     :param pos: 角色位置
     """
-    cnt = check_cnt_by_color_range(ctx, screen, state_def, pos)
+    cnt = check_cnt_by_color_range(ctx, screen, state_def, total, pos)
     return cnt > 0
 
 
