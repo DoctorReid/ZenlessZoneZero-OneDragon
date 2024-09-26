@@ -168,6 +168,8 @@ class CommissionAssistantApp(ZApplication):
     @operation_node(name='自动战斗模式')
     def auto_mode(self) -> OperationRoundResult:
         if self.run_mode == 0:
+            auto_battle_utils.stop_running(self.auto_op)
+            self.auto_op = None
             return self.round_success()
         self._load_auto_op()
 
