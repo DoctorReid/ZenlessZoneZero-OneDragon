@@ -42,6 +42,11 @@ class CityFundApp(ZApplication):
     @operation_node(name='点击成长任务')
     def click_task(self) -> OperationRoundResult:
         screen = self.screenshot()
+
+        result = self.round_by_find_and_click_area(screen, '丽都城募', '开启丽都城募')
+        if result.is_success:
+            return self.round_wait(status=result.status, wait=1)
+
         return self.round_by_find_and_click_area(screen, '丽都城募', '成长任务',
                                                  success_wait=1, retry_wait=1)
 

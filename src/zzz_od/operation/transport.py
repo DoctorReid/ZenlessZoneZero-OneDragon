@@ -89,6 +89,9 @@ class Transport(ZOperation):
         current_area: MapArea = self.ctx.map_service.get_best_match_area(ocr_area_name)
 
         if current_area is None:
+            click_area = self.ctx.screen_loader.get_area('地图', '下一个区域')
+            self.ctx.controller.click(click_area.center)
+            time.sleep(0.5)
             return self.round_retry('无法识别当前区域', wait_round_time=1)
 
         if current_area == target_area:
