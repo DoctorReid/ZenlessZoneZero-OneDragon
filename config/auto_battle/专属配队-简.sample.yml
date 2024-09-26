@@ -1,8 +1,8 @@
 description: |
   专属配队-简
-  配队列表：支援-简-塞斯
+  配队列表：支援/凯撒-简-塞斯
   备注： 角色位置不可替换
-  版本号： 0.1+
+  版本号： 0.2
   作者： 笙梦昱
   协作： 巡夜子 starlight
 
@@ -16,6 +16,22 @@ check_quick_interval: 0.2
 
 #速切模板-支援
 t-sup: &sup
+  - states: "[前台-凯撒]"
+    sub_states:
+      - states: "[前台-凯撒] & [按键可用-特殊攻击]"
+        operations:
+          - op_name: "按键-特殊攻击"
+            post_delay: 0.05
+            repeat: 14
+          - op_name: "按键-切换角色-下一个"
+            post_delay: 0.025
+      - states: "[前台-凯撒] & ![按键可用-特殊攻击]"
+        operations:
+          - op_name: "按键-普通攻击"
+            post_delay: 0.05
+            repeat: 4
+          - op_name: "按键-切换角色-下一个"
+            post_delay: 0.025    
   - states: "[前台-支援]"
     sub_states:
       - state_template: "站场模板-全角色"
@@ -103,7 +119,7 @@ scenes:
   - triggers: ["闪避识别-黄光", "闪避识别-红光", "闪避识别-声音"]
     priority: 90
     handlers:
-      - states: "[前台-简] & [闪避识别-黄光] & ![按键-切换角色-下一个,0,10]" #20s内未触发过切人则触发塞斯格挡
+      - states: "[前台-简] & [闪避识别-黄光] & ![自定义-下格挡,0,10]" #10s内未触发过切人则触发塞斯格挡
         operations:
           - op_name: "按键-切换角色-下一个"
             post_delay: 0.025
@@ -113,17 +129,24 @@ scenes:
           - op_name: "按键-普通攻击"
             post_delay: 0.1
             repeat: 12
-      - states: "[前台-简] & [闪避识别-黄光] & ![按键-切换角色-上一个,0,10]" #20s内触发过切人则触发支援格挡
+          - op_name: "设置状态"
+            state: "自定义-下格挡"
+      - states: "[前台-简] & [闪避识别-黄光] & ![自定义-上格挡,0,10]" #10s内触发过切人则触发支援/凯撒格挡      这里一般会切凯撒/支援后直接释放特殊技
         operations:
           - op_name: "按键-切换角色-上一个"
-            post_delay: 0.025
+            post_delay: 0.05
           - op_name: "按键-普通攻击"
             post_delay: 0.05
+            repeat: 8
+          - op_name: "按键-普通攻击"
+            post_delay: 0.1
             repeat: 12
-          - op_name: "按键-普通攻击"
-            press: 0.3
-            post_delay: 0.05
-            repeat: 3
+          - op_name: "等待秒数"
+            seconds: 0.5
+          - op_name: "按键-特殊攻击"
+            post_delay: 0.5
+          - op_name: "设置状态"
+            state: "自定义-上格挡"
       - states: "[前台-简] & ([闪避识别-黄光] | [闪避识别-红光] | [闪避识别-声音] )" #简前台闪避反击
         operations:
           - op_name: "按键-移动-前"
@@ -141,7 +164,7 @@ scenes:
           - op_name: "按键-移动-前"
             way: "松开"
             post_delay: 0.1
-      - states: "[前台-支援] & [闪避识别-黄光]" #支援在前台切简触发格挡反击
+      - states: "[前台-支援] & [闪避识别-黄光] | [前台-凯撒] & [闪避识别-黄光]" #支援/凯撒在前台切简触发格挡反击
         operations:
           - op_name: "按键-切换角色-下一个"
             post_delay: 0.025
@@ -152,7 +175,7 @@ scenes:
             press: 0.3
             post_delay: 0.05
             repeat: 3
-      - states: "[前台-防护] & [闪避识别-黄光]" #塞斯在前台切简格挡
+      - states: "[前台-防护] & [闪避识别-黄光] & ![前台-凯撒]" #塞斯在前台切简格挡
         operations:
           - op_name: "按键-切换角色-上一个"
             post_delay: 0.025
@@ -187,15 +210,12 @@ scenes:
     priority: 99
     interval: 0.2
     handlers:
-      # - states: "[按键可用-连携技]"
-      #   sub_states:
-      #     - states: ""
-      #       operations:
-      #         - op_name : "按键-连携技-取消"
-      #           way: "按下"
-      #           press: 0.02
-      #           post_delay: 0.01
-      #           repeat: 2
+      - states: "[连携技-1-未知]"
+        operations: *cancel
+      - states: "[连携技-1-凯撒]"
+        operations: *up
+      - states: "[连携技-2-凯撒]"
+        operations: *down
       - states: "[连携技-1-支援]"
         operations: *up
       - states: "[连携技-2-支援]"
@@ -222,6 +242,13 @@ scenes:
             operations:
               - op_name: "按键-闪避"
                 post_delay: 0.1
+        
+  - triggers: ["前台-凯撒"]
+    priority: 1
+    interval: 1
+    handlers:
+      - states: "[前台-凯撒]"
+        sub_states: *sup
 
   - triggers: ["前台-支援"]
     priority: 1
@@ -262,7 +289,7 @@ scenes:
       #强制简战场
       - states: "![前台-简]"
         sub_states:
-          - states: "[前台-防护] & ![按键-切换角色-上一个,0,0.3]"
+          - states: "[前台-防护] & ![按键-切换角色-上一个,0,0.3] & ![前台-凯撒]"
             operations:
               - op_name: "按键-特殊攻击"
                 post_delay: 0.025
@@ -271,7 +298,7 @@ scenes:
                 post_delay: 0.05
               - op_name: "按键-切换角色-上一个"
                 post_delay: 0.05
-          - states: "[前台-支援] & ![按键-切换角色-下一个,0,0.3]"
+          - states: "[前台-支援] & ![按键-切换角色-下一个,0,0.3] | [前台-凯撒] & ![按键-切换角色-下一个,0,0.3]"
             operations:
               - op_name: "按键-特殊攻击"
                 post_delay: 0.025
