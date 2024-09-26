@@ -293,6 +293,12 @@ class Operation(OperationBase):
 
             try:
                 round_result: OperationRoundResult = self._execute_one_round()
+                if (self._current_node is None
+                        or (self._current_node is not None and not self._current_node.mute)
+                ):
+                    node_name = 'none' if self._current_node is None else self._current_node.cn
+                    round_result_status = 'none' if round_result is None else coalesce_gt(round_result.status, round_result.status_display, model='ui')
+                    log.info('%s 节点 %s 返回状态 %s', self.display_name, node_name, round_result_status)
                 if self.ctx.is_context_pause:  # 有可能触发暂停的时候仍在执行指令 执行完成后 再次触发暂停回调 保证操作的暂停回调真正生效
                     self._on_pause()
             except Exception as e:
@@ -345,7 +351,6 @@ class Operation(OperationBase):
         if self._current_node.timeout_seconds is not None \
                 and self._current_node_start_time is not None \
                 and time.time() - self._current_node_start_time > self._current_node.timeout_seconds:
-            log.info('%s 节点 %s 返回状态 %s', self.display_name, self._current_node.cn, Operation.STATUS_TIMEOUT)
             return self.round_fail(Operation.STATUS_TIMEOUT)
 
         self.node_max_retry_times = self._current_node.node_max_retry_times
@@ -362,12 +367,6 @@ class Operation(OperationBase):
                                                            wait=self._current_node.wait_after_op)
         else:
             return self.round_fail('节点处理函数和指令都没有设置')
-
-        if current_round_result is None:
-            log.error(f'节点 {self._current_node.cn} 返回状态为None')
-
-        log.info('%s 节点 %s 返回状态 %s', self.display_name, self._current_node.cn,
-                 coalesce_gt(current_round_result.status, current_round_result.status_display, model='ui'))
 
         return current_round_result
 

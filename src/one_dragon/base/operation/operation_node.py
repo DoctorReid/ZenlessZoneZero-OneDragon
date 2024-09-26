@@ -15,7 +15,8 @@ class OperationNode:
                  wait_after_op: Optional[float] = None,
                  timeout_seconds: Optional[float] = None,
                  is_start_node: bool = False,
-                 node_max_retry_times: int = 3
+                 node_max_retry_times: int = 3,
+                 mute: bool = False,
                  ):
         """
         带状态指令的节点
@@ -54,13 +55,17 @@ class OperationNode:
         self.node_max_retry_times: int = node_max_retry_times
         """节点处理重试次数"""
 
+        self.mute: bool = mute
+        """不显示结果日志"""
+
 def operation_node(
         name: str,
         retry_on_op_fail: bool = False,
         wait_after_op: Optional[float] = None,
         timeout_seconds: Optional[float] = None,
         is_start_node: bool = False,
-        node_max_retry_times: int = 3
+        node_max_retry_times: int = 3,
+        mute: bool = False,
 ):
     def decorator(func):
         @wraps(func)
@@ -73,6 +78,8 @@ def operation_node(
             wait_after_op=wait_after_op,
             timeout_seconds=timeout_seconds,
             is_start_node=is_start_node,
-            node_max_retry_times=node_max_retry_times)
+            node_max_retry_times=node_max_retry_times,
+            mute=mute,
+        )
         return wrapper
     return decorator

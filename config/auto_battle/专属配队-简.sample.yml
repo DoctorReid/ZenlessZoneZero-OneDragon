@@ -49,7 +49,8 @@ t-j: &j #当前狂热心流不足50%且萨霍夫可使用则使用萨霍夫
   - states: ""
     operations:
       - op_name: "按键-普通攻击"
-        post_delay: 0.2
+        post_delay: 0.05
+        repeat: 4
 
 #速切模板-塞斯
 t-ss: &ss
