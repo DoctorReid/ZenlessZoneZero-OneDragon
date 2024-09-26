@@ -1,6 +1,6 @@
 sub_dir: agent_state
-template_id: jane_red
-template_name: 角色状态-简-狂热心流
+template_id: jane_red_3_1
+template_name: 角色状态-简-狂热心流-31
 template_shape: rectangle
 auto_mask: true
 point_list:
