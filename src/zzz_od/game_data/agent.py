@@ -104,19 +104,19 @@ class CommonAgentStateEnum(Enum):
 
     ENERGY_31 = AgentStateDef('前台-能量', AgentStateCheckWay.FOREGROUND_GRAY_RANGE_LENGTH,
                               lower_color=100, upper_color=255, template_id='energy_3_1',
-                              split_color_range=[0, 20], max_length=120)
+                              split_color_range=[0, 30], max_length=120)
     ENERGY_32 = AgentStateDef('后台-1-能量', AgentStateCheckWay.FOREGROUND_GRAY_RANGE_LENGTH,
                               lower_color=100, upper_color=255, template_id='energy_3_2',
-                              split_color_range=[0, 20], max_length=120)
+                              split_color_range=[0, 30], max_length=120)
     ENERGY_33 = AgentStateDef('后台-2-能量', AgentStateCheckWay.FOREGROUND_GRAY_RANGE_LENGTH,
                               lower_color=100, upper_color=255, template_id='energy_3_3',
-                              split_color_range=[0, 20], max_length=120)
+                              split_color_range=[0, 30], max_length=120)
     ENERGY_21 = AgentStateDef('前台-能量', AgentStateCheckWay.FOREGROUND_GRAY_RANGE_LENGTH,
                               lower_color=100, upper_color=255, template_id='energy_2_1',
-                              split_color_range=[0, 20], max_length=120)
+                              split_color_range=[0, 30], max_length=120)
     ENERGY_22 = AgentStateDef('后台-1-能量', AgentStateCheckWay.FOREGROUND_GRAY_RANGE_LENGTH,
                               lower_color=100, upper_color=255, template_id='energy_2_2',
-                              split_color_range=[0, 20], max_length=120)
+                              split_color_range=[0, 30], max_length=120)
     LIFE_DEDUCTION = AgentStateDef('前台-血量扣减', AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH,
                                    lower_color=(140, 30, 30), upper_color=(160, 50, 50), template_id='life_deduction',
                                    min_value_trigger_state=1)
