@@ -40,6 +40,11 @@ class EnterHddMission(ZOperation):
         if result.is_success:
             return self.round_success(status=result.status)
 
+        # 完成一次退出后 可能在副本列表画面
+        result = self.round_by_find_area(screen, 'HDD', '下一步')
+        if result.is_success:
+            return self.round_success(status=result.status)
+
         # 不符合时 点击弹出选项
         result = self.round_by_click_area('HDD', '章节显示')
         return self.round_retry(status=result.status, wait=1)
@@ -60,6 +65,7 @@ class EnterHddMission(ZOperation):
 
         return self.round_retry(wait=1)
 
+    @node_from(from_name='选择章节', status='下一步')
     @node_from(from_name='选择委托')
     @operation_node(name='选择副本', node_max_retry_times=10)  # 有些副本比较多 多允许滑动几次找找
     def choose_mission(self) -> OperationRoundResult:
