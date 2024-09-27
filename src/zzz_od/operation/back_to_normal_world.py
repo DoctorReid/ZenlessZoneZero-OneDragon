@@ -36,6 +36,12 @@ class BackToNormalWorld(ZOperation):
         if result.is_success:
             return self.round_success()
 
+        # 进入游戏时 弹出来的继续对话框
+        # 例如 空洞继续
+        result = self.round_by_find_and_click_area(screen, '大世界', '对话框取消')
+        if result.is_success:
+            return self.round_wait(wait=1)
+
         # 这是领取完活跃度奖励的情况
         result = self.round_by_find_area(screen, '快捷手册', 'TAB-挑战')
         if result.is_success:
