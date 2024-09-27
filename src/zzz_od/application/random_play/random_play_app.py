@@ -1,6 +1,7 @@
 import time
 
 import difflib
+from Cython.Utility.MemoryView import start
 from typing import List, ClassVar
 
 from one_dragon.base.geometry.point import Point
@@ -121,13 +122,27 @@ class RandomPlayApp(ZApplication):
         if not result.is_success:
             return self.round_retry(status=result.status, wait_round_time=1)
 
-        dt = self.run_record.get_current_dt()
-        idx = (int(dt[-1]) % 2) + 1
+        target_agent_name = self.ctx.random_play_config.agent_name
+        if self.ctx.random_play_config.random_agent_name() == target_agent_name:
+            dt = self.run_record.get_current_dt()
+            idx = (int(dt[-1]) % 2) + 1
 
-        self.round_by_click_area('影像店营业', '宣传员-%d' % idx)
-        time.sleep(0.5)
+            self.round_by_click_area('影像店营业', '宣传员-%d' % idx)
+            time.sleep(0.5)
 
-        return self.round_by_find_and_click_area(screen, '影像店营业', '确认', success_wait=1, retry_wait=1)
+            return self.round_by_find_and_click_area(screen, '影像店营业', '确认', success_wait=1, retry_wait=1)
+        else:
+            area = self.ctx.screen_loader.get_area('影像店营业', '宣传员列表')
+            result = self.round_by_ocr_and_click(screen, target_agent_name, area=area)
+            if result.is_success:
+                time.sleep(0.5)
+                return self.round_by_find_and_click_area(screen, '影像店营业', '确认', success_wait=1, retry_wait=1)
+            else:
+                # 找不到时 向下滚动
+                start_point = area.center
+                end_point = start_point + Point(0, -100)
+                self.ctx.controller.drag_to(start=start_point, end=end_point)
+                return self.round_retry(result.status, wait=0.5)
 
     @node_from(from_name='选择宣传员')
     @operation_node(name='识别录像带主题')

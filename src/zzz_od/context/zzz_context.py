@@ -103,6 +103,8 @@ class ZContext(OneDragonContext):
         self.coffee_config: CoffeeConfig = CoffeeConfig(self.current_instance_idx)
         self.life_on_line_config: LifeOnLineConfig = LifeOnLineConfig(self.current_instance_idx)
         self.commission_assistant_config: CommissionAssistantConfig = CommissionAssistantConfig(self.current_instance_idx)
+        from zzz_od.application.random_play.random_play_config import RandomPlayConfig
+        self.random_play_config: RandomPlayConfig = RandomPlayConfig(self.current_instance_idx)
 
         # 运行记录
         game_refresh_hour_offset = self.game_config.game_refresh_hour_offset
