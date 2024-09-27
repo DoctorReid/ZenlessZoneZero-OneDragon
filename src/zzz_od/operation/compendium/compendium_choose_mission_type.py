@@ -32,7 +32,7 @@ class CompendiumChooseMissionType(ZOperation):
 
         self.mission_type_name: str = mission_type_name
 
-    @operation_node(name='选择副本', is_start_node=True)
+    @operation_node(name='选择副本', is_start_node=True, node_max_retry_times=10)
     def choose_tab(self) -> OperationRoundResult:
         screen = self.screenshot()
         area = self.ctx.screen_loader.get_area('快捷手册', '副本列表')
@@ -74,7 +74,7 @@ class CompendiumChooseMissionType(ZOperation):
         if target_point is None:
             # 滑动
             start = area.center
-            end = start + Point(0, -100 if before_target_cnt > 0 else 100)
+            end = start + Point(0, -200 if before_target_cnt > 0 else 200)
             self.ctx.controller.drag_to(start=start, end=end)
             return self.round_retry(status='找不到 %s' % self.mission_type_name, wait=1)
 

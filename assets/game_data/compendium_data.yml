@@ -72,6 +72,8 @@
           mission_type_name_display: "河豚电音 炎狱重金属"
         - mission_type_name: "锐牙与钝斧"
           mission_type_name_display: "自由蓝调 极地重金属"
+        - mission_type_name: "猎手与凶兽"
+          mission_type_name_display: "混沌爵士 原始朋克"
 
     - category_name: "专业挑战室"
       mission_type_list:
@@ -81,6 +83,7 @@
         - mission_type_name: "汉斯·蓄能型"
         - mission_type_name: "「提丰·重击者型」"
         - mission_type_name: "蛮横力士"
+        - mission_type_name: "多佩冈亚·简"
 
 - tab_name: "挑战"
   category_list:
@@ -89,6 +92,7 @@
         - mission_type_name: "初生死路屠夫"
         - mission_type_name: "未知复合侵蚀体"
         - mission_type_name: "冥宁芙·双子"
+        - mission_type_name: "「霸主侵蚀体·庞培」"
     - category_name: "零号空洞"
       mission_type_list:
         - mission_type_name: "资质考核"
