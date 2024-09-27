@@ -2,6 +2,7 @@ from concurrent.futures import ThreadPoolExecutor, Future
 
 import threading
 from cv2.typing import MatLike
+from sympy.physics.units import energy
 from typing import Optional, List, Union
 
 from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
@@ -302,13 +303,16 @@ class AutoBattleAgentContext:
             self._last_check_agent_time = screenshot_time
 
             screen_agent_list = self._check_agent_in_parallel(screen)
-            energy_state_list = self._check_energy_in_parallel(screen, screenshot_time, screen_agent_list)
+            all_agent_state_list = self._check_all_agent_state(screen, screenshot_time, screen_agent_list)
 
-            special_state_list = self._check_agent_special_state(screen, screenshot_time, screen_agent_list)
-            life_state_list = self._check_life_deduction(screen, screenshot_time, screen_agent_list)
+            if screen_agent_list is None or len(screen_agent_list) == 0:
+                energy_state_list = []
+                other_state_list = []
+            else:
+                energy_state_list = all_agent_state_list[:len(screen_agent_list)]
+                other_state_list = all_agent_state_list[len(screen_agent_list):]
 
             update_state_record_list = []
-
             # 尝试更新代理人列表 成功的话 更新状态记录
             if self.team_info.update_agent_list(
                     screen_agent_list,
@@ -318,10 +322,9 @@ class AutoBattleAgentContext:
                 for i in self._get_agent_state_records(screenshot_time):
                     update_state_record_list.append(i)
 
-            for i in special_state_list:
-                update_state_record_list.append(i)
-            for i in life_state_list:
-                update_state_record_list.append(i)
+                # 只有代理人列表更新成功 本次识别的状态才可用
+                for i in other_state_list:
+                    update_state_record_list.append(i)
 
             self.auto_op.batch_update_states(update_state_record_list)
         except Exception:
@@ -397,28 +400,6 @@ class AutoBattleAgentContext:
 
         return None
 
-    def _check_agent_special_state(self, screen: MatLike, screenshot_time: float, screen_agent_list: List[Agent]) -> List[StateRecord]:
-        """
-        识别角色独有的状态
-        :param screen: 游戏画面
-        :param screenshot_time: 截图时间
-        :param screen_agent_list: 当前画面前台角色
-        :return:
-        """
-        if screen_agent_list is None or len(screen_agent_list) == 0:
-            return []
-
-        to_check_list: List[CheckAgentState] = []
-        total = len(screen_agent_list)
-        for idx in range(total):
-            agent: Agent = screen_agent_list[idx]
-            if agent.state_list is None or len(agent.state_list) == 0:
-                continue
-            for state in agent.state_list:
-                to_check_list.append(CheckAgentState(state, total, idx + 1))
-
-        return self._check_agent_state_in_parallel(screen, screenshot_time, to_check_list)
-
     def _check_agent_state_in_parallel(self, screen: MatLike, screenshot_time: float, agent_state_list: List[CheckAgentState]) -> List[StateRecord]:
         """
         并行识别多个角色状态
@@ -474,18 +455,25 @@ class AutoBattleAgentContext:
         if value > -1 and value >= state.min_value_trigger_state:
             return StateRecord(state.state_name, screenshot_time, value)
 
-    def _check_energy_in_parallel(self, screen: MatLike, screenshot_time: float, screen_agent_list: List[Agent]) -> List[StateRecord]:
+    def _check_all_agent_state(self, screen: MatLike, screenshot_time: float, screen_agent_list: List[Agent]) -> List[StateRecord]:
         """
-        识别角色能量
-        :param screen:
-        :param screenshot_time:
-        :param screen_agent_list:
-        :return: 各角色的能量值
+        识别所有需要的角色状态
+        - 能量条
+        - 角色独有状态
+        - 血量扣减
+        :param screen: 游戏画面
+        :param screenshot_time: 截图时间
+        :param screen_agent_list: 当前截图的角色列表
+        :return: 状态记录 外层使用要求能量必须在最开始的部分
         """
         if screen_agent_list is None or len(screen_agent_list) == 0:
             return []
 
-        if len(screen_agent_list) == 3:
+        total = len(screen_agent_list)
+        to_check_list: List[CheckAgentState] = []
+
+        # 能量部分
+        if total == 3:
             state_list = [
                 CommonAgentStateEnum.ENERGY_31.value,
                 CommonAgentStateEnum.ENERGY_32.value,
@@ -499,29 +487,24 @@ class AutoBattleAgentContext:
         else:
             state_list = [CommonAgentStateEnum.ENERGY_21.value]
 
-        to_check_list = [
-            CheckAgentState(i)
-            for i in state_list
-        ]
+        for energy_state in state_list:
+            to_check_list.append(CheckAgentState(energy_state))
 
-        return self._check_agent_state_in_parallel(screen, screenshot_time, to_check_list)
+        # 角色独有状态
+        for idx in range(total):
+            agent: Agent = screen_agent_list[idx]
+            if agent.state_list is None or len(agent.state_list) == 0:
+                continue
+            for state in agent.state_list:
+                to_check_list.append(CheckAgentState(state, total, idx + 1))
 
-    def _check_life_deduction(self, screen: MatLike, screenshot_time: float, screen_agent_list: List[Agent]) -> List[StateRecord]:
-        """
-        识别血量扣减
-        :param screen:
-        :param screenshot_time:
-        :param screen_agent_list:
-        :return:
-        """
-        if screen_agent_list is None or len(screen_agent_list) == 0:
-            return []
-
+        # 血量扣减
         if len(screen_agent_list) == 3:
             state = CommonAgentStateEnum.LIFE_DEDUCTION_31.value
         else:
             state = CommonAgentStateEnum.LIFE_DEDUCTION_21.value
-        to_check_list = [CheckAgentState(state)]
+        to_check_list.append(CheckAgentState(state))
+
         return self._check_agent_state_in_parallel(screen, screenshot_time, to_check_list)
 
     def switch_next_agent(self, update_time: float, update_state: bool = True) -> List[StateRecord]:
