@@ -133,7 +133,7 @@ class PythonService:
         if progress_callback:
             progress_callback(-1, '准备创建虚拟环境')
         python_path = self.env_config.python_path
-        result = cmd_utils.run_command([python_path, '-m', 'virtualenv', DEFAULT_VENV_DIR_PATH])
+        result = cmd_utils.run_command([python_path, '-m', 'virtualenv', DEFAULT_VENV_DIR_PATH, '--always-copy'])
         success = result is not None
         msg = '创建虚拟环境成功' if success else '创建虚拟环境失败'
         log.info(msg)
