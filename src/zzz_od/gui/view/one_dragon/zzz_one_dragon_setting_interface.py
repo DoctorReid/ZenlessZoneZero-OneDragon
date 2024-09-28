@@ -33,19 +33,32 @@ class ZOneDragonSettingInterface(VerticalScrollInterface):
     def get_content_widget(self) -> QWidget:
         content_widget = ColumnWidget()
 
-        self.random_play_agent = ComboBoxSettingCard(
-            icon=FluentIcon.PEOPLE, title=gt('影像店代理人'),
+        self.random_play_agent_1 = ComboBoxSettingCard(
+            icon=FluentIcon.PEOPLE, title=gt('影像店代理人-1'),
             options_list=[ConfigItem(self.ctx.random_play_config.random_agent_name())] + [
                 ConfigItem(agent_enum.value.agent_name)
                 for agent_enum in AgentEnum
             ],
-            adapter=self.ctx.random_play_config.agent_name_adapter
+            adapter=self.ctx.random_play_config.agent_name_1_adapter
         )
-        content_widget.add_widget(self.random_play_agent)
+        content_widget.add_widget(self.random_play_agent_1)
+
+        self.random_play_agent_2 = ComboBoxSettingCard(
+            icon=FluentIcon.PEOPLE, title=gt('影像店代理人-2'),
+            options_list=[ConfigItem(self.ctx.random_play_config.random_agent_name())] + [
+                ConfigItem(agent_enum.value.agent_name)
+                for agent_enum in AgentEnum
+            ],
+            adapter=self.ctx.random_play_config.agent_name_2_adapter
+        )
+        content_widget.add_widget(self.random_play_agent_2)
+
+        content_widget.add_stretch(1)
 
         return content_widget
 
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)
 
-        self.random_play_agent.init_value()
+        self.random_play_agent_1.init_value()
+        self.random_play_agent_2.init_value()

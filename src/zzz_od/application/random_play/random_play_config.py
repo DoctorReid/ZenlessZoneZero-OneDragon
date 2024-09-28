@@ -18,13 +18,25 @@ class RandomPlayConfig(YamlConfig):
         return '随机'
 
     @property
-    def agent_name(self) -> float:
-        return self.get('agent_name', self.random_agent_name())
+    def agent_name_1(self) -> float:
+        return self.get('agent_name_1', self.random_agent_name())
 
-    @agent_name.setter
-    def agent_name(self, new_value: float) -> None:
-        self.update('agent_name', new_value)
+    @agent_name_1.setter
+    def agent_name_1(self, new_value: float) -> None:
+        self.update('agent_name_1', new_value)
 
     @property
-    def agent_name_adapter(self) -> YamlConfigAdapter:
-        return YamlConfigAdapter(self, 'agent_name', self.random_agent_name())
+    def agent_name_1_adapter(self) -> YamlConfigAdapter:
+        return YamlConfigAdapter(self, 'agent_name_1', self.random_agent_name())
+
+    @property
+    def agent_name_2(self) -> float:
+        return self.get('agent_name_2', self.random_agent_name())
+
+    @agent_name_2.setter
+    def agent_name_2(self, new_value: float) -> None:
+        self.update('agent_name_2', new_value)
+
+    @property
+    def agent_name_2_adapter(self) -> YamlConfigAdapter:
+        return YamlConfigAdapter(self, 'agent_name_2', self.random_agent_name())

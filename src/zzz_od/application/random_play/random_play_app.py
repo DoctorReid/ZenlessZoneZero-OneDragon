@@ -9,6 +9,7 @@ from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils import cv2_utils
 from one_dragon.utils.i18_utils import gt
+from one_dragon.utils.log_utils import log
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.back_to_normal_world import BackToNormalWorld
@@ -121,10 +122,13 @@ class RandomPlayApp(ZApplication):
         if not result.is_success:
             return self.round_retry(status=result.status, wait_round_time=1)
 
-        target_agent_name = self.ctx.random_play_config.agent_name
-        if self.ctx.random_play_config.random_agent_name() == target_agent_name:
-            dt = self.run_record.get_current_dt()
-            idx = (int(dt[-1]) % 2) + 1
+        target_agent_name_1 = self.ctx.random_play_config.agent_name_1
+        target_agent_name_2 = self.ctx.random_play_config.agent_name_2
+        dt = self.run_record.get_current_dt()
+        idx = (int(dt[-1]) % 2) + 1
+
+        if (self.ctx.random_play_config.random_agent_name() == target_agent_name_1
+                or self.ctx.random_play_config.random_agent_name() == target_agent_name_2):
 
             self.round_by_click_area('影像店营业', '宣传员-%d' % idx)
             time.sleep(0.5)
@@ -132,7 +136,12 @@ class RandomPlayApp(ZApplication):
             return self.round_by_find_and_click_area(screen, '影像店营业', '确认', success_wait=1, retry_wait=1)
         else:
             area = self.ctx.screen_loader.get_area('影像店营业', '宣传员列表')
-            result = self.round_by_ocr_and_click(screen, target_agent_name, area=area)
+            if idx == 1:
+                target_agent_name = target_agent_name_1
+            else:
+                target_agent_name = target_agent_name_2
+            result = self.round_by_ocr_and_click(screen, target_agent_name, area=area,
+                                                 color_range=[(230, 230, 230), (255, 255, 255)])
             if result.is_success:
                 time.sleep(0.5)
                 return self.round_by_find_and_click_area(screen, '影像店营业', '确认', success_wait=1, retry_wait=1)
@@ -177,6 +186,7 @@ class RandomPlayApp(ZApplication):
                 continue
             self._need_video_themes.append(theme)
 
+        log.info('所需主题 %s'  % self._need_video_themes)
         return self.round_success()
 
     @node_from(from_name='识别录像带主题')
@@ -202,6 +212,7 @@ class RandomPlayApp(ZApplication):
 
     @node_from(from_name='识别推荐上架', status='上架筛选')
     @node_from(from_name='上架')
+    @node_from(from_name='上架', success=False)
     @operation_node(name='上架筛选')
     def click_filter(self) -> OperationRoundResult:
         """
@@ -212,7 +223,12 @@ class RandomPlayApp(ZApplication):
             return self.round_success(status=RandomPlayApp.STATUS_ALL_VIDEO_CHOOSE)
 
         screen = self.screenshot()
-        return self.round_by_find_and_click_area(screen, '影像店营业', '上架筛选', success_wait=1, retry_wait=1)
+        result = self.round_by_find_and_click_area(screen, '影像店营业', '上架筛选')
+        if result.is_success:
+            self._current_idx += 1
+            return self.round_success(result.status, wait=1)
+        else:
+            return self.round_retry(result.status, wait=1)
 
     @node_from(from_name='上架筛选')
     @operation_node(name='选择主题')
@@ -227,7 +243,7 @@ class RandomPlayApp(ZApplication):
         ocr_results = self.ctx.ocr.run_ocr(part)
 
         target_list = [gt(i) for i in self._all_video_themes]
-        current_target = self._need_video_themes[self._current_idx]
+        current_target = self._need_video_themes[self._current_idx - 1]
         for ocr_str, mrl in ocr_results.items():
             if mrl.max is None:
                 continue
@@ -265,13 +281,13 @@ class RandomPlayApp(ZApplication):
 
         result = self.round_by_find_area(screen, '影像店营业', '下架',)
         if result.is_success:  # 已经上架了
-            self._current_idx += 1
             return self.round_success()
 
         result = self.round_by_find_area(screen, '影像店营业', '上架')
         if not result.is_success:
-            return self.round_retry(status=result.status, wait_round_time=1)
+            return self.round_wait(status=result.status, wait_round_time=1)
 
+        # 这个点击是为了关闭筛选
         click1 = self.round_by_click_area('影像店营业', '上架')
         time.sleep(0.5)
         click2 = self.round_by_click_area('影像店营业', '上架')
