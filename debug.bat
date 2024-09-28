@@ -24,7 +24,7 @@ if "%path_check%" neq "%path_check: =%" echo [WARN] 路径中包含空格
 echo -------------------------------
 echo 正在以管理员权限运行...
 echo -------------------------------
-echo.&echo 1. 强制配置 Python 环境&echo 2. 添加 Git 安全目录&echo 3. 重新安装 Pyautogui 库&echo 4. 检查 PowerShell 路径&echo 5. 重新创建虚拟环境 &echo 6. 以DEBUG模式运行一条龙&echo 7. 退出
+echo.&echo 1. 强制配置 Python 环境&echo 2. 添加 Git 安全目录&echo 3. 重新安装 Pyautogui 库&echo 4. 检查 PowerShell 路径&echo 5. 重新创建虚拟环境 &echo 6. 重新安装PIP及VIRTUALENV&echo 7. 安装onnxruntime&echo 8. 以DEBUG模式运行一条龙&echo 9. 退出
 echo.
 set /p choice=请输入选项数字并按 Enter：
 
@@ -33,8 +33,10 @@ if "%choice%"=="2" goto :ADD_GIT_SAFE_DIR
 if "%choice%"=="3" goto :REINSTALL_PY_LIBS
 if "%choice%"=="4" goto :CHECK_PS_PATH
 if "%choice%"=="5" goto :VENV
-if "%choice%"=="6" goto :DEBUG
-if "%choice%"=="7" exit /b
+if "%choice%"=="6" goto :PIP
+if "%choice%"=="7" goto :ONNX
+if "%choice%"=="8" goto :DEBUG
+if "%choice%"=="9" exit /b
 echo [ERROR] 无效选项，请重新选择。
 
 goto :MENU
@@ -149,7 +151,40 @@ echo 创建虚拟环境完成...
 
 goto :END
 
+:PIP
+echo -------------------------------
+echo 重新安装 PIP 及 VIRTUALENV库...
+echo -------------------------------
 
+call "%~dp0env.bat"
+
+set "PYTHON=%~dp0.env\python\python.exe"
+
+if not exist "%PYTHON%" echo [WARN] 未配置Python.exe & pause & exit /b 1
+
+%PYTHON% %~dp0get-pip.py
+%PYTHON% -m pip install virtualenv --index-url https://pypi.tuna.tsinghua.edu.cn/simple
+echo 安装完成...
+
+goto :END
+
+:ONNX
+echo -------------------------------
+echo 安装onnxruntime
+echo -------------------------------
+
+call "%~dp0env.bat"
+
+set "PYTHON=%~dp0.env\venv\scripts\python.exe"
+
+if not exist "%PYTHON%" echo [WARN] 未配置Python.exe & pause & exit /b 1
+
+%PYTHON% -m pip install onnxruntime==1.18.0 --index-url https://pypi.tuna.tsinghua.edu.cn/simple
+
+
+echo 安装完成...
+
+goto :END
 
 :DEBUG
 set "MAINPATH=zzz_od\gui\app.py"
