@@ -84,6 +84,15 @@ class TeamInfo:
                 # 不一样的话 就不更新了
                 return False
 
+            all_none: bool = True
+            for agent in current_agent_list:
+                if agent is not None:
+                    all_none = False
+                    break
+            # 没有一个能识别到的话 也不更新
+            if all_none:
+                return False
+
             if update_time < self.agent_update_time:  # 可能是过时的截图 这时候不更新
                 return False
             self.agent_update_time = update_time
@@ -98,10 +107,9 @@ class TeamInfo:
                 energy = energy_list[i] if i < len(energy_list) else 0
                 self.agent_list.append(AgentInfo(current_agent_list[i], energy))
 
-            log.debug('更新后角色列表 %s', [
-                i.agent.agent_name if i.agent is not None else 'none'
-                for i in self.agent_list
-            ])
+            log.debug('更新后角色列表 %s 更新时间 %.4f',
+                      [i.agent.agent_name if i.agent is not None else 'none' for i in self.agent_list],
+                      update_time)
 
             return True
 
@@ -158,6 +166,11 @@ class TeamInfo:
                 next_agent_list.append(AgentInfo(None, 0))
 
             self.agent_list = next_agent_list
+
+            log.debug('切换下一个 更新后角色列表 %s 更新时间 %.4f',
+                      [ i.agent.agent_name if i.agent is not None else 'none' for i in self.agent_list],
+                      update_time)
+
             return True
 
     def switch_prev_agent(self, update_time: float) -> bool:
@@ -191,6 +204,11 @@ class TeamInfo:
             for i in range(none_cnt):
                 next_agent_list.append(AgentInfo(None, 0))
             self.agent_list = next_agent_list
+
+            log.debug('切换上一个 更新后角色列表 %s 更新时间 %.4f',
+                      [ i.agent.agent_name if i.agent is not None else 'none' for i in self.agent_list],
+                      update_time)
+
             return True
 
     def get_agent_pos(self, agent: Agent) -> int:
@@ -493,6 +511,8 @@ class AutoBattleAgentContext:
         # 角色独有状态
         for idx in range(total):
             agent: Agent = screen_agent_list[idx]
+            if agent is None:
+                continue
             if agent.state_list is None or len(agent.state_list) == 0:
                 continue
             for state in agent.state_list:
