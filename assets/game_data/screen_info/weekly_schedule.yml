@@ -1,0 +1,48 @@
+screen_id: weekly_schedule
+screen_name: 每周行程
+pc_alt: false
+area_list:
+- area_name: 行程安排
+  pc_rect:
+  - 452
+  - 804
+  - 626
+  - 848
+  text: 行程安排
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 代办列表
+  pc_rect:
+  - 534
+  - 400
+  - 1346
+  - 776
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 确认代办
+  pc_rect:
+  - 818
+  - 798
+  - 1096
+  - 848
+  text: 确认
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 领取
+  pc_rect:
+  - 452
+  - 804
+  - 626
+  - 848
+  text: 领取
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

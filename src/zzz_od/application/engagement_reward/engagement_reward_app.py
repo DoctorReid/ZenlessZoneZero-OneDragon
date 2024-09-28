@@ -40,12 +40,12 @@ class EngagementRewardApp(ZApplication):
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='快捷手册')
-    @operation_node(name='训练')
+    @operation_node(name='日常')
     def choose_train(self) -> OperationRoundResult:
         op = CompendiumChooseTab(self.ctx, '日常')
         return self.round_by_op_result(op.execute(), wait=1)
 
-    @node_from(from_name='训练')
+    @node_from(from_name='日常')
     @operation_node(name='识别活跃度')
     def check_engagement(self) -> OperationRoundResult:
         screen = self.screenshot()
