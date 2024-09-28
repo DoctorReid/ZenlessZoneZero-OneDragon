@@ -52,7 +52,7 @@ class ChargePlanApp(ZApplication):
                                    next_plan.tab_name,
                                    next_plan.category_name,
                                    next_plan.mission_type_name)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='传送')
     @operation_node(name='识别副本分类')
@@ -63,19 +63,19 @@ class ChargePlanApp(ZApplication):
     @operation_node(name='实战模拟室')
     def combat_simulation(self) -> OperationRoundResult:
         op = CombatSimulation(self.ctx, self.next_plan)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='识别副本分类', status='定期清剿')
     @operation_node(name='定期清剿')
     def routine_cleanup(self) -> OperationRoundResult:
         op = RoutineCleanup(self.ctx, self.next_plan)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='识别副本分类', status='专业挑战室')
     @operation_node(name='专业挑战室')
     def expert_challenge(self) -> OperationRoundResult:
         op = ExpertChallenge(self.ctx, self.next_plan)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='传送', status=STATUS_ROUND_FINISHED)
     @node_from(from_name='实战模拟室', status=CombatSimulation.STATUS_CHARGE_NOT_ENOUGH)
@@ -84,4 +84,4 @@ class ChargePlanApp(ZApplication):
     @operation_node(name='返回大世界', is_start_node=True)
     def back_to_world(self) -> OperationRoundResult:
         op = BackToNormalWorld(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())

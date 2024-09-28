@@ -1,8 +1,0 @@
-sub_dir: agent_state
-template_id: jane_attack
-template_name: 角色状态-简-萨霍夫跳
-template_shape: circle
-auto_mask: true
-point_list:
-- 213, 122
-- 213, 117

@@ -36,25 +36,25 @@ class TransportByCompendium(ZOperation):
     @operation_node(name='快捷手册', is_start_node=True)
     def open_compendium(self) -> OperationRoundResult:
         op = OpenCompendium(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='快捷手册')
     @operation_node(name='选择TAB')
     def choose_tab(self) -> OperationRoundResult:
         op = CompendiumChooseTab(self.ctx, self.tab_name)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='选择TAB')
     @operation_node(name='选择分类')
     def choose_category(self) -> OperationRoundResult:
         op = CompendiumChooseCategory(self.ctx, self.category_name)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='选择分类')
     @operation_node(name='选择副本分类')
     def choose_mission_type(self) -> OperationRoundResult:
         op = CompendiumChooseMissionType(self.ctx, self.mission_type_name)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
 
 def __debug():

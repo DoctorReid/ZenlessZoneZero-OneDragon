@@ -30,7 +30,7 @@ class EmailApp(ZApplication):
     @operation_node(name='打开菜单', is_start_node=True)
     def open_menu(self) -> OperationRoundResult:
         op = OpenMenu(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='打开菜单')
     @operation_node(name='点击邮件')

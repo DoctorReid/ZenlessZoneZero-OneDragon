@@ -37,13 +37,13 @@ class EngagementRewardApp(ZApplication):
     @operation_node(name='快捷手册', is_start_node=True)
     def open_compendium(self) -> OperationRoundResult:
         op = OpenCompendium(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='快捷手册')
     @operation_node(name='训练')
     def choose_train(self) -> OperationRoundResult:
         op = CompendiumChooseTab(self.ctx, '日常')
-        return self.round_by_op(op.execute(), wait=1)
+        return self.round_by_op_result(op.execute(), wait=1)
 
     @node_from(from_name='训练')
     @operation_node(name='识别活跃度')
@@ -84,7 +84,7 @@ class EngagementRewardApp(ZApplication):
     @operation_node(name='完成后返回大世界')
     def back_afterwards(self) -> OperationRoundResult:
         op = BackToNormalWorld(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
 
 def __debug():

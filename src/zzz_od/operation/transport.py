@@ -58,7 +58,7 @@ class Transport(ZOperation):
     @operation_node(name='返回大世界')
     def back_to_world(self) -> OperationRoundResult:
         op = BackToNormalWorld(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='返回大世界')
     @operation_node(name='打开地图')
@@ -89,6 +89,9 @@ class Transport(ZOperation):
         current_area: MapArea = self.ctx.map_service.get_best_match_area(ocr_area_name)
 
         if current_area is None:
+            click_area = self.ctx.screen_loader.get_area('地图', '下一个区域')
+            self.ctx.controller.click(click_area.center)
+            time.sleep(0.5)
             return self.round_retry('无法识别当前区域', wait_round_time=1)
 
         if current_area == target_area:
@@ -171,4 +174,4 @@ class Transport(ZOperation):
     @operation_node(name='等待加载')
     def wait_in_world(self) -> OperationRoundResult:
         op = WaitNormalWorld(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())

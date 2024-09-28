@@ -37,17 +37,17 @@ class EnterGame(ZOperation):
         if self.ctx.game_config.account == '' or self.ctx.game_config.password == '':
             return self.round_fail('未配置账号密码')
 
-        self.click_area('打开游戏', '账号输入区域')
+        self.round_by_click_area('打开游戏', '账号输入区域')
         time.sleep(0.5)
         self.ctx.controller.keyboard_controller.keyboard.type(self.ctx.game_config.account)
         time.sleep(1.5)
 
-        self.click_area('打开游戏', '密码输入区域')
+        self.round_by_click_area('打开游戏', '密码输入区域')
         time.sleep(0.5)
         self.ctx.controller.keyboard_controller.keyboard.type(self.ctx.game_config.password)
         time.sleep(1.5)
 
-        self.click_area('打开游戏', '同意按钮')
+        self.round_by_click_area('打开游戏', '同意按钮')
         time.sleep(0.5)
 
         screen = self.screenshot()
@@ -58,7 +58,7 @@ class EnterGame(ZOperation):
     @operation_node(name='等待画面加载')
     def wait_game(self) -> OperationRoundResult:
         op = BackToNormalWorld(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
 
 def __debug():

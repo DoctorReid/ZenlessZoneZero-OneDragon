@@ -12,3 +12,7 @@ event_priority:
 - ''
 path_finding: 默认
 buy_only_priority: true
+target_agents:
+- jane_doe
+- seth_lowell
+- 支援

@@ -17,6 +17,7 @@ from zzz_od.application.zzz_application import ZApplication
 from zzz_od.auto_battle import auto_battle_utils
 from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.context.zzz_context import ZContext
+from zzz_od.hollow_zero.event import hollow_event_utils
 
 
 class CommissionAssistantApp(ZApplication):
@@ -62,11 +63,32 @@ class CommissionAssistantApp(ZApplication):
             return self.round_success()
 
         config = self.ctx.commission_assistant_config
+        now = time.time()
         screen = self.screenshot()
 
         result = self.round_by_find_area(screen, '大世界', '信息')
         if result.is_success:
             return self.round_wait(status='大世界', wait=1)
+
+        result = self.round_by_find_area(screen, '委托助手', '左上角返回')
+        # 很多二级菜单都有这个按钮
+        if result.is_success:
+            return self.round_wait(result.status, wait=1)
+
+        result = self.round_by_find_area(screen, '委托助手', '对话框确认')
+        # 一些对话时出现确认
+        if result.is_success:
+            return self.round_wait(result.status, wait=1)
+
+        # 判断是否在空洞中
+        result = hollow_event_utils.check_in_hollow(self.ctx, screen)
+        if result is not None:
+            return self._handle_hollow(screen, now)
+
+        # 判断是否空洞内完成
+        result = self.round_by_find_and_click_area(screen, '零号空洞-事件', '通关-完成')
+        if result.is_success:
+            return self.round_wait(result.status, wait=1)
 
         result = self.round_by_find_area(screen, '委托助手', '右上角自动')
         in_auto = result.is_success
@@ -86,16 +108,6 @@ class CommissionAssistantApp(ZApplication):
                 self.round_by_click_area('委托助手', '中间选项区域')
                 return self.round_wait(status='对话中点击空白',
                                        wait=config.dialog_click_interval)
-
-        result = self.round_by_find_area(screen, '委托助手', '左上角返回')
-        # 很多二级菜单都有这个按钮
-        if result.is_success:
-            return self.round_wait(result.status, wait=1)
-
-        result = self.round_by_find_area(screen, '委托助手', '对话框确认')
-        # 一些对话时出现确认
-        if result.is_success:
-            return self.round_wait(result.status, wait=1)
 
         self.round_by_click_area('委托助手', '中间选项区域')
         return self.round_wait(status='未知画面点击空白', wait=1)
@@ -134,10 +146,30 @@ class CommissionAssistantApp(ZApplication):
         self.ctx.controller.click(to_click)
         return True
 
+    def _handle_hollow(self, screen: MatLike, screenshot_time: float) -> OperationRoundResult:
+        """
+        处理在空洞里的情况
+        :param screen: 游戏画面
+        :param screenshot_time: 截图时间
+        """
+        # 空洞内不好处理事件
+        return self.round_wait(status='空洞中', wait=1)
+        self.ctx.hollow.init_event_yolo(True)
+
+        # 判断当前邦布是否存在
+        hollow_map = self.ctx.hollow.check_current_map(screen, screenshot_time)
+        if hollow_map is None or hollow_map.contains_entry('当前'):
+            return self.round_wait(status='空洞走格子中', wait=1)
+
+        # 处理对话
+        return hollow_event_utils.check_event_text_and_run(self, screen, [])
+
     @node_from(from_name='自动对话模式')
     @operation_node(name='自动战斗模式')
     def auto_mode(self) -> OperationRoundResult:
         if self.run_mode == 0:
+            auto_battle_utils.stop_running(self.auto_op)
+            self.auto_op = None
             return self.round_success()
         self._load_auto_op()
 
@@ -168,8 +200,8 @@ class CommissionAssistantApp(ZApplication):
         self._listen_btn()
         auto_battle_utils.resume_running(self.auto_op)
 
-    def _after_operation_done(self, result: OperationResult):
-        ZApplication._after_operation_done(self, result)
+    def after_operation_done(self, result: OperationResult):
+        ZApplication.after_operation_done(self, result)
         self._unlisten_btn()
         if self.auto_op is not None:
             self.auto_op.dispose()

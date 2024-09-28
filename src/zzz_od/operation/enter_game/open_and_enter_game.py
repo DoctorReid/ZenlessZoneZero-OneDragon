@@ -37,7 +37,7 @@ class OpenAndEnterGame(Operation):
         :return:
         """
         op = OpenGame(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='打开游戏')
     @operation_node(name='等待游戏打开', node_max_retry_times=60)
@@ -54,4 +54,4 @@ class OpenAndEnterGame(Operation):
     def enter_game(self) -> OperationRoundResult:
         from zzz_od.operation.enter_game.enter_game import EnterGame
         op = EnterGame(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())

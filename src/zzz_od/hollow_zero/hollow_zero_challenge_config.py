@@ -163,7 +163,7 @@ class HollowZeroChallengeConfig(YamlConfig):
 
 
 
-def get_all_hollow_zero_challenge_config() -> List[HollowZeroChallengeConfig]:
+def get_all_hollow_zero_challenge_config(with_sample: bool = True) -> List[HollowZeroChallengeConfig]:
     config_list: List[HollowZeroChallengeConfig] = []
     dir_path = os_utils.get_path_under_work_dir('config', 'hollow_zero_challenge')
     config_name_list = os.listdir(dir_path)
@@ -172,6 +172,8 @@ def get_all_hollow_zero_challenge_config() -> List[HollowZeroChallengeConfig]:
         if not config_name.endswith('.yml'):
             continue
         if config_name.endswith('.sample.yml'):
+            if not with_sample:
+                continue
             module_name = config_name[:-11]
         else:
             module_name = config_name[:-4]

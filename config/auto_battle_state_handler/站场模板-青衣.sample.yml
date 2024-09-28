@@ -93,7 +93,7 @@ handlers:
         - op_name: "按键-普通攻击"
           post_delay: 0.5
         - op_name: "清除状态"
-          data: [ "自定义-血量扣减" ]
+          state: "自定义-血量扣减"
 
     - states: ""
       sub_states: *main

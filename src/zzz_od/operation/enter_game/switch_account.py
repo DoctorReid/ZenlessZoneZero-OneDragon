@@ -17,7 +17,7 @@ class SwitchAccount(ZOperation):
     @operation_node(name='打开菜单', is_start_node=True)
     def open_menu(self) -> OperationRoundResult:
         op = OpenMenu(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='打开菜单')
     @operation_node(name='点击更多')
@@ -43,7 +43,7 @@ class SwitchAccount(ZOperation):
                                                  success_wait=10, retry_wait=1)
 
     @node_from(from_name='更多登出确认')
-    @operation_node(name='等待切换账号可按')
+    @operation_node(name='等待切换账号可按', node_max_retry_times=20)
     def wait_switch_can_click(self) -> OperationRoundResult:
         screen = self.screenshot()
         return self.round_by_find_area(screen, '打开游戏', '点击进入游戏',
@@ -65,7 +65,7 @@ class SwitchAccount(ZOperation):
     @operation_node(name='进入游戏')
     def enter_game(self) -> OperationRoundResult:
         op = EnterGame(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
 
 def __debug():

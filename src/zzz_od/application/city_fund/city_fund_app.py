@@ -28,7 +28,7 @@ class CityFundApp(ZApplication):
     @operation_node(name='打开菜单', is_start_node=True)
     def open_menu(self) -> OperationRoundResult:
         op = OpenMenu(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='打开菜单')
     @operation_node(name='点击丽都城募')
@@ -42,6 +42,11 @@ class CityFundApp(ZApplication):
     @operation_node(name='点击成长任务')
     def click_task(self) -> OperationRoundResult:
         screen = self.screenshot()
+
+        result = self.round_by_find_and_click_area(screen, '丽都城募', '开启丽都城募')
+        if result.is_success:
+            return self.round_wait(status=result.status, wait=1)
+
         return self.round_by_find_and_click_area(screen, '丽都城募', '成长任务',
                                                  success_wait=1, retry_wait=1)
 
@@ -71,7 +76,7 @@ class CityFundApp(ZApplication):
     @operation_node(name='返回大世界')
     def back_to_world(self) -> OperationRoundResult:
         op = BackToNormalWorld(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
 
 def __debug():

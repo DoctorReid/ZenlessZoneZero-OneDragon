@@ -20,7 +20,8 @@ class ScratchCardApp(ZApplication):
             self,
             ctx=ctx, app_id='scratch_card',
             op_name=gt('刮刮卡', 'ui'),
-            run_record=ctx.scratch_card_run_record
+            run_record=ctx.scratch_card_run_record,
+            retry_in_od=True,  # 传送落地有可能会歪 重试
         )
 
     def handle_init(self) -> None:
@@ -33,13 +34,13 @@ class ScratchCardApp(ZApplication):
     @operation_node(name='传送', is_start_node=True)
     def transport(self) -> OperationRoundResult:
         op = Transport(self.ctx, '六分街', '报刊亭')
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='传送')
     @operation_node(name='等待加载')
     def wait_world(self) -> OperationRoundResult:
         op = WaitNormalWorld(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='等待加载')
     @operation_node(name='移动交互')
@@ -105,7 +106,7 @@ class ScratchCardApp(ZApplication):
     @operation_node(name='返回大世界')
     def back_to_world(self) -> OperationRoundResult:
         op = BackToNormalWorld(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
 
 def __debug():

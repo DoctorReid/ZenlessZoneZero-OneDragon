@@ -266,3 +266,14 @@ area_list:
   template_sub_dir: menu
   template_id: back
   template_match_threshold: 0.7
+- area_name: 格子入口选项
+  pc_rect:
+  - 1392
+  - 750
+  - 1910
+  - 824
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

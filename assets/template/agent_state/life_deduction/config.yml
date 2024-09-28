@@ -1,8 +1,0 @@
-sub_dir: agent_state
-template_id: life_deduction
-template_name: 前台-血量扣减
-template_shape: rectangle
-auto_mask: true
-point_list:
-- 274, 51
-- 500, 52

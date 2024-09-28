@@ -392,4 +392,5 @@ class GitService:
         部分场景会没有权限clone代码 需要先授权
         :return:
         """
-        cmd_utils.run_command([self.env_config.git_path, 'config', '--global', '--add', 'safe.directory', os_utils.get_work_dir()])
+        cmd_utils.run_command([self.env_config.git_path, 'config', '--global', '--add', 'safe.directory',
+                               os.path.normpath(os_utils.get_work_dir()).replace(os.path.sep, '/')])

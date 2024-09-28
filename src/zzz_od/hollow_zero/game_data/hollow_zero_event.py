@@ -42,7 +42,8 @@ class HallowZeroEvent:
                  entry_name: Optional[str] = None,
                  options: Optional[List[dict]] = None,
                  lcs_percent: float = 1,
-                 on_the_right: bool = False
+                 on_the_right: bool = False,
+                 is_entry_opt: bool = False
                  ):
         self.entry_name: str = entry_name
         self.event_name: str = event_name
@@ -53,6 +54,7 @@ class HallowZeroEvent:
             self.options: List[HallowZeroNormalEventOption] = []
 
         self.on_the_right: bool = on_the_right  # 在右边显示
+        self.is_entry_opt: bool = is_entry_opt  # 是否用于进入格子的选项 例如 进入商店
 
 
 class HollowZeroSpecialEvent(Enum):
@@ -79,11 +81,15 @@ class HollowZeroSpecialEvent(Enum):
     RESONIUM_STORE_2 = HallowZeroEvent('鸣徽交易', on_the_right=True)
     RESONIUM_STORE_3 = HallowZeroEvent('特价折扣', on_the_right=True)
     RESONIUM_STORE_4 = HallowZeroEvent('鸣徽催化', on_the_right=True)
+    RESONIUM_STORE_5 = HallowZeroEvent('进入商店', on_the_right=True, is_entry_opt=True)
 
-    CRITICAL_STAGE = HallowZeroEvent('关键进展', on_the_right=True)
+    CRITICAL_STAGE_ENTRY = HallowZeroEvent('进入守门人决斗', on_the_right=True, is_entry_opt=True)
+    CRITICAL_STAGE_ENTRY_2 = HallowZeroEvent('进入危险目标决斗', on_the_right=True, is_entry_opt=True)
 
     IN_BATTLE = HallowZeroEvent('战斗画面')
     MISSION_COMPLETE = HallowZeroEvent('副本通关')
 
     FULL_IN_BAG = HallowZeroEvent('背包已满')
     OLD_CAPITAL = HallowZeroEvent('旧都失物')
+
+    DOOR_BATTLE_ENTRY = HallowZeroEvent('开门', on_the_right=True, is_entry_opt=True)

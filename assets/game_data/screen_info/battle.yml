@@ -13,39 +13,6 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: 头像-3-2
-  pc_rect:
-  - 487
-  - 40
-  - 590
-  - 90
-  text: ''
-  lcs_percent: 0.1
-  template_sub_dir: ''
-  template_id: ''
-  template_match_threshold: 0.7
-- area_name: 头像-3-3
-  pc_rect:
-  - 650
-  - 40
-  - 753
-  - 90
-  text: ''
-  lcs_percent: 0.1
-  template_sub_dir: ''
-  template_id: ''
-  template_match_threshold: 0.7
-- area_name: 头像-2-2
-  pc_rect:
-  - 557
-  - 40
-  - 660
-  - 90
-  text: ''
-  lcs_percent: 0.1
-  template_sub_dir: ''
-  template_id: ''
-  template_match_threshold: 0.7
 - area_name: 按键-特殊攻击
   pc_rect:
   - 1620
@@ -188,4 +155,37 @@ area_list:
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''
+  template_match_threshold: 0.7
+- area_name: 头像-3-2
+  pc_rect:
+  - 595
+  - 40
+  - 698
+  - 91
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: battle
+  template_id: avatar_2_anby
+  template_match_threshold: 0.7
+- area_name: 头像-3-3
+  pc_rect:
+  - 759
+  - 40
+  - 862
+  - 91
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: battle
+  template_id: avatar_2_anton
+  template_match_threshold: 0.7
+- area_name: 头像-2-2
+  pc_rect:
+  - 612
+  - 40
+  - 715
+  - 91
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: battle
+  template_id: avatar_2_piper
   template_match_threshold: 0.7

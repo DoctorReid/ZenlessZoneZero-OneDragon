@@ -51,7 +51,7 @@ class HollowZeroApp(ZApplication):
     @operation_node(name='初始画面识别', is_start_node=True)
     def check_first_screen(self) -> OperationRoundResult:
         screen = self.screenshot()
-        event_name = hollow_event_utils.check_screen(self.ctx, screen)
+        event_name = hollow_event_utils.check_screen(self.ctx, screen, set())
 
         if (event_name is not None
                 and event_name not in [
@@ -76,7 +76,7 @@ class HollowZeroApp(ZApplication):
                                    '挑战',
                                    '零号空洞',
                                    '资质考核')
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='传送')
     @node_from(from_name='自动运行')
@@ -142,7 +142,7 @@ class HollowZeroApp(ZApplication):
     @operation_node(name='出战')
     def deploy(self) -> OperationRoundResult:
         op = Deploy(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='初始画面识别', status=STATUS_IN_HOLLOW)  # 最开始就在
     @node_from(from_name='继续或出战', status='继续-确认')
@@ -152,7 +152,7 @@ class HollowZeroApp(ZApplication):
         self.ctx.hollow.init_before_hollow_start(self.mission_type_name, self.mission_name, self.level, self.phase)
         self.ctx.hollow_zero_record.daily_run_times = self.ctx.hollow_zero_record.daily_run_times + 1
         op = HollowRunner(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='选择副本类型', status=STATUS_NO_EVAL_POINT)
     @node_from(from_name='选择副本类型', status=STATUS_TIMES_FINISHED)
@@ -195,7 +195,7 @@ class HollowZeroApp(ZApplication):
     @operation_node(name='完成')
     def finish(self) -> OperationRoundResult:
         op = BackToNormalWorld(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
 
 def __debug():

@@ -10,3 +10,8 @@ auto_battle: 专属配队-艾莲
 event_priority:
 - ''
 path_finding: 默认
+buy_only_priority: true
+target_agents:
+- ellen
+- 击破
+- soukaku

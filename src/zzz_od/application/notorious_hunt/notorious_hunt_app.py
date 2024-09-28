@@ -49,14 +49,14 @@ class NotoriousHuntApp(ZApplication):
                                    next_plan.tab_name,
                                    next_plan.category_name,
                                    next_plan.mission_type_name)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='传送')
     @node_from(from_name='判断剩余次数')
     @operation_node(name='恶名狩猎')
     def notorious_hunt(self) -> OperationRoundResult:
         op = NotoriousHunt(self.ctx, self.next_plan)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='恶名狩猎')
     @operation_node(name='判断剩余次数')
@@ -90,4 +90,4 @@ class NotoriousHuntApp(ZApplication):
     @operation_node(name='返回大世界')
     def back_to_world(self) -> OperationRoundResult:
         op = BackToNormalWorld(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())

@@ -4,9 +4,9 @@ pc_alt: false
 area_list:
 - area_name: 副本名称列表
   pc_rect:
-  - 360
+  - 240
   - 216
-  - 1552
+  - 1752
   - 466
   text: ''
   lcs_percent: 0.5

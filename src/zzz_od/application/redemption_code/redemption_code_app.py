@@ -47,7 +47,7 @@ class RedemptionCodeApp(ZApplication):
     @operation_node(name='打开菜单')
     def open_menu(self) -> OperationRoundResult:
         op = OpenMenu(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='打开菜单')
     @operation_node(name='点击更多')
@@ -73,7 +73,7 @@ class RedemptionCodeApp(ZApplication):
         if self.code_idx >= len(self.unused_code_list):
             return self.round_success('全部兑换完毕')
 
-        self.click_area('菜单', '兑换码输入框')
+        self.round_by_click_area('菜单', '兑换码输入框')
         time.sleep(1)
 
         self.ctx.controller.keyboard_controller.keyboard.type(self.unused_code_list[self.code_idx])
@@ -102,7 +102,7 @@ class RedemptionCodeApp(ZApplication):
     @operation_node(name='返回')
     def back(self) -> OperationRoundResult:
         op = BackToNormalWorld(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
 
 def __debug():

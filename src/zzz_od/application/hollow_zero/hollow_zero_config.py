@@ -40,7 +40,7 @@ class HollowZeroConfig(YamlConfig):
 
     @property
     def challenge_config(self) -> str:
-        return self.get('challenge_config', '以太')
+        return self.get('challenge_config', '默认-专属空洞-艾莲')
 
     @challenge_config.setter
     def challenge_config(self, new_value: str):
@@ -48,7 +48,7 @@ class HollowZeroConfig(YamlConfig):
 
     @property
     def challenge_config_adapter(self) -> YamlConfigAdapter:
-        return YamlConfigAdapter(self, 'challenge_config', '以太')
+        return YamlConfigAdapter(self, 'challenge_config', '默认-专属空洞-艾莲')
 
     @property
     def weekly_plan_times(self) -> int:

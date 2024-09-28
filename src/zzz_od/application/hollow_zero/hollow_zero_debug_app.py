@@ -34,4 +34,4 @@ class HollowZeroDebugApp(ZApplication):
         self.ctx.hollow.init_level_info(self.mission_type_name, self.mission_name)
         self.ctx.hollow.init_event_yolo(True)
         op = HollowRunner(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())

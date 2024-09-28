@@ -13,7 +13,7 @@ from one_dragon.gui.component.setting_card.text_setting_card import TextSettingC
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_op_config_list
 from zzz_od.context.zzz_context import ZContext
-from zzz_od.game_data.agent import AgentEnum
+from zzz_od.game_data.agent import AgentEnum, AgentTypeEnum
 from zzz_od.hollow_zero.hollow_zero_challenge_config import HollowZeroChallengeConfig, \
     get_all_hollow_zero_challenge_config, get_hollow_zero_challenge_new_name, HollowZeroChallengePathFinding
 
@@ -79,6 +79,10 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
         self.agent_btn_list: List[ComboBox] = []
         for i in range(3):
             agent_btn = ComboBox()
+            for agent_type_enum in AgentTypeEnum:
+                if agent_type_enum.value == '未知':
+                    continue
+                agent_btn.addItem(agent_type_enum.value, userData=agent_type_enum.value)
             for agent_enum in AgentEnum:
                 agent_btn.addItem(agent_enum.value.agent_name, userData=agent_enum.value.agent_id)
             agent_btn.currentIndexChanged.connect(self._on_agent_changed)

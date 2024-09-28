@@ -35,6 +35,8 @@ class OneDragonApp(Application):
         self._instance_idx: int = 0  # 当前运行的实例下标
         self._instance_start_idx: int = 0  # 最初开始的实力下标
         self._op_to_switch_account: Operation = op_to_switch_account  # 切换账号的op
+        self._fail_app_idx: List[int] = []  # 失败的app下标
+        self._current_retry_app_idx: int = 0  # 当前重试的_fail_app_idx的下标
 
     def get_app_list(self) -> List[Application]:
         return []
@@ -94,6 +96,7 @@ class OneDragonApp(Application):
         :return:
         """
         order_app_list = self.get_one_dragon_apps_in_order()
+        self._fail_app_idx = []
 
         self._to_run_app_list = []
         for app in order_app_list:
@@ -109,6 +112,7 @@ class OneDragonApp(Application):
             app.stop_context_after_stop = False
 
         self._current_app_idx = 0
+        self._current_retry_app_idx = 0
 
         return self.round_success()
 
@@ -124,12 +128,29 @@ class OneDragonApp(Application):
             return self.round_success(status=OneDragonApp.STATUS_ALL_DONE)
 
         app = self._to_run_app_list[self._current_app_idx]
-        app.execute()
+        app_result = app.execute()
+        if not app_result.success:
+            self._fail_app_idx.append(self._current_app_idx)
         self._current_app_idx += 1
 
         return self.round_success(status=OneDragonApp.STATUS_NEXT)
 
     @node_from(from_name='运行任务')
+    @node_from(from_name='重试失败任务', status=STATUS_NEXT)
+    @operation_node(name='重试失败任务')
+    def run_retry_app(self) -> OperationRoundResult:
+        if self._current_retry_app_idx < 0 or self._current_retry_app_idx >= len(self._fail_app_idx):
+            return self.round_success(status=OneDragonApp.STATUS_ALL_DONE)
+
+        app_idx = self._fail_app_idx[self._current_retry_app_idx]
+        app = self._to_run_app_list[app_idx]
+        app.execute()
+
+        self._current_retry_app_idx += 1
+
+        return self.round_success(status=OneDragonApp.STATUS_NEXT)
+
+    @node_from(from_name='重试失败任务')
     @operation_node(name='切换实例配置')
     def switch_instance(self) -> OperationRoundResult:
         self._instance_idx += 1
@@ -150,7 +171,7 @@ class OneDragonApp(Application):
             return self.round_fail('未实现切换账号')
         else:
             # return self.round_success(wait=1)  # 调试用
-            return self.round_by_op(self._op_to_switch_account.execute())
+            return self.round_by_op_result(self._op_to_switch_account.execute())
 
     @node_from(from_name='切换账号')
     @operation_node(name='切换账号后处理')
@@ -160,8 +181,8 @@ class OneDragonApp(Application):
         else:
             return self.round_success(OneDragonApp.STATUS_NEXT)
 
-    def _after_operation_done(self, result: OperationResult):
-        Application._after_operation_done(self, result)
+    def after_operation_done(self, result: OperationResult):
+        Application.after_operation_done(self, result)
         for app in self._to_run_app_list:   # 一条龙结束后 各app恢复
             app.init_context_before_start = True
             app.stop_context_after_stop = True

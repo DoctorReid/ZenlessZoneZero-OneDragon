@@ -12,3 +12,4 @@ auto_battle: 击破站场-强攻速切
 event_priority:
 - ''
 path_finding: 默认
+buy_only_priority: true

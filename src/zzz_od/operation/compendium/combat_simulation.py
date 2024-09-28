@@ -136,11 +136,11 @@ class CombatSimulation(ZOperation):
 
         for i in range(1, 6):
             log.info('开始取消已选择数量 %d', i)
-            self.click_area('实战模拟室', '内层-已选择卡片1')
+            self.round_by_click_area('实战模拟室', '内层-已选择卡片1')
             time.sleep(0.5)
         for i in range(1, int(self.plan.card_num) + 1):
             log.info('开始选择数量 %d', i)
-            self.click_area('实战模拟室', '内层-卡片1')
+            self.round_by_click_area('实战模拟室', '内层-卡片1')
             time.sleep(0.5)
 
         return self.round_by_find_and_click_area(screen, '实战模拟室', '保存方案',
@@ -202,7 +202,7 @@ class CombatSimulation(ZOperation):
     @operation_node(name='出战')
     def deploy(self) -> OperationRoundResult:
         op = Deploy(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='出战')
     @node_from(from_name='判断下一次', status='战斗结果-再来一次')
@@ -273,8 +273,8 @@ class CombatSimulation(ZOperation):
         ZOperation._on_resume(self, e)
         auto_battle_utils.resume_running(self.auto_op)
 
-    def _after_operation_done(self, result: OperationResult):
-        ZOperation._after_operation_done(self, result)
+    def after_operation_done(self, result: OperationResult):
+        ZOperation.after_operation_done(self, result)
         if self.auto_op is not None:
             self.auto_op.dispose()
             self.auto_op = None

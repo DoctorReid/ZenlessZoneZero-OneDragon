@@ -1,0 +1,8 @@
+sub_dir: agent_state
+template_id: seth_lowell_3_1
+template_name: 角色状态-赛斯-31
+template_shape: rectangle
+auto_mask: true
+point_list:
+- 134, 123
+- 222, 124

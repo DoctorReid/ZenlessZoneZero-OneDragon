@@ -36,10 +36,16 @@ class BackToNormalWorld(ZOperation):
         if result.is_success:
             return self.round_success()
 
+        # 进入游戏时 弹出来的继续对话框
+        # 例如 空洞继续
+        result = self.round_by_find_and_click_area(screen, '大世界', '对话框取消')
+        if result.is_success:
+            return self.round_wait(wait=1)
+
         # 这是领取完活跃度奖励的情况
         result = self.round_by_find_area(screen, '快捷手册', 'TAB-挑战')
         if result.is_success:
-            self.click_area('快捷手册', '退出')
+            self.round_by_click_area('快捷手册', '退出')
             return self.round_retry(wait=1)
 
         # 判断是否有好感度事件
@@ -49,7 +55,7 @@ class BackToNormalWorld(ZOperation):
         # 判断在战斗画面
         result = self.round_by_find_area(screen, '战斗画面', '按键-普通攻击')
         if result.is_success:
-            self.click_area('战斗画面', '菜单')
+            self.round_by_click_area('战斗画面', '菜单')
             return self.round_retry(wait=1)
         # 空洞内的撤退
         result = self.round_by_find_and_click_area(screen, '零号空洞-战斗', '退出战斗')
@@ -66,8 +72,8 @@ class BackToNormalWorld(ZOperation):
             op.execute()
             return self.round_retry(wait=1)
 
-        click_back = self.click_area('菜单', '返回')
-        if click_back:
+        click_back = self.round_by_click_area('菜单', '返回')
+        if click_back.is_success:
             return self.round_retry(wait_round_time=1)
         else:
             return self.round_fail()
@@ -96,7 +102,7 @@ class BackToNormalWorld(ZOperation):
                 self.ctx.controller.click(mrl.max.center + area.left_top)
                 return self.round_wait(ocr_result, wait=1)
         else:
-            self.click_area('菜单', '返回')
+            self.round_by_click_area('菜单', '返回')
             return self.round_wait('对话无选项', wait=1)
 
 

@@ -103,22 +103,25 @@ class AgentStateDef:
 class CommonAgentStateEnum(Enum):
 
     ENERGY_31 = AgentStateDef('前台-能量', AgentStateCheckWay.FOREGROUND_GRAY_RANGE_LENGTH,
-                              lower_color=100, upper_color=255, template_id='energy_31',
-                              split_color_range=[0, 20], max_length=120)
+                              lower_color=100, upper_color=255, template_id='energy_3_1',
+                              split_color_range=[0, 30], max_length=120)
     ENERGY_32 = AgentStateDef('后台-1-能量', AgentStateCheckWay.FOREGROUND_GRAY_RANGE_LENGTH,
-                              lower_color=100, upper_color=255, template_id='energy_32',
-                              split_color_range=[0, 20], max_length=120)
+                              lower_color=100, upper_color=255, template_id='energy_3_2',
+                              split_color_range=[0, 30], max_length=120)
     ENERGY_33 = AgentStateDef('后台-2-能量', AgentStateCheckWay.FOREGROUND_GRAY_RANGE_LENGTH,
-                              lower_color=100, upper_color=255, template_id='energy_33',
-                              split_color_range=[0, 20], max_length=120)
+                              lower_color=100, upper_color=255, template_id='energy_3_3',
+                              split_color_range=[0, 30], max_length=120)
     ENERGY_21 = AgentStateDef('前台-能量', AgentStateCheckWay.FOREGROUND_GRAY_RANGE_LENGTH,
-                              lower_color=100, upper_color=255, template_id='energy_21',
-                              split_color_range=[0, 20], max_length=120)
+                              lower_color=100, upper_color=255, template_id='energy_2_1',
+                              split_color_range=[0, 30], max_length=120)
     ENERGY_22 = AgentStateDef('后台-1-能量', AgentStateCheckWay.FOREGROUND_GRAY_RANGE_LENGTH,
-                              lower_color=100, upper_color=255, template_id='energy_22',
-                              split_color_range=[0, 20], max_length=120)
-    LIFE_DEDUCTION = AgentStateDef('前台-血量扣减', AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH,
-                                   lower_color=(140, 30, 30), upper_color=(160, 50, 50), template_id='life_deduction',
+                              lower_color=100, upper_color=255, template_id='energy_2_2',
+                              split_color_range=[0, 30], max_length=120)
+    LIFE_DEDUCTION_31 = AgentStateDef('前台-血量扣减', AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH,
+                                   lower_color=(140, 30, 30), upper_color=(160, 50, 50), template_id='life_deduction_3_1',
+                                   min_value_trigger_state=1)
+    LIFE_DEDUCTION_21 = AgentStateDef('前台-血量扣减', AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH,
+                                   lower_color=(140, 30, 30), upper_color=(160, 50, 50), template_id='life_deduction_2_1',
                                    min_value_trigger_state=1)
 
 
@@ -154,7 +157,9 @@ class AgentEnum(Enum):
     BEN = Agent('ben', '本', RareTypeEnum.A, AgentTypeEnum.DEFENSE, DmgTypeEnum.FIRE)
     BILLY = Agent('billy', '比利', RareTypeEnum.A, AgentTypeEnum.ATTACK, DmgTypeEnum.ELECTRIC)
     CORIN = Agent('corin', '可琳', RareTypeEnum.A, AgentTypeEnum.ATTACK, DmgTypeEnum.PHYSICAL)
-    ELLEN = Agent('ellen', '艾莲', RareTypeEnum.S, AgentTypeEnum.ATTACK, DmgTypeEnum.ICE)
+    ELLEN = Agent('ellen', '艾莲', RareTypeEnum.S, AgentTypeEnum.ATTACK, DmgTypeEnum.ICE,
+                  state_list=[AgentStateDef('艾莲-急冻充能', AgentStateCheckWay.COLOR_RANGE_CONNECT,
+                                            template_id='ellen', lower_color=(200, 245, 250), upper_color=(255, 255, 255), connect_cnt=2)])
     GRACE = Agent('grace', '格莉丝', RareTypeEnum.S, AgentTypeEnum.ANOMALY, DmgTypeEnum.ELECTRIC)
     KOLEDA = Agent('koleda', '珂蕾妲', RareTypeEnum.S, AgentTypeEnum.STUN, DmgTypeEnum.FIRE)
     LUCY = Agent('lucy', '露西', RareTypeEnum.A, AgentTypeEnum.SUPPORT, DmgTypeEnum.FIRE)
@@ -164,11 +169,13 @@ class AgentEnum(Enum):
     PIPER = Agent('piper', '派派', RareTypeEnum.A, AgentTypeEnum.ANOMALY, DmgTypeEnum.PHYSICAL)
     RINA = Agent('rina', '丽娜', RareTypeEnum.S, AgentTypeEnum.SUPPORT, DmgTypeEnum.ELECTRIC)
     SOLDIER_11 = Agent('soldier_11', '11号', RareTypeEnum.S, AgentTypeEnum.ATTACK, DmgTypeEnum.FIRE)
-    SOUKAKU = Agent('soukaku', '苍角', RareTypeEnum.A, AgentTypeEnum.SUPPORT, DmgTypeEnum.ICE)
+    SOUKAKU = Agent('soukaku', '苍角', RareTypeEnum.A, AgentTypeEnum.SUPPORT, DmgTypeEnum.ICE,
+                  state_list=[AgentStateDef('苍角-涡流', AgentStateCheckWay.COLOR_RANGE_CONNECT,
+                                            template_id='soukaku', lower_color=(0, 220, 220), upper_color=(175, 255, 255), connect_cnt=15)])
 
     ZHU_YUAN = Agent('zhu_yuan', '朱鸢', RareTypeEnum.S, AgentTypeEnum.ATTACK, DmgTypeEnum.ETHER,
                      state_list=[AgentStateDef('朱鸢-子弹数', AgentStateCheckWay.COLOR_RANGE_CONNECT,
-                                               template_id='zhu_yuan', lower_color=(240, 60, 0), upper_color=(255, 180, 20), connect_cnt=20)])
+                                               template_id='zhu_yuan', lower_color=(240, 60, 0), upper_color=(255, 180, 20), connect_cnt=5)])
 
     QINGYI = Agent('qingyi', '青衣', RareTypeEnum.S, AgentTypeEnum.STUN, DmgTypeEnum.ELECTRIC,
                      state_list=[AgentStateDef('青衣-电压', AgentStateCheckWay.BACKGROUND_GRAY_RANGE_LENGTH,
@@ -184,3 +191,5 @@ class AgentEnum(Enum):
     SETH_LOWELL = Agent('seth_lowell', '赛斯', RareTypeEnum.A, AgentTypeEnum.DEFENSE, DmgTypeEnum.ELECTRIC,
                      state_list=[AgentStateDef('赛斯-意气', AgentStateCheckWay.BACKGROUND_GRAY_RANGE_LENGTH,
                                                template_id='seth_lowell', lower_color=0, upper_color=10)])
+
+    CAESAR_KING = Agent('caesar_king', '凯撒', RareTypeEnum.S, AgentTypeEnum.DEFENSE, DmgTypeEnum.PHYSICAL)

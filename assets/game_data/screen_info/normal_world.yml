@@ -68,3 +68,14 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 对话框取消
+  pc_rect:
+  - 726
+  - 600
+  - 918
+  - 652
+  text: 取消
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
