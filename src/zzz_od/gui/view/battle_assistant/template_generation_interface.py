@@ -1,18 +1,40 @@
 import os.path
 
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QWidget
-from qfluentwidgets import FluentIcon, PushButton, PushSettingCard
+from PySide6.QtCore import Qt, Signal, QThread
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
+from qfluentwidgets import PrimaryPushButton, FluentIcon, PushButton, SubtitleLabel, PushSettingCard
+
 from typing import Optional
 
+from one_dragon.gui.component.log_display_card import LogDisplayCard
+from one_dragon.utils.i18_utils import gt
+from one_dragon.utils.log_utils import log
 from one_dragon.gui.component.column_widget import ColumnWidget
-from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
+from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.view.app_run_interface import AppRunInterface
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.action_recorder.monitor import RecordContext
 from zzz_od.action_recorder.template_generator import PreProcessor, SelfAdaptiveGenerator
-from one_dragon.utils.log_utils import log
+
+
+class AppRunner(QThread):
+
+    state_changed = Signal()
+
+    def __init__(self, ctx: ZContext, app: RecordContext = None):
+        super().__init__()
+        self.ctx: ZContext = ctx
+        self.app: RecordContext = app
+
+    def run(self):
+        """
+        运行 最后发送结束信号
+        :return:
+        """
+
+        self.app.records_status_and_action()
+        self.app.output_records()
 
 
 class TemplateGenerationInterface(AppRunInterface):
@@ -31,10 +53,14 @@ class TemplateGenerationInterface(AppRunInterface):
             parent=parent,
         )
 
-        self.rc_ctx = None
+        self.app: Optional[RecordContext] = None
 
-    def get_widget_at_bottom(self) -> QWidget:
-        bottom_widget = ColumnWidget()
+        # 默认设置
+        self._use_existing_tpl = True  # 使用预设模板
+        self._add_switch_op = False  # 增加切换代理人操作
+
+    def get_widget_at_top(self) -> QWidget:
+        top_widget = ColumnWidget()
 
         self.gen_opt = PushSettingCard(
             icon=FluentIcon.DOWN,
@@ -43,9 +69,23 @@ class TemplateGenerationInterface(AppRunInterface):
             text='生成'
         )
         self.gen_opt.clicked.connect(self._template_generation)
-        bottom_widget.add_widget(self.gen_opt)
+        top_widget.add_widget(self.gen_opt)
 
-        return bottom_widget
+        self.use_existing_opt = SwitchSettingCard(
+            icon=FluentIcon.GAME, title='载入预设模板',
+            content='从 auto_battle_state_handler 文件夹中检索已存在的代理人动作模板, 并替换模型生成的模板'
+        )
+        self.use_existing_opt.value_changed.connect(self._use_existing_changed)
+        top_widget.add_widget(self.use_existing_opt)
+
+        self.add_switch_opt = SwitchSettingCard(
+            icon=FluentIcon.GAME, title='添加切换操作',
+            content='生成动作模板时, 在代理人驻场动作最后自动添加切换下一位代理人操作'
+        )
+        self.add_switch_opt.value_changed.connect(self._add_switch_changed)
+        top_widget.add_widget(self.add_switch_opt)
+
+        return top_widget
 
     def on_interface_shown(self) -> None:
         """
@@ -53,6 +93,55 @@ class TemplateGenerationInterface(AppRunInterface):
         :return:
         """
         AppRunInterface.on_interface_shown(self)
+        self.use_existing_opt.setValue(self._use_existing_tpl)
+        self.add_switch_opt.setValue(self._add_switch_op)
+
+    def get_content_widget(self) -> QWidget:
+        content_widget = QWidget()
+        content_layout = QVBoxLayout(content_widget)
+        content_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        widget_at_top = self.get_widget_at_top()
+        if widget_at_top is not None:
+            content_layout.addWidget(widget_at_top)
+
+        self.state_text = SubtitleLabel()
+        self.state_text.setText('先录制再生成动作模板')
+        self.state_text.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        content_layout.addWidget(self.state_text)
+
+        # 按钮行
+        btn_row_widget = QWidget()
+        btn_row_layout = QHBoxLayout(btn_row_widget)
+        content_layout.addWidget(btn_row_widget)
+
+        self.start_btn = PrimaryPushButton(
+            text='%s %s' % (gt('开始录制', 'ui'), self.ctx.key_start_running.upper()),
+            icon=FluentIcon.PLAY,
+        )
+        self.start_btn.clicked.connect(self._on_start_clicked)
+        btn_row_layout.addWidget(self.start_btn)
+
+        self.stop_btn = PushButton(
+            text='%s %s' % (gt('停止录制', 'ui'), self.ctx.key_stop_running.upper()),
+            icon=FluentIcon.CLOSE
+        )
+        self.stop_btn.clicked.connect(self._on_stop_clicked)
+        btn_row_layout.addWidget(self.stop_btn)
+
+        self.log_card = LogDisplayCard()
+        content_layout.addWidget(self.log_card)
+
+        self.app_runner = AppRunner(self.ctx)
+        self.app_runner.state_changed.connect(self._on_context_state_changed)
+
+        widget_at_bottom = self.get_widget_at_bottom()
+        if widget_at_bottom is not None:
+            content_layout.addWidget(widget_at_bottom)
+
+        content_layout.setStretch(content_layout.count() - 1, 1)
+
+        return content_widget
 
     def _template_generation(self) -> None:
         """
@@ -63,32 +152,39 @@ class TemplateGenerationInterface(AppRunInterface):
             pp = PreProcessor()  # 预处理
             merged_status_ops = pp.pre_process()
 
-            sag = SelfAdaptiveGenerator(merged_status_ops, pp.agent_names)  # 模板生成
+            sag = SelfAdaptiveGenerator(merged_status_ops, pp.agent_names,
+                                        self._use_existing_tpl, self.add_switch_opt)  # 模板生成
             agent_templates, special_status = sag.get_templates()
             sag.output_yaml(agent_templates, special_status)
 
             msg = '模板生成成功, 请在.log文件夹内查看'
-            log.error(msg)
-        except:
+            log.info(msg)
+        except Exception as e:
             msg = '动作-状态记录未录制或存在格式错误'
-            log.error(msg)
+            log.info(msg)
+            log.info(e)
 
     def _on_start_clicked(self) -> None:
         # 开始录制
         self.ctx.init_by_config()
         self.ctx.ocr.init_model()
 
-        self.rc_ctx = RecordContext(self.ctx)
-        self.rc_ctx.records_status_and_action()
-        self.rc_ctx.output_records()
+        self.app = RecordContext(self.ctx)
+        AppRunInterface._on_start_clicked(self)
 
     def _on_stop_clicked(self) -> None:
-        self.rc_ctx.battle.last_check_end_result = True
+        self.app.battle.last_check_end_result = True
 
-        self.rc_ctx.button_listener.stop()
-        self.rc_ctx.battle.stop_context()
+        self.app.button_listener.stop()
+        self.app.battle.stop_context()
 
         self.ctx.stop_running()
 
-    def get_app(self) -> ZApplication:
-        pass
+    def get_app(self) -> RecordContext:
+        return self.app
+
+    def _use_existing_changed(self, value: bool) -> None:
+        self._use_existing_tpl = value
+
+    def _add_switch_changed(self, value: bool) -> None:
+        self._add_switch_op = value

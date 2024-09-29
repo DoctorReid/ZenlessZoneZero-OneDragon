@@ -1,6 +1,7 @@
 import pickle
 import os
 from copy import deepcopy
+from multiprocessing.util import is_exiting
 
 import yaml
 
@@ -14,6 +15,8 @@ from gensim.models import Word2Vec as GSWord2Vec
 from one_dragon.utils import os_utils
 from one_dragon.utils.log_utils import log
 from zzz_od.auto_battle.auto_battle_state import BattleStateEnum
+from zzz_od.application.battle_assistant.auto_battle_config import get_all_auto_battle_op
+from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
 
 from enum import Enum
 
@@ -43,13 +46,8 @@ class ImportantOperation(Enum):
 
     # 简单操作转化
     SIMPLE_OPERATION = {LEFT_CLICK: BattleStateEnum.BTN_SWITCH_NORMAL_ATTACK.value,
-                        # RIGHT_CLICK: BattleStateEnum.BTN_DODGE.value,
                         MIDDLE_CLICK: BattleStateEnum.BTN_LOCK.value,
-
                         SPECIAL_SKILL: BattleStateEnum.BTN_SWITCH_SPECIAL_ATTACK.value,
-
-                        # BTN_SPACE: BattleStateEnum.BTN_SWITCH_NEXT.value,  # 换人
-                        # PREVIOUS_AGENT: BattleStateEnum.BTN_SWITCH_PREV.value
                         }
 
     # 特殊操作转化
@@ -389,13 +387,17 @@ class SelfAdaptiveGenerator:
     AGENT_INDEX = 0
     ACTION_INDEX = 2
 
-    def __init__(self, merged_status_ops: list, agent_names: list):
+    def __init__(self, merged_status_ops: list, agent_names: list, use_existing_tpl=True, add_switch_op=False):
         self.status_ops_with_timestamp = merged_status_ops  # 已按时间顺序排好
         self.status_ops = [sot[1] for sot in self.status_ops_with_timestamp]
 
         self.agent_names = agent_names
 
         self.agent_groups = self._groupby_agents()
+
+        # 默认设置
+        self._use_existing_tpl = use_existing_tpl  # 使用预设模板
+        self._add_switch_op = add_switch_op  # 增加切换代理人操作
 
     def _groupby_agents(self):
         # 按角色分组分组
@@ -602,7 +604,6 @@ class SelfAdaptiveGenerator:
 
         return switch_habits
 
-
     def get_templates(self):
         agent_sentences, agent_comb_sentences = self._prepare_sentences(self.agent_groups)
         agent_models = self._word2vec(agent_sentences)
@@ -624,65 +625,120 @@ class SelfAdaptiveGenerator:
 
         return agent_templates, special_status
 
-    def output_yaml(self, agent_templates: dict, special_status: dict):
-        output_dict = {}  # 导出字典
+    def _reserved_states(self, sub_states: list, reserved_key: list):
+        # 根据关键词保留特定状态动作
+        reserved_sub_states = []
+        for index in range(len(sub_states)):
+            for rk in reserved_key:
+                if rk in sub_states[index]['states']:
+                    reserved_sub_states.append(sub_states[index])
+        return reserved_sub_states
 
+    def _not_reserved_states(self, sub_states: list, not_reserved_key: list):
+        # 根据关键词不保留特定状态动作
+        reserved_sub_states = deepcopy(sub_states)
+        for index in reversed(range(len(sub_states))):
+            for rk in not_reserved_key:
+                if rk in sub_states[index]['states']:
+                    reserved_sub_states.pop(index)
+        return reserved_sub_states
 
-        # # # # # # # # 可用终结技 # # # # # # # #
+    def _available_ultimate_setting(self, output_dict: dict, special_status: dict, ):
+        # 1.4 可改为所有角色均可使用
         if special_status[BattleStateEnum.STATUS_ULTIMATE_READY.value]:
             output_dict['allow_ultimate'] = [{'agent_name': '"{}"'.format(special_status[BattleStateEnum.STATUS_ULTIMATE_READY.value][1])}]
 
+        return output_dict
 
-        # # # # # # # # 默认设置 # # # # # # # #
-        output_dict['check_dodge_interval'] = 0.02
+    def _default_setting(self, output_dict: dict):
+        output_dict['check_dodge_interval'] = 0.01
         output_dict['check_agent_interval'] = '[0.4, 0.6]'
         output_dict['check_special_attack_interval'] = '[0.4, 0.6]'
         output_dict['check_ultimate_interval'] = '[0.4, 0.6]'
-        output_dict['check_chain_interval'] = '[0.9, 1.1]'
-        output_dict['check_quick_interval'] = '[0.9, 1.1]'
+        output_dict['check_chain_interval'] = 0.3
+        output_dict['check_quick_interval'] = 0.2
 
         output_dict['scenes'] = []
 
+        return output_dict
 
-        # # # # # # # # 闪避状态 # # # # # # # #
+    def _generate_dodge_template(self, output_dict: dict, special_status: dict, existing_handlers: dict, is_template_existed: dict):
         handlers = []
         for agent in self.agent_names:
-            action = special_status["闪避识别"][agent]
-            if action is not None:
-                handlers.append({'states': '"[前台-{}]"'.format(agent),
-                                 'operations': [{'op_name': '"{}"'.format(action[1]), 'post_delay': 0.05}]})
-            else:
-                handlers.append({'states': '"[前台-{}]"'.format(agent),
-                                 'operations': [{'op_name': '"{}"'.format(BattleStateEnum.BTN_SWITCH_NEXT.value),
-                                                 'post_delay': 0.05}]})  # 默认切人
+            is_existed = (is_template_existed[agent]) and (
+                        '"[前台-{}]"'.format(agent) == existing_handlers[agent]['states'])
+            if is_existed:  # 如果存在既有模板, 使用既有模板替代, 否则使用生成的动作状态
+                existing_handler = existing_handlers[agent].copy()
+                existing_handler['sub_states'] = self._reserved_states(existing_handler['sub_states'],
+                                                                       ['黄光', '红光', '声音'])
+
+                if len(existing_handler['sub_states']) > 0:
+                    handlers.append(existing_handler)
+                else:
+                    is_existed = False
+
+            if not is_existed:
+                action = special_status["闪避识别"][agent]
+                if action is not None:
+                    handlers.append({'states': '"[前台-{}]"'.format(agent),
+                                     'operations': [{'op_name': '"{}"'.format(action[1]), 'post_delay': 0.05}]})
+                else:
+                    handlers.append({'states': '"[前台-{}]"'.format(agent),
+                                     'operations': [{'op_name': '"{}"'.format(BattleStateEnum.BTN_SWITCH_NEXT.value),
+                                                     'post_delay': 0.05}]})  # 默认切人
 
         triggers = {'triggers': '["{}", "{}", "{}"]'.format(ImportantOperation.DODGE_YELLOW.value,
                                                             ImportantOperation.DODGE_RED.value,
                                                             ImportantOperation.DODGE_AUDIO.value),
-                    'interval': 1,
+                    'priority': 90,
                     'handlers': handlers}
 
         output_dict['scenes'].append(triggers)
 
+        return output_dict
 
-        # # # # # # # # 快速支援 # # # # # # # #
+    def _generate_quick_assist_template(self, output_dict: dict, special_status: dict, existing_handlers: dict, is_template_existed: dict):
         handlers = []
         for agent in self.agent_names:
-            action = special_status[BattleStateEnum.STATUS_QUICK_ASSIST_READY.value][agent]
-            if action:
-                handlers.append({'states': '"[前台-{}]"'.format(agent),
-                                 'operations': [{'op_name': '"{}"'.format(action[1]), 'post_delay': 0.05}]})
+            is_existed = (is_template_existed[agent]) and (
+                        '"[前台-{}]"'.format(agent) == existing_handlers[agent]['states'])
+            if is_existed:  # 如果存在既有模板, 使用既有模板替代, 否则使用生成的动作状态
+                existing_handler = existing_handlers[agent].copy()
+                existing_handler['sub_states'] = self._reserved_states(existing_handler['sub_states'],
+                                                                       ['快速支援'])
+
+                if len(existing_handler['sub_states']) > 0:
+                    handlers.append(existing_handler)
+                else:
+                    is_existed = False
+
+            if not is_existed:
+                action = special_status[BattleStateEnum.STATUS_QUICK_ASSIST_READY.value][agent]
+                if action:
+                    handlers.append({'states': '"[前台-{}]"'.format(agent),
+                                     'operations': [{'op_name': '"{}"'.format(action[1]), 'post_delay': 0.05}]})
 
         triggers = {'triggers': '["{}"]'.format(BattleStateEnum.STATUS_QUICK_ASSIST_READY.value),
-                    'interval': 1,
+                    'priority': 98,
                     'handlers': handlers}
 
         output_dict['scenes'].append(triggers)
 
+        return output_dict
 
-        # # # # # # # # 连携技 # # # # # # # #
+    def _generate_chain_template(self, output_dict: dict, special_status: dict, existing_handlers: dict, is_template_existed: dict):
         handlers = []
         for agent in self.agent_names:
+            is_existed = (is_template_existed[agent]) and (
+                        '"[前台-{}]"'.format(agent) == existing_handlers[agent]['states'])
+            if is_existed:  # 如果存在既有模板, 使用既有模板替代, 否则使用生成的动作状态
+                existing_handler = existing_handlers[agent].copy()
+                existing_handler['sub_states'] = self._reserved_states(existing_handler['sub_states'],
+                                                                       ['连携'])
+
+                if len(existing_handler['sub_states']) > 0:
+                    handlers.append(existing_handler)
+
             action = special_status['连携技'][agent]
             if action:
                 handlers.append({'states': '"[前台-{}] & [{}]"'.format(agent, action[0]),
@@ -694,77 +750,201 @@ class SelfAdaptiveGenerator:
                              {'op_name': '"{}"'.format(BattleStateEnum.BTN_SWITCH_NEXT.value), 'post_delay': 0.05}]})
 
         triggers = {'triggers': '["{}"]'.format(BattleStateEnum.STATUS_CHAIN_READY.value),
+                    'priority': 99,
+                    'handlers': handlers}
+
+        output_dict['scenes'].append(triggers)
+
+        return output_dict
+
+    def _generate_ultimate_template(self, output_dict: dict, special_status: dict, existing_handlers: dict, is_template_existed: dict):
+        handlers = []
+        action = special_status[BattleStateEnum.STATUS_ULTIMATE_READY.value]
+        if action:
+            for agent in self.agent_names:
+                is_existed = (is_template_existed[agent]) and (
+                        '"[前台-{}]"'.format(agent) == existing_handlers[agent]['states'])
+                if is_existed:  # 如果存在既有模板, 使用既有模板替代, 否则使用生成的动作状态
+                    existing_handler = existing_handlers[agent].copy()
+                    existing_handler['sub_states'] = self._reserved_states(existing_handler['sub_states'],
+                                                                           ['终结'])
+
+                    if len(existing_handler['sub_states']) > 0:
+                        handlers.append(existing_handler)
+
+            handlers.append({'states': '"[前台-{}] & [{}] & ![按键-切换角色-下一个,0,1]"'.format(action[1], action[0]),
+                             'operations': [
+                                 {'op_name': '"{}"'.format(BattleStateEnum.BTN_ULTIMATE.value), 'post_delay': 0.1,
+                                  'repeat': 2}]})
+
+        triggers = {'triggers': '["{}"]'.format(BattleStateEnum.STATUS_ULTIMATE_READY.value),
+                    'priority': 1,
+                    'handlers': handlers}
+
+        output_dict['scenes'].append(triggers)
+
+        return output_dict
+
+    def _generate_normal_fighting_template(self, output_dict: dict, agent_templates: dict, special_status: dict, existing_handlers: dict, is_template_existed: dict):
+        # 输出站桩状态
+        switch_habits = special_status["换人习惯"]
+
+        # handlers = [{'state_template': "站场模板-未识别角色"}]
+        handlers = []
+        for agent in self.agent_names:
+            agent_handler = self._generate_by_word2vec_model(agent_templates, switch_habits, agent)
+
+            if ((is_template_existed[agent]) and ('"[前台-{}]"'.format(agent) == existing_handlers[agent]['states'])
+                    and self._use_existing_tpl):  # 使用既有预设动作模板
+                existing_handler = existing_handlers[agent].copy()
+                existing_handler['sub_states'] = self._not_reserved_states(existing_handler['sub_states'],
+                                                                           ['连携', '快速支援', '终结', '黄光', '红光', '声音'])
+
+                if len(existing_handler['sub_states']) > 0:
+                    agent_handler['sub_states'] = existing_handler['sub_states']  # 既有模板替换站场模板
+                    if self._add_switch_op:
+                        agent_handler = self._add_switch_action(agent_handler, switch_habits, agent)  # 增加切人动作
+
+            handlers.append(agent_handler)
+
+        triggers = {'triggers': [],
+                    'priority': 2,
                     'interval': 0.2,
                     'handlers': handlers}
 
         output_dict['scenes'].append(triggers)
 
+        return output_dict
+
+    def _generate_by_word2vec_model(self, agent_templates: dict, switch_habits: dict, agent: str):
+        temporary_operations = {}  # 先载入动作状态,看是否需要合并
+        for so in agent_templates[agent]:
+            so = so.copy()  # 动作预处理
+            state = so['states']
+            so.pop('前台')  # 删除前台角色标记
+            so.pop('states')  # 删除状态只保留动作
+            so['op_name'] = '"{}"'.format(so['op_name'])  # 加上标识符
+
+            if 'repeat' in so.keys():  # 如果有重复动作比如普通攻击连击,需要加上延时,否则会瞬间执行完,没有连击效果
+                so['post_delay'] = 0.1
+
+            if state not in temporary_operations.keys():
+                temporary_operations[state] = [so]
+            else:
+                temporary_operations[state].append(so)
+
+        # 换人动作
+        switch_habit = switch_habits[agent]
+        if switch_habit is None:
+            switch_habit = BattleStateEnum.BTN_SWITCH_NEXT.value  # 默认下一个人
+
+        sub_handlers = []
+        for state in temporary_operations.keys():
+            so = temporary_operations[state]
+            so.insert(0, {'op_name': '"{}"'.format(BattleStateEnum.BTN_MOVE_W.value), 'way': '"按下"'})  # 加上按W键
+            if state == '""':  # 正常动作状态
+                so = (so +
+                      [{'op_name': '"{}"'.format(BattleStateEnum.BTN_MOVE_W.value), 'way': '"松开"'}] +  # 松开W键
+                      [{'op_name': '"{}"'.format(switch_habit), 'post_delay': 0.05}])  # 加上换人动作
+                sub_handlers.append({'states': '""', 'operations': so})
+            else:  # 特殊状态
+                so = (so +
+                      [{'op_name': '"{}"'.format(BattleStateEnum.BTN_MOVE_W.value), 'way': '"松开"'}])  # 松开W键
+                sub_handlers.insert(0, {'states': '"[{}]"'.format(state), 'operations': so})
+
+            sub_handlers.insert(0, {'state_template': "通用模板-锁定敌人"})  # 锁定敌人,防止丢失目标
+
+        agent_handler = {'states': '"[前台-{}]"'.format(agent), 'sub_states': sub_handlers}
+
+        return agent_handler
+
+    def _get_existing_template(self):
+        existing_agent_handlers = get_all_auto_battle_op("auto_battle_state_handler")  # 获取既有模板
+        existing_agent_handler_names = [handler.module_name.split('-')[-1] for handler in existing_agent_handlers]
+
+        handlers = {}
+        is_template_existed = {}
+        for agent in self.agent_names:
+            if agent in existing_agent_handler_names:
+                agent_handler = self._generate_by_existing_handler(
+                    existing_agent_handlers[existing_agent_handler_names.index(agent)])
+                handlers[agent] = agent_handler
+                is_template_existed[agent] = True
+            else:
+                handlers[agent] = None
+                is_template_existed[agent] = False
+
+        return handlers, is_template_existed
+
+    def _generate_by_existing_handler(self, yaml_config: ConditionalOperator):
+        with open(yaml_config.file_path, mode='r', encoding='utf-8') as file:
+            yaml_info = yaml.unsafe_load(file)
+
+        existing_handler = yaml_info['handlers'][0]
+
+        self._traverse_mixed(existing_handler)
+
+        return existing_handler
+
+    def _traverse_mixed(self, data):
+        if isinstance(data, list):
+            for i in range(len(data)):
+                self._traverse_mixed(data[i])
+        elif isinstance(data, dict):
+            for key, value in data.items():
+                if isinstance(value, (int, float)):
+                    pass
+                if isinstance(value, str):
+                    data[key] = '"{}"'.format(data[key])  # 对于字符串保险起见全加引号
+                else:
+                    self._traverse_mixed(value)
+
+    def _add_switch_action(self, temporary_handler: dict, switch_habits: dict, agent: str):
+        # 添加换人动作
+        switch_habit = switch_habits[agent]
+        if switch_habit is None:
+            switch_habit = BattleStateEnum.BTN_SWITCH_NEXT.value  # 默认下一个人
+
+        # 注意, 此处一定要保证既有模板的""是sub_states列表中的最后一位
+        temporary_operations = temporary_handler['sub_states']
+        if 'sub_states' in temporary_operations[-1].keys():  # 一级列表
+            temporary_operations = temporary_operations[-1]['sub_states']
+            if 'sub_states' in temporary_operations[-1].keys():  # 二级列表
+                temporary_operations = temporary_operations[-1]['sub_states']
+                if 'sub_states' in temporary_operations[-1].keys():  # 做多到三级列表
+                    temporary_operations = temporary_operations[-1]['sub_states']
+
+        if temporary_operations[-1]['states'] == '""':
+            temporary_operations[-1]['operations'].append({'op_name': '"{}"'.format(switch_habit), 'post_delay': 0.05})  # 加入换人动作
+
+        return temporary_handler
+
+    def output_yaml(self, agent_templates: dict, special_status: dict):
+        output_dict = {}  # 导出字典
+
+        # # # # # # # # 可用终结技 # # # # # # # #
+        output_dict = self._available_ultimate_setting(output_dict, special_status)
+
+        # # # # # # # # 默认设置 # # # # # # # #
+        output_dict = self._default_setting(output_dict)
+
+        # # # # # # # # 获取既有模板 # # # # # # # #
+        existing_handlers, is_template_existed = self._get_existing_template()
+
+        # # # # # # # # 闪避状态 # # # # # # # #
+        output_dict = self._generate_dodge_template(output_dict, special_status, existing_handlers, is_template_existed)
+
+        # # # # # # # # 快速支援 # # # # # # # #
+        output_dict = self._generate_quick_assist_template(output_dict, special_status, existing_handlers, is_template_existed)
+
+        # # # # # # # # 连携技 # # # # # # # #
+        output_dict = self._generate_chain_template(output_dict, special_status, existing_handlers, is_template_existed)
 
         # # # # # # # # 终结技 # # # # # # # #
-        handlers = []
-        action = special_status[BattleStateEnum.STATUS_ULTIMATE_READY.value]
-        if action:
-            handlers.append({'states': '"[前台-{}] & [{}] & ![按键-切换角色-下一个,0,1]"'.format(action[1], action[0]),
-                             'operations': [{'op_name': '"{}"'.format(BattleStateEnum.BTN_ULTIMATE.value), 'post_delay': 0.1, 'repeat': 2}]})
-
-        triggers = {'triggers': '["{}"]'.format(BattleStateEnum.STATUS_ULTIMATE_READY.value),
-                    'interval': 1,
-                    'handlers': handlers}
-
-        output_dict['scenes'].append(triggers)
-
+        output_dict = self._generate_ultimate_template(output_dict, special_status, existing_handlers, is_template_existed)
 
         # # # # # # # # 普通状态循环动作模板 # # # # # # # #
-        switch_habits = special_status["换人习惯"]
-
-        handlers = [{'state_template': "站场模板-未识别角色"}]
-        for agent in self.agent_names:
-            temporary_operations = {}  # 先载入动作状态,看是否需要合并
-            for so in agent_templates[agent]:
-                so = so.copy()  # 动作预处理
-                state = so['states']
-                so.pop('前台')  # 删除前台角色标记
-                so.pop('states')  # 删除状态只保留动作
-                so['op_name'] = '"{}"'.format(so['op_name'])  # 加上标识符
-
-                if 'repeat' in so.keys():  # 如果有重复动作比如普通攻击连击,需要加上延时,否则会瞬间执行完,没有连击效果
-                    so['post_delay'] = 0.1
-
-                if state not in temporary_operations.keys():
-                    temporary_operations[state] = [so]
-                else:
-                    temporary_operations[state].append(so)
-
-            # 换人动作
-            switch_habit = switch_habits[agent]
-            if switch_habit is None:
-                switch_habit = BattleStateEnum.BTN_SWITCH_NEXT.value  # 默认下一个人
-
-            sub_handlers = []
-            for state in temporary_operations.keys():
-                so = temporary_operations[state]
-                so.insert(0, {'op_name': '"{}"'.format(BattleStateEnum.BTN_MOVE_W.value), 'way': '"按下"'})  # 加上按W键
-                if state == '""':  # 正常动作状态
-                    so = (so +
-                          [{'op_name': '"{}"'.format(BattleStateEnum.BTN_MOVE_W.value), 'way': '"松开"'}] +  # 松开W键
-                          [{'op_name': '"{}"'.format(switch_habit), 'post_delay': 0.05}])  # 加上换人动作
-                    sub_handlers.append({'states': '""', 'operations': so})
-                else:  # 特殊状态
-                    so = (so +
-                          [{'op_name': '"{}"'.format(BattleStateEnum.BTN_MOVE_W.value), 'way': '"松开"'}])  # 松开W键
-                    sub_handlers.insert(0, {'states': '"[{}]"'.format(state), 'operations': so})
-
-                sub_handlers.insert(0, {'state_template': "通用模板-锁定敌人"})  # 锁定敌人,防止丢失目标
-
-            handlers.append({'states': '"[前台-{}]"'.format(agent),
-                             'sub_states': sub_handlers})
-
-        triggers = {'triggers': [],
-                    'interval': 0.35,
-                    'handlers': handlers}
-
-        output_dict['scenes'].append(triggers)
-
+        output_dict = self._generate_normal_fighting_template(output_dict, agent_templates, special_status, existing_handlers, is_template_existed)
 
         # # # # # # # # 输出到 LOG文件夹下 YAML文件 # # # # # # # #
         yaml_path = os.path.join(os_utils.get_path_under_work_dir('.log'), '配队动作模板.yml')
@@ -775,7 +955,7 @@ class SelfAdaptiveGenerator:
         with open(yaml_path, 'w', encoding='utf-8') as file:
             file.write(content)
 
-        log.error("导出到YAML模板完毕...")
+        log.info("导出到YAML模板完毕...")
 
 def _debug():
     pp = PreProcessor()

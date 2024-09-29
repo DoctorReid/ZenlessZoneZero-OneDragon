@@ -16,7 +16,8 @@ from one_dragon.base.conditional_operation.state_recorder import StateRecord
 from one_dragon.utils import cv2_utils, thread_utils, cal_utils, os_utils, yolo_config_utils
 from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
-from zzz_od.auto_battle.auto_battle_context import AutoBattleContext, AutoBattleAgentContext
+from zzz_od.auto_battle.auto_battle_context import AutoBattleContext
+from zzz_od.auto_battle.auto_battle_agent_context import AutoBattleAgentContext
 from zzz_od.auto_battle.auto_battle_dodge_context import AutoBattleDodgeContext, YoloStateEventEnum
 from zzz_od.auto_battle.auto_battle_state import BattleStateEnum
 from zzz_od.auto_battle.auto_battle_agent_context import TeamInfo
@@ -89,13 +90,16 @@ class BattleAgentContext4Recording(AutoBattleAgentContext):
             self._last_check_agent_time = screenshot_time
 
             screen_agent_list = self._check_agent_in_parallel(screen)
-            energy_state_list = self._check_energy_in_parallel(screen, screenshot_time, screen_agent_list)
+            all_agent_state_list = self._check_all_agent_state(screen, screenshot_time, screen_agent_list)
 
-            front_state_list = self._check_front_agent_state(screen, screenshot_time, screen_agent_list)
-            life_state_list = self._check_life_deduction(screen, screenshot_time, screen_agent_list)
+            if screen_agent_list is None or len(screen_agent_list) == 0:
+                energy_state_list = []
+                other_state_list = []
+            else:
+                energy_state_list = all_agent_state_list[:len(screen_agent_list)]
+                other_state_list = all_agent_state_list[len(screen_agent_list):]
 
             update_state_record_list = []
-
             # 尝试更新代理人列表 成功的话 更新状态记录
             if self.team_info.update_agent_list(
                     screen_agent_list,
@@ -105,25 +109,27 @@ class BattleAgentContext4Recording(AutoBattleAgentContext):
                 for i in self._get_agent_state_records(screenshot_time):
                     update_state_record_list.append(i)
 
-            for i in front_state_list:
-                update_state_record_list.append(i)
-            for i in life_state_list:
-                update_state_record_list.append(i)
-
+                # 只有代理人列表更新成功 本次识别的状态才可用
+                for i in other_state_list:
+                    update_state_record_list.append(i)
 
             self.auto_op.batch_update_states(update_state_record_list)
 
             # # # # 重写部分 # # # #
             output_agent_names = []  # 导出用
             output_agent_types = []
+            output_energy = []
+            output_other_state = []
+
             for i in range(len(self.team_info.agent_list)):
                 prefix = '前台-' if i == 0 else ('后台-%d-' % i)
                 agent_info = self.team_info.agent_list[i]
-                agent = agent_info.agent
-                if agent is not None:
+                if agent_info.agent is not None:
                     # 除了display, 还要内部导出
-                    output_agent_names.append(prefix + agent.agent_name)
-                    output_agent_types.append(prefix + agent.agent_type.value)
+                    output_agent_names.append(prefix + agent_info.agent.agent_name)
+                    output_agent_types.append(prefix + agent_info.agent.agent_type.value)
+                    output_energy.append(agent_info.energy)
+                    output_other_state.append(agent_info.agent.state_list)
 
             return output_agent_names, output_agent_types
             # # # # 重写部分 # # # #
@@ -339,7 +345,8 @@ class BattleContext4Recording(AutoBattleContext):
         # 特殊状态部分
         try:
             if in_battle:
-                output_status_record = {'代理人顺序': future_result[0],
+                output_status_record = {'代理人顺序': future_result[0][:2],
+                                        '代理人信息': future_result[0][2:],
                                  BattleStateEnum.STATUS_SPECIAL_READY.value: future_result[1],
                                  BattleStateEnum.STATUS_ULTIMATE_READY.value: future_result[2],
                                  BattleStateEnum.STATUS_QUICK_ASSIST_READY.value: future_result[3],
@@ -661,11 +668,12 @@ class RecordContext:
         # 不在战斗中就等待
         in_battle = False
         while not in_battle:
+            log.info("等待战斗开始...")
             screen = self.screenshot(self.sh_independent)
             in_battle = self.battle.is_normal_attack_btn_available(screen)
             time.sleep(0.5)  # 防止循环过快导致卡顿
 
-        log.error("开始记录...")
+        log.info("开始记录...")
 
         self.button_listener.start()  # 动作流记录器
         while self.battle.last_check_end_result is None:  # check_screen内会检查
