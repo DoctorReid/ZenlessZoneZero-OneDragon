@@ -6,6 +6,8 @@ from qfluentwidgets import PrimaryPushButton, FluentIcon, PushButton, SubtitleLa
 
 from typing import Optional
 
+import time
+
 from one_dragon.gui.component.log_display_card import LogDisplayCard
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
@@ -173,6 +175,10 @@ class TemplateGenerationInterface(AppRunInterface):
         AppRunInterface._on_start_clicked(self)
 
     def _on_stop_clicked(self) -> None:
+        self.app.in_battle = True
+        time.sleep(0.5)
+        self.app.in_battle = False  # 打断循环
+
         self.app.battle.last_check_end_result = True
 
         self.app.button_listener.stop()

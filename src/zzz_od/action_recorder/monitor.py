@@ -639,6 +639,8 @@ class RecordContext:
         self.keyboard_flows = None  # 动作流
         self.mouse_flows = None
 
+        self.in_battle = False
+
     def _init_before_running(self) -> Tuple[bool, str]:
         """
         运行前进行初始化
@@ -666,11 +668,11 @@ class RecordContext:
 
     def records_status_and_action(self):
         # 不在战斗中就等待
-        in_battle = False
-        while not in_battle:
+        self.in_battle = False
+        while not self.in_battle:
             log.info("等待战斗开始...")
             screen = self.screenshot(self.sh_independent)
-            in_battle = self.battle.is_normal_attack_btn_available(screen)
+            self.in_battle = self.battle.is_normal_attack_btn_available(screen)
             time.sleep(0.5)  # 防止循环过快导致卡顿
 
         log.info("开始记录...")
@@ -681,13 +683,13 @@ class RecordContext:
 
             screen = self.screenshot(self.sh_independent)
 
-            in_battle = self.battle.is_normal_attack_btn_available(screen)
+            self.in_battle = self.battle.is_normal_attack_btn_available(screen)
 
             current_status = self.battle.check_battle_state(screen, now,
                                                       check_battle_end_normal_result=True,
                                                       check_battle_end_hollow_result=False,
                                                       check_distance=False,
-                                                      in_battle=in_battle)
+                                                      in_battle=self.in_battle)
 
             self.status_flows.append([now, current_status])  # 就这量,能内存溢出估计要打上W小时吧,没必要写disk了
 
