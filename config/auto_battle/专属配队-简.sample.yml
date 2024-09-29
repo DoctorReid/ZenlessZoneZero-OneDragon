@@ -1,8 +1,8 @@
 description: |
   专属配队-简
-  配队列表：支援/凯撒-简-塞斯
+  配队列表：支援/凯撒-简-赛斯
   备注： 角色位置不可替换
-  版本号： 0.2
+  版本号： 0.3
   作者： 笙梦昱
   协作： 巡夜子 starlight
 
@@ -68,7 +68,7 @@ t-j: &j #当前狂热心流不足50%且萨霍夫可使用则使用萨霍夫
         post_delay: 0.05
         repeat: 4
 
-#速切模板-塞斯
+#速切模板-赛斯
 t-ss: &ss
   - states: "[赛斯-意气]{75, 101}"
     operations:
@@ -119,7 +119,7 @@ scenes:
   - triggers: ["闪避识别-黄光", "闪避识别-红光", "闪避识别-声音"]
     priority: 90
     handlers:
-      - states: "[前台-简] & [闪避识别-黄光] & ![自定义-下格挡,0,10]" #10s内未触发过切人则触发塞斯格挡
+      - states: "[前台-简] & [闪避识别-黄光] & ![自定义-下格挡,0,10]" #10s内未触发过切人则触发赛斯格挡
         operations:
           - op_name: "按键-切换角色-下一个"
             post_delay: 0.025
@@ -175,7 +175,7 @@ scenes:
             press: 0.3
             post_delay: 0.05
             repeat: 3
-      - states: "[前台-防护] & [闪避识别-黄光] & ![前台-凯撒]" #塞斯在前台切简格挡
+      - states: "[前台-赛斯] & [闪避识别-黄光]" #赛斯在前台切简格挡
         operations:
           - op_name: "按键-切换角色-上一个"
             post_delay: 0.025
@@ -257,11 +257,11 @@ scenes:
       - states: "[前台-支援]"
         sub_states: *sup
 
-  - triggers: ["前台-防护"]
+  - triggers: ["前台-赛斯"]
     priority: 3
     interval: 1
     handlers:
-      - states: "[前台-防护]"
+      - states: "[前台-赛斯]"
         sub_states: *ss
 
   - triggers: ["前台-简"]
@@ -289,7 +289,7 @@ scenes:
       #强制简战场
       - states: "![前台-简]"
         sub_states:
-          - states: "[前台-防护] & ![按键-切换角色-上一个,0,0.3] & ![前台-凯撒]"
+          - states: "[前台-赛斯] & ![按键-切换角色-上一个,0,0.3]"
             operations:
               - op_name: "按键-特殊攻击"
                 post_delay: 0.025
@@ -298,6 +298,8 @@ scenes:
                 post_delay: 0.05
               - op_name: "按键-切换角色-上一个"
                 post_delay: 0.05
+              - op_name: "等待秒数"
+                seconds: 0.15
           - states: "([前台-支援] & ![按键-切换角色-下一个,0,0.3]) | ([前台-凯撒] & ![按键-切换角色-下一个,0,0.3])"
             operations:
               - op_name: "按键-特殊攻击"
@@ -305,6 +307,8 @@ scenes:
               - op_name: "按键-移动-前"
                 way: "松开"
               - op_name: "等待秒数"
-                data: ["0.1"]
+                seconds: 0.1
               - op_name: "按键-切换角色-下一个"
                 post_delay: 0.05
+              - op_name: "等待秒数"
+                seconds: 0.15
