@@ -48,38 +48,31 @@ class CommissionAssistantRunInterface(AppRunInterface):
             icon=FluentIcon.CHAT,
             title='对话选项优先级',
             options_enum=DialogOptionEnum,
-            adapter=self.ctx.commission_assistant_config.dialog_option_adapter
         )
         right_layout.addWidget(self.dialog_option_opt)
 
         self.dialog_click_interval_opt = TextSettingCard(
             icon=FluentIcon.DATE_TIME,  # 选择与时间相关的图标
             title='对话点击间隔（秒）',
-            adapter=self.ctx.commission_assistant_config.dialog_click_interval_adapter
         )
         left_layout.addWidget(self.dialog_click_interval_opt)
 
         self.dialog_click_when_auto_opt = SwitchSettingCard(
             icon=FluentIcon.PLAY,  # 选择与时间相关的图标
             title='剧情自动进行时点击', content='剧情右上角选择自动时，是否依然点击',
-            adapter=self.ctx.commission_assistant_config.dialog_click_when_auto_adapter
         )
         right_layout.addWidget(self.dialog_click_when_auto_opt)
 
-        self.dodge_config_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='自动闪避',
-                                                    adapter=self.ctx.commission_assistant_config.dodge_config_adapter)
+        self.dodge_config_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='自动闪避')
         left_layout.addWidget(self.dodge_config_opt)
 
-        self.dodge_switch_opt = KeySettingCard(icon=FluentIcon.GAME, title='自动闪避开关', content='按键后，进入/退出自动闪避',
-                                               adapter=self.ctx.commission_assistant_config.dodge_switch_adapter)
+        self.dodge_switch_opt = KeySettingCard(icon=FluentIcon.GAME, title='自动闪避开关', content='按键后，进入/退出自动闪避')
         right_layout.addWidget(self.dodge_switch_opt)
 
-        self.auto_battle_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='自动战斗',
-                                                    adapter=self.ctx.commission_assistant_config.auto_battle_adapter)
+        self.auto_battle_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='自动战斗')
         left_layout.addWidget(self.auto_battle_opt)
 
-        self.auto_battle_switch_opt = KeySettingCard(icon=FluentIcon.GAME, title='自动战斗开关', content='按键后，进入/退出自动战斗',
-                                               adapter=self.ctx.commission_assistant_config.auto_battle_switch_adapter)
+        self.auto_battle_switch_opt = KeySettingCard(icon=FluentIcon.GAME, title='自动战斗开关', content='按键后，进入/退出自动战斗')
         right_layout.addWidget(self.auto_battle_switch_opt)
 
         return content
@@ -87,17 +80,17 @@ class CommissionAssistantRunInterface(AppRunInterface):
     def on_interface_shown(self) -> None:
         AppRunInterface.on_interface_shown(self)
 
-        self.dialog_click_interval_opt.init_value()
-        self.dialog_option_opt.init_value()
-        self.dialog_click_when_auto_opt.init_value()
+        self.dialog_click_interval_opt.init_with_adapter(self.ctx.commission_assistant_config.dialog_click_interval_adapter)
+        self.dialog_option_opt.init_with_adapter(self.ctx.commission_assistant_config.dialog_option_adapter)
+        self.dialog_click_when_auto_opt.init_with_adapter(self.ctx.commission_assistant_config.dialog_click_when_auto_adapter)
 
         self.dodge_config_opt.set_options_by_list(get_auto_battle_op_config_list('dodge'))
-        self.dodge_config_opt.init_value()
-        self.dodge_switch_opt.init_value()
+        self.dodge_config_opt.init_with_adapter(self.ctx.commission_assistant_config.dodge_config_adapter)
+        self.dodge_switch_opt.init_with_adapter(self.ctx.commission_assistant_config.dodge_switch_adapter)
 
         self.auto_battle_opt.set_options_by_list(get_auto_battle_op_config_list('auto_battle'))
-        self.auto_battle_opt.init_value()
-        self.auto_battle_switch_opt.init_value()
+        self.auto_battle_opt.init_with_adapter(self.ctx.commission_assistant_config.auto_battle_adapter)
+        self.auto_battle_switch_opt.init_with_adapter(self.ctx.commission_assistant_config.auto_battle_switch_adapter)
     def on_interface_hidden(self) -> None:
         AppRunInterface.on_interface_hidden(self)
 

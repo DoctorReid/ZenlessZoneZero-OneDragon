@@ -44,12 +44,12 @@ class SwitchSettingCard(SettingCardBase):
             self.adapter.set_value(value)
         self.value_changed.emit(value)
 
-    def init_value(self) -> None:
+    def init_with_adapter(self, adapter: YamlConfigAdapter) -> None:
         """
         初始化值
         """
-        if self.adapter is not None:
-            self.setValue(self.adapter.get_value(), emit_signal=False)
+        self.adapter = adapter
+        self.setValue(self.adapter.get_value(), emit_signal=False)
 
     def setValue(self, value: bool, emit_signal: bool = True):
         if not emit_signal:

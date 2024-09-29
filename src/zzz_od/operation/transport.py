@@ -4,8 +4,8 @@ from typing import ClassVar, List
 
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.operation.operation_edge import node_from
+from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
-from one_dragon.base.operation.operation_node import OperationNode, operation_node
 from one_dragon.utils import cv2_utils
 from one_dragon.utils.i18_utils import gt
 from zzz_od.context.zzz_context import ZContext
@@ -149,11 +149,11 @@ class Transport(ZOperation):
                 left_cnt += 1
 
         if left_cnt > 0:  # 往右滑
-            from_point = area.center
+            from_point = area.center + Point(-20, -20)  # 如果在两个地点卡片中间 会滑动不了 这里选择了一个特殊点
             end_point = from_point + Point(-200, 0)
             self.ctx.controller.drag_to(start=from_point, end=end_point)
         else:  # 往左滑
-            from_point = area.center
+            from_point = area.center + Point(-20, -20)
             end_point = from_point + Point(150, 0)  # 跟上面滑动距离稍微不一样 防止一直重复左右都找不到
             self.ctx.controller.drag_to(start=from_point, end=end_point)
 

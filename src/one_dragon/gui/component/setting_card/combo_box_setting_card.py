@@ -116,12 +116,12 @@ class ComboBoxSettingCard(SettingCardBase):
             self.combo_box.addItem(opt_item.ui_text, userData=opt_item.value)
         self.combo_box.blockSignals(False)
 
-    def init_value(self) -> None:
+    def init_with_adapter(self, adapter: YamlConfigAdapter) -> None:
         """
         初始化值
         """
-        if self.adapter is not None:
-            self.setValue(self.adapter.get_value(), emit_signal=False)
+        self.adapter = adapter
+        self.setValue(self.adapter.get_value(), emit_signal=False)
 
     def _on_index_changed(self, index: int) -> None:
         """

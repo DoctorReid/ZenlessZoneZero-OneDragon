@@ -146,6 +146,7 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
         :param key: 按键
         :return:
         """
+        # log.info('按键 %s' % key)
         if key == self.key_start_running:
             self.switch_context_pause_and_run()
         elif key == self.key_stop_running:

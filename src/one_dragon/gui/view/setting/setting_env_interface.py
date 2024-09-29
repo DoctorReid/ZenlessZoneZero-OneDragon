@@ -84,8 +84,7 @@ class SettingEnvInterface(VerticalScrollInterface):
         self.auto_update_opt.value_changed.connect(self._on_auto_update_changed)
         code_group.addSettingCard(self.auto_update_opt)
 
-        self.pip_source_opt = ComboBoxSettingCard(icon=FluentIcon.GLOBE, title='Pip源', options_enum=PipSourceEnum,
-                                                  adapter=self.ctx.env_config.pip_source_adapter)
+        self.pip_source_opt = ComboBoxSettingCard(icon=FluentIcon.GLOBE, title='Pip源', options_enum=PipSourceEnum)
         code_group.addSettingCard(self.pip_source_opt)
 
         return code_group
@@ -165,7 +164,7 @@ class SettingEnvInterface(VerticalScrollInterface):
 
         self.force_update_opt.setValue(self.ctx.env_config.force_update)
         self.auto_update_opt.setValue(self.ctx.env_config.auto_update)
-        self.pip_source_opt.init_value()
+        self.pip_source_opt.init_with_adapter(self.ctx.env_config.pip_source_adapter)
 
         proxy_type = get_config_item_from_enum(ProxyTypeEnum, self.ctx.env_config.proxy_type)
         if proxy_type is not None:

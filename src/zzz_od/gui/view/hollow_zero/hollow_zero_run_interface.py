@@ -103,7 +103,6 @@ class HollowZeroRunInterface(AppRunInterface):
         self.challenge_config_opt = ComboBoxSettingCard(
             icon=FluentIcon.SETTING,  # 选择与设置相关的图标
             title='挑战配置', content='选择角色、鸣徽和事件',
-            adapter=self.ctx.hollow_zero_config.challenge_config_adapter
         )
         right_layout.addWidget(self.challenge_config_opt)
 
@@ -135,7 +134,7 @@ class HollowZeroRunInterface(AppRunInterface):
         AppRunInterface.on_interface_shown(self)
         self._update_mission_options()
         self._update_challenge_config_options()
-        self.challenge_config_opt.init_value()
+        self.challenge_config_opt.init_with_adapter(self.ctx.hollow_zero_config.challenge_config_adapter)
 
         self.mission_opt.setValue(self.ctx.hollow_zero_config.mission_name)
 

@@ -27,10 +27,10 @@ set "APPPATH=%PYTHONPATH%\%MAINPATH%"
 set "PYTHONUSERBASE=%~dp0.env"
 
 REM 打印信息
-echo [PASS] PYTHON：%PYTHON%
-echo [PASS] PYTHONPATH：%PYTHONPATH%
-echo [PASS] APPPATH：%APPPATH%
-echo [PASS] PYTHONUSERBASE：%PYTHONUSERBASE%
+echo [PASS] PYTHON: %PYTHON%
+echo [PASS] PYTHONPATH: %PYTHONPATH%
+echo [PASS] APPPATH: %APPPATH%
+echo [PASS] PYTHONUSERBASE: %PYTHONUSERBASE%
 
 REM 使用 PowerShell 检查路径中是否有中文字符
 powershell -command "if ('%~dp0' -match '[\u4e00-\u9fff]') { exit 1 } else { exit 0 }"

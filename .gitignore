@@ -34,6 +34,7 @@ config/yolo.yml
 .log/
 .env/
 .temp_clone/
+.temp_clone**/
 .debug/
 .conda/
 .vscode/
