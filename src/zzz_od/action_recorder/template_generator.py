@@ -1,16 +1,12 @@
 import pickle
 import os
 from copy import deepcopy
-from multiprocessing.util import is_exiting
-
 import yaml
 
 import numpy as np
 
 from sklearn.cluster import KMeans
 from sklearn.metrics import euclidean_distances
-
-from gensim.models import Word2Vec as GSWord2Vec
 
 from one_dragon.utils import os_utils
 from one_dragon.utils.log_utils import log
@@ -449,6 +445,7 @@ class SelfAdaptiveGenerator:
         return agent_sentences, agent_comb_sentences
 
     def _word2vec(self, agent_comb_sentences: dict):
+        from gensim.models import Word2Vec as GSWord2Vec
         # 无监督训练获取分词向量
         agent_models = {}
         for agent in self.agent_names:
