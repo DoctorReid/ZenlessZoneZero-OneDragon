@@ -1,12 +1,16 @@
 import pickle
 import os
 from copy import deepcopy
+from multiprocessing.util import is_exiting
+
 import yaml
 
 import numpy as np
 
 from sklearn.cluster import KMeans
 from sklearn.metrics import euclidean_distances
+
+from gensim.models import Word2Vec as GSWord2Vec
 
 from one_dragon.utils import os_utils
 from one_dragon.utils.log_utils import log
@@ -416,6 +420,8 @@ class SelfAdaptiveGenerator:
 
             previous_agent = current_agent
 
+        groups[previous_agent].append(temp_combinations)  # 最后状态别忘记也要加入
+
         return groups
 
     def _prepare_sentences(self, agent_groups: dict):
@@ -443,18 +449,19 @@ class SelfAdaptiveGenerator:
         return agent_sentences, agent_comb_sentences
 
     def _word2vec(self, agent_comb_sentences: dict):
-        from gensim.models import Word2Vec as GSWord2Vec
         # 无监督训练获取分词向量
         agent_models = {}
         for agent in self.agent_names:
-            model = GSWord2Vec(agent_comb_sentences[agent],
-                               vector_size=self.VECTOR_SIZE,
-                               window=self.WINDOW_SIZE,
-                               min_count=self.MIN_COUNT,
-                               sg=self.CBOW,
-                               workers=1)
-
-            agent_models[agent] = model
+            if len(agent_comb_sentences[agent]) > 0:
+                model = GSWord2Vec(agent_comb_sentences[agent],
+                                   vector_size=self.VECTOR_SIZE,
+                                   window=self.WINDOW_SIZE,
+                                   min_count=self.MIN_COUNT,
+                                   sg=self.CBOW,
+                                   workers=1)
+                agent_models[agent] = model
+            else:
+                raise ValueError("当前代理人 {} 缺少录制动作数据, 该代理人可能未上场, 请重新录制动作避免战斗时间过短...".format(agent))
 
         return agent_models
 
@@ -481,8 +488,12 @@ class SelfAdaptiveGenerator:
             # 用最简单的KMeans
             # 其实这里最适用层次聚类, 获取树状图之后再根据树状结构获取聚类数量, 但十分用户不友好
             # 密度聚类用不了
-            cluster_instance = KMeans(n_clusters=expected_cluster_num, init='k-means++', random_state=20240919)
-            cluster_instance.fit(response_vectors)
+            try:
+                cluster_instance = KMeans(n_clusters=expected_cluster_num, init='k-means++', random_state=20240919)
+                cluster_instance.fit(response_vectors)
+            except ValueError:  # 避免动作小于聚类数量或动作过于相似造成聚类失败
+                cluster_instance = KMeans(n_clusters=1, init='k-means++', random_state=20240919)
+                cluster_instance.fit(response_vectors)
 
             labels = cluster_instance.labels_  # 标签
             cluster_centers = cluster_instance.cluster_centers_  # 聚类中心
