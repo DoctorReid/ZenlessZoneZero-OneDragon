@@ -5,6 +5,7 @@
 #    pip-compile --annotation-style=line --index-url=https://pypi.tuna.tsinghua.edu.cn/simple --output-file=requirements-prod.txt requirements-dev.txt
 #
 
+
 audioread==3.0.1          # via librosa
 certifi==2024.7.4         # via requests
 cffi==1.17.0              # via soundcard, soundfile
@@ -13,6 +14,7 @@ coloredlogs==15.0.1       # via onnxruntime-directml
 darkdetect==0.8.0         # via pyside6-fluent-widgets
 decorator==5.1.1          # via librosa
 flatbuffers==24.3.25      # via onnxruntime-directml
+gensim==4.3.3             # via -r requirements-dev.txt
 humanfriendly==10.0       # via coloredlogs
 idna==3.7                 # via requests
 joblib==1.4.2             # via librosa, scikit-learn
@@ -24,7 +26,7 @@ mpmath==1.3.0             # via sympy
 msgpack==1.0.8            # via librosa
 mss==9.0.1                # via -r requirements-dev.txt
 numba==0.60.0             # via librosa
-numpy==1.26.4             # via librosa, numba, onnxruntime-directml, opencv-python, scikit-learn, scipy, shapely, soundcard, soxr
+numpy==1.26.4             # via gensim, librosa, numba, onnxruntime-directml, opencv-python, scikit-learn, scipy, shapely, soundcard, soxr
 onnxruntime-directml==1.18.0  # via -r requirements-dev.txt
 opencv-python==4.10.0.84  # via -r requirements-dev.txt
 packaging==24.1           # via lazy-loader, onnxruntime-directml, pooch
@@ -52,10 +54,11 @@ pywin32==306              # via pysidesix-frameless-window
 pyyaml==6.0.1             # via -r requirements-dev.txt
 requests==2.32.3          # via pooch
 scikit-learn==1.5.1       # via librosa
-scipy==1.14.0             # via librosa, scikit-learn
+scipy==1.13.1             # via gensim, librosa, scikit-learn
 shapely==2.0.4            # via -r requirements-dev.txt
 shiboken6==6.7.2          # via pyside6, pyside6-addons, pyside6-essentials
 six==1.16.0               # via pynput
+smart-open==7.0.4         # via gensim
 soundcard==0.4.3          # via -r requirements-dev.txt
 soundfile==0.12.1         # via librosa
 soxr==0.4.0               # via librosa
@@ -63,4 +66,4 @@ sympy==1.13.0             # via onnxruntime-directml
 threadpoolctl==3.5.0      # via scikit-learn
 typing-extensions==4.12.2  # via librosa
 urllib3==2.2.2            # via requests
-gensim==4.3.3
+wrapt==1.16.0             # via smart-open

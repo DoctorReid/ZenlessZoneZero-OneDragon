@@ -1,23 +1,20 @@
-import os.path
+import time
 
 from PySide6.QtCore import Qt, Signal, QThread
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
 from qfluentwidgets import PrimaryPushButton, FluentIcon, PushButton, SubtitleLabel, PushSettingCard
-
 from typing import Optional
 
-import time
-
-from one_dragon.gui.component.log_display_card import LogDisplayCard
-from one_dragon.utils.i18_utils import gt
-from one_dragon.utils.log_utils import log
+from one_dragon.base.operation.context_event_bus import ContextEventItem
 from one_dragon.gui.component.column_widget import ColumnWidget
+from one_dragon.gui.component.log_display_card import LogDisplayCard
 from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.view.app_run_interface import AppRunInterface
-from zzz_od.application.zzz_application import ZApplication
-from zzz_od.context.zzz_context import ZContext
+from one_dragon.utils.i18_utils import gt
+from one_dragon.utils.log_utils import log
 from zzz_od.action_recorder.monitor import RecordContext
 from zzz_od.action_recorder.template_generator import PreProcessor, SelfAdaptiveGenerator
+from zzz_od.context.zzz_context import ZContext
 
 
 class AppRunner(QThread):
@@ -165,6 +162,16 @@ class TemplateGenerationInterface(AppRunInterface):
             msg = '动作-状态记录未录制或存在格式错误'
             log.info(msg)
             log.info(e)
+
+    def _on_key_press(self, event: ContextEventItem) -> None:
+        """
+        按键监听
+        """
+        key: str = event.data
+        if key == self.ctx.key_start_running and self.ctx.is_context_stop:
+            self._on_start_clicked()
+        if key == self.ctx.key_stop_running:
+            self._on_stop_clicked()
 
     def _on_start_clicked(self) -> None:
         # 开始录制
