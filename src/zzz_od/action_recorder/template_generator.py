@@ -77,17 +77,21 @@ class ImportantOperation(Enum):
 class PreProcessor:
     def __init__(self):
         # 直接读取log中保存的信息
-        keyboard_action_file_path = os.path.join(os_utils.get_path_under_work_dir('.log'), 'keyboard_actions.pkl')
-        with open(keyboard_action_file_path, 'rb') as file:  # 使用 'rb' 模式读取二进制文件
-            self.keyboard_flows = pickle.load(file)
+        try:
+            keyboard_action_file_path = os.path.join(os_utils.get_path_under_work_dir('.log'), 'keyboard_actions.pkl')
+            with open(keyboard_action_file_path, 'rb') as file:  # 使用 'rb' 模式读取二进制文件
+                self.keyboard_flows = pickle.load(file)
 
-        mouse_action_file_path = os.path.join(os_utils.get_path_under_work_dir('.log'), 'mouse_actions.pkl')
-        with open(mouse_action_file_path, 'rb') as file:  # 使用 'rb' 模式读取二进制文件
-            self.mouse_flows = pickle.load(file)
+            mouse_action_file_path = os.path.join(os_utils.get_path_under_work_dir('.log'), 'mouse_actions.pkl')
+            with open(mouse_action_file_path, 'rb') as file:  # 使用 'rb' 模式读取二进制文件
+                self.mouse_flows = pickle.load(file)
 
-        status_file_path = os.path.join(os_utils.get_path_under_work_dir('.log'), 'status.pkl')
-        with open(status_file_path, 'rb') as file:  # 使用 'rb' 模式读取二进制文件
-            self.status_flows = pickle.load(file)
+            status_file_path = os.path.join(os_utils.get_path_under_work_dir('.log'), 'status.pkl')
+            with open(status_file_path, 'rb') as file:  # 使用 'rb' 模式读取二进制文件
+                self.status_flows = pickle.load(file)
+
+        except FileNotFoundError:
+            raise FileNotFoundError("动作和状态还未录制, 请先录制...")
 
         for index in range(len(self.status_flows)):
             agent_info = self.status_flows[index][1]['代理人顺序']

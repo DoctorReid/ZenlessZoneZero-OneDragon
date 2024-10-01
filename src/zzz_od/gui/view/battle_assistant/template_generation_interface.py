@@ -147,21 +147,16 @@ class TemplateGenerationInterface(AppRunInterface):
         根据记录生成模板
         :return:
         """
-        try:
-            pp = PreProcessor()  # 预处理
-            merged_status_ops = pp.pre_process()
+        pp = PreProcessor()  # 预处理
+        merged_status_ops = pp.pre_process()
 
-            sag = SelfAdaptiveGenerator(merged_status_ops, pp.agent_names,
-                                        self._use_existing_tpl, self.add_switch_opt)  # 模板生成
-            agent_templates, special_status = sag.get_templates()
-            sag.output_yaml(agent_templates, special_status)
+        sag = SelfAdaptiveGenerator(merged_status_ops, pp.agent_names,
+                                    self._use_existing_tpl, self.add_switch_opt)  # 模板生成
+        agent_templates, special_status = sag.get_templates()
+        sag.output_yaml(agent_templates, special_status)
 
-            msg = '模板生成成功, 请在.log文件夹内查看'
-            log.info(msg)
-        except Exception as e:
-            msg = '动作-状态记录未录制或存在格式错误'
-            log.info(msg)
-            log.info(e)
+        msg = '模板生成成功, 请在.log文件夹内查看'
+        log.info(msg)
 
     def _on_key_press(self, event: ContextEventItem) -> None:
         """
