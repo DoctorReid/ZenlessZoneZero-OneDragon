@@ -869,7 +869,11 @@ class SelfAdaptiveGenerator:
 
     def _get_existing_template(self):
         existing_agent_handlers = get_all_auto_battle_op("auto_battle_state_handler")  # 获取既有模板
-        existing_agent_handler_names = [handler.module_name.split('-')[-1] for handler in existing_agent_handlers]
+
+        existing_agent_handlers = [handler
+                                   for handler in existing_agent_handlers if '站场模板' in handler.module_name]  # 只筛选站场模板, 其他不需要
+        existing_agent_handler_names = [handler.module_name.split('-')[-1]
+                                        for handler in existing_agent_handlers if '站场模板' in handler.module_name]
 
         handlers = {}
         is_template_existed = {}
