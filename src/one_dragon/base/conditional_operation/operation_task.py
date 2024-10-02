@@ -8,7 +8,14 @@ from one_dragon.utils import thread_utils
 from one_dragon.utils.log_utils import log
 
 _od_op_task_executor = ThreadPoolExecutor(thread_name_prefix='_od_op_task_executor', max_workers=32)
+""" [自动战斗] 任务池 """
 
+# 用于页面信息显示
+class OperationTaskInfo:
+    def __init__(self, trigger: str = "", priority: Optional[int] = None, states: str = ""):
+        self.trigger: str = trigger
+        self.priority: Optional[int] = priority or "无优先级"
+        self.states: str = states
 
 class OperationTask:
 
@@ -27,7 +34,7 @@ class OperationTask:
 
     def run_async(self) -> Future:
         """
-        异步执行
+        将任务提交到任务池异步执行
         :return:
         """
         self._running = True
