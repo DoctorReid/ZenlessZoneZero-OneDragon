@@ -154,7 +154,9 @@ class NotoriousHunt(ZOperation):
         if self.node_retry_times == 0:  # 第一次移动较远距离
             self.ctx.controller.move_w(press=True, press_time=1.2, release=True)
         else:
+            # 移动短距离并向左调整
             self.ctx.controller.move_w(press=True, press_time=0.2, release=True)
+            self.ctx.controller.move_a(press=True, press_time=0.8, release=True)  # 向左调整
         time.sleep(1)
 
         screen = self.screenshot()
