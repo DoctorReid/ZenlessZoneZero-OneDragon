@@ -36,7 +36,7 @@ def get_all_auto_battle_op(sub_dir: str) -> List[ConditionalOperator]:
 
     result_op_list = []
     for template_name in template_name_set:
-        result_op_list.append(ConditionalOperator('auto_battle', template_name))
+        result_op_list.append(ConditionalOperator(sub_dir, template_name))
 
     return result_op_list
 
