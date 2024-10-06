@@ -2,7 +2,7 @@ import os.path
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
-from qfluentwidgets import FluentIcon, PushButton, HyperlinkCard
+from qfluentwidgets import FluentIcon, PushButton, HyperlinkCard, ListWidget
 from typing import Optional
 
 from one_dragon.base.operation.context_event_bus import ContextEventItem
@@ -27,6 +27,39 @@ class AutoBattleInterface(AppRunInterface):
 
     def __init__(self, ctx: ZContext, parent=None):
         """初始化 AutoBattleInterface 类"""
+        # 获取当前脚本所在的目录
+        print("当前工作目录:", os.getcwd())
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # 获取项目根目录 (跳过4级目录: src/zzz_od/gui/view/battle_assistant)
+        project_root = os.path.abspath(os.path.join(current_dir, '..', '..', '..', '..', '..'))
+
+        # 拼接 config 文件夹的绝对路径
+        config_folder = os.path.join(project_root, 'config', 'auto_battle')
+
+        # 自动生成配置文件字典，遍历 config_folder 下的所有 .sample.yml 文件
+        self.config_files = {}
+        if os.path.exists(config_folder):
+            for file_name in os.listdir(config_folder):
+                if file_name.endswith('.sample.yml'):
+                    config_key = os.path.splitext(os.path.splitext(file_name)[0])[0]
+                    self.config_files[config_key] = os.path.join(config_folder, file_name)
+
+        # 打印生成的配置文件路径
+        print("自动生成的配置文件路径:", self.config_files)
+
+        # 尝试读取默认的配置文件
+        default_config = '专属配队-朱鸢-通用击破'  # 不包含扩展名的文件名
+        if default_config in self.config_files:
+            try:
+                with open(self.config_files[default_config], 'r', encoding='utf-8') as f:
+                    config_content = f.read()
+                    print("默认配置文件内容:", config_content)
+            except FileNotFoundError as e:
+                print(f"读取文件时出错: {e}")
+        else:
+            print(f"默认配置文件 '{default_config}' 不存在")
+
         AppRunInterface.__init__(self,
                                  ctx=ctx, object_name='auto_battle_interface', nav_text_cn='自动战斗', nav_icon=FluentIcon.GAME, parent=parent)
         self.ctx: ZContext = ctx
@@ -94,6 +127,15 @@ class AutoBattleInterface(AppRunInterface):
         left_layout.addWidget(AppRunInterface.get_content_widget(self))
 
         right_layout = QVBoxLayout()
+
+        # 替换 QListWidget 为 qfluentwidgets 的 ListWidget
+        self.additional_list_widget = ListWidget(parent=self)
+        
+        # 添加示例项目
+        self.additional_list_widget.addItem("在左侧选择新的战斗配置")
+        self.additional_list_widget.addItem("此处将显示脚本须知")
+        right_layout.addWidget(self.additional_list_widget)
+
         self.battle_state_display = BattleStateDisplay()
         right_layout.addWidget(self.battle_state_display)
 
@@ -219,3 +261,23 @@ class AutoBattleInterface(AppRunInterface):
         if self.battle_state_display is None:
             return
         self.battle_state_display.set_update_display(True)
+
+    def _on_auto_battle_config_changed(self, index):
+        selected_option = self.config_opt.combo_box.currentText()
+        selected_file_path = self.config_files.get(selected_option)
+
+        # 读取文件的前五行并显示在 ListWidget 中
+        if selected_file_path:
+            try:
+                with open(selected_file_path, 'r', encoding='utf-8') as file:
+                    self.additional_list_widget.clear()  # 清空列表
+                    for i in range(5):
+                        line = file.readline().strip()
+                        if line:  # 只添加非空行
+                            self.additional_list_widget.addItem(line)
+            except Exception as e:
+                self.additional_list_widget.clear()
+                self.additional_list_widget.addItem(f"读取文件时出错: {e}")
+        else:
+            self.additional_list_widget.clear()
+            self.additional_list_widget.addItem("未选择文件或路径无效")
