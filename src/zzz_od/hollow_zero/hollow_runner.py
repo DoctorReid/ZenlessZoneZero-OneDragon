@@ -1,7 +1,7 @@
 import time
 
 from cv2.typing import MatLike
-from typing import Type, ClassVar
+from typing import Type, ClassVar, List
 
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
@@ -74,11 +74,16 @@ class HollowRunner(ZOperation):
             HollowZeroSpecialEvent.DOOR_BATTLE_ENTRY.value.event_name: DoorBattle,
         }
 
+        # 部分格子有一个选项作为入口
         self._entry_event_handlers: dict[str, Type] = {
             '邦布商人': BambooMerchant,
             '守门人': CriticalStage,
             '门扉禁闭-善战': DoorBattle
         }
+        self._entry_events: dict[str, List[str]] = {
+            '邦布商人': [HollowZeroSpecialEvent.RESONIUM_STORE_5.value.event_name],
+        }
+
         self._last_save_image_time: float = 0
         self._last_move_time: float = 0  # 上一次移动的时间
 
@@ -167,10 +172,14 @@ class HollowRunner(ZOperation):
         self._handled_events.clear()
 
         # 如果是特殊需要选项的格子 则使用对应的事件指令处理 可以同时用来等待移动的时间
-        if next_to_move.entry.entry_name in self._entry_event_handlers:
-            op: ZOperation = self._entry_event_handlers[next_to_move.entry.entry_name](self.ctx)
+        entry_name = next_to_move.entry.entry_name
+        if entry_name in self._entry_event_handlers:
+            op: ZOperation = self._entry_event_handlers[entry_name](self.ctx)
             op_result = op.execute()
             if op_result.success:
+                events = self._entry_events.get(entry_name, [])
+                for e in events:
+                    self._handled_events.add(e)
                 return self.round_wait()
             else:
                 return self.round_retry()
@@ -258,7 +267,7 @@ class HollowRunner(ZOperation):
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='画面识别', status='通关-完成')
-    @operation_node(name='通关-完成')
+    @operation_node(name='通关-完成', node_max_retry_times=10)
     def mission_complete(self) -> OperationRoundResult:
         screen = self.screenshot()
         result = self.round_by_find_and_click_area(screen, '零号空洞-事件', '通关-完成')
