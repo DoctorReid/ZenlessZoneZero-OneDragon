@@ -5,3 +5,6 @@
     - option_name: "攻击以骸"
     - option_name: "绝对不要"
     - option_name: "生命值降低至1点并进入战斗"
+
+    - option_name: "接受邀请"
+    - option_name: "拒绝邀请"

@@ -1,3 +1,10 @@
+# 未知怎么触发
+- entry_name: "邂逅"
+  event_name: "Fairy智能介入"
+
+- entry_name: "邂逅"
+  event_name: "Fairy转播中"
+
 - entry_name: "邂逅"
   event_name: "篝火如家般温暖"
   lcs_percent: 0.5
@@ -167,6 +174,10 @@
     - option_name: "对对不起"
     - option_name: "私闯民宅是违反规定的吧"
 
+# 简
+- entry_name: "邂逅"
+  event_name: "外环人的优质睡眠"
+
 # 珂蕾妲
 - entry_name: "邂逅"
   event_name: "文明施工"
@@ -179,3 +190,14 @@
   options:
     - option_name: "要调查什么呢"
     - option_name: "我陪你去"
+
+# 赛斯
+- entry_name: "邂逅"
+  event_name: "大魔头法厄同"
+
+# 安比
+- entry_name: "邂逅"
+  event_name: "绿耳机之谜"
+  options:
+    - option_name: "这些人是安比的朋友？"
+    - option_name: "这些家伙绝对认错人了吧？"
