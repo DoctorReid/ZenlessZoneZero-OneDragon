@@ -3,8 +3,6 @@ import os
 import time
 from concurrent.futures import ThreadPoolExecutor, Future
 
-from soundcard.mediafoundation import SoundcardRuntimeWarning
-import warnings
 
 from cv2.typing import MatLike
 from typing import Optional, List, Any, Union, Tuple
@@ -23,8 +21,6 @@ from zzz_od.auto_battle.auto_battle_state import BattleStateEnum
 from zzz_od.auto_battle.auto_battle_agent_context import TeamInfo
 from zzz_od.game_data.agent import Agent, AgentEnum, CommonAgentStateEnum
 from zzz_od.yolo.flash_classifier import FlashClassifier
-
-warnings.filterwarnings('ignore', category=SoundcardRuntimeWarning)
 
 _record_executor = ThreadPoolExecutor(thread_name_prefix='od_record', max_workers=8)
 

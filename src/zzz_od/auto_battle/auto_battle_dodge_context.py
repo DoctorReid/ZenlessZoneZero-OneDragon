@@ -65,7 +65,12 @@ class AudioRecorder:
         """
         音频录制循环，持续录制音频数据。
         """
+        # 这个在全局导入的话 会导致QT的选择文件无法使用
         import soundcard as sc
+        from soundcard.mediafoundation import SoundcardRuntimeWarning
+        import warnings
+        warnings.filterwarnings('ignore', category=SoundcardRuntimeWarning)
+
         _mic = sc.get_microphone(id=str(sc.default_speaker().name), include_loopback=True)
         _recorder = _mic.recorder(samplerate=self._sample_rate, channels=self._used_channel)
 
