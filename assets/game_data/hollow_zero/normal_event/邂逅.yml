@@ -174,9 +174,11 @@
     - option_name: "对对不起"
     - option_name: "私闯民宅是违反规定的吧"
 
-# 简
+# 凯撒
 - entry_name: "邂逅"
   event_name: "外环人的优质睡眠"
+  options:
+    - option_name: "凯撒！不好了！有人来砸卡吕冬之子的场"
 
 # 珂蕾妲
 - entry_name: "邂逅"
@@ -194,6 +196,9 @@
 # 赛斯
 - entry_name: "邂逅"
   event_name: "大魔头法厄同"
+  options:
+    - option_name: "切，你很懂邦布吗？"
+    - option_name: "包扎一下伤口吧？疼不疼？"
 
 # 安比
 - entry_name: "邂逅"
