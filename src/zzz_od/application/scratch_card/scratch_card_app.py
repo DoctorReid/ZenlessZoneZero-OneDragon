@@ -31,7 +31,7 @@ class ScratchCardApp(ZApplication):
         """
         pass
 
-    @operation_node(name='传送', is_start_node=False)
+    @operation_node(name='传送', is_start_node=True)
     def transport(self) -> OperationRoundResult:
         op = Transport(self.ctx, '六分街', '报刊亭')
         return self.round_by_op_result(op.execute())
@@ -58,7 +58,7 @@ class ScratchCardApp(ZApplication):
         return self.round_success()
 
     @node_from(from_name='移动交互')
-    @operation_node(name='点击刮刮卡', node_max_retry_times=20, is_start_node=True)
+    @operation_node(name='点击刮刮卡', node_max_retry_times=20)
     def click_scratch_card(self) -> OperationRoundResult:
         screen = self.screenshot()
 
