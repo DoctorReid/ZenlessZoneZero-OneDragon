@@ -6,21 +6,20 @@ from typing import Optional, Callable, List
 
 from one_dragon.base.conditional_operation.atomic_op import AtomicOp
 from one_dragon.base.conditional_operation.operation_def import OperationDef
-from one_dragon.base.conditional_operation.operation_task import OperationTask, OperationTaskInfo
+from one_dragon.base.conditional_operation.operation_task import OperationTask
 from one_dragon.base.conditional_operation.operation_template import OperationTemplate
 from one_dragon.base.conditional_operation.scene_handler import SceneHandler
 from one_dragon.base.conditional_operation.state_handler_template import StateHandlerTemplate
 from one_dragon.base.conditional_operation.state_recorder import StateRecorder, StateRecord
-from one_dragon.base.conditional_operation.utils import scenes_handler
+from one_dragon.base.conditional_operation.utils import construct_scene_handler
 from one_dragon.base.config.yaml_config import YamlConfig
 from one_dragon.thread.atomic_int import AtomicInt
 from one_dragon.utils import thread_utils
 from one_dragon.utils.log_utils import log
 
 _od_conditional_op_executor = ThreadPoolExecutor(thread_name_prefix='od_conditional_op', max_workers=32)
-""" [自动战斗] 线程池,最多支持32个线程 """
 
-# 自动战斗控制器
+
 class ConditionalOperator(YamlConfig):
 
     def __init__(self, sub_dir: str, template_name: str,
@@ -33,30 +32,16 @@ class ConditionalOperator(YamlConfig):
             sample=True, copy_from_sample=False, is_mock=is_mock
         )
 
-        # —————— 触发器 ——————
-        
-        self._trigger_states: dict[str, SceneHandler] = {}
-        """ [触发器] 触发器 """
-        self._normal_trigger: Optional[SceneHandler] = None
-        """ [触发器] 不存在条件的触发器,即主线程 """
-        self._last_trigger_time: dict[str, float] = {}
-        """ [场景] 主线程上次触发时间 """
-        
-        # —————— 自动战斗 ——————
-        
-        self.is_running: bool = False
-        """ [自动战斗] 自动战斗是否在运行 """
-        self._inited: bool = False  
-        """ [自动战斗] 是否已经完成初始化 """
-        
-        # —————— 任务 ——————
-        
-        self._running_task: Optional[OperationTask] = None
-        """ [任务] 当前正在运行的任务 """
+        self._inited: bool = False  # 是否已经完成初始化
+
+        self._trigger_scene_handler: dict[str, SceneHandler] = {}  # 需要状态触发的场景处理
+        self._last_trigger_time: dict[str, float] = {}  # 各状态场景最后一次的触发时间
+        self._normal_scene_handler: Optional[SceneHandler] = None  # 不需要状态触发的场景处理
+        self.is_running: bool = False  # 整体是否正在运行
+
         self._task_lock: Lock = Lock()
-        """ [任务] 任务锁,可以阻塞任务池的任务执行 """
+        self._running_task: Optional[OperationTask] = None  # 正在运行的任务
         self._running_task_cnt: AtomicInt = AtomicInt()
-        """ [任务] 任务计数器 """
 
     def init(
             self,
@@ -64,202 +49,155 @@ class ConditionalOperator(YamlConfig):
             scene_handler_getter: Callable[[str], StateHandlerTemplate],
             operation_template_getter: Callable[[str], OperationTemplate],
     ) -> None:
-        """ 初始化 在需要执行之前再使用 """
-        
+        """
+        初始化 在需要执行之前再使用
+        """
         self._inited = False
 
-        # 初始化自动战斗相关数据
-        self.dispose()  
-        self._trigger_states: dict[str, SceneHandler] = {}
-        self._normal_trigger = None
+        self.dispose()  # 先把旧的清除掉
+        self._trigger_scene_handler: dict[str, SceneHandler] = {}
+        self._normal_scene_handler = None
         self._last_trigger_time = {}
 
-        # yml文件结构:总场景scenes >> 触发器triggers >> 处理器handlers >> 条件集states >> 操作集operations >> 操作op_name
-        # 一条龙流程:触发器条件集trigger_states >> 触发器trigger >> 操作集operations >> 任务task
-        # 任务池和线程池都最多支持32个线程同时运行
-        
-        #总场景
         scenes = self.get('scenes', [])
 
         usage_states = []  # 已经监听的状态变更
 
-        # 从总场景中加载数据,遍历每个触发器
-        for data in scenes:
-            # 加载触发器
-            trigger = scenes_handler(data, self.get_state_recorder,
+        for scene_data in scenes:
+            handler = construct_scene_handler(scene_data, self.get_state_recorder,
                                               op_getter, scene_handler_getter, operation_template_getter)
-            # 通过触发条件进行归类
-            states = data.get('triggers', [])
+            states = scene_data.get('triggers', [])
             if len(states) > 0:
                 for state in states:
                     if state in usage_states:
                         raise ValueError('状态监听 %s 出现在多个场景中' % state)
-                    self._trigger_states[state] = trigger
-            elif self._normal_trigger is not None:
+                    self._trigger_scene_handler[state] = handler
+            elif self._normal_scene_handler is not None:
                 raise ValueError('存在多个无状态监听的场景')
-            # 没有触发条件的触发器作为主线程
             else:
-                self._normal_trigger = trigger
-        # 初始化完成
+                self._normal_scene_handler = handler
+
         self._inited = True
 
     def dispose(self) -> None:
         """
-        销毁 对子模块进行完全销毁
+        销毁 要对子模块进行完全销毁
         :return:
         """
-        # 强制停止运行
-        self.stop_running()
-        # 依次销毁触发器
-        if self._trigger_states is not None:
-            for _, trigger in self._trigger_states.items():
-                 trigger.dispose()
-        # 销毁主线程
-        if self._normal_trigger is not None:
-            self._normal_trigger.dispose()
+        self.stop_running()  # 在这里强制停止运行
+        if self._trigger_scene_handler is not None:
+            for _, handler in self._trigger_scene_handler.items():
+                handler.dispose()
+        if self._normal_scene_handler is not None:
+            self._normal_scene_handler.dispose()
 
     def start_running_async(self) -> bool:
         """
-        异步启动自动战斗线程
+        异步开始运行
         :return:
         """
-        # 自动战斗未初始化时,不运行
         if not self._inited:
-            log.error('自动战斗文件[%s]未完成初始化,无法运行', self.module_name)
+            log.error('自动指令 [ %s ] 未完成初始化 无法运行', self.module_name)
             return False
-        # 有自动战斗在运行时,也不运行
         if self.is_running:
             return False
 
-        # 加载自动战斗相关的参数
         self.is_running = True
-        
-        # 重置计数器
-        self._running_task_cnt.set(0) 
+        self._running_task_cnt.set(0)  # 每次重置计数器 防止有bug导致无法正常运行
 
-        # 加载主线程,并将主线程提交到线程池
-        if self._normal_trigger is not None:
-            future: Future = _od_conditional_op_executor.submit(self._normal_trigger_loop)
+        if self._normal_scene_handler is not None:
+            future: Future = _od_conditional_op_executor.submit(self._normal_scene_loop)
             future.add_done_callback(thread_utils.handle_future_result)
 
         return True
-    
-    # 主线程中,有任务触发后会提交到线程池,并暂停到其他任务完成为止
-    def _normal_trigger_loop(self) -> None:
+
+    def _normal_scene_loop(self) -> None:
         """
         主循环
         :return:
         """
         while self.is_running:
-            # 有其它任务在运行时,等待0.02s后再次循环
             if self._running_task_cnt.get() > 0:
+                # 有其它场景在运行 等待
                 time.sleep(0.02)
             else:
-                # 定义和重置等待时间
                 to_sleep: Optional[float] = None
 
-                # 确保其他任务不会被主线程打断
+                # 上锁后确保运行状态不会被篡改
                 with self._task_lock:
-                    # 自动战斗不在运行时,中断主线程
                     if not self.is_running:
+                        # 已经被stop_running中断了 不继续
                         break
-                    # 触发时间
-                    trigger_time: float = time.time()
-                    # 上次触发时间
-                    last_trigger_time = self._last_trigger_time.get('', 0)
-                    # 经过时间
-                    past_time = trigger_time - last_trigger_time
 
-                    # 如果经过时间小于间隔时间,则等待到间隔时间为止,此即等待时间
-                    if past_time < self._normal_trigger.interval_seconds:
-                        to_sleep = self._normal_trigger.interval_seconds - past_time
+                    trigger_time = time.time()
+                    last_trigger_time = self._last_trigger_time.get('', 0)
+                    past_time = trigger_time - last_trigger_time
+                    if past_time < self._normal_scene_handler.interval_seconds:
+                        to_sleep = self._normal_scene_handler.interval_seconds - past_time
                     else:
-                        # 遍历主线程下的场景,选取第一个符合条件的场景,并加载其[操作集operations]
-                        ops,expr = self._normal_trigger.get_operations(trigger_time)
+                        ops = self._normal_scene_handler.get_operations(trigger_time)
                         if ops is not None:
-                            # 将操作集设置为运行中任务
-                            self._running_task = OperationTask(False,ops)
-                            # 设置页面显示的信息区域数据
-                            self._running_task_info =  OperationTaskInfo(trigger="主循环",priority="无优先级",states = expr)
-                            # 记录触发时间
+                            self._running_task = OperationTask(False, ops)
                             self._last_trigger_time[''] = trigger_time
-                            # 任务计数器+1
                             self._running_task_cnt.inc()
-                            # 将任务提交到任务池
                             future = self._running_task.run_async()
-                            # 任务完成后回调
                             future.add_done_callback(self._on_task_done)
-                
-                # 等待时间加载,让主线程在间隔时间后,立刻进行一次循环
-                # ps:在有些时候可能主线程的循环时间会小于0.02s,可能是bug
+
                 if to_sleep is not None:
+                    # 等待时间不能写在锁里 要尽快释放锁
                     time.sleep(to_sleep)
-                # 没有等待时间时,按正常的间隔时间循环
+                else:  # 没有命中的状态 或者 提交执行了 那就自旋等待
                     time.sleep(0.02)
 
     def _trigger_scene(self, state_name: str) -> None:
         """
-        根据触发器条件,检索是否存在满足条件的触发器,并触发其对应的[操作集operations]
+        触发对应的场景
         :param state_name: 触发的状态
         :return:
         """
-        # 未检索到则返回
-        if state_name not in self._trigger_states:
+        if state_name not in self._trigger_scene_handler:
             return
-        #检索到则加载处理器
-        log.debug('[触发器triggers] | 满足条件: %s', state_name)
-        trigger = self._trigger_states[state_name]
+        log.debug('场景触发 %s', state_name)
+        handler = self._trigger_scene_handler[state_name]
 
-        # 如果当前存在任务锁,不进行处理
+        # 上锁后确保运行状态不会被篡改
         with self._task_lock:
-            # 自动战斗不在运行时,不进行处理
-            if not self.is_running:  
+            if not self.is_running:
+                # 已经被stop_running中断了 不继续
                 return
-            
-            # 触发时间
-            trigger_time: float = time.time()
-            # 上次触发时间,根据触发的状态进行检索
+
+            trigger_time: float = time.time()  # 这里不应该使用事件发生时间 而是应该使用当前的实际操作时间
             last_trigger_time = self._last_trigger_time.get(state_name, 0)
-            # 如果经过时间小于间隔时间,则不触发
-            if trigger_time - last_trigger_time < trigger.interval_seconds:
+            if trigger_time - last_trigger_time < handler.interval_seconds:  # 冷却时间没过 不触发
                 return
-            # 若[操作集operations]为空，即未匹配到符合的[条件集states]，不进行处理
-            ops,expr = trigger.get_operations(trigger_time)
+
+            ops = handler.get_operations(trigger_time)
+            # 若ops为空，即无匹配state，则不打断当前task
             if ops is None:
                 return
 
-            # 是否能触发
             can_interrupt: bool = False
-            # 判断运行中的任务优先级是否比触发任务优先级高
             if self._running_task is not None:
                 old_priority = self._running_task.priority
-                new_priority = trigger.priority
-                # 不存在优先级的任务可以被随意打断
-                if old_priority is None:
+                new_priority = handler.priority
+                if old_priority is None:  # 当前运行场景可随意打断
                     can_interrupt = True
-                # 只有高优先度的任务不会被触发任务打断
-                elif new_priority is not None and new_priority > old_priority:
+                elif new_priority is not None and new_priority > old_priority:  # 新触发场景优先级更高
                     can_interrupt = True
             else:
                 can_interrupt = True
 
-            # 如果can_interrupt为False,不进行处理
-            if not can_interrupt:
+            if not can_interrupt:  # 当前运行场景无法被打断
                 return
 
-            # 任务计数器+1,堵塞主循环
+            # 必须要先增加计算器 避免无触发场景的循环进行
             self._running_task_cnt.inc()
-            # 停止当前运行的任务
+            # 停止已有的操作
             self._stop_running_task()
-            # 将操作集设置为运行中任务
-            self._running_task = OperationTask(True, ops, priority=trigger.priority)
-            # 设置页面显示的信息区域数据
-            self._running_task_info =  OperationTaskInfo(trigger=state_name,priority=trigger.priority,states = expr)
-            # 记录触发时间
+
+            self._running_task = OperationTask(True, ops, priority=handler.priority)
             self._last_trigger_time[state_name] = trigger_time
-            # 将任务提交到任务池
             future = self._running_task.run_async()
-            # 任务完成后回调
             future.add_done_callback(self._on_task_done)
 
     def stop_running(self) -> None:
@@ -267,7 +205,7 @@ class ConditionalOperator(YamlConfig):
         停止执行
         :return:
         """
-        # 上锁;任务锁会阻止其他方法修改任务计数器
+        # 上锁后停止 上锁后确保运行状态不会被篡改
         with self._task_lock:
             self.is_running = False
             self._stop_running_task()
@@ -303,12 +241,12 @@ class ConditionalOperator(YamlConfig):
         :return:
         """
         states: set[str] = set()
-        if self._normal_trigger is not None:
-            states = states.union(self._normal_trigger.get_usage_states())
-        if self._trigger_states is not None:
-            for event_id, trigger in self._trigger_states.items():
+        if self._normal_scene_handler is not None:
+            states = states.union(self._normal_scene_handler.get_usage_states())
+        if self._trigger_scene_handler is not None:
+            for event_id, handler in self._trigger_scene_handler.items():
                 states.add(event_id)
-                states = states.union(trigger.get_usage_states())
+                states = states.union(handler.get_usage_states())
         return states
 
     def get_state_recorder(self, state_name: str) -> Optional[StateRecorder]:
@@ -355,8 +293,8 @@ class ConditionalOperator(YamlConfig):
                 continue
 
             # 找优先级最高的场景
-            trigger = self._trigger_states.get(state_name)
-            if trigger is None:
+            handler = self._trigger_scene_handler.get(state_name)
+            if handler is None:
                 continue
 
             replace = False
@@ -364,13 +302,13 @@ class ConditionalOperator(YamlConfig):
                 replace = True
             elif top_priority_handler.priority is None:  # 可随意打断
                 replace = True
-            elif trigger.priority is None:  # 可随意打断
+            elif handler.priority is None:  # 可随意打断
                 pass
-            elif trigger.priority > top_priority_handler.priority:  # 新触发场景优先级更高
+            elif handler.priority > top_priority_handler.priority:  # 新触发场景优先级更高
                 replace = True
 
             if replace:
-                top_priority_handler = trigger
+                top_priority_handler = handler
                 top_priority_state = state_name
 
         # 触发具体的场景 由自己的线程处理

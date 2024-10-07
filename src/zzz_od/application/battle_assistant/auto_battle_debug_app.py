@@ -90,7 +90,7 @@ class AutoBattleDebugApp(ZApplication):
         self.auto_op.auto_battle_context.check_battle_state(screen, now, sync=True)
 
         time.sleep(0.2)
-        ops = self.auto_op._normal_trigger.get_operations(time.time())
+        ops = self.auto_op._normal_scene_handler.get_operations(time.time())
         if ops is not None:
             task = OperationTask(False, ops)
             task.run_async().result()

@@ -10,7 +10,7 @@ from one_dragon.base.conditional_operation.state_handler_template import StateHa
 from one_dragon.base.conditional_operation.state_recorder import StateRecorder
 
 
-def scenes_handler(
+def construct_scene_handler(
         scene_data: dict,
         state_getter: Callable[[str], StateRecorder],
         op_getter: Callable[[OperationDef], AtomicOp],

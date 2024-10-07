@@ -1,4 +1,4 @@
-from typing import List, Optional,Tuple
+from typing import List, Optional
 
 from one_dragon.base.conditional_operation.atomic_op import AtomicOp
 from one_dragon.base.conditional_operation.state_cal_tree import StateCalNode
@@ -21,31 +21,25 @@ class StateHandler:
         self.expr: str = expr
         self.state_cal_tree: StateCalNode = state_cal_tree
         self.sub_states: List[StateHandler] = sub_states
-        """ 子状态state """
         self.operations: List[AtomicOp] = operations
-        """ 操作集operations """
 
-    def get_operations(self, trigger_time: float) -> Tuple[Optional[List[AtomicOp]], str]:
+    def get_operations(self, trigger_time: float) -> Optional[List[AtomicOp]]:
         """
-        根据[场景scene]的触发条件,返回第一个符合的[操作集operations]和对应的[条件集states]
+        根据触发时间 和优先级 获取符合条件的场景下的指令
         :param trigger_time:
         :return:
         """
-        # 若触发时间在状态时间的范围内,则继续
-        if not self.state_cal_tree.in_time_range(trigger_time):
-            return None, None
+        if self.state_cal_tree.in_time_range(trigger_time):
+            log.debug('触发条件 %s', self.expr)
+            if self.sub_states is not None and len(self.sub_states) > 0:
+                for sub_state in self.sub_states:
+                    ops = sub_state.get_operations(trigger_time)
+                    if ops is not None:
+                        return ops
+            else:
+                return self.operations
 
-        log.debug('满足条件 %s', self.expr)
-
-        # 如果有子条件,则循环判断子条件
-        if self.sub_states:
-            for sub_state in self.sub_states:
-                ops, expr = sub_state.get_operations(trigger_time)
-                if ops is not None:
-                    return ops, expr
-
-        # 没有子条件,则返回自身的操作
-        return self.operations, self.expr
+        return None
 
     def get_usage_states(self) -> set[str]:
         """
