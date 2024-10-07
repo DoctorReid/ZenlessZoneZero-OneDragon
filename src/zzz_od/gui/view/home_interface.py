@@ -169,6 +169,25 @@ class CheckCodeRunner(QThread):
         # self.need_update.emit(True)  # 调试用
 
 
+class CheckVenvRunner(QThread):
+    need_update = Signal(bool)
+
+    def __init__(self, ctx: ZContext):
+        super().__init__()
+        self.ctx = ctx
+
+    def run(self):
+        """
+        运行 最后发送结束信号
+        :return:
+        """
+        last = self.ctx.env_config.requirement_time
+
+        if last != self.ctx.git_service.get_requirement_time():
+            self.need_update.emit(True)
+        # self.need_update.emit(True)  # 调试用
+
+
 class CheckModelRunner(QThread):
     need_update = Signal(bool)
 
@@ -211,12 +230,16 @@ class HomeInterface(VerticalScrollInterface):
         self._check_code_runner = CheckCodeRunner(self.ctx)
         self._check_code_runner.need_update.connect(self._need_to_update_code)
 
+        self._check_venv_runner = CheckVenvRunner(self.ctx)
+        self._check_venv_runner.need_update.connect(self._need_to_update_venv)
+
         self._check_model_runner = CheckModelRunner(self.ctx)
         self._check_model_runner.need_update.connect(self._need_to_update_model)
 
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)
         self._check_code_runner.start()
+        self._check_venv_runner.start()
         self._check_model_runner.start()
 
     def _need_to_update_code(self, with_new: bool):
@@ -238,6 +261,20 @@ class HomeInterface(VerticalScrollInterface):
             # result = True  # 调试用
             if result:
                 self._show_dialog_after_code_updated()
+
+    def _need_to_update_venv(self, with_new: bool):
+        if not with_new:
+            return
+        w = InfoBar.success(
+            title='运行依赖更新',
+            content="到安装器更新吧~",
+            orient=Qt.Orientation.Horizontal,
+            isClosable=True,
+            position=InfoBarPosition.TOP_RIGHT,
+            duration=20000,
+            parent=self
+        )
+        w.setCustomBackgroundColor('white', '#202020')
 
     def _show_dialog_after_code_updated(self):
         title = '更新提醒'

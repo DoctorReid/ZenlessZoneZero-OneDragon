@@ -2,7 +2,6 @@ from concurrent.futures import ThreadPoolExecutor, Future
 
 import threading
 from cv2.typing import MatLike
-from sympy.physics.units import energy
 from typing import Optional, List, Union
 
 from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
@@ -644,7 +643,7 @@ def __debug_agent():
 
     from one_dragon.utils import debug_utils
     import time
-    screen = debug_utils.get_debug_image('_1727276153997')
+    screen = debug_utils.get_debug_image('_1728298774523')
     agent_ctx.check_agent_related(screen, time.time())
     for i in agent_ctx.team_info.agent_list:
         print('角色 %s 能量 %d' % (i.agent.agent_name if i.agent is not None else 'none', i.energy))
