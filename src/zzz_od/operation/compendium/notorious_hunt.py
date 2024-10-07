@@ -21,8 +21,7 @@ class NotoriousHunt(ZOperation):
 
     STATUS_NO_LEFT_TIMES: ClassVar[str] = '没有剩余次数'
 
-    def __init__(self, ctx: ZContext, plan: ChargePlanItem,
-                 ):
+    def __init__(self, ctx: ZContext, plan: ChargePlanItem):
         """
         使用快捷手册传送后
         用这个进行挑战
@@ -46,8 +45,9 @@ class NotoriousHunt(ZOperation):
         """
         self.charge_left: Optional[int] = None
         self.charge_need: Optional[int] = None
+        self.move_times: int = 0  # 移动次数
 
-    @operation_node(name='等待入口加载', is_start_node=True, node_max_retry_times=60)
+    @operation_node(name='等待入口加载', node_max_retry_times=60, is_start_node=True)
     def wait_entry_load(self) -> OperationRoundResult:
         screen = self.screenshot()
         r1 = self.round_by_find_area(screen, '恶名狩猎', '当期剩余奖励次数')
@@ -146,31 +146,86 @@ class NotoriousHunt(ZOperation):
     @operation_node(name='等待战斗画面加载', node_max_retry_times=60)
     def wait_battle_screen(self) -> OperationRoundResult:
         screen = self.screenshot()
-        return self.round_by_find_area(screen, '战斗画面', '按键-普通攻击', retry_wait_round=1)
+
+        result = self.round_by_find_area(screen, '战斗画面', '按键-普通攻击')
+        if result.is_success:
+            return self.round_success(self.plan.mission_type_name)
+
+        return self.round_retry(result.status, wait=1)
 
     @node_from(from_name='等待战斗画面加载')
-    @operation_node(name='移动交互')
-    def move_and_interact(self) -> OperationRoundResult:
-        if self.node_retry_times == 0:  # 第一次移动较远距离
-            self.ctx.controller.move_w(press=True, press_time=1.2, release=True)
+    @operation_node(name='移动靠近交互', node_max_retry_times=10)
+    def first_move(self) -> OperationRoundResult:
+        if self.plan.mission_type_name == '「霸主侵蚀体·庞培」':
+            return self._move_by_hint()
         else:
-            self.ctx.controller.move_w(press=True, press_time=0.2, release=True)
-        time.sleep(1)
+            if self.node_retry_times == 0:  # 第一次移动较远距离
+                self.ctx.controller.move_w(press=True, press_time=0.8, release=True)
+            else:
+                self.ctx.controller.move_w(press=True, press_time=0.2, release=True)
+            time.sleep(1)
+
+            screen = self.screenshot()
+            return self.round_by_find_area(screen, '战斗画面', '按键-交互')
+
+    def _move_by_hint(self) -> OperationRoundResult:
+        """
+        根据画面显示的距离进行移动
+        出现交互的按钮时候就可以停止了
+        """
+        if self.move_times >= 10:
+            return self.round_fail()
 
         screen = self.screenshot()
-        area = self.ctx.screen_loader.get_area('恶名狩猎', '鸣徽交互区域')
-        result = self.round_by_ocr(screen, '鸣徽', area=area)
+
+        result = self.round_by_find_area(screen, '战斗画面', '按键-交互')
+        if result.is_success:
+            return self.round_success()
+
+        mr = self.auto_op.auto_battle_context.check_battle_distance(screen)
+        if mr is None:
+            self.distance_pos = None
+        else:
+            self.distance_pos = mr.rect
+
+        if self.distance_pos is None:
+            return self.round_retry(wait=1)
+
+        current_distance = self.auto_op.auto_battle_context.last_check_distance
+
+        pos = self.distance_pos.center
+        if pos.x < 900:
+            self.ctx.controller.turn_by_distance(-50)
+            return self.round_wait(wait=0.5)
+        elif pos.x > 1100:
+            self.ctx.controller.turn_by_distance(+50)
+            return self.round_wait(wait=0.5)
+        else:
+            self.last_distance = current_distance
+            press_time = self.auto_op.auto_battle_context.last_check_distance / 7.2  # 朱鸢测出来的速度
+            self.ctx.controller.move_w(press=True, press_time=press_time, release=True)
+            self.move_times += 1
+            return self.round_wait(wait=0.5)
+
+    @node_from(from_name='移动靠近交互')
+    @operation_node(name='交互')
+    def move_and_interact(self) -> OperationRoundResult:
+        screen = self.screenshot()
+
+        result = self.round_by_find_area(screen, '战斗画面', '按键-交互')
         if result.is_success:
             self.ctx.controller.interact(press=True, press_time=0.2, release=True)
             time.sleep(2)
-            return self.round_success()
+            return self.round_retry()
         else:
-            return self.round_retry(result.status)
+            return self.round_success()
 
-    @node_from(from_name='移动交互')
+    @node_from(from_name='交互')
     @operation_node(name='选择')
     def choose_buff(self) -> OperationRoundResult:
         screen = self.screenshot()
+
+        # TODO 当前没有选择鸣徽的优先级
 
         return self.round_by_find_and_click_area(screen, '恶名狩猎', '选择',
                                                  success_wait=1, retry_wait_round=1)
@@ -220,7 +275,7 @@ class NotoriousHunt(ZOperation):
         result = self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-退出')
 
         if result.is_success:  # 战斗失败 返回失败到外层 中断后续挑战
-            return self.round_fail(result.status, wait=5)
+            return self.round_fail(result.status, wait=10)
         else:
             return self.round_retry(result.status, wait=1)
 
@@ -259,6 +314,49 @@ class NotoriousHunt(ZOperation):
             success_wait=1, retry_wait=1
         )
 
+    @node_from(from_name='移动靠近交互', success=False)
+    @operation_node(name='交互失败')
+    def fail_to_interact(self) -> OperationRoundResult:
+        screen = self.screenshot()
+
+        result = self.round_by_find_area(screen, '恶名狩猎', '退出战斗')
+        if result.is_success:
+            return self.round_success(wait=1)  # 稍微等一下让按钮可按
+
+        result = self.round_by_click_area('战斗画面', '菜单')
+        if result.is_success:
+            return self.round_wait(result.status, wait=2)
+        else:
+            return self.round_fail(result.status)
+
+    @node_from(from_name='交互失败')
+    @operation_node(name='点击退出战斗')
+    def click_exit_battle(self) -> OperationRoundResult:
+        screen = self.screenshot()
+
+        return self.round_by_find_and_click_area(screen, '恶名狩猎', '退出战斗',
+                                                 success_wait=1, retry_wait=1)
+
+    @node_from(from_name='点击退出战斗')
+    @operation_node(name='点击退出战斗确认')
+    def click_exit_battle_confirm(self) -> OperationRoundResult:
+        screen = self.screenshot()
+
+        return self.round_by_find_and_click_area(screen, '恶名狩猎', '退出战斗-确认',
+                                                 success_wait=5, retry_wait=1)
+
+    @node_from(from_name='点击退出战斗确认')
+    @operation_node(name='点击退出')
+    def click_exit(self) -> OperationRoundResult:
+        screen = self.screenshot()
+
+        result = self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-退出')
+
+        if result.is_success:  # 战斗失败 返回失败到外层 中断后续挑战
+            return self.round_fail(result.status, wait=10)
+        else:
+            return self.round_retry(result.status, wait=1)
+
     def _on_pause(self, e=None):
         ZOperation._on_pause(self, e)
         if self.auto_op is not None:
@@ -282,8 +380,9 @@ def __debug():
     ctx.start_running()
     op = NotoriousHunt(ctx, ChargePlanItem(
         category_name='恶名狩猎',
-        mission_type_name='初生死路屠夫',
-        level=NotoriousHuntLevelEnum.DEFAULT.value.value
+        mission_type_name='冥宁芙·双子',
+        level=NotoriousHuntLevelEnum.DEFAULT.value.value,
+        auto_battle_config='专属配队-简'
     ))
     op.can_run_times = 1
     op.auto_op = None

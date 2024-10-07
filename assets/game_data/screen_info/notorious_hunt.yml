@@ -134,3 +134,36 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 退出战斗
+  pc_rect:
+  - 1614
+  - 1004
+  - 1830
+  - 1052
+  text: 退出战斗
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 退出战斗-确认
+  pc_rect:
+  - 1030
+  - 602
+  - 1226
+  - 652
+  text: 确认
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 挑战结果-退出
+  pc_rect:
+  - 1562
+  - 1006
+  - 1826
+  - 1050
+  text: 退出
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
