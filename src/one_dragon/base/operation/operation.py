@@ -583,8 +583,8 @@ class Operation(OperationBase):
                                    wait_round_time=wait_round_time)
 
     def round_by_find_and_click_area(self, screen: MatLike, screen_name: str, area_name: str,
-                                     success_wait: Optional[float] = 1, success_wait_round: Optional[float] = None,
-                                     retry_wait: Optional[float] = 1, retry_wait_round: Optional[float] = None,
+                                     success_wait: Optional[float] = None, success_wait_round: Optional[float] = None,
+                                     retry_wait: Optional[float] = None, retry_wait_round: Optional[float] = None,
                                      ) -> OperationRoundResult:
         """
         是否能找到目标区域 并进行点击

@@ -90,3 +90,36 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 嗷呜标题
+  pc_rect:
+  - 890
+  - 792
+  - 1042
+  - 828
+  text: 嗷呜
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 叫醒嗷呜
+  pc_rect:
+  - 1434
+  - 638
+  - 1620
+  - 694
+  text: 叫醒嗷呜
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 对话选项
+  pc_rect:
+  - 1438
+  - 560
+  - 1862
+  - 776
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
