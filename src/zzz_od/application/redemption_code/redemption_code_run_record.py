@@ -22,8 +22,6 @@ class RedemptionCodeRunRecord(AppRunRecord):
 
         self.valid_code_list = [
             RedemptionCode('ZZZ888', '20480101'),  # 开服兑换码
-            RedemptionCode('ZZZ20240704', '20480101'),  # 开服兑换码
-            RedemptionCode('TOURDEINFERNO', '20240914'),  # 1.2前瞻
         ]
 
     @property

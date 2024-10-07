@@ -70,10 +70,10 @@ area_list:
   template_match_threshold: 0.7
 - area_name: 兑换码兑换
   pc_rect:
-  - 1030
-  - 688
-  - 1218
-  - 742
+  - 878
+  - 690
+  - 1074
+  - 738
   text: 兑换
   lcs_percent: 0.5
   template_sub_dir: ''
