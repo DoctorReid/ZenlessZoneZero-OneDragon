@@ -134,7 +134,7 @@ class HollowContext:
                         )
                 ):
                     # 代表上一次点了之后 这次依然要点同样的位置 也就是无法通行
-                    self._visited_nodes.append(route.node)
+                    self.update_context_after_move(route.node)
                     continue
 
             self._last_route = route
@@ -206,7 +206,17 @@ class HollowContext:
         :param node:
         :return:
         """
-        self._visited_nodes.append(node)
+        visited = None
+        for visited in self._visited_nodes:
+            if hollow_map_utils.is_same_node(node, visited):
+                visited = visited
+                break
+
+        if visited is not None:
+            visited.visited_times += 1
+        else:
+            node.visited_times = 1
+            self._visited_nodes.append(node)
 
         if node.entry.is_tp:
             self._visited_nodes.clear()

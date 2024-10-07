@@ -15,6 +15,7 @@ class HollowZeroMapNode:
         self.entry: HollowZeroEntry = entry
         self.check_time: float = time.time() if check_time is None else check_time  # 识别时间
         self.confidence: float = confidence
+        self.visited_times: int = 0  # 尝试前往的次数 在寻路时候使用
 
 
 class HollowZeroMapEdge:

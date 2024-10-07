@@ -22,20 +22,14 @@ def get_to_choose_list(ctx: ZContext, screen: MatLike, target_cn: str, target_lc
         confirm_area = ctx.screen_loader.get_area('零号空洞-事件', '鸣徽选择-%d' % i)
 
         name_full_str = ctx.ocr.run_ocr_single_line(cv2_utils.crop_image_only(screen, name_area.rect))
+
         confirm_str = ctx.ocr.run_ocr_single_line(cv2_utils.crop_image_only(screen, confirm_area.rect))
+        confirm_str = confirm_str.strip()
 
         if not str_utils.find_by_lcs(gt(target_cn), confirm_str, percent=target_lcs_percent):
             continue
 
-        idx = name_full_str.find('】')
-        if idx == -1:
-            idx = name_full_str.find(']')
-        if idx == -1:
-            continue
-
-        cate_str = name_full_str[:idx]
-        name_str = name_full_str[idx+1:]
-        r = ctx.hollow.data_service.match_resonium_by_ocr(cate_str, name_str)
+        r = ctx.hollow.data_service.match_resonium_by_ocr_full(name_full_str)
         if r is None:
             continue
 

@@ -102,10 +102,12 @@ class HallowZeroDataService:
             log.error(f'文件读取失败 {file_path}', exc_info=True)
 
     def match_resonium_by_ocr(self, cate_ocr: str, name_str: str) -> Optional[Resonium]:
+        log.info('当前识别 %s %s', cate_ocr, name_str)
         category_list = [gt(i) for i in self.resonium_cate_list]
-        results = difflib.get_close_matches(cate_ocr, category_list, n=1)
+        results = difflib.get_close_matches(cate_ocr, category_list, n=1, cutoff=0.5)
 
         if results is None or len(results) == 0:
+            log.info('匹配结果 无')
             return None
 
         category_idx = category_list.index(results[0])
@@ -115,10 +117,13 @@ class HallowZeroDataService:
         results = difflib.get_close_matches(name_str, resonium_name_list, n=1)
 
         if results is None or len(results) == 0:
+            log.info('匹配结果 无')
             return None
 
         resonium_idx = resonium_name_list.index(results[0])
-        return resonium_list[resonium_idx]
+        r = resonium_list[resonium_idx]
+        log.info('匹配结果 %s %s', r.category, r.name)
+        return r
 
     def match_resonium_by_ocr_full(self, name_full_str: str) -> Optional[Resonium]:
         """
@@ -126,9 +131,15 @@ class HallowZeroDataService:
         :param name_full_str: 识别的文本 [类型]名称
         :return 鸣徽
         """
+        name_full_str = name_full_str.strip()
+        name_full_str.replace('[', '')
+        name_full_str.replace('【', '')
+
         idx = name_full_str.find('】')
         if idx == -1:
             idx = name_full_str.find(']')
+        if idx == -1:
+            idx = name_full_str.find(' ')
         if idx == -1:
             return None
 

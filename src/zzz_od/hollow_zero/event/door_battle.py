@@ -22,7 +22,7 @@ class DoorBattle(ZOperation):
         )
 
         self._handlers: List[EventOcrResultHandler] = [
-            EventOcrResultHandler(HollowZeroSpecialEvent.DOOR_BATTLE_ENTRY.value.event_name),
+            EventOcrResultHandler(HollowZeroSpecialEvent.DOOR_BATTLE_ENTRY.value.event_name, click_wait=2),
         ]
 
     @operation_node(name='画面识别', is_start_node=True)

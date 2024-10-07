@@ -73,6 +73,12 @@ class HollowRunner(ZOperation):
 
             HollowZeroSpecialEvent.DOOR_BATTLE_ENTRY.value.event_name: DoorBattle,
         }
+
+        self._entry_event_handlers: dict[str, Type] = {
+            '邦布商人': BambooMerchant,
+            '守门人': CriticalStage,
+            '门扉禁闭-善战': DoorBattle
+        }
         self._last_save_image_time: float = 0
         self._last_move_time: float = 0  # 上一次移动的时间
 
@@ -144,6 +150,10 @@ class HollowRunner(ZOperation):
             if next_to_move is None:
                 return self.round_retry('自动寻路失败')
 
+        # 寻路失败的话 间隔1秒才尝试一次随机移动
+        if not pathfinding_success and screen_time - self._last_move_time < 1:
+            return self.round_retry('自动寻路失败')
+
         if pathfinding_success:
             self.ctx.hollow.check_info_before_move(screen, current_map)
             # self._try_click_speed_up(screen)  # 可以在游戏内设置继承上一次
@@ -151,14 +161,19 @@ class HollowRunner(ZOperation):
             if extra_finished:
                 return self.round_success(HollowRunner.STATUS_LEAVE)
 
-        # 寻路失败的话 间隔1秒才尝试一次随机移动
-        if not pathfinding_success and screen_time - self._last_move_time < 1:
-            return self.round_retry('自动寻路失败')
-
         self._last_move_time = screen_time
         self.ctx.controller.click(next_to_move.pos.center)
         self.ctx.hollow.update_context_after_move(next_to_move)
         self._handled_events.clear()
+
+        # 如果是特殊需要选项的格子 则使用对应的事件指令处理 可以同时用来等待移动的时间
+        if next_to_move.entry.entry_name in self._entry_event_handlers:
+            op: ZOperation = self._entry_event_handlers[next_to_move.entry.entry_name](self.ctx)
+            op_result = op.execute()
+            if op_result.success:
+                return self.round_wait()
+            else:
+                return self.round_retry()
 
         return self.round_wait(wait=1)
 

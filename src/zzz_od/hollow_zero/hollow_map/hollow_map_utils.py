@@ -343,13 +343,7 @@ def get_route_in_1_step_benefit(idx_2_route: dict[int, RouteSearchRoute], visite
         if entry is None or not entry.is_benefit:
             continue
 
-        had_visited: bool = False
-        for visited in visited_nodes:
-            if cal_utils.distance_between(route.node.pos.center, visited.pos.center) < 100:
-                had_visited = True
-                break
-
-        if had_visited:
+        if had_been_visited(route.node, visited_nodes):
             continue
 
         if target is None or target.distance > route.distance:
@@ -376,13 +370,7 @@ def get_route_in_1_step(idx_2_route: dict[int, RouteSearchRoute],
         if target_entry_list is not None and entry.entry_name not in target_entry_list:
             continue
 
-        had_visited: bool = False
-        for visited in visited_nodes:
-            if is_same_node(route.node, visited):
-                had_visited = True
-                break
-
-        if had_visited:
+        if had_been_visited(route.node, visited_nodes):
             continue
 
         if target is None or target.distance > route.distance:
@@ -407,13 +395,7 @@ def get_route_by_entry(idx_2_route: dict[int, RouteSearchRoute],
         if entry is None or entry.entry_name != entry_name:
             continue
 
-        had_visited: bool = False
-        for visited in visited_nodes:
-            if is_same_node(node, visited):
-                had_visited = True
-                break
-
-        if had_visited:
+        if had_been_visited(node, visited_nodes):
             continue
 
         if (target is None
@@ -446,6 +428,16 @@ def get_route_by_direction(idx_2_route: dict[int, RouteSearchRoute], direction: 
             target = route
 
     return target
+
+
+def had_been_visited(current: HollowZeroMapNode, visited_nodes: List[HollowZeroMapNode]) -> bool:
+    """
+    判断节点是否已经尝试前往过了
+    """
+    for visited in visited_nodes:
+        if visited.visited_times >= 2 and is_same_node(current, visited):
+            return True
+    return False
 
 
 def is_same_node(x: HollowZeroMapNode, y: HollowZeroMapNode) -> bool:
