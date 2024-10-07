@@ -137,21 +137,21 @@ class HollowZeroRunInterface(AppRunInterface):
         self.challenge_config_opt.init_with_adapter(self.ctx.hollow_zero_config.challenge_config_adapter)
 
         self.mission_opt.setValue(self.ctx.hollow_zero_config.mission_name)
-
-        if self.ctx.hollow_zero_record.weekly_run_times < self.ctx.hollow_zero_config.weekly_plan_times:
-            content = '本周通关次数 %d' % self.ctx.hollow_zero_record.weekly_run_times
-        elif not self.ctx.hollow_zero_record.no_eval_point:
-            content = '已完成基础通关次数'
-        elif not self.ctx.hollow_zero_record.no_eval_point:
-            content = '已完成刷取业绩 如错误可重置'
-        else:
-            content = '已完成刷取周期性奖励 如错误可重置'
-        self.run_record_opt.setContent(content)
+        self._update_run_record_display()
 
         self.weekly_plan_times_opt.setValue(str(self.ctx.hollow_zero_config.weekly_plan_times))
         self.daily_plan_times_opt.setValue(str(self.ctx.hollow_zero_config.daily_plan_times))
         self.extra_task_opt.setValue(self.ctx.hollow_zero_config.extra_task)
         self.extra_exit_opt.setValue(self.ctx.hollow_zero_config.extra_exit)
+
+    def _update_run_record_display(self) -> None:
+        if self.ctx.hollow_zero_record.period_reward_complete:
+            content = '已完成刷取周期性奖励 如错误可重置'
+        elif self.ctx.hollow_zero_record.no_eval_point:
+            content = '已完成刷取业绩 如错误可重置'
+        else:
+            content = '通关次数 本日: %d, 本周: %d' % (self.ctx.hollow_zero_record.daily_run_times, self.ctx.hollow_zero_record.weekly_run_times)
+        self.run_record_opt.setContent(content)
 
     def _update_mission_options(self) -> None:
         try:
@@ -187,9 +187,9 @@ class HollowZeroRunInterface(AppRunInterface):
         self.ctx.init_hollow_config()
 
     def _on_reset_record_clicked(self) -> None:
-        self.ctx.hollow_zero_record.no_eval_point = False
-        self.ctx.hollow_zero_record.period_reward_complete = False
+        self.ctx.hollow_zero_record.reset_for_weekly()
         log.info('重置成功')
+        self._update_run_record_display()
 
     def get_app(self) -> ZApplication:
         return self.app
