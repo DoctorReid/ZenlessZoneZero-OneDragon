@@ -214,7 +214,7 @@ scenes:
             post_delay: 0.1
             repeat: 12
           - op_name: "设置状态"
-            post_delay: "自定义-临时站场"
+            state: "自定义-临时站场"
       - states: "[前台-击破] & [闪避识别-黄光] & [按键-切换角色-上一个,0,10]" #10s内触发过切人则触发妮可格挡
         operations:
           - op_name: "按键-切换角色-下一个"

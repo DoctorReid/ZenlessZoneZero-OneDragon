@@ -224,10 +224,6 @@ scenes:
         operations: *up
       - states: "[连携技-2-异常]"
         operations: *down
-      - states: "[连携技-1-防护]"
-        operations: *up
-      - states: "[连携技-2-防护]"
-        operations: *down
 
   - triggers: ["按键可用-快速支援"]
     priority: 98
