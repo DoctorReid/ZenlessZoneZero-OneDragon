@@ -18,7 +18,7 @@ from zzz_od.application.battle_assistant.auto_battle_debug_app import AutoBattle
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.config.game_config import GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
-from zzz_od.gui.view.battle_assistant.battle_state_display import BattleStateDisplay
+from zzz_od.gui.view.battle_assistant.battle_state_display import BattleStateDisplay, TaskDisplay
 
 
 class AutoBattleInterface(AppRunInterface):
@@ -92,8 +92,11 @@ class AutoBattleInterface(AppRunInterface):
         # 将 QVBoxLayouts 加入 QHBoxLayout
         left_layout = QVBoxLayout()
         left_layout.addWidget(AppRunInterface.get_content_widget(self))
-
         right_layout = QVBoxLayout()
+
+        self.task_display = TaskDisplay()
+        right_layout.addWidget(self.task_display)
+
         self.battle_state_display = BattleStateDisplay()
         right_layout.addWidget(self.battle_state_display)
 
@@ -123,6 +126,7 @@ class AutoBattleInterface(AppRunInterface):
         AppRunInterface.on_interface_hidden(self)
         self.ctx.unlisten_all_event(self)
         self.battle_state_display.set_update_display(False)
+        self.task_display.set_update_display(False)
 
     def _update_auto_battle_config_opts(self) -> None:
         """
@@ -199,6 +203,8 @@ class AutoBattleInterface(AppRunInterface):
 
         if self.battle_state_display is not None:
             self.battle_state_display.set_update_display(self.ctx.is_context_running)
+        if self.task_display is not None:
+            self.task_display.set_update_display(self.ctx.is_context_running)
 
     def _on_auto_op_loaded_event(self, event: ContextEventItem) -> None:
         """
@@ -206,9 +212,10 @@ class AutoBattleInterface(AppRunInterface):
         :param event:
         :return:
         """
-        if self.battle_state_display is None:
+        if self.battle_state_display is None or self.task_display is None:
             return
         self.battle_state_display.auto_op = event.data
+        self.task_display.auto_op = event.data
         self.auto_op_loaded_signal.emit()
 
     def _on_auto_op_loaded_signal(self) -> None:
@@ -216,6 +223,7 @@ class AutoBattleInterface(AppRunInterface):
         指令加载之后 更新需要监听的事件
         :return:
         """
-        if self.battle_state_display is None:
+        if self.battle_state_display is None or self.task_display is None:
             return
         self.battle_state_display.set_update_display(True)
+        self.task_display.set_update_display(True)

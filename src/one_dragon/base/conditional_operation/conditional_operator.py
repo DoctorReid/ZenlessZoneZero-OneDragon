@@ -35,13 +35,13 @@ class ConditionalOperator(YamlConfig):
         self._inited: bool = False  # 是否已经完成初始化
 
         self._trigger_scene_handler: dict[str, SceneHandler] = {}  # 需要状态触发的场景处理
-        self._last_trigger_time: dict[str, float] = {}  # 各状态场景最后一次的触发时间
+        self.last_trigger_time: dict[str, float] = {}  # 各状态场景最后一次的触发时间
         self._normal_scene_handler: Optional[SceneHandler] = None  # 不需要状态触发的场景处理
         self.is_running: bool = False  # 整体是否正在运行
 
         self._task_lock: Lock = Lock()
-        self._running_task: Optional[OperationTask] = None  # 正在运行的任务
-        self._running_task_cnt: AtomicInt = AtomicInt()
+        self.running_task: Optional[OperationTask] = None  # 正在运行的任务
+        self.running_task_cnt: AtomicInt = AtomicInt()
 
     def init(
             self,
@@ -57,7 +57,7 @@ class ConditionalOperator(YamlConfig):
         self.dispose()  # 先把旧的清除掉
         self._trigger_scene_handler: dict[str, SceneHandler] = {}
         self._normal_scene_handler = None
-        self._last_trigger_time = {}
+        self.last_trigger_time = {}
 
         scenes = self.get('scenes', [])
 
@@ -103,7 +103,7 @@ class ConditionalOperator(YamlConfig):
             return False
 
         self.is_running = True
-        self._running_task_cnt.set(0)  # 每次重置计数器 防止有bug导致无法正常运行
+        self.running_task_cnt.set(0)  # 每次重置计数器 防止有bug导致无法正常运行
 
         if self._normal_scene_handler is not None:
             future: Future = _od_conditional_op_executor.submit(self._normal_scene_loop)
@@ -117,7 +117,7 @@ class ConditionalOperator(YamlConfig):
         :return:
         """
         while self.is_running:
-            if self._running_task_cnt.get() > 0:
+            if self.running_task_cnt.get() > 0:
                 # 有其它场景在运行 等待
                 time.sleep(0.02)
             else:
@@ -130,17 +130,17 @@ class ConditionalOperator(YamlConfig):
                         break
 
                     trigger_time = time.time()
-                    last_trigger_time = self._last_trigger_time.get('', 0)
+                    last_trigger_time = self.last_trigger_time.get('', 0)
                     past_time = trigger_time - last_trigger_time
                     if past_time < self._normal_scene_handler.interval_seconds:
                         to_sleep = self._normal_scene_handler.interval_seconds - past_time
                     else:
-                        ops = self._normal_scene_handler.get_operations(trigger_time)
+                        ops, expr = self._normal_scene_handler.get_operations(trigger_time)
                         if ops is not None:
-                            self._running_task = OperationTask(False, ops)
-                            self._last_trigger_time[''] = trigger_time
-                            self._running_task_cnt.inc()
-                            future = self._running_task.run_async()
+                            self.running_task = OperationTask(ops, expr=expr)
+                            self.last_trigger_time[''] = trigger_time
+                            self.running_task_cnt.inc()
+                            future = self.running_task.run_async()
                             future.add_done_callback(self._on_task_done)
 
                 if to_sleep is not None:
@@ -167,18 +167,18 @@ class ConditionalOperator(YamlConfig):
                 return
 
             trigger_time: float = time.time()  # 这里不应该使用事件发生时间 而是应该使用当前的实际操作时间
-            last_trigger_time = self._last_trigger_time.get(state_name, 0)
+            last_trigger_time = self.last_trigger_time.get(state_name, 0)
             if trigger_time - last_trigger_time < handler.interval_seconds:  # 冷却时间没过 不触发
                 return
 
-            ops = handler.get_operations(trigger_time)
+            ops, expr = handler.get_operations(trigger_time)
             # 若ops为空，即无匹配state，则不打断当前task
             if ops is None:
                 return
 
             can_interrupt: bool = False
-            if self._running_task is not None:
-                old_priority = self._running_task.priority
+            if self.running_task is not None:
+                old_priority = self.running_task.priority
                 new_priority = handler.priority
                 if old_priority is None:  # 当前运行场景可随意打断
                     can_interrupt = True
@@ -191,13 +191,13 @@ class ConditionalOperator(YamlConfig):
                 return
 
             # 必须要先增加计算器 避免无触发场景的循环进行
-            self._running_task_cnt.inc()
+            self.running_task_cnt.inc()
             # 停止已有的操作
             self._stop_running_task()
 
-            self._running_task = OperationTask(True, ops, priority=handler.priority)
-            self._last_trigger_time[state_name] = trigger_time
-            future = self._running_task.run_async()
+            self.running_task = OperationTask(ops, trigger=state_name, priority=handler.priority, expr=expr)
+            self.last_trigger_time[state_name] = trigger_time
+            future = self.running_task.run_async()
             future.add_done_callback(self._on_task_done)
 
     def stop_running(self) -> None:
@@ -215,12 +215,12 @@ class ConditionalOperator(YamlConfig):
         停止正在运行的任务
         :return:
         """
-        if self._running_task is not None:
-            finish = self._running_task.stop()  # stop之前是否已经完成所有op
+        if self.running_task is not None:
+            finish = self.running_task.stop()  # stop之前是否已经完成所有op
             if not finish:
                 # 如果 finish=True 则计数器已经在 _on_task_done 减少了 这里就不减了
                 # 如果 finish=False 则代表还有操作在继续。在这里要减少计数器而不是等_on_task_done 让无触发器场景尽早运行
-                self._running_task_cnt.dec()
+                self.running_task_cnt.dec()
 
     def _on_task_done(self, future: Future) -> None:
         """
@@ -230,8 +230,8 @@ class ConditionalOperator(YamlConfig):
             try:
                 result = future.result()
                 if result:  # 顺利执行完毕
-                    self._running_task_cnt.dec()
-                    self._running_task.priority = None
+                    self.running_task_cnt.dec()
+                    self.running_task.priority = None
             except Exception:  # run_async里有callback打印日志
                 pass
 

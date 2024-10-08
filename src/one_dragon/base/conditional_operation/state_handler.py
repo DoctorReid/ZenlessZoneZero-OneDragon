@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from one_dragon.base.conditional_operation.atomic_op import AtomicOp
 from one_dragon.base.conditional_operation.state_cal_tree import StateCalNode
@@ -23,23 +23,23 @@ class StateHandler:
         self.sub_states: List[StateHandler] = sub_states
         self.operations: List[AtomicOp] = operations
 
-    def get_operations(self, trigger_time: float) -> Optional[List[AtomicOp]]:
+    def get_operations(self, trigger_time: float) -> Tuple[Optional[List[AtomicOp]], str]:
         """
         根据触发时间 和优先级 获取符合条件的场景下的指令
         :param trigger_time:
         :return:
         """
         if self.state_cal_tree.in_time_range(trigger_time):
-            log.debug('触发条件 %s', self.expr)
+            log.debug('满足条件 %s', self.expr)
             if self.sub_states is not None and len(self.sub_states) > 0:
                 for sub_state in self.sub_states:
-                    ops = sub_state.get_operations(trigger_time)
+                    ops, expr = sub_state.get_operations(trigger_time)
                     if ops is not None:
-                        return ops
+                        return ops, expr
             else:
-                return self.operations
+                return self.operations, self.expr
 
-        return None
+        return None, ''
 
     def get_usage_states(self) -> set[str]:
         """

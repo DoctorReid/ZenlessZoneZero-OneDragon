@@ -87,7 +87,7 @@ class FlashClassifier(OnnxModelLoader):
     def run(self, image: MatLike, conf: float = 0.9, run_time: Optional[float] = None) -> ClassificationResult:
         """
         对图片进行识别
-        :param image: 使用 opencv 读取的图片 BGR通道
+        :param image: 使用 opencv 读取的图片 RGB通道
         :param conf: 置信度阈值
         :return: 识别结果
         """

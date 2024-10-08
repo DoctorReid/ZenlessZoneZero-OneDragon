@@ -10,20 +10,26 @@ from one_dragon.utils.log_utils import log
 _od_op_task_executor = ThreadPoolExecutor(thread_name_prefix='_od_op_task_executor', max_workers=32)
 
 
+# 用于页面信息显示
 class OperationTask:
 
-    def __init__(self, is_trigger: bool, op_list: List[AtomicOp], priority: Optional[int] = None):
+    def __init__(self, op_list: List[AtomicOp], priority: Optional[int] = None,
+                 trigger: Optional[str] = None, expr: str = ''):
         """
         包含一串指令的任务
         :param op_list:
         """
-        self.is_trigger: bool = is_trigger
+        self.is_trigger: bool = trigger is not None
         self.op_list: List[AtomicOp] = op_list
         self._running: bool = False
         self._current_op: Optional[AtomicOp] = None  # 当前执行的指令
         self._async_ops: List[AtomicOp] = []  # 执行过异步操作
         self._op_lock: Lock = Lock()  # 操作锁 用于保证stop里的一定是最后执行的op
         self.priority: Optional[int] = priority  # 优先级 只能被高等级的打断；为None时可以被随意打断
+
+        self.trigger_display: str = '主循环' if trigger is None else trigger  # 用于界面显示
+        self.priority_display: str = '无优先级' if priority is None else str(priority)  # 用于界面显示
+        self.expr: str = expr  # 用于界面显示
 
     def run_async(self) -> Future:
         """
