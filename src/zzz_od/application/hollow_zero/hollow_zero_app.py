@@ -179,16 +179,9 @@ class HollowZeroApp(ZApplication):
     @operation_node(name='领取奖励')
     def claim_reward(self) -> OperationRoundResult:
         screen = self.screenshot()
-        area = self.ctx.screen_loader.get_area('零号空洞-入口', '领取')
 
-        result = self.round_by_ocr_and_click(screen, '领取', area=area,
-                                             color_range=[(100, 100, 0), (255, 255, 20)])
-        if result.is_success:
-            time.sleep(1.5)
-            self.round_by_click_area('菜单', '返回')
-            return self.round_wait(wait=1)
-
-        return self.round_retry(result.status, wait=1)
+        return self.round_by_find_and_click_area(screen, '零号空洞-入口', '全部领取',
+                                                 success_wait=1, retry_wait=1)
 
     @node_from(from_name='领取奖励')
     @node_from(from_name='领取奖励', success=False)

@@ -90,13 +90,13 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: 领取
+- area_name: 全部领取
   pc_rect:
-  - 200
-  - 778
-  - 1772
-  - 984
-  text: 领取
+  - 1586
+  - 1002
+  - 1830
+  - 1052
+  text: 全部领取
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''
