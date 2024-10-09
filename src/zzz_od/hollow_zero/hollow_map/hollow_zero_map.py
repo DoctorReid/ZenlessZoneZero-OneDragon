@@ -17,6 +17,10 @@ class HollowZeroMapNode:
         self.confidence: float = confidence
         self.visited_times: int = 0  # 尝试前往的次数 在寻路时候使用
 
+    @property
+    def gt_max_visited_times(self) -> bool:
+        return self.visited_times >= self.entry.can_visited_times
+
 
 class HollowZeroMapEdge:
 

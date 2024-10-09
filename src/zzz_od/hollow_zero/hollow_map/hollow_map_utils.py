@@ -435,7 +435,7 @@ def had_been_visited(current: HollowZeroMapNode, visited_nodes: List[HollowZeroM
     判断节点是否已经尝试前往过了
     """
     for visited in visited_nodes:
-        if visited.visited_times >= 2 and is_same_node(current, visited):
+        if visited.gt_max_visited_times and is_same_node(current, visited):
             return True
     return False
 

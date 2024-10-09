@@ -6,7 +6,7 @@ class HollowZeroEntry:
 
     def __init__(self, entry_name: str, is_benefit: bool = True, need_step: int = 1,
                  is_base: bool = False, can_go: bool = True, is_tp: bool = False,
-                 move_afterwards: bool = False):
+                 move_afterwards: bool = False, can_visited_times: int = 2):
         # TODO 要将这里改成不可改
         self.entry_id: str = entry_name[:4]
         self.entry_name: str = entry_name[5:]
@@ -16,6 +16,12 @@ class HollowZeroEntry:
         self.can_go: bool = can_go  # 是否可通行
         self.is_tp: bool = is_tp  # 是否传送点
         self.move_afterwards: bool = move_afterwards  # 进入后会触发额外移动 轨道、弹射等
+
+        # 可被前往的次数
+        # 由于地图大的时候有可能移动时间较长 导致还没有走到目标格子就进行下一轮操作 又走向了其它格子
+        # 因此大部分格子允许前往2次
+        # 但少部分不会消失的格子 例如商人 银行 为了避免重复进入浪费时间 只允许前往1次
+        self.can_visited_times: int = can_visited_times
 
 
 class HallowZeroNormalEventOption:
