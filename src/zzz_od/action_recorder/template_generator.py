@@ -634,23 +634,23 @@ class SelfAdaptiveGenerator:
 
         return agent_templates, special_status
 
-    def _reserved_states(self, sub_states: list, reserved_key: list):
+    def _reserved_states(self, sub_handlers: list, reserved_key: list):
         # 根据关键词保留特定状态动作
-        reserved_sub_states = []
-        for index in range(len(sub_states)):
+        reserved_sub_handlers = []
+        for index in range(len(sub_handlers)):
             for rk in reserved_key:
-                if rk in sub_states[index]['states']:
-                    reserved_sub_states.append(sub_states[index])
-        return reserved_sub_states
+                if rk in sub_handlers[index]['states']:
+                    reserved_sub_handlers.append(sub_handlers[index])
+        return reserved_sub_handlers
 
-    def _not_reserved_states(self, sub_states: list, not_reserved_key: list):
+    def _not_reserved_states(self, sub_handlers: list, not_reserved_key: list):
         # 根据关键词不保留特定状态动作
-        reserved_sub_states = deepcopy(sub_states)
-        for index in reversed(range(len(sub_states))):
+        reserved_sub_handlers = deepcopy(sub_handlers)
+        for index in reversed(range(len(sub_handlers))):
             for rk in not_reserved_key:
-                if rk in sub_states[index]['states']:
-                    reserved_sub_states.pop(index)
-        return reserved_sub_states
+                if rk in sub_handlers[index]['states']:
+                    reserved_sub_handlers.pop(index)
+        return reserved_sub_handlers
 
     def _available_ultimate_setting(self, output_dict: dict, special_status: dict, ):
         # 1.4 可改为所有角色均可使用
@@ -678,10 +678,10 @@ class SelfAdaptiveGenerator:
                         '"[前台-{}]"'.format(agent) == existing_handlers[agent]['states'])
             if is_existed:  # 如果存在既有模板, 使用既有模板替代, 否则使用生成的动作状态
                 existing_handler = existing_handlers[agent].copy()
-                existing_handler['sub_states'] = self._reserved_states(existing_handler['sub_states'],
+                existing_handler['sub_handlers'] = self._reserved_states(existing_handler['sub_handlers'],
                                                                        ['黄光', '红光', '声音'])
 
-                if len(existing_handler['sub_states']) > 0:
+                if len(existing_handler['sub_handlers']) > 0:
                     handlers.append(existing_handler)
                 else:
                     is_existed = False
@@ -713,10 +713,10 @@ class SelfAdaptiveGenerator:
                         '"[前台-{}]"'.format(agent) == existing_handlers[agent]['states'])
             if is_existed:  # 如果存在既有模板, 使用既有模板替代, 否则使用生成的动作状态
                 existing_handler = existing_handlers[agent].copy()
-                existing_handler['sub_states'] = self._reserved_states(existing_handler['sub_states'],
+                existing_handler['sub_handlers'] = self._reserved_states(existing_handler['sub_handlers'],
                                                                        ['快速支援'])
 
-                if len(existing_handler['sub_states']) > 0:
+                if len(existing_handler['sub_handlers']) > 0:
                     handlers.append(existing_handler)
                 else:
                     is_existed = False
@@ -742,10 +742,10 @@ class SelfAdaptiveGenerator:
                         '"[前台-{}]"'.format(agent) == existing_handlers[agent]['states'])
             if is_existed:  # 如果存在既有模板, 使用既有模板替代, 否则使用生成的动作状态
                 existing_handler = existing_handlers[agent].copy()
-                existing_handler['sub_states'] = self._reserved_states(existing_handler['sub_states'],
+                existing_handler['sub_handlers'] = self._reserved_states(existing_handler['sub_handlers'],
                                                                        ['连携'])
 
-                if len(existing_handler['sub_states']) > 0:
+                if len(existing_handler['sub_handlers']) > 0:
                     handlers.append(existing_handler)
 
             action = special_status['连携技'][agent]
@@ -775,10 +775,10 @@ class SelfAdaptiveGenerator:
                         '"[前台-{}]"'.format(agent) == existing_handlers[agent]['states'])
                 if is_existed:  # 如果存在既有模板, 使用既有模板替代, 否则使用生成的动作状态
                     existing_handler = existing_handlers[agent].copy()
-                    existing_handler['sub_states'] = self._reserved_states(existing_handler['sub_states'],
+                    existing_handler['sub_handlers'] = self._reserved_states(existing_handler['sub_handlers'],
                                                                            ['终结'])
 
-                    if len(existing_handler['sub_states']) > 0:
+                    if len(existing_handler['sub_handlers']) > 0:
                         handlers.append(existing_handler)
 
             handlers.append({'states': '"[前台-{}] & [{}] & ![按键-切换角色-下一个,0,1]"'.format(action[1], action[0]),
@@ -806,11 +806,11 @@ class SelfAdaptiveGenerator:
             if ((is_template_existed[agent]) and ('"[前台-{}]"'.format(agent) == existing_handlers[agent]['states'])
                     and self._use_existing_tpl):  # 使用既有预设动作模板
                 existing_handler = existing_handlers[agent].copy()
-                existing_handler['sub_states'] = self._not_reserved_states(existing_handler['sub_states'],
+                existing_handler['sub_handlers'] = self._not_reserved_states(existing_handler['sub_handlers'],
                                                                            ['连携', '快速支援', '终结', '黄光', '红光', '声音'])
 
-                if len(existing_handler['sub_states']) > 0:
-                    agent_handler['sub_states'] = existing_handler['sub_states']  # 既有模板替换站场模板
+                if len(existing_handler['sub_handlers']) > 0:
+                    agent_handler['sub_handlers'] = existing_handler['sub_handlers']  # 既有模板替换站场模板
                     if self._add_switch_op:
                         agent_handler = self._add_switch_action(agent_handler, switch_habits, agent)  # 增加切人动作
 
@@ -863,7 +863,7 @@ class SelfAdaptiveGenerator:
 
             sub_handlers.insert(0, {'state_template': "通用模板-锁定敌人"})  # 锁定敌人,防止丢失目标
 
-        agent_handler = {'states': '"[前台-{}]"'.format(agent), 'sub_states': sub_handlers}
+        agent_handler = {'states': '"[前台-{}]"'.format(agent), 'sub_handlers': sub_handlers}
 
         return agent_handler
 
@@ -918,14 +918,14 @@ class SelfAdaptiveGenerator:
         if switch_habit is None:
             switch_habit = BattleStateEnum.BTN_SWITCH_NEXT.value  # 默认下一个人
 
-        # 注意, 此处一定要保证既有模板的""是sub_states列表中的最后一位
-        temporary_operations = temporary_handler['sub_states']
-        if 'sub_states' in temporary_operations[-1].keys():  # 一级列表
-            temporary_operations = temporary_operations[-1]['sub_states']
-            if 'sub_states' in temporary_operations[-1].keys():  # 二级列表
-                temporary_operations = temporary_operations[-1]['sub_states']
-                if 'sub_states' in temporary_operations[-1].keys():  # 做多到三级列表
-                    temporary_operations = temporary_operations[-1]['sub_states']
+        # 注意, 此处一定要保证既有模板的""是sub_handlers列表中的最后一位
+        temporary_operations = temporary_handler['sub_handlers']
+        if 'sub_handlers' in temporary_operations[-1].keys():  # 一级列表
+            temporary_operations = temporary_operations[-1]['sub_handlers']
+            if 'sub_handlers' in temporary_operations[-1].keys():  # 二级列表
+                temporary_operations = temporary_operations[-1]['sub_handlers']
+                if 'sub_handlers' in temporary_operations[-1].keys():  # 做多到三级列表
+                    temporary_operations = temporary_operations[-1]['sub_handlers']
 
         if temporary_operations[-1]['states'] == '""':
             temporary_operations[-1]['operations'].append({'op_name': '"{}"'.format(switch_habit), 'post_delay': 0.05})  # 加入换人动作

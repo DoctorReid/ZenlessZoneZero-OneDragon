@@ -1,6 +1,6 @@
 handlers:
   - states: "[前台-莱卡恩]"
-    sub_states:
+    sub_handlers:
       - states: "[按键可用-终结技]"
         operations:
           - op_name: "按键-终结技"

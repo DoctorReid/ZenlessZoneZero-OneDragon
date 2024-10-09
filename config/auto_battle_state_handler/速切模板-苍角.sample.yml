@@ -1,7 +1,7 @@
 template_name: "速切模板-苍角"
 handlers:
   - states: "[前台-苍角]"
-    sub_states:
+    sub_handlers:
       - states: ""
         operations:
           - op_name: "按键-特殊攻击"

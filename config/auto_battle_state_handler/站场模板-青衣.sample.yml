@@ -1,7 +1,7 @@
 # 朱鸢站场的主要动作
 main_qingyi: &main
   - states: "[前台-青衣]"
-    sub_states:
+    sub_handlers:
 
     # 连续普攻一段时间就往前闪一下 防止打不到远程敌人
     - states: "[自定义-青衣-普攻次数]{40, 999}"
@@ -51,7 +51,7 @@ main_qingyi: &main
 
 handlers:
   - states: "[前台-青衣]"
-    sub_states:
+    sub_handlers:
     - states: "[自定义-黄光切人]"
       operations:
         - op_name: "按键-普通攻击"
@@ -96,4 +96,4 @@ handlers:
           state: "自定义-血量扣减"
 
     - states: ""
-      sub_states: *main
+      sub_handlers: *main

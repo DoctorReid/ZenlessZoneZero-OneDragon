@@ -325,7 +325,7 @@ class AutoBattleOperator(ConditionalOperator):
 if __name__ == '__main__':
     ctx = ZContext()
     ctx.init_by_config()
-    auto_op = AutoBattleOperator(ctx, 'auto_battle', '专属配队-简')
+    auto_op = AutoBattleOperator(ctx, 'auto_battle', '测试')
     auto_op.init_before_running()
     auto_op.start_running_async()
     time.sleep(5)

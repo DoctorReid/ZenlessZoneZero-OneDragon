@@ -1,7 +1,7 @@
 # created via idk500
 handlers:
   - states: "[前台-派派]"
-    sub_states:
+    sub_handlers:
     # 格挡出场后, 速启轮胎转
     - states: "[自定义-黄光切人]"
       operations:

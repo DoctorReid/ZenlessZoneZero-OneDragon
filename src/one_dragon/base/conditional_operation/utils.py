@@ -110,8 +110,14 @@ def construct_state_handler(
         raise ValueError('未有状态表达式字段 %s', state_data)
     states_expr = state_data.get('states', '')
     state_cal_tree = construct_state_cal_tree(states_expr, state_getter)
-    if 'sub_states' in state_data:
-        sub_state_data_list = state_data.get('sub_states', [])
+    # sub_states 是旧的 后续可以删除
+    if 'sub_states' in state_data or 'sub_handlers' in state_data:
+        if 'sub_states' in state_data:
+            sub_state_data_list = state_data.get('sub_states', [])
+        elif 'sub_handlers' in state_data:
+            sub_state_data_list = state_data.get('sub_handlers', [])
+        else:
+            sub_state_data_list = []
         if len(sub_state_data_list) == 0:
             raise ValueError('状态( %s )下子状态为空', states_expr)
         sub_handler_list: List[StateHandler] = _get_state_handlers(
@@ -122,7 +128,7 @@ def construct_state_handler(
             operation_template_getter,
             usage_scene_templates
         )
-        return StateHandler(states_expr, state_cal_tree, sub_states=sub_handler_list)
+        return StateHandler(states_expr, state_cal_tree, sub_handlers=sub_handler_list)
     else:
         ops = get_ops_from_data(
             state_data.get('operations', []),

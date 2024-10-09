@@ -49,7 +49,7 @@ scenes:
   interval: 1
   handlers:
   - states: "![自定义-连携次数, 0, 3]"
-    sub_states:
+    sub_handlers:
       - states: "[后台-2-强攻]"
         operations:
           - op_name: "按键-切换角色-上一个"
@@ -63,7 +63,7 @@ scenes:
           - op_name: "设置状态"
             data: ["自定义-连携次数", "0", "1"]
   - states: "[自定义-连携次数, 0, 3]{1, 2}"
-    sub_states:
+    sub_handlers:
       - states: "[后台-2-支援]"
         operations:
           - op_name: "按键-切换角色-上一个"
@@ -87,9 +87,9 @@ scenes:
   interval: 1
   handlers:
   - states: "[按键-连携技-左, 0, 12] | [按键-连携技-右, 0, 12]"
-    sub_states:
+    sub_handlers:
     - states: "[前台-朱鸢]"
-      sub_states:
+      sub_handlers:
       - states: "[按键可用-终结技]"
         operations:
           - op_name: "按键-终结技"

@@ -2,7 +2,7 @@ template_name: "速切模板-妮可"
 description: "速切的妮可不放终结技, 避免误触发,有E给E,站场是没有办法才开大"
 handlers:
   - states: "[前台-妮可]"
-    sub_states:
+    sub_handlers:
       # - states: "[按键可用-终结技]"
       #   operations:
       #     - op_name: "按键-终结技"

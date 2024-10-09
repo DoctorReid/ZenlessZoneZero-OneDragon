@@ -17,7 +17,7 @@ check_quick_interval: 0.2
 #速切模板-支援
 t-sup: &sup
   - states: "[前台-凯撒]"
-    sub_states:
+    sub_handlers:
       - states: "[前台-凯撒] & [按键可用-特殊攻击]"
         operations:
           - op_name: "按键-特殊攻击"
@@ -33,7 +33,7 @@ t-sup: &sup
           - op_name: "按键-切换角色-下一个"
             post_delay: 0.025    
   - states: "[前台-支援]"
-    sub_states:
+    sub_handlers:
       - state_template: "站场模板-全角色"
 
 #战场模板-简
@@ -229,7 +229,7 @@ scenes:
     priority: 98
     handlers:
       - states: "[按键可用-快速支援,0,0.2]" #快速支援触发时只有不是"简"才会触发快速支援
-        sub_states:
+        sub_handlers:
           - states: "![前台-简]"
             operations:
               - op_name: "按键-移动-前"
@@ -248,7 +248,7 @@ scenes:
     interval: 1
     handlers:
       - states: "[前台-血量扣减]{1, 100}"                           #扣血会尝试切凯撒/闪避反击来规避持续性伤害       默认主C站场
-        sub_states:
+        sub_handlers:
           - states: "[后台-2-凯撒] & [后台-2-能量]{45,120}"
             operations:
               - op_name: "按键-切换角色-上一个"
@@ -282,28 +282,28 @@ scenes:
     interval: 1
     handlers:
       - states: "[前台-凯撒]"
-        sub_states: *sup
+        sub_handlers: *sup
 
   - triggers: ["前台-支援"]
     priority: 1
     interval: 1
     handlers:
       - states: "[前台-支援]"
-        sub_states: *sup
+        sub_handlers: *sup
 
   - triggers: ["前台-赛斯"]
     priority: 3
     interval: 1
     handlers:
       - states: "[前台-赛斯]"
-        sub_states: *ss
+        sub_handlers: *ss
 
   - triggers: ["前台-简"]
     priority: 4
     interval: 0.1
     handlers:
       - states: "[前台-简]"
-        sub_states: *j
+        sub_handlers: *j
 
   - triggers: ["按键可用-终结技"]
     priority: 10
@@ -322,7 +322,7 @@ scenes:
       - state_template: "通用模板-锁定敌人"
       #强制简战场
       - states: "![前台-简]"
-        sub_states:
+        sub_handlers:
           - states: "[前台-赛斯] & ![按键-切换角色-上一个,0,0.3]"
             operations:
               - op_name: "按键-特殊攻击"

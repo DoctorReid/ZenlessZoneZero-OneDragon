@@ -1,7 +1,7 @@
 description: "希望由防护站场 不是防护时切换角色"
 handlers:
   - states: "[前台-防护]"
-    sub_states:
+    sub_handlers:
       - state_template: "站场模板-全角色"
   - states: "[后台-2-防护]"
     operations:

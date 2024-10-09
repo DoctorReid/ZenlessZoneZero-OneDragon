@@ -17,7 +17,7 @@ check_quick_interval: 0.2
 #速切模板-支援
 t-sup: &sup  
   - states: "[前台-支援]"
-    sub_states:
+    sub_handlers:
       - state_template: "站场模板-全角色"
 
 #战场模板-派派
@@ -58,7 +58,7 @@ t-pp: &pp
 #速切模板-凯撒
 t-ks: &ks
   - states: "[前台-凯撒]"
-    sub_states:
+    sub_handlers:
       - states: "[前台-凯撒] & [按键可用-特殊攻击]"
         operations:
           - op_name: "按键-特殊攻击"
@@ -227,7 +227,7 @@ scenes:
     interval: 1
     handlers:
       - states: "[前台-血量扣减]{1, 100}"                           #扣血会尝试切凯撒/闪避反击来规避持续性伤害
-        sub_states:
+        sub_handlers:
           - states: "[后台-1-凯撒] & [后台-1-能量]{45,120}"
             operations:
               - op_name: "按键-切换角色-下一个"
@@ -261,21 +261,21 @@ scenes:
     interval: 1
     handlers:
       - states: "[前台-凯撒]"
-        sub_states: *ks
+        sub_handlers: *ks
 
   - triggers: ["前台-支援"]
     priority: 1
     interval: 1
     handlers:
       - states: "[前台-支援]"
-        sub_states: *sup
+        sub_handlers: *sup
 
   - triggers: ["前台-派派"]
     priority: 4
     interval: 0.1
     handlers:
       - states: "[前台-派派]"
-        sub_states: *pp
+        sub_handlers: *pp
 
   - triggers: ["按键可用-终结技"]
     priority: 10
@@ -295,7 +295,7 @@ scenes:
       - state_template: "通用模板-锁定敌人"
       #强制派派战场
       - states: "![前台-派派]"
-        sub_states:
+        sub_handlers:
           - states: "[前台-凯撒] & ![按键-切换角色-上一个,0,0.3]"
             operations:
               - op_name: "按键-特殊攻击"

@@ -1,6 +1,6 @@
 handlers:
   - states: "[前台-艾莲]"
-    sub_states:
+    sub_handlers:
     # 失衡阶段：Q
     - states: "([按键-连携技-左, 0, 12] | [按键-连携技-右, 0, 12]) & [按键可用-终结技]"
       operations:

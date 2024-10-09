@@ -1,6 +1,6 @@
 handlers:
   - states: "[前台-安比]"
-    sub_states:
+    sub_handlers:
     # 格挡出场后
     - states: "[自定义-黄光切人]"
       operations:

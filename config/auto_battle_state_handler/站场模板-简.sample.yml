@@ -1,6 +1,6 @@
 handlers:
   - states: "[前台-简]"
-    sub_states:
+    sub_handlers:
       - states: "![简-狂热心流]{60, 101} & [简-萨霍夫跳]"
         operations:
           - op_name: "按键-闪避"

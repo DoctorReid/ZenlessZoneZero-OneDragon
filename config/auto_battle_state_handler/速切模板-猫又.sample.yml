@@ -1,7 +1,7 @@
 template_name: "速切模板-猫又"
 handlers:
   - states: "[前台-猫又]"
-    sub_states:
+    sub_handlers:
       - states: "[按键可用-终结技]"
         operations:
           - op_name: "按键-终结技"

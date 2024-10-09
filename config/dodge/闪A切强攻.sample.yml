@@ -4,7 +4,7 @@ scenes:
   interval: 0.5
   handlers:
   - states: "[闪避识别-黄光]"
-    sub_states:
+    sub_handlers:
     - states: "[后台-2-强攻]"
       operations:
       - op_name: "按键-闪避"

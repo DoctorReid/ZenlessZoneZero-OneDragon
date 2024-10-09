@@ -1,7 +1,7 @@
 description: "希望由异常站场 不是异常时切换角色"
 handlers:
   - states: "[前台-异常]"
-    sub_states:
+    sub_handlers:
       - state_template: "站场模板-全角色"
   - states: "[后台-2-异常]"
     operations:

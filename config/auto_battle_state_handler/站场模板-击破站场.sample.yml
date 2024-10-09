@@ -1,7 +1,7 @@
 # 希望由击破站场 不是击破时切换角色
 handlers:
   - states: "[前台-击破]"
-    sub_states:
+    sub_handlers:
       - state_template: "站场模板-全角色"
   - states: "[后台-2-击破]"
     operations:

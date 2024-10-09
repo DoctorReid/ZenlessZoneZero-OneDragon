@@ -1,6 +1,6 @@
 handlers:
   - states: "[前台-可琳]"
-    sub_states:
+    sub_handlers:
       - states: ""
         operations:
           - op_name: "按键-移动-前"

@@ -1,7 +1,7 @@
 description: "希望由支援站场 不是支援时切换角色"
 handlers:
   - states: "[前台-支援]"
-    sub_states:
+    sub_handlers:
       - state_template: "站场模板-全角色"
   - states: "[后台-2-支援]"
     operations:
