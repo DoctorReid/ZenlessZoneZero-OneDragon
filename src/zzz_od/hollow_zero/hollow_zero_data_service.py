@@ -104,7 +104,7 @@ class HallowZeroDataService:
     def match_resonium_by_ocr(self, cate_ocr: str, name_str: str) -> Optional[Resonium]:
         log.info('当前识别 %s %s', cate_ocr, name_str)
         category_list = [gt(i) for i in self.resonium_cate_list]
-        results = difflib.get_close_matches(cate_ocr, category_list, n=1, cutoff=0.5)
+        results = difflib.get_close_matches(cate_ocr, category_list, n=1, cutoff=0.3)
 
         if results is None or len(results) == 0:
             log.info('匹配结果 无')
@@ -132,19 +132,31 @@ class HallowZeroDataService:
         :return 鸣徽
         """
         name_full_str = name_full_str.strip()
-        name_full_str.replace('[', '')
-        name_full_str.replace('【', '')
+        name_full_str = name_full_str.replace('[', '')
+        name_full_str = name_full_str.replace('【', '')
 
         idx = name_full_str.find('】')
         if idx == -1:
             idx = name_full_str.find(']')
         if idx == -1:
             idx = name_full_str.find(' ')
-        if idx == -1:
-            return None
 
-        cate_str = name_full_str[:idx]
-        name_str = name_full_str[idx+1:]
+        if idx == -1:
+            if len(name_full_str) < 2:
+                return None
+            elif len(name_full_str) == 2:
+                cate_str = name_full_str[:1]
+                name_str = name_full_str[1:]
+            else:
+                cate_str = name_full_str[:2]
+                name_str = name_full_str[2:]
+        else:
+            cate_str = name_full_str[:idx]
+            name_str = name_full_str[idx+1:]
+
+        cate_str = cate_str.strip()
+        name_str = name_str.strip()
+
         return self.match_resonium_by_ocr(cate_str, name_str)
 
     def check_resonium_priority(self, input_str: str) -> Tuple[List[str], str]:
@@ -256,3 +268,8 @@ class HallowZeroDataService:
         :return:
         """
         return ['危机', '双重危机', '限时战斗']
+
+
+if __name__ == '__main__':
+    _data = HallowZeroDataService()
+    _data.match_resonium_by_ocr_full('[强聚合徽标')

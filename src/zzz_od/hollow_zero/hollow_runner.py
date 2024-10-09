@@ -293,8 +293,6 @@ def __debug():
     # screen = debug_utils.get_debug_image('_1723977819253')
     # result = op.round_by_find_and_click_area(screen, '零号空洞-事件', '快进')
     # print(result.is_success)
-    from one_dragon.base.geometry.rectangle import Rect
-    ctx.hollow._visited_nodes.append(HollowZeroMapNode(Rect(0,0,0,0), ctx.hollow.data_service.name_2_entry['业绩考察点']))
     op.execute()
 
 
