@@ -101,20 +101,36 @@ class HallowZeroDataService:
         except Exception:
             log.error(f'文件读取失败 {file_path}', exc_info=True)
 
-    def match_resonium_by_ocr(self, cate_ocr: str, name_str: str) -> Optional[Resonium]:
-        log.info('当前识别 %s %s', cate_ocr, name_str)
+    def match_resonium_by_ocr(self, cate_ocr: str, name_ocr: str) -> Optional[Resonium]:
+        log.info('当前识别 %s %s', cate_ocr, name_ocr)
         category_list = [gt(i) for i in self.resonium_cate_list]
-        results = difflib.get_close_matches(cate_ocr, category_list, n=1, cutoff=0.3)
+        results = difflib.get_close_matches(cate_ocr, category_list, n=2, cutoff=0.5)
 
         if results is None or len(results) == 0:
             log.info('匹配结果 无')
             return None
 
-        category_idx = category_list.index(results[0])
+        # 强x会同时匹配到强袭和顽强 这里用字符顺序顺序额外判断一下
+        if len(results) == 2:
+            if len(cate_ocr) > 1 and cate_ocr[1] == '_':
+                if results[0].startswith(cate_ocr[0]):
+                    category_idx = category_list.index(results[0])
+                else:
+                    category_idx = category_list.index(results[1])
+            elif cate_ocr[0] == '_':
+                if results[0].endswith(cate_ocr[1]):
+                    category_idx = category_list.index(results[0])
+                else:
+                    category_idx = category_list.index(results[1])
+            else:
+                category_idx = category_list.index(results[0])
+        else:
+            category_idx = category_list.index(results[0])
+
         resonium_list = self.cate_2_resonium[self.resonium_cate_list[category_idx]]
 
         resonium_name_list = [gt(i.name) for i in resonium_list]
-        results = difflib.get_close_matches(name_str, resonium_name_list, n=1)
+        results = difflib.get_close_matches(name_ocr, resonium_name_list, n=1)
 
         if results is None or len(results) == 0:
             log.info('匹配结果 无')
@@ -133,7 +149,7 @@ class HallowZeroDataService:
         """
         name_full_str = name_full_str.strip()
         name_full_str = name_full_str.replace('[', '')
-        name_full_str = name_full_str.replace('【', '')
+        name_full_str = name_full_str.replace(']', '')
 
         idx = name_full_str.find('】')
         if idx == -1:
@@ -144,12 +160,30 @@ class HallowZeroDataService:
         if idx == -1:
             if len(name_full_str) < 2:
                 return None
-            elif len(name_full_str) == 2:
-                cate_str = name_full_str[:1]
-                name_str = name_full_str[1:]
-            else:
-                cate_str = name_full_str[:2]
-                name_str = name_full_str[2:]
+
+            # 没有分隔符的情况 大概率是第二个字识别失败
+            cate_str = name_full_str[:1] + '_'
+            name_str = name_full_str[1:]
+            result = self.match_resonium_by_ocr(cate_str, name_str)
+            if result is not None:
+                return result
+
+            # 尝试看看是不是第一个字识别失败
+            cate_str = '_' + name_full_str[:1]
+            name_str = name_full_str[1:]
+
+            result = self.match_resonium_by_ocr(cate_str, name_str)
+            if result is not None:
+                return result
+
+            if len(name_full_str) == 2:  # 已经没法匹配到了
+                return None
+
+            # 尝试看前两个字
+            cate_str = name_full_str[:2]
+            name_str = name_full_str[2:]
+
+            return self.match_resonium_by_ocr(cate_str, name_str)
         else:
             cate_str = name_full_str[:idx]
             name_str = name_full_str[idx+1:]
@@ -157,7 +191,14 @@ class HallowZeroDataService:
         cate_str = cate_str.strip()
         name_str = name_str.strip()
 
-        return self.match_resonium_by_ocr(cate_str, name_str)
+        if len(cate_str) > 1:
+            return self.match_resonium_by_ocr(cate_str, name_str)
+        else:
+            result = self.match_resonium_by_ocr(cate_str + '_', name_str)
+            if result is not None:
+                return result
+            else:
+                return self.match_resonium_by_ocr('_' + cate_str, name_str)
 
     def check_resonium_priority(self, input_str: str) -> Tuple[List[str], str]:
         """

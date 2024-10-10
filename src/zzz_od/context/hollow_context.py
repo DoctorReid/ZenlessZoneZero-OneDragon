@@ -207,9 +207,9 @@ class HollowContext:
         :return:
         """
         visited = None
-        for visited in self._visited_nodes:
-            if hollow_map_utils.is_same_node(node, visited):
-                visited = visited
+        for v in self._visited_nodes:
+            if hollow_map_utils.is_same_node(node, v):
+                visited = v
                 break
 
         if visited is not None:
