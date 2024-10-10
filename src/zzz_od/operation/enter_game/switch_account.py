@@ -50,21 +50,9 @@ class SwitchAccount(ZOperation):
                                        retry_wait=1)
 
     @node_from(from_name='等待切换账号可按')
-    @operation_node(name='点击切换账号')
-    def click_switch(self) -> OperationRoundResult:
-        return self.round_by_click_area('打开游戏', '切换账号',
-                                        success_wait=1)
-
-    @node_from(from_name='点击切换账号')
-    @operation_node(name='切换账号确认')
-    def switch_confirm(self) -> OperationRoundResult:
-        return self.round_by_click_area('打开游戏', '切换账号确认',
-                                        success_wait=5, retry_wait=1)
-
-    @node_from(from_name='切换账号确认')
     @operation_node(name='进入游戏')
     def enter_game(self) -> OperationRoundResult:
-        op = EnterGame(self.ctx)
+        op = EnterGame(self.ctx, switch=True)
         return self.round_by_op_result(op.execute())
 
 
