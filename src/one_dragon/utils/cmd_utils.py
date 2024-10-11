@@ -1,6 +1,7 @@
 import os
 import subprocess
 from typing import List, Optional, Callable
+import threading
 
 from one_dragon.utils import os_utils
 from one_dragon.utils.log_utils import log
@@ -41,26 +42,32 @@ def run_command(commands: List[str], cwd: Optional[str] = None,
 
         result_str: str = ''
 
-        with process.stdout as pipe_stdout, process.stderr as pipe_stderr:
-            for line in iter(pipe_stdout.readline, ''):
+        def read_pipe(pipe, log_func):
+            nonlocal result_str
+            for line in iter(pipe.readline, ''):
                 line_strip = line.strip().strip('"')
                 if len(line_strip) == 0:
                     continue
-                log.info(line_strip)
-                if message_callback is not None:
-                    message_callback(line_strip)
-                result_str = result_str + '\n' + line_strip
-            for line in iter(pipe_stderr.readline, ''):
-                line_strip = line.strip().strip('"')
-                if len(line_strip) == 0:
-                    continue
-                log.error(line_strip)
+                log_func(line_strip)
                 if message_callback is not None:
                     message_callback(line_strip)
                 result_str = result_str + '\n' + line_strip
 
+        # 创建两个线程分别处理 stdout 和 stderr
+        stdout_thread = threading.Thread(target=read_pipe, args=(process.stdout, log.info))
+        stderr_thread = threading.Thread(target=read_pipe, args=(process.stderr, log.error))
+
+        # 启动线程
+        stdout_thread.start()
+        stderr_thread.start()
+
+        # 等待线程结束
+        stdout_thread.join()
+        stderr_thread.join()
+
         # 等待子进程完成
         process.wait()
+
         if process.returncode == 0:
             return result_str.strip()
         else:
