@@ -611,7 +611,7 @@ class Operation(OperationBase):
 
     def round_by_find_area(self, screen: MatLike, screen_name: str, area_name: str,
                            success_wait: Optional[float] = None, success_wait_round: Optional[float] = None,
-                           retry_wait: Optional[float] = None, retry_wait_round: Optional[float] = None,
+                           retry_wait: Optional[float] = None, retry_wait_round: Optional[float] = None
                            ) -> OperationRoundResult:
         """
         是否能找到目标区域
@@ -685,6 +685,7 @@ class Operation(OperationBase):
         if color_range is not None:
             mask = cv2.inRange(to_ocr_part, color_range[0], color_range[1])
             to_ocr_part = cv2.bitwise_and(to_ocr_part, to_ocr_part, mask=mask)
+
         ocr_result_map = self.ctx.ocr.run_ocr(to_ocr_part)
 
         to_click: Optional[Point] = None

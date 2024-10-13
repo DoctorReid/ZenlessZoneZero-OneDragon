@@ -15,6 +15,7 @@ from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem, Ca
 from zzz_od.auto_battle import auto_battle_utils
 from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.context.zzz_context import ZContext
+from zzz_od.operation.choose_predefined_team import ChoosePredefinedTeam
 from zzz_od.operation.deploy import Deploy
 from zzz_od.operation.zzz_operation import ZOperation
 
@@ -40,12 +41,6 @@ class CombatSimulation(ZOperation):
         )
 
         self.plan: ChargePlanItem = plan
-
-    def handle_init(self) -> None:
-        """
-        执行前的初始化 由子类实现
-        注意初始化要全面 方便一个指令重复使用
-        """
         self.charge_left: Optional[int] = None
         self.charge_need: Optional[int] = None
 
@@ -181,24 +176,33 @@ class CombatSimulation(ZOperation):
     @operation_node(name='下一步')
     def click_next(self) -> OperationRoundResult:
         screen = self.screenshot()
-        return self.round_by_find_and_click_area(
-            screen, '实战模拟室', '下一步',
-            success_wait=1, retry_wait=1
-        )
-
-    @node_from(from_name='下一步')
-    @operation_node(name='点击出战')
-    def click_start(self) -> OperationRoundResult:
-        screen = self.screenshot()
 
         # 防止前面电量识别错误
         result = self.round_by_find_area(screen, '实战模拟室', '恢复电量')
         if result.is_success:
             return self.round_success(status=CombatSimulation.STATUS_CHARGE_NOT_ENOUGH)
 
-        return self.round_by_find_area(screen, '实战模拟室', '出战', retry_wait=1)
+        # 点击直到出战按钮出现
+        result = self.round_by_find_area(screen, '实战模拟室', '出战')
+        if result.is_success:
+            return self.round_success(result.status)
 
-    @node_from(from_name='点击出战', status='出战')
+        result = self.round_by_find_and_click_area(screen, '实战模拟室', '下一步')
+        if result.is_success:
+            return self.round_wait(result.status, wait=1)
+
+        return self.round_retry(result.status, wait=1)
+
+    @node_from(from_name='下一步', status='出战')
+    @operation_node(name='选择预备编队')
+    def choose_predefined_team(self) -> OperationRoundResult:
+        if self.plan.predefined_team_idx == -1:
+            return self.round_success('无需选择预备编队')
+        else:
+            op = ChoosePredefinedTeam(self.ctx, self.plan.predefined_team_idx)
+            return self.round_by_op_result(op.execute())
+
+    @node_from(from_name='选择预备编队')
     @operation_node(name='出战')
     def deploy(self) -> OperationRoundResult:
         op = Deploy(self.ctx)
@@ -208,8 +212,13 @@ class CombatSimulation(ZOperation):
     @node_from(from_name='判断下一次', status='战斗结果-再来一次')
     @operation_node(name='加载自动战斗指令')
     def init_auto_battle(self) -> OperationRoundResult:
-        return auto_battle_utils.load_auto_op(self, 'auto_battle',
-                                              self.plan.auto_battle_config)
+        if self.plan.predefined_team_idx == -1:
+            auto_battle = self.plan.auto_battle_config
+        else:
+            team_list = self.ctx.team_config.team_list
+            auto_battle = team_list[self.plan.predefined_team_idx].auto_battle
+
+        return auto_battle_utils.load_auto_op(self, 'auto_battle', auto_battle)
 
     @node_from(from_name='加载自动战斗指令')
     @operation_node(name='等待战斗画面加载', node_max_retry_times=60)
@@ -311,7 +320,8 @@ def __debug():
         mission_name='自定义模板1',
         auto_battle_config=ctx.battle_assistant_config.auto_battle_config,
         run_times=0,
-        plan_times=1
+        plan_times=1,
+        predefined_team_idx=0
     )
     op = CombatSimulation(ctx, charge_plan)
     op.can_run_times = 1

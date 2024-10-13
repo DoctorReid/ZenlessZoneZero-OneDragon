@@ -2,7 +2,6 @@ import os
 
 from one_dragon.base.screen.screen_area import ScreenArea
 from one_dragon.base.screen.screen_info import ScreenInfo
-from one_dragon.utils import os_utils
 
 
 class ScreenLoader:

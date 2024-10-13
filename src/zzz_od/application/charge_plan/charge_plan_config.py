@@ -27,7 +27,8 @@ class ChargePlanItem:
             auto_battle_config: str = '击破站场-强攻速切',
             run_times: int = 0,
             plan_times: int = 1,
-            card_num: str = CardNumEnum.DEFAULT.value.value
+            card_num: str = CardNumEnum.DEFAULT.value.value,
+            predefined_team_idx: int = -1
     ):
         self.tab_name: str = tab_name
         self.category_name: str = category_name
@@ -38,6 +39,8 @@ class ChargePlanItem:
         self.run_times: int = run_times
         self.plan_times: int = plan_times
         self.card_num: str = card_num  # 实战模拟室的卡片数量
+
+        self.predefined_team_idx: int = predefined_team_idx  # 预备配队下标 -1为使用当前配队
 
 
 class ChargePlanConfig(YamlConfig):
@@ -85,7 +88,8 @@ class ChargePlanConfig(YamlConfig):
             auto_battle_config='击破站场-强攻速切',
             run_times=0,
             plan_times=1,
-            card_num=CardNumEnum.DEFAULT.value.value
+            card_num=str(CardNumEnum.DEFAULT.value.value),
+            predefined_team_idx=-1
         ))
         self.save()
 

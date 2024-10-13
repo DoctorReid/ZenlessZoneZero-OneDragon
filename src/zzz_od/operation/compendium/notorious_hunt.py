@@ -37,12 +37,6 @@ class NotoriousHunt(ZOperation):
 
         self.plan: ChargePlanItem = plan
         self.auto_op: Optional[AutoBattleOperator] = None
-
-    def handle_init(self) -> None:
-        """
-        执行前的初始化 由子类实现
-        注意初始化要全面 方便一个指令重复使用
-        """
         self.charge_left: Optional[int] = None
         self.charge_need: Optional[int] = None
         self.move_times: int = 0  # 移动次数
