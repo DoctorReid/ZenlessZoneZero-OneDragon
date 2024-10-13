@@ -12,6 +12,9 @@ class ColumnWidget(QWidget):
     def add_widget(self, widget: QWidget, stretch: int = 0, alignment: Qt.AlignmentFlag = Qt.AlignmentFlag.AlignTop):
         self.v_layout.addWidget(widget, stretch=stretch, alignment=alignment)
 
+    def remove_widget(self, widget: QWidget):
+        self.v_layout.removeWidget(widget)
+
     def add_stretch(self, stretch: int):
         self.v_layout.addStretch(stretch)
 

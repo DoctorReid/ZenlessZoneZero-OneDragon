@@ -1,18 +1,21 @@
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, ComboBox, CaptionLabel, LineEdit
-from typing import Optional
+from typing import Optional, List
 
+from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiPushSettingCard
+from one_dragon.gui.component.od_combo_box import OdComboBox
+from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiPushSettingCard, MultiLineSettingCard
+from one_dragon.utils.i18_utils import gt
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_op_config_list
 from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem
 from zzz_od.application.notorious_hunt.notorious_hunt_config import NotoriousHuntLevelEnum
 from zzz_od.context.zzz_context import ZContext
 
 
-class ChargePlanCard(MultiPushSettingCard):
+class ChargePlanCard(MultiLineSettingCard):
 
     changed = Signal(int, ChargePlanItem)
 
@@ -22,109 +25,91 @@ class ChargePlanCard(MultiPushSettingCard):
         self.idx: int = idx
         self.plan: ChargePlanItem = plan
 
-        self.mission_type_combo_box = ComboBox()
+        self.mission_type_combo_box = OdComboBox()
         self.mission_type_combo_box.setDisabled(True)
-        self._init_mission_type_combo_box()
+        self.mission_type_combo_box.currentIndexChanged.connect(self._on_mission_type_changed)
 
-        self.level_combo_box = ComboBox()
-        self._init_level_combo_box()
+        self.level_combo_box = OdComboBox()
+        self.level_combo_box.currentIndexChanged.connect(self._on_level_changed)
 
-        self.auto_battle_combo_box = ComboBox()
-        self._init_auto_battle_box()
+        self.predefined_team_opt = OdComboBox()
+        self.predefined_team_opt.currentIndexChanged.connect(self.on_predefined_team_changed)
+
+        self.auto_battle_combo_box = OdComboBox()
+        self.auto_battle_combo_box.currentIndexChanged.connect(self._on_auto_battle_changed)
 
         run_times_label = CaptionLabel(text='已运行次数')
         self.run_times_input = LineEdit()
-        self.run_times_input.setText(str(self.plan.run_times))
         self.run_times_input.textChanged.connect(self._on_run_times_changed)
 
         plan_times_label = CaptionLabel(text='计划次数')
         self.plan_times_input = LineEdit()
-        self.plan_times_input.setText(str(self.plan.plan_times))
         self.plan_times_input.textChanged.connect(self._on_plan_times_changed)
 
-        MultiPushSettingCard.__init__(
+        MultiLineSettingCard.__init__(
             self,
             icon=FluentIcon.CALENDAR,
             title='',
-            btn_list=[
-                self.mission_type_combo_box,
-                self.level_combo_box,
-                self.auto_battle_combo_box,
-                run_times_label,
-                self.run_times_input,
-                plan_times_label,
-                self.plan_times_input,
+            line_list=[
+                [
+                    self.mission_type_combo_box,
+                    self.level_combo_box,
+                    self.predefined_team_opt,
+                    self.auto_battle_combo_box,
+                ],
+                [
+                    run_times_label,
+                    self.run_times_input,
+                    plan_times_label,
+                    self.plan_times_input,
+                ]
             ]
         )
 
-    def _init_mission_type_combo_box(self) -> None:
-        try:
-            self.mission_type_combo_box.currentIndexChanged.disconnect(self._on_mission_type_changed)
-        except Exception:
-            pass
+    def init_with_plan(self, plan: ChargePlanItem) -> None:
+        """
+        以一个体力计划进行初始化
+        """
+        self.plan = plan
 
+        self.init_mission_type_combo_box()
+        self.init_predefined_team_opt()
+        self.init_auto_battle_box()
+        self.init_level_combo_box()
+
+        self.init_plan_times_input()
+        self.init_run_times_input()
+
+    def init_mission_type_combo_box(self) -> None:
         config_list = self.ctx.compendium_service.get_notorious_hunt_plan_mission_type_list(self.plan.category_name)
-        self.mission_type_combo_box.clear()
+        self.mission_type_combo_box.set_items(config_list, self.plan.mission_type_name)
 
-        target_text: Optional[str] = None
-        for config in config_list:
-            self.mission_type_combo_box.addItem(text=config.ui_text, userData=config.value)
-            if config.value == self.plan.mission_type_name:
-                target_text = config.ui_text
+    def init_level_combo_box(self) -> None:
+        config_list = [i.value for i in NotoriousHuntLevelEnum]
+        self.level_combo_box.set_items(config_list, self.plan.level)
 
-        if target_text is None:
-            self.mission_type_combo_box.setCurrentIndex(0)
-            self.plan.mission_type_name = self.mission_type_combo_box.itemData(0)
-        else:
-            self.mission_type_combo_box.setText(target_text)
-
-        self.mission_type_combo_box.currentIndexChanged.connect(self._on_mission_type_changed)
-
-    def _init_level_combo_box(self) -> None:
-        try:
-            self.level_combo_box.currentIndexChanged.disconnect(self._on_level_changed)
-        except Exception:
-            pass
-
-        self.level_combo_box.clear()
-
-        target_text: Optional[str] = None
-        for i in NotoriousHuntLevelEnum:
-            config = i.value
-            self.level_combo_box.addItem(text=config.ui_text, userData=config.value)
-            if config.value == self.plan.mission_type_name:
-                target_text = config.ui_text
-
-        if target_text is None:
-            self.level_combo_box.setCurrentIndex(0)
-            self.plan.level = self.level_combo_box.itemData(0)
-        else:
-            self.level_combo_box.setText(target_text)
-
-        self.level_combo_box.currentIndexChanged.connect(self._on_level_changed)
-
-    def _init_auto_battle_box(self) -> None:
-        try:
-            self.auto_battle_combo_box.currentIndexChanged.disconnect(self._on_auto_battle_changed)
-        except Exception:
-            pass
-
+    def init_auto_battle_box(self) -> None:
         config_list = get_auto_battle_op_config_list(sub_dir='auto_battle')
-        self.auto_battle_combo_box.clear()
+        self.auto_battle_combo_box.set_items(config_list, self.plan.auto_battle_config)
+        self.auto_battle_combo_box.setVisible(self.plan.predefined_team_idx == -1)
 
-        target_text: Optional[str] = None
-        for config in config_list:
-            self.auto_battle_combo_box.addItem(text=config.ui_text, userData=config.value)
-            if config.value == self.plan.auto_battle_config:
-                target_text = config.ui_text
+    def init_predefined_team_opt(self) -> None:
+        """
+        初始化预备编队的下拉框
+        """
+        config_list = ([ConfigItem('游戏内配队', -1)] +
+                       [ConfigItem(team.name, team.idx) for team in self.ctx.team_config.team_list])
+        self.predefined_team_opt.set_items(config_list, self.plan.predefined_team_idx)
 
-        if target_text is None:
-            self.auto_battle_combo_box.setCurrentIndex(0)
-            self.plan.auto_battle_config = self.auto_battle_combo_box.itemData(0)
-        else:
-            self.auto_battle_combo_box.setText(target_text)
+    def init_run_times_input(self) -> None:
+        self.run_times_input.blockSignals(True)
+        self.run_times_input.setText(str(self.plan.run_times))
+        self.run_times_input.blockSignals(False)
 
-        self.auto_battle_combo_box.currentIndexChanged.connect(self._on_auto_battle_changed)
+    def init_plan_times_input(self) -> None:
+        self.plan_times_input.blockSignals(True)
+        self.plan_times_input.setText(str(self.plan.plan_times))
+        self.plan_times_input.blockSignals(False)
 
     def _on_mission_type_changed(self, idx: int) -> None:
         mission_type_name = self.mission_type_combo_box.itemData(idx)
@@ -136,6 +121,11 @@ class ChargePlanCard(MultiPushSettingCard):
         level = self.level_combo_box.itemData(idx)
         self.plan.level = level
 
+        self._emit_value()
+
+    def on_predefined_team_changed(self, idx: int) -> None:
+        self.plan.predefined_team_idx = self.predefined_team_opt.currentData()
+        self.init_auto_battle_box()
         self._emit_value()
 
     def _on_auto_battle_changed(self, idx: int) -> None:
@@ -171,17 +161,30 @@ class NotoriousHuntPlanInterface(VerticalScrollInterface):
     def get_content_widget(self) -> QWidget:
         self.content_widget = ColumnWidget()
 
+        self.card_list: List[ChargePlanCard] = []
+        self.last_empty_widget: QWidget = QWidget()
+
         return self.content_widget
 
     def update_plan_list_display(self):
-        self.content_widget.clear_widgets()
+        plan_list = self.ctx.notorious_hunt_config.plan_list
 
-        for idx, plan_item in enumerate(self.ctx.notorious_hunt_config.plan_list):
-            card = ChargePlanCard(self.ctx, idx, plan_item)
-            card.changed.connect(self._on_plan_item_changed)
-            self.content_widget.add_widget(card)
+        if len(plan_list) > len(self.card_list):
+            self.content_widget.remove_widget(self.last_empty_widget)
 
-        self.content_widget.add_stretch(1)
+            while len(self.card_list) < len(plan_list):
+                idx = len(self.card_list)
+                card = ChargePlanCard(self.ctx, idx, self.ctx.notorious_hunt_config.plan_list[idx])
+                card.changed.connect(self._on_plan_item_changed)
+
+                self.card_list.append(card)
+                self.content_widget.add_widget(card)
+
+            self.content_widget.add_widget(self.last_empty_widget, stretch=1)
+
+        for idx, plan in enumerate(plan_list):
+            card = self.card_list[idx]
+            card.init_with_plan(plan)
 
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)

@@ -167,3 +167,25 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 预备编队
+  pc_rect:
+  - 368
+  - 1008
+  - 566
+  - 1052
+  text: 预备编队
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 预备出战
+  pc_rect:
+  - 1634
+  - 1000
+  - 1826
+  - 1054
+  text: 预备出战
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

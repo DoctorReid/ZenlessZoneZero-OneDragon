@@ -27,7 +27,8 @@ class ChargePlanItem:
             auto_battle_config: str = '击破站场-强攻速切',
             run_times: int = 0,
             plan_times: int = 1,
-            card_num: str = CardNumEnum.DEFAULT.value.value
+            card_num: str = CardNumEnum.DEFAULT.value.value,
+            predefined_team_idx: int = -1
     ):
         self.tab_name: str = tab_name
         self.category_name: str = category_name
@@ -38,6 +39,18 @@ class ChargePlanItem:
         self.run_times: int = run_times
         self.plan_times: int = plan_times
         self.card_num: str = card_num  # 实战模拟室的卡片数量
+
+        self.predefined_team_idx: int = predefined_team_idx  # 预备配队下标 -1为使用当前配队
+
+    @property
+    def uid(self) -> str:
+        return '%s_%s_%s_%s' % (
+            self.tab_name if self.tab_name is not None else '',
+            self.category_name if self.category_name is not None else '',
+            self.mission_type_name if self.mission_type_name is not None else '',
+            self.mission_name if self.mission_name is not None else '',
+        )
+
 
 
 class ChargePlanConfig(YamlConfig):
@@ -56,13 +69,12 @@ class ChargePlanConfig(YamlConfig):
         self.loop = self.get('loop', True)
 
     def save(self):
-        self.data = {}
         plan_list = []
-        self.data['plan_list'] = plan_list
-        self.data['loop'] = self.loop
+
+        new_history_list = []
 
         for plan_item in self.plan_list:
-            plan_list.append({
+            plan_data = {
                 'tab_name': plan_item.tab_name,
                 'category_name': plan_item.category_name,
                 'mission_type_name': plan_item.mission_type_name,
@@ -70,8 +82,30 @@ class ChargePlanConfig(YamlConfig):
                 'auto_battle_config': plan_item.auto_battle_config,
                 'run_times': plan_item.run_times,
                 'plan_times': plan_item.plan_times,
-                'card_num': plan_item.card_num
-            })
+                'card_num': plan_item.card_num,
+                'predefined_team_idx': plan_item.predefined_team_idx
+            }
+
+            new_history_list.append(plan_data.copy())
+            plan_list.append(plan_data)
+
+        old_history_list = self.history_list
+        for old_history_data in old_history_list:
+            old_history = ChargePlanItem(**old_history_data)
+            with_new = False
+            for plan in self.plan_list:
+                if self._is_same_plan(plan, old_history):
+                    with_new = True
+                    break
+
+            if not with_new:
+                new_history_list.append(old_history_data)
+
+        self.data = {
+            'loop': self.loop,
+            'plan_list': plan_list,
+            'history_list': new_history_list
+        }
 
         YamlConfig.save(self)
 
@@ -85,7 +119,8 @@ class ChargePlanConfig(YamlConfig):
             auto_battle_config='击破站场-强攻速切',
             run_times=0,
             plan_times=1,
-            card_num=CardNumEnum.DEFAULT.value.value
+            card_num=str(CardNumEnum.DEFAULT.value.value),
+            predefined_team_idx=0
         ))
         self.save()
 
@@ -190,3 +225,14 @@ class ChargePlanConfig(YamlConfig):
                 and x.category_name == y.category_name
                 and x.mission_type_name == y.mission_type_name
                 and x.mission_name == y.mission_name)
+
+    @property
+    def history_list(self) -> dict:
+        return self.get('history_list', [])
+
+    def get_history_by_uid(self, plan: ChargePlanItem) -> Optional[ChargePlanItem]:
+        history_list = self.history_list
+        for history_data in history_list:
+            history = ChargePlanItem(**history_data)
+            if self._is_same_plan(history, plan):
+                return history
