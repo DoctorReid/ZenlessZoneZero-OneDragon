@@ -68,13 +68,13 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: 切换账号确认
+- area_name: 切换账号确定
   pc_rect:
   - 1036
   - 604
   - 1226
   - 652
-  text: 确认
+  text: 确定
   lcs_percent: 1.0
   template_sub_dir: ''
   template_id: ''

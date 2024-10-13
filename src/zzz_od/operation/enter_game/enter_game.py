@@ -1,5 +1,6 @@
 import time
 
+from one_dragon.base.config.one_dragon_config import InstanceRun
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
@@ -11,19 +12,38 @@ from zzz_od.operation.zzz_operation import ZOperation
 
 class EnterGame(ZOperation):
 
-    def __init__(self, ctx: ZContext):
+    def __init__(self, ctx: ZContext, switch: bool = False):
         ZOperation.__init__(self, ctx,
                             op_name=gt('进入游戏', 'ui')
                             )
 
+        self.force_login: bool = (self.ctx.one_dragon_config.instance_run == InstanceRun.ALL.value.value
+            and len(self.ctx.one_dragon_config.instance_list_in_od) > 1)
+
+        # 切换账号的情况下 一定需要登录
+        if switch:
+            self.force_login = True
+
+        self.already_login: bool = False  # 是否已经登录了
+
     @node_from(from_name='输入账号密码')
-    @operation_node(name='画面识别', is_start_node=True, node_max_retry_times=60)
+    @operation_node(name='画面识别', node_max_retry_times=60, is_start_node=True)
     def check_screen(self) -> OperationRoundResult:
         screen = self.screenshot()
 
-        result = self.round_by_find_and_click_area(screen, '打开游戏', '点击进入游戏')
-        if result.is_success:
-            return self.round_success(result.status, wait=5)
+        if self.force_login and not self.already_login:
+            result = self.round_by_find_area(screen, '打开游戏', '点击进入游戏')
+            if result.is_success:
+                self.round_by_click_area('打开游戏', '切换账号')
+                return self.round_wait(result.status, wait=1)
+
+            result = self.round_by_find_and_click_area(screen, '打开游戏', '切换账号确定')
+            if result.is_success:
+                return self.round_wait(result.status, wait=5)
+        else:
+            result = self.round_by_find_and_click_area(screen, '打开游戏', '点击进入游戏')
+            if result.is_success:
+                return self.round_success(result.status, wait=5)
 
         result = self.round_by_find_and_click_area(screen, '打开游戏', '账号密码')
         if result.is_success:
@@ -51,6 +71,7 @@ class EnterGame(ZOperation):
         time.sleep(0.5)
 
         screen = self.screenshot()
+        self.already_login = True
         return self.round_by_find_and_click_area(screen, '打开游戏', '账号密码进入游戏',
                                                  success_wait=5, retry_wait=1)
 

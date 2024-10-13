@@ -155,6 +155,14 @@ class OneDragonConfig(YamlConfig):
         return None
 
     @property
+    def instance_list_in_od(self) -> List[OneDragonInstance]:
+        """
+        需要在一条龙中运行的实例列表
+        :return:
+        """
+        return [instance for instance in self.instance_list if instance.active_in_od]
+
+    @property
     def instance_run(self) -> str:
         return self.get('instance_run', InstanceRun.ALL.value.value)
 
