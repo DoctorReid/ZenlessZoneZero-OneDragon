@@ -267,7 +267,7 @@ class HollowRunner(ZOperation):
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='画面识别', status='通关-完成')
-    @operation_node(name='通关-完成', node_max_retry_times=10)
+    @operation_node(name='通关-完成', node_max_retry_times=60)
     def mission_complete(self) -> OperationRoundResult:
         screen = self.screenshot()
         result = self.round_by_find_and_click_area(screen, '零号空洞-事件', '通关-完成')
