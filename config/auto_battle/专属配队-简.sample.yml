@@ -2,7 +2,7 @@ description: |
   专属配队-简
   配队列表：支援/凯撒-简-赛斯
   备注： 角色位置不可替换
-  版本号： 0.3
+  版本号： 0.4
   作者： 笙梦昱
   协作： 巡夜子 starlight
 
@@ -59,14 +59,14 @@ t-j: &j #当前狂热心流不足50%且萨霍夫可使用则使用萨霍夫
   - states: "[按键可用-特殊攻击]"
     operations:
       - op_name: "按键-特殊攻击"
-        press: 0.5
-        repeat: 4
+        press: 0.05
+        repeat: 40
   #简6段a
   - states: ""
     operations:
       - op_name: "按键-普通攻击"
-        post_delay: 0.05
-        repeat: 4
+        post_delay: 0.025
+        repeat: 20
 
 #速切模板-赛斯
 t-ss: &ss
@@ -151,19 +151,17 @@ scenes:
         operations:
           - op_name: "按键-移动-前"
             way: "按下"
-            post_delay: 0.15
+            post_delay: 0.01
           - op_name: "按键-闪避"
             way: "按下"
             press: 0.01
-            post_delay: 0.15
-            repeat: 2
+            post_delay: 0.01
           - op_name: "按键-普通攻击"
-            press: 0.3
             post_delay: 0.025
-            repeat: 2
+            repeat: 20
           - op_name: "按键-移动-前"
             way: "松开"
-            post_delay: 0.1
+            post_delay: 0.01
       - states: "([前台-支援] & [闪避识别-黄光]) | ([前台-凯撒] & [闪避识别-黄光])" #支援/凯撒在前台切简触发格挡反击
         operations:
           - op_name: "按键-切换角色-下一个"
@@ -300,7 +298,7 @@ scenes:
 
   - triggers: ["前台-简"]
     priority: 4
-    interval: 0.1
+    interval: 0.02
     handlers:
       - states: "[前台-简]"
         sub_handlers: *j

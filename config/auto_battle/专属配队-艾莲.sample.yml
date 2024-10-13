@@ -2,7 +2,7 @@ description: |
   专属配队-艾莲
   配队列表：艾莲 + 凯撒/莱卡恩 + 莱卡恩/苍角
   备注： 2号位、3号位可任意更换击破、支援、防护
-  版本号： 2.3
+  版本号： 2.4
   作者： 巡夜子
   协作： 笙梦昱
   
@@ -37,7 +37,6 @@ t-prot: &prot
           - op_name: "按键-普通攻击"
           - op_name: "清除状态"
             state: "自定义-动作不打断"
-            post_delay: 0.1
       #艾莲平A
       - states: ""
         operations:
@@ -72,7 +71,9 @@ t-prot: &prot
           - op_name: "按键-闪避"
             press: 0.01
             post_delay: 0.15
-            repeat: 3
+          - op_name: "按键-闪避"
+            press: 0.01
+            post_delay: 0.1
           - op_name: "按键-普通攻击"
             way: "按下"
             post_delay: 1.2
@@ -82,7 +83,6 @@ t-prot: &prot
             post_delay: 0.01
           - op_name: "清除状态"
             state: "自定义-动作不打断"
-            post_delay: 0.05
 
 #速切模板-防护
 t-sup: &fh
@@ -115,7 +115,7 @@ t-sup: &jp
       - op_name: "按键-普通攻击"
         post_delay: 0.05
       - op_name: "按键-特殊攻击"
-        post_delay: 0.15
+        post_delay: 0.05
         repeat: 6
       - op_name: "设置状态"
         state: "自定义-速切结束"
@@ -231,7 +231,6 @@ scenes:
               - op_name: "设置状态"
                 state: "自定义-艾莲站场时间"
               - op_name: "按键-切换角色-下一个"
-                post_delay: 0.05
               - op_name: "清除状态"
                 state: "自定义-动作不打断"
           - states: "[后台-1-艾莲] & [按键可用-快速支援,0,0.5]"                      #后台(1)是艾莲且快速支援按键可用切人并添加艾莲站场
@@ -268,7 +267,6 @@ scenes:
               - op_name: "设置状态"
                 state: "自定义-艾莲站场时间"
               - op_name: "按键-切换角色-下一个"
-                post_delay: 0.05
               - op_name: "清除状态"
                 state: "自定义-动作不打断"
           - states: "[后台-1-艾莲] & [按键可用-快速支援,0,0.5]"
@@ -347,7 +345,7 @@ scenes:
           - states: "![自定义-鲨龙卷,2.3,3] & ![自定义-普通攻击-1.8,2.5] & ![自定义-闪避,0,2] & ![自定义-急冻充能,0,1.8]"
             operations: *dodge
 
-  - triggers: ["前台-艾莲"]
+  - triggers: ["按键-切换角色-下一个","前台-艾莲"]
     priority: 50
     interval: 0.02
     handlers:
@@ -356,24 +354,24 @@ scenes:
           - states: "![自定义-动作不打断,0,999]{0}"
             sub_handlers: *prot
 
-  - triggers: ["前台-支援"]
+  - triggers: ["按键-切换角色-下一个","前台-支援"]
     priority: 49
-    interval: 0.05
+    interval: 1
     handlers:
-      - states: ""
+      - states: "[前台-支援]"
         sub_handlers: *zy
 
-  - triggers: ["前台-击破"]
+  - triggers: ["按键-切换角色-下一个","前台-击破"]
     priority: 48
-    interval: 0.05
+    interval: 1
     handlers:
-      - states: ""
+      - states: "[前台-击破]"
         sub_handlers: *jp
 
-  - triggers: ["前台-防护"]
+  - triggers: ["按键-切换角色-下一个","前台-防护"]
     priority: 47
-    interval: 0.05
+    interval: 1
     handlers:
-      - states: ""
+      - states: "[前台-防护]"
         sub_handlers: *fh
 
