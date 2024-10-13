@@ -3,9 +3,11 @@ from PySide6.QtWidgets import QWidget
 from qfluentwidgets import PrimaryPushButton, FluentIcon, ComboBox, CaptionLabel, LineEdit, ToolButton
 from typing import Optional, List
 
+from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiPushSettingCard, MultiLineSettingCard
+from one_dragon.gui.component.od_combo_box import OdComboBox
+from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiLineSettingCard
 from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_op_config_list
@@ -25,22 +27,22 @@ class ChargePlanCard(MultiLineSettingCard):
         self.idx: int = idx
         self.plan: ChargePlanItem = plan
 
-        self.category_combo_box = ComboBox()
+        self.category_combo_box = OdComboBox()
         self.category_combo_box.currentIndexChanged.connect(self._on_category_changed)
 
-        self.mission_type_combo_box = ComboBox()
+        self.mission_type_combo_box = OdComboBox()
         self.mission_type_combo_box.currentIndexChanged.connect(self._on_mission_type_changed)
 
-        self.mission_combo_box = ComboBox()
+        self.mission_combo_box = OdComboBox()
         self.mission_combo_box.currentIndexChanged.connect(self._on_mission_changed)
 
-        self.card_num_box = ComboBox()
+        self.card_num_box = OdComboBox()
         self.card_num_box.currentIndexChanged.connect(self._on_card_num_changed)
 
-        self.predefined_team_opt = ComboBox()
+        self.predefined_team_opt = OdComboBox()
         self.predefined_team_opt.currentIndexChanged.connect(self.on_predefined_team_changed)
 
-        self.auto_battle_combo_box = ComboBox()
+        self.auto_battle_combo_box = OdComboBox()
         self.auto_battle_combo_box.currentIndexChanged.connect(self._on_auto_battle_changed)
 
         run_times_label = CaptionLabel(text='已运行次数')
@@ -82,120 +84,46 @@ class ChargePlanCard(MultiLineSettingCard):
 
         self.init_with_plan(plan)
 
-    def _init_category_combo_box(self) -> None:
-        self.category_combo_box.blockSignals(True)
+    def init_category_combo_box(self) -> None:
+        config_list = self.ctx.compendium_service.get_charge_plan_category_list()
+        self.category_combo_box.set_items(config_list, self.plan.category_name)
 
-        category_list = self.ctx.compendium_service.get_charge_plan_category_list()
-        self.category_combo_box.clear()
-        target_category_text: Optional[str] = None
-        for category in category_list:
-            self.category_combo_box.addItem(text=category.ui_text, userData=category.value)
-            if category.value == self.plan.category_name:
-                target_category_text = category.ui_text
-
-        self.category_combo_box.setCurrentText(target_category_text)
-
-        self.category_combo_box.blockSignals(False)
-
-    def _init_mission_type_combo_box(self) -> None:
-        self.mission_type_combo_box.blockSignals(True)
-
+    def init_mission_type_combo_box(self) -> None:
         config_list = self.ctx.compendium_service.get_charge_plan_mission_type_list(self.plan.category_name)
-        self.mission_type_combo_box.clear()
+        self.mission_type_combo_box.set_items(config_list, self.plan.mission_type_name)
 
-        target_text: Optional[str] = None
-        for config in config_list:
-            self.mission_type_combo_box.addItem(text=config.ui_text, userData=config.value)
-            if config.value == self.plan.mission_type_name:
-                target_text = config.ui_text
-
-        if target_text is None:
-            self.mission_type_combo_box.setCurrentIndex(0)
-            self.plan.mission_type_name = self.mission_type_combo_box.itemData(0)
-        else:
-            self.mission_type_combo_box.setCurrentText(target_text)
-
-        self.mission_type_combo_box.blockSignals(False)
-
-    def _init_mission_combo_box(self) -> None:
-        self.mission_combo_box.blockSignals(True)
-
-        config_list = self.ctx.compendium_service.get_charge_plan_mission_list(
-            self.plan.category_name, self.plan.mission_type_name)
-        self.mission_combo_box.clear()
-
-        target_text: Optional[str] = None
-        for config in config_list:
-            self.mission_combo_box.addItem(text=config.ui_text, userData=config.value)
-            if config.value == self.plan.mission_name:
-                target_text = config.ui_text
-
-        if target_text is None:
-            self.mission_combo_box.setCurrentIndex(0)
-            self.plan.mission_name = self.mission_combo_box.itemData(0)
-        else:
-            self.mission_combo_box.setCurrentText(target_text)
-
+    def init_mission_combo_box(self) -> None:
+        config_list = self.ctx.compendium_service.get_charge_plan_mission_list(self.plan.category_name, self.plan.mission_type_name)
+        self.mission_combo_box.set_items(config_list, self.plan.mission_name)
         self.mission_combo_box.setVisible(self.plan.category_name == '实战模拟室')
-        self.mission_combo_box.blockSignals(False)
 
-    def _init_card_num_box(self) -> None:
-        self.card_num_box.blockSignals(True)
-
-        self.card_num_box.clear()
-
-        target_text: Optional[str] = None
-        for config_enum in CardNumEnum:
-            config = config_enum.value
-            self.card_num_box.addItem(text=config.ui_text, userData=config.value)
-            if config.value == self.plan.card_num:
-                target_text = config.ui_text
-
-        if target_text is None:
-            self.card_num_box.setCurrentIndex(0)
-            self.plan.card_num = self.card_num_box.itemData(0)
-        else:
-            self.card_num_box.setCurrentText(target_text)
-
+    def init_card_num_box(self) -> None:
+        config_list = [config_enum.value for config_enum in CardNumEnum]
+        self.card_num_box.set_items(config_list, self.plan.card_num)
         self.card_num_box.setVisible(self.plan.category_name == '实战模拟室')
-        self.card_num_box.blockSignals(False)
 
     def init_predefined_team_opt(self) -> None:
         """
         初始化预备编队的下拉框
         """
-        self.predefined_team_opt.blockSignals(True)
+        config_list = ([ConfigItem('游戏内配队', -1)] +
+                       [ConfigItem(team.name, team.idx) for team in self.ctx.team_config.team_list])
+        self.predefined_team_opt.set_items(config_list, self.plan.predefined_team_idx)
 
-        self.predefined_team_opt.clear()
-        self.predefined_team_opt.addItem(text=gt('游戏内配队'), userData=-1)
-
-        for team in self.ctx.team_config.team_list:
-            self.predefined_team_opt.addItem(text=team.name, userData=team.idx)
-
-        self.predefined_team_opt.setCurrentIndex(self.plan.predefined_team_idx + 1)
-
-        self.predefined_team_opt.blockSignals(False)
-
-    def _init_auto_battle_box(self) -> None:
-        self.auto_battle_combo_box.setVisible(self.plan.predefined_team_idx == -1)
-        self.auto_battle_combo_box.blockSignals(True)
-
+    def init_auto_battle_box(self) -> None:
         config_list = get_auto_battle_op_config_list(sub_dir='auto_battle')
-        self.auto_battle_combo_box.clear()
+        self.auto_battle_combo_box.set_items(config_list, self.plan.auto_battle_config)
+        self.auto_battle_combo_box.setVisible(self.plan.predefined_team_idx == -1)
 
-        target_text: Optional[str] = None
-        for config in config_list:
-            self.auto_battle_combo_box.addItem(text=config.ui_text, userData=config.value)
-            if config.value == self.plan.auto_battle_config:
-                target_text = config.ui_text
+    def init_run_times_input(self) -> None:
+        self.run_times_input.blockSignals(True)
+        self.run_times_input.setText(str(self.plan.run_times))
+        self.run_times_input.blockSignals(False)
 
-        if target_text is None:
-            self.auto_battle_combo_box.setCurrentIndex(0)
-            self.plan.auto_battle_config = self.auto_battle_combo_box.itemData(0)
-        else:
-            self.auto_battle_combo_box.setCurrentText(target_text)
-
-        self.auto_battle_combo_box.blockSignals(False)
+    def init_plan_times_input(self) -> None:
+        self.plan_times_input.blockSignals(True)
+        self.plan_times_input.setText(str(self.plan.plan_times))
+        self.plan_times_input.blockSignals(False)
 
     def init_with_plan(self, plan: ChargePlanItem) -> None:
         """
@@ -203,28 +131,25 @@ class ChargePlanCard(MultiLineSettingCard):
         """
         self.plan = plan
 
-        self._init_category_combo_box()
-        self._init_mission_type_combo_box()
-        self._init_mission_combo_box()
-        self._init_card_num_box()
+        self.init_category_combo_box()
+        self.init_mission_type_combo_box()
+        self.init_mission_combo_box()
+
+        self.init_card_num_box()
         self.init_predefined_team_opt()
-        self._init_auto_battle_box()
+        self.init_auto_battle_box()
 
-        self.run_times_input.blockSignals(True)
-        self.run_times_input.setText(str(self.plan.run_times))
-        self.run_times_input.blockSignals(False)
-
-        self.plan_times_input.blockSignals(True)
-        self.plan_times_input.setText(str(self.plan.plan_times))
-        self.plan_times_input.blockSignals(False)
+        self.init_run_times_input()
+        self.init_plan_times_input()
 
     def _on_category_changed(self, idx: int) -> None:
         category_name = self.category_combo_box.itemData(idx)
         self.plan.category_name = category_name
 
-        self._init_mission_type_combo_box()
-        self._init_mission_combo_box()
-        self._init_card_num_box()
+        self.init_mission_type_combo_box()
+        self.init_mission_combo_box()
+
+        self.update_by_history()
 
         self._emit_value()
 
@@ -232,14 +157,16 @@ class ChargePlanCard(MultiLineSettingCard):
         mission_type_name = self.mission_type_combo_box.itemData(idx)
         self.plan.mission_type_name = mission_type_name
 
-        self._init_mission_combo_box()
+        self.init_mission_combo_box()
 
+        self.update_by_history()
         self._emit_value()
 
     def _on_mission_changed(self, idx: int) -> None:
         mission_name = self.mission_combo_box.itemData(idx)
         self.plan.mission_name = mission_name
 
+        self.update_by_history()
         self._emit_value()
 
     def _on_card_num_changed(self, idx: int) -> None:
@@ -248,7 +175,7 @@ class ChargePlanCard(MultiLineSettingCard):
 
     def on_predefined_team_changed(self, idx: int) -> None:
         self.plan.predefined_team_idx = self.predefined_team_opt.currentData()
-        self._init_auto_battle_box()
+        self.init_auto_battle_box()
         self._emit_value()
 
     def _on_auto_battle_changed(self, idx: int) -> None:
@@ -273,6 +200,24 @@ class ChargePlanCard(MultiLineSettingCard):
 
     def _on_del_clicked(self) -> None:
         self.delete.emit(self.idx)
+
+    def update_by_history(self) -> None:
+        """
+        根据历史记录更新
+        """
+        history = self.ctx.charge_plan_config.get_history_by_uid(self.plan)
+        if history is None:
+            return
+
+        self.plan.card_num = history.card_num
+        self.plan.predefined_team_idx = history.predefined_team_idx
+        self.plan.auto_battle_config = history.auto_battle_config
+        self.plan.plan_times = history.plan_times
+
+        self.init_card_num_box()
+        self.init_predefined_team_opt()
+        self.init_auto_battle_box()
+        self.init_plan_times_input()
 
 
 class ChargePlanInterface(VerticalScrollInterface):
@@ -326,11 +271,17 @@ class ChargePlanInterface(VerticalScrollInterface):
                 self.card_list.append(card)
                 self.content_widget.add_widget(card)
 
-            self.content_widget.add_widget(self.plus_btn)
+            self.content_widget.add_widget(self.plus_btn, stretch=1)
 
         for idx, plan in enumerate(plan_list):
             card = self.card_list[idx]
             card.init_with_plan(plan)
+
+        while len(self.card_list) > len(plan_list):
+            card = self.card_list[-1]
+            self.content_widget.remove_widget(card)
+            card.deleteLater()
+            self.card_list.pop(-1)
 
     def _on_add_clicked(self) -> None:
         self.ctx.charge_plan_config.add_plan()
