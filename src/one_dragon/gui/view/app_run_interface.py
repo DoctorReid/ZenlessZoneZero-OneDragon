@@ -165,12 +165,15 @@ class AppRunInterface(VerticalScrollInterface):
         if self.ctx.is_context_running:
             text = gt('暂停', 'ui')
             icon = FluentIcon.PAUSE
+            self.log_card.start()  # 开始日志更新
         elif self.ctx.is_context_pause:
             text = gt('继续', 'ui')
             icon = FluentIcon.PLAY
+            self.log_card.pause()  # 暂停日志更新
         else:
             text = gt('开始', 'ui')
             icon = FluentIcon.PLAY
+            self.log_card.stop()  # 停止日志更新
 
         self.start_btn.setText('%s %s' % (text, self.ctx.key_start_running.upper()))
         self.start_btn.setIcon(icon)
