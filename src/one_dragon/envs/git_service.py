@@ -222,7 +222,7 @@ class GitService:
         if clean_result is None or not clean_result:
             if self.env_config.force_update:
                 reset_result = cmd_utils.run_command(
-                    [self.env_config.git_path, 'reset', '--hard', 'HEAD'])
+                    [self.env_config.git_path, 'reset', '--hard', f'origin/{self.project_config.project_git_branch}'])
                 if reset_result is None or not reset_result:
                     msg = '强制更新失败'
                     log.error(msg)
@@ -394,3 +394,10 @@ class GitService:
         """
         cmd_utils.run_command([self.env_config.git_path, 'config', '--global', '--add', 'safe.directory',
                                os.path.normpath(os_utils.get_work_dir()).replace(os.path.sep, '/')])
+
+    def reset_to_commit(self, commit_id: str) -> bool:
+        """
+        回滚到特定commit
+        """
+        reset_result = cmd_utils.run_command([self.env_config.git_path, 'reset', '--hard', commit_id])
+        return reset_result is not None

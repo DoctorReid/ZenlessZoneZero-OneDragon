@@ -21,7 +21,7 @@ class CodeInstallCard(BaseInstallCard):
             parent=parent
         )
 
-        self._updated: bool = False  # 是否已经更新了
+        self.updated: bool = False  # 是否已经更新了
 
     def after_progress_done(self, success: bool, msg: str) -> None:
         """
@@ -32,7 +32,7 @@ class CodeInstallCard(BaseInstallCard):
         """
         if success:
             self.check_and_update_display()
-            self._updated = True
+            self.updated = True
         else:
             msg = msg + ' 可考虑设置-脚本环境-代码源选择Gitee 但不能保证是最新版本'
             self.update_display(FluentIcon.INFO.icon(color=FluentThemeColor.RED.value), gt(msg, 'ui'))
@@ -57,10 +57,10 @@ class CodeInstallCard(BaseInstallCard):
             if latest:
                 icon = FluentIcon.INFO.icon(color=FluentThemeColor.DEFAULT_BLUE.value)
                 msg = f"{gt('已同步代码', 'ui')}" + ' ' + current_branch
-
-                if self._updated:
-                    msg += ' ' + gt('更新后需重启脚本生效。如不能运行，尝试使用安装器更新运行依赖，或更新安装器', 'ui')
             else:
                 icon = FluentIcon.INFO.icon(color=FluentThemeColor.GOLD.value)
+
+            if self.updated:
+                msg += ' ' + gt('更新后需重启脚本生效。如不能运行，尝试使用安装器更新运行依赖，或更新安装器', 'ui')
 
             return icon, msg
