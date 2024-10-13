@@ -14,6 +14,7 @@ from zzz_od.application.notorious_hunt.notorious_hunt_config import NotoriousHun
 from zzz_od.auto_battle import auto_battle_utils
 from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.context.zzz_context import ZContext
+from zzz_od.operation.choose_predefined_team import ChoosePredefinedTeam
 from zzz_od.operation.zzz_operation import ZOperation
 
 
@@ -122,6 +123,15 @@ class NotoriousHunt(ZOperation):
         )
 
     @node_from(from_name='下一步')
+    @operation_node(name='选择预备编队')
+    def choose_predefined_team(self) -> OperationRoundResult:
+        if self.plan.predefined_team_idx == -1:
+            return self.round_success('无需选择预备编队')
+        else:
+            op = ChoosePredefinedTeam(self.ctx, self.plan.predefined_team_idx)
+            return self.round_by_op_result(op.execute())
+
+    @node_from(from_name='选择预备编队')
     @operation_node(name='出战')
     def click_start(self) -> OperationRoundResult:
         screen = self.screenshot()
@@ -134,7 +144,13 @@ class NotoriousHunt(ZOperation):
     @node_from(from_name='重新开始-确认')
     @operation_node(name='加载自动战斗指令')
     def init_auto_battle(self) -> OperationRoundResult:
-        return auto_battle_utils.load_auto_op(self, 'auto_battle', self.plan.auto_battle_config)
+        if self.plan.predefined_team_idx == -1:
+            auto_battle = self.plan.auto_battle_config
+        else:
+            team_list = self.ctx.team_config.team_list
+            auto_battle = team_list[self.plan.predefined_team_idx].auto_battle
+
+        return auto_battle_utils.load_auto_op(self, 'auto_battle', auto_battle)
 
     @node_from(from_name='加载自动战斗指令')
     @operation_node(name='等待战斗画面加载', node_max_retry_times=60)
@@ -376,7 +392,8 @@ def __debug():
         category_name='恶名狩猎',
         mission_type_name='冥宁芙·双子',
         level=NotoriousHuntLevelEnum.DEFAULT.value.value,
-        auto_battle_config='专属配队-简'
+        auto_battle_config='专属配队-简',
+        predefined_team_idx=0
     ))
     op.can_run_times = 1
     op.auto_op = None
