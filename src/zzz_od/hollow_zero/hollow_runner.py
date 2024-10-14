@@ -30,7 +30,7 @@ from zzz_od.hollow_zero.hollow_battle import HollowBattle
 from zzz_od.hollow_zero.hollow_exit_by_menu import HollowExitByMenu
 from zzz_od.hollow_zero.hollow_map.hollow_zero_map import HollowZeroMapNode, HollowZeroMap
 from zzz_od.operation.zzz_operation import ZOperation
-
+from one_dragon.utils.log_utils import log
 
 class HollowRunner(ZOperation):
 
@@ -151,6 +151,19 @@ class HollowRunner(ZOperation):
         :return:
         """
         next_to_move: HollowZeroMapNode = self.ctx.hollow.get_next_to_move(current_map)
+        log.info(f"前往目标 [{next_to_move.entry.entry_name}]")
+        # DEBUG 图片处理
+        if self.ctx.hollow._save_img:
+            self._save_debug_image(screen,True)
+            self.ctx.hollow._save_img = False
+            log.info(f"已保存地图信息")
+        # [速通] 等待下一次识别尝试
+        if self.ctx.hollow._only_boss_test_count == 1:
+            return self.round_wait(wait=1)
+        elif self.ctx.hollow._only_boss_test_count > 1:
+            self.ctx.hollow._only_boss_test_count = -1
+            return self.round_wait(wait=1)
+        
         pathfinding_success = next_to_move is not None and next_to_move.entry.entry_name != 'fake'
         if not pathfinding_success:
             self._save_debug_image(screen)
@@ -249,11 +262,11 @@ class HollowRunner(ZOperation):
 
         return False
 
-    def _save_debug_image(self, screen: MatLike) -> None:
+    def _save_debug_image(self, screen: MatLike,enforce:bool = False) -> None:
         """
         保存图片用于优化模型
         """
-        if not self.ctx.env_config.is_debug:
+        if  not ( self.ctx.env_config.is_debug or enforce ):
             return
         now = time.time()
         if now - self._last_save_image_time < 1:
