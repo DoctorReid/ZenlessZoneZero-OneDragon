@@ -53,16 +53,16 @@ coffee_list:
     tab_name: "训练"
     category_name: "实战模拟室"
     mission_type_name: "代理人技能"
-    mission_name: "冰洁测试"
+    mission_name: "冰结测试"
 
 
-  - coffee_name: "空泡魔咔"
+  - coffee_name: "空泡摩咔"
     tab_name: "训练"
     category_name: "实战模拟室"
     mission_type_name: "音擎改装"
     mission_name: "支援分频试验"
 
-  - coffee_name: "空泡魔咔（淡）"
+  - coffee_name: "空泡摩咔（淡）"
     tab_name: "训练"
     category_name: "实战模拟室"
     mission_type_name: "音擎改装"
@@ -81,19 +81,19 @@ coffee_list:
     mission_name: "防护演练"
 
 
-  - coffee_name: "月壤魔咔"
+  - coffee_name: "月壤摩咔"
     tab_name: "训练"
     category_name: "实战模拟室"
     mission_type_name: "音擎改装"
     mission_name: "强攻极片试验"
 
-  - coffee_name: "月壤魔咔（淡）"
+  - coffee_name: "月壤摩咔（淡）"
     tab_name: "训练"
     category_name: "实战模拟室"
     mission_type_name: "音擎改装"
     mission_name: "击破振膜试验"
 
-  - coffee_name: "月壤魔咔（浓）"
+  - coffee_name: "月壤摩咔（浓）"
     tab_name: "训练"
     category_name: "实战模拟室"
     mission_type_name: "音擎改装"
@@ -115,19 +115,19 @@ coffee_list:
 schedule:
   # 已验证 1, 4
   - days: [ 1, 4 ]
-    coffee_list: [ "红茶拿提", "麦草拿提（淡）", "空泡魔咔（淡）", "果泡拿提（淡）", "月壤魔咔", "汀曼特调" ]
+    coffee_list: [ "红茶拿提", "麦草拿提（淡）", "空泡摩咔（淡）", "果泡拿提（淡）", "月壤摩咔", "汀曼特调" ]
 
   # 已验证 2
   - days: [ 2 ]
-    coffee_list: [ "红茶拿提（淡）", "麦草拿提（浓）", "月壤魔咔（浓）", "红茶拿提（浓）", "月壤魔咔（淡）", "汀曼特调" ]
+    coffee_list: [ "红茶拿提（淡）", "麦草拿提（浓）", "月壤摩咔（浓）", "红茶拿提（浓）", "月壤摩咔（淡）", "汀曼特调" ]
 
   # 已验证 3, 6
   - days: [ 3, 6 ]
-    coffee_list: [ "果泡拿提", "胡椒拿提", "空泡魔咔", "麦草拿提", "胡椒拿提（淡）", "汀曼特调" ]
+    coffee_list: [ "果泡拿提", "胡椒拿提", "空泡摩咔", "麦草拿提", "胡椒拿提（淡）", "汀曼特调" ]
 
   # 已验证 5
   - days: [ 5 ]
-    coffee_list: [ "红茶拿提（淡）", "红茶拿提（浓）", "麦草拿提（浓）", "月壤魔咔（淡）", "月壤魔咔（浓）", "汀曼特调" ]
+    coffee_list: [ "红茶拿提（淡）", "红茶拿提（浓）", "麦草拿提（浓）", "月壤摩咔（淡）", "月壤摩咔（浓）", "汀曼特调" ]
 
   - days: [ 7 ]
-    coffee_list: [ "红茶拿提", "红茶拿提（淡）", "红茶拿提（浓）", "果泡拿提", "果泡拿提（淡）", "麦草拿提", "麦草拿提（淡）", "麦草拿提（浓）", "胡椒拿提", "胡椒拿提（淡）", "月壤魔咔", "月壤魔咔（淡）", "月壤魔咔（浓）", "空泡魔咔", "空泡魔咔（淡）", "汀曼特调" ]
+    coffee_list: [ "红茶拿提", "红茶拿提（淡）", "红茶拿提（浓）", "果泡拿提", "果泡拿提（淡）", "麦草拿提", "麦草拿提（淡）", "麦草拿提（浓）", "胡椒拿提", "胡椒拿提（淡）", "月壤摩咔", "月壤摩咔（淡）", "月壤摩咔（浓）", "空泡摩咔", "空泡摩咔（淡）", "汀曼特调" ]
