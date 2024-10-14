@@ -371,3 +371,12 @@ def get_special_event_by_name(event_name: str) -> Optional[HallowZeroEvent]:
         event = event_enum.value
         if event.event_name == event_name:
             return event
+
+def check_interact(ctx: ZContext, screen: MatLike) -> Optional[str]:
+    """
+    识别下方是否有提示交互的文本
+    @param ctx: 上下文
+    @param screen: 游戏画面
+    @return:
+    """
+    pass

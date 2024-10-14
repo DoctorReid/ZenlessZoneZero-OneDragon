@@ -1,0 +1,8 @@
+- entry_name: "以太露滴"
+  event_name: "以太露滴"
+  options:
+    - option_name: "制作为治疗喷雾"
+      desc: "回复全队25%生命值"
+    - option_name: "将以太露滴收集储存"
+      desc: "先收起来，后面可以应急"
+    - option_name: "直接离开"

@@ -78,7 +78,7 @@ class HollowRunner(ZOperation):
         self._entry_event_handlers: dict[str, Type] = {
             '邦布商人': BambooMerchant,
             '守门人': CriticalStage,
-            '门扉禁闭-善战': DoorBattle
+            '门扉禁闭-善战': DoorBattle,
         }
         self._entry_events: dict[str, List[str]] = {
             '邦布商人': [HollowZeroSpecialEvent.RESONIUM_STORE_5.value.event_name],
