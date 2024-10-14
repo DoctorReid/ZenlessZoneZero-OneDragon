@@ -8,7 +8,7 @@ from typing import List, Optional
 
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.geometry.rectangle import Rect
-from one_dragon.utils import cv2_utils, yolo_config_utils, str_utils
+from one_dragon.utils import cv2_utils, debug_utils, yolo_config_utils, str_utils
 from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import Agent, AgentEnum
@@ -40,6 +40,10 @@ class HollowContext:
         self._last_route: Optional[RouteSearchRoute] = None  # 上一次想走的路
         self._last_current_node: Optional[HollowZeroMapNode] = None  # 上一次当前所在的点
         self.speed_up_clicked: bool = False  # 是否已经点击加速
+
+        self._only_boss_test_count: int = 0 # 速通尝试次数
+        
+        self._save_img:bool = False # 是否保存图片
 
     def _match_agent_in(self, img: MatLike, possible_agents: Optional[List[Agent]] = None) -> Optional[Agent]:
         """
@@ -88,7 +92,6 @@ class HollowContext:
             return None
 
         current_map = hollow_map_utils.construct_map_from_yolo_result(result, self.data_service.name_2_entry)
-
         self.map_results.append(current_map)
         while len(self.map_results) > 0 and screenshot_time - self.map_results[0].check_time > 2:
             self.map_results.pop(0)
@@ -100,104 +103,144 @@ class HollowContext:
     def get_next_to_move(self, current_map: HollowZeroMap) -> Optional[HollowZeroMapNode]:
         """
         获取下一步的移动方向
-        :param current_map:
-        :return:
+        :param current_map: 当前地图对象
+        :return: 下一步需要前往的节点（如果没有则返回 None）
         """
+        # 如果当前索引为空，无法继续移动，返回 None
         if current_map.current_idx is None:
             return None
+    
+        
+        # 获取当前地图到各节点的路径信息
         idx_2_route = hollow_map_utils.search_map(current_map, self._get_avoid())
 
-        # 一步可达时前往
+        # 优先检查是否有一步就能到达的目标节点
         route = hollow_map_utils.get_route_in_1_step(idx_2_route, self._visited_nodes,
-                                                     target_entry_list=self._get_go_in_1_step())
+                                                    target_entry_list=self._get_go_in_1_step())
         if route is not None:
+            log.info(f"优先级 [一步]")
             return route.first_need_step_node
 
-        # 有一些优先要去的格子
+        # 查找优先要去的格子列表
         go_priority_list = self._get_waypoint()
 
         for to_go in go_priority_list:
+            # 查找前往优先目标的路径
             route = hollow_map_utils.get_route_by_entry(idx_2_route, to_go, self._visited_nodes)
             if route is None:
                 continue
 
-            # 两次想要前往同一个节点
+            # 如果上次尝试到达同一节点，且无法通行则跳过该节点
             if (self._last_route is not None
-                    and hollow_map_utils.is_same_node(self._last_route.node, route.node)
-            ):
+                    and hollow_map_utils.is_same_node(self._last_route.node, route.node)):
                 last_node = self._last_route.first_need_step_node
                 curr_node = route.first_need_step_node
+                # 如果当前和上次的第一个目标节点相同，并且节点为特定名称，代表无法通行，更新上下文后跳过
                 if (hollow_map_utils.is_same_node(last_node, curr_node)
                         and (
                                 curr_node.entry.entry_name in ['门扉禁闭-财富', '门扉禁闭-善战']
                                 or route.node.entry.entry_name in ['零号银行', '业绩考察点']
-                        )
-                ):
-                    # 代表上一次点了之后 这次依然要点同样的位置 也就是无法通行
+                        )):
                     self.update_context_after_move(route.node)
                     continue
 
+            # 更新上次路线，并返回当前目标
             self._last_route = route
+            log.info(f"优先级 [途径]")
             return route.first_need_step_node
 
-        # 是一定能走到的出口
+        # 针对速通的错误处理
+        if self.ctx.hollow_zero_challenge_config.path_finding == HollowZeroChallengePathFinding.ONLY_BOSS.value.value:
+            if current_map.search_entry("业绩考察点"):
+                route = hollow_map_utils.get_route_by_entry(idx_2_route,"业绩考察点", self._visited_nodes)
+                log.info(f"优先级 [速通]")
+                if route is None:
+                    if self._only_boss_test_count == -1:
+                        self._only_boss_test_count = 0
+                        pass
+                    elif self._only_boss_test_count in (0,1):
+                        info = ",".join([node.entry.entry_name for node in self._visited_nodes])
+                        self._only_boss_test_count += 1
+                        log.info(f"警告 第{self._only_boss_test_count}次尝试 寻路失败 已途径点信息如下 [{info}]")
+                        # 保存地图信息
+                        self._save_img = True
+                        # 清空途径点
+                        self._visited_nodes.clear()
+                        # 伪造一个虚拟节点并返回
+                        virtual_node = current_map.nodes[current_map.current_idx]
+                        local = virtual_node.pos.center
+                        fake_node = HollowZeroMapNode(
+                            pos=Rect(local.x, local.y, local.x, local.y),
+                            entry=HollowZeroEntry('0000-fake'),
+                        )
+                        return fake_node  
+                else:
+                    return route.first_need_step_node
+
+        # 处理必须前往的特殊节点
         must_go_list = [
-            '守门人',
-            '传送点',
-            '不宜久留'
+            '守门人',  # 守门人出口
+            '传送点',  # 传送点
+            '不宜久留'  # 特殊区域
         ]
 
         for to_go in must_go_list:
             route = hollow_map_utils.get_route_by_entry(idx_2_route, to_go, self._visited_nodes)
             if route is not None:
+                log.info(f"优先级 [特殊]")
                 return route.first_need_step_node
 
-            # 如果之前走过，但走不到 说明可能中间有格子识别错了 这种情况就一格一格地走
+            # 如果曾经到过这个节点，但现在走不到，则尝试逐步靠近
             route = hollow_map_utils.get_route_by_entry(idx_2_route, to_go, [])
             if route is not None:
+                log.info(f"优先级 [逼近]")
                 return route.first_node
 
-        # 没有匹配到特殊点的时候 按副本类型走特定方向
+        # 根据副本类型选择默认方向（如需特殊处理）
         direction = 'w'
         if self.level_info.level >= 2 and self.level_info.phase == 1:
-            direction = 'w'
+            direction = 'w'  # 默认向上
         elif self.level_info.mission_type_name == '施工废墟':
-            direction = 'd'
+            direction = 'd'  # 施工废墟默认向右
         elif self.level_info.mission_type_name == '巨厦遗骸':
-            direction = 'd'
+            direction = 'd'  # 巨厦遗骸默认向右
 
+        # 根据指定方向获取路径
         route = hollow_map_utils.get_route_by_direction(idx_2_route, direction)
         if route is not None:
+            log.info(f"优先级 [默认]")
             return route.first_need_step_node
 
-        # 兜底 走一步能到的
+        # 最后兜底：尝试找到一步能到的路径
         route = hollow_map_utils.get_route_in_1_step(idx_2_route, self._visited_nodes)
         if route is not None:
+            log.info(f"优先级 [兜底]")
             return route.first_need_step_node
 
-        # 最终兜底 随便移动一格
+        # 如果仍然没有找到，随机选择一个方向进行移动
         current_node = current_map.nodes[current_map.current_idx]
         if hollow_map_utils.is_same_node(self._last_current_node, current_node):
-            arr = ['w', 's', 'a', 'd']
-            arr.remove(direction)
-            direction = arr[random.randint(0, len(arr) - 1)]
+            arr = ['w', 's', 'a', 'd']  # 上下左右四个方向
+            arr.remove(direction)  # 移除当前方向
+            direction = arr[random.randint(0, len(arr) - 1)]  # 随机选择其他方向
         self._last_current_node = current_node
 
-        # 伪造一个节点前往
+        # 根据方向伪造一个节点前往
         if direction == 'w':
-            to_go = current_node.pos.center - Point(0, current_node.pos.height)
+            to_go = current_node.pos.center - Point(0, current_node.pos.height)  # 向上
         elif direction == 's':
-            to_go = current_node.pos.center + Point(0, current_node.pos.height)
+            to_go = current_node.pos.center + Point(0, current_node.pos.height)  # 向下
         elif direction == 'a':
-            to_go = current_node.pos.center - Point(current_node.pos.width, 0)
+            to_go = current_node.pos.center - Point(current_node.pos.width, 0)  # 向左
         else:
-            to_go = current_node.pos.center + Point(current_node.pos.width, 0)
+            to_go = current_node.pos.center + Point(current_node.pos.width, 0)  # 向右
 
+        # 创建一个虚拟节点并返回
         fake_node = HollowZeroMapNode(
             pos=Rect(to_go.x, to_go.y, to_go.x, to_go.y),
             entry=HollowZeroEntry('0000-fake'),
         )
-
+        log.info(f"优先级 [随机]")
         return fake_node
 
     def update_context_after_move(self, node: HollowZeroMapNode) -> None:
