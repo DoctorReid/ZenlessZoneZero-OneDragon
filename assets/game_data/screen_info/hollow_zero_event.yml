@@ -277,3 +277,14 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 交互可再次触发事件
+  pc_rect:
+  - 1004
+  - 884
+  - 1166
+  - 924
+  text: 可再次触发事件
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

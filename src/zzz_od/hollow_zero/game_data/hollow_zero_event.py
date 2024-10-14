@@ -99,3 +99,4 @@ class HollowZeroSpecialEvent(Enum):
     OLD_CAPITAL = HallowZeroEvent('旧都失物')
 
     DOOR_BATTLE_ENTRY = HallowZeroEvent('开门', on_the_right=True, is_entry_opt=True)
+    NEED_INTERACT = HallowZeroEvent('需要交互')
