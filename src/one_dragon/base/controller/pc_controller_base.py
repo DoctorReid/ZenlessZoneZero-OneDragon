@@ -45,6 +45,7 @@ class PcControllerBase(ControllerBase):
         self.sct = None
 
     def init_before_context_run(self) -> bool:
+        pyautogui.FAILSAFE = False  # 禁用 Fail-Safe,防止鼠标接近屏幕的边缘或角落时报错
         if self.sct is not None:  # 新一次app前 先关闭上一个
             try:
                 self.sct.close()
