@@ -363,6 +363,7 @@ class AutoBattleContext:
             self, screen: MatLike, screenshot_time: float,
             check_battle_end_normal_result: bool = False,
             check_battle_end_hollow_result: bool = False,
+            check_battle_end_defense_result: bool = False,
             check_distance: bool = False,
             sync: bool = False
     ) -> None:
@@ -388,11 +389,11 @@ class AutoBattleContext:
                 future_list.append(_battle_state_check_executor.submit(self._check_distance_with_lock, screen, screenshot_time))
         else:
             future_list.append(_battle_state_check_executor.submit(self.check_chain_attack, screen, screenshot_time))
-            check_battle_end = check_battle_end_normal_result or check_battle_end_hollow_result
+            check_battle_end = check_battle_end_normal_result or check_battle_end_hollow_result or check_battle_end_defense_result
             if check_battle_end:
                 future_list.append(_battle_state_check_executor.submit(
                     self._check_battle_end, screen, screenshot_time,
-                    check_battle_end_normal_result, check_battle_end_hollow_result
+                    check_battle_end_normal_result, check_battle_end_hollow_result, check_battle_end_defense_result
                 ))
         for future in future_list:
             future.add_done_callback(thread_utils.handle_future_result)
@@ -567,7 +568,8 @@ class AutoBattleContext:
 
     def _check_battle_end(self, screen: MatLike, screenshot_time: float,
                           check_battle_end_normal_result: bool,
-                          check_battle_end_hollow_result: bool) -> None:
+                          check_battle_end_hollow_result: bool,
+                          check_battle_end_defense_result: bool = False,) -> None:
         if not self._check_end_lock.acquire(blocking=False):
             return
 
@@ -600,6 +602,19 @@ class AutoBattleContext:
                                                 screen_name='零号空洞-战斗', area_name='结算周期上限-确认')
                 if result == FindAreaResultEnum.TRUE:
                     self.last_check_end_result = '零号空洞-结算周期上限'
+                    return
+
+            if check_battle_end_defense_result:
+                result = screen_utils.find_area(ctx=self.ctx, screen=screen,
+                                                screen_name='式舆防卫战', area_name='战斗结束-退出')
+                if result == FindAreaResultEnum.TRUE:
+                    self.last_check_end_result = '战斗结束-退出'
+                    return
+
+                result = screen_utils.find_area(ctx=self.ctx, screen=screen,
+                                                screen_name='式舆防卫战', area_name='战斗结束-撤退')
+                if result == FindAreaResultEnum.TRUE:
+                    self.last_check_end_result = '战斗结束-撤退'
                     return
 
             if check_battle_end_normal_result:

@@ -25,8 +25,8 @@ class AgentTypeEnum(Enum):
 class DmgTypeEnum(Enum):
 
     ELECTRIC = '电属性'
-    ETHER = '以太'
-    PHYSICAL = '物理'
+    ETHER = '以太属性'
+    PHYSICAL = '物理属性'
     FIRE = '火属性'
     ICE = '冰属性'
     UNKNOWN = '未知'
@@ -37,6 +37,15 @@ class DmgTypeEnum(Enum):
             return cls[name]
         else:
             return cls.UNKNOWN
+
+    @classmethod
+    def from_value(cls, value: str):
+        for name in DmgTypeEnum.__members__:
+            enum = cls[name]
+            if enum.value == value:
+                return enum
+
+        return cls.UNKNOWN
 
 
 class RareTypeEnum(Enum):

@@ -1,11 +1,13 @@
+import time
+
 import difflib
+from typing import List
 
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.matcher.match_result import MatchResultList
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
-from one_dragon.utils.cv2_utils import color_in_range
 from one_dragon.utils.i18_utils import gt
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.zzz_operation import ZOperation
@@ -13,14 +15,14 @@ from zzz_od.operation.zzz_operation import ZOperation
 
 class ChoosePredefinedTeam(ZOperation):
 
-    def __init__(self, ctx: ZContext, target_team_idx: int):
+    def __init__(self, ctx: ZContext, target_team_idx_list: List[int]):
         """
         在出战画面使用
         :param ctx:
         """
         ZOperation.__init__(self, ctx, op_name=gt('选择预备编队', 'ui'))
 
-        self.target_team_idx: int = target_team_idx
+        self.target_team_idx_list: List[int] = target_team_idx_list
 
     def handle_init(self):
         pass
@@ -55,26 +57,29 @@ class ChoosePredefinedTeam(ZOperation):
 
         team_list = self.ctx.team_config.team_list
 
-        if team_list is None or self.target_team_idx >= len(team_list):
-            return self.round_fail('选择的预备编队下标错误 %s' % self.target_team_idx)
+        for target_team_idx in self.target_team_idx_list:
+            if team_list is None or target_team_idx >= len(team_list):
+                return self.round_fail('选择的预备编队下标错误 %s' % target_team_idx)
 
-        target_team_name = team_list[self.target_team_idx].name
+            target_team_name = team_list[target_team_idx].name
 
-        ocr_map = self.ctx.ocr.run_ocr(screen)
-        target_list = list(ocr_map.keys())
-        best_match = difflib.get_close_matches(target_team_name, target_list, n=1)
+            ocr_map = self.ctx.ocr.run_ocr(screen)
+            target_list = list(ocr_map.keys())
+            best_match = difflib.get_close_matches(target_team_name, target_list, n=1)
 
-        if best_match is None or len(best_match) == 0:
-            return self.round_retry(wait=1)
+            if best_match is None or len(best_match) == 0:
+                return self.round_retry(wait=1)
 
-        ocr_result: MatchResultList = ocr_map.get(best_match[0], None)
-        if ocr_result is None or ocr_result.max is None:
-            return self.round_retry(wait=1)
+            ocr_result: MatchResultList = ocr_map.get(best_match[0], None)
+            if ocr_result is None or ocr_result.max is None:
+                return self.round_retry(wait=1)
 
-        to_click = ocr_result.max.center + Point(200, 0)
-        self.ctx.controller.click(to_click)
+            to_click = ocr_result.max.center + Point(200, 0)
+            self.ctx.controller.click(to_click)
 
-        return self.round_wait(wait=1)
+            time.sleep(1)
+
+        return self.round_wait()
 
     @node_from(from_name='选择编队')
     @operation_node(name='选择编队确认 ')
