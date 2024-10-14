@@ -44,7 +44,7 @@
               mission_name_display: "物理"
             - mission_name: "升温测试"
               mission_name_display: "火属性"
-            - mission_name: "冰洁测试"
+            - mission_name: "冰结测试"
               mission_name_display: "冰属性"
             - mission_name: "电流测试"
               mission_name_display: "电属性"
