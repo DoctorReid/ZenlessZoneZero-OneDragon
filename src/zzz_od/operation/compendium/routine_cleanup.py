@@ -135,7 +135,7 @@ class RoutineCleanup(ZOperation):
         if self.plan.predefined_team_idx == -1:
             return self.round_success('无需选择预备编队')
         else:
-            op = ChoosePredefinedTeam(self.ctx, self.plan.predefined_team_idx)
+            op = ChoosePredefinedTeam(self.ctx, [self.plan.predefined_team_idx])
             return self.round_by_op_result(op.execute())
 
     @node_from(from_name='选择预备编队')

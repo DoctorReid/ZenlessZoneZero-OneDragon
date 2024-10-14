@@ -1,0 +1,8 @@
+sub_dir: shiyu_defense
+template_id: node_01
+template_name: 式舆防卫战-节点01
+template_shape: circle
+auto_mask: true
+point_list:
+- 516, 569
+- 565, 569

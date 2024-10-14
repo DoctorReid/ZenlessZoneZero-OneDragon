@@ -1,6 +1,6 @@
 from PySide6.QtCore import QThread, Signal, Qt
 from PySide6.QtWidgets import QWidget, QTableWidgetItem
-from qfluentwidgets import TableWidget, PipsPager, FluentIcon, VBoxLayout
+from qfluentwidgets import TableWidget, PipsPager, FluentIcon, VBoxLayout, ToolButton
 from typing import Callable, List
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
@@ -74,14 +74,15 @@ class CodeInterface(VerticalScrollInterface):
         self.log_table.setBorderRadius(8)
 
         self.log_table.setWordWrap(True)
-        self.log_table.setColumnCount(4)
-        self.log_table.setColumnWidth(0, 100)
-        self.log_table.setColumnWidth(1, 150)
-        self.log_table.setColumnWidth(2, 200)
-        self.log_table.setColumnWidth(3, 400)
+        self.log_table.setColumnCount(5)
+        self.log_table.setColumnWidth(0, 50)
+        self.log_table.setColumnWidth(1, 100)
+        self.log_table.setColumnWidth(2, 150)
+        self.log_table.setColumnWidth(3, 200)
+        self.log_table.setColumnWidth(4, 400)
         self.log_table.verticalHeader().hide()
-        self.log_table.setDisabled(True)
         self.log_table.setHorizontalHeaderLabels([
+            gt('回滚', 'ui'),
             gt('ID', 'ui'),
             gt('作者', 'ui'),
             gt('时间', 'ui'),
@@ -168,10 +169,14 @@ class CodeInterface(VerticalScrollInterface):
         self.log_table.setRowCount(page_size)
 
         for i in range(page_size):
-            self.log_table.setItem(i, 0, QTableWidgetItem(log_list[i].commit_id))
-            self.log_table.setItem(i, 1, QTableWidgetItem(log_list[i].author))
-            self.log_table.setItem(i, 2, QTableWidgetItem(log_list[i].commit_time))
-            self.log_table.setItem(i, 3, QTableWidgetItem(log_list[i].commit_message))
+            reset_btn = ToolButton(FluentIcon.LEFT_ARROW, parent=None)
+            reset_btn.setProperty('commit', log_list[i].commit_id)
+            reset_btn.clicked.connect(self.on_reset_commit_clicked)
+            self.log_table.setCellWidget(i, 0, reset_btn)
+            self.log_table.setItem(i, 1, QTableWidgetItem(log_list[i].commit_id))
+            self.log_table.setItem(i, 2, QTableWidgetItem(log_list[i].author))
+            self.log_table.setItem(i, 3, QTableWidgetItem(log_list[i].commit_time))
+            self.log_table.setItem(i, 4, QTableWidgetItem(log_list[i].commit_message))
 
     def on_page_changed(self, page: int) -> None:
         """
@@ -211,3 +216,16 @@ class CodeInterface(VerticalScrollInterface):
 
     def _on_force_update_changed(self, value: bool) -> None:
         self.ctx.env_config.force_update = value
+
+    def on_reset_commit_clicked(self):
+        """
+        回滚到特定的commit
+        """
+        btn = self.sender()
+        commit_id = btn.property('commit')
+        success = self.ctx.git_service.reset_to_commit(commit_id)
+        if success:
+            self.code_card.updated = True
+            self.code_card.check_and_update_display()
+            self.page_num = -1
+            self.start_fetch_total()

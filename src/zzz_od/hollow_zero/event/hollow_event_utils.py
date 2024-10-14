@@ -321,6 +321,10 @@ def check_screen(ctx: ZContext, screen: MatLike, ignore_events: set[str]) -> Opt
     if full_in_bag is not None:
         return full_in_bag
 
+    need_interact = check_interact(ctx, screen)
+    if need_interact is not None:
+        return need_interact
+
     in_hollow = check_in_hollow(ctx, screen)
     if in_hollow is not None:
         return in_hollow
@@ -328,7 +332,6 @@ def check_screen(ctx: ZContext, screen: MatLike, ignore_events: set[str]) -> Opt
     old_capital = check_old_capital(ctx, screen)
     if old_capital is not None:
         return old_capital
-
 
 def check_battle_screen(ctx: ZContext, screen: MatLike) -> Optional[str]:
     result = screen_utils.find_area(ctx, screen, '战斗画面', '按键-普通攻击')
@@ -371,3 +374,15 @@ def get_special_event_by_name(event_name: str) -> Optional[HallowZeroEvent]:
         event = event_enum.value
         if event.event_name == event_name:
             return event
+
+def check_interact(ctx: ZContext, screen: MatLike) -> Optional[str]:
+    """
+    识别下方是否有提示交互的文本
+    @param ctx: 上下文
+    @param screen: 游戏画面
+    @return:
+    """
+    result = screen_utils.find_area(ctx=ctx, screen=screen,
+                                    screen_name='零号空洞-事件', area_name='交互可再次触发事件')
+    if result == FindAreaResultEnum.TRUE:
+        return HollowZeroSpecialEvent.NEED_INTERACT.value.event_name

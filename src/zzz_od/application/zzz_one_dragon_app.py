@@ -12,6 +12,7 @@ from zzz_od.application.notorious_hunt.notorious_hunt_app import NotoriousHuntAp
 from zzz_od.application.random_play.random_play_app import RandomPlayApp
 from zzz_od.application.redemption_code.redemption_code_app import RedemptionCodeApp
 from zzz_od.application.scratch_card.scratch_card_app import ScratchCardApp
+from zzz_od.application.shiyu_defense.shiyu_defense_app import ShiyuDefenseApp
 from zzz_od.application.weekly_schedule.weekly_schedule_app import WeeklyScheduleApp
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
@@ -43,6 +44,7 @@ class ZOneDragonApp(OneDragonApp, ZApplication):
             NotoriousHuntApp(self.ctx),
             EngagementRewardApp(self.ctx),
             HollowZeroApp(self.ctx),
+            ShiyuDefenseApp(self.ctx),
             CityFundApp(self.ctx),
             LifeOnLineApp(self.ctx),
         ]

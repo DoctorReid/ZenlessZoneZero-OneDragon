@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from one_dragon.base.config.yaml_config import YamlConfig
 
@@ -51,3 +51,13 @@ class TeamConfig(YamlConfig):
         ]
 
         self.update('team_list', data_team_list)
+
+    def get_team_by_idx(self, team_idx: int) -> Optional[PredefinedTeamInfo]:
+        """
+        根据下标获取预备配队
+        @param team_idx:
+        @return:
+        """
+        for team in self.team_list:
+            if team.idx == team_idx:
+                return team

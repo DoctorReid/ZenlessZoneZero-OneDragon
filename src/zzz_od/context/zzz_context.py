@@ -136,3 +136,8 @@ class ZContext(OneDragonContext):
         from zzz_od.application.weekly_schedule.weekly_schedule_run_record import WeeklyScheduleRunRecord
         self.weekly_schedule_record: WeeklyScheduleRunRecord = WeeklyScheduleRunRecord(self.current_instance_idx, game_refresh_hour_offset)
         self.weekly_schedule_record.check_and_update_status()
+
+        from zzz_od.application.shiyu_defense.shiyu_defense_run_record import ShiyuDefenseRunRecord
+        self.shiyu_defense_record: ShiyuDefenseRunRecord = ShiyuDefenseRunRecord(self.current_instance_idx, game_refresh_hour_offset)
+        from zzz_od.application.shiyu_defense.shiyu_defense_config import ShiyuDefenseConfig
+        self.shiyu_defense_config: ShiyuDefenseConfig = ShiyuDefenseConfig(self.current_instance_idx)

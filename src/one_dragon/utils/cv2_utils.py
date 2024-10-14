@@ -130,6 +130,7 @@ def match_template(source: MatLike, template: MatLike, threshold,
     """
     tx, ty = template.shape[1], template.shape[0]
     # 进行模板匹配
+    # show_image(source, win_name='source')
     # show_image(template, win_name='template')
     # show_image(mask, win_name='mask')
     result = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED, mask=mask)

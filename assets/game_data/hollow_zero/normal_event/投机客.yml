@@ -9,6 +9,15 @@
     - option_name: "借888齿轮硬币"
     - option_name: "不需要借款"
 
+    - option_name: "超级物资"
+      desc: "获得2枚已催化S级鸣徽"
+
+    - option_name: "侵蚀钱袋"
+      desc: "承受2个侵蚀症状，获得7000齿轮硬币"
+
+    - option_name: "物资大礼包"
+      desc: "获得4枚鸣徽"
+
     - option_name: "消费返利"
       desc: "获得齿轮硬币"
 
