@@ -37,4 +37,18 @@ def set_log_level(level: int) -> None:
         handler.setLevel(level)
 
 
+def mask_text(text: str) -> str:
+    """
+    对给定的文本进行脱敏处理，保留首尾部分字符，其余用 * 替换。
+    如果字符数少于5个，则只保留首字符不脱敏。
+
+    :param text: 需要脱敏的文本
+    :return: 脱敏后的文本
+    """
+    if len(text) < 5:
+        return text[0] + '*' * (len(text) - 1)
+    else:
+        return text[:2] + '*' * (len(text) - 4) + text[-2:]
+
+
 log = get_logger()
