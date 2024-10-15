@@ -55,6 +55,7 @@ class LifeOnLineRunInterface(AppRunInterface):
         AppRunInterface.on_interface_shown(self)
 
         self.daily_plan_times_opt.init_with_adapter(self.ctx.life_on_line_config.daily_plan_times_adapter)
+        self.daily_plan_times_opt.setContent('完成次数 当日: %d' % self.ctx.life_on_line_record.daily_run_times)
 
         config_list = ([ConfigItem('游戏内配队', -1)] +
                        [ConfigItem(team.name, team.idx) for team in self.ctx.team_config.team_list])
