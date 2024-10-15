@@ -9,6 +9,7 @@ from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.key_setting_card import KeySettingCard
+from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
@@ -55,6 +56,12 @@ class SettingGameInterface(VerticalScrollInterface):
         self.game_password_opt = TextSettingCard(icon=FluentIcon.EXPRESSIVE_INPUT_ENTRY, title='密码',
                                                  content='放心不会盗你的号 异地登陆需要验证')
         basic_group.addSettingCard(self.game_password_opt)
+
+        self.game_enter_clipboard_opt = SwitchSettingCard(
+            icon=FluentIcon.CODE, title='启用剪切板输入',
+            content='启用剪切板输入账号密码，能避免中文输入法导致的切换账号失败，但会造成密码泄露风险（虽然在输入后会自动清空，但仍有被其他软件截取的风险）'
+        )
+        basic_group.addSettingCard(self.game_enter_clipboard_opt)
 
         return basic_group
 
@@ -274,6 +281,7 @@ class SettingGameInterface(VerticalScrollInterface):
         self.game_region_opt.value_changed.disconnect(self._on_game_region_changed)
         self.game_account_opt.value_changed.disconnect(self._on_game_account_changed)
         self.game_password_opt.value_changed.disconnect(self._on_game_password_changed)
+        self.game_enter_clipboard_opt.value_changed.disconnect(self._on_game_enter_clipboard_changed)
 
         game_region = get_config_item_from_enum(GameRegionEnum, self.ctx.game_config.game_region)
         if game_region is not None:
@@ -281,6 +289,7 @@ class SettingGameInterface(VerticalScrollInterface):
         self.game_path_opt.setContent(self.ctx.game_config.game_path)
         self.game_account_opt.setValue(self.ctx.game_config.account)
         self.game_password_opt.setValue(self.ctx.game_config.password)
+        self.game_enter_clipboard_opt.setValue(self.ctx.game_config.enter_clipboard)
 
         self.key_normal_attack_opt.setValue(self.ctx.game_config.key_normal_attack)
         self.key_dodge_opt.setValue(self.ctx.game_config.key_dodge)
@@ -303,6 +312,7 @@ class SettingGameInterface(VerticalScrollInterface):
         self.game_region_opt.value_changed.connect(self._on_game_region_changed)
         self.game_account_opt.value_changed.connect(self._on_game_account_changed)
         self.game_password_opt.value_changed.connect(self._on_game_password_changed)
+        self.game_enter_clipboard_opt.value_changed.connect(self._on_game_enter_clipboard_changed)
 
     def _update_gamepad_part(self) -> None:
         """
@@ -402,6 +412,9 @@ class SettingGameInterface(VerticalScrollInterface):
 
     def _on_game_password_changed(self, value: str) -> None:
         self.ctx.game_config.password = value
+
+    def _on_game_enter_clipboard_changed(self, value: str) -> None:
+        self.ctx.game_config.enter_clipboard = value
 
     def _on_key_normal_attack_changed(self, key: str) -> None:
         self.ctx.game_config.key_normal_attack = key
