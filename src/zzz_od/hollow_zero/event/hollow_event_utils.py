@@ -321,9 +321,10 @@ def check_screen(ctx: ZContext, screen: MatLike, ignore_events: set[str]) -> Opt
     if full_in_bag is not None:
         return full_in_bag
 
-    need_interact = check_interact(ctx, screen)
-    if need_interact is not None:
-        return need_interact
+    # 零号银行 不宜久留 会触发这个，启用的话会卡死在银行
+    # need_interact = check_interact(ctx, screen)
+    # if need_interact is not None:
+    #     return need_interact
 
     in_hollow = check_in_hollow(ctx, screen)
     if in_hollow is not None:

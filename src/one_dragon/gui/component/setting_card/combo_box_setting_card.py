@@ -116,12 +116,15 @@ class ComboBoxSettingCard(SettingCardBase):
             self.combo_box.addItem(opt_item.ui_text, userData=opt_item.value)
         self.combo_box.blockSignals(False)
 
-    def init_with_adapter(self, adapter: YamlConfigAdapter) -> None:
+    def init_with_adapter(self, adapter: Optional[YamlConfigAdapter]) -> None:
         """
         初始化值
         """
         self.adapter = adapter
-        self.setValue(self.adapter.get_value(), emit_signal=False)
+        if self.adapter is None:
+            self.setValue(None, emit_signal=False)
+        else:
+            self.setValue(self.adapter.get_value(), emit_signal=False)
 
     def _on_index_changed(self, index: int) -> None:
         """
@@ -163,12 +166,18 @@ class ComboBoxSettingCard(SettingCardBase):
         """
         if not emit_signal:
             self.combo_box.blockSignals(True)
-        for idx, item in enumerate(self.combo_box.items):
-            if item.userData == value:
-                self.last_index = idx
-                self.combo_box.setCurrentIndex(idx)
-                self._update_desc()
-                break
+
+        if value is None:
+            self.last_index = -1
+            self.combo_box.setCurrentIndex(-1)
+            self._update_desc()
+        else:
+            for idx, item in enumerate(self.combo_box.items):
+                if item.userData == value:
+                    self.last_index = idx
+                    self.combo_box.setCurrentIndex(idx)
+                    self._update_desc()
+                    break
         if not emit_signal:
             self.combo_box.blockSignals(False)
 

@@ -19,6 +19,7 @@ from zzz_od.hollow_zero.event.door_battle import DoorBattle
 from zzz_od.hollow_zero.event.drop_resonium import DropResonium, DropResonium2
 from zzz_od.hollow_zero.event.full_in_bag import FullInBag
 from zzz_od.hollow_zero.event.hollow_interact import HollowInteract
+from zzz_od.hollow_zero.event.leave_random_zone import LeaveRandomZone
 from zzz_od.hollow_zero.event.normal_event_handler import NormalEventHandler
 from zzz_od.hollow_zero.event.old_capital import OldCapital
 from zzz_od.hollow_zero.event.remove_corruption import RemoveCorruption
@@ -73,7 +74,7 @@ class HollowRunner(ZOperation):
             HollowZeroSpecialEvent.OLD_CAPITAL.value.event_name: OldCapital,
 
             HollowZeroSpecialEvent.DOOR_BATTLE_ENTRY.value.event_name: DoorBattle,
-            HollowZeroSpecialEvent.NEED_INTERACT.value.event_name: HollowInteract,
+            # HollowZeroSpecialEvent.NEED_INTERACT.value.event_name: HollowInteract,
         }
 
         # 部分格子有一个选项作为入口
@@ -81,6 +82,7 @@ class HollowRunner(ZOperation):
             '邦布商人': BambooMerchant,
             '守门人': CriticalStage,
             '门扉禁闭-善战': DoorBattle,
+            '不宜久留': LeaveRandomZone
         }
         self._entry_events: dict[str, List[str]] = {
             '邦布商人': [HollowZeroSpecialEvent.RESONIUM_STORE_5.value.event_name],
