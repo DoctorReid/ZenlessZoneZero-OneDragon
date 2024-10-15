@@ -220,6 +220,8 @@ class HollowRunner(ZOperation):
 
         # 判断是否到达层数退出
         extra_exit_by_level: bool = False
+        if current_map.contains_entry('业绩考察点空'):
+            self.ctx.hollow_zero_record.no_eval_point = True
         if self.ctx.hollow_zero_config.extra_exit == HollowZeroExtraExitEnum.LEVEL_2_EVA.value.value:
             if level_info.level > 2 or (level_info.level == 2 and level_info.phase > 1):  # 已经过了指定的楼层
                 extra_exit_by_level = True
@@ -227,14 +229,12 @@ class HollowRunner(ZOperation):
                 if self.ctx.hollow.had_been_entry('业绩考察点') and not current_map.contains_entry('业绩考察点'):
                     extra_exit_by_level = True
                 if current_map.contains_entry('业绩考察点空'):
-                    self.ctx.hollow_zero_record.no_eval_point = True
                     extra_exit_by_level = True
         elif self.ctx.hollow_zero_config.extra_exit == HollowZeroExtraExitEnum.LEVEL_3_EVA.value.value:
             if level_info.level == 3 and level_info.phase == 1:
                 if self.ctx.hollow.had_been_entry('业绩考察点') and not current_map.contains_entry('业绩考察点'):
                     extra_exit_by_level = True
                 if current_map.contains_entry('业绩考察点空'):
-                    self.ctx.hollow_zero_record.no_eval_point = True
                     extra_exit_by_level = True
 
         if self.ctx.hollow_zero_config.extra_task == HollowZeroExtraTask.EVA_POINT.value.value:

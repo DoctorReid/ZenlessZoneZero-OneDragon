@@ -79,6 +79,12 @@ class HollowContext:
         self._event_model.run_result_history.clear()
 
     def check_current_map(self, screen: MatLike, screenshot_time: float) -> Optional[HollowZeroMap]:
+        """
+        识别地图信息
+        :param screen: 游戏画面
+        :param screenshot_time: 截图时间
+        :return:
+        """
         if self._event_model is None:
             return None
         result = self._event_model.run(screen, run_time=screenshot_time)
@@ -89,23 +95,25 @@ class HollowContext:
 
         current_map = hollow_map_utils.construct_map_from_yolo_result(result, self.data_service.name_2_entry)
 
+        # 仅保留最近2秒的地图识别结果
         self.map_results.append(current_map)
         while len(self.map_results) > 0 and screenshot_time - self.map_results[0].check_time > 2:
             self.map_results.pop(0)
 
+        # 将多帧画面识别到的地图进行合并 可以互相补充识别不到的内容
         merge_map = hollow_map_utils.merge_map(self.map_results)
 
         return merge_map
 
     def get_next_to_move(self, current_map: HollowZeroMap) -> Optional[HollowZeroMapNode]:
         """
-        获取下一步的移动方向
+        获取下一步的需要点击的节点
         :param current_map:
         :return:
         """
         if current_map.current_idx is None:
             return None
-        idx_2_route = hollow_map_utils.search_map(current_map, self._get_avoid())
+        idx_2_route = hollow_map_utils.search_map(current_map, set(self._get_avoid()))
 
         # 一步可达时前往
         route = hollow_map_utils.get_route_in_1_step(idx_2_route, self._visited_nodes,
