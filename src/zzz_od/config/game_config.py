@@ -76,14 +76,6 @@ class GameConfig(YamlConfig):
         self.update('password', new_value)
 
     @property
-    def enter_clipboard(self) -> bool:
-        return self.get('enter_clipboard', False)
-
-    @enter_clipboard.setter
-    def enter_clipboard(self, new_value: bool) -> None:
-        self.update('enter_clipboard', new_value)
-
-    @property
     def game_region(self) -> str:
         return self.get('game_region', GameRegionEnum.CN.value.value)
 
