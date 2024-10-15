@@ -33,7 +33,7 @@ class LifeOnLineApp(ZApplication):
         )
         self.run_record: LifeOnLineRunRecord = ctx.life_on_line_record
         self.is_over_night: bool = False  # 本次结束是否过夜了
-
+        self.chosen_team: bool = False  # 是否已经选择过配队了
 
     @node_from(from_name='检查运行次数', status=STATUS_CONTINUE_OVER_NIGHT)
     @operation_node(name='传送', is_start_node=True)
@@ -64,12 +64,17 @@ class LifeOnLineApp(ZApplication):
     @node_from(from_name='检查运行次数', status=STATUS_CONTINUE)
     @operation_node(name='进入副本')
     def enter_mission(self) -> OperationRoundResult:
-        op = EnterHddMission(self.ctx, '第二章间章', '战斗委托', '作战真拿命验收')
+        target_team_idx: int = self.ctx.life_on_line_config.predefined_team_idx
+        if self.chosen_team:  # 只需要选1次
+            target_team_idx = -1
+        op = EnterHddMission(self.ctx, '第二章间章', '战斗委托', '作战真拿命验收',
+                             target_team_idx)
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='进入副本')
     @operation_node(name='等待战斗画面加载', node_max_retry_times=60)
     def wait_battle_screen(self) -> OperationRoundResult:
+        self.chosen_team = True
         screen = self.screenshot()
         return self.round_by_find_area(screen, '战斗画面', '按键-普通攻击',
                                        retry_wait=0.5)

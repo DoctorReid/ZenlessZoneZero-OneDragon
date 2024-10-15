@@ -2,8 +2,10 @@ from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, HyperlinkCard
 from typing import Optional
 
+from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.operation.application_base import Application
 from one_dragon.gui.component.column_widget import ColumnWidget
+from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.gui.view.app_run_interface import AppRunInterface
 from zzz_od.application.life_on_line.life_on_line_app import LifeOnLineApp
@@ -41,20 +43,23 @@ class LifeOnLineRunInterface(AppRunInterface):
         )
         content.add_widget(self.daily_plan_times_opt)
 
+        self.team_opt = ComboBoxSettingCard(
+            icon=FluentIcon.PEOPLE,
+            title='预备编队',
+        )
+        content.add_widget(self.team_opt)
+
         return content
 
     def on_interface_shown(self) -> None:
         AppRunInterface.on_interface_shown(self)
 
-        self.daily_plan_times_opt.setValue(str(self.ctx.life_on_line_config.daily_plan_times))
-        self.daily_plan_times_opt.value_changed.connect(self._on_daily_plan_times_changed)
+        self.daily_plan_times_opt.init_with_adapter(self.ctx.life_on_line_config.daily_plan_times_adapter)
 
-    def on_interface_hidden(self) -> None:
-        AppRunInterface.on_interface_hidden(self)
-        self.daily_plan_times_opt.value_changed.disconnect(self._on_daily_plan_times_changed)
-
-    def _on_daily_plan_times_changed(self, value: str) -> None:
-        self.ctx.life_on_line_config.daily_plan_times = int(value)
+        config_list = ([ConfigItem('游戏内配队', -1)] +
+                       [ConfigItem(team.name, team.idx) for team in self.ctx.team_config.team_list])
+        self.team_opt.set_options_by_list(config_list)
+        self.team_opt.init_with_adapter(self.ctx.life_on_line_config.predefined_team_idx_adapter)
 
     def get_app(self) -> Application:
         return LifeOnLineApp(self.ctx)

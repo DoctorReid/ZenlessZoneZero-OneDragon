@@ -1,6 +1,7 @@
 from typing import Optional
 
 from one_dragon.base.config.yaml_config import YamlConfig
+from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
 
 
 class LifeOnLineConfig(YamlConfig):
@@ -19,3 +20,24 @@ class LifeOnLineConfig(YamlConfig):
     @daily_plan_times.setter
     def daily_plan_times(self, new_value: int) -> None:
         self.update('daily_plan_times', new_value)
+
+    @property
+    def daily_plan_times_adapter(self) -> YamlConfigAdapter:
+        return YamlConfigAdapter(self, 'daily_plan_times', 20, 'str', 'int')
+
+    @property
+    def predefined_team_idx(self) -> int:
+        """
+        预备编队
+        -1 = 游戏内配队
+        :return:
+        """
+        return self.get('predefined_team_idx', -1)
+
+    @predefined_team_idx.setter
+    def predefined_team_idx(self, new_value: int) -> None:
+        self.update('predefined_team_idx', new_value)
+
+    @property
+    def predefined_team_idx_adapter(self) -> YamlConfigAdapter:
+        return YamlConfigAdapter(self, 'predefined_team_idx', -1)

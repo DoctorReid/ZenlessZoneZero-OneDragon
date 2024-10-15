@@ -4,6 +4,7 @@ from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils.i18_utils import gt
 from zzz_od.context.zzz_context import ZContext
+from zzz_od.operation.choose_predefined_team import ChoosePredefinedTeam
 from zzz_od.operation.zzz_operation import ZOperation
 
 
@@ -12,7 +13,8 @@ class EnterHddMission(ZOperation):
     def __init__(self, ctx: ZContext,
                  chapter: str,
                  mission_type: str,
-                 mission_name: str):
+                 mission_name: str,
+                 predefined_team_idx: int = -1):
         """
         需要刚进来HDD画面时使用
         :param ctx:
@@ -22,6 +24,7 @@ class EnterHddMission(ZOperation):
         self.chapter: str = chapter
         self.mission_type: str = mission_type
         self.mission_name: str = mission_name
+        self.predefined_team_idx = predefined_team_idx  # 预备编队下标 -1代表不选择
 
     def handle_init(self):
         pass
@@ -90,6 +93,15 @@ class EnterHddMission(ZOperation):
                                                  success_wait=2, retry_wait=1)
 
     @node_from(from_name='下一步')
+    @operation_node(name='选择预备编队')
+    def choose_predefined_team(self) -> OperationRoundResult:
+        if self.predefined_team_idx == -1:
+            return self.round_success('无需选择预备编队')
+        else:
+            op = ChoosePredefinedTeam(self.ctx, [self.predefined_team_idx])
+            return self.round_by_op_result(op.execute())
+
+    @node_from(from_name='选择预备编队')
     @operation_node(name='出战')
     def click_deploy(self) -> OperationRoundResult:
         screen = self.screenshot()
