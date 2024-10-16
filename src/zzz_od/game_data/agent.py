@@ -202,3 +202,8 @@ class AgentEnum(Enum):
                                                template_id='seth_lowell', lower_color=0, upper_color=10)])
 
     CAESAR_KING = Agent('caesar_king', '凯撒', RareTypeEnum.S, AgentTypeEnum.DEFENSE, DmgTypeEnum.PHYSICAL)
+
+    BURNICE_WHITE = Agent('burnice_white', '柏妮思', RareTypeEnum.S, AgentTypeEnum.ANOMALY, DmgTypeEnum.FIRE,
+                          state_list=[AgentStateDef('柏妮思-燃点', AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH,
+                                                    'burnice_white', lower_color=(100, 50, 0), upper_color=(255, 255, 255))
+                                      ])

@@ -236,6 +236,7 @@ class CallForSupport(ZOperation):
             RejectOption('这点小事不用专家出马'),  # 简
             RejectOption('下一次一起玩'),  # 猫又
             RejectOption('谢谢露西但我能搞定'),  # 露西
+            RejectOption('之后有机会再一起玩吧'),  # 柏妮思
         ]
 
         part = cv2_utils.crop_image_only(screen, area.rect)

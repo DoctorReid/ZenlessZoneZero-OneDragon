@@ -1,0 +1,8 @@
+sub_dir: agent_state
+template_id: burnice_white_3_1
+template_name: 角色状态-柏妮思-31
+template_shape: rectangle
+auto_mask: true
+point_list:
+- 136, 119
+- 224, 120
