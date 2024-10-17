@@ -27,7 +27,7 @@ def check_event_at_right(ctx: ZContext, screen: MatLike, ignore_events: set[str]
     """
     area = get_event_text_area(ctx)
     part = cv2_utils.crop_image_only(screen, area.rect)
-    white = cv2.inRange(part, (240, 240, 240), (255, 255, 255))
+    white = cv2.inRange(part, (230, 230, 230), (255, 255, 255))
     white = cv2_utils.dilate(white, 5)
     to_ocr = cv2.bitwise_and(part, part, mask=white)
     ocr_result_map = ctx.ocr.run_ocr(to_ocr)
@@ -74,7 +74,7 @@ def check_entry_opt_at_right(ctx: ZContext, screen: MatLike, ignore_events: set[
     """
     area = ctx.screen_loader.get_area('零号空洞-事件', '格子入口选项')
     part = cv2_utils.crop_image_only(screen, area.rect)
-    white = cv2.inRange(part, (240, 240, 240), (255, 255, 255))
+    white = cv2.inRange(part, (230, 230, 230), (255, 255, 255))
     white = cv2_utils.dilate(white, 5)
     to_ocr = cv2.bitwise_and(part, part, mask=white)
     ocr_result_map = ctx.ocr.run_ocr(to_ocr)
@@ -115,7 +115,7 @@ def check_event_text_and_run(op: ZOperation, screen: MatLike, handlers: List[Eve
     """
     area = get_event_text_area(op.ctx)
     part = cv2_utils.crop_image_only(screen, area.rect)
-    white = cv2.inRange(part, (240, 240, 240), (255, 255, 255))
+    white = cv2.inRange(part, (230, 230, 230), (255, 255, 255))
     white = cv2_utils.dilate(white, 5)
     to_ocr = cv2.bitwise_and(part, part, mask=white)
 
