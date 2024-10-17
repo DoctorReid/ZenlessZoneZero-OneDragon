@@ -6,7 +6,7 @@ from one_dragon.base.geometry.rectangle import Rect
 from one_dragon.utils import cal_utils
 from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroEntry
 from zzz_od.hollow_zero.hollow_map.hollow_zero_map import HollowZeroMap, HollowZeroMapNode
-from zzz_od.yolo.detect_utils import DetectFrameResult
+from one_dragon.yolo.detect_utils import DetectFrameResult
 
 
 def construct_map_from_yolo_result(detect_result: DetectFrameResult, name_2_entry: dict[str, HollowZeroEntry]) -> HollowZeroMap:

@@ -434,7 +434,7 @@ def __debug_draw_detect():
 
     ctx.hollow.init_event_yolo()
     result = ctx.hollow._event_model.run(img)
-    from zzz_od.yolo import detect_utils
+    from one_dragon.yolo import detect_utils
     result_img = detect_utils.draw_detections(result)
     cv2_utils.show_image(result_img, wait=0)
     cv2.destroyAllWindows()
@@ -448,7 +448,7 @@ def __debug_get_map():
 
     from one_dragon.utils import debug_utils
     img_list = [
-        '_1729006241545',
+        '1',
     ]
     for i in img_list:
         img = debug_utils.get_debug_image(i)

@@ -10,8 +10,8 @@ from one_dragon.utils import os_utils
 from one_dragon.utils.log_utils import log
 from one_dragon.utils.performance_recorder import record_performance
 from zzz_od.config.yolo_config import ZZZ_MODEL_DOWNLOAD_URL
-from zzz_od.yolo import onnx_utils
-from zzz_od.yolo.onnx_model_loader import OnnxModelLoader
+from one_dragon.yolo import onnx_utils
+from one_dragon.yolo.onnx_model_loader import OnnxModelLoader
 
 
 class RunContext:

@@ -11,7 +11,7 @@ from one_dragon.utils import yolo_config_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from one_dragon.utils.yolo_config_utils import is_model_existed
-from zzz_od.yolo.onnx_model_loader import OnnxModelLoader
+from one_dragon.yolo.onnx_model_loader import OnnxModelLoader
 
 
 class DownloadRunner(QThread):
