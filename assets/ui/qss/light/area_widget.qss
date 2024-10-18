@@ -1,0 +1,5 @@
+#areaWidget {
+    border-top: none;
+    border-top-left-radius: 0px;
+    background-color: rgb(235,235,235)
+}

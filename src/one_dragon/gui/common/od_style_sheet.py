@@ -18,6 +18,7 @@ class OdStyleSheet(StyleSheetBase, Enum):
     STACKED_WIDGET = "stacked_widget"
     TITLE_BAR = "title_bar"
     NAVIGATION_INTERFACE = "navigation_interface"
+    AREA_WIDGET = "area_widget"
 
     def path(self, theme=Theme.AUTO):
             theme = qconfig.theme if theme == Theme.AUTO else theme

@@ -55,13 +55,14 @@ try:
 
             # 布局样式调整
             self.hBoxLayout.setContentsMargins(0, 0, 0, 0)
-            self.stackedWidget.setContentsMargins(0, 28, 0, 0)
-            self.navigationInterface.setContentsMargins(0, 28, 0, 0)
+            self.areaLayout.setContentsMargins(0, 32, 0, 0)
+            self.navigationInterface.setContentsMargins(0, 0, 0, 0)
 
             # 配置样式
             OdStyleSheet.APP_WINDOW.apply(self)
             OdStyleSheet.NAVIGATION_INTERFACE.apply(self.navigationInterface)
             OdStyleSheet.STACKED_WIDGET.apply(self.stackedWidget)
+            OdStyleSheet.AREA_WIDGET.apply(self.areaWidget)
             OdStyleSheet.TITLE_BAR.apply(self.titleBar)
 
             # DEBUG
