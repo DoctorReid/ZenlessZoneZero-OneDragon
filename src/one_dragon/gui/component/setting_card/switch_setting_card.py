@@ -3,6 +3,7 @@ from PySide6.QtGui import QIcon, Qt
 from qfluentwidgets import FluentIconBase, SwitchButton, IndicatorPosition
 from typing import Union, Optional
 
+from one_dragon.gui.component.layout_utils import IconSize, Margins
 from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
 from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
 from one_dragon.utils.i18_utils import gt
@@ -12,9 +13,14 @@ class SwitchSettingCard(SettingCardBase):
 
     value_changed = Signal(bool)
 
-    def __init__(self, icon: Union[str, QIcon, FluentIconBase], title, content=None, parent=None,
-                 on_text_cn: str = '开', off_text_cn: str = '关',
-                 adapter: Optional[YamlConfigAdapter] = None):
+    def __init__(self, 
+                 title, 
+                icon: Union[str, QIcon, FluentIconBase], 
+                iconSize: IconSize = IconSize(16, 16),
+                margins: Margins = Margins(16, 16, 0, 16),
+                content=None, parent=None,
+                on_text_cn: str = '开', off_text_cn: str = '关',
+                adapter: Optional[YamlConfigAdapter] = None):
         """
         复制原 SwitchSettingCard
         封装了些多语言
@@ -25,7 +31,7 @@ class SwitchSettingCard(SettingCardBase):
         :param parent: 组件的parent
         :param adapter: 配置适配器 自动更新对应配置文件
         """
-        SettingCardBase.__init__(self, icon, title, content, parent=parent)
+        SettingCardBase.__init__(self,title,icon,iconSize,margins,content, parent=parent)
         self.adapter: YamlConfigAdapter = adapter
 
         self.on_text_cn: str = on_text_cn

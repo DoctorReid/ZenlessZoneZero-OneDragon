@@ -210,20 +210,20 @@ class HomeInterface(VerticalScrollInterface):
         content_widget = QWidget()
         content_layout = QVBoxLayout(content_widget)
 
-        content_layout.setContentsMargins(0, 0, 0, 36)  # 设置内容的边距
-        content_layout.setSpacing(40)  # 设置内容的间距
-        content_layout.setAlignment(Qt.AlignmentFlag.AlignTop)  # 设置内容对齐方式
+        content_layout.setContentsMargins(0, 0, 0, 8)
+        content_layout.setSpacing(8)
+        content_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         # 创建横幅小部件并添加到布局中
         banner = BannerWidget()
         content_layout.addWidget(banner)
-        
+
         # 初始化父类并设置导航相关属性
         VerticalScrollInterface.__init__(
             self,
             parent=parent,
             content_widget=content_widget, object_name='home_interface',
-            nav_text_cn='主页', nav_icon=FluentIcon.HOME
+            nav_text_cn='仪表盘', nav_icon=FluentIcon.HOME
         )
         self.ctx: ZContext = ctx
 
