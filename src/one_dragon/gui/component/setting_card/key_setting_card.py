@@ -4,6 +4,7 @@ from qfluentwidgets import SettingCard, FluentIconBase, PushButton
 from typing import Union, Optional
 
 from one_dragon.base.controller.pc_button.pc_button_listener import PcButtonListener
+from one_dragon.gui.component.layout_utils import IconSize, Margins
 from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
 from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
 from one_dragon.utils.i18_utils import gt
@@ -26,10 +27,13 @@ class KeySettingCard(SettingCardBase):
 
     value_changed = Signal(str)
 
-    def __init__(self, icon: Union[str, QIcon, FluentIconBase], title: str, value: str = '',
-                 content: Optional[str] = None, parent=None,
-                 adapter: Optional[YamlConfigAdapter] = None
-                 ):
+    def __init__(self, title:str,
+                icon: Union[str, QIcon, FluentIconBase]=None,
+                iconSize:IconSize = IconSize(16,16),
+                margins:Margins = Margins(16,16,0,16), value: str = '',
+                content: Optional[str] = None, parent=None,
+                adapter: Optional[YamlConfigAdapter] = None
+                ):
         """
         更改按键的
         :param icon: 左边显示的图标
@@ -39,7 +43,7 @@ class KeySettingCard(SettingCardBase):
         :param parent: 组件的parent
         :param adapter: 配置适配器 自动更新对应配置文件
         """
-        SettingCardBase.__init__(self, icon, title, content, parent)
+        SettingCardBase.__init__(self,title,icon,iconSize,margins,content, parent)
         self.adapter: YamlConfigAdapter = adapter
 
         self.value: str = value

@@ -5,6 +5,7 @@ from qfluentwidgets import SettingCard, FluentIconBase, ComboBox, ToolTip
 from typing import Union, Iterable, Optional, List
 
 from one_dragon.base.config.config_item import ConfigItem
+from one_dragon.gui.component.layout_utils import IconSize, Margins
 from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
 from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
 from one_dragon.utils.i18_utils import gt
@@ -16,26 +17,31 @@ class ComboBoxSettingCard(SettingCardBase):
     """
     value_changed = Signal(int, object)
 
-    def __init__(self, icon: Union[str, QIcon, FluentIconBase], title: str,
+    def __init__(self,  title: str,
+                 icon: Union[str, QIcon, FluentIconBase] = None,
+                 iconSize: IconSize = IconSize(16, 16),
+                 margins: Margins = Margins(16, 16, 0, 16),
                  options_enum: Optional[Iterable[Enum]] = None,
                  options_list: Optional[List[ConfigItem]] = None,
                  content=None, show_config_desc: bool = False,
                  show_tooltip: bool = False, parent=None,
                  adapter: Optional[YamlConfigAdapter] = None):
         """
-        初始化函数
-        :param icon: 左侧显示的图标
-        :param title: 左侧的标题，支持中文
-        :param options_enum: 右侧下拉框的选项，使用枚举类型
-        :param options_list: 右侧下拉框的选项，使用ConfigItem列表
-        :param content: 左侧的详细文本，支持中文
-        :param show_config_desc: 是否显示选项的描述
-        :param show_tooltip: 是否在标题上显示提示
-        :param parent: 组件的父对象
-        :param adapter: 配置适配器 自动更新对应配置文件
+        初始化函数  
+        **icon**: 左侧显示的图标  
+        **iconSize**: 左侧图标的大小  
+        **margins**: 上下左右的间距  
+        **title**: 左侧的标题，支持中文  
+        **options_enum**: 右侧下拉框的选项，使用枚举类型  
+        **options_list**: 右侧下拉框的选项，使用ConfigItem列表  
+        **content**: 左侧的详细文本，支持中文  
+        **show_config_desc**: 是否显示选项的描述  
+        **show_tooltip**: 是否在标题上显示提示  
+        **parent**: 组件的父对象  
+        **adapter**: 配置适配器 自动更新对应配置文件  
         """
         self.show_tooltip = show_tooltip  # 由于里面会调用setContent 这个需要提前初始化
-        SettingCardBase.__init__(self, icon, title, content, parent)
+        SettingCardBase.__init__(self,title,icon,iconSize,margins,content, parent)
         self.adapter: YamlConfigAdapter = adapter
 
         self.combo_box = ComboBox(self)

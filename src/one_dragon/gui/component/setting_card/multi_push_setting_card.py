@@ -4,13 +4,18 @@ from PySide6.QtWidgets import QAbstractButton, QWidget, QVBoxLayout, QHBoxLayout
 from qfluentwidgets import FluentIconBase
 from typing import Union, List, Optional
 
+from one_dragon.gui.component.layout_utils import IconSize, Margins
 from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
 
 
 class MultiPushSettingCard(SettingCardBase):
 
-    def __init__(self, btn_list: List[QAbstractButton], icon: Union[str, QIcon, FluentIconBase],
-                 title: str, content: Optional[str] = None, parent: Optional[QWidget] = None):
+    def __init__(self, title:str,
+                btn_list: List[QAbstractButton],
+                icon: Union[str, QIcon, FluentIconBase]=None,
+                iconSize:IconSize = IconSize(16,16),
+                margins:Margins = Margins(16,16,0,16),
+                content: Optional[str] = None, parent: Optional[QWidget] = None):
         """
         Parameters
         ----------
@@ -29,7 +34,7 @@ class MultiPushSettingCard(SettingCardBase):
         parent: QWidget
             parent widget
         """
-        SettingCardBase.__init__(self, icon, title, content, parent)
+        SettingCardBase.__init__(self, title,icon,iconSize,margins,  content, parent)
 
         btn_layout = QHBoxLayout()
         btn_layout.setSpacing(16)
