@@ -1,10 +1,20 @@
 import os
 from PySide6.QtCore import Qt, QThread, Signal
-from PySide6.QtGui import QPixmap, QPainter, QPainterPath, QFont, QColor, QLinearGradient, QBrush
+from PySide6.QtGui import (
+    QPixmap,
+    QPainter,
+    QPainterPath,
+    QFont,
+    QColor,
+    QLinearGradient,
+    QBrush,
+)
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QSpacerItem, QSizePolicy
-from qfluentwidgets import FluentIcon, InfoBar, InfoBarPosition, Dialog, ComboBox
+from qfluentwidgets import FluentIcon, InfoBar, InfoBarPosition, Dialog
 
-from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon.gui.component.interface.vertical_scroll_interface import (
+    VerticalScrollInterface,
+)
 from one_dragon.gui.component.link_card import LinkCardView
 from one_dragon.utils import os_utils
 from one_dragon.utils.i18_utils import gt
@@ -24,37 +34,47 @@ class BannerWidget(QWidget):
         self.setFixedHeight(320)  # 初始设置固定高度
 
         self.banner_image = self.load_banner_image()  # 加载横幅图片
-        self.aspect_ratio = self.banner_image.width() / self.banner_image.height()  # 计算图片的宽高比
+        self.aspect_ratio = (
+            self.banner_image.width() / self.banner_image.height()
+        )  # 计算图片的宽高比
 
         self.vBoxLayout = QVBoxLayout(self)
         self.vBoxLayout.setSpacing(0)  # 设置布局的间距
         self.vBoxLayout.setContentsMargins(0, 20, 0, 0)  # 设置布局的边距
-        self.vBoxLayout.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)  # 设置布局对齐方式
+        self.vBoxLayout.setAlignment(
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop
+        )  # 设置布局对齐方式
 
         self.linkCardView = LinkCardView(self)
-        self.vBoxLayout.addWidget(self.linkCardView, 1, Qt.AlignmentFlag.AlignBottom)  # 添加链接卡片视图，垂直方向上对齐底部
+        self.vBoxLayout.addWidget(
+            self.linkCardView, 1, Qt.AlignmentFlag.AlignBottom
+        )  # 添加链接卡片视图，垂直方向上对齐底部
 
         # 添加间隔项
-        spacer = QSpacerItem(20, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
+        spacer = QSpacerItem(
+            20, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed
+        )
         self.vBoxLayout.addItem(spacer)
 
         # 向链接卡片视图中添加一个卡片
         self.linkCardView.addCard(
             FluentIcon.HOME,
-            gt('主页说明', 'ui'),
-            gt('使用说明都能在这找到', 'ui'),
-            "https://one-dragon.org/zzz/zh/home.html"
+            gt("主页说明", "ui"),
+            gt("使用说明都能在这找到", "ui"),
+            "https://one-dragon.org/zzz/zh/home.html",
         )
         self.linkCardView.addCard(
             FluentIcon.GITHUB,
-            gt('仓库地址', 'ui'),
-            gt('如果本项目有帮助到您~\n不妨给项目点一个Star⭐', 'ui'),
-            "https://github.com/DoctorReid/ZenlessZoneZero-OneDragon"
+            gt("仓库地址", "ui"),
+            gt("如果本项目有帮助到您~\n不妨给项目点一个Star⭐", "ui"),
+            "https://github.com/DoctorReid/ZenlessZoneZero-OneDragon",
         )
 
     def load_banner_image(self):
         """加载横幅图片，如果图片文件不存在则创建一个渐变的备用图片"""
-        image_path = os.path.join(os_utils.get_path_under_work_dir('assets', 'ui'), '1.png')
+        image_path = os.path.join(
+            os_utils.get_path_under_work_dir("assets", "ui"), "1.png"
+        )
         if os.path.isfile(image_path):
             return QPixmap(image_path)
         return self.create_fallback_image()
@@ -80,10 +100,13 @@ class BannerWidget(QWidget):
 
         # 重新设置横幅图片的大小
         self.banner_image = self.banner_image.scaled(
-            new_width, new_height, Qt.AspectRatioMode.KeepAspectRatioByExpanding, Qt.TransformationMode.SmoothTransformation
+            new_width,
+            new_height,
+            Qt.AspectRatioMode.KeepAspectRatioByExpanding,
+            Qt.TransformationMode.SmoothTransformation,
         )
         self.update()  # 触发重绘
-        
+
         # 强制更新子布局和组件
         self.vBoxLayout.invalidate()
         self.linkCardView.updateGeometry()
@@ -92,14 +115,19 @@ class BannerWidget(QWidget):
     def paintEvent(self, event):
         """绘制事件，负责绘制横幅背景和文字"""
         painter = QPainter(self)
-        painter.setRenderHints(QPainter.RenderHint.SmoothPixmapTransform | QPainter.RenderHint.Antialiasing)  # 设置平滑缩放和抗锯齿
+        painter.setRenderHints(
+            QPainter.RenderHint.SmoothPixmapTransform | QPainter.RenderHint.Antialiasing
+        )  # 设置平滑缩放和抗锯齿
 
         # 获取小部件的宽度和高度
         w, h = self.width(), self.height()
 
         # 绘制横幅图片
         banner_pixmap = self.banner_image.copy(
-            (self.banner_image.width() - w) // 2, (self.banner_image.height() - h) // 2, w, h
+            (self.banner_image.width() - w) // 2,
+            (self.banner_image.height() - h) // 2,
+            w,
+            h,
         )
 
         # 创建一个圆角矩形路径
@@ -121,7 +149,7 @@ class BannerWidget(QWidget):
         painter.setFont(font)
         text = "OneDragon"
         text_rect = painter.fontMetrics().boundingRect(text)
-        text_rect.moveRight(w-TEXT_OFFSET)  # 将文字稍微向右移动
+        text_rect.moveRight(w - TEXT_OFFSET)  # 将文字稍微向右移动
         text_rect.moveTop(TEXT_OFFSET)  # 将文字稍微向右移动
 
         # 计算背景矩形的位置和大小
@@ -164,7 +192,7 @@ class CheckCodeRunner(QThread):
         :return:
         """
         is_latest, msg = self.ctx.git_service.is_current_branch_latest()
-        if msg not in ['与远程分支不一致', '获取远程代码失败']:
+        if msg not in ["与远程分支不一致", "获取远程代码失败"]:
             self.need_update.emit(not is_latest)
         # self.need_update.emit(True)  # 调试用
 
@@ -222,8 +250,10 @@ class HomeInterface(VerticalScrollInterface):
         VerticalScrollInterface.__init__(
             self,
             parent=parent,
-            content_widget=content_widget, object_name='home_interface',
-            nav_text_cn='仪表盘', nav_icon=FluentIcon.HOME
+            content_widget=content_widget,
+            object_name="home_interface",
+            nav_text_cn="仪表盘",
+            nav_icon=FluentIcon.HOME,
         )
         self.ctx: ZContext = ctx
 
@@ -246,17 +276,17 @@ class HomeInterface(VerticalScrollInterface):
         if not with_new:
             return
         w = InfoBar.success(
-            title='有新版本啦',
+            title="有新版本啦",
             content="到代码同步里更新吧~",
             orient=Qt.Orientation.Horizontal,
             isClosable=True,
             position=InfoBarPosition.TOP_RIGHT,
             duration=20000,
-            parent=self
+            parent=self,
         )
-        w.setCustomBackgroundColor('white', '#202020')
+        w.setCustomBackgroundColor("white", "#202020")
         if self.ctx.env_config.auto_update:
-        # if True:  # 调试用
+            # if True:  # 调试用
             result, msg = self.ctx.git_service.fetch_latest_code()
             # result = True  # 调试用
             if result:
@@ -266,37 +296,38 @@ class HomeInterface(VerticalScrollInterface):
         if not with_new:
             return
         w = InfoBar.success(
-            title='运行依赖更新',
+            title="运行依赖更新",
             content="到安装器更新吧~",
             orient=Qt.Orientation.Horizontal,
             isClosable=True,
             position=InfoBarPosition.TOP_RIGHT,
             duration=20000,
-            parent=self
+            parent=self,
         )
-        w.setCustomBackgroundColor('white', '#202020')
+        w.setCustomBackgroundColor("white", "#202020")
 
     def _show_dialog_after_code_updated(self):
-        title = '更新提醒'
+        title = "更新提醒"
         content = "代码已自动更新，是否重启?"
         w = Dialog(title, content, self)
         w.setTitleBarVisible(False)
-        w.yesButton.setText('重启')
-        w.cancelButton.setText('取消')
+        w.yesButton.setText("重启")
+        w.cancelButton.setText("取消")
         if w.exec():
             from one_dragon.utils import app_utils
+
             app_utils.start_one_dragon(restart=True)
 
     def _need_to_update_model(self, with_new: bool):
         if not with_new:
             return
         w = InfoBar.success(
-            title='有新模型啦',
+            title="有新模型啦",
             content="到[设置-模型选择]更新吧~",
             orient=Qt.Orientation.Horizontal,
             isClosable=True,
             position=InfoBarPosition.TOP_RIGHT,
             duration=5000,
-            parent=self
+            parent=self,
         )
-        w.setCustomBackgroundColor('white', '#202020')
+        w.setCustomBackgroundColor("white", "#202020")

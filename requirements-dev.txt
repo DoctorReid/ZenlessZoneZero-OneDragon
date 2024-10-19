@@ -1,6 +1,6 @@
 # requirements that this script needs
 pyside6==6.7.2
-PySide6-Fluent-Widgets==1.6.0
+PySide6-Fluent-Widgets==1.6.6
 pyyaml==6.0.1
 opencv-python==4.10.0.84
 pyautogui==0.9.54

@@ -1,7 +1,7 @@
 import os
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QWidget, QFileDialog, QTableWidgetItem
-from qfluentwidgets import FluentIcon, PushButton, TableWidget, ToolButton, ComboBox
+from qfluentwidgets import FluentIcon, PushButton, TableWidget, ToolButton
 from typing import Optional
 
 from one_dragon.base.geometry.rectangle import Rect
@@ -14,6 +14,7 @@ from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.cv2_image import Cv2Image
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.label.click_image_label import ClickImageLabel, ImageScaleEnum
+from one_dragon.gui.component.combo_box import ComboBox
 from one_dragon.gui.component.row_widget import RowWidget
 from one_dragon.gui.component.setting_card.check_box_setting_card import CheckBoxSettingCard
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard

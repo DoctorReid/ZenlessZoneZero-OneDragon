@@ -4,7 +4,7 @@ from qfluentwidgets import SettingCard, FluentIconBase, PushButton
 from typing import Union, Optional
 
 from one_dragon.base.controller.pc_button.pc_button_listener import PcButtonListener
-from one_dragon.gui.component.layout_utils import IconSize, Margins
+from one_dragon.gui.component.utils.layout_utils import IconSize, Margins
 from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
 from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
 from one_dragon.utils.i18_utils import gt
@@ -27,13 +27,14 @@ class KeySettingCard(SettingCardBase):
 
     value_changed = Signal(str)
 
-    def __init__(self, title:str,
-                icon: Union[str, QIcon, FluentIconBase]=None,
-                iconSize:IconSize = IconSize(16,16),
-                margins:Margins = Margins(16,16,0,16), value: str = '',
-                content: Optional[str] = None, parent=None,
-                adapter: Optional[YamlConfigAdapter] = None
-                ):
+    def __init__(
+        self,
+        title: str,
+        adapter: Optional[YamlConfigAdapter] = None,
+        value: str = "",
+        *args,
+        **kwargs
+    ):
         """
         更改按键的
         :param icon: 左边显示的图标
@@ -43,7 +44,7 @@ class KeySettingCard(SettingCardBase):
         :param parent: 组件的parent
         :param adapter: 配置适配器 自动更新对应配置文件
         """
-        SettingCardBase.__init__(self,title,icon,iconSize,margins,content, parent)
+        SettingCardBase.__init__(self, title, *args, **kwargs)
         self.adapter: YamlConfigAdapter = adapter
 
         self.value: str = value
@@ -64,8 +65,10 @@ class KeySettingCard(SettingCardBase):
         :return:
         """
         if self.button_listener is None:
-            self.button_listener = PcButtonListener(self._on_key_press, listen_keyboard=True, listen_mouse=True)
-            self.btn.setText(gt('请按键', 'ui'))
+            self.button_listener = PcButtonListener(
+                self._on_key_press, listen_keyboard=True, listen_mouse=True
+            )
+            self.btn.setText(gt("请按键", "ui"))
             self.button_listener.start()
         else:
             self._stop_listener()
@@ -103,7 +106,7 @@ class KeySettingCard(SettingCardBase):
         :param content: 文本 中文
         :return:
         """
-        SettingCard.setContent(self, gt(content, 'ui'))
+        SettingCard.setContent(self, gt(content, "ui"))
 
     def setValue(self, value: str, emit_signal: bool = True) -> None:
         """

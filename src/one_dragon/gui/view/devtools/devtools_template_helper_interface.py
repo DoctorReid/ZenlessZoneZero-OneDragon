@@ -1,7 +1,7 @@
 import os
 from PySide6.QtWidgets import QWidget, QFileDialog, QTableWidgetItem
 from cv2.typing import MatLike
-from qfluentwidgets import FluentIcon, PushButton, TableWidget, ToolButton, ComboBox, ImageLabel, CaptionLabel, LineEdit
+from qfluentwidgets import FluentIcon, PushButton, TableWidget, ToolButton, ImageLabel, CaptionLabel, LineEdit
 from typing import List, Optional
 
 from one_dragon.base.geometry.point import Point
@@ -11,6 +11,7 @@ from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.cv2_image import Cv2Image
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.label.click_image_label import ClickImageLabel, ImageScaleEnum
+from one_dragon.gui.component.combo_box import ComboBox
 from one_dragon.gui.component.row_widget import RowWidget
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiPushSettingCard

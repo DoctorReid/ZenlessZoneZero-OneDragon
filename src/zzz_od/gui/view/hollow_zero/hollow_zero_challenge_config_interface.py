@@ -1,10 +1,11 @@
 from PySide6.QtWidgets import QWidget
-from qfluentwidgets import FluentIcon, PushButton, ComboBox, PlainTextEdit, SubtitleLabel, BodyLabel, FluentThemeColor, \
+from qfluentwidgets import FluentIcon, PushButton, PlainTextEdit, SubtitleLabel, BodyLabel, FluentThemeColor, \
     TitleLabel
 from typing import List, Optional
 
 from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon.gui.component.combo_box import ComboBox
 from one_dragon.gui.component.row_widget import RowWidget
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiPushSettingCard
@@ -102,7 +103,7 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
         widget.add_widget(self.auto_battle_opt)
 
         self.path_finding_opt = ComboBoxSettingCard(icon=FluentIcon.MARKET, title='寻路方式',
-                                                    options_enum=HollowZeroChallengePathFinding, show_config_desc=True)
+                                                    options_enum=HollowZeroChallengePathFinding)
         self.path_finding_opt.value_changed.connect(self._on_path_finding_changed)
         widget.add_widget(self.path_finding_opt)
 

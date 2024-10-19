@@ -3,7 +3,7 @@ from PySide6.QtGui import QIcon, Qt
 from qfluentwidgets import SettingCard, FluentIconBase, LineEdit
 from typing import Union, Optional
 
-from one_dragon.gui.component.layout_utils import IconSize, Margins
+from one_dragon.gui.component.utils.layout_utils import IconSize, Margins
 from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
 from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
 from one_dragon.utils.i18_utils import gt
@@ -13,14 +13,15 @@ class TextSettingCard(SettingCardBase):
 
     value_changed = Signal(str)
 
-    def __init__(self, 
-                 title, 
-                icon: Union[str, QIcon, FluentIconBase], 
-                iconSize: IconSize = IconSize(16, 16),
-                margins: Margins = Margins(16, 16, 0, 16),
-                content=None, parent=None,
-                input_placeholder: str = None, input_max_width: int = 300,
-                adapter: Optional[YamlConfigAdapter] = None):
+    def __init__(
+        self,
+        title,
+        input_placeholder: str = None,
+        input_max_width: int = 300,
+        adapter: Optional[YamlConfigAdapter] = None,
+        *args,
+        **kwargs
+    ):
         """
         :param icon: 左边显示的图标
         :param title: 左边的标题 中文
@@ -30,7 +31,7 @@ class TextSettingCard(SettingCardBase):
         :param input_max_width: 输入框的最大长度
         :param adapter: 配置适配器 自动更新对应配置文件
         """
-        SettingCardBase.__init__(self, title, icon, iconSize,margins,content, parent)
+        SettingCardBase.__init__(self, title, *args, **kwargs)
         self.adapter: YamlConfigAdapter = adapter
 
         self.line_edit = LineEdit(self)
@@ -56,7 +57,7 @@ class TextSettingCard(SettingCardBase):
         self.adapter = adapter
 
         if self.adapter is None:
-            self.setValue('', emit_signal=False)
+            self.setValue("", emit_signal=False)
         else:
             self.setValue(self.adapter.get_value(), emit_signal=False)
 
@@ -66,7 +67,7 @@ class TextSettingCard(SettingCardBase):
         :param content: 文本 中文
         :return:
         """
-        SettingCard.setContent(self, gt(content, 'ui'))
+        SettingCard.setContent(self, gt(content, "ui"))
 
     def setValue(self, value: str, emit_signal: bool = True) -> None:
         """

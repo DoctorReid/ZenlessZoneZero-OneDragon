@@ -1,7 +1,7 @@
 import sys
 
 from PySide6.QtCore import Qt, QPropertyAnimation, Property, QRect, QRectF
-from PySide6.QtGui import QIcon, QPainter, QColor
+from PySide6.QtGui import QIcon, QPainter, QColor,QFont
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QSpacerItem, QSizePolicy
 from qfluentwidgets import FluentStyleSheet, drawIcon, isDarkTheme, FluentIcon as FIF, setFont, SplitTitleBar, \
     NavigationBarPushButton, MSFluentWindow, SingleDirectionScrollArea, NavigationBar, qrouter, FluentIconBase, \
@@ -199,7 +199,7 @@ class OdNavigationBarPushButton(NavigationBarPushButton):
         self._isSelectedTextVisible = True
 
         self.setFixedSize(64, 58)  # 设置按钮大小
-        setFont(self, 11)  # 设置字体大小
+        setFont(self,12,weight=QFont.Weight.ExtraBold)  # 设置字体大小
 
     # 绘制事件
     def paintEvent(self, e):
@@ -219,10 +219,6 @@ class OdNavigationBarPushButton(NavigationBarPushButton):
             painter.drawRoundedRect(self.rect().adjusted(4, 0, -4, 0), 10, 10)
 
         # 绘制图标
-        if (self.isPressed or not self.isEnter) and not self.isSelected:
-            painter.setOpacity(0.6)
-        if not self.isEnabled():
-            painter.setOpacity(0.4)
 
         if self._isSelectedTextVisible:
             rect = QRectF(22, 13, 20, 20)
@@ -237,15 +233,22 @@ class OdNavigationBarPushButton(NavigationBarPushButton):
             else:
                 selectedIcon.render(painter, rect, fill="#ffffff")
         elif self.isSelected:
-            drawIcon(selectedIcon, painter, rect)
+            selectedIcon.render(painter, rect, fill="#5c6e93")
+        elif isDarkTheme():
+            selectedIcon.render(painter, rect, fill="#b2b2b2")
         else:
-            drawIcon(self._icon, painter, rect)
+            selectedIcon.render(painter, rect, fill="#5c6e93")
 
         if self.isSelected and not self._isSelectedTextVisible:
             return
 
         # 绘制文字
-        painter.setPen(QColor(255, 255, 255) if self.isSelected else QColor(158, 158, 158))   
+        if self.isSelected:
+            painter.setPen(QColor(255, 255, 255))
+        elif isDarkTheme():
+                painter.setPen(QColor(178, 178, 178))
+        else:
+                painter.setPen(QColor(92, 110, 147))
 
         painter.setFont(self.font())
         rect = QRect(0, 32, self.width(), 26)

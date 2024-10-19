@@ -3,7 +3,7 @@ from PySide6.QtGui import QIcon, Qt
 from qfluentwidgets import FluentIconBase, SwitchButton, IndicatorPosition
 from typing import Union, Optional
 
-from one_dragon.gui.component.layout_utils import IconSize, Margins
+from one_dragon.gui.component.utils.layout_utils import IconSize, Margins
 from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
 from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
 from one_dragon.utils.i18_utils import gt
@@ -13,14 +13,15 @@ class SwitchSettingCard(SettingCardBase):
 
     value_changed = Signal(bool)
 
-    def __init__(self, 
-                 title, 
-                icon: Union[str, QIcon, FluentIconBase], 
-                iconSize: IconSize = IconSize(16, 16),
-                margins: Margins = Margins(16, 16, 0, 16),
-                content=None, parent=None,
-                on_text_cn: str = '开', off_text_cn: str = '关',
-                adapter: Optional[YamlConfigAdapter] = None):
+    def __init__(
+        self,
+        title,
+        on_text_cn: str = "开",
+        off_text_cn: str = "关",
+        adapter: Optional[YamlConfigAdapter] = None,
+        *args,
+        **kwargs
+    ):
         """
         复制原 SwitchSettingCard
         封装了些多语言
@@ -31,15 +32,15 @@ class SwitchSettingCard(SettingCardBase):
         :param parent: 组件的parent
         :param adapter: 配置适配器 自动更新对应配置文件
         """
-        SettingCardBase.__init__(self,title,icon,iconSize,margins,content, parent=parent)
+        SettingCardBase.__init__(self, title, *args, **kwargs)
         self.adapter: YamlConfigAdapter = adapter
 
         self.on_text_cn: str = on_text_cn
         self.off_text_cn: str = off_text_cn
 
         self.btn = SwitchButton(parent=self, indicatorPos=IndicatorPosition.RIGHT)
-        self.btn._offText = gt(off_text_cn, 'ui')
-        self.btn._onText = gt(on_text_cn, 'ui')
+        self.btn._offText = gt(off_text_cn, "ui")
+        self.btn._onText = gt(on_text_cn, "ui")
         self.btn.checkedChanged.connect(self._on_valued_changed)
 
         self.hBoxLayout.addWidget(self.btn, 0, Qt.AlignmentFlag.AlignRight)
@@ -62,6 +63,6 @@ class SwitchSettingCard(SettingCardBase):
             self.btn.blockSignals(True)
         self.btn.setChecked(value)
         text = self.on_text_cn if value else self.off_text_cn
-        self.btn.setText(gt(text, 'ui'))
+        self.btn.setText(gt(text, "ui"))
         if not emit_signal:
             self.btn.blockSignals(False)
