@@ -1,9 +1,8 @@
 import os
-from typing import Optional, List
+from typing import Optional
 
-from one_dragon.yolo.detect_utils import DetectClass, DetectFrameResult
+from one_dragon.yolo.yolo_utils import ZZZ_MODEL_DOWNLOAD_URL
 from one_dragon.yolo.yolov8_onnx_det import Yolov8Detector
-from zzz_od.config.yolo_config import ZZZ_MODEL_DOWNLOAD_URL
 
 
 class HollowEventDetector(Yolov8Detector):
@@ -30,12 +29,6 @@ class HollowEventDetector(Yolov8Detector):
             model_download_url=ZZZ_MODEL_DOWNLOAD_URL,
             gh_proxy=gh_proxy,
             personal_proxy=personal_proxy,
-            gpu=gpu
+            gpu=gpu,
+            keep_result_seconds=keep_result_seconds
         )
-
-        self.keep_result_seconds: float = keep_result_seconds  # 保留识别结果的秒数
-        self.run_result_history: List[DetectFrameResult] = []  # 历史识别结果
-
-        self.idx_2_class: dict[int, DetectClass] = {}  # 分类
-        self.class_2_idx: dict[str, int] = {}
-        self._load_detect_classes(self.model_dir_path)

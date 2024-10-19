@@ -6,10 +6,10 @@ import os
 from cv2.typing import MatLike
 from typing import Optional, List
 
-from one_dragon.utils.log_utils import log
 from one_dragon.yolo import onnx_utils
 from one_dragon.yolo.detect_utils import DetectFrameResult, DetectClass, DetectContext, DetectObjectResult, xywh2xyxy, \
     multiclass_nms
+from one_dragon.yolo.log_utils import log
 from one_dragon.yolo.onnx_model_loader import OnnxModelLoader
 
 

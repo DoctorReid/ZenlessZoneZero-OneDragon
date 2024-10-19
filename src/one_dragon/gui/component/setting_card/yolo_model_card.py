@@ -30,8 +30,8 @@ class DownloadRunner(QThread):
         try:
             onnx = OnnxModelLoader(
                 model_name=self.card.getValue(),
-                model_download_url=self.card._model_download_url,
-                model_parent_dir_path=yolo_config_utils.get_model_category_dir(self.card._model_sub_dir),
+                model_download_url=self.card.model_download_url,
+                model_parent_dir_path=yolo_config_utils.get_model_category_dir(self.card.model_sub_dir),
                 gh_proxy=use_gh_proxy,
                 personal_proxy=None if use_gh_proxy else self.card.ctx.env_config.proxy_address
             )
@@ -90,8 +90,8 @@ class ModelDownloadSettingCard(MultiPushSettingCard):
         )
 
         self.ctx: OneDragonContext = ctx
-        self._model_sub_dir: str = sub_dir
-        self._model_download_url: str = download_url
+        self.model_sub_dir: str = sub_dir
+        self.model_download_url: str = download_url
         self._runner: DownloadRunner = DownloadRunner(self)
         self._runner.finished.connect(self._on_download_finish)
 
@@ -144,7 +144,7 @@ class ModelDownloadSettingCard(MultiPushSettingCard):
         检查模型是否已经存在
         :return:
         """
-        if is_model_existed(self._model_sub_dir, self.getValue()):
+        if is_model_existed(self.model_sub_dir, self.getValue()):
             self.download_btn.setText(gt('已下载', 'ui'))
             self.download_btn.setDisabled(True)
         else:

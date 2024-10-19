@@ -256,7 +256,7 @@ class HollowRunner(ZOperation):
         """
         保存图片用于优化模型
         """
-        if  not ( self.ctx.env_config.is_debug or enforce ):
+        if not ( self.ctx.env_config.is_debug or enforce ):
             return
         now = time.time()
         if now - self._last_save_image_time < 1:

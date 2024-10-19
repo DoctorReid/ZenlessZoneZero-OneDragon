@@ -1,9 +1,9 @@
-from enum import Enum
 import os
-
+from enum import Enum
 from qfluentwidgets import StyleSheetBase, Theme, qconfig
 
 from one_dragon.utils import os_utils
+
 
 # 注册样式表
 class OdStyleSheet(StyleSheetBase, Enum):

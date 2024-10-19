@@ -159,7 +159,7 @@ class HollowBattle(ZOperation):
 
     @node_from(from_name='识别特殊移动', status=STATUS_NO_NEED_SPECIAL_MOVE)
     @node_from(from_name='向前移动准备战斗')
-    @operation_node(name='自动战斗', timeout_seconds=600)
+    @operation_node(name='自动战斗', timeout_seconds=600, mute=True)
     def auto_battle(self) -> OperationRoundResult:
         self.move_times = 0
         if self.auto_op.auto_battle_context.last_check_end_result is not None:
