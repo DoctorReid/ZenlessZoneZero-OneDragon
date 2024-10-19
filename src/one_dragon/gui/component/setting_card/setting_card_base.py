@@ -35,8 +35,7 @@ class SettingCardBase(SettingCard):
         if content is not None:
             self.setContent(gt(content, 'ui'))
 
-        self.setFixedHeight(70 if content else 50)
-        
+        self.setFixedHeight(50)
 
         # initialize layout
         self.hBoxLayout.setSpacing(0)
