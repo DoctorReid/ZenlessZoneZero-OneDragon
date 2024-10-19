@@ -48,9 +48,13 @@ class MultiPushSettingCard(SettingCardBase):
 
 class MultiLineSettingCard(SettingCardBase):
 
-    def __init__(self, line_list: List[List[QAbstractButton]], icon: Union[str, QIcon, FluentIconBase],
-                 title: str, content: Optional[str] = None, parent: Optional[QWidget] = None):
-        SettingCardBase.__init__(self, icon, title, content, parent)
+    def __init__(self, title:str,
+                line_list: List[List[QAbstractButton]],
+                icon: Union[str, QIcon, FluentIconBase]=None,
+                iconSize:IconSize = IconSize(16,16),
+                margins:Margins = Margins(16,16,0,16),
+                 content: Optional[str] = None, parent: Optional[QWidget] = None):
+        SettingCardBase.__init__(self, title,icon,iconSize,margins,  content, parent)
 
         v_layout = QVBoxLayout()
         v_layout.setSpacing(5)
