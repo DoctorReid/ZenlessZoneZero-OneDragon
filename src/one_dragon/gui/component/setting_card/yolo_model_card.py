@@ -1,11 +1,12 @@
 from PySide6.QtCore import Signal, QThread
 from PySide6.QtGui import QIcon
 from enum import Enum
-from qfluentwidgets import SettingCard, FluentIconBase, ComboBox, PushButton
+from qfluentwidgets import SettingCard, FluentIconBase, PushButton
 from typing import Union, Iterable, Optional, List
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
+from one_dragon.gui.component.combo_box import ComboBox
 from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiPushSettingCard
 from one_dragon.utils import yolo_config_utils
 from one_dragon.utils.i18_utils import gt

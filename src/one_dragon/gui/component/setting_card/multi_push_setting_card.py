@@ -4,18 +4,13 @@ from PySide6.QtWidgets import QAbstractButton, QWidget, QVBoxLayout, QHBoxLayout
 from qfluentwidgets import FluentIconBase
 from typing import Union, List, Optional
 
-from one_dragon.gui.component.layout_utils import IconSize, Margins
+from one_dragon.gui.component.utils.layout_utils import IconSize, Margins
 from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
 
 
 class MultiPushSettingCard(SettingCardBase):
 
-    def __init__(self, title:str,
-                btn_list: List[QAbstractButton],
-                icon: Union[str, QIcon, FluentIconBase]=None,
-                iconSize:IconSize = IconSize(16,16),
-                margins:Margins = Margins(16,16,0,16),
-                content: Optional[str] = None, parent: Optional[QWidget] = None):
+    def __init__(self, title: str, btn_list: List[QAbstractButton], *args, **kwargs):
         """
         Parameters
         ----------
@@ -34,7 +29,7 @@ class MultiPushSettingCard(SettingCardBase):
         parent: QWidget
             parent widget
         """
-        SettingCardBase.__init__(self, title,icon,iconSize,margins,  content, parent)
+        SettingCardBase.__init__(self,title, *args, **kwargs)
 
         btn_layout = QHBoxLayout()
         btn_layout.setSpacing(16)
@@ -48,13 +43,10 @@ class MultiPushSettingCard(SettingCardBase):
 
 class MultiLineSettingCard(SettingCardBase):
 
-    def __init__(self, title:str,
-                line_list: List[List[QAbstractButton]],
-                icon: Union[str, QIcon, FluentIconBase]=None,
-                iconSize:IconSize = IconSize(16,16),
-                margins:Margins = Margins(16,16,0,16),
-                 content: Optional[str] = None, parent: Optional[QWidget] = None):
-        SettingCardBase.__init__(self, title,icon,iconSize,margins,  content, parent)
+    def __init__(
+        self, title: str, line_list: List[List[QAbstractButton]], *args, **kwargs
+    ):
+        SettingCardBase.__init__(self, title, *args, **kwargs)
 
         v_layout = QVBoxLayout()
         v_layout.setSpacing(5)

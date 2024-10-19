@@ -3,7 +3,7 @@ from PySide6.QtGui import QIcon, Qt
 from qfluentwidgets import SettingCard, FluentIconBase, CheckBox
 from typing import Union
 
-from one_dragon.gui.component.layout_utils import IconSize, Margins
+from one_dragon.gui.component.utils.layout_utils import IconSize, Margins
 from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
 from one_dragon.utils.i18_utils import gt
 
@@ -12,18 +12,14 @@ class CheckBoxSettingCard(SettingCardBase):
 
     value_changed = Signal(bool)
 
-    def __init__(self,  title: str,
-                icon: Union[str, QIcon, FluentIconBase] = None,
-                iconSize: IconSize = IconSize(16, 16),
-                margins: Margins = Margins(16, 16, 0, 16),
-                content=None, parent=None):
+    def __init__(self, title: str, *args, **kwargs):
         """
         :param icon: 左边显示的图标
         :param title: 左边的标题 中文
         :param content: 左侧的详细文本 中文
         :param parent: 组件的parent
         """
-        SettingCardBase.__init__(self,title,icon,iconSize,margins,content, parent)
+        SettingCardBase.__init__(self, title, *args, **kwargs)
         self.check_box = CheckBox(self)
         self.hBoxLayout.addWidget(self.check_box, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
@@ -45,7 +41,7 @@ class CheckBoxSettingCard(SettingCardBase):
         :param content: 文本 中文
         :return:
         """
-        SettingCard.setContent(self, gt(content, 'ui'))
+        SettingCard.setContent(self, gt(content, "ui"))
 
     def setValue(self, bool_value: bool) -> None:
         """

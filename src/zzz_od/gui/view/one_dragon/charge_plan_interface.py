@@ -1,14 +1,15 @@
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import PrimaryPushButton, FluentIcon, CaptionLabel, LineEdit, ToolButton
-from typing import List
+from typing import Optional, List
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.component.od_combo_box import OdComboBox
+from one_dragon.gui.component.combo_box import ComboBox
 from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiLineSettingCard
 from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon.utils.i18_utils import gt
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_op_config_list
 from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem, CardNumEnum
 from zzz_od.context.zzz_context import ZContext
@@ -26,22 +27,22 @@ class ChargePlanCard(MultiLineSettingCard):
         self.idx: int = idx
         self.plan: ChargePlanItem = plan
 
-        self.category_combo_box = OdComboBox()
+        self.category_combo_box = ComboBox()
         self.category_combo_box.currentIndexChanged.connect(self._on_category_changed)
 
-        self.mission_type_combo_box = OdComboBox()
+        self.mission_type_combo_box = ComboBox()
         self.mission_type_combo_box.currentIndexChanged.connect(self._on_mission_type_changed)
 
-        self.mission_combo_box = OdComboBox()
+        self.mission_combo_box = ComboBox()
         self.mission_combo_box.currentIndexChanged.connect(self._on_mission_changed)
 
-        self.card_num_box = OdComboBox()
+        self.card_num_box = ComboBox()
         self.card_num_box.currentIndexChanged.connect(self._on_card_num_changed)
 
-        self.predefined_team_opt = OdComboBox()
+        self.predefined_team_opt = ComboBox()
         self.predefined_team_opt.currentIndexChanged.connect(self.on_predefined_team_changed)
 
-        self.auto_battle_combo_box = OdComboBox()
+        self.auto_battle_combo_box = ComboBox()
         self.auto_battle_combo_box.currentIndexChanged.connect(self._on_auto_battle_changed)
 
         run_times_label = CaptionLabel(text='已运行次数')

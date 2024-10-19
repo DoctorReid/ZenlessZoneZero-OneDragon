@@ -1,30 +1,44 @@
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import  QHBoxLayout, QLabel, QVBoxLayout,QFrame
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QFrame
 from qfluentwidgets import SettingCard, FluentIconBase
-from qfluentwidgets.components.settings.setting_card import SettingIconWidget,FluentStyleSheet
+from qfluentwidgets.components.settings.setting_card import (
+    SettingIconWidget,
+    FluentStyleSheet,
+)
 from typing import Union
 
-from one_dragon.gui.component.layout_utils import Margins, IconSize
+from one_dragon.gui.component.utils.layout_utils import Margins, IconSize
 from one_dragon.utils.i18_utils import gt
+
 
 class SettingCardBase(SettingCard):
 
-    def __init__(self, title:str,
-                icon: Union[str, QIcon, FluentIconBase]=None,
-                iconSize:IconSize = IconSize(16,16),
-                margins:Margins = Margins(16,16,0,16),
-                content=None, parent=None):
+    def __init__(
+        self,
+        title: str,
+        icon: Union[str, QIcon, FluentIconBase] = None,
+        iconSize: IconSize = IconSize(16, 16),
+        margins: Margins = Margins(16, 16, 0, 16),
+        content=None,
+        parent=None,
+    ):
         """
         稍微改造原库里的SettingCard
         """
-        
+
         QFrame.__init__(self, parent=parent)  # 不初始化SettingCard 初始化其父类
-            
-        title=gt(title, 'ui')
+
+        # 方便继承的子类调用参数
+        self.icon = icon
+        self.iconSize = iconSize
+        self.margins = margins
+        self.content = content
+
+        title = gt(title, "ui")
 
         self.titleLabel = QLabel(title, self)
-        self.contentLabel = QLabel(content or '', self)
+        self.contentLabel = QLabel(content or "", self)
         self.hBoxLayout = QHBoxLayout(self)
         self.vBoxLayout = QVBoxLayout()
 
@@ -33,7 +47,7 @@ class SettingCardBase(SettingCard):
             self.contentLabel.hide()
 
         if content is not None:
-            self.setContent(gt(content, 'ui'))
+            self.setContent(gt(content, "ui"))
 
         self.setFixedHeight(50)
 
@@ -59,5 +73,16 @@ class SettingCardBase(SettingCard):
         self.hBoxLayout.addSpacing(margins.bottom)
         self.hBoxLayout.addStretch(1)
 
-        self.contentLabel.setObjectName('contentLabel')
+        self.contentLabel.setObjectName("contentLabel")
         FluentStyleSheet.SETTING_CARD.apply(self)
+
+    def setContent(self, content: str):
+        """ set the content of card """
+        self.content = content
+        self.contentLabel.setText(content)
+        self.contentLabel.setVisible(bool(content))
+
+    def setIconSize(self, width: int, height: int):
+        """ set the icon fixed size """
+        self.iconSize = IconSize(width, height)
+        self.iconLabel.setFixedSize(width, height)

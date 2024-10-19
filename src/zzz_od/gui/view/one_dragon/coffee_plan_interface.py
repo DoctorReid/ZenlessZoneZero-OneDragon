@@ -24,15 +24,13 @@ class CoffeePlanInterface(VerticalScrollInterface):
     def get_content_widget(self) -> QWidget:
         content_widget = ColumnWidget()
 
-        self.choose_way_opt = ComboBoxSettingCard(icon=FluentIcon.CALENDAR, title='咖啡选择', options_enum=CoffeeChooseWay,
-                                                  show_config_desc=True)
+        self.choose_way_opt = ComboBoxSettingCard(icon=FluentIcon.CALENDAR, title='咖啡选择', options_enum=CoffeeChooseWay)
         content_widget.add_widget(self.choose_way_opt)
 
         self.challenge_way_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='喝后挑战', options_enum=CoffeeChallengeWay)
         content_widget.add_widget(self.challenge_way_opt)
 
-        self.card_num_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='体力计划外的数量', options_enum=CoffeeCardNumEnum,
-                                                show_config_desc=True)
+        self.card_num_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='体力计划外的数量', options_enum=CoffeeCardNumEnum)
         content_widget.add_widget(self.card_num_opt)
 
         self.auto_battle_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='自动战斗')
