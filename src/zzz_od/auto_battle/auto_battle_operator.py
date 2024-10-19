@@ -97,13 +97,17 @@ class AutoBattleOperator(ConditionalOperator):
             self._mutex_list['前台-' + agent_enum.value.agent_name] = ['前台-' + i for i in mutex_list]
             self._mutex_list['后台-1-' + agent_enum.value.agent_name] = ['后台-1-' + i for i in mutex_list]
             self._mutex_list['后台-2-' + agent_enum.value.agent_name] = ['后台-2-' + i for i in mutex_list]
-            self._mutex_list['连携技-1-' + agent_enum.value.agent_name] = ['连携技-1-' + i for i in mutex_list]
-            self._mutex_list['连携技-2-' + agent_enum.value.agent_name] = ['连携技-2-' + i for i in mutex_list]
+            self._mutex_list['连携技-1-' + agent_enum.value.agent_name] = ['连携技-1-' + i for i in (mutex_list + ['邦布'])]
+            self._mutex_list['连携技-2-' + agent_enum.value.agent_name] = ['连携技-2-' + i for i in (mutex_list + ['邦布'])]
             self._mutex_list['快速支援-' + agent_enum.value.agent_name] = ['快速支援-' + i for i in mutex_list]
 
         for agent_type_enum in AgentTypeEnum:
+            if agent_type_enum == AgentTypeEnum.UNKNOWN:
+                continue
             mutex_list: List[str] = []
             for mutex_agent_type_enum in AgentTypeEnum:
+                if mutex_agent_type_enum == AgentTypeEnum.UNKNOWN:
+                    continue
                 if mutex_agent_type_enum == agent_type_enum:
                     continue
                 mutex_list.append(mutex_agent_type_enum.value)
@@ -114,6 +118,11 @@ class AutoBattleOperator(ConditionalOperator):
             self._mutex_list['连携技-1-' + agent_type_enum.value] = ['连携技-1-' + i for i in mutex_list]
             self._mutex_list['连携技-2-' + agent_type_enum.value] = ['连携技-2-' + i for i in mutex_list]
             self._mutex_list['快速支援-' + agent_type_enum.value] = ['快速支援-' + i for i in mutex_list]
+
+        # 特殊处理连携技的互斥
+        for i in range(1, 3):
+            self._mutex_list[f'连携技-{i}-邦布'] = [f'连携技-{i}-' + agent_enum.value.agent_name for agent_enum in AgentEnum]
+
 
         ConditionalOperator.init(
             self,
@@ -151,6 +160,8 @@ class AutoBattleOperator(ConditionalOperator):
                     event_ids.append(state.state_name)
 
         for agent_type_enum in AgentTypeEnum:
+            if agent_type_enum == AgentTypeEnum.UNKNOWN:
+                continue
             event_ids.append('前台-' + agent_type_enum.value)
             event_ids.append('后台-1-' + agent_type_enum.value)
             event_ids.append('后台-2-' + agent_type_enum.value)
@@ -162,6 +173,10 @@ class AutoBattleOperator(ConditionalOperator):
             common_agent_state = state_enum.value
             if common_agent_state.state_name not in event_ids:
                 event_ids.append(common_agent_state.state_name)
+
+        # 特殊处理邦布
+        for i in range(1, 3):
+            event_ids.append(f'连携技-{i}-邦布')
 
         return event_ids
 

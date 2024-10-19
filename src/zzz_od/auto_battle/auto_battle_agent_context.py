@@ -584,6 +584,88 @@ class AutoBattleAgentContext:
         elif target_agent_pos == 3:  # 在上一个
             return self.switch_prev_agent(update_time, update_state=update_state)
 
+    def chain_left(self, update_time: float, update_state: bool = True) -> List[StateRecord]:
+        """
+        连携技-左
+        :return:
+        """
+        # 由于连携有邦布的存在 因此要特殊判断切换的角色
+        chain_name_list = self.get_chain_name()
+
+        # 有识别到的情况 就默认使用上一个
+        if len(chain_name_list) < 1:
+            return self.switch_prev_agent(update_time, update_state=update_state)
+
+        if chain_name_list[0] == '邦布':
+            agent_name = chain_name_list[1]
+        else:
+            agent_name = chain_name_list[0]
+        return self.switch_by_agent_name(agent_name, update_time, update_state=update_state)
+
+    def chain_right(self, update_time: float, update_state: bool = True) -> List[StateRecord]:
+        """
+        连携技-右
+        :return:
+        """
+        # 由于连携有邦布的存在 因此要特殊判断切换的角色
+        chain_name_list = self.get_chain_name()
+
+        # 有识别到的情况 就默认使用上一个
+        if len(chain_name_list) < 2:
+            return self.switch_next_agent(update_time, update_state=update_state)
+
+        if chain_name_list[1] == '邦布':
+            agent_name = chain_name_list[0]
+        else:
+            agent_name = chain_name_list[1]
+        return self.switch_by_agent_name(agent_name, update_time, update_state=update_state)
+
+    def get_chain_name(self) -> List[str]:
+        """
+        获取连携的名称
+        :return:
+        """
+        result = []
+        all_name_list = ['邦布'] + [agent_enum.value.agent_name for agent_enum in AgentEnum]
+        for i in range(1, 3):
+            target_name: Optional[str] = None
+            latest_recorder: Optional[StateRecorder] = None
+            for name in all_name_list:
+                state_name = f'连携技-{i}-{name}'
+                state_recorder = self.auto_op.get_state_recorder(state_name)
+                if state_recorder is None or state_recorder.last_record_time <= 0:
+                    continue
+
+                if latest_recorder is None or state_recorder.last_record_time > latest_recorder.last_record_time:
+                    latest_recorder = state_recorder
+                    target_name = name
+
+            result.append(target_name)
+
+        return result
+
+    def switch_by_agent_name(self, agent_name: str, update_time: float, update_state: bool = True) -> List[StateRecord]:
+        """
+        根据代理人名称进行切换
+        :param agent_name:
+        :param update_time:
+        :param update_state:
+        :return:
+        """
+        switch_agent = None
+        for agent_enum in AgentEnum:
+            if agent_enum.value.agent_name == agent_name:
+                switch_agent = agent_enum.value
+                break
+        if switch_agent is None:
+            return []
+
+        target_agent_pos = self.team_info.get_agent_pos(switch_agent)
+        if target_agent_pos == 2:  # 在下一个
+            return self.switch_next_agent(update_time, update_state=update_state)
+        elif target_agent_pos == 3:  # 在上一个
+            return self.switch_prev_agent(update_time, update_state=update_state)
+
     def _get_agent_state_records(self, update_time: float) -> List[StateRecord]:
         """
         获取代理人相关的状态

@@ -43,7 +43,7 @@ class AutoBattleInterface(AppRunInterface):
 
         self.config_opt = ComboBoxSettingCard(
             icon=FluentIcon.GAME, title='战斗配置',
-            content='调试为以当前画面做一次判断执行。配置文件在 config/auto_battle 文件夹，删除会恢复默认配置',
+            content='调试为以当前画面做一次判断执行',
             show_tooltip=True
         )
         self.debug_btn = PushButton(text='调试')

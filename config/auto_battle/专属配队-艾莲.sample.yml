@@ -296,7 +296,7 @@ scenes:
     priority: 97
     interval: 0.5
     handlers:
-      - states: "[连携技-1-未知]"
+      - states: "[连携技-1-邦布]"
         operations: *up
       - states: ""
         operations: *down

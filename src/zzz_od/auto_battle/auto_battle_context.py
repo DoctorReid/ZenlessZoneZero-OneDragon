@@ -508,6 +508,12 @@ class AutoBattleContext:
             state_records.append(StateRecord(f'连携技-{i + 1}-{result_agent_list[i].agent_type.value}', screenshot_time))
 
         if len(state_records) > 0:
+            # 有其中一个能识别时 另一个不能识别的就是邦布
+            for i in range(len(result_agent_list)):
+                if result_agent_list[i] is not None:
+                    continue
+                state_records.append(StateRecord(f'连携技-{i + 1}-邦布', screenshot_time))
+
             state_records.append(StateRecord(BattleStateEnum.STATUS_CHAIN_READY.value, screenshot_time))
             self.auto_op.batch_update_states(state_records)
 

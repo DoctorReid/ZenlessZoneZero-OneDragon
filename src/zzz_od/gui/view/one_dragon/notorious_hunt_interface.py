@@ -1,14 +1,13 @@
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QWidget
-from qfluentwidgets import FluentIcon, ComboBox, CaptionLabel, LineEdit
-from typing import Optional, List
+from qfluentwidgets import FluentIcon, CaptionLabel, LineEdit
+from typing import List
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.od_combo_box import OdComboBox
-from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiPushSettingCard, MultiLineSettingCard
-from one_dragon.utils.i18_utils import gt
+from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiLineSettingCard
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_op_config_list
 from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem
 from zzz_od.application.notorious_hunt.notorious_hunt_config import NotoriousHuntLevelEnum

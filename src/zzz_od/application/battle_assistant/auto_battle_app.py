@@ -79,7 +79,7 @@ class AutoBattleApp(ZApplication):
         return result
 
     @node_from(from_name='加载自动战斗指令')
-    @operation_node(name='画面识别')
+    @operation_node(name='画面识别', mute=True)
     def check_screen(self) -> OperationRoundResult:
         """
         识别当前画面 并进行点击

@@ -39,7 +39,7 @@ class OperationDebugInterface(AppRunInterface):
 
         self.config_opt = ComboBoxSettingCard(
             icon=FluentIcon.GAME, title='指令配置',
-            content='选择后，运行测试指令是否正常运行。配置文件在 config/auto_battle_operation 文件夹，删除会恢复默认配置')
+            content='在 config/auto_battle_operation 文件夹')
         self.config_opt.value_changed.connect(self._on_config_changed)
         top_widget.add_widget(self.config_opt)
 
