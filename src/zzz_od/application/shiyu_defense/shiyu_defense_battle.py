@@ -93,7 +93,7 @@ class ShiyuDefenseBattle(ZOperation):
             return self.round_wait(wait=0.5)
 
     @node_from(from_name='向前移动准备战斗')
-    @operation_node(name='自动战斗', timeout_seconds=600)
+    @operation_node(name='自动战斗', timeout_seconds=600, mute=True)
     def auto_battle(self) -> OperationRoundResult:
         if self.auto_op.auto_battle_context.last_check_end_result is not None:
             auto_battle_utils.stop_running(self.auto_op)

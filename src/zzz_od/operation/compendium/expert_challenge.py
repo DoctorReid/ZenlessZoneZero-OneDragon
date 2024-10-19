@@ -144,7 +144,7 @@ class ExpertChallenge(ZOperation):
         return self.round_success()
 
     @node_from(from_name='向前移动准备战斗')
-    @operation_node(name='自动战斗')
+    @operation_node(name='自动战斗', mute=True)
     def auto_battle(self) -> OperationRoundResult:
         if self.auto_op.auto_battle_context.last_check_end_result is not None:
             auto_battle_utils.stop_running(self.auto_op)

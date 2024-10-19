@@ -1,13 +1,14 @@
 import sys
+
 from PySide6.QtCore import Qt, QPropertyAnimation, Property, QRect, QRectF
 from PySide6.QtGui import QIcon, QPainter, QColor
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QSpacerItem, QSizePolicy
 from qfluentwidgets import FluentStyleSheet, drawIcon, isDarkTheme, FluentIcon as FIF, setFont, SplitTitleBar, \
     NavigationBarPushButton, MSFluentWindow, SingleDirectionScrollArea, NavigationBar, qrouter, FluentIconBase, \
-    NavigationItemPosition,qconfig
+    NavigationItemPosition
 from qfluentwidgets.window.fluent_window import FluentWindowBase
-from qfluentwidgets.window.stacked_widget import StackedWidget
 from typing import Union
+
 
 # 主窗口类，继承自 MSFluentWindow，重绘部分功能
 class OneDragonWindow(MSFluentWindow):

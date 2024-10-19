@@ -1,3 +1,4 @@
+import os
 import subprocess
 
 from one_dragon.base.operation.operation import Operation
@@ -23,8 +24,12 @@ class OpenGame(Operation):
         """
         if self.ctx.game_config.game_path == '':
             return self.round_fail('未配置游戏路径')
-        log.info('尝试自动启动游戏 路径为 %s', self.ctx.game_config.game_path)
-        subprocess.Popen(
-            f'cmd /c "start "" "{self.ctx.game_config.game_path}" & exit"'
-        )
+        full_path = self.ctx.game_config.game_path
+        log.info('尝试自动启动游戏 路径为 %s', full_path)
+        # 获取文件夹路径
+        dir_path = os.path.dirname(full_path)
+        exe_name = os.path.basename(full_path)
+        command = f'cmd /c "start "" /D "{dir_path}" "{exe_name}" & exit"'
+        log.info('命令行指令 %s', command)
+        subprocess.Popen(command)
         return self.round_success(wait=5)

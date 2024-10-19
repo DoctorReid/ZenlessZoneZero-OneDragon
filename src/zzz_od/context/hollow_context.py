@@ -115,6 +115,7 @@ class HollowContext:
             return None
         idx_2_route = hollow_map_utils.search_map(current_map, set(self._get_avoid()))
 
+        # 优先考虑 一步可达时前往
         route = hollow_map_utils.get_route_in_1_step(idx_2_route, self._visited_nodes,
                                                     target_entry_list=self._get_go_in_1_step())
         if route is not None:
@@ -128,6 +129,7 @@ class HollowContext:
             if route is None:
                 continue
 
+            # 两次想要前往同一个节点
             if (self._last_route is not None
                     and hollow_map_utils.is_same_node(self._last_route.node, route.node)):
                 last_node = self._last_route.first_need_step_node
@@ -143,7 +145,7 @@ class HollowContext:
                     continue
 
             self._last_route = route
-            log.info(f"优先级 [途径]")
+            log.info(f"优先级 [途经]")
             return route.first_need_step_node
 
         # 是一定能走到的出口
@@ -156,14 +158,16 @@ class HollowContext:
         for to_go in must_go_list:
             route = hollow_map_utils.get_route_by_entry(idx_2_route, to_go, self._visited_nodes)
             if route is not None:
-                log.info(f"优先级 [特殊]")
+                log.info(f"优先级 [终点]")
                 return route.first_need_step_node
 
+            # 如果之前走过，但走不到 说明可能中间有格子识别错了 这种情况就一格一格地走
             route = hollow_map_utils.get_route_by_entry(idx_2_route, to_go, [])
             if route is not None:
-                log.info(f"优先级 [逼近]")
+                log.info(f"优先级 [相邻]")
                 return route.first_node
 
+        # 没有匹配到特殊点的时候 按副本类型走特定方向
         direction = 'w'
         if self.level_info.level >= 2 and self.level_info.phase == 1:
             direction = 'w'
@@ -174,7 +178,7 @@ class HollowContext:
 
         route = hollow_map_utils.get_route_by_direction(idx_2_route, direction)
         if route is not None:
-            log.info(f"优先级 [默认]")
+            log.info(f"优先级 [方向]")
             return route.first_need_step_node
 
         # 兜底 走一步能到的

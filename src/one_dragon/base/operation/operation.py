@@ -298,7 +298,11 @@ class Operation(OperationBase):
                 ):
                     node_name = 'none' if self._current_node is None else self._current_node.cn
                     round_result_status = 'none' if round_result is None else coalesce_gt(round_result.status, round_result.status_display, model='ui')
-                    if round_result_status != "等待":
+                    if (self._current_node is not None
+                            and self._current_node.mute
+                        and (round_result.result == OperationRoundResultEnum.WAIT or round_result.result == OperationRoundResultEnum.RETRY)):
+                        pass
+                    else:
                         log.info('%s 节点 %s 返回状态 %s', self.display_name, node_name, round_result_status)
                 if self.ctx.is_context_pause:  # 有可能触发暂停的时候仍在执行指令 执行完成后 再次触发暂停回调 保证操作的暂停回调真正生效
                     self._on_pause()

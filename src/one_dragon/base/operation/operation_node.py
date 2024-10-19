@@ -56,7 +56,7 @@ class OperationNode:
         """节点处理重试次数"""
 
         self.mute: bool = mute
-        """不显示结果日志"""
+        """不显示过程结果日志"""
 
 def operation_node(
         name: str,

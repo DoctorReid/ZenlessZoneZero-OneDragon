@@ -49,6 +49,10 @@ class WeeklyScheduleApp(ZApplication):
     @operation_node(name='行程安排')
     def click_schedule(self) -> OperationRoundResult:
         screen = self.screenshot()
+
+        result = self.round_by_find_area(screen, '每周行程', '未完成')
+        if result.is_success:
+            return self.round_success(result.status)
         return self.round_by_find_and_click_area(screen, '每周行程', '行程安排',
                                                  success_wait=1, retry_wait=1)
 
@@ -79,6 +83,7 @@ class WeeklyScheduleApp(ZApplication):
         return self.round_by_find_and_click_area(screen, '每周行程', '确认代办',
                                                  success_wait=1, retry_wait=1)
 
+    @node_from(from_name='行程安排', status='未完成')   # 之前解了任务 但没做完
     @node_from(from_name='确认代办')
     @operation_node(name='拉面')
     def eat_noodle(self) -> OperationRoundResult:

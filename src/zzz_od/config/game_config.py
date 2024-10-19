@@ -19,7 +19,7 @@ class GameLanguageEnum(Enum):
 
 class GameRegionEnum(Enum):
 
-    CN = ConfigItem('国服', 'cn')
+    CN = ConfigItem('国服/B服', 'cn')
     INTERNATIONAL = ConfigItem('国际服', 'international')
 
 

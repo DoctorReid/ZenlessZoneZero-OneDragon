@@ -13,7 +13,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: 账号密码
+- area_name: 国服-账号密码
   pc_rect:
   - 608
   - 728
@@ -24,7 +24,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: 账号输入区域
+- area_name: 国服-账号输入区域
   pc_rect:
   - 612
   - 368
@@ -35,7 +35,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: 密码输入区域
+- area_name: 国服-密码输入区域
   pc_rect:
   - 612
   - 470
@@ -46,7 +46,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: 同意按钮
+- area_name: 国服-同意按钮
   pc_rect:
   - 606
   - 576
@@ -57,7 +57,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: 账号密码进入游戏
+- area_name: 国服-账号密码进入游戏
   pc_rect:
   - 608
   - 648
@@ -85,6 +85,61 @@ area_list:
   - 974
   - 1852
   - 1022
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: B服-登陆
+  pc_rect:
+  - 854
+  - 610
+  - 1062
+  - 652
+  text: 登陆
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: B服-账号输入区域
+  pc_rect:
+  - 889
+  - 421
+  - 1062
+  - 459
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: B服-密码输入区域
+  pc_rect:
+  - 1042
+  - 494
+  - 1042
+  - 494
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: B服-同意按钮
+  pc_rect:
+  - 846
+  - 562
+  - 846
+  - 562
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: B服-账号删除区域
+  pc_rect:
+  - 1032
+  - 436
+  - 1032
+  - 436
   text: ''
   lcs_percent: 0.5
   template_sub_dir: ''

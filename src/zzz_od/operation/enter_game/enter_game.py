@@ -27,7 +27,8 @@ class EnterGame(ZOperation):
 
         self.already_login: bool = False  # 是否已经登录了
 
-    @node_from(from_name='输入账号密码')
+    @node_from(from_name='国服-输入账号密码')
+    @node_from(from_name='B服-输入账号密码')
     @operation_node(name='画面识别', node_max_retry_times=60, is_start_node=True)
     def check_screen(self) -> OperationRoundResult:
         screen = self.screenshot()
@@ -46,34 +47,68 @@ class EnterGame(ZOperation):
             if result.is_success:
                 return self.round_success(result.status, wait=5)
 
-        result = self.round_by_find_and_click_area(screen, '打开游戏', '账号密码')
+        result = self.round_by_find_and_click_area(screen, '打开游戏', '国服-账号密码')
+        if result.is_success:
+            return self.round_success(result.status, wait=1)
+
+        result = self.round_by_find_and_click_area(screen, '打开游戏', 'B服-登陆')
         if result.is_success:
             return self.round_success(result.status, wait=1)
 
         return self.round_retry(wait=1)
 
-    @node_from(from_name='画面识别', status='账号密码')
-    @operation_node(name='输入账号密码')
+    @node_from(from_name='画面识别', status='国服-账号密码')
+    @operation_node(name='国服-输入账号密码')
     def input_account_password(self) -> OperationRoundResult:
         if self.ctx.game_config.account == '' or self.ctx.game_config.password == '':
             return self.round_fail('未配置账号密码')
 
-        self.round_by_click_area('打开游戏', '账号输入区域')
+        self.round_by_click_area('打开游戏', '国服-账号输入区域')
         time.sleep(0.5)
         PcClipboard.copy_and_paste(self.ctx.game_config.account)
         time.sleep(1.5)
 
-        self.round_by_click_area('打开游戏', '密码输入区域')
+        self.round_by_click_area('打开游戏', '国服-密码输入区域')
         time.sleep(0.5)
         PcClipboard.copy_and_paste(self.ctx.game_config.password)
         time.sleep(1.5)
 
-        self.round_by_click_area('打开游戏', '同意按钮')
+        self.round_by_click_area('打开游戏', '国服-同意按钮')
         time.sleep(0.5)
 
         screen = self.screenshot()
         self.already_login = True
-        return self.round_by_find_and_click_area(screen, '打开游戏', '账号密码进入游戏',
+        return self.round_by_find_and_click_area(screen, '打开游戏', '国服-账号密码进入游戏',
+                                                 success_wait=5, retry_wait=1)
+
+    @node_from(from_name='画面识别', status='B服-登陆')
+    @operation_node(name='B服-输入账号密码')
+    def input_bilibili_account_password(self) -> OperationRoundResult:
+        if self.ctx.game_config.account == '' or self.ctx.game_config.password == '':
+            return self.round_fail('未配置账号密码')
+
+        self.round_by_click_area('打开游戏', 'B服-账号输入区域')
+        time.sleep(0.5)
+        self.round_by_click_area('打开游戏', 'B服-账号删除区域')
+        time.sleep(0.5)
+        PcClipboard.copy_and_paste(self.ctx.game_config.account)
+        time.sleep(1.5)
+
+        self.round_by_click_area('打开游戏', 'B服-密码输入区域')
+        time.sleep(0.5)
+        for _ in range(30):
+            self.ctx.controller.btn_controller.tap('backspace')
+        time.sleep(2)
+        # return self.round_fail()
+        PcClipboard.copy_and_paste(self.ctx.game_config.password)
+        time.sleep(1.5)
+
+        # self.round_by_click_area('打开游戏', 'B服-同意按钮')
+        # time.sleep(0.5)
+
+        screen = self.screenshot()
+        self.already_login = True
+        return self.round_by_find_and_click_area(screen, '打开游戏', 'B服-登陆',
                                                  success_wait=5, retry_wait=1)
 
     @node_from(from_name='画面识别', status='点击进入游戏')
