@@ -118,7 +118,7 @@ class SettingGameInterface(VerticalScrollInterface):
         self.key_lock_opt.value_changed.connect(self._on_key_lock_changed)
         key_group.addSettingCard(self.key_lock_opt)
 
-        self.key_chain_cancel_opt = KeySettingCard(icon=FluentIcon.GAME, title='锁定敌人')
+        self.key_chain_cancel_opt = KeySettingCard(icon=FluentIcon.GAME, title='锁定敌人-取消')
         self.key_chain_cancel_opt.value_changed.connect(self._on_key_chain_cancel_changed)
         key_group.addSettingCard(self.key_chain_cancel_opt)
 
@@ -197,7 +197,7 @@ class SettingGameInterface(VerticalScrollInterface):
         self.xbox_key_lock_opt.value_changed.connect(self._on_xbox_key_lock_changed)
         gamepad_group.addSettingCard(self.xbox_key_lock_opt)
 
-        self.xbox_key_chain_cancel_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='锁定敌人', options_enum=XboxButtonEnum)
+        self.xbox_key_chain_cancel_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='锁定敌人-取消', options_enum=XboxButtonEnum)
         self.xbox_key_chain_cancel_opt.value_changed.connect(self._on_xbox_key_chain_cancel_changed)
         gamepad_group.addSettingCard(self.xbox_key_chain_cancel_opt)
 
@@ -263,7 +263,7 @@ class SettingGameInterface(VerticalScrollInterface):
         self.ds4_key_lock_opt.value_changed.connect(self._on_ds4_key_lock_changed)
         gamepad_group.addSettingCard(self.ds4_key_lock_opt)
 
-        self.ds4_key_chain_cancel_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='锁定敌人', options_enum=Ds4ButtonEnum)
+        self.ds4_key_chain_cancel_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='锁定敌人-取消', options_enum=Ds4ButtonEnum)
         self.ds4_key_chain_cancel_opt.value_changed.connect(self._on_ds4_key_chain_cancel_changed)
         gamepad_group.addSettingCard(self.ds4_key_chain_cancel_opt)
 
