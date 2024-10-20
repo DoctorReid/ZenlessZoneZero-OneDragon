@@ -3,48 +3,50 @@ from PySide6.QtGui import QColor
 from enum import Enum
 from qfluentwidgets import ToolTip
 from typing import Optional, List, Iterable
+from dataclasses import dataclass, field
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.gui.component.combo_box import ComboBox
 from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
 from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
 
-
+@dataclass(eq=False)
 class ComboBoxSettingCard(SettingCardBase):
     """包含下拉框的自定义设置卡片类。"""
 
+    title: str
+    options_enum: Optional[Iterable[Enum]] = None
+    options_list: Optional[List[ConfigItem]] = field(default_factory=list)
+    tooltip: Optional[str] = None
+    adapter: Optional[YamlConfigAdapter] = None
+    
     value_changed = Signal(int, object)
 
-    def __init__(
-        self,
-        title: str,
-        options_enum: Optional[Iterable[Enum]] = None,
-        options_list: Optional[List[ConfigItem]] = None,
-        tooltip: Optional[str] = None,
-        adapter: Optional[YamlConfigAdapter] = None,
-        *args,
-        **kwargs
-    ):
-        super().__init__(title, *args, **kwargs)
+    def __post_init__(self):
+        """初始化设置卡片，设置下拉框及其选项。"""
+        super().__post_init__()
 
-        self.tooltip = tooltip
-        self.adapter = adapter
+        # 初始化下拉框
         self.combo_box = ComboBox(self)
         self.hBoxLayout.addWidget(self.combo_box, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
+        # 处理工具提示
         self._tooltip: Optional[ToolTip] = None
         if self.tooltip:
             self.titleLabel.installEventFilter(self)
 
+        # 初始化选项
         self._opts_list: List[ConfigItem] = []
-        self._initialize_options(options_enum, options_list)
+        self._initialize_options(self.options_enum, self.options_list)
 
+        # 设置初始索引
         self.last_index = -1
         if self.combo_box.count() > 0:
             self.combo_box.setCurrentIndex(0)
             self.last_index = 0
 
+        # 连接信号与槽
         self.combo_box.currentIndexChanged.connect(self._on_index_changed)
 
     def _initialize_options(self, options_enum: Optional[Iterable[Enum]], options_list: Optional[List[ConfigItem]]) -> None:
@@ -78,7 +80,7 @@ class ComboBoxSettingCard(SettingCardBase):
             self._tooltip.shadowEffect.setOffset(0, 1)
             self._tooltip.setDuration(0)
 
-            # 计算位置
+            # 计算工具提示位置
             label_pos = self.titleLabel.mapToGlobal(self.titleLabel.rect().topLeft())
             x = label_pos.x() - 64
             y = label_pos.y() - self._tooltip.size().height() - 10
@@ -92,7 +94,7 @@ class ComboBoxSettingCard(SettingCardBase):
             self._tooltip = None
 
     def set_options_by_list(self, options: List[ConfigItem]) -> None:
-        """通过ConfigItem列表设置下拉框选项。"""
+        """通过 ConfigItem 列表设置下拉框选项。"""
         self.combo_box.blockSignals(True)
         self.combo_box.clear()
         self._opts_list.clear()
@@ -137,8 +139,8 @@ class ComboBoxSettingCard(SettingCardBase):
             self.last_index = -1
             self.combo_box.setCurrentIndex(-1)
         else:
-            for idx, item in enumerate(self.combo_box.items):
-                if item.userData == value:
+            for idx in range(self.combo_box.count()):
+                if self.combo_box.itemData(idx) == value:
                     self.last_index = idx
                     self.combo_box.setCurrentIndex(idx)
                     break
