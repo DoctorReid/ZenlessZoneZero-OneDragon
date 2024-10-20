@@ -43,6 +43,12 @@ class ShiyuDefenseApp(ZApplication):
     @operation_node(name='等待画面加载', node_max_retry_times=60)
     def wait_loading(self) -> OperationRoundResult:
         screen = self.screenshot()
+
+        result = self.round_by_find_area(screen, '式舆防卫战', '前次行动最佳记录')
+        if result.is_success:
+            self.round_by_click_area('式舆防卫战', '前次-关闭')
+            return self.round_wait(result.status, wait=2)
+
         return self.round_by_find_area(screen, '式舆防卫战', '街区', retry_wait=1)
 
     @node_from(from_name='等待画面加载')

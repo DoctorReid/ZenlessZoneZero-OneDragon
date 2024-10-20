@@ -310,3 +310,25 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 前次行动最佳记录
+  pc_rect:
+  - 500
+  - 234
+  - 754
+  - 286
+  text: 前次行动最佳记录
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 前次-关闭
+  pc_rect:
+  - 1374
+  - 228
+  - 1418
+  - 276
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
