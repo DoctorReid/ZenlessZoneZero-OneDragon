@@ -61,10 +61,10 @@ class EnterHddMission(ZOperation):
         if result.is_success:
             return self.round_wait(status=result.status, wait=2)
 
-        # 点击知道看到下一步
+        # 点击直到看到下一步
         result = self.round_by_find_area(screen, 'HDD', '下一步')
-        if result.is_success:
-            return self.round_success()
+        if result.is_success:  # 稍微等待
+            return self.round_success(wait=1)
 
         return self.round_retry(wait=1)
 
