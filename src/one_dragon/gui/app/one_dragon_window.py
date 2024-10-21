@@ -1,17 +1,28 @@
 import sys
 
-from PySide6.QtCore import Qt, QPropertyAnimation, Property, QRect, QRectF
-from PySide6.QtGui import QIcon, QPainter, QColor,QFont
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QSpacerItem, QSizePolicy
+from PySide6.QtCore import Qt, QPropertyAnimation, Property, QRect, QRectF,QEasingCurve,QUrl
+from PySide6.QtGui import QIcon, QPainter, QColor,QFont,QDesktopServices
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QSpacerItem, QSizePolicy, QHBoxLayout, \
+    QPushButton
 from qfluentwidgets import FluentStyleSheet, drawIcon, isDarkTheme, FluentIcon as FIF, setFont, SplitTitleBar, \
     NavigationBarPushButton, MSFluentWindow, SingleDirectionScrollArea, NavigationBar, qrouter, FluentIconBase, \
-    NavigationItemPosition
-from qfluentwidgets.window.fluent_window import FluentWindowBase
+    NavigationItemPosition,FluentIcon,VerticalSeparator, IconWidget
+from qfluentwidgets.window.stacked_widget import StackedWidget
+from qfluentwidgets.common.animation import BackgroundAnimationWidget
+from qfluentwidgets.components.widgets.frameless_window import FramelessWindow
+from qfluentwidgets.common.config import qconfig
 from typing import Union
+
+# 伪装的父类,用于替换原本的FluentWindowBase初始化
+class OniFluentWindowBase(BackgroundAnimationWidget, FramelessWindow):
+    """ Fluent window base class """
+
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
 
 
 # 主窗口类，继承自 MSFluentWindow，重绘部分功能
-class OneDragonWindow(MSFluentWindow):
+class OneDragonWindow(MSFluentWindow,OniFluentWindowBase):
 
     def __init__(self, parent=None):
         
@@ -20,10 +31,33 @@ class OneDragonWindow(MSFluentWindow):
 
 
         # 调用原始父类执行初始化
-        FluentWindowBase.__init__(self, parent=parent)
+        self._isMicaEnabled = False
+        self._lightBackgroundColor = QColor(240, 244, 249)
+        self._darkBackgroundColor = QColor(32, 32, 32)
+        OniFluentWindowBase.__init__(self,parent=parent)
+        
+
+        self.hBoxLayout = QHBoxLayout(self)
+        self.stackedWidget = StackedWidget(self)
+        self.navigationInterface = None
+
+        # initialize layout
+        self.hBoxLayout.setSpacing(0)
+        self.hBoxLayout.setContentsMargins(0, 0, 0, 0)
+
+        FluentStyleSheet.FLUENT_WINDOW.apply(self.stackedWidget)
+
+        # enable mica effect on win11
+        self.setMicaEffectEnabled(True)
+
+        # show system title bar buttons on macOS
+        if sys.platform == "darwin":
+            self.setSystemTitleBarButtonVisible(True)
+
+        qconfig.themeChangedFinished.connect(self._onThemeChangedFinished)
         
         # 设置自定义标题栏和导航栏
-        self.setTitleBar(OdTitleBar(self))
+        self.setTitleBar(OniTitleBar(self))
         self.navigationInterface = OneDragonNavigationBar(self)
 
         self.areaWidget = QWidget()
@@ -150,56 +184,59 @@ class OneDragonNavigationBar(NavigationBar):
             return
 
         # 创建自定义按钮
-        w = OdNavigationBarPushButton(icon, text, selectable, selectedIcon, self)
+        w = OniNavigationBarPushButton(icon, text, selectable, selectedIcon, self)
         self.insertWidget(index, routeKey, w, onClick, position)
         return w
 
-# 图标滑动动画类
-class IconSlideAnimation(QPropertyAnimation):
+# 图标动画类
+class IconAnimation(QPropertyAnimation):
     """ Icon sliding animation """
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._offset = 0  # 动画偏移量
-        self.maxOffset = 6  # 最大偏移量
-        self.setTargetObject(self)  # 设置目标对象
-        self.setPropertyName(b"offset")  # 设置动画属性
+        self._opacity = 0
+        self.minOpacity = 100
+        self.maxOpacity = 255
+        self.setTargetObject(self)
+        self.setPropertyName(b"opacity")
 
-    # 获取偏移量
-    def getOffset(self):
-        return self._offset
+    def getOpacity(self):
+        return self._opacity
 
-    # 设置偏移量
-    def setOffset(self, value: float):
-        self._offset = value
-        self.parent().update()  # 更新父对象
+    def setOpacity(self, value: float):
+        self._opacity = value
+        self.parent().update()  # 更新父对象以重绘
 
-    # 向下滑动动画
-    def slideDown(self):
-        self.setEndValue(self.maxOffset)
-        self.setDuration(100)
+    opacity = Property(float, getOpacity, setOpacity)
+
+    def aniStart(self):
+        """ slide down """
+        self.setStartValue(self.minOpacity)
+        self.setEndValue(self.maxOpacity)
+        self.setDuration(400)  # 调整持续时间
+        self.setEasingCurve(QEasingCurve.OutCubic)  # 使用缓动函数
         self.start()
 
-    # 向上滑动动画
-    def slideUp(self):
-        self.setEndValue(0)
-        self.setDuration(100)
+    def aniStop(self):
+        """ slide up """
+        self.setStartValue(20)
+        self.setEndValue(0)  # 修改为从最大值到0
+        self.setDuration(100)  # 调整持续时间
+        self.setEasingCurve(QEasingCurve.InCubic)  # 使用缓动函数
         self.start()
-
-    offset = Property(float, getOffset, setOffset)
 
 # 自定义导航按钮类
-class OdNavigationBarPushButton(NavigationBarPushButton):
+class OniNavigationBarPushButton(NavigationBarPushButton):
     """ Navigation bar push button """
 
     def __init__(self, icon: Union[str, QIcon, FIF], text: str, isSelectable: bool, selectedIcon=None, parent=None):
         super(NavigationBarPushButton, self).__init__(icon, text, isSelectable, parent)
-        self.iconAni = IconSlideAnimation(self)  # 图标滑动动画
+        self.iconAni = IconAnimation(self)  # 图标滑动动画
         self._selectedIcon = selectedIcon
         self._isSelectedTextVisible = True
 
         self.setFixedSize(64, 58)  # 设置按钮大小
-        setFont(self,12,weight=QFont.Weight.ExtraBold)  # 设置字体大小
+        setFont(self, 12, weight=QFont.Weight.ExtraBold)  # 设置字体大小
 
     # 绘制事件
     def paintEvent(self, e):
@@ -208,30 +245,31 @@ class OdNavigationBarPushButton(NavigationBarPushButton):
         painter.setPen(Qt.NoPen)
 
         # 绘制选中按钮样式
-        if self.isSelected:
-            painter.setBrush(QColor(214, 75, 84))  # 设置选中背景颜色
+        if self.isSelected and not self.isPressed:
+            painter.setBrush(QColor(214, 75, 84, self.iconAni.opacity))  # 设置选中背景颜色
             painter.drawRoundedRect(self.rect().adjusted(4, 0, -4, 0), 10, 10)
-
-        elif self.isPressed or self.isEnter:
+        elif self.isSelected and self.isPressed:
+            painter.setBrush(QColor(214, 75, 84, 100))  # 设置选中背景颜色
+            painter.drawRoundedRect(self.rect().adjusted(4, 0, -4, 0), 10, 10)
+        elif self.isPressed:
             c = 255 if isDarkTheme() else 0
-            alpha = 9 if self.isEnter else 6
-            painter.setBrush(QColor(c, c, c, alpha))
+            painter.setBrush(QColor(c, c, c, 20))  # 设置选中背景颜色
+            painter.drawRoundedRect(self.rect().adjusted(4, 0, -4, 0), 10, 10)
+        elif self.isEnter:
+            c = 255 if isDarkTheme() else 0
+            painter.setBrush(QColor(c, c, c, 10))
+            painter.drawRoundedRect(self.rect().adjusted(4, 0, -4, 0), 10, 10)
+        else:
+            c = 255 if isDarkTheme() else 0
+            painter.setBrush(QColor(c, c, c, self.iconAni.opacity))  # 设置默认背景颜色
             painter.drawRoundedRect(self.rect().adjusted(4, 0, -4, 0), 10, 10)
 
         # 绘制图标
-
-        if self._isSelectedTextVisible:
-            rect = QRectF(22, 13, 20, 20)
-        else:
-            rect = QRectF(22, 13 + self.iconAni.offset, 20, 20)
-
+        rect = QRectF(22, 13, 20, 20)
         selectedIcon = self._selectedIcon or self._icon
 
         if isinstance(selectedIcon, FluentIconBase) and self.isSelected:
-            if isDarkTheme():
-                selectedIcon.render(painter, rect, fill="#ffffff")
-            else:
-                selectedIcon.render(painter, rect, fill="#ffffff")
+            selectedIcon.render(painter, rect, fill="#ffffff")
         elif self.isSelected:
             selectedIcon.render(painter, rect, fill="#5c6e93")
         elif isDarkTheme():
@@ -243,18 +281,23 @@ class OdNavigationBarPushButton(NavigationBarPushButton):
             return
 
         # 绘制文字
-        if self.isSelected:
-            painter.setPen(QColor(255, 255, 255))
-        elif isDarkTheme():
-                painter.setPen(QColor(178, 178, 178))
-        else:
-                painter.setPen(QColor(92, 110, 147))
-
+        painter.setPen(QColor(255, 255, 255) if self.isSelected else QColor(178, 178, 178) if isDarkTheme() else QColor(92, 110, 147))
         painter.setFont(self.font())
         rect = QRect(0, 32, self.width(), 26)
         painter.drawText(rect, Qt.AlignCenter, self.text())
+
+    def setSelected(self, isSelected: bool):
+        if isSelected == self.isSelected:
+            return
+
+        self.isSelected = isSelected
+
+        if isSelected:
+            self.iconAni.aniStart()
+        else:
+            self.iconAni.aniStop()
         
-class OdTitleBar(SplitTitleBar):
+class OniTitleBar(SplitTitleBar):
     """ One Dragon 自定义标题栏 """
 
     def __init__(self, parent=None):
@@ -289,9 +332,26 @@ class OdTitleBar(SplitTitleBar):
 
         # 将新创建的布局插入到标题栏的主布局中
         self.hBoxLayout.insertLayout(0, layout)
+        
+        Qlayout = QHBoxLayout()
+        Qlayout.setContentsMargins(8, 10, 0, 0)
+
+        # 添加文字按钮
+        self.questionButton = QPushButton("ⓘ 反馈问题")
+        self.questionButton.setObjectName("questionButton")
+        self.questionButton.clicked.connect(self.open_github)
+        Qlayout.addWidget(self.questionButton, 0, Qt.AlignLeft | Qt.AlignTop)
+        
+        # 将新创建的布局插入到标题栏的主布局中
+        self.hBoxLayout.insertLayout(2, Qlayout)
 
     def setIcon(self, icon: QIcon):
         self.iconLabel.setPixmap(icon.pixmap(18, 18))
 
     def setTitle(self, title: str):
         self.titleLabel.setText(title)
+        
+    # 定义打开GitHub网页的函数
+    def open_github(self):
+        url = QUrl("https://github.com/DoctorReid/ZenlessZoneZero-OneDragon/issues")
+        QDesktopServices.openUrl(url)

@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QIcon, Qt
 from qfluentwidgets import SettingCard, FluentIconBase, CheckBox
@@ -7,24 +8,21 @@ from one_dragon.gui.component.utils.layout_utils import IconSize, Margins
 from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
 from one_dragon.utils.i18_utils import gt
 
-
+@dataclass(eq=False)
 class CheckBoxSettingCard(SettingCardBase):
 
     value_changed = Signal(bool)
 
-    def __init__(self, title: str, *args, **kwargs):
-        """
-        :param icon: 左边显示的图标
-        :param title: 左边的标题 中文
-        :param content: 左侧的详细文本 中文
-        :param parent: 组件的parent
-        """
-        SettingCardBase.__init__(self, title, *args, **kwargs)
-        self.check_box = CheckBox(self)
-        self.hBoxLayout.addWidget(self.check_box, 0, Qt.AlignmentFlag.AlignRight)
-        self.hBoxLayout.addSpacing(16)
+    def __post_init__(self):
+            super().__post_init__()
+            
+            # 初始化 CheckBox
+            self.check_box = CheckBox(self)
+            self.hBoxLayout.addWidget(self.check_box, 0, Qt.AlignmentFlag.AlignRight)
+            self.hBoxLayout.addSpacing(16)
 
-        self.check_box.checkStateChanged.connect(self._on_value_changed)
+            # 连接信号
+            self.check_box.checkStateChanged.connect(self._on_value_changed)
 
     def _on_value_changed(self, value: Qt.CheckState) -> None:
         """

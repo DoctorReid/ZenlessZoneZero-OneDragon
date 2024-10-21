@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from PySide6.QtCore import Signal, QObject
 from PySide6.QtGui import QIcon, Qt
 from qfluentwidgets import SettingCard, FluentIconBase, PushButton
@@ -22,40 +23,29 @@ class KeyEventWorker(QObject):
         """
         self.key_pressed.emit(key)
 
-
+@dataclass(eq=False)
 class KeySettingCard(SettingCardBase):
+
+    title: str
+    adapter: Optional[YamlConfigAdapter] = None
+    value: str = ""
 
     value_changed = Signal(str)
 
-    def __init__(
-        self,
-        title: str,
-        adapter: Optional[YamlConfigAdapter] = None,
-        value: str = "",
-        *args,
-        **kwargs
-    ):
-        """
-        更改按键的
-        :param icon: 左边显示的图标
-        :param title: 左边的标题 中文
-        :parma value: 当前值
-        :param content: 左侧的详细文本 中文
-        :param parent: 组件的parent
-        :param adapter: 配置适配器 自动更新对应配置文件
-        """
-        SettingCardBase.__init__(self, title, *args, **kwargs)
-        self.adapter: YamlConfigAdapter = adapter
+    def __post_init__(self):
+        super().__post_init__()
 
-        self.value: str = value
-        self.btn = PushButton(text=value.upper(), parent=self)
+        # 初始化 PushButton
+        self.btn = PushButton(text=self.value.upper(), parent=self)
         self.btn.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.btn.clicked.connect(self._on_btn_clicked)
 
-        self.button_listener = None  # 监听
+        # 初始化监听器和键盘事件工作者
+        self.button_listener = None  # 按键监听
         self.key_worker = KeyEventWorker()
         self.key_worker.key_pressed.connect(self._on_key_signal)
 
+        # 布局处理
         self.hBoxLayout.addWidget(self.btn, 1, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
