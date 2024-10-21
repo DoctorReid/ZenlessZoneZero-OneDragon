@@ -9,6 +9,22 @@
     padding: 0 4px
 }
 
+#TitleBar>QPushButton#questionButton {
+    color: black;
+    background: transparent;
+    font: 13px 'Segoe UI', 'Microsoft YaHei', 'PingFang SC';
+    padding: 0 4px;
+    border: none
+}
+
+#TitleBar > QPushButton#questionButton:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+#TitleBar > QPushButton#questionButton:pressed {
+    background: rgba(0, 0, 0, 0.2);
+}
+
 MinimizeButton {
     qproperty-normalColor: black;
     qproperty-normalBackgroundColor: transparent;

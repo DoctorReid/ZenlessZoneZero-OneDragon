@@ -2,7 +2,7 @@ description: |
   专属配队-艾莲
   配队列表：艾莲 + 凯撒/莱卡恩 + 莱卡恩/苍角
   备注： 2号位、3号位可任意更换击破、支援、防护
-  版本号： 2.4
+  版本号： 2.6
   作者： 巡夜子
   协作： 笙梦昱
   
@@ -74,13 +74,16 @@ t-prot: &prot
           - op_name: "按键-闪避"
             press: 0.01
             post_delay: 0.1
+          - op_name: "按键-闪避"
+            press: 0.01
+            post_delay: 0.05
           - op_name: "按键-普通攻击"
             way: "按下"
             post_delay: 1.2
           - op_name: "按键-普通攻击"
             way: "松开"
           - op_name: "按键-锁定敌人"
-            post_delay: 0.01
+            post_delay: 0.1
           - op_name: "清除状态"
             state: "自定义-动作不打断"
 
@@ -88,18 +91,18 @@ t-prot: &prot
 t-sup: &fh
   - states: "[前台-凯撒]"
     sub_handlers:
-      - states: "![按键-切换角色-下一个,0,1]"
+      - states: "![按键-切换角色-下一个,0,0.6]"
         operations:
           - op_name: "按键-特殊攻击"
             press: 0.01
             post_delay: 0.05
           - op_name: "设置状态"
             state: "自定义-速切结束"
-      - states: "[按键-切换角色-下一个,0,1]"
+      - states: "[按键-切换角色-下一个,0,0.9]"
         operations:
           - op_name: "按键-特殊攻击"
             press: 0.01
-            post_delay: 0.05
+            repeat: 6
   - states: "![前台-凯撒]"
     sub_handlers:
       - state_template: "速切模板-全角色"
@@ -107,18 +110,20 @@ t-sup: &fh
 #速切模板-击破
 t-sup: &jp
   - states: "[前台-莱卡恩]"
-    operations:
-      - op_name: "按键-移动-前"
-        way: "松开"
-      - op_name: "按键-特殊攻击"
-        post_delay: 0.05
-      - op_name: "按键-普通攻击"
-        post_delay: 0.05
-      - op_name: "按键-特殊攻击"
-        post_delay: 0.05
-        repeat: 6
-      - op_name: "设置状态"
-        state: "自定义-速切结束"
+    sub_handlers:
+      - states: "![按键-切换角色-下一个,0,0.6]"
+        operations:
+          - op_name: "按键-特殊攻击"
+            press: 0.01
+            post_delay: 0.05
+          - op_name: "设置状态"
+            state: "自定义-速切结束"
+      - states: "[按键-切换角色-下一个,0,0.9]"
+        operations:
+          - op_name: "按键-特殊攻击"
+            press: 0.01
+            post_delay: 0.05
+            repeat: 6
   - states: "![前台-莱卡恩]"
     sub_handlers:
       - state_template: "速切模板-全角色"
@@ -171,29 +176,25 @@ t-dodge: &dodge
 
 #连携模板-上一个
 t-up: &up
+  - op_name: "按键-移动-前"
+    way: "松开"
+    post_delay: 0.01
   - op_name: "按键-连携技-左"
-    post_delay: 0.05
+    post_delay: 0.01
   - op_name: "按键-普通攻击"
-    press: 0.01
-    post_delay: 0.15
-    repeat: 3
-  - op_name: "按键-特殊攻击"
-    post_delay: 0.1
-    repeat: 18
+    post_delay: 0.01
   - op_name: "清除状态"
     state: "自定义-动作不打断"
 
 #连携模板-下一个
 t-down: &down
+  - op_name: "按键-移动-前"
+    way: "松开"
+    post_delay: 0.01
   - op_name: "按键-连携技-右"
-    post_delay: 0.05
-  - op_name: "按键-闪避"
-    press: 0.01
-    post_delay: 0.15
-    repeat: 3
+    post_delay: 0.01
   - op_name: "按键-特殊攻击"
-    post_delay: 0.1
-    repeat: 18
+    post_delay: 0.01
   - op_name: "清除状态"
     state: "自定义-动作不打断"
 
@@ -210,7 +211,7 @@ scenes:
     priority: 100
     interval: 0.1
     handlers:
-      - states: "[按键可用-快速支援]"
+      - states: "([按键可用-快速支援] & [按键-快速支援,0,1]) | ([自定义-速切结束] & ![按键-切换角色-下一个,0,1])"
         sub_handlers:
           - states: "[前台-艾莲] & ![自定义-艾莲站场时间,0,12]"                     #前台艾莲且不在站场时间会选择下切人 
             operations:
@@ -224,6 +225,11 @@ scenes:
               - op_name: "清除状态"
                 state: "自定义-速切结束"
               - op_name: "按键-切换角色-下一个"
+                post_delay: 0.01
+              - op_name: "按键-特殊攻击"
+                press: 0.01
+                post_delay: 0.05
+                repeat: 10
           - states: "[后台-1-艾莲] & ![按键可用-快速支援]"                          #后台(1)是艾莲且快速支援按键不可用切人并添加艾莲站场
             operations:
               - op_name: "清除状态"
@@ -231,6 +237,10 @@ scenes:
               - op_name: "设置状态"
                 state: "自定义-艾莲站场时间"
               - op_name: "按键-切换角色-下一个"
+                post_delay: 0.01
+              - op_name: "按键-普通攻击"
+                post_delay: 0.03
+                repeat: 10
               - op_name: "清除状态"
                 state: "自定义-动作不打断"
           - states: "[后台-1-艾莲] & [按键可用-快速支援,0,0.5]"                      #后台(1)是艾莲且快速支援按键可用切人并添加艾莲站场
@@ -240,43 +250,10 @@ scenes:
               - op_name: "设置状态"
                 state: "自定义-艾莲站场时间"
               - op_name: "按键-切换角色-下一个"
-                post_delay: 0.3
-              - op_name: "清除状态"
-                state: "自定义-动作不打断"
-      - states: "[自定义-速切结束]"
-        sub_handlers:
-          - states: "[前台-艾莲] & ![自定义-艾莲站场时间,0,12]"                       #同理 只是条件更改
-            operations:
-              - op_name: "清除状态"
-                state: "自定义-速切结束"
-              - op_name: "按键-移动-前"
-                way: "松开"
-              - op_name: "按键-切换角色-下一个"
-          - states: "[前台-艾莲] & [按键可用-快速支援]"
-            operations:
-              - op_name: "按键-快速支援"
-          - states: "![前台-艾莲] & ![后台-1-艾莲]"
-            operations:
-              - op_name: "清除状态"
-                state: "自定义-速切结束"
-              - op_name: "按键-切换角色-下一个"
-          - states: "[后台-1-艾莲] & ![按键可用-快速支援]"
-            operations:
-              - op_name: "清除状态"
-                state: "自定义-速切结束"
-              - op_name: "设置状态"
-                state: "自定义-艾莲站场时间"
-              - op_name: "按键-切换角色-下一个"
-              - op_name: "清除状态"
-                state: "自定义-动作不打断"
-          - states: "[后台-1-艾莲] & [按键可用-快速支援,0,0.5]"
-            operations:
-              - op_name: "清除状态"
-                state: "自定义-速切结束"
-              - op_name: "设置状态"
-                state: "自定义-艾莲站场时间"
-              - op_name: "按键-切换角色-下一个"
-                post_delay: 0.3
+                post_delay: 0.01
+              - op_name: "按键-普通攻击"
+                post_delay: 0.03
+                repeat: 10
               - op_name: "清除状态"
                 state: "自定义-动作不打断"
 
@@ -288,27 +265,23 @@ scenes:
         operations:
           - op_name: "按键-终结技"
             post_delay: 0.1
-            repeat: 40
+            repeat: 21
+          - op_name: "按键-移动-前"
+            way: "松开"
+          - op_name: "按键-终结技"
+            post_delay: 0.1
+            repeat: 21
           - op_name: "清除状态"
             state: "自定义-动作不打断"
 
   - triggers: ["按键可用-连携技"]
     priority: 97
-    interval: 0.5
+    interval: 0.2
     handlers:
-      - states: "[连携技-1-邦布]"
-        operations: *up
-      - states: ""
+      - states: "([连携技-1-艾莲,0,0.4] | [连携技-1-击破,0,0.4] | [连携技-1-支援,0,0.4] | [连携技-1-防护,0,0.4])"
         operations: *down
-
-  - triggers: ["按键可用-快速支援"]
-    priority: 96
-    interval: 0.1
-    handlers:
-      - states: "![按键-切换角色-下一个,0,0.3]"
-        operations:
-          - op_name: "设置状态"
-            state: "自定义-速切结束"
+      - states: "![连携技-1-艾莲,0,0.4] & ![连携技-1-击破,0,0.4] & ![连携技-1-支援,0,0.4] & ![连携技-1-防护,0,0.4]"
+        operations: *up
 
   - triggers: ["闪避识别-黄光","闪避识别-红光","闪避识别-声音"]
     priority: 95
@@ -327,9 +300,9 @@ scenes:
                         operations:
                           - op_name: "按键-切换角色-下一个"
                           - op_name: "按键-特殊攻击"
-                            press: 0.05
-                            post_delay: 0.1
-                            repeat: 26
+                            press: 0.01
+                            post_delay: 0.05
+                            repeat: 40
                           - op_name: "设置状态"
                             state: "自定义-速切结束"
                       - states: "![后台-1-凯撒]"
@@ -363,14 +336,14 @@ scenes:
 
   - triggers: ["按键-切换角色-下一个","前台-击破"]
     priority: 48
-    interval: 1
+    interval: 0.1
     handlers:
       - states: "[前台-击破]"
         sub_handlers: *jp
 
   - triggers: ["按键-切换角色-下一个","前台-防护"]
     priority: 47
-    interval: 1
+    interval: 0.1
     handlers:
       - states: "[前台-防护]"
         sub_handlers: *fh
