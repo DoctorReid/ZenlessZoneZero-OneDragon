@@ -1,5 +1,6 @@
 import os
 import subprocess
+import sys
 
 from one_dragon.utils import os_utils, cmd_utils
 
@@ -14,7 +15,7 @@ def start_one_dragon(restart: bool):
     subprocess.Popen(f'cmd /c "start "zzz-od-runner" "{bat_path}""',
                      shell=True)
     if restart:
-        exit(0)
+        sys.exit(0)
 
 
 def restart_one_dragon():
