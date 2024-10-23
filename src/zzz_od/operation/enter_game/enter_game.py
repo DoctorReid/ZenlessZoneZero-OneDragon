@@ -6,6 +6,7 @@ from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils.i18_utils import gt
+from zzz_od.config.game_config import TypeInputWay
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.back_to_normal_world import BackToNormalWorld
 from zzz_od.operation.zzz_operation import ZOperation
@@ -26,6 +27,7 @@ class EnterGame(ZOperation):
             self.force_login = True
 
         self.already_login: bool = False  # 是否已经登录了
+        self.use_clipboard: bool = self.ctx.game_config.type_input_way == TypeInputWay.CLIPBOARD.value.value  # 使用剪切板输入
 
     @node_from(from_name='国服-输入账号密码')
     @node_from(from_name='B服-输入账号密码')
@@ -65,12 +67,18 @@ class EnterGame(ZOperation):
 
         self.round_by_click_area('打开游戏', '国服-账号输入区域')
         time.sleep(0.5)
-        PcClipboard.copy_and_paste(self.ctx.game_config.account)
+        if self.use_clipboard:
+            PcClipboard.copy_and_paste(self.ctx.game_config.account)
+        else:
+            self.ctx.controller.keyboard_controller.keyboard.type(self.ctx.game_config.account)
         time.sleep(1.5)
 
         self.round_by_click_area('打开游戏', '国服-密码输入区域')
         time.sleep(0.5)
-        PcClipboard.copy_and_paste(self.ctx.game_config.password)
+        if self.use_clipboard:
+            PcClipboard.copy_and_paste(self.ctx.game_config.password)
+        else:
+            self.ctx.controller.keyboard_controller.keyboard.type(self.ctx.game_config.password)
         time.sleep(1.5)
 
         self.round_by_click_area('打开游戏', '国服-同意按钮')
@@ -91,7 +99,10 @@ class EnterGame(ZOperation):
         time.sleep(0.5)
         self.round_by_click_area('打开游戏', 'B服-账号删除区域')
         time.sleep(0.5)
-        PcClipboard.copy_and_paste(self.ctx.game_config.account)
+        if self.use_clipboard:
+            PcClipboard.copy_and_paste(self.ctx.game_config.account)
+        else:
+            self.ctx.controller.keyboard_controller.keyboard.type(self.ctx.game_config.account)
         time.sleep(1.5)
 
         self.round_by_click_area('打开游戏', 'B服-密码输入区域')
@@ -100,7 +111,10 @@ class EnterGame(ZOperation):
             self.ctx.controller.btn_controller.tap('backspace')
         time.sleep(2)
         # return self.round_fail()
-        PcClipboard.copy_and_paste(self.ctx.game_config.password)
+        if self.use_clipboard:
+            PcClipboard.copy_and_paste(self.ctx.game_config.password)
+        else:
+            self.ctx.controller.keyboard_controller.keyboard.type(self.ctx.game_config.password)
         time.sleep(1.5)
 
         # self.round_by_click_area('打开游戏', 'B服-同意按钮')

@@ -13,7 +13,7 @@ from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSett
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
-from zzz_od.config.game_config import GameRegionEnum, GamepadTypeEnum
+from zzz_od.config.game_config import GameRegionEnum, GamepadTypeEnum, TypeInputWay
 from zzz_od.context.zzz_context import ZContext
 
 
@@ -56,6 +56,10 @@ class SettingGameInterface(VerticalScrollInterface):
         self.game_password_opt = TextSettingCard(icon=FluentIcon.EXPRESSIVE_INPUT_ENTRY, title='密码',
                                                  content='放心不会盗你的号 异地登陆需要验证')
         basic_group.addSettingCard(self.game_password_opt)
+
+        self.input_way_opt = ComboBoxSettingCard(icon=FluentIcon.CLIPPING_TOOL, title='输入方式', show_config_desc=True,
+                                                 options_enum=TypeInputWay)
+        basic_group.addSettingCard(self.input_way_opt)
 
         return basic_group
 
@@ -282,6 +286,7 @@ class SettingGameInterface(VerticalScrollInterface):
         self.game_path_opt.setContent(self.ctx.game_config.game_path)
         self.game_account_opt.setValue(self.ctx.game_config.account)
         self.game_password_opt.setValue(self.ctx.game_config.password)
+        self.input_way_opt.init_with_adapter(self.ctx.game_config.type_input_way_adapter)
 
         self.key_normal_attack_opt.setValue(self.ctx.game_config.key_normal_attack)
         self.key_dodge_opt.setValue(self.ctx.game_config.key_dodge)

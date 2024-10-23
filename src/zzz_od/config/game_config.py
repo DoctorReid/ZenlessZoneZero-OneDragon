@@ -4,6 +4,7 @@ from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
 from one_dragon.base.controller.pc_button.ds4_button_controller import Ds4ButtonEnum
 from one_dragon.base.controller.pc_button.xbox_button_controller import XboxButtonEnum
+from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
 
 
 class GamePlatformEnum(Enum):
@@ -28,6 +29,12 @@ class GamepadTypeEnum(Enum):
     NONE = ConfigItem('无', 'none')
     XBOX = ConfigItem('Xbox', 'xbox')
     DS4 = ConfigItem('DS4', 'ds4')
+
+
+class TypeInputWay(Enum):
+
+    INPUT = ConfigItem('键盘输入', 'input', desc='需确保使用时没有启用输入法')
+    CLIPBOARD = ConfigItem('剪贴板', 'clipboard', desc='出现剪切板失败时 切换到输入法')
 
 
 class GameConfig(YamlConfig):
@@ -74,6 +81,18 @@ class GameConfig(YamlConfig):
     @password.setter
     def password(self, new_value: str) -> None:
         self.update('password', new_value)
+
+    @property
+    def type_input_way(self) -> str:
+        return self.get('type_input_way', TypeInputWay.CLIPBOARD.value.value)
+
+    @type_input_way.setter
+    def type_input_way(self, new_value: str):
+        self.update('type_input_way', new_value)
+
+    @property
+    def type_input_way_adapter(self) -> YamlConfigAdapter:
+        return YamlConfigAdapter(self, 'type_input_way', TypeInputWay.CLIPBOARD.value.value)
 
     @property
     def game_region(self) -> str:
