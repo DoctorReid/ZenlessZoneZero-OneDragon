@@ -9,7 +9,7 @@ from typing import List, Optional
 import zzz_od.hollow_zero.hollow_map.hollow_pathfinding
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.geometry.rectangle import Rect
-from one_dragon.utils import cv2_utils, debug_utils, yolo_config_utils, str_utils
+from one_dragon.utils import cv2_utils, yolo_config_utils, str_utils
 from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import Agent, AgentEnum
@@ -133,12 +133,12 @@ class HollowContext:
             # 两次想要前往同一个节点
             if (self._last_route is not None
                     and zzz_od.hollow_zero.hollow_map.hollow_pathfinding.is_same_node(self._last_route.node, route.node)):
-                last_node = self._last_route.first_need_step_node
-                curr_node = route.first_need_step_node
+                last_node = self._last_route.next_node_to_move
+                curr_node = route.next_node_to_move
                 if (zzz_od.hollow_zero.hollow_map.hollow_pathfinding.is_same_node(last_node, curr_node)
                         and (
-                                curr_node.entry.entry_name in ['门扉禁闭-财富', '门扉禁闭-善战']
-                                or route.node.entry.entry_name in ['零号银行', '业绩考察点']
+                                route.node.entry.entry_name in ['零号银行', '业绩考察点']  # 目标前往的点
+                                and curr_node.entry.entry_name in ['门扉禁闭-财富', '门扉禁闭-善战']  # 下一步前往的格子是门
                         )
                 ):
                     # 代表上一次点了之后 这次依然要点同样的位置 也就是无法通行
@@ -462,7 +462,7 @@ def __debug_get_map():
 
     from one_dragon.utils import debug_utils
     img_list = [
-        '1',
+        '_1729780974704',
     ]
     for i in img_list:
         img = debug_utils.get_debug_image(i)
@@ -472,13 +472,41 @@ def __debug_get_map():
         ctx.hollow.check_info_before_move(img, current_map)
 
     idx_2_route = zzz_od.hollow_zero.hollow_map.hollow_pathfinding.search_map(current_map, ctx.hollow._get_avoid())
-    target = ctx.hollow.get_next_to_move(current_map)
+    route = ctx.hollow.get_next_to_move(current_map)
+    target = route.next_node_to_move
     result_img = zzz_od.hollow_zero.hollow_map.hollow_pathfinding.draw_map(img, current_map, next_node=target, idx_2_route=idx_2_route)
     cv2_utils.show_image(result_img, wait=0)
     cv2.destroyAllWindows()
     print(current_map.contains_entry('业绩考察点'))
 
 
+def __screenshot_special():
+    """
+    对特定的节点进行截图
+    @return:
+    """
+    ctx = ZContext()
+    ctx.init_by_config()
+    ctx.ocr.init_model()
+    ctx.hollow.init_event_yolo(False)
+    ctx.start_running()
+    time.sleep(1)
+
+    from one_dragon.utils import debug_utils
+    while True:
+        screen = ctx.controller.screenshot()
+        current_map = ctx.hollow.check_current_map(screen, time.time())
+
+        if not current_map.contains_entry('业绩考察点'):
+            debug_utils.save_debug_image(screen)
+            break
+
+        if not ctx.is_context_running:
+            break
+        time.sleep(0.05)
+
+
 if __name__ == '__main__':
-    __debug_get_map()
+    # __debug_get_map()
+    __screenshot_special()
 

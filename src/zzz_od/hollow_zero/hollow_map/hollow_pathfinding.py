@@ -19,7 +19,11 @@ class RouteSearchRoute:
         self.step_cnt: int = step_cnt  # 前往目标节点需要的步数 即路上需要点击多少次鼠标
         self.distance: float = distance  # 在画面上 目标节点与当前节点的像素距离；用于步数相同时选一个更近的
 
-        self.go_way: int = 0  # 0=往相邻节点移动 1=往需要步数的节点移动
+        self.go_way: int = 1  # 0=往相邻节点移动 1=往需要步数的节点移动
+
+    @property
+    def next_node_to_move(self) -> HollowZeroMapNode:
+        return self.first_need_step_node if self.go_way == 1 else self.first_node
 
 
 def search_map(current_map: HollowZeroMap, avoid_entry_list: set[str]) -> dict[int, RouteSearchRoute]:
