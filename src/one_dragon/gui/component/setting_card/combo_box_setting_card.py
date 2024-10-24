@@ -24,7 +24,7 @@ class ComboBoxSettingCard(SettingCardBase):
 
     def __post_init__(self):
         """初始化设置卡片，设置下拉框及其选项。"""
-        super().__post_init__()
+        SettingCardBase.__post_init__(self)
 
         # 初始化下拉框
         self.combo_box = ComboBox(self)

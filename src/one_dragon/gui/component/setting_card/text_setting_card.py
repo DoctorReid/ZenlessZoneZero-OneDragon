@@ -20,7 +20,7 @@ class TextSettingCard(SettingCardBase):
 
     def __post_init__(self):
         # 初始化父类
-        super().__post_init__()
+        SettingCardBase.__post_init__(self)
 
         # 创建 LineEdit 控件并设置相关属性
         self.line_edit = LineEdit(self)

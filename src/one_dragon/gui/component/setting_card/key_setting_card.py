@@ -33,7 +33,7 @@ class KeySettingCard(SettingCardBase):
     value_changed = Signal(str)
 
     def __post_init__(self):
-        super().__post_init__()
+        SettingCardBase.__post_init__(self)
 
         # 初始化 PushButton
         self.btn = PushButton(text=self.value.upper(), parent=self)

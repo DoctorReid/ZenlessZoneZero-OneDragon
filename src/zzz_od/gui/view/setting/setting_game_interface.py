@@ -57,7 +57,7 @@ class SettingGameInterface(VerticalScrollInterface):
                                                  content='放心不会盗你的号 异地登陆需要验证')
         basic_group.addSettingCard(self.game_password_opt)
 
-        self.input_way_opt = ComboBoxSettingCard(icon=FluentIcon.CLIPPING_TOOL, title='输入方式', show_config_desc=True,
+        self.input_way_opt = ComboBoxSettingCard(icon=FluentIcon.CLIPPING_TOOL, title='输入方式',
                                                  options_enum=TypeInputWay)
         basic_group.addSettingCard(self.input_way_opt)
 

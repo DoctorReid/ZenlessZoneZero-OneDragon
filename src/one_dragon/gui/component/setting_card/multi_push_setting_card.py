@@ -17,7 +17,7 @@ class MultiPushSettingCard(SettingCardBase):
     btn_list: List[QAbstractButton] = field(default_factory=list)
     
     def __post_init__(self):
-        super().__post_init__()
+        SettingCardBase.__post_init__(self)
         
         # 初始化按钮布局
         btn_layout = QHBoxLayout()
@@ -39,7 +39,7 @@ class MultiLineSettingCard(SettingCardBase):
     line_list: List[List[QAbstractButton]] = field(default_factory=list)
 
     def __post_init__(self):
-        super().__post_init__()
+        SettingCardBase.__post_init__(self)
 
         # 初始化纵向布局
         v_layout = QVBoxLayout()

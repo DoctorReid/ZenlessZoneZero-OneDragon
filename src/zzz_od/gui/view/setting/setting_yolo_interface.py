@@ -1,5 +1,4 @@
 from PySide6.QtWidgets import QWidget
-from matplotlib.pyplot import title
 from qfluentwidgets import SettingCardGroup, FluentIcon
 
 from one_dragon.base.config.config_item import get_config_item_from_enum

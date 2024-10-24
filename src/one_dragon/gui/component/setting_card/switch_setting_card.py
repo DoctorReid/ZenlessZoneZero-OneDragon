@@ -20,7 +20,7 @@ class SwitchSettingCard(SettingCardBase):
 
     def __post_init__(self):
         # 初始化父类
-        super().__post_init__()
+        SettingCardBase.__post_init__(self)
 
         # 创建按钮并设置相关属性
         self.btn = SwitchButton(parent=self, indicatorPos=IndicatorPosition.RIGHT)

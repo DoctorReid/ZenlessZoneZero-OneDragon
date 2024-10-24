@@ -18,7 +18,7 @@ class PushSettingCard(SettingCardBase):
 
     def __post_init__(self):
         # 初始化父类的属性和布局
-        super().__post_init__()
+        SettingCardBase.__post_init__(self)
 
         # 创建按钮并添加到布局中
         self.button = QPushButton(self.text, self)

@@ -14,7 +14,7 @@ class CheckBoxSettingCard(SettingCardBase):
     value_changed = Signal(bool)
 
     def __post_init__(self):
-            super().__post_init__()
+            SettingCardBase.__post_init__(self)
             
             # 初始化 CheckBox
             self.check_box = CheckBox(self)
