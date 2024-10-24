@@ -1,0 +1,10 @@
+QLabel#normal {
+    color: white;
+}
+QLabel#jump {
+    color: orange;
+}
+SimpleCardWidget {
+    background: rgb(35,39,46);
+    background-color: transparent;
+}

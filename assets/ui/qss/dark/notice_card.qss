@@ -1,0 +1,24 @@
+#title {
+    color: #fff;
+}
+
+#title:hover {
+    color: #f5d742;
+}
+
+#date {
+    color: #fff;
+}
+
+QListWidget {
+    background-color: transparent;
+    border: none
+}
+
+QListWidgetItem {
+    padding: 0px;
+}
+
+QStackedWidget {
+    background-color: transparent;
+}

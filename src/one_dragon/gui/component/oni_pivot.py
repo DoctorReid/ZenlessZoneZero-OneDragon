@@ -1,0 +1,117 @@
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QPainter, QColor, QFont
+from PySide6.QtWidgets import (
+    QWidget,
+    QListView,
+    QStyledItemDelegate,
+    QHBoxLayout,
+    QSizePolicy,
+    QApplication,
+    QSpacerItem,
+)
+from qfluentwidgets import Pivot, ListItemDelegate, setFont
+from qfluentwidgets.common.animation import (
+    FluentAnimation,
+    FluentAnimationType,
+    FluentAnimationProperty,
+)
+from qfluentwidgets.components.navigation.pivot import PivotItem
+
+from one_dragon.gui.common.od_style_sheet import OniStyleSheet
+
+
+class OniPivot(Pivot):
+
+    currentItemChanged = Signal(str)
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self.items = {}
+        self._currentRouteKey = None
+
+        self.hBoxLayout = QHBoxLayout(self)
+        self.slideAni = FluentAnimation.create(
+            FluentAnimationType.POINT_TO_POINT,
+            FluentAnimationProperty.SCALE,
+            value=0,
+            parent=self,
+        )
+
+        OniStyleSheet.PIVOT.apply(self)
+
+        self.hBoxLayout.setSpacing(0)
+        self.hBoxLayout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.hBoxLayout.setContentsMargins(0, 0, 0, 0)
+
+        self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+
+    def insertItem(self, index: int, routeKey: str, text: str, onClick=None, icon=None):
+        if routeKey in self.items:
+            return
+
+        item = OniPivotItem(text, self)
+        if icon:
+            item.setIcon(icon)
+        item.setFont(QFont("Microsoft YaHei", 12, QFont.Weight.Bold))
+        self.insertWidget(index, routeKey, item, onClick)
+        return item
+
+    def insertWidget(self, index: int, routeKey: str, widget: PivotItem, onClick=None):
+        if routeKey in self.items:
+            return
+
+        widget.setProperty("routeKey", routeKey)
+        widget.itemClicked.connect(self._onItemClicked)
+        if onClick:
+            widget.itemClicked.connect(onClick)
+
+        spacer = QSpacerItem(10, 10, QSizePolicy.Fixed, QSizePolicy.Minimum)
+        self.hBoxLayout.insertItem(index, spacer)
+
+        self.items[routeKey] = widget
+        self.hBoxLayout.insertWidget(index, widget, 1)
+
+    def paintEvent(self, e):
+        QWidget().paintEvent(e)
+
+        if not self.currentItem():
+            return
+
+        painter = QPainter(self)
+        painter.setRenderHints(QPainter.Antialiasing)
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(QColor("#f5d742"))
+
+        x = int(self.currentItem().width() / 2 - 8 + self.slideAni.value())
+        painter.drawRoundedRect(x, self.height() - 2, 16, 3, 1.5, 1.5)
+
+
+class OniPivotItem(PivotItem):
+    """Pivot item"""
+
+    itemClicked = Signal(bool)
+
+    def _postInit(self):
+        self.isSelected = False
+        self.setProperty("isSelected", False)
+        self.clicked.connect(lambda: self.itemClicked.emit(True))
+
+        OniStyleSheet.PIVOT.apply(self)
+        setFont(self, 18)
+
+    def setSelected(self, isSelected: bool):
+        if self.isSelected == isSelected:
+            return
+
+        self.isSelected = isSelected
+        self.setProperty("isSelected", isSelected)
+        self.setStyle(QApplication.style())
+        self.update()
+
+
+class CustomListItemDelegate(ListItemDelegate):
+    def __init__(self, parent: QListView):
+        super().__init__(parent)
+
+    def paint(self, painter, option, index):
+        QStyledItemDelegate(self).paint(painter, option, index)
