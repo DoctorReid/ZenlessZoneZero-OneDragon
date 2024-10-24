@@ -6,6 +6,7 @@ import random
 from cv2.typing import MatLike
 from typing import List, Optional
 
+import zzz_od.hollow_zero.hollow_map.hollow_pathfinding
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.geometry.rectangle import Rect
 from one_dragon.utils import cv2_utils, debug_utils, yolo_config_utils, str_utils
@@ -15,7 +16,7 @@ from zzz_od.game_data.agent import Agent, AgentEnum
 from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroEntry
 from zzz_od.hollow_zero.hollow_level_info import HollowLevelInfo
 from zzz_od.hollow_zero.hollow_map import hollow_map_utils
-from zzz_od.hollow_zero.hollow_map.hollow_map_utils import RouteSearchRoute
+from zzz_od.hollow_zero.hollow_map.hollow_pathfinding import RouteSearchRoute
 from zzz_od.hollow_zero.hollow_map.hollow_zero_map import HollowZeroMap, HollowZeroMapNode
 from zzz_od.hollow_zero.hollow_zero_challenge_config import HollowZeroChallengePathFinding
 from zzz_od.hollow_zero.hollow_zero_data_service import HallowZeroDataService
@@ -105,7 +106,7 @@ class HollowContext:
 
         return merge_map
 
-    def get_next_to_move(self, current_map: HollowZeroMap) -> Optional[HollowZeroMapNode]:
+    def get_next_to_move(self, current_map: HollowZeroMap) -> Optional[RouteSearchRoute]:
         """
         获取下一步的需要点击的节点
         :param current_map:
@@ -113,28 +114,28 @@ class HollowContext:
         """
         if current_map.current_idx is None:
             return None
-        idx_2_route = hollow_map_utils.search_map(current_map, set(self._get_avoid()))
+        idx_2_route = zzz_od.hollow_zero.hollow_map.hollow_pathfinding.search_map(current_map, set(self._get_avoid()))
 
         # 优先考虑 一步可达时前往
-        route = hollow_map_utils.get_route_in_1_step(idx_2_route, self._visited_nodes,
-                                                    target_entry_list=self._get_go_in_1_step())
+        route = zzz_od.hollow_zero.hollow_map.hollow_pathfinding.get_route_in_1_step(idx_2_route, self._visited_nodes,
+                                                                                     target_entry_list=self._get_go_in_1_step())
         if route is not None:
             log.info(f"优先级 [一步]")
-            return route.first_need_step_node
+            return route
 
         go_priority_list = self._get_waypoint()
 
         for to_go in go_priority_list:
-            route = hollow_map_utils.get_route_by_entry(idx_2_route, to_go, self._visited_nodes)
+            route = zzz_od.hollow_zero.hollow_map.hollow_pathfinding.get_route_by_entry(idx_2_route, to_go, self._visited_nodes)
             if route is None:
                 continue
 
             # 两次想要前往同一个节点
             if (self._last_route is not None
-                    and hollow_map_utils.is_same_node(self._last_route.node, route.node)):
+                    and zzz_od.hollow_zero.hollow_map.hollow_pathfinding.is_same_node(self._last_route.node, route.node)):
                 last_node = self._last_route.first_need_step_node
                 curr_node = route.first_need_step_node
-                if (hollow_map_utils.is_same_node(last_node, curr_node)
+                if (zzz_od.hollow_zero.hollow_map.hollow_pathfinding.is_same_node(last_node, curr_node)
                         and (
                                 curr_node.entry.entry_name in ['门扉禁闭-财富', '门扉禁闭-善战']
                                 or route.node.entry.entry_name in ['零号银行', '业绩考察点']
@@ -146,7 +147,7 @@ class HollowContext:
 
             self._last_route = route
             log.info(f"优先级 [途经]")
-            return route.first_need_step_node
+            return route
 
         # 是一定能走到的出口
         must_go_list = [
@@ -156,16 +157,17 @@ class HollowContext:
         ]
 
         for to_go in must_go_list:
-            route = hollow_map_utils.get_route_by_entry(idx_2_route, to_go, self._visited_nodes)
+            route = zzz_od.hollow_zero.hollow_map.hollow_pathfinding.get_route_by_entry(idx_2_route, to_go, self._visited_nodes)
             if route is not None:
                 log.info(f"优先级 [终点]")
-                return route.first_need_step_node
+                return route
 
             # 如果之前走过，但走不到 说明可能中间有格子识别错了 这种情况就一格一格地走
-            route = hollow_map_utils.get_route_by_entry(idx_2_route, to_go, [])
+            route = zzz_od.hollow_zero.hollow_map.hollow_pathfinding.get_route_by_entry(idx_2_route, to_go, [])
             if route is not None:
-                log.info(f"优先级 [相邻]")
-                return route.first_node
+                log.info(f"优先级 [终点]")
+                route.go_way = 0
+                return route
 
         # 没有匹配到特殊点的时候 按副本类型走特定方向
         direction = 'w'
@@ -176,20 +178,20 @@ class HollowContext:
         elif self.level_info.mission_type_name == '巨厦遗骸':
             direction = 'd'
 
-        route = hollow_map_utils.get_route_by_direction(idx_2_route, direction)
+        route = zzz_od.hollow_zero.hollow_map.hollow_pathfinding.get_route_by_direction(idx_2_route, direction)
         if route is not None:
             log.info(f"优先级 [方向]")
-            return route.first_need_step_node
+            return route
 
         # 兜底 走一步能到的
-        route = hollow_map_utils.get_route_in_1_step(idx_2_route, self._visited_nodes)
+        route = zzz_od.hollow_zero.hollow_map.hollow_pathfinding.get_route_in_1_step(idx_2_route, self._visited_nodes)
         if route is not None:
             log.info(f"优先级 [兜底]")
-            return route.first_need_step_node
+            return route
 
         # 最终兜底 随便移动一格
         current_node = current_map.nodes[current_map.current_idx]
-        if hollow_map_utils.is_same_node(self._last_current_node, current_node):
+        if zzz_od.hollow_zero.hollow_map.hollow_pathfinding.is_same_node(self._last_current_node, current_node):
             arr = ['w', 's', 'a', 'd']
             arr.remove(direction)
             direction = arr[random.randint(0, len(arr) - 1)]
@@ -209,8 +211,16 @@ class HollowContext:
             pos=Rect(to_go.x, to_go.y, to_go.x, to_go.y),
             entry=HollowZeroEntry('0000-fake'),
         )
+        fake_route = RouteSearchRoute(
+            node=fake_node,
+            node_idx=0,
+            first_node=fake_node,
+            first_need_step_node=fake_node,
+            step_cnt=1,
+            distance=0
+        )
         log.info(f"优先级 [随机]")
-        return fake_node
+        return fake_route
 
     def update_context_after_move(self, node: HollowZeroMapNode) -> None:
         """
@@ -220,7 +230,7 @@ class HollowContext:
         """
         visited = None
         for v in self._visited_nodes:
-            if hollow_map_utils.is_same_node(node, v):
+            if zzz_od.hollow_zero.hollow_map.hollow_pathfinding.is_same_node(node, v):
                 visited = v
                 break
 
@@ -461,9 +471,9 @@ def __debug_get_map():
         current_map = ctx.hollow.check_current_map(img, time.time())
         ctx.hollow.check_info_before_move(img, current_map)
 
-    idx_2_route = hollow_map_utils.search_map(current_map, ctx.hollow._get_avoid())
+    idx_2_route = zzz_od.hollow_zero.hollow_map.hollow_pathfinding.search_map(current_map, ctx.hollow._get_avoid())
     target = ctx.hollow.get_next_to_move(current_map)
-    result_img = hollow_map_utils.draw_map(img, current_map, next_node=target, idx_2_route=idx_2_route)
+    result_img = zzz_od.hollow_zero.hollow_map.hollow_pathfinding.draw_map(img, current_map, next_node=target, idx_2_route=idx_2_route)
     cv2_utils.show_image(result_img, wait=0)
     cv2.destroyAllWindows()
     print(current_map.contains_entry('业绩考察点'))

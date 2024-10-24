@@ -29,6 +29,7 @@ from zzz_od.hollow_zero.event.upgrade_resonium import UpgradeResonium
 from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroSpecialEvent
 from zzz_od.hollow_zero.hollow_battle import HollowBattle
 from zzz_od.hollow_zero.hollow_exit_by_menu import HollowExitByMenu
+from zzz_od.hollow_zero.hollow_map.hollow_pathfinding import RouteSearchRoute
 from zzz_od.hollow_zero.hollow_map.hollow_zero_map import HollowZeroMapNode, HollowZeroMap
 from zzz_od.operation.zzz_operation import ZOperation
 from one_dragon.utils.log_utils import log
@@ -152,8 +153,9 @@ class HollowRunner(ZOperation):
         :param current_map: 分析得到的地图
         :return:
         """
-        next_to_move: HollowZeroMapNode = self.ctx.hollow.get_next_to_move(current_map)
-        log.info(f"前往目标 [{next_to_move.entry.entry_name}]")     
+        route: RouteSearchRoute = self.ctx.hollow.get_next_to_move(current_map)
+        next_to_move = route.first_need_step_node if route.go_way == 1 else route.first_node
+        log.info(f"前往目标: [{route.node.entry.entry_name}] 当前移动: [{next_to_move.entry.entry_name}]")
         pathfinding_success = next_to_move is not None and next_to_move.entry.entry_name != 'fake'
         if not pathfinding_success:
             self._save_debug_image(screen)
