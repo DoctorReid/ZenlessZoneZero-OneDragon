@@ -425,7 +425,7 @@ class HollowContext:
         进入空洞时 进行对应的初始化
         :return:
         """
-        self.ctx.hollow.init_event_yolo(True)
+        self.ctx.hollow.init_event_yolo(self.ctx.yolo_config.hollow_zero_event_gpu)
         self.init_level_info(mission_type_name, mission_name, level, phase)
         self.agent_list = None
 

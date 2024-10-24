@@ -645,7 +645,7 @@ class RecordContext:
         try:
             # 尽量小间隔,避免漏检
             self.battle.init_battle_context(
-                use_gpu=self.ctx.battle_assistant_config.use_gpu,
+                use_gpu=self.ctx.yolo_config.flash_classifier_gpu,
                 check_dodge_interval=0.02,
                 check_agent_interval=0.02,
                 check_special_attack_interval=0.02,

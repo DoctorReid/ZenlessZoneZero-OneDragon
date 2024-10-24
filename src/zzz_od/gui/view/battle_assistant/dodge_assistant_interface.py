@@ -56,9 +56,7 @@ class DodgeAssistantInterface(AppRunInterface):
         self.dodge_opt.hBoxLayout.addSpacing(16)
         self.del_btn.clicked.connect(self._on_del_clicked)
 
-        self.gpu_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='GPU运算',
-                                         content='游戏画面掉帧的话 可以不启用')
-        self.gpu_opt.value_changed.connect(self._on_gpu_changed)
+        self.gpu_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='GPU运算')
         top_widget.add_widget(self.gpu_opt)
 
         self.screenshot_interval_opt = TextSettingCard(icon=FluentIcon.GAME, title='截图间隔(秒)',
@@ -108,7 +106,7 @@ class DodgeAssistantInterface(AppRunInterface):
         AppRunInterface.on_interface_shown(self)
         self._update_dodge_way_opts()
         self.dodge_opt.setValue(self.ctx.battle_assistant_config.dodge_assistant_config)
-        self.gpu_opt.setValue(self.ctx.battle_assistant_config.use_gpu)
+        self.gpu_opt.init_with_adapter(self.ctx.yolo_config.flash_classifier_gpu_adapter)
         self.screenshot_interval_opt.setValue(str(self.ctx.battle_assistant_config.screenshot_interval))
         self.gamepad_type_opt.setValue(self.ctx.battle_assistant_config.gamepad_type)
         self.ctx.listen_event(AutoBattleApp.EVENT_OP_LOADED, self._on_auto_op_loaded_event)
@@ -139,9 +137,6 @@ class DodgeAssistantInterface(AppRunInterface):
 
     def _on_dodge_way_changed(self, index, value):
         self.ctx.battle_assistant_config.dodge_assistant_config = value
-
-    def _on_gpu_changed(self, value: bool):
-        self.ctx.battle_assistant_config.use_gpu = value
 
     def _on_screenshot_interval_changed(self, value: str) -> None:
         self.ctx.battle_assistant_config.screenshot_interval = float(value)

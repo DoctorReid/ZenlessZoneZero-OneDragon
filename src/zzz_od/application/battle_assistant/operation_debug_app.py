@@ -73,14 +73,6 @@ class OperationDebugApp(ZApplication):
             self.ctx.controller.btn_controller.set_key_press_time(self.ctx.game_config.ds4_key_press_time)
         return self.round_success(status='已安装虚拟手柄依赖')
 
-    def load_model(self) -> OperationRoundResult:
-        """
-        加载模型
-        :return:
-        """
-        self.ctx.battle_dodge.init_dodge_model(use_gpu=self.ctx.battle_assistant_config.use_gpu)
-        return self.round_success()
-
     def load_op(self) -> OperationRoundResult:
         """
         加载战斗指令

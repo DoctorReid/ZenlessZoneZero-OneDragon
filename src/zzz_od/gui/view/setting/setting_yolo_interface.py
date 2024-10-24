@@ -1,4 +1,5 @@
 from PySide6.QtWidgets import QWidget
+from matplotlib.pyplot import title
 from qfluentwidgets import SettingCardGroup, FluentIcon
 
 from one_dragon.base.config.config_item import get_config_item_from_enum
@@ -7,6 +8,7 @@ from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.log_display_card import LogDisplayCard
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.gui.component.setting_card.yolo_model_card import ModelDownloadSettingCard
 from one_dragon.utils.i18_utils import gt
@@ -64,11 +66,17 @@ class SettingYoloInterface(VerticalScrollInterface):
         self.flash_classifier_opt.value_changed.connect(self._on_flash_classifier_changed)
         group.addSettingCard(self.flash_classifier_opt)
 
+        self.flash_classifier_gpu_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='闪光识别-GPU运算')
+        group.addSettingCard(self.flash_classifier_gpu_opt)
+
         self.hollow_zero_event_opt = ModelDownloadSettingCard(
             ctx=self.ctx, sub_dir='hollow_zero_event', download_url=ZZZ_MODEL_DOWNLOAD_URL,
             icon=FluentIcon.GLOBE, title='空洞格子识别')
         self.hollow_zero_event_opt.value_changed.connect(self._on_hollow_zero_event_changed)
         group.addSettingCard(self.hollow_zero_event_opt)
+
+        self.hollow_zero_event_gpu_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='空洞格子识别-GPU运算')
+        group.addSettingCard(self.hollow_zero_event_gpu_opt)
 
         return group
 
@@ -81,8 +89,12 @@ class SettingYoloInterface(VerticalScrollInterface):
 
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)
+
         self._init_flash_classifier_opts()
+        self.flash_classifier_gpu_opt.init_with_adapter(self.ctx.yolo_config.flash_classifier_gpu_adapter)
+
         self._init_hollow_zero_event_opts()
+        self.hollow_zero_event_gpu_opt.init_with_adapter(self.ctx.yolo_config.hollow_zero_event_gpu_adapter)
 
         proxy_type = get_config_item_from_enum(ProxyTypeEnum, self.ctx.env_config.proxy_type)
         if proxy_type is not None:

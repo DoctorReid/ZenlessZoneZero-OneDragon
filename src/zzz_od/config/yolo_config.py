@@ -2,6 +2,7 @@ from typing import List
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
+from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
 from one_dragon.utils import yolo_config_utils
 
 ZZZ_MODEL_DOWNLOAD_URL = 'https://github.com/DoctorReid/OneDragon-YOLO/releases/download/zzz_model'
@@ -23,12 +24,36 @@ class YoloConfig(YamlConfig):
         self.update('flash_classifier', new_value)
 
     @property
+    def flash_classifier_gpu(self) -> bool:
+        return self.get('flash_classifier_gpu', True)
+
+    @flash_classifier_gpu.setter
+    def flash_classifier_gpu(self, new_value: bool) -> None:
+        self.update('flash_classifier_gpu', new_value)
+
+    @property
+    def flash_classifier_gpu_adapter(self) -> YamlConfigAdapter:
+        return YamlConfigAdapter(self, 'flash_classifier_gpu', True)
+
+    @property
     def hollow_zero_event(self) -> str:
         return self.get('hollow_zero_event', _DEFAULT_HOLLOW_ZERO_EVENT)
 
     @hollow_zero_event.setter
     def hollow_zero_event(self, new_value: str) -> None:
         self.update('hollow_zero_event', new_value)
+
+    @property
+    def hollow_zero_event_gpu(self) -> bool:
+        return self.get('hollow_zero_event_gpu', True)
+
+    @hollow_zero_event_gpu.setter
+    def hollow_zero_event_gpu(self, new_value: bool) -> None:
+        self.update('hollow_zero_event_gpu', new_value)
+
+    @property
+    def hollow_zero_event_gpu_adapter(self) -> YamlConfigAdapter:
+        return YamlConfigAdapter(self, 'hollow_zero_event_gpu', True)
 
     def using_old_model(self) -> bool:
         """
