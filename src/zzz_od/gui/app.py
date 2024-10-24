@@ -6,7 +6,7 @@ try:
     from one_dragon.gui.view.like_interface import LikeInterface
     from one_dragon.base.operation.one_dragon_context import ContextInstanceEventEnum
     from one_dragon.gui.app.fluent_window_base import FluentWindowBase
-    from one_dragon.gui.common.od_style_sheet import OdStyleSheet
+    from one_dragon.gui.common.od_style_sheet import OniStyleSheet
     from one_dragon.gui.view.code_interface import CodeInterface
     from one_dragon.gui.view.context_event_signal import ContextEventSignal
     from one_dragon.utils.i18_utils import gt
@@ -59,11 +59,12 @@ try:
             self.navigationInterface.setContentsMargins(0, 0, 0, 0)
 
             # 配置样式
-            OdStyleSheet.APP_WINDOW.apply(self)
-            OdStyleSheet.NAVIGATION_INTERFACE.apply(self.navigationInterface)
-            OdStyleSheet.STACKED_WIDGET.apply(self.stackedWidget)
-            OdStyleSheet.AREA_WIDGET.apply(self.areaWidget)
-            OdStyleSheet.TITLE_BAR.apply(self.titleBar)
+            OniStyleSheet.APP_WINDOW.apply(self)
+            OniStyleSheet.NAVIGATION_INTERFACE.apply(self.navigationInterface)
+            OniStyleSheet.STACKED_WIDGET.apply(self.stackedWidget)
+            OniStyleSheet.AREA_WIDGET.apply(self.areaWidget)
+            OniStyleSheet.TITLE_BAR.apply(self.titleBar)
+            
 
             # DEBUG
             # print("————APP WINDOW STYLE————")

@@ -6,12 +6,16 @@ from one_dragon.utils import os_utils
 
 
 # 注册样式表
-class OdStyleSheet(StyleSheetBase, Enum):
+class OniStyleSheet(StyleSheetBase, Enum):
     """ Style sheet  """
 
     NONE = "none"
     SAMPLE_CARD = "sample_card"
     LINK_CARD = "link_card"
+    GAME_BUTTON = "game_button"
+    GAME_DIALOG = "game_dialog"
+    NOTICE_CARD = "notice_card"
+    PIVOT = "pivot"
     
     #窗口配置
     APP_WINDOW = "app_window"

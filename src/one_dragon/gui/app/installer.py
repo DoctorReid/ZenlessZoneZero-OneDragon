@@ -6,7 +6,7 @@ from typing import Optional
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon.gui.app.one_dragon_window import OneDragonWindow
-from one_dragon.gui.common.od_style_sheet import OdStyleSheet
+from one_dragon.gui.common.od_style_sheet import OniStyleSheet
 from one_dragon.gui.component.interface.base_interface import BaseInterface
 from one_dragon.utils import os_utils
 
@@ -87,7 +87,7 @@ class InstallerWindowBase(OneDragonWindow):
         self.navigationInterface.setContentsMargins(0, 28, 0, 0)
 
         # 配置样式
-        OdStyleSheet.APP_WINDOW.apply(self)
-        OdStyleSheet.NAVIGATION_INTERFACE.apply(self.navigationInterface)
-        OdStyleSheet.STACKED_WIDGET.apply(self.stackedWidget)
-        OdStyleSheet.TITLE_BAR.apply(self.titleBar)
+        OniStyleSheet.APP_WINDOW.apply(self)
+        OniStyleSheet.NAVIGATION_INTERFACE.apply(self.navigationInterface)
+        OniStyleSheet.STACKED_WIDGET.apply(self.stackedWidget)
+        OniStyleSheet.TITLE_BAR.apply(self.titleBar)

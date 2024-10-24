@@ -3,11 +3,11 @@ from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout
 
 from qfluentwidgets import IconWidget, TextWrap, FlowLayout, CardWidget
 
-from one_dragon.gui.common.od_style_sheet import OdStyleSheet
+from one_dragon.gui.common.od_style_sheet import OniStyleSheet
 
 
 class SampleCard(CardWidget):
-    """ Sample card """
+    """Sample card"""
 
     def __init__(self, icon, title, content, routeKey, index, parent=None):
         super().__init__(parent=parent)
@@ -38,5 +38,5 @@ class SampleCard(CardWidget):
         self.vBoxLayout.addWidget(self.contentLabel)
         self.vBoxLayout.addStretch(1)
 
-        self.titleLabel.setObjectName('titleLabel')
-        self.contentLabel.setObjectName('contentLabel')
+        self.titleLabel.setObjectName("titleLabel")
+        self.contentLabel.setObjectName("contentLabel")
