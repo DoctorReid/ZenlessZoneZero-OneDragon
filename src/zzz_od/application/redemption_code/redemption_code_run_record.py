@@ -22,7 +22,7 @@ class RedemptionCodeRunRecord(AppRunRecord):
 
         self.valid_code_list = [
             RedemptionCode('ZZZ888', '20480101'),  # 开服兑换码
-            RedemptionCode('VIRTUALREVENGE', '20241025'),  # 1.3 前瞻
+            RedemptionCode('VIRTUALREVENGE', '20241026'),  # 1.3 前瞻
         ]
 
     @property
