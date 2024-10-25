@@ -19,6 +19,7 @@ from zzz_od.application.zzz_application import ZApplication
 from zzz_od.config.game_config import GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.battle_assistant.battle_state_display import BattleStateDisplay, TaskDisplay
+from zzz_od.gui.view.battle_assistant.shared_battle_window import SharedConfigWindow
 
 
 class AutoBattleInterface(AppRunInterface):
@@ -48,6 +49,10 @@ class AutoBattleInterface(AppRunInterface):
         self.debug_btn = PushButton(text='调试')
         self.debug_btn.clicked.connect(self._on_debug_clicked)
         self.config_opt.hBoxLayout.addWidget(self.debug_btn, alignment=Qt.AlignmentFlag.AlignRight)
+        self.config_opt.hBoxLayout.addSpacing(16)
+        self.shared_btn = PushButton(text='配置共享')
+        self.shared_btn.clicked.connect(self._on_shared_clicked)
+        self.config_opt.hBoxLayout.addWidget(self.shared_btn, alignment=Qt.AlignmentFlag.AlignRight)
         self.config_opt.hBoxLayout.addSpacing(16)
         self.del_btn = PushButton(text='删除')
         self.del_btn.clicked.connect(self._on_del_clicked)
@@ -157,6 +162,13 @@ class AutoBattleInterface(AppRunInterface):
         """
         self.app = AutoBattleDebugApp(self.ctx)
         AppRunInterface._on_start_clicked(self)
+
+    def _on_shared_clicked(self) -> None:
+        """
+        弹出列表
+        """
+        dialog = SharedConfigWindow(self)
+        dialog.exec_()
 
     def _on_del_clicked(self) -> None:
         """
