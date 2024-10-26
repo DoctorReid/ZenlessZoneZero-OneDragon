@@ -5,7 +5,6 @@
 #    pip-compile --annotation-style=line --index-url=https://pypi.tuna.tsinghua.edu.cn/simple --output-file=requirements-prod.txt requirements-dev.txt
 #
 
-
 audioread==3.0.1          # via librosa
 certifi==2024.7.4         # via requests
 cffi==1.17.0              # via soundcard, soundfile
@@ -44,11 +43,11 @@ pyperclip==1.9.0          # via mouseinfo
 pyreadline3==3.4.1        # via humanfriendly
 pyrect==0.2.0             # via pygetwindow
 pyscreeze==0.1.30         # via pyautogui
-pyside6==6.7.2            # via -r requirements-dev.txt, pyside6-fluent-widgets
-pyside6-addons==6.7.2     # via pyside6
-pyside6-essentials==6.7.2  # via pyside6, pyside6-addons
-pyside6-fluent-widgets==1.6.0  # via -r requirements-dev.txt
-pysidesix-frameless-window==0.3.12  # via pyside6-fluent-widgets
+pyside6==6.8.0.2          # via -r requirements-dev.txt, pyside6-fluent-widgets
+pyside6-addons==6.8.0.2   # via pyside6
+pyside6-essentials==6.8.0.2  # via pyside6, pyside6-addons
+pyside6-fluent-widgets==1.7.0  # via -r requirements-dev.txt
+pysidesix-frameless-window==0.4.3  # via pyside6-fluent-widgets
 pytweening==1.2.0         # via pyautogui
 pywin32==306              # via pysidesix-frameless-window
 pyyaml==6.0.1             # via -r requirements-dev.txt
@@ -56,7 +55,7 @@ requests==2.32.3          # via pooch
 scikit-learn==1.5.1       # via librosa
 scipy==1.13.1             # via gensim, librosa, scikit-learn
 shapely==2.0.4            # via -r requirements-dev.txt
-shiboken6==6.7.2          # via pyside6, pyside6-addons, pyside6-essentials
+shiboken6==6.8.0.2        # via pyside6, pyside6-addons, pyside6-essentials
 six==1.16.0               # via pynput
 smart-open==7.0.4         # via gensim
 soundcard==0.4.3          # via -r requirements-dev.txt
