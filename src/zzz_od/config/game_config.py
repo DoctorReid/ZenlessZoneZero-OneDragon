@@ -9,7 +9,8 @@ from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfig
 
 class GamePlatformEnum(Enum):
 
-    PC = ConfigItem('PC')
+    PC = ConfigItem('桌面端','PC')
+    Emulator = ConfigItem('模拟器','Emulator')
 
 
 class GameLanguageEnum(Enum):
@@ -44,7 +45,7 @@ class GameConfig(YamlConfig):
 
     @property
     def platform(self) -> str:
-        return self.get('platform', GamePlatformEnum.PC.value.value)
+        return self.get('platform', '')
 
     @platform.setter
     def platform(self, new_value: str) -> None:

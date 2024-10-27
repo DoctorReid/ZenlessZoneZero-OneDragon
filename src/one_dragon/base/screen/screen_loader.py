@@ -6,11 +6,11 @@ from one_dragon.base.screen.screen_info import ScreenInfo
 
 class ScreenLoader:
 
-    def __init__(self):
+    def __init__(self, platform: str):
         self._screen_info_list: list[ScreenInfo] = []
         self._screen_info_map: dict[str, ScreenInfo] = {}
         self._screen_area_map: dict[str, ScreenArea] = {}
-
+        self.platform = platform
         self.load_all()
 
     def load_all(self) -> None:
@@ -21,12 +21,11 @@ class ScreenLoader:
         self._screen_info_list.clear()
         self._screen_info_map.clear()
         self._screen_area_map.clear()
-
         dir_path = ScreenInfo.get_dir_path()
         for file_name in os.listdir(dir_path):
             file_path = os.path.join(dir_path, file_name)
             if file_name.endswith('.yml') and os.path.isfile(file_path):
-                screen_info = ScreenInfo(screen_id=file_name[:-4])
+                screen_info = ScreenInfo(screen_id=file_name[:-4], platform=self.platform)
                 self._screen_info_list.append(screen_info)
                 self._screen_info_map[screen_info.screen_name] = screen_info
 

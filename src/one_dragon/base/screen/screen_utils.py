@@ -6,7 +6,8 @@ from one_dragon.base.screen.screen_area import ScreenArea
 from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 
-
+from one_dragon.utils.log_utils import log
+import cv2
 class OcrClickResultEnum(Enum):
 
     OCR_CLICK_SUCCESS: int = 1  # OCR并点击成功
@@ -48,7 +49,7 @@ def find_area(ctx: OneDragonContext, screen: MatLike, screen_name: str, area_nam
     elif area.is_template_area:
         rect = area.rect
         part = cv2_utils.crop_image_only(screen, rect)
-
+        log.info("Screen: %s, Area: %s", screen_name, area_name)
         mrl = ctx.tm.match_template(part, area.template_sub_dir, area.template_id,
                                     threshold=area.template_match_threshold)
         find = mrl.max is not None

@@ -9,6 +9,8 @@ class ScreenArea:
     def __init__(self,
                  area_name: str = '',
                  pc_rect: Rect = Rect(0, 0, 0, 0),
+                 emulator_rect: Rect = Rect(0, 0, 0, 0),
+                 platform: str = '',
                  text: Optional[str] = '',
                  lcs_percent: float = 0.5,
                  template_id: Optional[str] = '',
@@ -17,17 +19,22 @@ class ScreenArea:
                  pc_alt: bool = False):
         self.area_name: str = area_name
         self.pc_rect: Rect = pc_rect
+        self.emulator_rect: Rect = emulator_rect
+        self.platform: str = platform
         self.text: Optional[str] = text
         self.lcs_percent: float = lcs_percent
         self.template_id: Optional[str] = template_id
         self.template_sub_dir: Optional[str] = template_sub_dir
         self.template_match_threshold: float = template_match_threshold
         self.pc_alt: bool = pc_alt  # PC端需要使用ALT后才能点击
+        if self.platform == 'PC':
+            self._rect = self.pc_rect
+        else:
+            self._rect = self.emulator_rect
 
     @property
     def rect(self) -> Rect:
-        return self.pc_rect
-
+        return self._rect
     @property
     def center(self) -> Point:
         return self.rect.center
@@ -91,6 +98,8 @@ class ScreenArea:
         order_dict = dict()
         order_dict['area_name'] = self.area_name
         order_dict['pc_rect'] = [self.pc_rect.x1, self.pc_rect.y1, self.pc_rect.x2, self.pc_rect.y2]
+        order_dict['emulator_rect'] = [self.emulator_rect.x1, self.emulator_rect.y1, self.emulator_rect.x2, self.emulator_rect.y2]
+        order_dict['platform'] = self.platform
         order_dict['text'] = self.text
         order_dict['lcs_percent'] = self.lcs_percent
         order_dict['template_sub_dir'] = self.template_sub_dir

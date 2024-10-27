@@ -246,10 +246,12 @@ class Operation(OperationBase):
         检测游戏
         :return:
         """
-        if self.ctx.is_game_window_ready:
-            return self.round_success()
-        else:
-            return self.round_fail('未打开游戏窗口 %s' % self.ctx.controller.game_win.win_title)
+        return self.round_success()
+        #需要补充完整
+        # if self.ctx.is_game_window_ready:
+        #     return self.round_success()
+        # else:
+        #     return self.round_fail('未打开游戏窗口 %s' % self.ctx.controller.game_win.win_title)
 
     def open_and_enter_game(self) -> OperationRoundResult:
         """

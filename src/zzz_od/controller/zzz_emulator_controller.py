@@ -189,12 +189,14 @@ class ZEmulatorController(EmulatorControllerBase):
         """
         交互
         """
-        # if press:
-        #     self.btn_controller.press(self.key_interact, press_time)
-        # elif release:
-        #     self.btn_controller.release(self.key_interact)
-        # else:
-        #     self.btn_controller.tap(self.key_interact)
+        interact_point = Point(1520, 778)
+        if press:
+            self.click(pos=interact_point,press_time=press_time)
+        elif release:
+            pass
+        else:
+            self.click(pos=interact_point)
+
 
     def turn_by_distance(self, d: float):
         """
