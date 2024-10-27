@@ -12,7 +12,7 @@ from one_dragon.gui.component.setting_card.key_setting_card import KeySettingCar
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
-from zzz_od.config.game_config import GameRegionEnum, GamepadTypeEnum
+from zzz_od.config.game_config import GamePlatformEnum, GameRegionEnum, GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
 
 
@@ -41,6 +41,9 @@ class SettingGameInterface(VerticalScrollInterface):
 
     def _get_basic_group(self) -> QWidget:
         basic_group = SettingCardGroup(gt('游戏基础', 'ui'))
+
+        self.game_platform_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='游戏平台', options_enum=GamePlatformEnum)
+        basic_group.addSettingCard(self.game_platform_opt)
 
         self.game_path_opt = PushSettingCard(icon=FluentIcon.FOLDER, title='游戏路径', text='选择')
         self.game_path_opt.clicked.connect(self._on_game_path_clicked)
@@ -274,6 +277,7 @@ class SettingGameInterface(VerticalScrollInterface):
         self.game_region_opt.value_changed.disconnect(self._on_game_region_changed)
         self.game_account_opt.value_changed.disconnect(self._on_game_account_changed)
         self.game_password_opt.value_changed.disconnect(self._on_game_password_changed)
+        self.game_platform_opt.value_changed.disconnect(self._on_game_platform_changed)
 
         game_region = get_config_item_from_enum(GameRegionEnum, self.ctx.game_config.game_region)
         if game_region is not None:
@@ -281,6 +285,9 @@ class SettingGameInterface(VerticalScrollInterface):
         self.game_path_opt.setContent(self.ctx.game_config.game_path)
         self.game_account_opt.setValue(self.ctx.game_config.account)
         self.game_password_opt.setValue(self.ctx.game_config.password)
+        game_platform = get_config_item_from_enum(GamePlatformEnum, self.ctx.game_config.platform)
+        if game_platform is not None:
+            self.game_platform_opt.setValue(game_platform.value)
 
         self.key_normal_attack_opt.setValue(self.ctx.game_config.key_normal_attack)
         self.key_dodge_opt.setValue(self.ctx.game_config.key_dodge)
@@ -303,6 +310,7 @@ class SettingGameInterface(VerticalScrollInterface):
         self.game_region_opt.value_changed.connect(self._on_game_region_changed)
         self.game_account_opt.value_changed.connect(self._on_game_account_changed)
         self.game_password_opt.value_changed.connect(self._on_game_password_changed)
+        self.game_platform_opt.value_changed.connect(self._on_game_platform_changed)
 
     def _update_gamepad_part(self) -> None:
         """
@@ -402,6 +410,10 @@ class SettingGameInterface(VerticalScrollInterface):
 
     def _on_game_password_changed(self, value: str) -> None:
         self.ctx.game_config.password = value
+
+    def _on_game_platform_changed(self, index, value: str) -> None:
+        self.ctx.game_config.platform = value
+        self.ctx.init_by_config()
 
     def _on_key_normal_attack_changed(self, key: str) -> None:
         self.ctx.game_config.key_normal_attack = key

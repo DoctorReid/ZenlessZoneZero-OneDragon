@@ -8,6 +8,7 @@ from one_dragon.base.geometry.rectangle import Rect
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.base.screen.screen_area import ScreenArea
 from one_dragon.base.screen.screen_info import ScreenInfo
+from one_dragon.base.screen.screen_loader import ScreenLoader
 from one_dragon.base.screen.template_info import get_template_root_dir_path, get_template_sub_dir_path, TemplateInfo, \
     TemplateShapeEnum
 from one_dragon.gui.component.column_widget import ColumnWidget
@@ -55,6 +56,10 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
         self._existed_yml_update = ScreenInfoWorker()
         self._existed_yml_update.signal.connect(self._update_existed_yml_options)
 
+        self.platform = 'Emulator'
+        self._platform_opt_update = ScreenInfoWorker()
+        self._platform_opt_update.signal.connect(self._update_platform_opt)
+
     def get_content_widget(self) -> QWidget:
         content_widget = RowWidget()
         content_widget.add_widget(self._init_left_part())
@@ -66,6 +71,13 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
 
         btn_row = RowWidget()
         widget.add_widget(btn_row)
+
+        self.platform_opt = ComboBox()
+        self.platform_opt.setPlaceholderText(gt('选择平台', 'ui'))  # 设置占位符文本
+        self.platform_opt.addItems(['PC', 'Emulator'])  # 添加选项
+        self.platform_opt.setCurrentIndex(-1)  # 默认选择第一个选项（PC）
+        self._update_platform_opt()
+        btn_row.add_widget(self.platform_opt)  # 将选择框添加到按钮行
 
         self.existed_yml_btn = ComboBox()
         self.existed_yml_btn.setPlaceholderText(gt('选择已有', 'ui'))
@@ -157,6 +169,19 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
         self.existed_yml_btn.setPlaceholderText(gt('选择已有', 'ui'))
         self.existed_yml_btn.currentTextChanged.connect(self._on_choose_existed_yml)
 
+    def _update_platform_opt(self) -> None:
+        """
+        更新平台选项
+        :return:
+        """
+        try:
+            # 更新之前 先取消原来的监听 防止触发事件
+            self.platform_opt.currentTextChanged.disconnect(self._on_platform_opt_changed)
+        except Exception:
+            pass
+
+        self.platform_opt.currentTextChanged.connect(self._on_platform_opt_changed)
+
     def _init_right_part(self) -> QWidget:
         widget = ColumnWidget()
 
@@ -199,6 +224,7 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
         self.save_btn.setDisabled(not chosen)
         self.delete_btn.setDisabled(not chosen)
         self.cancel_btn.setDisabled(not chosen)
+        self.platform_opt.setDisabled(chosen)
 
         self.choose_image_btn.setDisabled(not chosen)
         self.screen_id_opt.setDisabled(not chosen)
@@ -238,7 +264,7 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
 
             self.area_table.setCellWidget(idx, 0, del_btn)
             self.area_table.setItem(idx, 1, QTableWidgetItem(area_item.area_name))
-            self.area_table.setItem(idx, 2, QTableWidgetItem(str(area_item.pc_rect)))
+            self.area_table.setItem(idx, 2, QTableWidgetItem(str(area_item.rect)))
             self.area_table.setItem(idx, 3, QTableWidgetItem(area_item.text))
             self.area_table.setItem(idx, 4, QTableWidgetItem(str(area_item.lcs_percent)))
             self.area_table.setItem(idx, 5, QTableWidgetItem(area_item.template_id_display_text))
@@ -284,9 +310,20 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
         """
         for screen_info in self.ctx.screen_loader._screen_info_list:
             if screen_info.screen_name == screen_name:
-                self.chosen_screen = ScreenInfo(screen_id=screen_info.screen_id)
+                self.chosen_screen = ScreenInfo(screen_id=screen_info.screen_id, platform=self.platform)
                 self._whole_update.signal.emit()
                 break
+
+    def _on_platform_opt_changed(self, platform: str):
+        """
+        选择了平台
+        :param platform:
+        :return:
+        """
+        log.info('选择平台 %s', platform)
+        self.platform = platform
+        self.ctx.screen_loader = ScreenLoader(platform=self.platform)
+        self._platform_opt_update.signal.emit()
 
     def _on_create_clicked(self):
         """
@@ -296,7 +333,7 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
         if self.chosen_screen is not None:
             return
 
-        self.chosen_screen = ScreenInfo(create_new=True)
+        self.chosen_screen = ScreenInfo(create_new=True, platform=self.platform)
         self._whole_update.signal.emit()
 
     def _on_save_clicked(self) -> None:
@@ -414,7 +451,7 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
             p1 = template_info.point_list[0]
             p2 = template_info.point_list[1]
             # 需要取稍微比模板大一点的范围
-            area.pc_rect = Rect(max(0, p1.x - 10), max(0, p1.y - 10),
+            area.rect = Rect(max(0, p1.x - 10), max(0, p1.y - 10),
                                 min(self.ctx.project_config.screen_standard_width, p2.x + 10),
                                 min(self.ctx.project_config.screen_standard_height, p2.y + 10))
         area.template_sub_dir = sub_dir
@@ -486,7 +523,11 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
             num_list = [int(i) for i in text[1:-1].split(',')]
             while len(num_list) < 4:
                 num_list.append(0)
-            area_item.pc_rect = Rect(num_list[0], num_list[1], num_list[2], num_list[3])
+            if(area_item.platform == 'PC'):
+                area_item.pc_rect = Rect(num_list[0], num_list[1], num_list[2], num_list[3])
+            else:
+                area_item.emulator_rect = Rect(num_list[0], num_list[1], num_list[2], num_list[3])
+            # area_item.rect = Rect(num_list[0], num_list[1], num_list[2], num_list[3])
             self._image_update.signal.emit()
         elif column == 3:
             area_item.text = text

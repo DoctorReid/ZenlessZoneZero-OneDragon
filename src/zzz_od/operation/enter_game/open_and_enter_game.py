@@ -42,16 +42,22 @@ class OpenAndEnterGame(Operation):
     @node_from(from_name='打开游戏')
     @operation_node(name='等待游戏打开', node_max_retry_times=60)
     def wait_game(self) -> OperationRoundResult:
-        self.ctx.controller.game_win.init_win()
-        if self.ctx.controller.is_game_window_ready:
-            self.ctx.controller.active_window()
-            return self.round_success()
-        else:
-            return self.round_retry(wait=1)
+        if self.ctx.game_config.platform == 'PC':
+            self.ctx.controller.game_win.init_win()
+            if self.ctx.controller.is_game_window_ready:
+                self.ctx.controller.active_window()
+                return self.round_success()
+            else:
+                return self.round_retry(wait=1)
+        if self.ctx.game_config.platform == 'Emulator':
+            pass#等待模拟器打开已经在
 
     @node_from(from_name='等待游戏打开')
     @operation_node(name='进入游戏')
     def enter_game(self) -> OperationRoundResult:
-        from zzz_od.operation.enter_game.enter_game import EnterGame
-        op = EnterGame(self.ctx)
-        return self.round_by_op_result(op.execute())
+        if self.ctx.game_config.platform == 'PC':
+            from zzz_od.operation.enter_game.enter_game import EnterGame
+            op = EnterGame(self.ctx)
+            return self.round_by_op_result(op.execute())
+        if self.ctx.game_config.platform == 'Emulator':
+            pass

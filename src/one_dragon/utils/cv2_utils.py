@@ -9,6 +9,7 @@ from cv2.typing import MatLike
 from one_dragon.base.geometry.rectangle import Rect
 from one_dragon.base.matcher.match_result import MatchResultList, MatchResult
 
+from one_dragon.utils.log_utils import log
 feature_detector = cv2.SIFT_create()
 
 
@@ -132,6 +133,7 @@ def match_template(source: MatLike, template: MatLike, threshold,
     # 进行模板匹配
     # show_image(template, win_name='template')
     # show_image(mask, win_name='mask')
+    source = cv2.resize(source, (tx, ty))
     result = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED, mask=mask)
 
     match_result_list = MatchResultList(only_best=only_best)
@@ -144,7 +146,7 @@ def match_template(source: MatLike, template: MatLike, threshold,
     for pt in zip(*filtered_locations[::-1]):
         confidence = result[pt[1], pt[0]]  # 获取置信度
         match_result_list.append(MatchResult(confidence, pt[0], pt[1], tx, ty))
-
+    log.info(f'Matching result: {match_result_list}')
     return match_result_list
 
 

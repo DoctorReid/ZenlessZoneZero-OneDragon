@@ -21,10 +21,17 @@ class OpenGame(Operation):
         打开游戏
         :return:
         """
-        if self.ctx.game_config.game_path == '':
-            return self.round_fail('未配置游戏路径')
-        log.info('尝试自动启动游戏 路径为 %s', self.ctx.game_config.game_path)
-        subprocess.Popen(
-            f'cmd /c "start "" "{self.ctx.game_config.game_path}" & exit"'
-        )
+        if self.ctx.game_config.platform == 'PC':
+            if self.ctx.game_config.game_path == '':
+                return self.round_fail('未配置游戏路径')
+            log.info('尝试自动启动游戏 路径为 %s', self.ctx.game_config.game_path)
+            subprocess.Popen(
+                f'cmd /c "start "" "{self.ctx.game_config.game_path}" & exit"'
+            )
+        if self.ctx.game_config.platform == 'Emulator':
+            log.info('尝试启动模拟器')
+            self.ctx.controller.active_window()
         return self.round_success(wait=5)
+
+
+

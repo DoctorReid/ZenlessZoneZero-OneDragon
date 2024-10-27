@@ -67,7 +67,7 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
 
         self.context_running_state: ContextRunStateEnum = ContextRunStateEnum.STOP
 
-        self.screen_loader: ScreenLoader = ScreenLoader()
+        # self.screen_loader: ScreenLoader = ScreenLoader(platform='Emulator')
         self.template_loader: TemplateLoader = TemplateLoader()
         self.tm: TemplateMatcher = TemplateMatcher(self.template_loader)
         self.ocr: OcrMatcher = OnnxOcrMatcher()

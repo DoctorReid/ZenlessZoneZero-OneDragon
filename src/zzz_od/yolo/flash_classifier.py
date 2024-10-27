@@ -91,6 +91,7 @@ class FlashClassifier(OnnxModelLoader):
         :param conf: 置信度阈值
         :return: 识别结果
         """
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         t1 = time.time()
         context = RunContext(image, run_time)
         context.conf = conf
@@ -105,7 +106,6 @@ class FlashClassifier(OnnxModelLoader):
         t4 = time.time()
 
         log.info(f'识别完毕 预处理耗时 {t2 - t1:.3f}s, 推理耗时 {t3 - t2:.3f}s, 后处理耗时 {t4 - t3:.3f}s')
-
         self.record_result(context, result)
         return result
 
