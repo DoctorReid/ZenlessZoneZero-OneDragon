@@ -30,19 +30,61 @@ class NoticeCard(SimpleCardWidget):
         self.mainLayout.setContentsMargins(3, 3, 3, 0)
         self.mainLayout.setAlignment(Qt.AlignLeft)
 
-        response = requests.get(
-            "https://hyp-api.mihoyo.com/hyp/hyp-connect/api/getGameContent?launcher_id=jGHBHlcOq1&game_id=x6znKlJ0xK&language=zh-cn"
-        ).json()
-        content = response["data"]["content"]
-
+        # 初始化数据
         self.banners = []
         self.banner_urls = []
+        self.posts = {"announces": [], "activities": [], "infos": []}
 
-        for banner in content["banners"]:
-            pixmap = QPixmap()
-            pixmap.loadFromData(requests.get(banner["image"]["url"]).content)
-            self.banners.append(pixmap)
-            self.banner_urls.append(banner["image"]["link"])
+        # 创建错误提示标签，默认为隐藏
+        self.error_label = QLabel("无法获取数据")
+        self.error_label.setWordWrap(True)
+        self.error_label.setObjectName("error")
+        self.error_label.hide()
+        self.mainLayout.addWidget(self.error_label)
+
+        # 尝试获取数据
+        try:
+            response = requests.get(
+                "https://hyp-api.mihoyo.com/hyp/hyp-connect/api/getGameContent?launcher_id=jGHBHlcOq1&game_id=x6znKlJ0xK&language=zh-cn", 
+                verify=False
+            ).json()
+            content = response["data"]["content"]
+
+            for banner in content["banners"]:
+                pixmap = QPixmap()
+                try:
+                    pixmap.loadFromData(requests.get(banner["image"]["url"], verify=False).content)
+                    self.banners.append(pixmap)
+                    self.banner_urls.append(banner["image"]["link"])
+                except requests.RequestException as e:
+                    print(f"加载图片失败: {e}")
+                    continue
+
+            post_types = {
+                "POST_TYPE_ANNOUNCE": "announces",
+                "POST_TYPE_ACTIVITY": "activities",
+                "POST_TYPE_INFO": "infos",
+            }
+
+            for post in content["posts"]:
+                post_type = post["type"]
+                if post_type in post_types:
+                    entry = {
+                        "title": post["title"],
+                        "url": post["link"],
+                        "date": post["date"],
+                    }
+                    self.posts[post_types[post_type]].append(entry)
+
+        except (requests.RequestException, KeyError) as e:
+            # 请求失败时，显示错误标签并返回
+            self.error_label.setText(f"无法获取数据: {e}")
+            self.error_label.setFixedSize(345,160)
+            self.error_label.show()
+            return
+
+        # 如果成功获取数据，隐藏错误标签并继续正常界面初始化
+        self.error_label.hide()
 
         # 创建 flipView
         self.flipView = HorizontalFlipView(self)
@@ -71,25 +113,6 @@ class NoticeCard(SimpleCardWidget):
         self.pivot.setContentsMargins(0, 0, 0, 0)
         self.pivot.setMaximumHeight(32)
         self.pivot.setObjectName("Pivot")
-
-        # 处理信号
-        self.posts = {"announces": [], "activities": [], "infos": []}
-
-        post_types = {
-            "POST_TYPE_ANNOUNCE": "announces",
-            "POST_TYPE_ACTIVITY": "activities",
-            "POST_TYPE_INFO": "infos",
-        }
-
-        for post in content["posts"]:
-            post_type = post["type"]
-            if post_type in post_types:
-                entry = {
-                    "title": post["title"],
-                    "url": post["link"],
-                    "date": post["date"],
-                }
-                self.posts[post_types[post_type]].append(entry)
 
         # 窗体
         self.stackedWidget = QStackedWidget(self)
@@ -186,3 +209,4 @@ class NoticeCard(SimpleCardWidget):
             item.setSizeHint(item_widget.sizeHint())
             widget.addItem(item)
             widget.setItemWidget(item, item_widget)
+

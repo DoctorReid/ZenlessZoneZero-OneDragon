@@ -22,3 +22,12 @@ QListWidgetItem {
 QStackedWidget {
     background-color: transparent;
 }
+
+#error {
+    color: #eb5a16;
+    background-color: #fff;
+    border: 2px solid #eb5a16;
+    border-radius: 10px;
+    padding: 5px;
+    font-size: 12px;
+}
