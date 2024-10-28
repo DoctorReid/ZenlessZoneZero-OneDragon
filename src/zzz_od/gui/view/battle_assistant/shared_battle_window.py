@@ -64,6 +64,7 @@ class SharedConfigWindow(QDialog):
         self.download_button.clicked.connect(self.on_download_clicked)
         self.upload_button = QPushButton("上传", self)
         self.upload_button.clicked.connect(self.on_upload_clicked)
+        self.upload_button.setEnabled(False)
         self.cancel_button = QPushButton("取消", self)
         self.cancel_button.clicked.connect(self.reject)
         button_layout.addWidget(self.download_button)
