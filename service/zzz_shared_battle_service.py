@@ -1,7 +1,7 @@
 from fastapi import FastAPI, File, UploadFile, Query, HTTPException
 from fastapi.responses import FileResponse
-from service.zzz_data_model import get_battle_info, get_battle_url
-from service.zzz_save_battle_class import save_battle
+from zzz_data_model import get_battle_info, get_battle_url
+from zzz_save_battle_class import save_battle
 from datetime import datetime
 import os
 

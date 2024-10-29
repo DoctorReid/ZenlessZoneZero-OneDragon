@@ -2,7 +2,7 @@ import os
 import yaml
 from datetime import datetime
 from fastapi import HTTPException
-from service.zzz_data_model import BattleInfo, get_db_session
+from zzz_data_model import BattleInfo, get_db_session
 import requests
 
 # 初始化

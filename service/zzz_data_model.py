@@ -8,7 +8,7 @@ from datetime import datetime
 Base = declarative_base()
 
 # 数据库连接配置
-DATABASE_URI = ""
+DATABASE_URI = "mysql+pymysql://zzz_database:zzz_database@127.0.0.1:3306/zzz_database"
 
 # 创建引擎
 engine = create_engine(DATABASE_URI)
