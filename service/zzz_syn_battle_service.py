@@ -1,7 +1,11 @@
 import requests
+import logging
 from datetime import datetime
-from service.zzz_save_battle_class import save_battle
-from service.zzz_data_model import get_battle_by_name
+from zzz_save_battle_class import save_battle
+from zzz_data_model import get_battle_by_name
+
+# 配置日志
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 def file_name_tool(file_name):
@@ -27,8 +31,8 @@ class SynBattle:
             "folder_id": "/2c49ee6b-a94b-4b26-9143-8bf86c795a8b"
         }
         try:
-            print("------------------------------")
-            print(f"[{datetime.now()}] 自动检查群文件是否发生变更...")
+            logging.info("------------------------------")
+            logging.info(f"[{datetime.now()}] 自动检查群文件是否发生变更...")
             response = requests.post(url, json=payload)
             if response.status_code == 200:
                 res = response.json()['data']['files']
@@ -38,16 +42,16 @@ class SynBattle:
                     file_name = file_name_tool(data['file_name'])
                     battle = get_battle_by_name(file_name)
                     if (battle is None) or (battle.battle_url is None) or (creation_date > battle.creation_date):
-                        print(f"[{datetime.now()}] 发现配置【{data['file_name']}】存在差异，开始同步")
+                        logging.info(f"[{datetime.now()}] 发现配置【{data['file_name']}】存在差异，开始同步")
                         await self.getFileUrl(data['file_id'], data['busid'],
                                               file_name, data['uploader_name'],
                                               datetime.fromtimestamp(data['modify_time']))
-                        print(f"[{datetime.now()}] 同步完成")
+                        logging.info(f"[{datetime.now()}] 同步完成")
                         updated = True  # 设置标志变量为 True 表示有文件被更新
                 if not updated:
-                    print(f"[{datetime.now()}] 未发现更新，等待下一次检查...")
+                    logging.info(f"[{datetime.now()}] 未发现更新，等待下一次检查...")
         except Exception as e:
-            print(e)
+            logging.error(e)
 
     async def getFileUrl(self, file_id, busid, file_name, uploader_name, creation_date):
         url = "http://127.0.0.1:3000/get_group_file_url"
@@ -62,4 +66,4 @@ class SynBattle:
                 url = response.json()['data']['url']
                 await save_battle(file_name, url, uploader_name, creation_date)
         except Exception as e:
-            print(e)
+            logging.error(e)

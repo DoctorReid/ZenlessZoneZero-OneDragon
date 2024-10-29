@@ -1,5 +1,5 @@
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from service.zzz_syn_battle_service import SynBattle
+from zzz_syn_battle_service import SynBattle
 import asyncio
 
 # 创建后台调度器
