@@ -7,7 +7,7 @@ from one_dragon.utils import yolo_config_utils
 
 ZZZ_MODEL_DOWNLOAD_URL = 'https://github.com/DoctorReid/OneDragon-YOLO/releases/download/zzz_model'
 _DEFAULT_FLASH_CLASSIFIER = 'yolov8n-640-flash-0718'
-_DEFAULT_HOLLOW_ZERO_EVENT = 'yolov8s-736-hollow-zero-event-0922'
+_DEFAULT_HOLLOW_ZERO_EVENT = 'yolov8s-736-hollow-zero-event-1027'
 
 
 class YoloConfig(YamlConfig):
