@@ -61,6 +61,7 @@ class NotoriousHuntConfig(YamlConfig):
                 'mission_type_name': plan_item.mission_type_name,
                 'mission_name': plan_item.mission_name,
                 'level': plan_item.level,
+                'predefined_team_idx': plan_item.predefined_team_idx,
                 'auto_battle_config': plan_item.auto_battle_config,
                 'run_times': plan_item.run_times,
                 'plan_times': plan_item.plan_times,
