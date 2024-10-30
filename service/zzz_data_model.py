@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, delete
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -51,6 +51,16 @@ def get_battle_by_name(battle_name):
     try:
         return session.query(BattleInfo).filter_by(battle_name=battle_name).first()
     except:
+        session.rollback()
+    finally:
+        session.close()
+
+
+def clear_battle_info_table():
+    try:
+        session.execute(delete(BattleInfo))
+        session.commit()
+    except Exception as e:
         session.rollback()
     finally:
         session.close()
