@@ -199,6 +199,13 @@ class PcControllerBase(ControllerBase):
         """
         self.keyboard_controller.keyboard.type(to_input)
 
+    def mouse_move(self, game_pos: Point):
+        """
+        鼠标移动到指定的位置
+        """
+        win_pos = self.game_win.game2win_pos(game_pos)
+        pyautogui.moveTo(win_pos.x, win_pos.y)
+
 
 def win_click(pos: Point = None, press_time: float = 0, primary: bool = True):
     """

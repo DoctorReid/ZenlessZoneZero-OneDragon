@@ -5,7 +5,7 @@ import shutil
 from cv2.typing import MatLike
 from enum import Enum
 from functools import lru_cache
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_operator import YamlOperator
@@ -51,8 +51,13 @@ class TemplateInfo(YamlOperator):
         self.auto_mask: bool = self.get('auto_mask', True)
         self.point_updated: bool = False  # 点位是否更改过 开发工具中用
 
-        self.raw: Optional[MatLike] = cv2_utils.read_image(get_template_raw_path(self.sub_dir, self.template_id))  # 原图
-        self.mask: Optional[MatLike] = cv2_utils.read_image(get_template_mask_path(self.sub_dir, self.template_id))  # 掩码
+        self.raw: MatLike = cv2_utils.read_image(get_template_raw_path(self.sub_dir, self.template_id))  # 原图
+        self.mask: MatLike = cv2_utils.read_image(get_template_mask_path(self.sub_dir, self.template_id))  # 掩码
+
+        # 运算后保存在内存的
+        self._gray: MatLike = None  # 灰度图
+        self._kps: List[cv2.KeyPoint] = []  # 关键点
+        self._desc: MatLike = None  # 描述
 
     def get_yml_file_path(self) -> str:
         return get_template_config_path(self.sub_dir, self.template_id)
@@ -108,6 +113,23 @@ class TemplateInfo(YamlOperator):
             return self.gray
         if t == 'mask':
             return self.mask
+
+    @property
+    def gray(self) -> MatLike:
+        if self._gray is not None:
+            return self._gray
+        if self.raw is None:
+            return None
+        self._gray = cv2.cvtColor(self.raw, cv2.COLOR_RGB2GRAY)
+        return self._gray
+
+    @property
+    def features(self) -> Tuple[List[cv2.KeyPoint], MatLike]:
+        if self._kps is not None:
+            return self._kps, self._desc
+        if self.raw is not None:
+            self._kps, self._desc = cv2_utils.feature_detect_and_compute(self.raw, self.mask)
+        return self._kps, self._desc
 
     def make_template_dir(self) -> None:
         """

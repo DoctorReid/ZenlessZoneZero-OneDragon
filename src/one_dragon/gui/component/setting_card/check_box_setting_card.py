@@ -1,12 +1,11 @@
-from dataclasses import dataclass
 from PySide6.QtCore import Signal
-from PySide6.QtGui import QIcon, Qt
-from qfluentwidgets import SettingCard, FluentIconBase, CheckBox
-from typing import Union
+from PySide6.QtGui import Qt
+from dataclasses import dataclass
+from qfluentwidgets import SettingCard, CheckBox
 
-from one_dragon.gui.component.utils.layout_utils import IconSize, Margins
 from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
 from one_dragon.utils.i18_utils import gt
+
 
 @dataclass(eq=False)
 class CheckBoxSettingCard(SettingCardBase):

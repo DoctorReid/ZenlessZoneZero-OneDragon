@@ -1,14 +1,15 @@
 from PySide6.QtCore import Signal, Qt, QEvent
 from PySide6.QtGui import QColor
+from dataclasses import dataclass, field
 from enum import Enum
 from qfluentwidgets import ToolTip
 from typing import Optional, List, Iterable
-from dataclasses import dataclass, field
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.gui.component.combo_box import ComboBox
 from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
 from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
+
 
 @dataclass(eq=False)
 class ComboBoxSettingCard(SettingCardBase):

@@ -1,13 +1,13 @@
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QFrame, QWidget
+from dataclasses import dataclass
 from qfluentwidgets import SettingCard, FluentIconBase
 from qfluentwidgets.components.settings.setting_card import (
     SettingIconWidget,
     FluentStyleSheet,
 )
 from typing import Union
-from dataclasses import dataclass, fields
 
 from one_dragon.gui.component.utils.layout_utils import Margins, IconSize
 from one_dragon.utils.i18_utils import gt

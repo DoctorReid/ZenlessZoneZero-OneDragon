@@ -17,7 +17,7 @@ class InstallerWindowBase(OneDragonWindow):
     def __init__(self, ctx: OneDragonEnvContext,
                  win_title: str,
                  app_icon: Optional[str] = None, parent=None):
-        OneDragonWindow.__init__(self, parent=parent)
+        OneDragonWindow.__init__(self, project_config=ctx.project_config, parent=parent)
         self.ctx: OneDragonEnvContext = ctx
         self._last_stack_idx: int = 0
 
