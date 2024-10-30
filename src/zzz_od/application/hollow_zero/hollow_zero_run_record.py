@@ -87,6 +87,13 @@ class HollowZeroRunRecord(AppRunRecord):
         """
         self.weekly_run_times = self.weekly_run_times + 1
 
+    def add_daily_times(self) -> None:
+        """
+        增加一次每日进入次数
+        @return:
+        """
+        self.daily_run_times = self.daily_run_times + 1
+
     def is_finished_by_times(self) -> bool:
         """
         从运行次数看 是否已经完成了

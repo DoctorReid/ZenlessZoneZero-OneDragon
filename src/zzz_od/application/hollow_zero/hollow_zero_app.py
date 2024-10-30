@@ -1,12 +1,9 @@
-import time
-
 from typing import ClassVar
 
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils.i18_utils import gt
-from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroExtraTask
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.hollow_zero.event import hollow_event_utils
@@ -150,7 +147,6 @@ class HollowZeroApp(ZApplication):
     @operation_node(name='自动运行')
     def auto_run(self) -> OperationRoundResult:
         self.ctx.hollow.init_before_hollow_start(self.mission_type_name, self.mission_name, self.level, self.phase)
-        self.ctx.hollow_zero_record.daily_run_times = self.ctx.hollow_zero_record.daily_run_times + 1
         op = HollowRunner(self.ctx)
         return self.round_by_op_result(op.execute())
 

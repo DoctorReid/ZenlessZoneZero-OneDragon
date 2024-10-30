@@ -275,7 +275,10 @@ class HollowRunner(ZOperation):
     @operation_node(name='离开空洞')
     def exit_hollow(self) -> OperationRoundResult:
         op = HollowExitByMenu(self.ctx)
-        return self.round_by_op_result(op.execute())
+        result = op.execute()
+        if result.success:
+            self.ctx.hollow_zero_record.add_daily_times()
+        return self.round_by_op_result(result)
 
     @node_from(from_name='画面识别', status='通关-完成')
     @operation_node(name='通关-完成', node_max_retry_times=60)
