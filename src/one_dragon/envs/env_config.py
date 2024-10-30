@@ -16,7 +16,7 @@ DEFAULT_VENV_DIR_PATH = os.path.join(DEFAULT_ENV_PATH, 'venv')  # 默认的虚�
 DEFAULT_VENV_PYTHON_PATH = os.path.join(DEFAULT_VENV_DIR_PATH, 'scripts', 'python.exe')  # 默认的虚拟环境中python.exe的路径
 DEFAULT_PYTHON_PTH_PATH = os.path.join(DEFAULT_PYTHON_DIR_PATH, 'python311._pth')  # 默认安装的python配置文件路径
 
-GH_PROXY_URL = 'https://mirror.ghproxy.com/'  # 免费代理的路径
+GH_PROXY_URL = 'https://ghp.ci/'  # 免费代理的路径
 
 
 class ProxyTypeEnum(Enum):
@@ -48,7 +48,8 @@ class ThemeEnum(Enum):
 class PipSourceEnum(Enum):
 
     PYPI = ConfigItem('官方', 'https://pypi.org/simple')
-    TSING_HUA = ConfigItem('清华', 'https://pypi.tuna.tsinghua.edu.cn/simple')
+    TSING_HUA = ConfigItem('清华大学', 'https://pypi.tuna.tsinghua.edu.cn/simple')
+    ALIBABA = ConfigItem('阿里云', 'https://mirrors.aliyun.com/pypi/simple')
 
 
 class EnvConfig(YamlConfig):
@@ -233,7 +234,7 @@ class EnvConfig(YamlConfig):
         自动更新
         :return:
         """
-        return self.get('auto_update', False)
+        return self.get('auto_update', True)
 
     @auto_update.setter
     def auto_update(self, new_value: bool) -> None:

@@ -87,7 +87,8 @@ class HollowZeroSpecialEvent(Enum):
     RESONIUM_STORE_2 = HallowZeroEvent('鸣徽交易', on_the_right=True)
     RESONIUM_STORE_3 = HallowZeroEvent('特价折扣', on_the_right=True)
     RESONIUM_STORE_4 = HallowZeroEvent('鸣徽催化', on_the_right=True)
-    RESONIUM_STORE_5 = HallowZeroEvent('进入商店', on_the_right=True, is_entry_opt=True)
+    # 商人格子不会消失 为了防止循环进入商店 仅在移动格子时候触发进入商店 平时出现这个选项不做点击
+    # RESONIUM_STORE_5 = HallowZeroEvent('进入商店', on_the_right=True, is_entry_opt=True)
 
     CRITICAL_STAGE_ENTRY = HallowZeroEvent('进入守门人决斗', on_the_right=True, is_entry_opt=True)
     CRITICAL_STAGE_ENTRY_2 = HallowZeroEvent('进入危险目标决斗', on_the_right=True, is_entry_opt=True)

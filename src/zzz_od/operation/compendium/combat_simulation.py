@@ -318,10 +318,10 @@ def __debug():
         category_name='实战模拟室',
         mission_type_name='自定义模板',
         mission_name='自定义模板1',
-        auto_battle_config=ctx.battle_assistant_config.auto_battle_config,
         run_times=0,
         plan_times=1,
-        predefined_team_idx=0
+        predefined_team_idx=ctx.coffee_config.predefined_team_idx,
+        auto_battle_config=ctx.coffee_config.auto_battle,
     )
     op = CombatSimulation(ctx, charge_plan)
     op.can_run_times = 1

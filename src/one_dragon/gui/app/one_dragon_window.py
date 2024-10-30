@@ -1,17 +1,20 @@
 import sys
 
-from PySide6.QtCore import Qt, QPropertyAnimation, Property, QRect, QRectF,QEasingCurve,QUrl
-from PySide6.QtGui import QIcon, QPainter, QColor,QFont,QDesktopServices
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QSpacerItem, QSizePolicy, QHBoxLayout, \
+from PySide6.QtCore import Qt, QPropertyAnimation, Property, QRect, QRectF, QEasingCurve, QUrl
+from PySide6.QtGui import QIcon, QPainter, QColor, QFont, QDesktopServices
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QSpacerItem, QSizePolicy, QHBoxLayout, \
     QPushButton
-from qfluentwidgets import FluentStyleSheet, drawIcon, isDarkTheme, FluentIcon as FIF, setFont, SplitTitleBar, \
+from qfluentwidgets import FluentStyleSheet, isDarkTheme, FluentIcon as FIF, setFont, SplitTitleBar, \
     NavigationBarPushButton, MSFluentWindow, SingleDirectionScrollArea, NavigationBar, qrouter, FluentIconBase, \
-    NavigationItemPosition,FluentIcon,VerticalSeparator, IconWidget
-from qfluentwidgets.window.stacked_widget import StackedWidget
+    NavigationItemPosition
 from qfluentwidgets.common.animation import BackgroundAnimationWidget
-from qfluentwidgets.components.widgets.frameless_window import FramelessWindow
 from qfluentwidgets.common.config import qconfig
+from qfluentwidgets.components.widgets.frameless_window import FramelessWindow
+from qfluentwidgets.window.stacked_widget import StackedWidget
 from typing import Union
+
+from one_dragon.envs.project_config import ProjectConfig
+
 
 # 伪装的父类,用于替换原本的FluentWindowBase初始化
 class OniFluentWindowBase(BackgroundAnimationWidget, FramelessWindow):
@@ -24,7 +27,7 @@ class OniFluentWindowBase(BackgroundAnimationWidget, FramelessWindow):
 # 主窗口类，继承自 MSFluentWindow，重绘部分功能
 class OneDragonWindow(MSFluentWindow,OniFluentWindowBase):
 
-    def __init__(self, parent=None):
+    def __init__(self, project_config: ProjectConfig, parent=None):
         
         # 初始化
         self._isAeroEnabled = False
@@ -57,7 +60,7 @@ class OneDragonWindow(MSFluentWindow,OniFluentWindowBase):
         qconfig.themeChangedFinished.connect(self._onThemeChangedFinished)
         
         # 设置自定义标题栏和导航栏
-        self.setTitleBar(OniTitleBar(self))
+        self.setTitleBar(OniTitleBar(f'{project_config.github_homepage}/issues', self))
         self.navigationInterface = OneDragonNavigationBar(self)
 
         self.areaWidget = QWidget()
@@ -300,7 +303,7 @@ class OniNavigationBarPushButton(NavigationBarPushButton):
 class OniTitleBar(SplitTitleBar):
     """ One Dragon 自定义标题栏 """
 
-    def __init__(self, parent=None):
+    def __init__(self, issue_url: str, parent=None):
         # 调用父类的初始化方法
         super(SplitTitleBar, self).__init__(parent)
 
@@ -345,6 +348,8 @@ class OniTitleBar(SplitTitleBar):
         # 将新创建的布局插入到标题栏的主布局中
         self.hBoxLayout.insertLayout(2, Qlayout)
 
+        self.issue_url: str = issue_url
+
     def setIcon(self, icon: QIcon):
         self.iconLabel.setPixmap(icon.pixmap(18, 18))
 
@@ -353,5 +358,5 @@ class OniTitleBar(SplitTitleBar):
         
     # 定义打开GitHub网页的函数
     def open_github(self):
-        url = QUrl("https://github.com/DoctorReid/ZenlessZoneZero-OneDragon/issues")
+        url = QUrl(self.issue_url)
         QDesktopServices.openUrl(url)

@@ -1,7 +1,8 @@
-from dataclasses import dataclass
 from PySide6.QtCore import Signal, Qt
+from dataclasses import dataclass
 from qfluentwidgets import LineEdit
 from typing import Optional
+
 from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
 from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
 from one_dragon.utils.i18_utils import gt

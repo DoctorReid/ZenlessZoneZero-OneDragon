@@ -52,7 +52,7 @@ class HollowRunner(ZOperation):
             HollowZeroSpecialEvent.RESONIUM_STORE_2.value.event_name: BambooMerchant,
             HollowZeroSpecialEvent.RESONIUM_STORE_3.value.event_name: BambooMerchant,
             HollowZeroSpecialEvent.RESONIUM_STORE_4.value.event_name: BambooMerchant,
-            HollowZeroSpecialEvent.RESONIUM_STORE_5.value.event_name: BambooMerchant,
+            # HollowZeroSpecialEvent.RESONIUM_STORE_5.value.event_name: BambooMerchant,
 
             HollowZeroSpecialEvent.RESONIUM_CHOOSE.value.event_name: ChooseResonium,
             HollowZeroSpecialEvent.RESONIUM_CONFIRM_1.value.event_name: ConfirmResonium,
@@ -86,7 +86,7 @@ class HollowRunner(ZOperation):
             '不宜久留': LeaveRandomZone
         }
         self._entry_events: dict[str, List[str]] = {
-            '邦布商人': [HollowZeroSpecialEvent.RESONIUM_STORE_5.value.event_name],
+            '邦布商人': ['进入商店'],
         }
 
         self._last_save_image_time: float = 0
@@ -118,17 +118,20 @@ class HollowRunner(ZOperation):
         :return:
         """
         normal_event = self.ctx.hollow.data_service.get_normal_event_by_name(event_name=event_name)
+        any_match = False
         if normal_event is not None:
+            any_match = True
+            log.info('匹配普通事件 [%s]', event_name)
             if normal_event.is_entry_opt:
                 self._handled_events.add(event_name)
             op = NormalEventHandler(self.ctx, normal_event)
             op_result = op.execute()
-            if op_result.success:
+            if op_result.success:  # 失败的时候继续尝试特殊事件 防止错误匹配到普通事件上
                 return self.round_wait()
-            else:
-                return self.round_retry()
 
         if event_name in self._special_event_handlers:
+            any_match = True
+            log.info('匹配特殊事件 [%s]', event_name)
             special_event = hollow_event_utils.get_special_event_by_name(event_name)
             if special_event.is_entry_opt:
                 self._handled_events.add(event_name)
@@ -137,13 +140,14 @@ class HollowRunner(ZOperation):
             op_result = op.execute()
             if op_result.success:
                 return self.round_wait()
-            else:
-                return self.round_retry()
 
         if event_name == HollowZeroSpecialEvent.MISSION_COMPLETE.value.event_name:
             return self.round_success(status='通关-完成')
 
-        return self.round_retry('当前事件未有对应指令', wait=1)
+        if any_match:
+            return self.round_retry('事件处理失败', wait=1)
+        else:
+            return self.round_retry('当前事件未有对应指令', wait=1)
 
     def _handle_map_move(self, screen: MatLike, screen_time: float, current_map: HollowZeroMap) -> OperationRoundResult:
         """
@@ -271,7 +275,10 @@ class HollowRunner(ZOperation):
     @operation_node(name='离开空洞')
     def exit_hollow(self) -> OperationRoundResult:
         op = HollowExitByMenu(self.ctx)
-        return self.round_by_op_result(op.execute())
+        result = op.execute()
+        if result.success:
+            self.ctx.hollow_zero_record.add_daily_times()
+        return self.round_by_op_result(result)
 
     @node_from(from_name='画面识别', status='通关-完成')
     @operation_node(name='通关-完成', node_max_retry_times=60)

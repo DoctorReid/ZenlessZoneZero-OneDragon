@@ -75,6 +75,7 @@ class InstallerInterface(VerticalScrollInterface):
         self.python_opt.check_and_update_display()
         self.venv_opt.check_and_update_display()
         self.log_card.set_update_log(True)
+        self.log_card.start()  # 开始日志更新
 
     def on_interface_hidden(self) -> None:
         """
@@ -83,6 +84,7 @@ class InstallerInterface(VerticalScrollInterface):
         """
         VerticalScrollInterface.on_interface_hidden(self)
         self.log_card.set_update_log(False)
+        self.log_card.stop()  # 开始日志更新
 
     def update_progress(self, progress: float, message: str) -> None:
         """

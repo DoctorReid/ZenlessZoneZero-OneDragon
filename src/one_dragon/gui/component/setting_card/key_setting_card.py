@@ -1,11 +1,10 @@
-from dataclasses import dataclass
 from PySide6.QtCore import Signal, QObject
-from PySide6.QtGui import QIcon, Qt
-from qfluentwidgets import SettingCard, FluentIconBase, PushButton
-from typing import Union, Optional
+from PySide6.QtGui import Qt
+from dataclasses import dataclass
+from qfluentwidgets import SettingCard, PushButton
+from typing import Optional
 
 from one_dragon.base.controller.pc_button.pc_button_listener import PcButtonListener
-from one_dragon.gui.component.utils.layout_utils import IconSize, Margins
 from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
 from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
 from one_dragon.utils.i18_utils import gt

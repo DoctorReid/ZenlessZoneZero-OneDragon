@@ -129,6 +129,20 @@ def find_best_match_by_lcs(word: str, target_word_list: List[str],
     return target_idx
 
 
+def find_best_match_by_difflib(word: str, target_word_list: List[str], cutoff=0.6) -> Optional[int]:
+    """
+    在目标列表中，找出最相近的一个词语对应的下标
+    :param word:
+    :param target_word_list:
+    :return:
+    """
+    results = difflib.get_close_matches(word, target_word_list, n=1, cutoff=cutoff)
+    if results is not None and len(results) > 0:
+        return target_word_list.index(results[0])
+    else:
+        return None
+
+
 def find_most_similar(str_list1: List[str], str_list2: List[str]) -> Tuple[Optional[int], Optional[int]]:
     """
     多个字符串之间的匹配 找出最匹配的一组下标

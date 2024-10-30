@@ -1,6 +1,8 @@
 import time
 
+import cv2
 import difflib
+import numpy as np
 from typing import Optional, List, ClassVar
 
 from one_dragon.base.geometry.point import Point
@@ -10,6 +12,7 @@ from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils import os_utils, cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
+from zzz_od.application.charge_plan.charge_plan_app import ChargePlanApp
 from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem
 from zzz_od.application.coffee.coffee_config import CoffeeChooseWay, CoffeeChallengeWay
 from zzz_od.application.zzz_application import ZApplication
@@ -94,8 +97,12 @@ class CoffeeApp(ZApplication):
         screen = self.screenshot()
         area = self.ctx.screen_loader.get_area('咖啡店', '咖啡列表')
         part = cv2_utils.crop_image_only(screen, area.rect)
+        mask = cv2.inRange(part,
+                           np.array([220, 220, 220], dtype=np.uint8),
+                           np.array([255, 255, 255], dtype=np.uint8))
+        to_ocr = cv2.bitwise_and(part, part, mask=cv2_utils.dilate(mask, 5))
 
-        ocr_result_map = self.ctx.ocr.run_ocr(part)
+        ocr_result_map = self.ctx.ocr.run_ocr(to_ocr)
         ocr_result_list: List[str] = []
         mrl_list: List[MatchResultList] = []
         for ocr_result, mrl in ocr_result_map.items():
@@ -317,6 +324,7 @@ class CoffeeApp(ZApplication):
             category_name=self.chosen_coffee.category.category_name,
             mission_type_name=self.chosen_coffee.mission_type.mission_type_name,
             mission_name=None if self.chosen_coffee.mission is None else self.chosen_coffee.mission.mission_name,
+            predefined_team_idx=self.ctx.coffee_config.predefined_team_idx,
             auto_battle_config=self.ctx.coffee_config.auto_battle,
             run_times=0,
             plan_times=1,
@@ -361,14 +369,23 @@ class CoffeeApp(ZApplication):
         op = BackToNormalWorld(self.ctx)
         return self.round_by_op_result(op.execute())
 
+    @node_from(from_name='返回大世界')
+    @operation_node(name='结束后运行体力计划')
+    def charge_plan_afterwards(self) -> OperationRoundResult:
+        if self.ctx.coffee_config.run_charge_plan_afterwards:
+            op = ChargePlanApp(self.ctx)
+            return self.round_by_op_result(op.execute())
+        else:
+            return self.round_success('无需运行')
+
 
 def __debug():
     ctx = ZContext()
     ctx.init_by_config()
     app = CoffeeApp(ctx)
-    app.chosen_coffee = ctx.compendium_service.name_2_coffee['果泡拿提']
+    app.chosen_coffee = ctx.compendium_service.name_2_coffee['汀曼特调']
     app._init_before_execute()
-    app.tp_mission()
+    # app.tp_mission()
     # app.had_coffee_list.add('沙罗特调（浓）')
     app.execute()
 

@@ -2,12 +2,17 @@ from typing import List, Optional
 
 from one_dragon.base.geometry.rectangle import Rect
 from one_dragon.utils import cal_utils
+from one_dragon.yolo.detect_utils import DetectFrameResult
+from zzz_od.context.zzz_context import ZContext
 from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroEntry
 from zzz_od.hollow_zero.hollow_map.hollow_zero_map import HollowZeroMap, HollowZeroMapNode
-from one_dragon.yolo.detect_utils import DetectFrameResult
 
 
-def construct_map_from_yolo_result(detect_result: DetectFrameResult, name_2_entry: dict[str, HollowZeroEntry]) -> HollowZeroMap:
+def construct_map_from_yolo_result(
+        ctx: ZContext,
+        detect_result: DetectFrameResult,
+        name_2_entry: dict[str, HollowZeroEntry]
+) -> HollowZeroMap:
     """
     根据识别结果构造地图
     """
@@ -56,10 +61,14 @@ def construct_map_from_yolo_result(detect_result: DetectFrameResult, name_2_entr
         if node.entry.is_base:  # 只识别到底座的 赋值为未知
             node.entry = unknown
 
-    return construct_map_from_nodes(nodes, detect_result.run_time)
+    return construct_map_from_nodes(ctx, nodes, detect_result.run_time)
 
 
-def construct_map_from_nodes(nodes: List[HollowZeroMapNode], check_time: float) -> HollowZeroMap:
+def construct_map_from_nodes(
+        ctx: ZContext,
+        nodes: List[HollowZeroMapNode],
+        check_time: float
+) -> HollowZeroMap:
     current_idx: Optional[int] = None
     for i in range(len(nodes)):
         if nodes[i].entry.entry_name == '当前':
@@ -68,9 +77,22 @@ def construct_map_from_nodes(nodes: List[HollowZeroMapNode], check_time: float) 
     edges: dict[int, List[int]] = {}
 
     for i in range(len(nodes)):
+        node_1 = nodes[i]
+        if (node_1.pos.x1 < 0
+                or node_1.pos.y1 < 0
+                or node_1.pos.x2 >= ctx.project_config.screen_standard_width
+                or node_1.pos.y2 >= ctx.project_config.screen_standard_height
+        ):
+            continue
+
         for j in range(len(nodes)):
-            node_1 = nodes[i]
             node_2 = nodes[j]
+            if (node_2.pos.x1 < 0
+                    or node_2.pos.y1 < 0
+                    or node_2.pos.x2 >= ctx.project_config.screen_standard_width
+                    or node_2.pos.y2 >= ctx.project_config.screen_standard_height
+            ):
+                continue
 
             if not node_1.entry.can_go or not node_2.entry.can_go:
                 continue
@@ -177,7 +199,7 @@ def _add_directed_edge(edges: dict[int, List[int]], x: int, y: int) -> None:
         edges[x].append(y)
 
 
-def merge_map(map_list: List[HollowZeroMap]):
+def merge_map(ctx: ZContext, map_list: List[HollowZeroMap]):
     """
     将多个地图合并成一个
     """
@@ -212,4 +234,4 @@ def merge_map(map_list: List[HollowZeroMap]):
         if max_check_time is None or m.check_time > max_check_time:
             max_check_time = m.check_time
 
-    return construct_map_from_nodes(nodes, max_check_time)
+    return construct_map_from_nodes(ctx, nodes, max_check_time)

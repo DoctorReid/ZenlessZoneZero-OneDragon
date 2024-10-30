@@ -1,10 +1,13 @@
 import time
 
 from cv2.typing import MatLike
+from typing import List
 
 from one_dragon.base.matcher.match_result import MatchResult, MatchResultList
 from one_dragon.base.matcher.ocr import ocr_utils
 from one_dragon.base.matcher.ocr.ocr_matcher import OcrMatcher
+from one_dragon.utils import str_utils
+from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 
 
@@ -116,3 +119,42 @@ class OnnxOcrMatcher(OcrMatcher):
             return ""
         log.debug('OCR结果 %s 耗时 %.2f', scan_result, time.time() - start_time)
         return img_result[0][0]
+
+    def match_words(self, image: MatLike, words: List[str], threshold: float = None,
+                    same_word: bool = False,
+                    ignore_case: bool = True, lcs_percent: float = -1, merge_line_distance: float = -1) -> dict[
+        str, MatchResultList]:
+        """
+        在图片中查找关键词 返回所有词对应的位置
+        :param image: 图片
+        :param words: 关键词
+        :param threshold: 匹配阈值
+        :param same_word: 要求整个词一样
+        :param ignore_case: 忽略大小写
+        :param lcs_percent: 最长公共子序列长度百分比 -1代表不使用 same_word=True时不生效
+        :param merge_line_distance: 多少行距内合并结果 -1为不合并
+        :return: {key_word: []}
+        """
+        all_match_result: dict = self.run_ocr(image, threshold, merge_line_distance=merge_line_distance)
+        match_key = set()
+        for k in all_match_result.keys():
+            for w in words:
+                ocr_result: str = k
+                ocr_target = gt(w, 'ocr')
+                if ignore_case:
+                    ocr_result = ocr_result.lower()
+                    ocr_target = ocr_target.lower()
+
+                if same_word:
+                    if ocr_result == ocr_target:
+                        match_key.add(k)
+                else:
+                    if lcs_percent == -1:
+                        if ocr_result.find(ocr_target) != -1:
+                            match_key.add(k)
+                    else:
+                        if str_utils.find_by_lcs(ocr_target, ocr_result, percent=lcs_percent):
+                            match_key.add(k)
+
+        return {key: all_match_result[key] for key in match_key if key in all_match_result}
+

@@ -1,7 +1,7 @@
-from dataclasses import dataclass
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QPushButton
-from typing import Union
+from dataclasses import dataclass
+
 from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
 
 

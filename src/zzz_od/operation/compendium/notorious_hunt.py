@@ -308,6 +308,16 @@ class NotoriousHunt(ZOperation):
             return self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-再来一次',
                                                      success_wait=1, retry_wait_round=1)
 
+    @node_from(from_name='判断下一次', success=False)
+    @operation_node(name='判断下一次失败处理')
+    def no_left_times(self) -> OperationRoundResult:
+        # 本地记录的剩余次数错误 找不到再来一次
+        # 可能在其它设备上完成了挑战 也可能是上面识别错了
+        self.ctx.notorious_hunt_record.left_times = 0
+        screen = self.screenshot()
+        return self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-完成',
+                                                 success_wait=5, retry_wait_round=1)
+
     @node_from(from_name='判断下一次', status='战斗结果-再来一次')
     @operation_node(name='重新开始-确认')
     def restart_confirm(self) -> OperationRoundResult:
@@ -316,6 +326,7 @@ class NotoriousHunt(ZOperation):
                                                  success_wait=1, retry_wait_round=1)
 
     @node_from(from_name='判断下一次', status='战斗结果-完成')
+    @node_from(from_name='判断下一次失败处理', status='战斗结果-完成')
     @operation_node(name='等待返回入口', node_max_retry_times=60)
     def wait_back_to_entry(self) -> OperationRoundResult:
         screen = self.screenshot()

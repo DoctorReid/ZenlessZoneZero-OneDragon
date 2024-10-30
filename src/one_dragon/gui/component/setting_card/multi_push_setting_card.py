@@ -1,11 +1,8 @@
-from dataclasses import dataclass, field
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QAbstractButton, QWidget, QVBoxLayout, QHBoxLayout
-from qfluentwidgets import FluentIconBase
-from typing import Union, List, Optional
+from PySide6.QtWidgets import QAbstractButton, QVBoxLayout, QHBoxLayout
+from dataclasses import dataclass, field
+from typing import List
 
-from one_dragon.gui.component.utils.layout_utils import IconSize, Margins
 from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
 
 

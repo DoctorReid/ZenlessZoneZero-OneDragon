@@ -194,7 +194,8 @@ class HollowBattle(ZOperation):
     @node_from(from_name='自动战斗', status='零号空洞-挑战结果')
     @operation_node(name='战斗结果-确定')
     def after_battle(self) -> OperationRoundResult:
-        time.sleep(2)  # 第一次稍等等一段时间 避免按键还不能响应
+        # 找到后稍微等待: 1.按钮刚出来的时候按不会有响应 2. 奖励列表可能还没有出现
+        time.sleep(2)
         screen = self.screenshot()
 
         result = self.round_by_find_area(screen, '零号空洞-战斗', '关键进展-丁尼奖励')
@@ -219,15 +220,17 @@ class HollowBattle(ZOperation):
     @node_from(from_name='自动战斗', status='普通战斗-完成')
     @operation_node(name='普通战斗-完成')
     def mission_complete(self) -> OperationRoundResult:
+        # 在battle_context里会判断这个的出现
+        # 找到后稍微等待: 1.按钮刚出来的时候按不会有响应 2. 奖励列表可能还没有出现
+        time.sleep(2)
         screen = self.screenshot()
 
         result = self.round_by_find_area(screen, '零号空洞-战斗', '通关-丁尼奖励')
         if not result.is_success:
             # 领满奖励了
             self.ctx.hollow_zero_record.period_reward_complete = True
-        # 在battle_context里会判断这个的出现
-        # 找到后稍微等待 按钮刚出来的时候按没有用
-        return self.round_success(status='普通战斗-完成', wait=2)
+
+        return self.round_success(status='普通战斗-完成')
 
     @node_from(from_name='战斗结果-确定')
     @operation_node(name='更新楼层信息')

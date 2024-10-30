@@ -13,7 +13,7 @@ body:
         - 最新版本代码有问题可尝试使用回滚功能看是否依然有问题。
         - 请先阅读最新的[使用前须知](https://one-dragon.org/zzz/zh/quickstart.html#_2-%E4%BD%BF%E7%94%A8%E5%89%8D%E9%A1%BB%E7%9F%A5)，确保设置正确。
         - 请先阅读最新的[功能说明](https://one-dragon.org/zzz/zh/docs/feat_hollow_zero.html)，确保设置正确。
-        - 请使用脚本F11进行截图上传，其他截图方式有概率不受理。
+        - 请使用脚本F11进行截图上传，图片保存在 .debug/images/ 文件夹中，其他截图方式有概率不受理。
 
   - type: markdown
     attributes:
@@ -38,9 +38,9 @@ body:
 
   - type: textarea
     attributes:
-      label: "游戏截图"
-      description: "提供游戏截图有助于更直观地理解问题。使用脚本按F11进行截图最佳，图片保存在 .debug/images/ 文件夹中"
-      placeholder: "游戏截图"
+      label: "游戏截图/录屏"
+      description: "提供F11游戏截图有助于更直观地理解问题。如果问题是持续性的，或有前提的触发条件，请提供相关录屏。"
+      placeholder: "游戏截图/录屏"
 
   - type: textarea
     attributes:
