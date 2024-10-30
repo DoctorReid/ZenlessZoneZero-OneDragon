@@ -1,13 +1,14 @@
-import os
 import time
+
+import onnxruntime as ort
+import os
 import urllib.request
 import zipfile
-import onnxruntime as ort
 from typing import Optional, List
 
 from one_dragon.yolo.log_utils import log
 
-_GH_PROXY_URL = 'https://mirror.ghproxy.com'
+_GH_PROXY_URL = 'https://ghp.ci'
 
 
 class OnnxModelLoader:
