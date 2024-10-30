@@ -1,6 +1,8 @@
 import time
 
+import cv2
 import difflib
+import numpy as np
 from typing import Optional, List, ClassVar
 
 from one_dragon.base.geometry.point import Point
@@ -94,8 +96,12 @@ class CoffeeApp(ZApplication):
         screen = self.screenshot()
         area = self.ctx.screen_loader.get_area('咖啡店', '咖啡列表')
         part = cv2_utils.crop_image_only(screen, area.rect)
+        mask = cv2.inRange(part,
+                           np.array([220, 220, 220], dtype=np.uint8),
+                           np.array([255, 255, 255], dtype=np.uint8))
+        to_ocr = cv2.bitwise_and(part, part, mask=cv2_utils.dilate(mask, 5))
 
-        ocr_result_map = self.ctx.ocr.run_ocr(part)
+        ocr_result_map = self.ctx.ocr.run_ocr(to_ocr)
         ocr_result_list: List[str] = []
         mrl_list: List[MatchResultList] = []
         for ocr_result, mrl in ocr_result_map.items():
@@ -366,7 +372,7 @@ def __debug():
     ctx = ZContext()
     ctx.init_by_config()
     app = CoffeeApp(ctx)
-    app.chosen_coffee = ctx.compendium_service.name_2_coffee['果泡拿提']
+    app.chosen_coffee = ctx.compendium_service.name_2_coffee['汀曼特调']
     app._init_before_execute()
     app.tp_mission()
     # app.had_coffee_list.add('沙罗特调（浓）')
