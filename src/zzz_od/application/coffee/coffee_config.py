@@ -157,3 +157,19 @@ class CoffeeConfig(YamlConfig):
     @property
     def predefined_team_idx_adapter(self) -> YamlConfigAdapter:
         return YamlConfigAdapter(self, 'predefined_team_id', -1)
+
+    @property
+    def run_charge_plan_afterwards(self) -> bool:
+        """
+        咖啡后 再次挑战体力计划
+        @return:
+        """
+        return self.get('run_charge_plan_afterwards', False)
+
+    @run_charge_plan_afterwards.setter
+    def run_charge_plan_afterwards(self, new_value: bool) -> None:
+        self.update('run_charge_plan_afterwards', new_value)
+
+    @property
+    def run_charge_plan_afterwards_adapter(self) -> YamlConfigAdapter:
+        return YamlConfigAdapter(self, 'run_charge_plan_afterwards', False)
