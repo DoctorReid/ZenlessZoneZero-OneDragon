@@ -323,6 +323,7 @@ class CoffeeApp(ZApplication):
             category_name=self.chosen_coffee.category.category_name,
             mission_type_name=self.chosen_coffee.mission_type.mission_type_name,
             mission_name=None if self.chosen_coffee.mission is None else self.chosen_coffee.mission.mission_name,
+            predefined_team_idx=self.ctx.coffee_config.predefined_team_idx,
             auto_battle_config=self.ctx.coffee_config.auto_battle,
             run_times=0,
             plan_times=1,
@@ -374,7 +375,7 @@ def __debug():
     app = CoffeeApp(ctx)
     app.chosen_coffee = ctx.compendium_service.name_2_coffee['汀曼特调']
     app._init_before_execute()
-    app.tp_mission()
+    # app.tp_mission()
     # app.had_coffee_list.add('沙罗特调（浓）')
     app.execute()
 

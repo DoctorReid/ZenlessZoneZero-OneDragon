@@ -1,6 +1,8 @@
 from PySide6.QtWidgets import QWidget
+from numpy.core.defchararray import title
 from qfluentwidgets import FluentIcon
 
+from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
@@ -32,6 +34,10 @@ class CoffeePlanInterface(VerticalScrollInterface):
 
         self.card_num_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='体力计划外的数量', options_enum=CoffeeCardNumEnum)
         content_widget.add_widget(self.card_num_opt)
+
+        self.predefined_team_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='预备编队')
+        self.predefined_team_opt.value_changed.connect(self.on_predefined_team_changed)
+        content_widget.add_widget(self.predefined_team_opt)
 
         self.auto_battle_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='自动战斗')
         content_widget.add_widget(self.auto_battle_opt)
@@ -74,8 +80,17 @@ class CoffeePlanInterface(VerticalScrollInterface):
         self.choose_way_opt.setValue(self.ctx.coffee_config.choose_way)
         self.challenge_way_opt.setValue(self.ctx.coffee_config.challenge_way)
         self.card_num_opt.setValue(self.ctx.coffee_config.card_num)
+
+        config_list = ([ConfigItem('游戏内配队', -1)] +
+                       [ConfigItem(team.name, team.idx) for team in self.ctx.team_config.team_list])
+        self.predefined_team_opt.set_options_by_list(config_list)
+        self.predefined_team_opt.init_with_adapter(self.ctx.coffee_config.predefined_team_idx_adapter)
+
         self.auto_battle_opt.set_options_by_list(get_auto_battle_op_config_list('auto_battle'))
         self.auto_battle_opt.setValue(self.ctx.coffee_config.auto_battle)
+        team_idx = self.predefined_team_opt.combo_box.currentData()
+        self.auto_battle_opt.setVisible(team_idx == -1)
+
         self.day_opt_1.setValue(self.ctx.coffee_config.day_coffee_1)
         self.day_opt_2.setValue(self.ctx.coffee_config.day_coffee_2)
         self.day_opt_3.setValue(self.ctx.coffee_config.day_coffee_3)
@@ -156,3 +171,7 @@ class CoffeePlanInterface(VerticalScrollInterface):
 
     def _on_day_7_changed(self, idx: int, value: str) -> None:
         self.ctx.coffee_config.day_coffee_7 = value
+
+    def on_predefined_team_changed(self, idx: int, value: str) -> None:
+        team_idx = self.predefined_team_opt.combo_box.currentData()
+        self.auto_battle_opt.setVisible(team_idx == -1)
