@@ -374,11 +374,11 @@ scenes:
       - states: "[前台-朱鸢]"
         sub_handlers: *zy
 
-  - triggers: ["前台-青衣"]
+  - triggers: ["前台-击破"]
     priority: 4
     interval: 0.02
     handlers:
-      - states: "[前台-青衣]"
+      - states: "[前台-击破]"
         sub_handlers: *q
 
   - triggers: []
