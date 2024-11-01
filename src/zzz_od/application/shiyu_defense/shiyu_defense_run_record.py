@@ -25,8 +25,8 @@ class ShiyuDefenseRunRecord(AppRunRecord):
         )
 
         self.critical_nodes: list[CriticalNode] = [
-            CriticalNode(7, '20241001', '20241015'),
             CriticalNode(7, '20241016', '20241031'),
+            CriticalNode(7, '20241101', '20241115'),
         ]
 
     @property
@@ -36,7 +36,8 @@ class ShiyuDefenseRunRecord(AppRunRecord):
         :return:
         """
         next_node_idx = self.next_node_idx()
-        if next_node_idx is None:
+        current_node = self.current_dt_node()
+        if next_node_idx is None or current_node is None:
             return AppRunRecord.STATUS_SUCCESS
         elif self._should_reset_by_dt():
             return AppRunRecord.STATUS_WAIT
@@ -58,6 +59,8 @@ class ShiyuDefenseRunRecord(AppRunRecord):
         下一个需要挑战的节点下标
         """
         current_node = self.current_dt_node()
+        if current_node is None:
+            return None
 
         for i in range(1, current_node.node_cnt + 1):
             history = self.get(current_node.start_dt, [])
@@ -71,6 +74,8 @@ class ShiyuDefenseRunRecord(AppRunRecord):
         @return:
         """
         current_node = self.current_dt_node()
+        if current_node is None:
+            return
 
         history = self.get(current_node.start_dt, [])
 
