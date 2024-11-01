@@ -12,9 +12,11 @@ from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem
 from zzz_od.auto_battle import auto_battle_utils
 from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.context.zzz_context import ZContext
+from zzz_od.operation.challenge_mission.check_next_after_battle import ChooseNextOrFinishAfterBattle
 from zzz_od.operation.choose_predefined_team import ChoosePredefinedTeam
 from zzz_od.operation.deploy import Deploy
 from zzz_od.operation.zzz_operation import ZOperation
+from zzz_od.screen_area.screen_normal_world import ScreenNormalWorldEnum
 
 
 class ExpertChallenge(ZOperation):
@@ -82,7 +84,7 @@ class ExpertChallenge(ZOperation):
         return self.round_success(ExpertChallenge.STATUS_CHARGE_ENOUGH)
 
     @node_from(from_name='识别电量', status=STATUS_CHARGE_ENOUGH)
-    @operation_node(name='下一步')
+    @operation_node(name='下一步', node_max_retry_times=10)  # 部分机器加载较慢 延长出战的识别时间
     def click_next(self) -> OperationRoundResult:
         screen = self.screenshot()
 
@@ -98,7 +100,9 @@ class ExpertChallenge(ZOperation):
 
         result = self.round_by_find_and_click_area(screen, '实战模拟室', '下一步')
         if result.is_success:
-            return self.round_wait(result.status, wait=1)
+            time.sleep(0.5)
+            self.ctx.controller.mouse_move(ScreenNormalWorldEnum.UID.value.center)  # 点击后 移开鼠标 防止识别不到出战
+            return self.round_wait(result.status, wait=0.5)
 
         return self.round_retry(result.status, wait=1)
 
@@ -167,21 +171,14 @@ class ExpertChallenge(ZOperation):
     @node_from(from_name='战斗结束')
     @operation_node(name='判断下一次')
     def check_next(self) -> OperationRoundResult:
-        screen = self.screenshot()
-        if self.can_run_times == 0:
-            return self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-完成',
-                                                     success_wait=5, retry_wait_round=1)
-        else:
-            return self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-再来一次',
-                                                     success_wait=1, retry_wait_round=1)
+        op = ChooseNextOrFinishAfterBattle(self.ctx, self.can_run_times > 0)
+        return self.round_by_op_result(op.execute())
 
-    def _on_pause(self, e=None):
-        ZOperation._on_pause(self, e)
+    def handle_pause(self):
         if self.auto_op is not None:
             self.auto_op.stop_running()
 
-    def _on_resume(self, e=None):
-        ZOperation._on_resume(self, e)
+    def handle_resume(self):
         auto_battle_utils.resume_running(self.auto_op)
 
     def after_operation_done(self, result: OperationResult):
