@@ -26,11 +26,12 @@ class RouteSearchRoute:
         return self.first_need_step_node if self.go_way == 1 else self.first_node
 
 
-def search_map(current_map: HollowZeroMap, avoid_entry_list: set[str]) -> dict[int, RouteSearchRoute]:
+def search_map(current_map: HollowZeroMap, avoid_entry_list: set[str], visited_nodes: List[HollowZeroMapNode]) -> dict[int, RouteSearchRoute]:
     """
     对当前地图进行搜索 获取前往每个节点的路径
     :param current_map: 识别到的地图信息
     :param: avoid_entry_list: 避免途经点
+    :param: visited_nodes: 已经去过的节点 这些在后续再经过时不需要步数
     :return:
     """
     if current_map is None or current_map.current_idx is None:
@@ -43,12 +44,12 @@ def search_map(current_map: HollowZeroMap, avoid_entry_list: set[str]) -> dict[i
                                    0, 0)
 
     # 先避开部分节点进行搜索 例如战斗的节点
-    result_1 = _bfs_search_map(current_map, [start_route], avoid_entry_list)
+    result_1 = _bfs_search_map(current_map, [start_route], avoid_entry_list, visited_nodes)
     start_routes = [i for i in result_1.values()]
 
     # 可能存在部分节点 一定要经过[避免途经点]才能到达
     # 因此 在上述搜索结果上 继续搜索剩余节点的路径
-    result_2 = _bfs_search_map(current_map, start_routes, None)
+    result_2 = _bfs_search_map(current_map, start_routes, None, visited_nodes)
 
     return result_2
 
@@ -56,13 +57,15 @@ def search_map(current_map: HollowZeroMap, avoid_entry_list: set[str]) -> dict[i
 def _bfs_search_map(
         current_map: HollowZeroMap,
         start_routes: List[RouteSearchRoute],
-        avoid_entry_list: Optional[set[str]] = None
+        avoid_entry_list: Optional[set[str]] = None,
+        visited_nodes: List[HollowZeroMapNode] = None
 ) -> dict[int, RouteSearchRoute]:
     """
     使用宽度搜索 找到达地图上每一个节点的最短路径
     :param current_map: 识别到的地图信息
     :param start_routes: 起始的路径：在第1次搜索时，只有当前节点；第2次搜索时，会包含第1次搜索的路径结果
     :param avoid_entry_list: 避免途经点
+    :param: visited_nodes: 已经去过的节点 这些在后续再经过时不需要步数
     :return:
     """
     result: dict[int, RouteSearchRoute] = {}
@@ -102,8 +105,14 @@ def _bfs_search_map(
                 if avoid_entry_list is not None and next_entry.entry_name in avoid_entry_list:  # 避免途经点
                     continue
 
+                need_step = next_entry.need_step  # 前往这个节点是否需要步数
+                if (next_entry.entry_name == '邦布商人'  # 当前只有商人不会消失
+                        and visited_nodes is not None
+                        and had_been_visited(next_node, visited_nodes)):  # 已经去过的节点 不需要步数
+                    need_step = 0
+
                 # 根据节点类型 计算前往下一个节点的步数
-                next_step_cnt = current_route.step_cnt + (next_entry.need_step if next_entry is not None else 1)
+                next_step_cnt = current_route.step_cnt + need_step
                 # 判断这条路径上 第一个需要步数的节点是哪个 即需要点击的节点
                 if next_step_cnt <= 1 and next_entry.need_step > 0:
                     first_need_step_node = next_node
@@ -247,7 +256,7 @@ def is_same_node(x: HollowZeroMapNode, y: HollowZeroMapNode) -> bool:
 
 
 def draw_map(screen: MatLike, current_map: HollowZeroMap,
-             next_node: Optional[HollowZeroMapNode] = None,
+             next_node: Optional[HollowZeroMapNode] = None, to_click: Optional[Point] = None,
              idx_2_route: Optional[dict[int, RouteSearchRoute]] = None) -> MatLike:
     """
     在图上画出地图
@@ -286,5 +295,7 @@ def draw_map(screen: MatLike, current_map: HollowZeroMap,
 
     if next_node is not None:
         cv2.circle(to_draw, next_node.pos.center.tuple(), 20, (0, 0, 255), 2)
+    if to_click is not None:
+        cv2.circle(to_draw,to_click.tuple(), 10, (0, 0, 255), 2)
 
     return to_draw

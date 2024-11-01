@@ -113,7 +113,7 @@ class HollowContext:
         """
         if current_map.current_idx is None:
             return None
-        idx_2_route = hollow_pathfinding.search_map(current_map, set(self._get_avoid()))
+        idx_2_route = hollow_pathfinding.search_map(current_map, set(self._get_avoid()), self._visited_nodes)
 
         # 优先考虑 一步可达时前往
         route = hollow_pathfinding.get_route_in_1_step(idx_2_route, self._visited_nodes,
@@ -349,14 +349,6 @@ class HollowContext:
         else:
             return []
 
-    def get_no_battle(self) -> List[str]:
-        """
-        不会进入战斗的格子
-        @return:
-        """
-        self.data_service.entry_list
-        pass
-
     def check_info_before_move(self, screen: MatLike, current_map: HollowZeroMap):
         self.check_agent_list(screen, skip_if_checked=True)  # 平时可以不识别
         self._check_mission_level(screen, current_map)
@@ -476,22 +468,30 @@ def __debug_get_map():
 
     from one_dragon.utils import debug_utils
     img_list = [
-        '_1730045319482',
+        '1',
     ]
     for i in img_list:
-        img = debug_utils.get_debug_image(i)
+        screen = debug_utils.get_debug_image(i)
 
         ctx.hollow.init_event_yolo(False)
-        current_map = ctx.hollow.check_current_map(img, time.time())
-        ctx.hollow.check_info_before_move(img, current_map)
+        current_map = ctx.hollow.check_current_map(screen, time.time())
+        ctx.hollow.check_info_before_move(screen, current_map)
 
-    idx_2_route = hollow_pathfinding.search_map(current_map, ctx.hollow._get_avoid())
+    idx_2_route = hollow_pathfinding.search_map(current_map, ctx.hollow._get_avoid(), [])
     route = ctx.hollow.get_next_to_move(current_map)
-    target = route.next_node_to_move
-    result_img = hollow_pathfinding.draw_map(img, current_map, next_node=target, idx_2_route=idx_2_route)
+    next_node_to_move = route.next_node_to_move
+    from zzz_od.hollow_zero.hollow_runner import HollowRunner
+    runner = HollowRunner(ctx)
+    to_click = runner.get_map_node_pos_to_click(screen, next_node_to_move)
+    result_img = hollow_pathfinding.draw_map(screen, current_map,
+                                             next_node=next_node_to_move, to_click=to_click,
+                                             idx_2_route=idx_2_route,
+                                             )
     cv2_utils.show_image(result_img, wait=0)
     cv2.destroyAllWindows()
-    print(current_map.contains_entry('业绩考察点'))
+    # print(current_map.contains_entry('业绩考察点'))
+    print(next_node_to_move.pos)
+    print(to_click)
 
 
 def __screenshot_special():

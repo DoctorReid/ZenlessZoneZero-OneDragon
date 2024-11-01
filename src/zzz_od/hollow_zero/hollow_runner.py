@@ -1,11 +1,14 @@
 import time
 
 from cv2.typing import MatLike
-from typing import Type, ClassVar, List
+from typing import Type, ClassVar, List, Optional
 
+from one_dragon.base.geometry.point import Point
+from one_dragon.base.geometry.rectangle import Rect
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
+from one_dragon.utils import cal_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroExtraTask, HollowZeroExtraExitEnum
@@ -30,7 +33,7 @@ from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroSpecialEven
 from zzz_od.hollow_zero.hollow_battle import HollowBattle
 from zzz_od.hollow_zero.hollow_exit_by_menu import HollowExitByMenu
 from zzz_od.hollow_zero.hollow_map.hollow_pathfinding import RouteSearchRoute
-from zzz_od.hollow_zero.hollow_map.hollow_zero_map import HollowZeroMap
+from zzz_od.hollow_zero.hollow_map.hollow_zero_map import HollowZeroMap, HollowZeroMapNode
 from zzz_od.operation.zzz_operation import ZOperation
 
 
@@ -99,7 +102,10 @@ class HollowRunner(ZOperation):
         now = time.time()
         screen = self.screenshot()
         result = hollow_event_utils.check_screen(self.ctx, screen, self._handled_events)
-        if result is not None and result != HollowZeroSpecialEvent.HOLLOW_INSIDE.value.event_name:
+        if result is not None and result not in [
+            HollowZeroSpecialEvent.HOLLOW_INSIDE.value.event_name,  # 空洞内部比较特殊 仅为识别使用 不做响应处理
+            HollowZeroSpecialEvent.RESONIUM_STORE_5.value.event_name, # 商人格子不会消失 为了防止循环进入商店 仅在移动格子时候触发进入商店 平时出现这个选项不做点击
+        ]:
             return self._handle_event(screen, result)
 
         if result == HollowZeroSpecialEvent.HOLLOW_INSIDE.value.event_name:
@@ -158,7 +164,7 @@ class HollowRunner(ZOperation):
         :return:
         """
         route: RouteSearchRoute = self.ctx.hollow.get_next_to_move(current_map)
-        next_to_move = route.first_need_step_node if route.go_way == 1 else route.first_node
+        next_to_move = route.next_node_to_move
         log.info(f"前往目标: [{route.node.entry.entry_name}] 当前移动: [{next_to_move.entry.entry_name}]")
         pathfinding_success = next_to_move is not None and next_to_move.entry.entry_name != 'fake'
         if not pathfinding_success:
@@ -178,7 +184,8 @@ class HollowRunner(ZOperation):
                 return self.round_success(HollowRunner.STATUS_LEAVE)
 
         self._last_move_time = screen_time
-        self.ctx.controller.click(next_to_move.pos.center)
+        to_click = self.get_map_node_pos_to_click(screen, next_to_move)
+        self.ctx.controller.click(to_click)
         self.ctx.hollow.update_context_after_move(next_to_move)
         self._handled_events.clear()
 
@@ -196,6 +203,38 @@ class HollowRunner(ZOperation):
                 return self.round_retry()
 
         return self.round_wait(wait=1)
+
+    def get_map_node_pos_to_click(self, screen: MatLike, node: HollowZeroMapNode) -> Point:
+        """
+        获取格子的点击位置 要避开画面上可能出现的选项
+        :param screen: 游戏画面
+        :param node: 需要点击的格子
+        :return: 需要点击的位置
+        """
+        # 识别画面上是否有选项
+        opt = hollow_event_utils.check_entry_opt_pos_at_right(self.ctx, screen, set())
+        if opt is None:  # 没有选项的时候 随便点击
+            return node.pos.center
+        else:
+            # 有选项的时候 点击离选项最远的一个角
+            node_rect: Rect = node.pos
+            opt_rect: Rect = opt.rect
+
+            # 格子的4个角 往里面移动一点 防止最终点击到格子外
+            pos_list = [
+                Point(node_rect.x1, node_rect.y1) + Point(2, 2),
+                Point(node_rect.x1, node_rect.y2) + Point(2, -2),
+                Point(node_rect.x2, node_rect.y1) + Point(-2, 2),
+                Point(node_rect.x2, node_rect.y2) + Point(-2, -2),
+            ]
+
+            # 找出离选项中点最远的点
+            target_pos = None
+            for pos in pos_list:
+                if target_pos is None or cal_utils.distance_between(pos, opt_rect.center) > cal_utils.distance_between(target_pos, opt_rect.center):
+                    target_pos = pos
+
+            return target_pos
 
     def _try_click_speed_up(self, screen: MatLike) -> None:
         # 快进

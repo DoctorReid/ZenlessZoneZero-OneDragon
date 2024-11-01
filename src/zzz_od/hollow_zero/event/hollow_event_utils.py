@@ -72,6 +72,17 @@ def check_entry_opt_at_right(ctx: ZContext, screen: MatLike, ignore_events: set[
     """
     识别右边区域 当前是否有事件的入口
     """
+    mr = check_entry_opt_pos_at_right(ctx, screen, ignore_events)
+    if mr is not None:
+        event: HollowZeroSpecialEvent = mr.data
+        return event.value.event_name
+
+
+def check_entry_opt_pos_at_right(ctx: ZContext, screen: MatLike, ignore_events: set[str]) -> Optional[MatchResult]:
+    """
+    识别右边区域 当前是否有事件的入口
+    返回的是带坐标的识别结果 MathcResult.data=HollowZeroSpecialEvent
+    """
     area = ctx.screen_loader.get_area('零号空洞-事件', '格子入口选项')
     part = cv2_utils.crop_image_only(screen, area.rect)
     white = cv2.inRange(part, (230, 230, 230), (255, 255, 255))
@@ -79,7 +90,7 @@ def check_entry_opt_at_right(ctx: ZContext, screen: MatLike, ignore_events: set[
     to_ocr = cv2.bitwise_and(part, part, mask=white)
     ocr_result_map = ctx.ocr.run_ocr(to_ocr)
 
-    event_name_list = []
+    event_list = []
     event_name_gt_list = []
 
     for event_enum in HollowZeroSpecialEvent:
@@ -90,7 +101,7 @@ def check_entry_opt_at_right(ctx: ZContext, screen: MatLike, ignore_events: set[
             continue
         if event.event_name in ignore_events:
             continue
-        event_name_list.append(event.event_name)
+        event_list.append(event)
         event_name_gt_list.append(gt(event.event_name))
 
     # 事件标题一定在最上方 因此找y最小的
@@ -100,14 +111,21 @@ def check_entry_opt_at_right(ctx: ZContext, screen: MatLike, ignore_events: set[
             min_y = mrl.max.y
 
     ocr_result_list = []
+    ocr_mrl_list = []
     for ocr_result, mrl in ocr_result_map.items():
         if mrl.max.y - min_y < 20:
             ocr_result_list.append(ocr_result)
+            ocr_mrl_list.append(mrl)
 
-    event_idx, _ = str_utils.find_most_similar(event_name_gt_list, ocr_result_list)
+    event_idx, ocr_idx = str_utils.find_most_similar(event_name_gt_list, ocr_result_list)
 
     if event_idx is not None:
-        return event_name_list[event_idx]
+        event = event_list[event_idx]
+        mr = ocr_mrl_list[ocr_idx].max
+        mr.data = event
+        mr.add_offset(area.left_top)
+        return mr
+
 
 def check_event_text_and_run(op: ZOperation, screen: MatLike, handlers: List[EventOcrResultHandler]) -> OperationRoundResult:
     """
