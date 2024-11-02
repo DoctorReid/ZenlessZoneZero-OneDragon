@@ -62,9 +62,9 @@ class ShiyuDefenseApp(ZApplication):
         self.current_node_idx = idx
         screen = self.screenshot()
 
-        result = self.round_by_find_and_click_area(screen, '式舆防卫战', ('节点-%02d' % idx))
-        if result.is_success:
-            return self.round_wait(result.status, wait=1)
+        result1 = self.round_by_find_and_click_area(screen, '式舆防卫战', ('节点-%02d' % idx))
+        if result1.is_success:
+            return self.round_wait(result1.status, wait=1)
 
         # 点击直到下一步出现 出现后 再等一会等属性出现
         result = self.round_by_find_area(screen, '式舆防卫战', '下一步')
@@ -82,7 +82,7 @@ class ShiyuDefenseApp(ZApplication):
             if i > idx:
                 for j in range(1, i):
                     self.ctx.shiyu_defense_record.add_node_finished(j)
-                return self.round_wait(result.status, wait=1)
+                return self.round_wait(result2.status, wait=1)
             break
 
         area = self.ctx.screen_loader.get_area('式舆防卫战', '节点区域')
@@ -90,7 +90,7 @@ class ShiyuDefenseApp(ZApplication):
         end_point = start_point + Point(-300, 0)
         self.ctx.controller.drag_to(start=start_point, end=end_point)
 
-        return self.round_retry(result.status, wait=1)
+        return self.round_retry(result1.status, wait=1)
 
     @node_from(from_name='选择节点')
     @node_from(from_name='下一节点')
