@@ -1,3 +1,5 @@
+import time
+
 from typing import ClassVar
 
 from one_dragon.base.operation.operation_edge import node_from
@@ -12,6 +14,7 @@ from zzz_od.hollow_zero.hollow_runner import HollowRunner
 from zzz_od.operation.back_to_normal_world import BackToNormalWorld
 from zzz_od.operation.compendium.tp_by_compendium import TransportByCompendium
 from zzz_od.operation.deploy import Deploy
+from zzz_od.screen_area.screen_normal_world import ScreenNormalWorldEnum
 
 
 class HollowZeroApp(ZApplication):
@@ -109,18 +112,17 @@ class HollowZeroApp(ZApplication):
 
         result = self.round_by_find_and_click_area(screen, '零号空洞-入口', '下一步')
         if result.is_success:
-            return self.round_success(wait=1)
+            time.sleep(0.5)
+            self.ctx.controller.mouse_move(ScreenNormalWorldEnum.UID.value.center)  # 点击后 移开鼠标 防止识别不到出战
+            return self.round_wait(result.status, wait=0.5)
 
         result = self.round_by_find_and_click_area(screen, '零号空洞-入口', '行动中-确认')
         if result.is_success:
             return self.round_wait(wait=1)
 
-        return self.round_retry(wait=1)
-
-    @node_from(from_name='下一步')
-    @operation_node(name='继续或出战')
-    def continue_or_deploy(self) -> OperationRoundResult:
-        screen = self.screenshot()
+        result = self.round_by_find_area(screen, '零号空洞-入口', '出战')
+        if result.is_success:
+            return self.round_success(result.status, wait=1)
 
         result = self.round_by_find_and_click_area(screen, '零号空洞-入口', '继续-确认')
         if result.is_success:
@@ -128,21 +130,16 @@ class HollowZeroApp(ZApplication):
             self.phase = -1
             return self.round_success(result.status, wait=1)
 
-        result = self.round_by_find_area(screen, '零号空洞-入口', '出战')
-        if result.is_success:
-            return self.round_success(result.status, wait=1)
-
         return self.round_retry(wait=1)
 
-
-    @node_from(from_name='继续或出战', status='出战')
+    @node_from(from_name='下一步', status='出战')
     @operation_node(name='出战')
     def deploy(self) -> OperationRoundResult:
         op = Deploy(self.ctx)
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='初始画面识别', status=STATUS_IN_HOLLOW)  # 最开始就在
-    @node_from(from_name='继续或出战', status='继续-确认')
+    @node_from(from_name='下一步', status='继续-确认')
     @node_from(from_name='出战')
     @operation_node(name='自动运行')
     def auto_run(self) -> OperationRoundResult:

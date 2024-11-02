@@ -16,9 +16,6 @@ class Deploy(ZOperation):
         """
         ZOperation.__init__(self, ctx, op_name=gt('出战', 'ui'))
 
-    def handle_init(self):
-        pass
-
     @operation_node(name='出战', is_start_node=True)
     def deploy(self) -> OperationRoundResult:
         screen = self.screenshot()

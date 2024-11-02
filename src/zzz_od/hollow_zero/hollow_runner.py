@@ -108,7 +108,10 @@ class HollowRunner(ZOperation):
         ]:
             return self._handle_event(screen, result)
 
-        if result == HollowZeroSpecialEvent.HOLLOW_INSIDE.value.event_name:
+        if result in [
+            HollowZeroSpecialEvent.HOLLOW_INSIDE.value.event_name,
+            HollowZeroSpecialEvent.RESONIUM_STORE_5.value.event_name,  # 商人格子也需要寻路
+        ]:
             # 当前有显示背包 可以尝试识别地图
             current_map = self.ctx.hollow.check_current_map(screen, now)
             if current_map is not None and current_map.current_idx is not None:
@@ -221,11 +224,12 @@ class HollowRunner(ZOperation):
             opt_rect: Rect = opt.rect
 
             # 格子的4个角 往里面移动一点 防止最终点击到格子外
+            offset = 10
             pos_list = [
-                Point(node_rect.x1, node_rect.y1) + Point(2, 2),
-                Point(node_rect.x1, node_rect.y2) + Point(2, -2),
-                Point(node_rect.x2, node_rect.y1) + Point(-2, 2),
-                Point(node_rect.x2, node_rect.y2) + Point(-2, -2),
+                Point(node_rect.x1, node_rect.y1) + Point(offset, offset),
+                Point(node_rect.x1, node_rect.y2) + Point(offset, -offset),
+                Point(node_rect.x2, node_rect.y1) + Point(-offset, offset),
+                Point(node_rect.x2, node_rect.y2) + Point(-offset, -offset),
             ]
 
             # 找出离选项中点最远的点

@@ -90,7 +90,7 @@ def check_entry_opt_pos_at_right(ctx: ZContext, screen: MatLike, ignore_events: 
     to_ocr = cv2.bitwise_and(part, part, mask=white)
     ocr_result_map = ctx.ocr.run_ocr(to_ocr)
 
-    event_list = []
+    event_enum_list = []
     event_name_gt_list = []
 
     for event_enum in HollowZeroSpecialEvent:
@@ -101,7 +101,7 @@ def check_entry_opt_pos_at_right(ctx: ZContext, screen: MatLike, ignore_events: 
             continue
         if event.event_name in ignore_events:
             continue
-        event_list.append(event)
+        event_enum_list.append(event_enum)
         event_name_gt_list.append(gt(event.event_name))
 
     # 事件标题一定在最上方 因此找y最小的
@@ -120,7 +120,7 @@ def check_entry_opt_pos_at_right(ctx: ZContext, screen: MatLike, ignore_events: 
     event_idx, ocr_idx = str_utils.find_most_similar(event_name_gt_list, ocr_result_list)
 
     if event_idx is not None:
-        event = event_list[event_idx]
+        event = event_enum_list[event_idx]
         mr = ocr_mrl_list[ocr_idx].max
         mr.data = event
         mr.add_offset(area.left_top)
