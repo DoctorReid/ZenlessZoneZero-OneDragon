@@ -163,6 +163,7 @@ class CombatSimulation(ZOperation):
         if self.charge_need is None:
             return self.round_retry(status='识别 %s 失败' % '需要体力', wait=1)
 
+        log.info('所需电量 %d 剩余电量 %d', self.charge_need, self.charge_left)
         if self.charge_need > self.charge_left:
             return self.round_success(CombatSimulation.STATUS_CHARGE_NOT_ENOUGH)
 

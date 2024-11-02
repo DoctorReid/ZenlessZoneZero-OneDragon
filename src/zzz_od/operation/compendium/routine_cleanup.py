@@ -9,6 +9,7 @@ from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
+from one_dragon.utils.log_utils import log
 from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem
 from zzz_od.auto_battle import auto_battle_utils
 from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
@@ -99,6 +100,7 @@ class RoutineCleanup(ZOperation):
         if self.charge_need is None:
             return self.round_retry(status='识别 %s 失败' % '需要体力', wait=1)
 
+        log.info('所需电量 %d 剩余电量 %d', self.charge_need, self.charge_left)
         if self.charge_need > self.charge_left:
             return self.round_success(RoutineCleanup.STATUS_CHARGE_NOT_ENOUGH)
 
