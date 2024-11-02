@@ -671,9 +671,10 @@ class AutoBattleContext:
         distance: Optional[float] = None
         mr: Optional[MatchResult] = None
         for ocr_result, mrl in ocr_result_map.items():
-            if not ocr_result.endswith('m'):
+            last_idx = ocr_result.rfind('m')
+            if last_idx == -1:
                 continue
-            pre_str = ocr_result[:-1]
+            pre_str = ocr_result[:last_idx]
             distance = str_utils.get_positive_float(pre_str, None)
             if distance is None:
                 continue
