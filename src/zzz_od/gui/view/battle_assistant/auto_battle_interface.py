@@ -19,7 +19,7 @@ from zzz_od.application.zzz_application import ZApplication
 from zzz_od.config.game_config import GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.battle_assistant.battle_state_display import BattleStateDisplay, TaskDisplay
-from zzz_od.gui.view.battle_assistant.shared_battle_window import SharedConfigWindow
+from one_dragon.gui.component.dialog.shared_battle_dialog import SharedConfigDialog
 
 
 class AutoBattleInterface(AppRunInterface):
@@ -167,8 +167,12 @@ class AutoBattleInterface(AppRunInterface):
         """
         弹出列表
         """
-        dialog = SharedConfigWindow(self)
-        dialog.exec_()
+        dialog = SharedConfigDialog(self)
+        if dialog.exec():
+            self._refresh_interface()
+        else:
+            self._refresh_interface()
+        
 
     def _on_del_clicked(self) -> None:
         """
@@ -231,3 +235,13 @@ class AutoBattleInterface(AppRunInterface):
             return
         self.battle_state_display.set_update_display(True)
         self.task_display.set_update_display(True)
+        
+    def _refresh_interface(self):
+        """
+        刷新界面
+        """
+        self._update_auto_battle_config_opts()
+        self.config_opt.setValue(self.ctx.battle_assistant_config.auto_battle_config)
+        self.gpu_opt.init_with_adapter(self.ctx.yolo_config.flash_classifier_gpu_adapter)
+        self.screenshot_interval_opt.setValue(str(self.ctx.battle_assistant_config.screenshot_interval))
+        self.gamepad_type_opt.setValue(self.ctx.battle_assistant_config.gamepad_type)

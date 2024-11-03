@@ -14,6 +14,7 @@ class OniStyleSheet(StyleSheetBase, Enum):
     LINK_CARD = "link_card"
     GAME_BUTTON = "game_button"
     GAME_DIALOG = "game_dialog"
+    SHARED_BATTLE_DIALOG = "shared_battle_dialog"
     NOTICE_CARD = "notice_card"
     PIVOT = "pivot"
     
