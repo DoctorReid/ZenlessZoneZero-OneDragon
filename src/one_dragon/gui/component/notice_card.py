@@ -5,7 +5,7 @@ from PySide6.QtWidgets import QVBoxLayout, QListWidgetItem, QWidget, QLabel, QHB
 from qfluentwidgets import SimpleCardWidget, HorizontalFlipView, ListWidget
 import webbrowser
 
-from one_dragon.gui.component.ellipsis_label import EllipsisLabel
+from one_dragon.gui.component.label.ellipsis_label import EllipsisLabel
 from one_dragon.gui.component.oni_pivot import CustomListItemDelegate, OniPivot
 
 class DataFetcher(QThread):

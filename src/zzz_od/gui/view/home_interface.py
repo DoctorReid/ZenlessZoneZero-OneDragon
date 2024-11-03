@@ -27,7 +27,7 @@ from qfluentwidgets import (
 from one_dragon.base.operation.operation import Operation
 from one_dragon.base.operation.operation_base import OperationResult
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
-from one_dragon.gui.component.game_dialog import GameDialog
+from one_dragon.gui.component.dialog.game_dialog import GameDialog
 from one_dragon.utils.log_utils import log
 from one_dragon.gui.common.od_style_sheet import OniStyleSheet
 from one_dragon.gui.component.icon_tip_button import IconTipButton
