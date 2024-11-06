@@ -75,7 +75,7 @@ class HollowZeroApp(ZApplication):
         op = TransportByCompendium(self.ctx,
                                    '挑战',
                                    '零号空洞',
-                                   '资质考核')
+                                   self.mission_type_name)
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='传送')
@@ -87,19 +87,12 @@ class HollowZeroApp(ZApplication):
         return self.round_by_find_area(screen, '零号空洞-入口', '街区', retry_wait=1)
 
     @node_from(from_name='等待入口加载')
-    @operation_node(name='选择副本类型')
-    def choose_mission_type(self) -> OperationRoundResult:
+    @operation_node(name='选择副本')
+    def choose_mission(self) -> OperationRoundResult:
         if (self.ctx.hollow_zero_record.is_finished_by_week()
             or self.ctx.hollow_zero_record.is_finished_by_day()):
             return self.round_success(HollowZeroApp.STATUS_TIMES_FINISHED)
 
-        screen = self.screenshot()
-        return self.round_by_ocr_and_click(screen, self.mission_type_name,
-                                           success_wait=1, retry_wait=1)
-
-    @node_from(from_name='选择副本类型')
-    @operation_node(name='选择副本')
-    def choose_mission(self) -> OperationRoundResult:
         screen = self.screenshot()
         area = self.ctx.screen_loader.get_area('零号空洞-入口', '副本列表')
         return self.round_by_ocr_and_click(screen, self.mission_name, area=area,
@@ -147,8 +140,7 @@ class HollowZeroApp(ZApplication):
         op = HollowRunner(self.ctx)
         return self.round_by_op_result(op.execute())
 
-    @node_from(from_name='选择副本类型', status=STATUS_NO_EVAL_POINT)
-    @node_from(from_name='选择副本类型', status=STATUS_TIMES_FINISHED)
+    @node_from(from_name='选择副本', status=STATUS_TIMES_FINISHED)
     @operation_node(name='完成后等待加载', node_max_retry_times=20)
     def wait_back_loading(self) -> OperationRoundResult:
         screen = self.screenshot()

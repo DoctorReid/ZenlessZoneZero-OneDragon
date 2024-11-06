@@ -100,6 +100,10 @@ class CompendiumChooseMissionType(ZOperation):
                     target_go_point = go_point
 
         if target_go_point is None:
+            # 滑动
+            start = area.center
+            end = start + Point(0, -200 if before_target_cnt > 0 else 200)
+            self.ctx.controller.drag_to(start=start, end=end)
             return self.round_retry(status='找不到 %s' % '前往', wait=1)
 
         click = self.ctx.controller.click(target_go_point)
