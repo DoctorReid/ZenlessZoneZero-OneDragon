@@ -62,8 +62,8 @@ class ShiyuDefenseRunRecord(AppRunRecord):
         if current_node is None:
             return None
 
+        history = self.get(current_node.start_dt, [])
         for i in range(1, current_node.node_cnt + 1):
-            history = self.get(current_node.start_dt, [])
             if i not in history:
                 return i
 
@@ -79,8 +79,9 @@ class ShiyuDefenseRunRecord(AppRunRecord):
 
         history = self.get(current_node.start_dt, [])
 
+        # 删除旧的记录
         for node in self.critical_nodes:
-            if node.start_dt in self.data:
+            if node.start_dt != current_node.start_dt and node.start_dt in self.data:
                 self.data.pop(node.start_dt)
 
         if node_idx not in history:

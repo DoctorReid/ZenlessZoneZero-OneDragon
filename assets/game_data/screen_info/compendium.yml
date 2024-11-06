@@ -4,10 +4,10 @@ pc_alt: false
 area_list:
 - area_name: TAB列表
   pc_rect:
-  - 836
-  - 134
-  - 1602
-  - 198
+  - 716
+  - 120
+  - 1630
+  - 178
   text: ''
   lcs_percent: 0.5
   template_sub_dir: ''

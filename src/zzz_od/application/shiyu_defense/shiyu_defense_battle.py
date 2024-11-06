@@ -114,7 +114,7 @@ class ShiyuDefenseBattle(ZOperation):
         return self.round_wait(wait=self.ctx.battle_assistant_config.screenshot_interval)
 
     @node_from(from_name='自动战斗', status=STATUS_NEED_SPECIAL_MOVE)
-    @operation_node(name='战斗后移动')
+    @operation_node(name='战斗后移动', node_max_retry_times=5)
     def move_after_battle(self) -> OperationRoundResult:
         screen = self.screenshot()
 
@@ -131,9 +131,10 @@ class ShiyuDefenseBattle(ZOperation):
         self.check_distance(screen)
 
         if self.distance_pos is None:
-            return self.round_retry(wait=0.5)
+            # 丢失距离后 当前无法识别下层入口 只能失败退出
+            return self.round_retry(wait=1)
 
-        if self.move_times >= 20:
+        if self.move_times >= 60:
             # 移动比较久也没到 就自动退出了
             self.battle_fail = ShiyuDefenseBattle.STATUS_FAIL_TO_MOVE
             return self.round_fail(ShiyuDefenseBattle.STATUS_FAIL_TO_MOVE)
@@ -147,6 +148,8 @@ class ShiyuDefenseBattle(ZOperation):
             return self.round_wait(wait=0.5)
         else:
             press_time = self.auto_op.auto_battle_context.last_check_distance / 7.2  # 朱鸢测出来的速度
+            if press_time > 1:  # 不要移动太久 防止错过了下层入口
+                press_time = 1
             self.ctx.controller.move_w(press=True, press_time=press_time, release=True)
             self.move_times += 1
             return self.round_wait(wait=0.5)
@@ -167,7 +170,7 @@ class ShiyuDefenseBattle(ZOperation):
 
     @node_from(from_name='向前移动准备战斗', success=False, status=STATUS_FAIL_TO_MOVE)
     @node_from(from_name='战斗超时')
-    @node_from(from_name='战斗后移动', success=False, status=STATUS_FAIL_TO_MOVE)
+    @node_from(from_name='战斗后移动', success=False)
     @operation_node(name='主动退出')
     def voluntary_exit(self) -> OperationRoundResult:
         auto_battle_utils.stop_running(self.auto_op)
@@ -214,6 +217,8 @@ class ShiyuDefenseBattle(ZOperation):
                 return self.round_success(result.status)
             else:
                 return self.round_fail(self.battle_fail)
+
+        return self.round_retry(result.status, wait=1)
 
     def _on_pause(self, e=None):
         ZOperation._on_pause(self, e)

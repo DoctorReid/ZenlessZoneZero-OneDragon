@@ -56,7 +56,7 @@ class TemplateInfo(YamlOperator):
 
         # 运算后保存在内存的
         self._gray: MatLike = None  # 灰度图
-        self._kps: List[cv2.KeyPoint] = []  # 关键点
+        self._kps: List[cv2.KeyPoint] = None  # 关键点
         self._desc: MatLike = None  # 描述
 
     def get_yml_file_path(self) -> str:

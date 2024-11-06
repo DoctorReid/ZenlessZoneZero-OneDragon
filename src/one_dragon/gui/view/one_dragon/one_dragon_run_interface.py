@@ -192,6 +192,8 @@ class OneDragonRunInterface(VerticalScrollInterface):
 
     def run_app(self, app: Application) -> None:
         self.app_runner.app = app
+        if app.run_record is not None:
+            app.run_record.check_and_update_status()
         self.app_runner.start()
 
     def _on_start_clicked(self) -> None:

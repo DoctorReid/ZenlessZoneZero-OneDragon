@@ -75,7 +75,7 @@ class HollowZeroApp(ZApplication):
         op = TransportByCompendium(self.ctx,
                                    '挑战',
                                    '零号空洞',
-                                   '资质考核')
+                                   self.mission_type_name)
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='传送')
@@ -94,9 +94,14 @@ class HollowZeroApp(ZApplication):
             return self.round_success(HollowZeroApp.STATUS_TIMES_FINISHED)
 
         screen = self.screenshot()
+        result = self.round_by_find_and_click_area(screen, '零号空洞-入口', '下一步')
+        if result.is_success:
+            return self.round_success(result.status)
+
         return self.round_by_ocr_and_click(screen, self.mission_type_name,
                                            success_wait=1, retry_wait=1)
 
+    @node_from(from_name='选择副本类型', status='下一步')
     @node_from(from_name='选择副本类型')
     @operation_node(name='选择副本')
     def choose_mission(self) -> OperationRoundResult:
@@ -147,7 +152,6 @@ class HollowZeroApp(ZApplication):
         op = HollowRunner(self.ctx)
         return self.round_by_op_result(op.execute())
 
-    @node_from(from_name='选择副本类型', status=STATUS_NO_EVAL_POINT)
     @node_from(from_name='选择副本类型', status=STATUS_TIMES_FINISHED)
     @operation_node(name='完成后等待加载', node_max_retry_times=20)
     def wait_back_loading(self) -> OperationRoundResult:
