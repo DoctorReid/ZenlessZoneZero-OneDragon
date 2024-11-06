@@ -334,6 +334,7 @@ class HollowRunner(ZOperation):
         # 一直尝试点击直到出现街区
         result = self.round_by_find_area(screen, '零号空洞-入口', '街区')
         if result.is_success:
+            self.ctx.hollow_zero_record.add_daily_times()
             return self.round_success(result.status)
 
         return self.round_retry(result.status, wait=1)
