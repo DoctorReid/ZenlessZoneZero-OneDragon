@@ -45,7 +45,7 @@ class IconTipButton(TransparentToolButton):
             target=self,
             title=self.tip_title,
             content=self.tip_content,
-            tailPosition=TeachingTipTailPosition.LEFT,
+            tailPosition=TeachingTipTailPosition.RIGHT,
             isClosable=False,
             duration=-1,
             parent=self,
@@ -54,8 +54,8 @@ class IconTipButton(TransparentToolButton):
         if self._tooltip:
             tooltip_pos = self.mapToGlobal(self.rect().topRight())
 
-            tooltip_pos.setX(tooltip_pos.x() + 0)  # 水平偏移
-            tooltip_pos.setY(tooltip_pos.y() - 20)  # 垂直偏移
+            tooltip_pos.setX(tooltip_pos.x() - self._tooltip.size().width() - 40)  # 水平偏移
+            tooltip_pos.setY(tooltip_pos.y() - self._tooltip.size().height() / 2 + 35)  # 垂直偏移
 
             self._tooltip.move(tooltip_pos)
 
