@@ -8,23 +8,23 @@ PivotItem{
 }
 
 PivotItem[isSelected=true]{
-    color:black;
+    color:white;
 }
 
 PivotItem[isSelected=true]:hover{
-    color:black;
+    color:white;
 }
 
 PivotItem[isSelected=true]:pressed{
-    color:black;
+    color:white;
 }
 
 PivotItem[isSelected=false]:hover{
-    color:black;
+    color:white;
 }
 
 PivotItem[isSelected=false]:pressed{
-    color:black;
+    color:white;
 }
 
 PivotItem[hasIcon=false]{

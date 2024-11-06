@@ -1,6 +1,6 @@
 import requests
 from PySide6.QtCore import Qt, QSize, QTimer, QThread, Signal
-from PySide6.QtGui import QPixmap, QFont, QPainterPath, QRegion
+from PySide6.QtGui import QPixmap, QFont, QPainterPath, QRegion,QColor
 from PySide6.QtWidgets import QVBoxLayout, QListWidgetItem, QWidget, QLabel, QHBoxLayout, QStackedWidget
 from qfluentwidgets import SimpleCardWidget, HorizontalFlipView, ListWidget
 import webbrowser
@@ -29,7 +29,8 @@ class NoticeCard(SimpleCardWidget):
         self.setBorderRadius(10)
         self.setFixedWidth(351)
         self.mainLayout = QVBoxLayout(self)
-        self.mainLayout.setAlignment(Qt.AlignLeft)
+        self.mainLayout.setContentsMargins(3, 3, 0, 0)
+        self.mainLayout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.error_label = QLabel("无法获取数据")
         self.error_label.setWordWrap(True)
@@ -40,6 +41,9 @@ class NoticeCard(SimpleCardWidget):
         self.banners, self.banner_urls, self.posts = [], [], {"announces": [], "activities": [], "infos": []}
         self.setup_ui()
         self.fetch_data()
+
+    def _normalBackgroundColor(self):
+        return QColor(255, 255, 255, 13)
 
     def fetch_data(self):
         self.fetcher = DataFetcher()
@@ -60,11 +64,21 @@ class NoticeCard(SimpleCardWidget):
         self.update_ui()
 
     def load_banners(self, banners):
+        pixel_ratio = self.devicePixelRatio()  # 获取设备像素比
         for banner in banners:
             try:
                 response = requests.get(banner["image"]["url"])
                 pixmap = QPixmap()
                 pixmap.loadFromData(response.content)
+
+                # 缩放图片，确保清晰
+                size = QSize(pixmap.width(), pixmap.height())
+                pixmap = pixmap.scaled(
+                    size * pixel_ratio,  # 按设备像素比缩放
+                    Qt.IgnoreAspectRatio,
+                    Qt.SmoothTransformation
+                )
+                pixmap.setDevicePixelRatio(pixel_ratio)  # 设置设备像素比
                 self.banners.append(pixmap)
                 self.banner_urls.append(banner["image"]["link"])
             except Exception as e:
@@ -99,6 +113,7 @@ class NoticeCard(SimpleCardWidget):
 
         self.pivot = OniPivot()
         self.stackedWidget = QStackedWidget(self)
+        self.stackedWidget.setContentsMargins(0, 0, 5, 0)
         self.stackedWidget.setFixedHeight(60)
         self.activityWidget, self.announceWidget, self.infoWidget = ListWidget(), ListWidget(), ListWidget()
 

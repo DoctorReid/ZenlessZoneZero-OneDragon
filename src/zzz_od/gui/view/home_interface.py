@@ -6,7 +6,7 @@ from PySide6.QtGui import (
     QPainter,
     QPainterPath,
     QFont,
-    QDesktopServices,
+    QDesktopServices,QColor
 )
 from PySide6.QtWidgets import (
     QWidget,
@@ -47,15 +47,12 @@ class BannerView(QWidget):
     """展示带有圆角的固定大小横幅小部件"""
 
     def __init__(self, parent=None):
-        super().__init__(parent=parent)
+        super().__init__(parent)
 
-        self.setFixedWidth(760)  # 固定宽度
-        self.setFixedHeight(320)  # 固定高度
-
+        self.setFixedHeight(650)
+        self.setFixedWidth(870)
         self.banner_image = self.load_banner_image()
-        self.scaled_image = self.banner_image.scaled(
-            760, 320, Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation
-        )
+        self.update_scaled_image()
 
     def load_banner_image(self):
         """加载横幅图片，或创建渐变备用图片"""
@@ -68,31 +65,46 @@ class BannerView(QWidget):
 
     def _create_fallback_image(self):
         """创建渐变备用图片"""
-        fallback_image = QPixmap(2350, 911)
+        fallback_image = QPixmap(2560, 1280)  # 使用原始图片的大小
         fallback_image.fill(Qt.gray)
         return fallback_image
 
-    def resizeEvent(self, event):
-        """处理窗口大小调整事件"""
-        super().resizeEvent(event)
-        # 更新缩放后的图片
+    def update_scaled_image(self):
+        """按高度缩放图片，宽度保持比例，超出裁剪"""
+        original_width = self.banner_image.width()
+        original_height = self.banner_image.height()
+
+        # 获取设备像素比
+        pixel_ratio = self.devicePixelRatio()
+
+        # 根据高度计算宽度
+        height_ratio = self.height() / original_height
+        new_width = int(original_width * height_ratio)
+
+
+        # 使用设备像素比进行缩放，避免模糊
+        size = QSize(new_width, self.height())
         self.scaled_image = self.banner_image.scaled(
-            760, 320, Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation
+            size * pixel_ratio,  # 使用设备像素比来缩放
+            Qt.IgnoreAspectRatio,  # 忽略宽高比，强制缩放
+            Qt.SmoothTransformation
         )
 
-    def paintEvent(self, event):
-        """绘制事件"""
-        painter = QPainter(self)
-        painter.setRenderHints(QPainter.SmoothPixmapTransform | QPainter.Antialiasing)
+        # 设置设备像素比，确保图像在高分辨率设备上显示正确
+        self.scaled_image.setDevicePixelRatio(pixel_ratio)
 
-        w, h = self.width(), self.height()
+    def paintEvent(self, event):
+        """重载 paintEvent 以绘制缩放后的图片"""
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        
         path = QPainterPath()
+        w, h = self.width(), self.height()
         path.addRoundedRect(0, 0, w, h, 20, 20)
         painter.setClipPath(path)
-        painter.drawPixmap(0, 0, self.scaled_image)
-
-        painter.end()
-
+        
+        # 在窗口上绘制缩放后的图片
+        painter.drawPixmap(-80, 0, self.scaled_image)
 
 class ButtonGroup(SimpleCardWidget):
     """显示主页和 GitHub 按钮的竖直按钮组"""
@@ -107,7 +119,7 @@ class ButtonGroup(SimpleCardWidget):
 
         # 创建主页按钮
         home_button = IconTipButton(
-            FluentIcon.HOME,
+            FluentIcon.HOME.icon(color=QColor("#fff")),
             tip_title="一条龙官网",
             tip_content="使用说明都能在这找到",
             isTooltip=True,
@@ -118,12 +130,12 @@ class ButtonGroup(SimpleCardWidget):
 
         # 创建 GitHub 按钮
         github_button = IconTipButton(
-            FluentIcon.GITHUB,
+            FluentIcon.GITHUB.icon(color=QColor("#fff")),
             tip_title="Github仓库",
             tip_content="如果本项目有帮助到您~\n不妨给项目点一个Star⭐",
             isTooltip=True,
         )
-        github_button.setIconSize(QSize(28, 28))
+        github_button.setIconSize(QSize(32, 32))
         github_button.clicked.connect(self.open_github)
         layout.addWidget(github_button)
 
@@ -132,11 +144,13 @@ class ButtonGroup(SimpleCardWidget):
 
         # 创建 同步 按钮
         sync_button = IconTipButton(
-            FluentIcon.SYNC, tip_title="未完工", tip_content="开发中", isTooltip=True
+            FluentIcon.SYNC.icon(color=QColor("#fff")), tip_title="未完工", tip_content="开发中", isTooltip=True
         )
-        sync_button.setIcon(FluentIcon.SYNC)
-        sync_button.setIconSize(QSize(28, 28))
+        sync_button.setIconSize(QSize(32, 32))
         layout.addWidget(sync_button)
+        
+    def _normalBackgroundColor(self):
+        return QColor(0, 0, 0, 33)
 
     def open_home(self):
         """打开主页链接"""
@@ -177,22 +191,27 @@ class CheckModelRunner(CheckRunnerBase):
     def run(self):
         self.need_update.emit(self.ctx.yolo_config.using_old_model())
 
-
 class HomeInterface(VerticalScrollInterface):
     """主页界面"""
 
     def __init__(self, ctx: ZContext, parent=None):
 
         # 创建垂直布局的主窗口部件
-        v_widget = QWidget()
+        v_widget = BannerView()
         v_layout = QVBoxLayout(v_widget)
         v_layout.setContentsMargins(0, 0, 0, 15)
         v_layout.setSpacing(5)
         v_layout.setAlignment(Qt.AlignTop)
 
-        # 顶部部分 (按钮组 + 横幅)
+        # 空白占位符
+        v_layout.addItem(QSpacerItem(10, 20, QSizePolicy.Fixed, QSizePolicy.Minimum))
+
+        # 顶部部分 (按钮组)
         h1_layout = QHBoxLayout()
         h1_layout.setAlignment(Qt.AlignTop)
+
+        # 左边留白区域
+        h1_layout.addStretch()
 
         # 按钮组
         buttonGroup = ButtonGroup()
@@ -200,22 +219,21 @@ class HomeInterface(VerticalScrollInterface):
         h1_layout.addWidget(buttonGroup)
 
         # 空白占位符
-        h1_layout.addItem(QSpacerItem(10, 10, QSizePolicy.Fixed, QSizePolicy.Minimum))
-
-        # 横幅
-        banner = BannerView()
-        h1_layout.addWidget(banner)
+        h1_layout.addItem(QSpacerItem(20, 10, QSizePolicy.Fixed, QSizePolicy.Minimum))
 
         # 将顶部水平布局添加到垂直布局
         v_layout.addLayout(h1_layout)
 
         # 中间留白区域
-        v_layout.addItem(QSpacerItem(10, 20, QSizePolicy.Fixed, QSizePolicy.Minimum))
+        v_layout.addItem(QSpacerItem(10, 10, QSizePolicy.Fixed, QSizePolicy.Minimum))
         v_layout.addStretch()
 
         # 底部部分 (公告卡片 + 启动按钮)
         h2_layout = QHBoxLayout()
         h2_layout.setAlignment(Qt.AlignTop)
+
+        # 左边留白区域
+        h2_layout.addItem(QSpacerItem(20, 10, QSizePolicy.Fixed, QSizePolicy.Minimum))
 
         # 公告卡片
         noticeCard = NoticeCard()

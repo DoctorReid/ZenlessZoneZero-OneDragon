@@ -1,6 +1,6 @@
 try:
     import sys
-
+    from PySide6.QtCore import Qt
     from PySide6.QtWidgets import QApplication
     from qfluentwidgets import NavigationItemPosition, setTheme, Theme
     from one_dragon.gui.view.like_interface import LikeInterface
@@ -141,6 +141,7 @@ if __name__ == '__main__':
     if _init_error is not None:
         ctypes.windll.user32.MessageBoxW(0, _init_error, "错误", 0x10)
         sys.exit(1)
+    QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
     app = QApplication(sys.argv)
 
     _ctx = ZContext()
