@@ -26,7 +26,7 @@ area_list:
   template_match_threshold: 0.7
 - area_name: 剩余体力
   pc_rect:
-  - 1450
+  - 1440
   - 1016
   - 1494
   - 1045
