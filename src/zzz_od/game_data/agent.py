@@ -207,3 +207,5 @@ class AgentEnum(Enum):
                           state_list=[AgentStateDef('柏妮思-燃点', AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH,
                                                     'burnice_white', lower_color=(100, 50, 0), upper_color=(255, 255, 255))
                                       ])
+
+    YANAGI = Agent('yanagi', '月城柳', RareTypeEnum.S, AgentTypeEnum.ANOMALY, DmgTypeEnum.ELECTRIC)

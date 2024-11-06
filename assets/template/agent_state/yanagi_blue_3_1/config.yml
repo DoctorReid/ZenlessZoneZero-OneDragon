@@ -1,0 +1,10 @@
+sub_dir: agent_state
+template_id: yanagi_blue_3_1
+template_name: 角色状态-柳-上弦-31
+template_shape: polygon
+auto_mask: true
+point_list:
+- 168, 111
+- 158, 121
+- 168, 131
+- 178, 121
