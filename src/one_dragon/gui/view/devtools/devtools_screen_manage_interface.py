@@ -10,18 +10,18 @@ from one_dragon.base.screen.screen_area import ScreenArea
 from one_dragon.base.screen.screen_info import ScreenInfo
 from one_dragon.base.screen.template_info import get_template_root_dir_path, get_template_sub_dir_path, TemplateInfo, \
     TemplateShapeEnum
-from one_dragon.gui.component.column import Column
-from one_dragon.gui.component.cv2_image import Cv2Image
-from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.component.label.click_image_label import ClickImageLabel, ImageScaleEnum
-from one_dragon.gui.component.combo_box import ComboBox
-from one_dragon.gui.component.row_widget import Row
-from one_dragon.gui.component.setting_card.check_box_setting_card import CheckBoxSettingCard
-from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
+    
+from one_dragon.gui.widgets.cv2_image import Cv2Image
+from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon.gui.widgets.click_image_label import ClickImageLabel, ImageScaleEnum
+from one_dragon.gui.widgets.setting_card.check_box_setting_card import CheckBoxSettingCard
+from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils import os_utils, cv2_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
+
+from phosdeiz.gui.widgets import Row,Column,ComboBox
 
 
 class ScreenInfoWorker(QObject):

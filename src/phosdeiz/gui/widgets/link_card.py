@@ -4,7 +4,7 @@ from PySide6.QtWidgets import QFrame, QLabel, QVBoxLayout, QWidget, QHBoxLayout
 
 from qfluentwidgets import IconWidget, FluentIcon, TextWrap, SingleDirectionScrollArea
 
-from ...gui.services.styles_manager import PhosStyleSheet
+from ...gui.services import PhosStyleSheet
 
 
 class LinkCard(QFrame):

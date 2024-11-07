@@ -3,7 +3,7 @@ from PySide6.QtGui import Qt
 from dataclasses import dataclass
 from qfluentwidgets import SettingCard, CheckBox
 
-from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
+from one_dragon.gui.widgets.setting_card.setting_card_base import SettingCardBase
 from one_dragon.utils.i18_utils import gt
 
 

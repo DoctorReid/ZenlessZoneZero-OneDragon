@@ -7,7 +7,7 @@ from typing import Optional
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from phosdeiz.gui.windows import PhosWindow
 from phosdeiz.gui.services import PhosStyleSheet
-from one_dragon.gui.component.interface.base_interface import BaseInterface
+from one_dragon.gui.widgets.base_interface import BaseInterface
 from one_dragon.utils import os_utils
 from one_dragon.envs.project_config import ProjectConfig
 

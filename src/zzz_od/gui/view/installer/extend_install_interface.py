@@ -3,8 +3,8 @@ from qfluentwidgets import ProgressBar, IndeterminateProgressBar, SettingCardGro
     FluentIcon
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
-from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.component.log_display_card import LogDisplayCard
+from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon.gui.widgets.log_display_card import LogDisplayCard
 from one_dragon.utils.i18_utils import gt
 from zzz_od.gui.view.installer.gamepad_install_card import GamepadInstallCard
 

@@ -9,7 +9,7 @@ from qfluentwidgets.components.settings.setting_card import (
 )
 from typing import Union
 
-from one_dragon.gui.component.utils.layout_utils import Margins, IconSize
+from one_dragon.gui.utils.layout_utils import Margins, IconSize
 from one_dragon.utils.i18_utils import gt
 
 

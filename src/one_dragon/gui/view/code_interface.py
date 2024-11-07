@@ -5,11 +5,11 @@ from typing import Callable, List
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon.envs.git_service import GitLog
-from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
-from one_dragon.gui.install_card.code_install_card import CodeInstallCard
-from one_dragon.gui.install_card.git_install_card import GitInstallCard
-from one_dragon.gui.install_card.venv_install_card import VenvInstallCard
+from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon.gui.widgets.install_card.code_install_card import CodeInstallCard
+from one_dragon.gui.widgets.install_card.git_install_card import GitInstallCard
+from one_dragon.gui.widgets.install_card.venv_install_card import VenvInstallCard
 from one_dragon.utils.i18_utils import gt
 
 

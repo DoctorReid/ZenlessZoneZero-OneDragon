@@ -20,7 +20,7 @@ from qfluentwidgets.common.animation import (
 )
 from qfluentwidgets.components.navigation.pivot import PivotItem
 
-from ...gui.services import PhosStyleSheet
+from ..services import PhosStyleSheet
 
 
 class PhosPivot(Pivot):

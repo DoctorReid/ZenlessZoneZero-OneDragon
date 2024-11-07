@@ -5,7 +5,7 @@ from qfluentwidgets import FluentIcon, PrimaryPushButton
 from typing import Optional, Callable, Tuple, List
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
-from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiPushSettingCard
+from one_dragon.gui.widgets.setting_card.multi_push_setting_card import MultiPushSettingCard
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 

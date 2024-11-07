@@ -9,10 +9,10 @@ from one_dragon.base.operation.context_event_bus import ContextEventItem
 from one_dragon.base.operation.one_dragon_app import OneDragonApp
 from one_dragon.base.operation.one_dragon_context import OneDragonContext, ContextKeyboardEventEnum, \
     ContextInstanceEventEnum
-from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.component.log_display_card import LogDisplayCard
-from one_dragon.gui.component.setting_card.app_run_card import AppRunCard
-from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon.gui.widgets.log_display_card import LogDisplayCard
+from one_dragon.gui.widgets.setting_card.app_run_card import AppRunCard
+from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.view.app_run_interface import AppRunner
 from one_dragon.gui.view.context_event_signal import ContextEventSignal
 from one_dragon.utils import cmd_utils
