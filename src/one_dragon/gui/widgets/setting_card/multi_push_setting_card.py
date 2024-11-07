@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QAbstractButton, QVBoxLayout, QHBoxLayout
 from dataclasses import dataclass, field
 from typing import List
 
-from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
+from one_dragon.gui.widgets.setting_card.setting_card_base import SettingCardBase
 
 
 @dataclass(eq=False)

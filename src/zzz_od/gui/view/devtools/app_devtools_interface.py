@@ -1,6 +1,6 @@
 from qfluentwidgets import FluentIcon
 
-from one_dragon.gui.component.interface.pivot_navi_interface import PivotNavigatorInterface
+from one_dragon.gui.widgets.pivot_navi_interface import PivotNavigatorInterface
 from one_dragon.gui.view.devtools.devtools_screen_manage_interface import DevtoolsScreenManageInterface
 from one_dragon.gui.view.devtools.devtools_template_helper_interface import DevtoolsTemplateHelperInterface
 from zzz_od.context.zzz_context import ZContext

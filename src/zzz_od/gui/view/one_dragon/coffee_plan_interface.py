@@ -3,14 +3,14 @@ from numpy.core.defchararray import title
 from qfluentwidgets import FluentIcon
 
 from one_dragon.base.config.config_item import ConfigItem
-from one_dragon.gui.component.column import Column
-from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_op_config_list
 from zzz_od.application.coffee.coffee_config import CoffeeChooseWay, CoffeeChallengeWay, CoffeeCardNumEnum
 from zzz_od.context.zzz_context import ZContext
 
+from phosdeiz.gui.widgets import Column
 
 class CoffeePlanInterface(VerticalScrollInterface):
 

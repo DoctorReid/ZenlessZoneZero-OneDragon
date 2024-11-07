@@ -14,8 +14,8 @@ from PySide6.QtWidgets import (
 
 from qfluentwidgets import SimpleCardWidget, HorizontalFlipView, ListWidget
 
-from ..components.label import EllipsisLabel
-from ..widgets.phos_pivot import CustomListItemDelegate, PhosPivot
+from .label import EllipsisLabel
+from .pivot import CustomListItemDelegate, PhosPivot
 
 
 class DataFetcher(QThread):

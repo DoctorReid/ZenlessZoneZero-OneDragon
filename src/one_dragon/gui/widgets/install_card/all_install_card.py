@@ -2,7 +2,7 @@ from qfluentwidgets import FluentIcon, FluentThemeColor, PushButton, HyperlinkBu
 from typing import List, Callable, Tuple, Optional
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
-from one_dragon.gui.install_card.base_install_card import BaseInstallCard
+from one_dragon.gui.widgets.install_card.base_install_card import BaseInstallCard
 from one_dragon.utils import app_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log

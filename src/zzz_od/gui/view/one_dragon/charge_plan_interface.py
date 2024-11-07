@@ -4,15 +4,14 @@ from qfluentwidgets import PrimaryPushButton, FluentIcon, CaptionLabel, LineEdit
 from typing import List
 
 from one_dragon.base.config.config_item import ConfigItem
-from one_dragon.gui.component.column import Column
-from one_dragon.gui.component.combo_box import ComboBox
-from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiLineSettingCard
-from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon.gui.widgets.setting_card.multi_push_setting_card import MultiLineSettingCard
+from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_op_config_list
 from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem, CardNumEnum
 from zzz_od.context.zzz_context import ZContext
 
+from phosdeiz.gui.widgets import Column,ComboBox
 
 class ChargePlanCard(MultiLineSettingCard):
 

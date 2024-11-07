@@ -4,14 +4,14 @@ from typing import Optional
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.operation.application_base import Application
-from one_dragon.gui.component.column import Column
-from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
+from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon.gui.view.app_run_interface import AppRunInterface
 from zzz_od.application.life_on_line.life_on_line_app import LifeOnLineApp
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 
+from phosdeiz.gui.widgets import Column
 
 class LifeOnLineRunInterface(AppRunInterface):
 

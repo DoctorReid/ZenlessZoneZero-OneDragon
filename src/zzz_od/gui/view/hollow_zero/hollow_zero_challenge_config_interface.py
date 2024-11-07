@@ -3,20 +3,20 @@ from qfluentwidgets import FluentIcon, PushButton, PlainTextEdit, SubtitleLabel,
     TitleLabel
 from typing import List, Optional
 
-from one_dragon.gui.component.column import Column
-from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.component.combo_box import ComboBox
-from one_dragon.gui.component.row_widget import Row
-from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiPushSettingCard
-from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
-from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
+
+from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.widgets.setting_card.multi_push_setting_card import MultiPushSettingCard
+from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_op_config_list
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import AgentEnum, AgentTypeEnum
 from zzz_od.hollow_zero.hollow_zero_challenge_config import HollowZeroChallengeConfig, \
     get_all_hollow_zero_challenge_config, get_hollow_zero_challenge_new_name, HollowZeroChallengePathFinding
+
+from phosdeiz.gui.widgets import Column,ComboBox,Row
 
 
 class HollowZeroChallengeConfigInterface(VerticalScrollInterface):

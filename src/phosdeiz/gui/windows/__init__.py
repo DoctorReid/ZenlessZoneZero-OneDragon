@@ -1,1 +1,1 @@
-from .phos_window import PhosWindow
+from .window import PhosWindow

@@ -5,16 +5,17 @@ from qfluentwidgets import SettingCardGroup, FluentIcon, PushSettingCard
 from one_dragon.base.config.config_item import get_config_item_from_enum, ConfigItem
 from one_dragon.base.controller.pc_button.ds4_button_controller import Ds4ButtonEnum
 from one_dragon.base.controller.pc_button.xbox_button_controller import XboxButtonEnum
-from one_dragon.gui.component.column import Column
-from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.component.setting_card.key_setting_card import KeySettingCard
-from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
+from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.widgets.setting_card.key_setting_card import KeySettingCard
+from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from zzz_od.config.game_config import GameRegionEnum, GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import AgentEnum
+
+from phosdeiz.gui.widgets import Column
 
 
 class ZOneDragonSettingInterface(VerticalScrollInterface):

@@ -2,7 +2,7 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QPushButton
 from dataclasses import dataclass
 
-from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
+from one_dragon.gui.widgets.setting_card.setting_card_base import SettingCardBase
 
 
 @dataclass(eq=False)

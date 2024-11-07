@@ -1,15 +1,15 @@
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon
 
-from one_dragon.gui.component.column import Column
-from one_dragon.gui.component.setting_card.key_setting_card import KeySettingCard
-from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
-from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
+from one_dragon.gui.widgets.setting_card.key_setting_card import KeySettingCard
+from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon.gui.view.app_run_interface import AppRunInterface
 from zzz_od.application.devtools.screenshot_helper.screenshot_helper_app import ScreenshotHelperApp
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 
+from phosdeiz.gui.widgets import Column
 
 class DevtoolsScreenshotHelperInterface(AppRunInterface):
 

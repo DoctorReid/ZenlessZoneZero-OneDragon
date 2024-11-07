@@ -6,8 +6,8 @@ from qfluentwidgets import ToolTip
 from typing import Optional, List, Iterable
 
 from one_dragon.base.config.config_item import ConfigItem
-from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
-from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
+from one_dragon.gui.widgets.setting_card.setting_card_base import SettingCardBase
+from one_dragon.gui.widgets.setting_card.yaml_config_adapter import YamlConfigAdapter
 
 from phosdeiz.gui.widgets import ComboBox
 

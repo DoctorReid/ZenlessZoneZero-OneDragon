@@ -6,10 +6,9 @@ from qfluentwidgets import FluentIcon, PushButton, HyperlinkCard
 from typing import Optional
 
 from one_dragon.base.operation.context_event_bus import ContextEventItem
-from one_dragon.gui.component.column import Column
-from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
-from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
+from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon.gui.view.app_run_interface import AppRunInterface
 from zzz_od.application.battle_assistant.auto_battle_app import AutoBattleApp
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_config_file_path, \
@@ -19,7 +18,8 @@ from zzz_od.application.zzz_application import ZApplication
 from zzz_od.config.game_config import GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.battle_assistant.battle_state_display import BattleStateDisplay, TaskDisplay
-from one_dragon.gui.component.dialog.shared_battle_dialog import SharedConfigDialog
+
+from phosdeiz.gui.widgets import SharedConfigDialog,Column
 
 
 class AutoBattleInterface(AppRunInterface):

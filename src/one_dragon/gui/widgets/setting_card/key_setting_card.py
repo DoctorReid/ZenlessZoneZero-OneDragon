@@ -5,8 +5,8 @@ from qfluentwidgets import SettingCard, PushButton
 from typing import Optional
 
 from one_dragon.base.controller.pc_button.pc_button_listener import PcButtonListener
-from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
-from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
+from one_dragon.gui.widgets.setting_card.setting_card_base import SettingCardBase
+from one_dragon.gui.widgets.setting_card.yaml_config_adapter import YamlConfigAdapter
 from one_dragon.utils.i18_utils import gt
 
 

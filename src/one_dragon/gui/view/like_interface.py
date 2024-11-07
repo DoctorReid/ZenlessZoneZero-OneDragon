@@ -3,10 +3,11 @@ from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, HyperlinkCard, ImageLabel
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
-from one_dragon.gui.component.column import Column
-from one_dragon.gui.component.cv2_image import Cv2Image
-from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon.gui.widgets.cv2_image import Cv2Image
+from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.utils import cv2_utils, os_utils
+
+from phosdeiz.gui.widgets import Column
 
 
 class LikeInterface(VerticalScrollInterface):

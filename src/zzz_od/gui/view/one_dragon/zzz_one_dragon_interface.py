@@ -1,8 +1,8 @@
 from qfluentwidgets import FluentIcon
 from typing import List
 
-from one_dragon.gui.component.interface.pivot_navi_interface import PivotNavigatorInterface
-from one_dragon.gui.component.setting_card.app_run_card import AppRunCard
+from one_dragon.gui.widgets.pivot_navi_interface import PivotNavigatorInterface
+from one_dragon.gui.widgets.setting_card.app_run_card import AppRunCard
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.one_dragon.charge_plan_interface import ChargePlanInterface
 from zzz_od.gui.view.one_dragon.coffee_plan_interface import CoffeePlanInterface

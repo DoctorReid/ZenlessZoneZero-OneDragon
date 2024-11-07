@@ -1,10 +1,9 @@
 from qfluentwidgets import FluentIcon
 
-from one_dragon.gui.component.interface.pivot_navi_interface import PivotNavigatorInterface
+from one_dragon.gui.widgets.pivot_navi_interface import PivotNavigatorInterface
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.game_assistant.commission_assistant_interface import CommissionAssistantRunInterface
 from zzz_od.gui.view.game_assistant.life_on_line_run_interface import LifeOnLineRunInterface
-
 
 class GameAssistantInterface(PivotNavigatorInterface):
 

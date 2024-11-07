@@ -5,7 +5,7 @@ from typing import Optional
 
 from one_dragon.base.operation.application_base import Application
 from one_dragon.base.operation.application_run_record import AppRunRecord
-from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiPushSettingCard
+from one_dragon.gui.widgets.setting_card.multi_push_setting_card import MultiPushSettingCard
 from one_dragon.utils.i18_utils import gt
 
 

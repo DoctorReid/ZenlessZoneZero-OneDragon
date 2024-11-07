@@ -5,7 +5,7 @@ from qfluentwidgets import FluentIconBase
 from qfluentwidgets import Pivot, qrouter
 from typing import Union
 
-from one_dragon.gui.component.interface.base_interface import BaseInterface
+from one_dragon.gui.widgets.base_interface import BaseInterface
 
 
 class PivotNavigatorInterface(BaseInterface):
