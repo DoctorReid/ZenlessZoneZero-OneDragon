@@ -4,7 +4,7 @@ from qfluentwidgets import FluentIcon, CaptionLabel, LineEdit
 from typing import Optional, List
 
 from one_dragon.base.config.config_item import ConfigItem
-from one_dragon.gui.component.column_widget import ColumnWidget
+from one_dragon.gui.component.column import Column
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.combo_box import ComboBox
 from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiPushSettingCard, MultiLineSettingCard
@@ -159,7 +159,7 @@ class NotoriousHuntPlanInterface(VerticalScrollInterface):
         )
 
     def get_content_widget(self) -> QWidget:
-        self.content_widget = ColumnWidget()
+        self.content_widget = Column()
 
         self.card_list: List[ChargePlanCard] = []
         self.last_empty_widget: QWidget = QWidget()

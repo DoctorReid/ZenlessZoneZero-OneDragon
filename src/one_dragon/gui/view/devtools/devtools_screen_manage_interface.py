@@ -10,12 +10,12 @@ from one_dragon.base.screen.screen_area import ScreenArea
 from one_dragon.base.screen.screen_info import ScreenInfo
 from one_dragon.base.screen.template_info import get_template_root_dir_path, get_template_sub_dir_path, TemplateInfo, \
     TemplateShapeEnum
-from one_dragon.gui.component.column_widget import ColumnWidget
+from one_dragon.gui.component.column import Column
 from one_dragon.gui.component.cv2_image import Cv2Image
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.label.click_image_label import ClickImageLabel, ImageScaleEnum
 from one_dragon.gui.component.combo_box import ComboBox
-from one_dragon.gui.component.row_widget import RowWidget
+from one_dragon.gui.component.row_widget import Row
 from one_dragon.gui.component.setting_card.check_box_setting_card import CheckBoxSettingCard
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
@@ -57,15 +57,15 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
         self._existed_yml_update.signal.connect(self._update_existed_yml_options)
 
     def get_content_widget(self) -> QWidget:
-        content_widget = RowWidget()
+        content_widget = Row()
         content_widget.add_widget(self._init_left_part())
         content_widget.add_widget(self._init_right_part())
         return content_widget
 
     def _init_left_part(self) -> QWidget:
-        widget = ColumnWidget()
+        widget = Column()
 
-        btn_row = RowWidget()
+        btn_row = Row()
         widget.add_widget(btn_row)
 
         self.existed_yml_btn = ComboBox()
@@ -91,7 +91,7 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
 
         btn_row.add_stretch(1)
 
-        img_btn_row = RowWidget()
+        img_btn_row = Row()
         widget.add_widget(img_btn_row)
 
         self.choose_image_btn = PushButton(text=gt('选择图片', 'ui'))
@@ -159,7 +159,7 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
         self.existed_yml_btn.currentTextChanged.connect(self._on_choose_existed_yml)
 
     def _init_right_part(self) -> QWidget:
-        widget = ColumnWidget()
+        widget = Column()
 
         self.image_display_size_opt = ComboBoxSettingCard(
             icon=FluentIcon.ZOOM_IN, title='图片显示大小',

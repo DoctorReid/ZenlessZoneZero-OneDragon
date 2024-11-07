@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, HyperlinkCard, ImageLabel
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
-from one_dragon.gui.component.column_widget import ColumnWidget
+from one_dragon.gui.component.column import Column
 from one_dragon.gui.component.cv2_image import Cv2Image
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.utils import cv2_utils, os_utils
@@ -18,7 +18,7 @@ class LikeInterface(VerticalScrollInterface):
         self.ctx: OneDragonEnvContext = ctx
 
     def get_content_widget(self) -> QWidget:
-        content = ColumnWidget()
+        content = Column()
 
         star_opt = HyperlinkCard(icon=FluentIcon.HOME, title='Star', text='前往',
                                  content='Github主页右上角点一个星星是最简单直接的',

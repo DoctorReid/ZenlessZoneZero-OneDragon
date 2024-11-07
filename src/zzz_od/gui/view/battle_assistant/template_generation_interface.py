@@ -6,7 +6,7 @@ from qfluentwidgets import PrimaryPushButton, FluentIcon, PushButton, SubtitleLa
 from typing import Optional
 
 from one_dragon.base.operation.context_event_bus import ContextEventItem
-from one_dragon.gui.component.column_widget import ColumnWidget
+from one_dragon.gui.component.column import Column
 from one_dragon.gui.component.log_display_card import LogDisplayCard
 from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.view.app_run_interface import AppRunInterface
@@ -59,7 +59,7 @@ class TemplateGenerationInterface(AppRunInterface):
         self._add_switch_op = False  # 增加切换代理人操作
 
     def get_widget_at_top(self) -> QWidget:
-        top_widget = ColumnWidget()
+        top_widget = Column()
 
         self.gen_opt = PushSettingCard(
             icon=FluentIcon.DOWN,
