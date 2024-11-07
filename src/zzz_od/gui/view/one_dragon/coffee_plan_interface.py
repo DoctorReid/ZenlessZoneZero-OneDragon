@@ -3,7 +3,7 @@ from numpy.core.defchararray import title
 from qfluentwidgets import FluentIcon
 
 from one_dragon.base.config.config_item import ConfigItem
-from one_dragon.gui.component.column_widget import ColumnWidget
+from one_dragon.gui.component.column import Column
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
@@ -25,7 +25,7 @@ class CoffeePlanInterface(VerticalScrollInterface):
         )
 
     def get_content_widget(self) -> QWidget:
-        content_widget = ColumnWidget()
+        content_widget = Column()
 
         self.choose_way_opt = ComboBoxSettingCard(icon=FluentIcon.CALENDAR, title='咖啡选择', options_enum=CoffeeChooseWay)
         content_widget.add_widget(self.choose_way_opt)

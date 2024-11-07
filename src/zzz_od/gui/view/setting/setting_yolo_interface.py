@@ -3,7 +3,7 @@ from qfluentwidgets import SettingCardGroup, FluentIcon
 
 from one_dragon.base.config.config_item import get_config_item_from_enum
 from one_dragon.envs.env_config import ProxyTypeEnum
-from one_dragon.gui.component.column_widget import ColumnWidget
+from one_dragon.gui.component.column import Column
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.log_display_card import LogDisplayCard
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
@@ -28,7 +28,7 @@ class SettingYoloInterface(VerticalScrollInterface):
         self.ctx: ZContext = ctx
 
     def get_content_widget(self) -> QWidget:
-        content_widget = ColumnWidget()
+        content_widget = Column()
 
         content_widget.add_widget(self._init_web_group())
         content_widget.add_widget(self._init_model_group())

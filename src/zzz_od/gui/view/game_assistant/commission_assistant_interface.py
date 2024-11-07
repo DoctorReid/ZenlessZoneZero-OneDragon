@@ -3,7 +3,7 @@ from qfluentwidgets import FluentIcon, HyperlinkCard
 from typing import Optional
 
 from one_dragon.base.operation.application_base import Application
-from one_dragon.gui.component.row_widget import RowWidget
+from one_dragon.gui.component.row_widget import Row
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.key_setting_card import KeySettingCard
 from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
@@ -33,7 +33,7 @@ class CommissionAssistantRunInterface(AppRunInterface):
         )
 
     def get_widget_at_top(self) -> QWidget:
-        content = RowWidget()
+        content = Row()
         left_layout = QVBoxLayout()
         right_layout = QVBoxLayout()
         content.h_layout.addLayout(left_layout)

@@ -5,7 +5,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
 from qfluentwidgets import FluentIcon, PushButton, HyperlinkCard
 
 from one_dragon.base.operation.context_event_bus import ContextEventItem
-from one_dragon.gui.component.column_widget import ColumnWidget
+from one_dragon.gui.component.column import Column
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
@@ -41,7 +41,7 @@ class DodgeAssistantInterface(AppRunInterface):
         self.auto_op_loaded_signal.connect(self._on_auto_op_loaded_signal)
 
     def get_widget_at_top(self) -> QWidget:
-        top_widget = ColumnWidget()
+        top_widget = Column()
 
         self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='使用说明', text='前往',
                                       url='https://one-dragon.org/zzz/zh/docs/feat_battle_assistant.html')

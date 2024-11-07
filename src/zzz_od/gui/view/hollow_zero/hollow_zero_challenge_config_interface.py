@@ -3,10 +3,10 @@ from qfluentwidgets import FluentIcon, PushButton, PlainTextEdit, SubtitleLabel,
     TitleLabel
 from typing import List, Optional
 
-from one_dragon.gui.component.column_widget import ColumnWidget
+from one_dragon.gui.component.column import Column
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.combo_box import ComboBox
-from one_dragon.gui.component.row_widget import RowWidget
+from one_dragon.gui.component.row_widget import Row
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiPushSettingCard
 from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
@@ -34,7 +34,7 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
         self.chosen_config: Optional[HollowZeroChallengeConfig] = None
 
     def get_content_widget(self) -> QWidget:
-        content_widget = RowWidget()
+        content_widget = Row()
 
         content_widget.add_widget(self._init_left_part(), stretch=1)
         content_widget.add_widget(self._init_right_part(), stretch=1)
@@ -42,9 +42,9 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
         return content_widget
 
     def _init_left_part(self) -> QWidget:
-        widget = ColumnWidget()
+        widget = Column()
 
-        btn_row = RowWidget()
+        btn_row = Row()
         widget.add_widget(btn_row)
 
         self.existed_yml_btn = ComboBox()
@@ -107,28 +107,28 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
         self.path_finding_opt.value_changed.connect(self._on_path_finding_changed)
         widget.add_widget(self.path_finding_opt)
 
-        go_in_1_step_widget = ColumnWidget()
+        go_in_1_step_widget = Column()
         go_in_1_step_title = SubtitleLabel(text='一步可达时前往')
         go_in_1_step_widget.v_layout.addWidget(go_in_1_step_title)
         self.go_in_1_step_input = PlainTextEdit()
         self.go_in_1_step_input.textChanged.connect(self._on_go_in_1_step_changed)
         go_in_1_step_widget.v_layout.addWidget(self.go_in_1_step_input)
 
-        waypoint_widget = ColumnWidget()
+        waypoint_widget = Column()
         waypoint_title = SubtitleLabel(text='优先途经点')
         waypoint_widget.v_layout.addWidget(waypoint_title)
         self.waypoint_input = PlainTextEdit()
         self.waypoint_input.textChanged.connect(self._on_waypoint_changed)
         waypoint_widget.v_layout.addWidget(self.waypoint_input)
 
-        avoid_widget = ColumnWidget()
+        avoid_widget = Column()
         avoid_title = SubtitleLabel(text='避免途经点')
         avoid_widget.v_layout.addWidget(avoid_title)
         self.avoid_input = PlainTextEdit()
         self.avoid_input.textChanged.connect(self._on_avoid_changed)
         avoid_widget.v_layout.addWidget(self.avoid_input)
 
-        self.pathfinding_widget = RowWidget()
+        self.pathfinding_widget = Row()
         self.pathfinding_widget.h_layout.addWidget(go_in_1_step_widget)
         self.pathfinding_widget.h_layout.addWidget(waypoint_widget)
         self.pathfinding_widget.h_layout.addWidget(avoid_widget)
@@ -139,7 +139,7 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
         return widget
 
     def _init_right_part(self) -> QWidget:
-        widget = ColumnWidget()
+        widget = Column()
 
         resonium_title = TitleLabel(text='奖励优先级')
         widget.add_widget(resonium_title)

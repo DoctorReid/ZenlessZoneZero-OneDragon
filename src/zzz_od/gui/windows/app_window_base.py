@@ -4,31 +4,31 @@ from PySide6.QtGui import QIcon
 from qfluentwidgets import NavigationItemPosition, SplashScreen
 from typing import Optional
 
-from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
-from phosdeiz.gui.windows import PhosWindow
-from phosdeiz.gui.services import PhosStyleSheet
+from phosdeiz.gui.windows.phos_window import PhosWindow
+
+from one_dragon.envs.project_config import ProjectConfig
 from one_dragon.gui.component.interface.base_interface import BaseInterface
 from one_dragon.utils import os_utils
-from one_dragon.envs.project_config import ProjectConfig
 
-class InstallerWindowBase(PhosWindow):
-    """ Main Interface """
 
-    def __init__(self, ctx: OneDragonEnvContext,
+class AppWindowBase(PhosWindow):
+
+    def __init__(self,
                  win_title: str,
-                 app_icon: Optional[str] = None, parent=None):
-        PhosWindow.__init__(self, project_config=ctx.project_config, parent=parent)
-        self.ctx: OneDragonEnvContext = ctx
+                 project_config: ProjectConfig,
+                 app_icon: Optional[str] = None,
+                 parent=None):
+        PhosWindow.__init__(self, project_config=project_config, parent=parent)
         self._last_stack_idx: int = 0
-
+        
         # 设置窗口标题
         self.setWindowTitle(win_title)
         if app_icon is not None:
             app_icon_path = os.path.join(os_utils.get_path_under_work_dir('assets', 'ui'), app_icon)
             self.setWindowIcon(QIcon(app_icon_path))
-        
+
         # 初始化窗口
-        self.init_window()
+        self.init_window()  
 
         # 创建启动页面
         self.splashScreen = SplashScreen(self.windowIcon(), self)
@@ -53,6 +53,10 @@ class InstallerWindowBase(PhosWindow):
     def add_sub_interface(self, interface: BaseInterface, position=NavigationItemPosition.TOP):
         self.addSubInterface(interface, interface.nav_icon, interface.nav_text, position=position)
 
+    def init_window(self):
+        self.resize(960, 820)
+        self.move(100, 100)
+
     def init_interface_on_shown(self, index: int) -> None:
         """
         切换子界面时 初始化子界面的显示
@@ -67,30 +71,3 @@ class InstallerWindowBase(PhosWindow):
         base_interface: BaseInterface = self.stackedWidget.currentWidget()
         if isinstance(base_interface, BaseInterface):
             base_interface.on_interface_shown()
-
-    # 继承初始化函数
-    def init_window(self):
-        self.resize(960, 640)
-
-        # 初始化位置
-        self.move(100, 100)
-
-        # 设置配置ID
-        self.setObjectName("PhosWindow")
-        self.navigationInterface.setObjectName("NavigationInterface")
-        self.stackedWidget.setObjectName("StackedWidget")
-        self.titleBar.setObjectName("TitleBar")    
-
-        # 布局样式调整
-        self.hBoxLayout.setContentsMargins(0, 0, 0, 0)
-        self.stackedWidget.setContentsMargins(0, 28, 0, 0)
-        self.navigationInterface.setContentsMargins(0, 28, 0, 0)
-
-        # 配置样式
-        PhosStyleSheet.APP_WINDOW.apply(self)
-        PhosStyleSheet.NAVIGATION_INTERFACE.apply(self.navigationInterface)
-        PhosStyleSheet.STACKED_WIDGET.apply(self.stackedWidget)
-        PhosStyleSheet.TITLE_BAR.apply(self.titleBar)
-
-        # 设置参数
-        self.titleBar.issue_url = f"{ProjectConfig.github_homepage}/issues"

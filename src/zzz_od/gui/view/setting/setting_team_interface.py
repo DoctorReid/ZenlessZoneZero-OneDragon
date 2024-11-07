@@ -4,7 +4,7 @@ from qfluentwidgets import FluentIcon, LineEdit
 from typing import Optional, List
 
 from one_dragon.base.config.config_item import ConfigItem
-from one_dragon.gui.component.column_widget import ColumnWidget
+from one_dragon.gui.component.column import Column
 from one_dragon.gui.component.combo_box import ComboBox
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiPushSettingCard
@@ -84,7 +84,7 @@ class SettingTeamInterface(VerticalScrollInterface):
         self.ctx: ZContext = ctx
 
     def get_content_widget(self) -> QWidget:
-        content_widget = ColumnWidget()
+        content_widget = Column()
 
         self.team_opt_list = []
         team_list = self.ctx.team_config.team_list
