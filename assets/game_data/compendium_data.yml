@@ -60,20 +60,20 @@
 
     - category_name: "定期清剿"
       mission_type_list:
-        - mission_type_name: "猎手与凶兽"
-          mission_type_name_display: "混沌爵士 原始朋克"
-        - mission_type_name: "锐牙与钝斧"
-          mission_type_name_display: "自由蓝调 极地重金属"
-        - mission_type_name: "疯子与追随者"
-          mission_type_name_display: "河豚电音 炎狱重金属"
-        - mission_type_name: "高塔与巨炮"
-          mission_type_name_display: "啄木鸟电音 灵魂摇滚"
-        - mission_type_name: "猎人与忠犬"
-          mission_type_name_display: "震星迪斯科 雷暴重金属"
-        - mission_type_name: "恶拳与凶枪"
-          mission_type_name_display: "激素朋克 獠牙重金属"
         - mission_type_name: "怪兽与怪客"
           mission_type_name_display: "摇滚爵士 混沌重金属"
+        - mission_type_name: "恶拳与凶枪"
+          mission_type_name_display: "激素朋克 獠牙重金属"
+        - mission_type_name: "猎人与忠犬"
+          mission_type_name_display: "震星迪斯科 雷暴重金属"
+        - mission_type_name: "高塔与巨炮"
+          mission_type_name_display: "啄木鸟电音 灵魂摇滚"
+        - mission_type_name: "疯子与追随者"
+          mission_type_name_display: "河豚电音 炎狱重金属"
+        - mission_type_name: "锐牙与钝斧"
+          mission_type_name_display: "自由蓝调 极地重金属"
+        - mission_type_name: "猎手与凶兽"
+          mission_type_name_display: "混沌爵士 原始朋克"
 
     - category_name: "专业挑战室"
       mission_type_list:
@@ -117,5 +117,3 @@
     - category_name: "式舆防卫战"
       mission_type_list:
         - mission_type_name: "剧变节点"
-
-- tab_name: "战术"
