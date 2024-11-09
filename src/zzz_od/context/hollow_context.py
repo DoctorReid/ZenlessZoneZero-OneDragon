@@ -303,7 +303,7 @@ class HollowContext:
         :return:
         """
         for visited in self._visited_nodes:
-            if visited.entry.entry_name == entry_name:
+            if visited.entry.entry_name == entry_name and visited.gt_max_visited_times:
                 return True
         return False
 

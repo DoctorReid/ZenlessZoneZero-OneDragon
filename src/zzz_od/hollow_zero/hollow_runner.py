@@ -189,13 +189,19 @@ class HollowRunner(ZOperation):
         self._last_move_time = screen_time
         to_click = self.get_map_node_pos_to_click(screen, next_to_move)
         self.ctx.controller.click(to_click)
+
+        # 如果是特殊需要选项的格子 则使用对应的事件指令处理 可以同时用来等待移动的时间
+        op: Optional[ZOperation] = None
+        entry_name = next_to_move.entry.entry_name
+        if entry_name in self._entry_event_handlers and not self.ctx.hollow.had_been_entry(entry_name):
+            op = self._entry_event_handlers[entry_name](self.ctx)
+
         self.ctx.hollow.update_context_after_move(next_to_move)
         self._handled_events.clear()
 
         # 如果是特殊需要选项的格子 则使用对应的事件指令处理 可以同时用来等待移动的时间
         entry_name = next_to_move.entry.entry_name
-        if entry_name in self._entry_event_handlers:
-            op: ZOperation = self._entry_event_handlers[entry_name](self.ctx)
+        if op is not None:
             op_result = op.execute()
             if op_result.success:
                 events = self._entry_events.get(entry_name, [])

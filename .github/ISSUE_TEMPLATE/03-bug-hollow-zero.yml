@@ -38,6 +38,11 @@ body:
 
   - type: textarea
     attributes:
+      label: "寻路方式"
+      description: "如果是在格子移动上卡死，提供速通还是默认还是自定义，方便作者复现"
+
+  - type: textarea
+    attributes:
       label: "游戏截图/录屏"
       description: "提供F11游戏截图有助于更直观地理解问题。如果问题是持续性的，或有前提的触发条件，请提供相关录屏。"
       placeholder: "游戏截图/录屏"

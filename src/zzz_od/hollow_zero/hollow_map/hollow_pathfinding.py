@@ -106,10 +106,16 @@ def _bfs_search_map(
                     continue
 
                 need_step = next_entry.need_step  # 前往这个节点是否需要步数
-                if (next_entry.entry_name == '邦布商人'  # 当前只有商人不会消失
-                        and visited_nodes is not None
-                        and had_been_visited(next_node, visited_nodes)):  # 已经去过的节点 不需要步数
-                    need_step = 0
+
+                # 已经去过 且还是存在的节点 还是需要先路过
+                # 否则 依赖直接点击终点 游戏内的自动寻路有几率选择另一条更短但无法通行的路 例如是危机节点
+                # 这时候就会卡死
+                # 参考 https://github.com/DoctorReid/ZenlessZoneZero-OneDragon/issues/382
+                # 已经去过的节点 在 hollow_runner 中判断，不再触发对应的事件指令
+                # if (next_entry.entry_name == '邦布商人'  # 当前只有商人不会消失
+                #         and visited_nodes is not None
+                #         and had_been_visited(next_node, visited_nodes)):  # 已经去过的节点 不需要步数
+                #     need_step = 0
 
                 # 根据节点类型 计算前往下一个节点的步数
                 next_step_cnt = current_route.step_cnt + need_step
