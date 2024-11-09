@@ -40,13 +40,12 @@ class BackToNormalWorld(ZOperation):
         # 例如 空洞继续
         result = self.round_by_find_and_click_area(screen, '大世界', '对话框取消')
         if result.is_success:
-            return self.round_wait(wait=1)
+            return self.round_retry(wait=1)
 
         # 这是领取完活跃度奖励的情况
-        result = self.round_by_find_area(screen, '快捷手册', 'TAB-挑战')
-        if result.is_success:
-            self.round_by_click_area('快捷手册', '退出')
-            return self.round_retry(wait=1)
+        result = self.check_compendium(screen)
+        if result is not None:
+            return self.round_retry(result.status, wait=1)
 
         # 判断是否有好感度事件
         if self._check_agent_dialog(screen):
@@ -105,6 +104,27 @@ class BackToNormalWorld(ZOperation):
             self.round_by_click_area('菜单', '返回')
             return self.round_wait('对话无选项', wait=1)
 
+    def check_compendium(self, screen: MatLike) -> OperationRoundResult:
+        """
+        判断是否在快捷手册
+        """
+        area = self.ctx.screen_loader.get_area('快捷手册', 'TAB列表')
+        part = cv2_utils.crop_image_only(screen, area.rect)
+
+        tab_list = self.ctx.compendium_service.data.tab_list
+        target_word_list = [gt(i.tab_name) for i in tab_list]
+        tab_num: int = 0
+        ocr_results = self.ctx.ocr.run_ocr(part)
+        for ocr_result, mrl in ocr_results.items():
+            if mrl.max is None:
+                continue
+
+            idx = str_utils.find_best_match_by_difflib(ocr_result, target_word_list)
+            if idx is not None and idx >= 0:
+                tab_num += 1
+
+        if tab_num >= 2:  # 找到了多个tab
+            return self.round_by_click_area('快捷手册', '按钮-退出')
 
 def __debug_op():
     ctx = ZContext()
