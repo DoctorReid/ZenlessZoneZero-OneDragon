@@ -5,20 +5,22 @@ from qfluentwidgets import NavigationItemPosition, SplashScreen
 from typing import Optional
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
-from phosdeiz.gui.windows import PhosWindow
-from phosdeiz.gui.services import PhosStyleSheet
 from one_dragon.gui.widgets.base_interface import BaseInterface
+from one_dragon.gui.windows.app_window_base import AppWindowBase
 from one_dragon.utils import os_utils
-from one_dragon.envs.project_config import ProjectConfig
+from phosdeiz.gui.services import PhosStyleSheet
 
-class InstallerWindowBase(PhosWindow):
+
+class InstallerWindowBase(AppWindowBase):
     """ Main Interface """
 
     def __init__(self, ctx: OneDragonEnvContext,
                  win_title: str,
                  app_icon: Optional[str] = None, parent=None):
-        PhosWindow.__init__(self, project_config=ctx.project_config, parent=parent)
         self.ctx: OneDragonEnvContext = ctx
+        AppWindowBase.__init__(self, win_title=win_title,
+                               project_config=ctx.project_config, app_icon=app_icon,
+                               parent=parent)
         self._last_stack_idx: int = 0
 
         # 设置窗口标题
@@ -93,4 +95,4 @@ class InstallerWindowBase(PhosWindow):
         PhosStyleSheet.TITLE_BAR.apply(self.titleBar)
 
         # 设置参数
-        self.titleBar.issue_url = f"{ProjectConfig.github_homepage}/issues"
+        self.titleBar.issue_url = f"{self.ctx.project_config.github_homepage}/issues"

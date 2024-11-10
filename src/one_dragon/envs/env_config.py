@@ -234,7 +234,7 @@ class EnvConfig(YamlConfig):
         自动更新
         :return:
         """
-        return self.get('auto_update', True)
+        return self.get('auto_update', False)
 
     @auto_update.setter
     def auto_update(self, new_value: bool) -> None:

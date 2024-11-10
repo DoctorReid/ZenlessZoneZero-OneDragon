@@ -2,24 +2,21 @@ import os
 from PySide6.QtCore import Qt,QSize
 from PySide6.QtGui import QPixmap, QPainter, QPainterPath
 from PySide6.QtWidgets import QWidget
-from ...utils.file_utils import get_path_in_project,join_create_dir
+
 
 class Banner(QWidget):
     """展示带有圆角的固定大小横幅小部件"""
 
-    def __init__(self, parent=None):
+    def __init__(self, image_path: str, parent=None):
         super().__init__(parent)
 
         self.setFixedHeight(650)
         self.setFixedWidth(870)
-        self.banner_image = self.load_banner_image()
+        self.banner_image = self.load_banner_image(image_path)
         self.update_scaled_image()
 
-    def load_banner_image(self):
+    def load_banner_image(self, image_path: str):
         """加载横幅图片，或创建渐变备用图片"""
-        image_path = os.path.join(
-            join_create_dir(get_path_in_project(),'assets',"ui"), "1.png"
-        )
         if os.path.isfile(image_path):
             return QPixmap(image_path)
         return self._create_fallback_image()

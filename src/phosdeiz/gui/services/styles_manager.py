@@ -1,7 +1,5 @@
-import os
 from enum import Enum
 from qfluentwidgets import StyleSheetBase, Theme, qconfig
-from ...utils.file_utils import join_create_dir,get_path_in_project
 
 
 # PhosStyleSheet 枚举类，定义样式表类型和路径获取方法
@@ -36,7 +34,4 @@ class PhosStyleSheet(StyleSheetBase, Enum):
             str: 样式表文件的路径
         """
         theme = qconfig.theme if theme == Theme.AUTO else theme
-        return os.path.join(
-                join_create_dir(get_path_in_project(),'src','phosdeiz', 'gui', 'qss', theme.value.lower()),
-                f"{self.value}.qss"
-            )
+        return f":/phosdeiz/qss/{theme.value.lower()}/{self.value}.qss"

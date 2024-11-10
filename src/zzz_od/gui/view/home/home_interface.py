@@ -134,7 +134,10 @@ class HomeInterface(VerticalScrollInterface):
     def __init__(self, ctx: ZContext, parent=None):
 
         # 创建垂直布局的主窗口部件
-        v_widget = Banner()
+        v_widget = Banner(os.path.join(
+            os_utils.get_path_under_work_dir('assets', 'ui'),
+            '1.png'
+        ))
         v_layout = QVBoxLayout(v_widget)
         v_layout.setContentsMargins(0, 0, 0, 15)
         v_layout.setSpacing(5)

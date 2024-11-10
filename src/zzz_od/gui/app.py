@@ -10,10 +10,10 @@ try:
 
     from one_dragon.gui.view.code_interface import CodeInterface
     from one_dragon.gui.view.context_event_signal import ContextEventSignal
+    from one_dragon.gui.windows.app_window_base import AppWindowBase
     from one_dragon.utils.i18_utils import gt
 
     from zzz_od.context.zzz_context import ZContext
-    from zzz_od.gui.windows import AppWindowBase
     from zzz_od.gui.view import (
         AppDevtoolsInterface,
         GameAssistantInterface,
