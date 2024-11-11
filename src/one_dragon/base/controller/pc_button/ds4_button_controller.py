@@ -22,6 +22,8 @@ class Ds4ButtonEnum(Enum):
     L_STICK_S = ConfigItem('左摇杆-下', 'ds4_9')
     L_STICK_A = ConfigItem('左摇杆-左', 'ds4_10')
     L_STICK_D = ConfigItem('左摇杆-右', 'ds4_11')
+    L_THUMB = ConfigItem('左摇杆-按下', 'ds4_12')
+    R_THUMB = ConfigItem('右摇杆-按下', 'ds4_13')
 
 
 class Ds4ButtonController(PcButtonController):
@@ -47,6 +49,8 @@ class Ds4ButtonController(PcButtonController):
             self.tap_l_stick_s,
             self.tap_l_stick_a,
             self.tap_l_stick_d,
+            self.tap_l_thumb,
+            self.tap_r_thumb,
         ]
 
         self.release_handler: List[Callable[[], None]] = [
@@ -62,6 +66,8 @@ class Ds4ButtonController(PcButtonController):
             self.release_l_stick,
             self.release_l_stick,
             self.release_l_stick,
+            self.release_l_thumb,
+            self.release_r_thumb,
         ]
 
     def tap(self, key: str) -> None:
@@ -75,16 +81,16 @@ class Ds4ButtonController(PcButtonController):
         self._tap_handler[int(key.split('_')[-1])](False, None)
 
     def tap_a(self, press: bool = False, press_time: Optional[float] = None) -> None:
-        self._tap_button(self._btn.DS4_BUTTON_CROSS, press=press, press_time=press_time)
+        self._press_button(self._btn.DS4_BUTTON_CROSS, press=press, press_time=press_time)
 
     def tap_b(self, press: bool = False, press_time: Optional[float] = None) -> None:
-        self._tap_button(self._btn.DS4_BUTTON_CIRCLE, press=press, press_time=press_time)
+        self._press_button(self._btn.DS4_BUTTON_CIRCLE, press=press, press_time=press_time)
 
     def tap_x(self, press: bool = False, press_time: Optional[float] = None) -> None:
-        self._tap_button(self._btn.DS4_BUTTON_SQUARE, press=press, press_time=press_time)
+        self._press_button(self._btn.DS4_BUTTON_SQUARE, press=press, press_time=press_time)
 
     def tap_y(self, press: bool = False, press_time: Optional[float] = None) -> None:
-        self._tap_button(self._btn.DS4_BUTTON_TRIANGLE, press=press, press_time=press_time)
+        self._press_button(self._btn.DS4_BUTTON_TRIANGLE, press=press, press_time=press_time)
 
     def tap_lt(self, press: bool = False, press_time: Optional[float] = None) -> None:
         self.pad.left_trigger(value=255)
@@ -117,10 +123,10 @@ class Ds4ButtonController(PcButtonController):
         self.pad.update()
 
     def tap_lb(self, press: bool = False, press_time: Optional[float] = None) -> None:
-        self._tap_button(self._btn.DS4_BUTTON_SHOULDER_LEFT, press=press, press_time=press_time)
+        self._press_button(self._btn.DS4_BUTTON_SHOULDER_LEFT, press=press, press_time=press_time)
 
     def tap_rb(self, press: bool = False, press_time: Optional[float] = None) -> None:
-        self._tap_button(self._btn.DS4_BUTTON_SHOULDER_RIGHT, press=press, press_time=press_time)
+        self._press_button(self._btn.DS4_BUTTON_SHOULDER_RIGHT, press=press, press_time=press_time)
 
     def tap_l_stick_w(self, press: bool = False, press_time: Optional[float] = None) -> None:
         self.pad.left_joystick_float(0, -1)
@@ -182,7 +188,13 @@ class Ds4ButtonController(PcButtonController):
         self.pad.left_joystick_float(0, 0)
         self.pad.update()
 
-    def _tap_button(self, btn, press: bool = False, press_time: Optional[float] = None):
+    def tap_l_thumb(self, press: bool = False, press_time: Optional[float] = None) -> None:
+        self._press_button(self._btn.DS4_BUTTON_THUMB_LEFT, press=press, press_time=press_time)
+
+    def tap_r_thumb(self, press: bool = False, press_time: Optional[float] = None) -> None:
+        self._press_button(self._btn.DS4_BUTTON_THUMB_RIGHT, press=press, press_time=press_time)
+
+    def _press_button(self, btn, press: bool = False, press_time: Optional[float] = None):
         """
         按键
         :param btn: 键
@@ -252,6 +264,12 @@ class Ds4ButtonController(PcButtonController):
     def release_l_stick(self) -> None:
         self.pad.left_joystick_float(0, 0)
         self.pad.update()
+
+    def release_l_thumb(self) -> None:
+        self._release_btn(self._btn.DS4_BUTTON_THUMB_LEFT)
+
+    def release_r_thumb(self) -> None:
+        self._release_btn(self._btn.DS4_BUTTON_THUMB_RIGHT)
 
     def _release_btn(self, btn) -> None:
         """

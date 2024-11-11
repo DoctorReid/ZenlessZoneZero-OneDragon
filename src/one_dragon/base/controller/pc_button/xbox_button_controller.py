@@ -22,6 +22,8 @@ class XboxButtonEnum(Enum):
     L_STICK_S = ConfigItem('左摇杆-下', 'xbox_9')
     L_STICK_A = ConfigItem('左摇杆-左', 'xbox_10')
     L_STICK_D = ConfigItem('左摇杆-右', 'xbox_11')
+    L_THUMB = ConfigItem('左摇杆-按下', 'xbox_12')
+    R_THUMB = ConfigItem('右摇杆-按下', 'xbox_13')
 
 
 class XboxButtonController(PcButtonController):
@@ -47,6 +49,8 @@ class XboxButtonController(PcButtonController):
             self.tap_l_stick_s,
             self.tap_l_stick_a,
             self.tap_l_stick_d,
+            self.tap_l_thumb,
+            self.tap_r_thumb,
         ]
 
         self.release_handler: List[Callable[[], None]] = [
@@ -62,6 +66,8 @@ class XboxButtonController(PcButtonController):
             self.release_l_stick,
             self.release_l_stick,
             self.release_l_stick,
+            self.release_l_thumb,
+            self.release_r_thumb,
         ]
 
     def tap(self, key: str) -> None:
@@ -182,6 +188,12 @@ class XboxButtonController(PcButtonController):
         self.pad.left_joystick_float(0, 0)
         self.pad.update()
 
+    def tap_l_thumb(self, press: bool = False, press_time: Optional[float] = None) -> None:
+        self._press_button(self._btn.XUSB_GAMEPAD_LEFT_THUMB, press=press, press_time=press_time)
+
+    def tap_r_thumb(self, press: bool = False, press_time: Optional[float] = None) -> None:
+        self._press_button(self._btn.XUSB_GAMEPAD_RIGHT_THUMB, press=press, press_time=press_time)
+
     def _press_button(self, btn, press: bool = False, press_time: Optional[float] = None):
         """
         :param btn: 按键
@@ -246,6 +258,12 @@ class XboxButtonController(PcButtonController):
     def release_l_stick(self) -> None:
         self.pad.left_joystick_float(0, 0)
         self.pad.update()
+
+    def release_l_thumb(self) -> None:
+        self._release_btn(self._btn.XUSB_GAMEPAD_LEFT_THUMB)
+
+    def release_r_thumb(self) -> None:
+        self._release_btn(self._btn.XUSB_GAMEPAD_RIGHT_THUMB)
 
     def _release_btn(self, btn) -> None:
         """

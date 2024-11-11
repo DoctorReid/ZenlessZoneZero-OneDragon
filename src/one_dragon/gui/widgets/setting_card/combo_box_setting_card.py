@@ -120,10 +120,11 @@ class ComboBoxSettingCard(SettingCardBase):
         self.last_index = index
         self._update_desc()
         val = self.combo_box.itemData(index)
-        self.value_changed.emit(index, val)
 
         if self.adapter is not None:
             self.adapter.set_value(val)
+
+        self.value_changed.emit(index, val)
 
     def _update_desc(self) -> None:
         """更新描述显示。"""

@@ -5,7 +5,7 @@ from one_dragon.base.config.yaml_config import YamlConfig
 
 class YamlConfigAdapter:
 
-    def __init__(self, config: YamlConfig, field: str, default_val: Any,
+    def __init__(self, config: YamlConfig, field: str, default_val: Any = None,
                  getter_convert: Optional[str] = None,
                  setter_convert: Optional[str] = None):
         self.config: YamlConfig = config
@@ -15,7 +15,8 @@ class YamlConfigAdapter:
         self.setter_convert: Optional[str] = setter_convert
 
     def get_value(self) -> Any:
-        val = self.config.get(self.field, self.default_val)
+        val = getattr(self.config, self.field)
+        # 获取self.field对应的property属性的值
         if self.getter_convert == 'str':
             return str(val)
         elif self.getter_convert == 'int':

@@ -37,10 +37,11 @@ class TextSettingCard(SettingCardBase):
     def _on_text_changed(self) -> None:
         """处理文本更改事件"""
         val = self.line_edit.text()
-        self.value_changed.emit(val)
 
         if self.adapter is not None:
             self.adapter.set_value(val)
+
+        self.value_changed.emit(val)
 
     def init_with_adapter(self, adapter: Optional[YamlConfigAdapter]) -> None:
         """使用配置适配器初始化值"""
