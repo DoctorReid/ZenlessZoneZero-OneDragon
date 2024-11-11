@@ -129,7 +129,7 @@ class Ds4ButtonController(PcButtonController):
         self._press_button(self._btn.DS4_BUTTON_SHOULDER_RIGHT, press=press, press_time=press_time)
 
     def tap_l_stick_w(self, press: bool = False, press_time: Optional[float] = None) -> None:
-        self.pad.left_joystick_float(0, -1)
+        self.pad.left_joystick_float(0, 1)
         self.pad.update()
 
         if press:
@@ -144,7 +144,7 @@ class Ds4ButtonController(PcButtonController):
         self.pad.update()
 
     def tap_l_stick_s(self, press: bool = False, press_time: Optional[float] = None) -> None:
-        self.pad.left_joystick_float(0, 1)
+        self.pad.left_joystick_float(0, -1)
         self.pad.update()
 
         if press:
@@ -228,7 +228,7 @@ class Ds4ButtonController(PcButtonController):
         """
         if key is None:  # 部分按键不支持
             return
-        self._tap_handler[int(key.split('_')[-1])](press_time)
+        self._tap_handler[int(key.split('_')[-1])](True, press_time)
 
     def release(self, key: str) -> None:
         if key is None:  # 部分按键不支持
