@@ -1,11 +1,13 @@
 import time
 
+import os
 from cv2.typing import MatLike
 from typing import List
 
 from one_dragon.base.matcher.match_result import MatchResult, MatchResultList
 from one_dragon.base.matcher.ocr import ocr_utils
 from one_dragon.base.matcher.ocr.ocr_matcher import OcrMatcher
+from one_dragon.utils import os_utils
 from one_dragon.utils import str_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
@@ -26,8 +28,6 @@ class OnnxOcrMatcher(OcrMatcher):
 
         if self._model is None:
             from onnxocr.onnx_paddleocr import ONNXPaddleOcr
-            from one_dragon.utils import os_utils
-            import os
             models_dir = os_utils.get_path_under_work_dir('assets', 'models', 'onnx_ocr')
 
             try:

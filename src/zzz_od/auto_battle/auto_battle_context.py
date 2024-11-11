@@ -60,6 +60,7 @@ class AutoBattleContext:
         self._last_check_distance_time: float = 0
 
         # 识别结果
+        self.last_check_in_battle: bool = False  # 是否在战斗画面
         self.last_check_end_result: Optional[str] = None
         self.last_check_distance: float = -1  # 最后一次识别的距离
         self.without_distance_times: int = 0  # 没有显示距离的次数
@@ -372,6 +373,7 @@ class AutoBattleContext:
         :return:
         """
         in_battle = self.is_normal_attack_btn_available(screen)
+        self.last_check_in_battle = in_battle
 
         future_list: List[Future] = []
 
