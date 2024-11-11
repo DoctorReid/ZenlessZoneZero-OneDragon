@@ -162,11 +162,13 @@ except Exception as e:
     stack_trace = traceback.format_exc()
     _init_error = f"启动一条龙失败，报错信息如下:\n{stack_trace}"
 
+
 # 初始化应用程序，并启动主窗口
 if __name__ == "__main__":
     if _init_error is not None:
         ctypes.windll.user32.MessageBoxW(0, _init_error, "错误", 0x10)
         sys.exit(1)
+
     QApplication.setHighDpiScaleFactorRoundingPolicy(
         Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
     )
@@ -176,6 +178,9 @@ if __name__ == "__main__":
 
     # 加载配置
     _ctx.init_by_config()
+
+    # 异步加载OCR
+    _ctx.async_init_ocr()
 
     # 设置主题
     setTheme(Theme[_ctx.env_config.theme.upper()])

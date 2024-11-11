@@ -47,21 +47,25 @@ class Yolov8Detector(OnnxModelLoader):
 
         self.idx_2_class: dict[int, DetectClass] = {}  # 分类
         self.class_2_idx: dict[str, int] = {}
+        self.category_2_idx: dict[str, List[int]] = {}
         self._load_detect_classes(self.model_dir_path)
 
     def run(self, image: MatLike, conf: float = 0.6, iou: float = 0.5, run_time: Optional[float] = None,
-            labels: Optional[List[str]] = None) -> DetectFrameResult:
+            label_list: Optional[List[str]] = None,
+            category_list: Optional[List[str]] = None) -> DetectFrameResult:
         """
         对图片进行识别
         :param image: 使用 opencv 读取的图片 RGB通道
         :param conf: 置信度阈值
+        :param
         :return: 识别结果
         """
         t1 = time.time()
         context = DetectContext(image, run_time)
         context.conf = conf
         context.iou = iou
-        context.labels = labels
+        context.label_list = label_list
+        context.category_list = category_list
 
         input_tensor = self.prepare_input(context)
         t2 = time.time()
@@ -104,12 +108,17 @@ class Yolov8Detector(OnnxModelLoader):
 
         keep = np.ones(shape=(predictions.shape[1]), dtype=bool)
 
-        if context.labels is not None:
+        if context.label_list is not None or context.category_list is not None:
             keep[4:] = False  # 前4位是坐标 先把所有标签都设置为False
-            if context.labels is not None:
-                for label in context.labels:
+            if context.label_list is not None:
+                for label in context.label_list:
                     idx = self.class_2_idx.get(label)
                     if idx is not None:
+                        keep[idx + 4] = True
+
+            if context.category_list is not None:
+                for category in context.category_list:
+                    for idx in self.category_2_idx.get(category, []):
                         keep[idx + 4] = True
 
         predictions[:, keep == False] = 0
@@ -180,7 +189,12 @@ class Yolov8Detector(OnnxModelLoader):
         with open(csv_path, mode='r', encoding='utf-8') as file:
             csv_reader = csv.reader(file)
             for row in csv_reader:
-                if row[0] != 'idx':
-                    c = DetectClass(int(row[0]), row[1])
-                    self.idx_2_class[c.class_id] = c
-                    self.class_2_idx[c.class_name] = c.class_id
+                if row[0] == 'idx':
+                    continue
+                c = DetectClass(int(row[0]), row[1], category=None if len(row) < 3 else row[2])
+                self.idx_2_class[c.class_id] = c
+                self.class_2_idx[c.class_name] = c.class_id
+
+                if c.class_category not in self.category_2_idx:
+                    self.category_2_idx[c.class_category] = []
+                self.category_2_idx[c.class_category].append(c.class_id)

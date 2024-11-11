@@ -342,7 +342,7 @@ class AutoBattleOperator(ConditionalOperator):
         if success:
             self.auto_battle_context.start_context()
             lock_f = _auto_battle_operator_executor.submit(self.lock_periodically)
-            thread_utils.handle_future_result(lock_f)
+            lock_f.add_done_callback(thread_utils.handle_future_result)
 
         return success
 

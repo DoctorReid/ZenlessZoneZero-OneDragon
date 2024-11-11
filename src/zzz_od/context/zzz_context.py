@@ -6,15 +6,8 @@ from one_dragon.utils import i18_utils
 
 class ZContext(OneDragonContext):
 
-    def __init__(self, for_installer: bool = False):
-        """
-        :param for_installer: 给安装器用的
-        """
-        OneDragonContext.__init__(self, for_installer=for_installer)
-
-        # 其它上下文
-        if for_installer:
-            return
+    def __init__(self,):
+        OneDragonContext.__init__(self)
 
         from zzz_od.context.hollow_context import HollowContext
         self.hollow: HollowContext = HollowContext(self)

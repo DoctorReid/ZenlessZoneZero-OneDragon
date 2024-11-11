@@ -22,9 +22,14 @@ class OnnxOcrMatcher(OcrMatcher):
     def __init__(self):
         OcrMatcher.__init__(self)
         self._model = None
+        self._loading: bool = False
 
     def init_model(self) -> bool:
         log.info('正在加载OCR模型')
+        while self._loading:
+            time.sleep(1)
+            return True
+        self._loading = True
 
         if self._model is None:
             from onnxocr.onnx_paddleocr import ONNXPaddleOcr
@@ -39,11 +44,16 @@ class OnnxOcrMatcher(OcrMatcher):
                     rec_char_dict_path=os.path.join(models_dir, 'ppocr_keys_v1.txt'),
                     vis_font_path=os.path.join(models_dir, 'simfang.tt'),
                 )
+                self._loading = False
+                log.info('加载OCR模型完毕')
                 return True
             except Exception:
                 log.error('OCR模型加载出错', exc_info=True)
+                self._loading = False
                 return False
 
+        log.info('加载OCR模型完毕')
+        self._loading = False
         return True
 
     def run_ocr_single_line(self, image: MatLike, threshold: float = None, strict_one_line: bool = True) -> str:

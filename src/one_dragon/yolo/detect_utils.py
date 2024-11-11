@@ -28,8 +28,11 @@ class DetectContext:
         self.img_width: int = raw_image.shape[1]
         """原图的宽度"""
 
-        self.labels: Optional[List[str]] = None
+        self.label_list: Optional[List[str]] = None
         """只检测特定的标签 见 labels.csv 的label"""
+
+        self.category_list: Optional[List[str]] = None
+        """只检测特定分类的标签 见 labels.csv 的category"""
 
         self.conf: float = 0.7
         """检测时用的置信度阈值"""
@@ -46,12 +49,13 @@ class DetectContext:
 
 class DetectClass:
 
-    def __init__(self, class_id: int, class_name: str):
+    def __init__(self, class_id: int, class_name: str, category: Optional[str] = None):
         """
         检测类别
         """
         self.class_id: int = class_id
         self.class_name: str = class_name
+        self.class_category: str = category
 
 
 class DetectObjectResult:

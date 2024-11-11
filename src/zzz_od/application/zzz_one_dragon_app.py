@@ -52,7 +52,11 @@ class ZOneDragonApp(OneDragonApp, ZApplication):
 
 def __debug():
     ctx = ZContext()
+    # 加载配置
     ctx.init_by_config()
+
+    # 异步加载OCR
+    ctx.async_init_ocr()
 
     if ctx.env_config.auto_update:
         from one_dragon.utils.log_utils import log

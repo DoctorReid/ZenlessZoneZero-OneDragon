@@ -15,8 +15,8 @@ class YamlConfigAdapter:
         self.setter_convert: Optional[str] = setter_convert
 
     def get_value(self) -> Any:
-        val = getattr(self.config, self.field)
         # 获取self.field对应的property属性的值
+        val = getattr(self.config, self.field)
         if self.getter_convert == 'str':
             return str(val)
         elif self.getter_convert == 'int':
