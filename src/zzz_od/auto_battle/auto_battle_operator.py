@@ -351,20 +351,28 @@ class AutoBattleOperator(ConditionalOperator):
         周期性锁定敌人
         :return:
         """
+        interval = self.get('auto_lock_interval', 0)
+        if interval <= 0:  # 不开启自动锁定
+            return
+        op = AtomicBtnLock(self.auto_battle_context)
         while self.is_running:
             since_last = time.time() - self.last_lock_time  # 上次锁定到现在的秒数
-            if since_last <= 3:  # 每3秒锁定一次
-                time.sleep(3.001 - since_last)
+            if since_last <= interval:  # 每固定秒数 锁定一次
+                time.sleep(interval - since_last)
                 continue
 
             if not self.auto_battle_context.last_check_in_battle:  # 当前画面不是战斗画面 就不锁定
                 time.sleep(0.5)
+                continue
+
+            op.execute()
+            self.last_lock_time = time.time()
 
 
 def __debug():
     ctx = ZContext()
     ctx.init_by_config()
-    auto_op = AutoBattleOperator(ctx, 'auto_battle', '测试')
+    auto_op = AutoBattleOperator(ctx, 'auto_battle', '专属配队-简1')
     auto_op.init_before_running()
     auto_op.start_running_async()
     time.sleep(5)

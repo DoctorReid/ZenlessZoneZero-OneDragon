@@ -159,12 +159,14 @@ class GitService:
         temp_folder = f'.temp_clone_{current_time}'
         temp_dir_path = os.path.join(curr_path, temp_folder)
 
-        msg = '开始克隆仓库'
+        msg = '开始克隆仓库 初次克隆时间较长 请耐心等待'
         log.info(msg)
         if progress_callback is not None:
             progress_callback(-1, msg)
         repo_url = self.get_git_repository(for_clone=True)
-        result = cmd_utils.run_command([self.env_config.git_path, 'clone', '-b', self.project_config.project_git_branch,
+        result = cmd_utils.run_command([self.env_config.git_path, 'clone',
+                                        '--depth', '1',
+                                        '-b', self.project_config.project_git_branch,
                                         repo_url, temp_folder])
         if result is None:
             return False, '克隆仓库失败'
