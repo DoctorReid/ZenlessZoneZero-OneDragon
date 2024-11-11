@@ -86,19 +86,19 @@ class RoutineCleanup(ZOperation):
     def check_charge(self) -> OperationRoundResult:
         screen = self.screenshot()
 
-        area = self.ctx.screen_loader.get_area('定期清剿', '剩余体力')
+        area = self.ctx.screen_loader.get_area('定期清剿', '剩余电量')
         part = cv2_utils.crop_image_only(screen, area.rect)
         ocr_result = self.ctx.ocr.run_ocr_single_line(part)
         self.charge_left = str_utils.get_positive_digits(ocr_result, None)
         if self.charge_left is None:
-            return self.round_retry(status='识别 %s 失败' % '剩余体力', wait=1)
+            return self.round_retry(status='识别 %s 失败' % '剩余电量', wait=1)
 
-        area = self.ctx.screen_loader.get_area('定期清剿', '需要体力')
+        area = self.ctx.screen_loader.get_area('定期清剿', '需要电量')
         part = cv2_utils.crop_image_only(screen, area.rect)
         ocr_result = self.ctx.ocr.run_ocr_single_line(part)
         self.charge_need = str_utils.get_positive_digits(ocr_result, None)
         if self.charge_need is None:
-            return self.round_retry(status='识别 %s 失败' % '需要体力', wait=1)
+            return self.round_retry(status='识别 %s 失败' % '需要电量', wait=1)
 
         log.info('所需电量 %d 剩余电量 %d', self.charge_need, self.charge_left)
         if self.charge_need > self.charge_left:
@@ -201,6 +201,11 @@ class RoutineCleanup(ZOperation):
     def check_next(self) -> OperationRoundResult:
         op = ChooseNextOrFinishAfterBattle(self.ctx, self.can_run_times > 0)
         return self.round_by_op_result(op.execute())
+
+    @node_from(from_name='识别电量', success=False)
+    @operation_node(name='识别电量失败')
+    def check_charge_fail(self) -> OperationRoundResult:
+        return self.round_success(RoutineCleanup.STATUS_CHARGE_NOT_ENOUGH)
 
     def handle_pause(self):
         auto_battle_utils.stop_running(self.auto_op)
