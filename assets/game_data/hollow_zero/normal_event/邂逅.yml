@@ -226,3 +226,10 @@
   event_name: "游戏奖励"
   options:
     - option_name: "怎么可能还有！不就你俩吗！"
+
+# 月城柳
+- entry_name: "邂逅"
+  event_name: "压缩饼干盒红豆包"
+  options:
+    - option_name: "我也来帮忙分担吧！"
+    - option_name: "我最会保守秘密了！"
