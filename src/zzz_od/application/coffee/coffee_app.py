@@ -374,6 +374,8 @@ class CoffeeApp(ZApplication):
     def charge_plan_afterwards(self) -> OperationRoundResult:
         if self.ctx.coffee_config.run_charge_plan_afterwards:
             op = ChargePlanApp(self.ctx)
+            op.init_context_before_start = False
+            op.stop_context_after_stop = False
             return self.round_by_op_result(op.execute())
         else:
             return self.round_success('无需运行')
