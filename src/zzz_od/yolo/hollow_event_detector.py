@@ -1,6 +1,6 @@
-import os
 from typing import Optional
 
+from one_dragon.utils import yolo_config_utils
 from one_dragon.yolo.yolo_utils import ZZZ_MODEL_DOWNLOAD_URL
 from one_dragon.yolo.yolov8_onnx_det import Yolov8Detector
 
@@ -9,7 +9,6 @@ class HollowEventDetector(Yolov8Detector):
 
     def __init__(self,
                  model_name: str = 'yolov8n-640-hollow-event',
-                 model_parent_dir_path: Optional[str] = os.path.abspath(__file__),  # 默认使用本文件的目录
                  gh_proxy: bool = True,
                  personal_proxy: Optional[str] = '',
                  gpu: bool = False,
@@ -25,7 +24,7 @@ class HollowEventDetector(Yolov8Detector):
         Yolov8Detector.__init__(
             self,
             model_name=model_name,
-            model_parent_dir_path=model_parent_dir_path,
+            model_parent_dir_path=yolo_config_utils.get_model_category_dir('hollow_zero_event'),
             model_download_url=ZZZ_MODEL_DOWNLOAD_URL,
             gh_proxy=gh_proxy,
             personal_proxy=personal_proxy,

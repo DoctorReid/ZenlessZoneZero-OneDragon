@@ -32,7 +32,6 @@ from zzz_od.hollow_zero.event.upgrade_resonium import UpgradeResonium
 from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroSpecialEvent
 from zzz_od.hollow_zero.hollow_battle import HollowBattle
 from zzz_od.hollow_zero.hollow_exit_by_menu import HollowExitByMenu
-from zzz_od.hollow_zero.hollow_map.hollow_pathfinding import RouteSearchRoute
 from zzz_od.hollow_zero.hollow_map.hollow_zero_map import HollowZeroMap, HollowZeroMapNode
 from zzz_od.operation.zzz_operation import ZOperation
 
@@ -113,11 +112,18 @@ class HollowRunner(ZOperation):
             HollowZeroSpecialEvent.RESONIUM_STORE_5.value.event_name,  # 商人格子也需要寻路
         ]:
             # 当前有显示背包 可以尝试识别地图
-            current_map = self.ctx.hollow.check_current_map(screen, now)
-            if current_map is not None and current_map.current_idx is not None:
-                return self._handle_map_move(screen, now, current_map)
+            current_map = self.ctx.hollow.map_service.cal_map_by_screen(screen, now)
+            if current_map is not None:
+                result = self.try_move_by_map(screen, now, current_map)
+                if result is not None:
+                    return result
+            # 识别不到地图 说明可能是空洞里有需要确认的对话框 随便点击一下吧对话框取消掉
+            else:
+                self.round_by_click_area('零号空洞-事件', '空白')
+        else:
+            # 未知的情况 点击一下继续
+            self.round_by_click_area('零号空洞-事件', '空白')
 
-        self.round_by_click_area('零号空洞-事件', '空白')
         return self.round_retry('未能识别当前画面', wait=1)
 
     def _handle_event(self, screen: MatLike, event_name: str) -> OperationRoundResult:
@@ -158,17 +164,20 @@ class HollowRunner(ZOperation):
         else:
             return self.round_retry('当前事件未有对应指令', wait=1)
 
-    def _handle_map_move(self, screen: MatLike, screen_time: float, current_map: HollowZeroMap) -> OperationRoundResult:
+    def try_move_by_map(self, screen: MatLike, screen_time: float, current_map: HollowZeroMap) -> Optional[OperationRoundResult]:
         """
-        识别到地图后 自动寻路
+        识别到地图后 尝试自动寻路并移动
         :param screen: 游戏画面
         :param screen_time: 截图时间
         :param current_map: 分析得到的地图
         :return:
         """
-        route: RouteSearchRoute = self.ctx.hollow.get_next_to_move(current_map)
-        next_to_move = route.next_node_to_move
-        log.info(f"前往目标: [{route.node.entry.entry_name}] 当前移动: [{next_to_move.entry.entry_name}]")
+        target_node: HollowZeroMapNode = self.ctx.hollow.get_next_to_move(current_map)
+        if target_node is None:
+            return None
+
+        next_to_move = target_node.next_node_to_move
+        log.info(f"前往目标: [{target_node.entry.entry_name}] 当前移动: [{next_to_move.entry.entry_name}]")
         pathfinding_success = next_to_move is not None and next_to_move.entry.entry_name != 'fake'
         if not pathfinding_success:
             self._save_debug_image(screen)
@@ -196,7 +205,7 @@ class HollowRunner(ZOperation):
         if entry_name in self._entry_event_handlers and not self.ctx.hollow.had_been_entry(entry_name):
             op = self._entry_event_handlers[entry_name](self.ctx)
 
-        self.ctx.hollow.update_context_after_move(next_to_move)
+        self.ctx.hollow.update_context_after_move(current_map, next_to_move)
         self._handled_events.clear()
 
         # 如果是特殊需要选项的格子 则使用对应的事件指令处理 可以同时用来等待移动的时间
