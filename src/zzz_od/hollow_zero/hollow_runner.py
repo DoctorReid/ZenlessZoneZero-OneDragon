@@ -178,13 +178,15 @@ class HollowRunner(ZOperation):
 
         next_to_move = target_node.next_node_to_move
         log.info(f"前往目标: [{target_node.entry.entry_name}] 当前移动: [{next_to_move.entry.entry_name}]")
-        pathfinding_success = next_to_move is not None and next_to_move.entry.entry_name != 'fake'
+
+        # 999 是寻路兜底策略的特殊标识 是在识别识别的情况下使用的
+        pathfinding_success = next_to_move is not None and next_to_move.path_step_cnt != 999
         if not pathfinding_success:
             self._save_debug_image(screen)
             if next_to_move is None:
                 return self.round_retry('自动寻路失败')
 
-        # 寻路失败的话 间隔1秒才尝试一次随机移动
+        # 寻路失败的话 间隔1秒才尝试一次兜底策略的移动
         if not pathfinding_success and screen_time - self._last_move_time < 1:
             return self.round_retry('自动寻路失败')
 

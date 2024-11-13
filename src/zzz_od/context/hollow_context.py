@@ -65,6 +65,10 @@ class HollowContext:
             # 没有 [当前] 节点 随机走向一个空白节点
             for node in current_map.nodes:
                 if node.entry.entry_name == '空白已通行':
+                    node.path_last_node = node
+                    node.path_first_node = node
+                    node.path_first_need_step_node = node
+                    node.path_step_cnt = 999
                     log.info(f"优先级 [空白已通行]")
                     return node
             return None
@@ -175,7 +179,7 @@ class HollowContext:
         )
         fake_node.path_first_node = fake_node
         fake_node.path_first_need_step_node = fake_node
-        fake_node.path_step_cnt = 1
+        fake_node.path_step_cnt = 999
         fake_node.path_distance = 0
         log.info(f"优先级 [随机相邻]")
         return fake_node
@@ -201,8 +205,9 @@ class HollowContext:
             node.visited_times = 1
             self._visited_nodes.append(node)
 
-        if update_current:
-            self.update_map_current_node(current_map, node)
+        # TODO 部分格子后摇时间长 第一次点击时候未必能进行移动 因此这个更新可能不准确
+        # if update_current:
+        #     self.update_map_current_node(current_map, node)
 
         if node.entry.is_tp:
             self._visited_nodes.clear()
@@ -233,8 +238,10 @@ class HollowContext:
             return
 
         # 将之前的[当前]节点改为空白
-        current_node = current_map.nodes[current_map.current_idx]
-        current_node.entry = self.data_service.name_2_entry['空白已通行']
+        if current_map.current_idx is not None:
+            # 只有识别到[当前]节点的时候才需要更改
+            current_node = current_map.nodes[current_map.current_idx]
+            current_node.entry = self.data_service.name_2_entry['空白已通行']
 
         # 将移动到的节点改为[当前]节点
         next_current_node.entry = self.data_service.name_2_entry['当前']

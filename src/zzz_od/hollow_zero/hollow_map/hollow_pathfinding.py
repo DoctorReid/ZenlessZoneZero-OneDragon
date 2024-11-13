@@ -166,6 +166,8 @@ def get_route_by_entry(current_map: HollowZeroMap,
     """
     target: Optional[HollowZeroMapNode] = None
     for node in current_map.nodes:
+        if node.path_step_cnt == -1:  # 不可前往的
+            continue
         entry = node.entry
         if entry is None or entry.entry_name != entry_name:
             continue
@@ -193,6 +195,8 @@ def get_route_by_direction(current_map: HollowZeroMap, direction: str) -> Option
     """
     target: Optional[HollowZeroMapNode] = None
     for node in current_map.nodes:
+        if node.path_step_cnt == -1:  # 不可前往的
+            continue
         if node.entry.entry_name in ['当前', '空白已通行', '空白未通行']:
             continue
 
