@@ -37,6 +37,7 @@ class HollowContext:
         self.last_node_to_go: Optional[HollowZeroMapNode] = None  # 上一次想前往的节点
         self._last_current_node: Optional[HollowZeroMapNode] = None  # 上一次当前所在的点
         self.speed_up_clicked: bool = False  # 是否已经点击加速
+        self.invalid_map_times: int = 0  # 识别不到正确地图的次数
 
     def _match_agent_in(self, img: MatLike, possible_agents: Optional[List[Agent]] = None) -> Optional[Agent]:
         """
@@ -61,17 +62,23 @@ class HollowContext:
         :param current_map:
         :return:
         """
-        if not current_map.is_valid_map:
-            # 没有 [当前] 节点 随机走向一个空白节点
-            for node in current_map.nodes:
-                if node.entry.entry_name == '空白已通行':
-                    node.path_last_node = node
-                    node.path_first_node = node
-                    node.path_first_need_step_node = node
-                    node.path_step_cnt = 999
-                    log.info(f"优先级 [空白已通行]")
-                    return node
+        if not current_map.is_valid_map:  # 有可能是[当前]节点被鼠标或者[进入商店]遮挡住了
+            self.invalid_map_times += 1
+            if self.invalid_map_times >= 5:  # 移动后 由于鼠标的遮挡 容易识别不到 因此多次识别不到才使用兜底逻辑
+                # 没有 [当前] 节点 随机走向一个空白节点
+                for node in current_map.nodes:
+                    if node.entry.entry_name == '空白已通行':
+                        node.path_last_node = node
+                        node.path_first_node = node
+                        node.path_first_need_step_node = node
+                        node.path_step_cnt = 999
+                        node.path_node_cnt = 1
+                        log.info(f"优先级 [空白已通行]")
+                        return node
+            # 没有识别到[当前]节点的话 就不需要寻路移动了
             return None
+        else:
+            self.invalid_map_times = 0
 
         hollow_pathfinding.search_map(current_map, set(self._get_avoid()), self._visited_nodes)
 
@@ -155,34 +162,35 @@ class HollowContext:
             log.info(f"优先级 [兜底]")
             return target
 
-        # 最终兜底 随便移动一格
-        current_node = current_map.nodes[current_map.current_idx]
-        if hollow_map_utils.is_same_node(self._last_current_node, current_node):
-            arr = ['w', 's', 'a', 'd']
-            arr.remove(direction)
-            direction = arr[random.randint(0, len(arr) - 1)]
-        self._last_current_node = current_node
+        # 最终兜底 在[当前]节点四周随便移动一格
+        if current_map.current_idx is not None:
+            current_node = current_map.nodes[current_map.current_idx]
+            if hollow_map_utils.is_same_node(self._last_current_node, current_node):
+                arr = ['w', 's', 'a', 'd']
+                arr.remove(direction)
+                direction = arr[random.randint(0, len(arr) - 1)]
+            self._last_current_node = current_node
 
-        # 伪造一个节点前往
-        if direction == 'w':
-            to_go = current_node.pos.center - Point(0, current_node.pos.height)
-        elif direction == 's':
-            to_go = current_node.pos.center + Point(0, current_node.pos.height)
-        elif direction == 'a':
-            to_go = current_node.pos.center - Point(current_node.pos.width, 0)
-        else:
-            to_go = current_node.pos.center + Point(current_node.pos.width, 0)
+            # 伪造一个节点前往
+            if direction == 'w':
+                to_go = current_node.pos.center - Point(0, current_node.pos.height)
+            elif direction == 's':
+                to_go = current_node.pos.center + Point(0, current_node.pos.height)
+            elif direction == 'a':
+                to_go = current_node.pos.center - Point(current_node.pos.width, 0)
+            else:
+                to_go = current_node.pos.center + Point(current_node.pos.width, 0)
 
-        fake_node = HollowZeroMapNode(
-            pos=Rect(to_go.x, to_go.y, to_go.x, to_go.y),
-            entry=HollowZeroEntry('0000-fake'),
-        )
-        fake_node.path_first_node = fake_node
-        fake_node.path_first_need_step_node = fake_node
-        fake_node.path_step_cnt = 999
-        fake_node.path_distance = 0
-        log.info(f"优先级 [随机相邻]")
-        return fake_node
+            fake_node = HollowZeroMapNode(
+                pos=Rect(to_go.x, to_go.y, to_go.x, to_go.y),
+                entry=HollowZeroEntry('0000-fake'),
+            )
+            fake_node.path_first_node = fake_node
+            fake_node.path_first_need_step_node = fake_node
+            fake_node.path_step_cnt = 999
+            fake_node.path_node_cnt = 1
+            log.info(f"优先级 [随机相邻]")
+            return fake_node
 
     def update_context_after_move(self, current_map: HollowZeroMap, node: HollowZeroMapNode,
                                   update_current: bool = True) -> None:
@@ -206,8 +214,8 @@ class HollowContext:
             self._visited_nodes.append(node)
 
         # TODO 部分格子后摇时间长 第一次点击时候未必能进行移动 因此这个更新可能不准确
-        # if update_current:
-        #     self.update_map_current_node(current_map, node)
+        if update_current:
+            self.update_map_current_node(current_map, node)
 
         if node.entry.is_tp:
             self._visited_nodes.clear()
@@ -242,9 +250,12 @@ class HollowContext:
             # 只有识别到[当前]节点的时候才需要更改
             current_node = current_map.nodes[current_map.current_idx]
             current_node.entry = self.data_service.name_2_entry['空白已通行']
+            # 设置一个较低的置信度 就算移动失败 也可以使用下一次的识别结果来更新
+            current_node.confidence = 0.6
 
         # 将移动到的节点改为[当前]节点
         next_current_node.entry = self.data_service.name_2_entry['当前']
+        next_current_node.confidence = 0.6
         current_map.current_idx = next_current_node_idx
 
     def update_to_next_level(self) -> None:

@@ -23,7 +23,7 @@ class HollowZeroMapNode:
         self.path_first_need_step_node: Optional[HollowZeroMapNode] = None  # 路径上的第一个需要步数的节点 就是鼠标需要点击的节点
         self.path_last_node: Optional[HollowZeroMapNode] = None  # 路径上的倒数第2个节点 就是前往这个节点的上一个节点
         self.path_step_cnt: int = -1  # 前往目标节点需要的步数 即路上需要点击多少次鼠标
-        self.path_distance: float = 999  # 在画面上 目标节点与当前节点的像素距离；用于步数相同时选一个更近的
+        self.path_node_cnt: int = -1  # 前往目标节点需要经过的格子数量 会影响最终的移动耗时
         self.path_go_way: int = 1  # 0=往相邻节点移动 1=往需要步数的节点移动
 
     @property
@@ -87,11 +87,11 @@ class HollowZeroMap:
             node.path_first_need_step_node = None  # 路径上的第一个需要步数的节点 就是鼠标需要点击的节点
             node.path_last_node = None
             node.path_step_cnt = -1  # 前往目标节点需要的步数 即路上需要点击多少次鼠标
-            node.path_distance = 999  # 在画面上 目标节点与当前节点的像素距离；用于步数相同时选一个更近的
+            node.path_node_cnt = -1
 
             node.path_go_way = 1  # 0=往相邻节点移动 1=往需要步数的节点移动
 
         if self.is_valid_map:
             current_node = self.nodes[self.current_idx]
             current_node.path_step_cnt = 0
-            current_node.path_distance = 0
+            current_node.path_node_cnt = 0

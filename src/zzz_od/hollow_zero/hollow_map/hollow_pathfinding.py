@@ -108,7 +108,7 @@ def _bfs_search_map(
                 next_node.path_first_need_step_node = first_need_step_node
                 next_node.path_last_node = current_node
                 next_node.path_step_cnt = next_step_cnt
-                next_node.path_distance = cal_utils.distance_between(current_node.pos.center, next_node.pos.center)
+                next_node.path_node_cnt = current_node.path_node_cnt + 1
                 # 构建前往下一个节点的路径
 
                 if next_step_cnt == current_node.path_step_cnt:  # 相同步数 就加入当前层 继续搜索
@@ -148,7 +148,7 @@ def get_route_in_1_step(current_map: HollowZeroMap,
         if had_been_visited(node, visited_nodes):  # 曾经尝试去过了
             continue
 
-        if target is None or target.path_distance > node.path_distance:  # 有多个候选时 优先选择画面上离当前节点最近的
+        if target is None or target.path_node_cnt > node.path_node_cnt:  # 有多个候选时 优先选择经过格子数量最少的
             target = node
 
     return target
@@ -176,10 +176,10 @@ def get_route_by_entry(current_map: HollowZeroMap,
             continue
 
         # 有多个候选时 优先选择步数最少的
-        # 步数一致时 优选选择画面上离当前节点最近的
+        # 步数一致时 优选选择经过格子数量最少的
         if (target is None
                 or target.path_step_cnt > node.path_step_cnt
-                or (target.path_step_cnt == node.path_step_cnt and target.path_distance > node.path_distance)):
+                or (target.path_step_cnt == node.path_step_cnt and target.path_node_cnt > node.path_node_cnt)):
             target = node
 
     return target

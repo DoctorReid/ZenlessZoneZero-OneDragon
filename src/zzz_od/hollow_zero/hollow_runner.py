@@ -200,6 +200,9 @@ class HollowRunner(ZOperation):
         self._last_move_time = screen_time
         to_click = self.get_map_node_pos_to_click(screen, next_to_move)
         self.ctx.controller.click(to_click)
+        # 每个格子大概需要0.25秒移动 再加一秒等待格子事件触发
+        move_time = next_to_move.path_node_cnt * 0.25 + 1
+        time.sleep(move_time)
 
         # 如果是特殊需要选项的格子 则使用对应的事件指令处理 可以同时用来等待移动的时间
         op: Optional[ZOperation] = None
@@ -222,7 +225,7 @@ class HollowRunner(ZOperation):
             else:
                 return self.round_retry()
 
-        return self.round_wait(wait=1)
+        return self.round_wait()
 
     def get_map_node_pos_to_click(self, screen: MatLike, node: HollowZeroMapNode) -> Point:
         """
@@ -362,7 +365,7 @@ def __debug():
     ctx.init_by_config()
     ctx.start_running()
     ctx.ocr.init_model()
-    ctx.hollow.init_event_yolo(True)
+    ctx.hollow.init_before_hollow_start('旧都列车', '旧都列车-核心')
     op = HollowRunner(ctx)
     # from one_dragon.utils import debug_utils
     # screen = debug_utils.get_debug_image('_1723977819253')
