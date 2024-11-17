@@ -36,6 +36,11 @@ class BackToNormalWorld(ZOperation):
         if result.is_success:
             return self.round_success()
 
+        # 大部分画面都有街区可以直接返回
+        result = self.round_by_find_and_click_area(screen, '画面-通用', '左上角-街区')
+        if result.is_success:
+            return self.round_retry(wait=1)
+
         # 进入游戏时 弹出来的继续对话框
         # 例如 空洞继续
         result = self.round_by_find_and_click_area(screen, '大世界', '对话框取消')
