@@ -148,15 +148,11 @@ class CoffeeConfig(YamlConfig):
         预备编队 -1代表游戏内默认
         @return:
         """
-        return self.get('predefined_team_id', -1)
+        return self.get('predefined_team_idx', -1)
 
     @predefined_team_idx.setter
     def predefined_team_idx(self, new_value: int) -> None:
-        self.update('predefined_team_id', new_value)
-
-    @property
-    def predefined_team_idx_adapter(self) -> YamlConfigAdapter:
-        return YamlConfigAdapter(self, 'predefined_team_id', -1)
+        self.update('predefined_team_idx', new_value)
 
     @property
     def run_charge_plan_afterwards(self) -> bool:

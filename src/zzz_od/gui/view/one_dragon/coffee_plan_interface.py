@@ -90,7 +90,7 @@ class CoffeePlanInterface(VerticalScrollInterface):
         config_list = ([ConfigItem('游戏内配队', -1)] +
                        [ConfigItem(team.name, team.idx) for team in self.ctx.team_config.team_list])
         self.predefined_team_opt.set_options_by_list(config_list)
-        self.predefined_team_opt.init_with_adapter(self.ctx.coffee_config.predefined_team_idx_adapter)
+        self.predefined_team_opt.init_with_adapter(self.ctx.coffee_config.get_prop_adapter('predefined_team_idx'))
 
         self.auto_battle_opt.set_options_by_list(get_auto_battle_op_config_list('auto_battle'))
         self.auto_battle_opt.setValue(self.ctx.coffee_config.auto_battle)
@@ -106,8 +106,6 @@ class CoffeePlanInterface(VerticalScrollInterface):
         self.day_opt_5.setValue(self.ctx.coffee_config.day_coffee_5)
         self.day_opt_6.setValue(self.ctx.coffee_config.day_coffee_6)
         self.day_opt_7.setValue(self.ctx.coffee_config.day_coffee_7)
-
-        # self._update_day_list_display()
 
         self.choose_way_opt.value_changed.connect(self._on_choose_way_changed)
         self.challenge_way_opt.value_changed.connect(self._on_challenge_way_changed)
@@ -136,19 +134,8 @@ class CoffeePlanInterface(VerticalScrollInterface):
         self.day_opt_6.value_changed.disconnect(self._on_day_6_changed)
         self.day_opt_7.value_changed.disconnect(self._on_day_7_changed)
 
-    def _update_day_list_display(self) -> None:
-        show_day_opt = self.ctx.coffee_config.choose_way == CoffeeChooseWay.CUSTOM.value.value
-        self.day_opt_1.setVisible(show_day_opt)
-        self.day_opt_2.setVisible(show_day_opt)
-        self.day_opt_3.setVisible(show_day_opt)
-        self.day_opt_4.setVisible(show_day_opt)
-        self.day_opt_5.setVisible(show_day_opt)
-        self.day_opt_6.setVisible(show_day_opt)
-        self.day_opt_7.setVisible(show_day_opt)
-
     def _on_choose_way_changed(self, idx: int, value: str) -> None:
         self.ctx.coffee_config.choose_way = value
-        self._update_day_list_display()
 
     def _on_challenge_way_changed(self, idx: int, value: str) -> None:
         self.ctx.coffee_config.challenge_way = value
