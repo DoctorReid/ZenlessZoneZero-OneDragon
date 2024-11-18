@@ -210,8 +210,11 @@ class HollowContext:
         if visited is not None:
             visited.visited_times += 1
         else:
-            node.visited_times = 1
-            self._visited_nodes.append(node)
+            # 由于node是从某个map中来的 移动之后 会被更新为[当前]
+            # 因此需要额外创建一个节点用于记录
+            visited = HollowZeroMapNode(node.pos, node.entry)
+            visited.visited_times = 1
+            self._visited_nodes.append(visited)
 
         # TODO 部分格子后摇时间长 第一次点击时候未必能进行移动 因此这个更新可能不准确
         if update_current:
