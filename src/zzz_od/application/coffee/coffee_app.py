@@ -361,6 +361,7 @@ class CoffeeApp(ZApplication):
     @node_from(from_name='不占用点单确认', status='不可贪杯确认')  # 已经喝过了
     @node_from(from_name='点单后跳过', status='不可贪杯确认')  # 已经喝过了
     @node_from(from_name='选择前往', status='对话框确认')
+    @node_from(from_name='选择前往', status='没有加成')
     @node_from(from_name='实战模拟室')
     @node_from(from_name='定期清剿')
     @node_from(from_name='专业挑战室')
