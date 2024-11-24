@@ -11,9 +11,9 @@ from zzz_od.application.life_on_line.life_on_line_app import LifeOnLineApp
 from zzz_od.application.notorious_hunt.notorious_hunt_app import NotoriousHuntApp
 from zzz_od.application.random_play.random_play_app import RandomPlayApp
 from zzz_od.application.redemption_code.redemption_code_app import RedemptionCodeApp
+from zzz_od.application.ridu_weekly.ridu_weekly_app import RiduWeeklyApp
 from zzz_od.application.scratch_card.scratch_card_app import ScratchCardApp
 from zzz_od.application.shiyu_defense.shiyu_defense_app import ShiyuDefenseApp
-from zzz_od.application.weekly_schedule.weekly_schedule_app import WeeklyScheduleApp
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.enter_game.open_and_enter_game import OpenAndEnterGame
@@ -35,7 +35,6 @@ class ZOneDragonApp(OneDragonApp, ZApplication):
     def get_app_list(self) -> List[ZApplication]:
         return [
             RedemptionCodeApp(self.ctx),
-            # WeeklyScheduleApp(self.ctx),
             EmailApp(self.ctx),
             RandomPlayApp(self.ctx),
             ScratchCardApp(self.ctx),
@@ -47,6 +46,7 @@ class ZOneDragonApp(OneDragonApp, ZApplication):
             ShiyuDefenseApp(self.ctx),
             CityFundApp(self.ctx),
             LifeOnLineApp(self.ctx),
+            RiduWeeklyApp(self.ctx),
         ]
 
 

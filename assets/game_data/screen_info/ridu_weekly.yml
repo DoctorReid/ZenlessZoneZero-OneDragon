@@ -1,14 +1,14 @@
-screen_id: weekly_schedule
-screen_name: 每周行程
+screen_id: ridu_weekly
+screen_name: 丽都周纪
 pc_alt: false
 area_list:
-- area_name: 行程安排
+- area_name: 丽都周纪
   pc_rect:
-  - 452
-  - 804
-  - 626
-  - 848
-  text: 行程安排
+  - 414
+  - 812
+  - 596
+  - 858
+  text: 丽都周纪
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''
@@ -53,6 +53,28 @@ area_list:
   - 626
   - 848
   text: 未完成
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 任务区域
+  pc_rect:
+  - 168
+  - 260
+  - 1052
+  - 954
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 领取奖励
+  pc_rect:
+  - 1558
+  - 314
+  - 1558
+  - 314
+  text: ''
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''

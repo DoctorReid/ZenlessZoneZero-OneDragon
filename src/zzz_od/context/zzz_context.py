@@ -126,9 +126,9 @@ class ZContext(OneDragonContext):
         self.redemption_code_record: RedemptionCodeRunRecord = RedemptionCodeRunRecord(self.current_instance_idx, game_refresh_hour_offset)
         self.redemption_code_record.check_and_update_status()
 
-        from zzz_od.application.weekly_schedule.weekly_schedule_run_record import WeeklyScheduleRunRecord
-        self.weekly_schedule_record: WeeklyScheduleRunRecord = WeeklyScheduleRunRecord(self.current_instance_idx, game_refresh_hour_offset)
-        self.weekly_schedule_record.check_and_update_status()
+        from zzz_od.application.ridu_weekly.ridu_weekly_run_record import RiduWeeklyRunRecord
+        self.ridu_weekly_record: RiduWeeklyRunRecord = RiduWeeklyRunRecord(self.current_instance_idx, game_refresh_hour_offset)
+        self.ridu_weekly_record.check_and_update_status()
 
         from zzz_od.application.shiyu_defense.shiyu_defense_run_record import ShiyuDefenseRunRecord
         self.shiyu_defense_record: ShiyuDefenseRunRecord = ShiyuDefenseRunRecord(self.current_instance_idx, game_refresh_hour_offset)
