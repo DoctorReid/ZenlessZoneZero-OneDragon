@@ -3,6 +3,7 @@ from typing import Optional
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
+from one_dragon.gui.widgets.setting_card.yaml_config_adapter import YamlConfigAdapter
 
 
 class CoffeeChooseWay(Enum):
@@ -140,3 +141,31 @@ class CoffeeConfig(YamlConfig):
             return self.day_coffee_6
         elif day == 7:
             return self.day_coffee_7
+
+    @property
+    def predefined_team_idx(self) -> int:
+        """
+        预备编队 -1代表游戏内默认
+        @return:
+        """
+        return self.get('predefined_team_idx', -1)
+
+    @predefined_team_idx.setter
+    def predefined_team_idx(self, new_value: int) -> None:
+        self.update('predefined_team_idx', new_value)
+
+    @property
+    def run_charge_plan_afterwards(self) -> bool:
+        """
+        咖啡后 再次挑战体力计划
+        @return:
+        """
+        return self.get('run_charge_plan_afterwards', False)
+
+    @run_charge_plan_afterwards.setter
+    def run_charge_plan_afterwards(self, new_value: bool) -> None:
+        self.update('run_charge_plan_afterwards', new_value)
+
+    @property
+    def run_charge_plan_afterwards_adapter(self) -> YamlConfigAdapter:
+        return YamlConfigAdapter(self, 'run_charge_plan_afterwards', False)

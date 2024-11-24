@@ -4,7 +4,7 @@ from typing import Optional
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
-from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
+from one_dragon.gui.widgets.setting_card.yaml_config_adapter import YamlConfigAdapter
 from one_dragon.utils import os_utils
 
 DEFAULT_ENV_PATH = os_utils.get_path_under_work_dir('.env')
@@ -16,7 +16,7 @@ DEFAULT_VENV_DIR_PATH = os.path.join(DEFAULT_ENV_PATH, 'venv')  # 默认的虚�
 DEFAULT_VENV_PYTHON_PATH = os.path.join(DEFAULT_VENV_DIR_PATH, 'scripts', 'python.exe')  # 默认的虚拟环境中python.exe的路径
 DEFAULT_PYTHON_PTH_PATH = os.path.join(DEFAULT_PYTHON_DIR_PATH, 'python311._pth')  # 默认安装的python配置文件路径
 
-GH_PROXY_URL = 'https://mirror.ghproxy.com/'  # 免费代理的路径
+GH_PROXY_URL = 'https://ghp.ci/'  # 免费代理的路径
 
 
 class ProxyTypeEnum(Enum):
@@ -48,7 +48,8 @@ class ThemeEnum(Enum):
 class PipSourceEnum(Enum):
 
     PYPI = ConfigItem('官方', 'https://pypi.org/simple')
-    TSING_HUA = ConfigItem('清华', 'https://pypi.tuna.tsinghua.edu.cn/simple')
+    TSING_HUA = ConfigItem('清华大学', 'https://pypi.tuna.tsinghua.edu.cn/simple')
+    ALIBABA = ConfigItem('阿里云', 'https://mirrors.aliyun.com/pypi/simple')
 
 
 class EnvConfig(YamlConfig):
@@ -198,17 +199,13 @@ class EnvConfig(YamlConfig):
     @property
     def git_method(self) -> str:
         """
-        git使用ghproxy还是https还是ssh
+        git使用https还是ssh
         :return:
         """
         return self.get('git_method', GitMethodEnum.HTTPS.value.value)
 
     @git_method.setter
     def git_method(self, new_value: str) -> None:
-        """
-        git使用ghproxy还是https还是ssh
-        :return:
-        """
         self.update('git_method', new_value)
 
     @property

@@ -42,7 +42,7 @@ class EngagementRewardApp(ZApplication):
     @node_from(from_name='快捷手册')
     @operation_node(name='日常')
     def choose_train(self) -> OperationRoundResult:
-        op = CompendiumChooseTab(self.ctx, '日常')
+        op = CompendiumChooseTab(self.ctx, tab_name='日常')
         return self.round_by_op_result(op.execute(), wait=1)
 
     @node_from(from_name='日常')
@@ -57,7 +57,7 @@ class EngagementRewardApp(ZApplication):
         if num is None:
             return self.round_retry('识别活跃度失败', wait_round_time=1)
 
-        self.idx = num // 100
+        self.idx = 4  # 只需要点最后一个就可以领取
 
         if self.idx == 0:
             return self.round_success(EngagementRewardApp.STATUS_NO_REWARD)

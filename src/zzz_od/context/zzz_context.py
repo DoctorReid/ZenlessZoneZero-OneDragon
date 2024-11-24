@@ -6,15 +6,8 @@ from one_dragon.utils import i18_utils
 
 class ZContext(OneDragonContext):
 
-    def __init__(self, for_installer: bool = False):
-        """
-        :param for_installer: 给安装器用的
-        """
-        OneDragonContext.__init__(self, for_installer=for_installer)
-
-        # 其它上下文
-        if for_installer:
-            return
+    def __init__(self,):
+        OneDragonContext.__init__(self)
 
         from zzz_od.context.hollow_context import HollowContext
         self.hollow: HollowContext = HollowContext(self)
@@ -143,9 +136,9 @@ class ZContext(OneDragonContext):
         self.redemption_code_record: RedemptionCodeRunRecord = RedemptionCodeRunRecord(self.current_instance_idx, game_refresh_hour_offset)
         self.redemption_code_record.check_and_update_status()
 
-        from zzz_od.application.weekly_schedule.weekly_schedule_run_record import WeeklyScheduleRunRecord
-        self.weekly_schedule_record: WeeklyScheduleRunRecord = WeeklyScheduleRunRecord(self.current_instance_idx, game_refresh_hour_offset)
-        self.weekly_schedule_record.check_and_update_status()
+        from zzz_od.application.ridu_weekly.ridu_weekly_run_record import RiduWeeklyRunRecord
+        self.ridu_weekly_record: RiduWeeklyRunRecord = RiduWeeklyRunRecord(self.current_instance_idx, game_refresh_hour_offset)
+        self.ridu_weekly_record.check_and_update_status()
 
         from zzz_od.application.shiyu_defense.shiyu_defense_run_record import ShiyuDefenseRunRecord
         self.shiyu_defense_record: ShiyuDefenseRunRecord = ShiyuDefenseRunRecord(self.current_instance_idx, game_refresh_hour_offset)

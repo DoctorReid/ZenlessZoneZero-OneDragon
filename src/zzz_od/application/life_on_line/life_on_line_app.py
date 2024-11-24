@@ -86,7 +86,7 @@ class LifeOnLineApp(ZApplication):
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='模拟按键')
-    @operation_node(name='通关交互')
+    @operation_node(name='通关交互', node_max_retry_times=10)
     def interact_after_mission(self) -> OperationRoundResult:
         screen = self.screenshot()
 
@@ -95,9 +95,8 @@ class LifeOnLineApp(ZApplication):
             return self.round_success()
 
         self.ctx.controller.interact(press=True, press_time=0.2, release=True)
-        time.sleep(1)
 
-        return self.round_wait()
+        return self.round_retry(wait=1)
 
     @node_from(from_name='通关交互')
     @operation_node(name='对话', node_max_retry_times=30)
@@ -130,6 +129,7 @@ class LifeOnLineApp(ZApplication):
         result = self.round_by_find_area(screen, 'HDD', '街区')
         if result.is_success:
             self.is_over_night = False
+            self.run_record.add_times()
             return self.round_success(result.status)
 
         # 一直点击直到出现街区
@@ -141,6 +141,7 @@ class LifeOnLineApp(ZApplication):
         result = self.round_by_find_area(screen, '大世界', '信息')
         if result.is_success:
             self.is_over_night = True
+            self.run_record.add_times()
             return self.round_success(result.status)
 
         self.round_by_click_area('HDD', '空白')
@@ -148,9 +149,10 @@ class LifeOnLineApp(ZApplication):
         return self.round_retry(result.status, wait=1)
 
     @node_from(from_name='完成')
+    @node_from(from_name='点击退出战斗确认')
     @operation_node(name='检查运行次数')
     def check_times(self) -> OperationRoundResult:
-        self.run_record.add_times()
+        self.run_record.check_and_update_status()
         if self.run_record.is_finished_by_times():
             return self.round_success(LifeOnLineApp.STATUS_TIMES_FINISHED)
         else:
@@ -165,6 +167,36 @@ class LifeOnLineApp(ZApplication):
         op = BackToNormalWorld(self.ctx)
         return self.round_by_op_result(op.execute())
 
+    @node_from(from_name='通关交互', success=False)
+    @operation_node(name='交互失败')
+    def fail_to_interact(self) -> OperationRoundResult:
+        screen = self.screenshot()
+
+        result = self.round_by_find_area(screen, '恶名狩猎', '退出战斗')
+        if result.is_success:
+            return self.round_success(wait=1)  # 稍微等一下让按钮可按
+
+        result = self.round_by_click_area('战斗画面', '菜单')
+        if result.is_success:
+            return self.round_wait(result.status, wait=2)
+        else:
+            return self.round_fail(result.status)
+
+    @node_from(from_name='交互失败')
+    @operation_node(name='点击退出战斗')
+    def click_exit_battle(self) -> OperationRoundResult:
+        screen = self.screenshot()
+
+        return self.round_by_find_and_click_area(screen, '恶名狩猎', '退出战斗',
+                                                 success_wait=1, retry_wait=1)
+
+    @node_from(from_name='点击退出战斗')
+    @operation_node(name='点击退出战斗确认')
+    def click_exit_battle_confirm(self) -> OperationRoundResult:
+        screen = self.screenshot()
+
+        return self.round_by_find_and_click_area(screen, '恶名狩猎', '退出战斗-确认',
+                                                 success_wait=5, retry_wait=1)
 
 
 def __debug():

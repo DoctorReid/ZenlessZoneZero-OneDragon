@@ -1,0 +1,15 @@
+QDialog {
+    background: rgb(238,240,245);
+    color: black;
+}
+
+QLabel {
+    color: black;
+    background: transparent;
+    font: 12px 'Segoe UI', 'Microsoft YaHei', 'PingFang SC';
+}
+
+CloseButton {
+    qproperty-normalColor: black;
+    qproperty-normalBackgroundColor: transparent;
+}

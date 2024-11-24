@@ -1,44 +1,57 @@
 try:
     import sys
-
+    from PySide6.QtCore import Qt
     from PySide6.QtWidgets import QApplication
     from qfluentwidgets import NavigationItemPosition, setTheme, Theme
     from one_dragon.gui.view.like_interface import LikeInterface
     from one_dragon.base.operation.one_dragon_context import ContextInstanceEventEnum
-    from one_dragon.gui.app.fluent_window_base import FluentWindowBase
-    from one_dragon.gui.common.od_style_sheet import OniStyleSheet
+
+    from phosdeiz.gui.services import PhosStyleSheet
+
     from one_dragon.gui.view.code_interface import CodeInterface
     from one_dragon.gui.view.context_event_signal import ContextEventSignal
+    from one_dragon.gui.windows.app_window_base import AppWindowBase
     from one_dragon.utils.i18_utils import gt
+
     from zzz_od.context.zzz_context import ZContext
-    from zzz_od.gui.view.battle_assistant.battle_assistant_interface import BattleAssistantInterface
-    from zzz_od.gui.view.devtools.app_devtools_interface import AppDevtoolsInterface
-    from zzz_od.gui.view.game_assistant.game_assistant import GameAssistantInterface
-    from zzz_od.gui.view.hollow_zero.hollow_zero_interface import HollowZeroInterface
-    from zzz_od.gui.view.home_interface import HomeInterface
-    from zzz_od.gui.view.one_dragon.zzz_one_dragon_interface import ZOneDragonInterface
-    from zzz_od.gui.view.setting.app_setting_interface import AppSettingInterface
+    from zzz_od.gui.view import (
+        AppDevtoolsInterface,
+        GameAssistantInterface,
+        HollowZeroInterface,
+        HomeInterface,
+        ZOneDragonInterface,
+        AppSettingInterface,
+        BattleAssistantInterface,
+    )
 
     _init_error = None
 
-
     # 定义应用程序的主窗口类
-    class AppWindow(FluentWindowBase):
+    class AppWindow(AppWindowBase):
 
         def __init__(self, ctx: ZContext, parent=None):
             """初始化主窗口类，设置窗口标题和图标"""
             self.ctx: ZContext = ctx
-            FluentWindowBase.__init__(
+            AppWindowBase.__init__(
                 self,
-                win_title='%s %s' % (
-                gt(ctx.project_config.project_name, 'ui'), ctx.one_dragon_config.current_active_instance.name),
-                app_icon='zzz_logo.ico',
-                parent=parent
+                win_title="%s %s"
+                % (
+                    gt(ctx.project_config.project_name, "ui"),
+                    ctx.one_dragon_config.current_active_instance.name,
+                ),
+                project_config=ctx.project_config,
+                app_icon="zzz_logo.ico",
+                parent=parent,
             )
 
-            self.ctx.listen_event(ContextInstanceEventEnum.instance_active.value, self._on_instance_active_event)
+            self.ctx.listen_event(
+                ContextInstanceEventEnum.instance_active.value,
+                self._on_instance_active_event,
+            )
             self._context_event_signal: ContextEventSignal = ContextEventSignal()
-            self._context_event_signal.instance_changed.connect(self._on_instance_active_signal)
+            self._context_event_signal.instance_changed.connect(
+                self._on_instance_active_signal
+            )
 
         # 继承初始化函数
         def init_window(self):
@@ -48,7 +61,7 @@ try:
             self.move(100, 100)
 
             # 设置配置ID
-            self.setObjectName("OneDragonWindow")
+            self.setObjectName("PhosWindow")
             self.navigationInterface.setObjectName("NavigationInterface")
             self.stackedWidget.setObjectName("StackedWidget")
             self.titleBar.setObjectName("TitleBar")
@@ -59,12 +72,11 @@ try:
             self.navigationInterface.setContentsMargins(0, 0, 0, 0)
 
             # 配置样式
-            OniStyleSheet.APP_WINDOW.apply(self)
-            OniStyleSheet.NAVIGATION_INTERFACE.apply(self.navigationInterface)
-            OniStyleSheet.STACKED_WIDGET.apply(self.stackedWidget)
-            OniStyleSheet.AREA_WIDGET.apply(self.areaWidget)
-            OniStyleSheet.TITLE_BAR.apply(self.titleBar)
-            
+            PhosStyleSheet.APP_WINDOW.apply(self)
+            PhosStyleSheet.NAVIGATION_INTERFACE.apply(self.navigationInterface)
+            PhosStyleSheet.STACKED_WIDGET.apply(self.stackedWidget)
+            PhosStyleSheet.AREA_WIDGET.apply(self.areaWidget)
+            PhosStyleSheet.TITLE_BAR.apply(self.titleBar)
 
             # DEBUG
             # print("————APP WINDOW STYLE————")
@@ -98,16 +110,28 @@ try:
             self.add_sub_interface(GameAssistantInterface(self.ctx, parent=self))
 
             # 点赞
-            self.add_sub_interface(LikeInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)
+            self.add_sub_interface(
+                LikeInterface(self.ctx, parent=self),
+                position=NavigationItemPosition.BOTTOM,
+            )
 
             # 开发工具
-            self.add_sub_interface(AppDevtoolsInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)
+            self.add_sub_interface(
+                AppDevtoolsInterface(self.ctx, parent=self),
+                position=NavigationItemPosition.BOTTOM,
+            )
 
             # 代码同步
-            self.add_sub_interface(CodeInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)
+            self.add_sub_interface(
+                CodeInterface(self.ctx, parent=self),
+                position=NavigationItemPosition.BOTTOM,
+            )
 
             # 设置
-            self.add_sub_interface(AppSettingInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)
+            self.add_sub_interface(
+                AppSettingInterface(self.ctx, parent=self),
+                position=NavigationItemPosition.BOTTOM,
+            )
 
         def _on_instance_active_event(self, event) -> None:
             """
@@ -122,30 +146,41 @@ try:
             :return:
             """
             self.setWindowTitle(
-                '%s %s' % (
-                    gt(self.ctx.project_config.project_name, 'ui'),
-                    self.ctx.one_dragon_config.current_active_instance.name
+                "%s %s"
+                % (
+                    gt(self.ctx.project_config.project_name, "ui"),
+                    self.ctx.one_dragon_config.current_active_instance.name,
                 )
             )
+
 
 # 调用Windows错误弹窗
 except Exception as e:
     import ctypes
     import traceback
+
     stack_trace = traceback.format_exc()
     _init_error = f"启动一条龙失败，报错信息如下:\n{stack_trace}"
 
+
 # 初始化应用程序，并启动主窗口
-if __name__ == '__main__':
+if __name__ == "__main__":
     if _init_error is not None:
         ctypes.windll.user32.MessageBoxW(0, _init_error, "错误", 0x10)
         sys.exit(1)
+
+    QApplication.setHighDpiScaleFactorRoundingPolicy(
+        Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
+    )
     app = QApplication(sys.argv)
 
     _ctx = ZContext()
 
     # 加载配置
     _ctx.init_by_config()
+
+    # 异步加载OCR
+    _ctx.async_init_ocr()
 
     # 设置主题
     setTheme(Theme[_ctx.env_config.theme.upper()])

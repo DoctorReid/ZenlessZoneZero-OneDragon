@@ -1,12 +1,12 @@
 from PySide6.QtWidgets import QWidget, QTableWidgetItem
 from qfluentwidgets import TableWidget, CheckBox
 
-from one_dragon.gui.component.column_widget import ColumnWidget
-from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.utils.i18_utils import gt
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import DmgTypeEnum
 
+from phosdeiz.gui.widgets import Column
 
 class ShiyuDefenseInterface(VerticalScrollInterface):
 
@@ -21,7 +21,7 @@ class ShiyuDefenseInterface(VerticalScrollInterface):
         )
 
     def get_content_widget(self) -> QWidget:
-        content_widget = ColumnWidget()
+        content_widget = Column()
 
         self.team_table = TableWidget()
 

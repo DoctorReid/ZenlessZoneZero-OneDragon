@@ -1,15 +1,15 @@
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon
 
-from one_dragon.gui.component.column_widget import ColumnWidget
-from one_dragon.gui.component.setting_card.key_setting_card import KeySettingCard
-from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
-from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
+from one_dragon.gui.widgets.setting_card.key_setting_card import KeySettingCard
+from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon.gui.view.app_run_interface import AppRunInterface
 from zzz_od.application.devtools.screenshot_helper.screenshot_helper_app import ScreenshotHelperApp
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 
+from phosdeiz.gui.widgets import Column
 
 class DevtoolsScreenshotHelperInterface(AppRunInterface):
 
@@ -27,7 +27,7 @@ class DevtoolsScreenshotHelperInterface(AppRunInterface):
         )
 
     def get_widget_at_top(self) -> QWidget:
-        top_widget = ColumnWidget()
+        top_widget = Column()
 
         self.frequency_opt = TextSettingCard(icon=FluentIcon.GAME, title='截图间隔(秒)')
         self.frequency_opt.value_changed.connect(self._on_frequency_changed)

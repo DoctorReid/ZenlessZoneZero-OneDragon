@@ -16,6 +16,7 @@ from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.choose_predefined_team import ChoosePredefinedTeam
 from zzz_od.operation.zzz_operation import ZOperation
+from zzz_od.screen_area.screen_normal_world import ScreenNormalWorldEnum
 
 
 class NotoriousHunt(ZOperation):
@@ -114,13 +115,22 @@ class NotoriousHunt(ZOperation):
             return self.round_retry(result.status, wait=1)
 
     @node_from(from_name='选择难度')
-    @operation_node(name='下一步')
+    @operation_node(name='下一步', node_max_retry_times=10)  # 部分机器加载较慢 延长出战的识别时间
     def click_next(self) -> OperationRoundResult:
         screen = self.screenshot()
-        return self.round_by_find_and_click_area(
-            screen, '实战模拟室', '下一步',
-            success_wait=1, retry_wait_round=1
-        )
+
+        # 点击直到出战按钮出现
+        result = self.round_by_find_area(screen, '实战模拟室', '出战')
+        if result.is_success:
+            return self.round_success(result.status)
+
+        result = self.round_by_find_and_click_area(screen, '实战模拟室', '下一步')
+        if result.is_success:
+            time.sleep(0.5)
+            self.ctx.controller.mouse_move(ScreenNormalWorldEnum.UID.value.center)  # 点击后 移开鼠标 防止识别不到出战
+            return self.round_wait(result.status, wait=0.5)
+
+        return self.round_retry(result.status, wait=1)
 
     @node_from(from_name='下一步')
     @operation_node(name='选择预备编队')
@@ -308,6 +318,16 @@ class NotoriousHunt(ZOperation):
             return self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-再来一次',
                                                      success_wait=1, retry_wait_round=1)
 
+    @node_from(from_name='判断下一次', success=False)
+    @operation_node(name='判断下一次失败处理')
+    def no_left_times(self) -> OperationRoundResult:
+        # 本地记录的剩余次数错误 找不到再来一次
+        # 可能在其它设备上完成了挑战 也可能是上面识别错了
+        self.ctx.notorious_hunt_record.left_times = 0
+        screen = self.screenshot()
+        return self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-完成',
+                                                 success_wait=5, retry_wait_round=1)
+
     @node_from(from_name='判断下一次', status='战斗结果-再来一次')
     @operation_node(name='重新开始-确认')
     def restart_confirm(self) -> OperationRoundResult:
@@ -316,6 +336,7 @@ class NotoriousHunt(ZOperation):
                                                  success_wait=1, retry_wait_round=1)
 
     @node_from(from_name='判断下一次', status='战斗结果-完成')
+    @node_from(from_name='判断下一次失败处理', status='战斗结果-完成')
     @operation_node(name='等待返回入口', node_max_retry_times=60)
     def wait_back_to_entry(self) -> OperationRoundResult:
         screen = self.screenshot()

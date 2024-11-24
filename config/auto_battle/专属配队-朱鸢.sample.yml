@@ -13,6 +13,7 @@ check_special_attack_interval: [0.4, 0.6]
 check_ultimate_interval: [0.4, 0.6]
 check_chain_interval: 0.3
 check_quick_interval: 0.2
+auto_lock_interval: 5
 
 #速切模板-辅助
 t-sup: &sup
@@ -374,18 +375,17 @@ scenes:
       - states: "[前台-朱鸢]"
         sub_handlers: *zy
 
-  - triggers: ["前台-青衣"]
+  - triggers: ["前台-击破"]
     priority: 4
     interval: 0.02
     handlers:
-      - states: "[前台-青衣]"
+      - states: "[前台-击破]"
         sub_handlers: *q
 
   - triggers: []
     priority: 2
     interval: 0.2
     handlers:
-      - state_template: "通用模板-锁定敌人"
       # 强制青衣战场
       - states: "![自定义-失衡期, 0, 12]"
         sub_handlers:

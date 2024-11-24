@@ -5,9 +5,8 @@ from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, PushButton
 from typing import Optional
 
-from one_dragon.gui.component.column_widget import ColumnWidget
-from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.view.app_run_interface import AppRunInterface
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_config_file_path
 from zzz_od.application.battle_assistant.operation_debug_app import OperationDebugApp
@@ -17,6 +16,7 @@ from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.config.game_config import GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
 
+from phosdeiz.gui.widgets import Column
 
 class OperationDebugInterface(AppRunInterface):
 
@@ -35,7 +35,7 @@ class OperationDebugInterface(AppRunInterface):
         )
 
     def get_widget_at_top(self) -> QWidget:
-        top_widget = ColumnWidget()
+        top_widget = Column()
 
         self.config_opt = ComboBoxSettingCard(
             icon=FluentIcon.GAME, title='指令配置',

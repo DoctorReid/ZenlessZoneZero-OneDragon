@@ -7,36 +7,6 @@ from one_dragon.utils import os_utils
 from one_dragon.utils.log_utils import log
 
 
-class CompendiumMission:
-
-    def __init__(self, mission_name: str, mission_name_display: Optional[str] = None):
-        self.mission_name: str = mission_name
-        self.mission_name_display: str = mission_name if mission_name_display is None else mission_name_display
-
-
-class CompendiumMissionType:
-
-    def __init__(self, mission_type_name: str, mission_type_name_display: Optional[str] = None,
-                 mission_list: List = None):
-        self.mission_type_name: str = mission_type_name
-        self.mission_type_name_display: str = mission_type_name
-        if mission_type_name_display is not None:
-            self.mission_type_name_display = mission_type_name_display
-        self.mission_list: List[CompendiumMission] = []
-        if mission_list is not None:
-            for mission_item in mission_list:
-                self.mission_list.append(CompendiumMission(**mission_item))
-
-
-class CompendiumCategory:
-
-    def __init__(self, category_name: str, mission_type_list: List = None):
-        self.category_name: str = category_name
-        self.mission_type_list: List[CompendiumMissionType] = []
-        if mission_type_list is not None:
-            for mission_type_item in mission_type_list:
-                self.mission_type_list.append(CompendiumMissionType(**mission_type_item))
-
 
 class CompendiumTab:
 
@@ -45,7 +15,56 @@ class CompendiumTab:
         self.category_list: List[CompendiumCategory] = []
         if category_list is not None:
             for category_list_item in category_list:
-                self.category_list.append(CompendiumCategory(**category_list_item))
+                category_item = CompendiumCategory(**category_list_item)
+                category_item.set_tab(self)
+                self.category_list.append(category_item)
+
+
+class CompendiumCategory:
+
+    def __init__(self, category_name: str, mission_type_list: List = None):
+        self.tab: Optional[CompendiumTab] = None
+        self.category_name: str = category_name
+        self.mission_type_list: List[CompendiumMissionType] = []
+        if mission_type_list is not None:
+            for mission_type_item in mission_type_list:
+                mission_type = CompendiumMissionType(**mission_type_item)
+                mission_type.set_category(self)
+                self.mission_type_list.append(mission_type)
+
+    def set_tab(self, tab: CompendiumTab):
+        self.tab = tab
+
+
+class CompendiumMissionType:
+
+    def __init__(self, mission_type_name: str, mission_type_name_display: Optional[str] = None,
+                 mission_list: List = None):
+        self.category: Optional[CompendiumCategory] = None
+        self.mission_type_name: str = mission_type_name
+        self.mission_type_name_display: str = mission_type_name
+        if mission_type_name_display is not None:
+            self.mission_type_name_display = mission_type_name_display
+        self.mission_list: List[CompendiumMission] = []
+        if mission_list is not None:
+            for mission_item in mission_list:
+                mission = CompendiumMission(**mission_item)
+                mission.set_mission_type(self)
+                self.mission_list.append(mission)
+
+    def set_category(self, category: CompendiumCategory):
+        self.category = category
+
+
+class CompendiumMission:
+
+    def __init__(self, mission_name: str, mission_name_display: Optional[str] = None):
+        self.mission_type: Optional[CompendiumMissionType] = None
+        self.mission_name: str = mission_name
+        self.mission_name_display: str = mission_name if mission_name_display is None else mission_name_display
+
+    def set_mission_type(self, mission_type: CompendiumMissionType):
+        self.mission_type = mission_type
 
 
 class CompendiumData:

@@ -13,12 +13,28 @@ body:
         - 最新版本代码有问题可尝试使用回滚功能看是否依然有问题。
         - 请先阅读最新的[使用前须知](https://one-dragon.org/zzz/zh/quickstart.html#_2-%E4%BD%BF%E7%94%A8%E5%89%8D%E9%A1%BB%E7%9F%A5)，确保设置正确。
         - 请先阅读最新的[功能说明](https://one-dragon.org/zzz/zh/docs/feat_battle_assistant.html)，确保设置正确。
-        - 请使用脚本F11进行截图上传，其他截图方式有概率不受理。
+        - 请使用脚本F11进行截图上传，图片保存在 .debug/images/ 文件夹中，其他截图方式有概率不受理。
+        - 缺少日志/截图/录屏的情况，有概率不受理。
+
+  - type: input
+    attributes:
+      label: 代码版本
+      description: "「代码同步」里第一行的ID 不填入大概率不受理"
+    validations:
+      required: true
 
   - type: markdown
     attributes:
       value: |
         ## 问题反馈
+
+  - type: textarea
+    attributes:
+      label: "使用配置"
+      description: "请说明使用的自动战斗配置文件 非脚本的默认文件请在群里找对应作者解决"
+      placeholder: 专属配队-简
+    validations:
+      required: true
 
   - type: textarea
     attributes:
@@ -40,13 +56,13 @@ body:
   - type: textarea
     attributes:
       label: "游戏截图"
-      description: "提供游戏截图有助于更直观地理解问题。使用脚本按F11进行截图最佳，图片保存在 .debug/images/ 文件夹中。如果必要，请上传相关战斗视频帮助作者理解。"
+      description: "使用脚本按F11进行截图，图片保存在 .debug/images/ 文件夹中"
       placeholder: "游戏截图"
 
   - type: textarea
     attributes:
       label: "运行日志"
-      description: "提供日志可以有助于理解脚本运行情况，日志保存在 .log/log.txt 中"
+      description: "日志保存在 .log/log.txt 中"
       placeholder: "运行日志"
 
   - type: textarea

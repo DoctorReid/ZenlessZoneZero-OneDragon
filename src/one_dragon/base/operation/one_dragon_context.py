@@ -1,13 +1,28 @@
+import time
+from concurrent.futures import ThreadPoolExecutor
+
 import logging
 from enum import Enum
 from pynput import keyboard, mouse
 from typing import Optional
 
+from one_dragon.base.config.one_dragon_app_config import OneDragonAppConfig
+from one_dragon.base.config.one_dragon_config import OneDragonConfig
+from one_dragon.base.controller.controller_base import ControllerBase
+from one_dragon.base.controller.pc_button.pc_button_listener import PcButtonListener
+from one_dragon.base.matcher.ocr.ocr_matcher import OcrMatcher
+from one_dragon.base.matcher.ocr.onnx_ocr_matcher import OnnxOcrMatcher
+from one_dragon.base.matcher.template_matcher import TemplateMatcher
 from one_dragon.base.operation.context_event_bus import ContextEventBus
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
+from one_dragon.base.screen.screen_loader import ScreenLoader
+from one_dragon.base.screen.template_loader import TemplateLoader
 from one_dragon.utils import debug_utils, log_utils
+from one_dragon.utils import thread_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
+
+_one_dragon_context_executor = ThreadPoolExecutor(thread_name_prefix='one_dragon_context', max_workers=1)
 
 
 class ContextRunStateEnum(Enum):
@@ -40,23 +55,10 @@ class ContextInstanceEventEnum(Enum):
 
 class OneDragonContext(ContextEventBus, OneDragonEnvContext):
 
-    def __init__(self, controller: Optional = None,
-                 for_installer: bool = False):
+    def __init__(self, controller: Optional = None):
         ContextEventBus.__init__(self)
         OneDragonEnvContext.__init__(self)
 
-        if for_installer:
-            return
-
-        from one_dragon.base.config.one_dragon_app_config import OneDragonAppConfig
-        from one_dragon.base.config.one_dragon_config import OneDragonConfig
-        from one_dragon.base.controller.controller_base import ControllerBase
-        from one_dragon.base.controller.pc_button.pc_button_listener import PcButtonListener
-        from one_dragon.base.matcher.ocr.ocr_matcher import OcrMatcher
-        from one_dragon.base.matcher.ocr.onnx_ocr_matcher import OnnxOcrMatcher
-        from one_dragon.base.matcher.template_matcher import TemplateMatcher
-        from one_dragon.base.screen.screen_loader import ScreenLoader
-        from one_dragon.base.screen.template_loader import TemplateLoader
         self.one_dragon_config: OneDragonConfig = OneDragonConfig()
 
         if self.one_dragon_config.current_active_instance is None:
@@ -128,7 +130,7 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
         elif self.context_running_state == ContextRunStateEnum.PAUSE:
             return gt('暂停中', 'ui')
         else:
-            return 'unknow'
+            return gt('未知')
 
     def switch_context_pause_and_run(self):
         if self.context_running_state == ContextRunStateEnum.RUN:
@@ -206,3 +208,22 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
         log.info('开始加载实例配置 %d' % self.current_instance_idx)
         from one_dragon.base.config.one_dragon_app_config import OneDragonAppConfig
         self.one_dragon_app_config = OneDragonAppConfig(self.current_instance_idx)
+
+    def async_init_ocr(self) -> None:
+        """
+        异步初始化OCR
+        :return:
+        """
+        f = _one_dragon_context_executor.submit(self.ocr.init_model)
+        f.add_done_callback(thread_utils.handle_future_result)
+
+
+def __debug_async_init_ocr():
+    ctx = OneDragonContext()
+    ctx.async_init_ocr()
+    ctx.ocr.init_model()
+    time.sleep(1)
+
+
+if __name__ == '__main__':
+    __debug_async_init_ocr()

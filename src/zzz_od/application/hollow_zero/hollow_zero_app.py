@@ -6,7 +6,7 @@ from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils.i18_utils import gt
-from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroExtraTask
+from one_dragon.utils.log_utils import log
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.hollow_zero.event import hollow_event_utils
@@ -15,6 +15,7 @@ from zzz_od.hollow_zero.hollow_runner import HollowRunner
 from zzz_od.operation.back_to_normal_world import BackToNormalWorld
 from zzz_od.operation.compendium.tp_by_compendium import TransportByCompendium
 from zzz_od.operation.deploy import Deploy
+from zzz_od.screen_area.screen_normal_world import ScreenNormalWorldEnum
 
 
 class HollowZeroApp(ZApplication):
@@ -75,7 +76,7 @@ class HollowZeroApp(ZApplication):
         op = TransportByCompendium(self.ctx,
                                    '挑战',
                                    '零号空洞',
-                                   '资质考核')
+                                   self.mission_type_name)
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='传送')
@@ -94,6 +95,10 @@ class HollowZeroApp(ZApplication):
             return self.round_success(HollowZeroApp.STATUS_TIMES_FINISHED)
 
         screen = self.screenshot()
+        result = self.round_by_find_and_click_area(screen, '零号空洞-入口', '下一步')
+        if result.is_success:
+            return self.round_success(result.status)
+
         return self.round_by_ocr_and_click(screen, self.mission_type_name,
                                            success_wait=1, retry_wait=1)
 
@@ -105,6 +110,7 @@ class HollowZeroApp(ZApplication):
         return self.round_by_ocr_and_click(screen, self.mission_name, area=area,
                                            success_wait=1, retry_wait=1)
 
+    @node_from(from_name='选择副本类型', status='下一步')
     @node_from(from_name='选择副本')
     @operation_node(name='下一步')
     def click_next(self) -> OperationRoundResult:
@@ -112,18 +118,17 @@ class HollowZeroApp(ZApplication):
 
         result = self.round_by_find_and_click_area(screen, '零号空洞-入口', '下一步')
         if result.is_success:
-            return self.round_success(wait=1)
+            time.sleep(0.5)
+            self.ctx.controller.mouse_move(ScreenNormalWorldEnum.UID.value.center)  # 点击后 移开鼠标 防止识别不到出战
+            return self.round_wait(result.status, wait=0.5)
 
         result = self.round_by_find_and_click_area(screen, '零号空洞-入口', '行动中-确认')
         if result.is_success:
             return self.round_wait(wait=1)
 
-        return self.round_retry(wait=1)
-
-    @node_from(from_name='下一步')
-    @operation_node(name='继续或出战')
-    def continue_or_deploy(self) -> OperationRoundResult:
-        screen = self.screenshot()
+        result = self.round_by_find_area(screen, '零号空洞-入口', '出战')
+        if result.is_success:
+            return self.round_success(result.status, wait=1)
 
         result = self.round_by_find_and_click_area(screen, '零号空洞-入口', '继续-确认')
         if result.is_success:
@@ -131,30 +136,27 @@ class HollowZeroApp(ZApplication):
             self.phase = -1
             return self.round_success(result.status, wait=1)
 
-        result = self.round_by_find_area(screen, '零号空洞-入口', '出战')
-        if result.is_success:
-            return self.round_success(result.status, wait=1)
-
         return self.round_retry(wait=1)
 
-
-    @node_from(from_name='继续或出战', status='出战')
+    @node_from(from_name='下一步', status='出战')
     @operation_node(name='出战')
     def deploy(self) -> OperationRoundResult:
         op = Deploy(self.ctx)
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='初始画面识别', status=STATUS_IN_HOLLOW)  # 最开始就在
-    @node_from(from_name='继续或出战', status='继续-确认')
+    @node_from(from_name='下一步', status='继续-确认')
     @node_from(from_name='出战')
     @operation_node(name='自动运行')
     def auto_run(self) -> OperationRoundResult:
-        self.ctx.hollow.init_before_hollow_start(self.mission_type_name, self.mission_name, self.level, self.phase)
-        self.ctx.hollow_zero_record.daily_run_times = self.ctx.hollow_zero_record.daily_run_times + 1
+        try:
+            self.ctx.hollow.init_before_hollow_start(self.mission_type_name, self.mission_name, self.level, self.phase)
+        except Exception:
+            log.error('模型加载失败', exc_info=True)
+            return self.round_fail('模型加载失败 请重新下载模型')
         op = HollowRunner(self.ctx)
         return self.round_by_op_result(op.execute())
 
-    @node_from(from_name='选择副本类型', status=STATUS_NO_EVAL_POINT)
     @node_from(from_name='选择副本类型', status=STATUS_TIMES_FINISHED)
     @operation_node(name='完成后等待加载', node_max_retry_times=20)
     def wait_back_loading(self) -> OperationRoundResult:

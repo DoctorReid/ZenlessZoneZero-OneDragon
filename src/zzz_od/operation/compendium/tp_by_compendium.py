@@ -3,6 +3,7 @@ from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils.i18_utils import gt
 from zzz_od.context.zzz_context import ZContext
+from zzz_od.game_data.compendium import CompendiumTab
 from zzz_od.operation.compendium.compendium_choose_category import CompendiumChooseCategory
 from zzz_od.operation.compendium.compendium_choose_mission_type import CompendiumChooseMissionType
 from zzz_od.operation.compendium.compendium_choose_tab import CompendiumChooseTab
@@ -53,7 +54,10 @@ class TransportByCompendium(ZOperation):
     @node_from(from_name='选择分类')
     @operation_node(name='选择副本分类')
     def choose_mission_type(self) -> OperationRoundResult:
-        op = CompendiumChooseMissionType(self.ctx, self.mission_type_name)
+        mission_type = self.ctx.compendium_service.get_mission_type_data(
+            self.tab_name, self.category_name, self.mission_type_name
+        )
+        op = CompendiumChooseMissionType(self.ctx, mission_type)
         return self.round_by_op_result(op.execute())
 
 

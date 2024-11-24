@@ -1,6 +1,6 @@
 import os
 import shutil
-from typing import Optional, List
+from typing import Optional, List, Any
 
 from one_dragon.base.config.yaml_operator import YamlOperator
 from one_dragon.utils import os_utils
@@ -66,3 +66,21 @@ class YamlConfig(YamlOperator):
         :return:
         """
         return self.file_path.endswith('.sample.yml')
+
+    def get_prop_adapter(self, prop: str,
+                         getter_convert: Optional[str] = None,
+                         setter_convert: Optional[str] = None):
+        """
+        获取一个配置适配器
+        :param prop: 配置字段
+        :param getter_convert: 获取时的转换器
+        :param setter_convert: 设置时的转换器
+        :return:
+        """
+        from one_dragon.gui.widgets.setting_card.yaml_config_adapter import YamlConfigAdapter
+        return YamlConfigAdapter(
+            config=self,
+            field=prop,
+            getter_convert=getter_convert,
+            setter_convert=setter_convert
+        )

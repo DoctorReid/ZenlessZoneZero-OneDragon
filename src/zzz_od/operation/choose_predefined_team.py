@@ -11,6 +11,7 @@ from one_dragon.base.operation.operation_round_result import OperationRoundResul
 from one_dragon.utils.i18_utils import gt
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.zzz_operation import ZOperation
+from zzz_od.screen_area.screen_normal_world import ScreenNormalWorldEnum
 
 
 class ChoosePredefinedTeam(ZOperation):
@@ -23,9 +24,7 @@ class ChoosePredefinedTeam(ZOperation):
         ZOperation.__init__(self, ctx, op_name=gt('选择预备编队', 'ui'))
 
         self.target_team_idx_list: List[int] = target_team_idx_list
-
-    def handle_init(self):
-        pass
+        self.choose_fail_times: int = 0   # 选择失败的次数
 
     @operation_node(name='画面识别', node_max_retry_times=10, is_start_node=True)
     def check_screen(self) -> OperationRoundResult:
@@ -45,6 +44,7 @@ class ChoosePredefinedTeam(ZOperation):
                                                  success_wait=1, retry_wait=1)
 
     @node_from(from_name='点击预备编队')
+    @node_from(from_name='选择编队失败')
     @operation_node(name='选择编队')
     def choose_team(self) -> OperationRoundResult:
         screen = self.screenshot()
@@ -68,11 +68,11 @@ class ChoosePredefinedTeam(ZOperation):
             best_match = difflib.get_close_matches(target_team_name, target_list, n=1)
 
             if best_match is None or len(best_match) == 0:
-                return self.round_retry(wait=1)
+                return self.round_retry(wait=0.5)
 
             ocr_result: MatchResultList = ocr_map.get(best_match[0], None)
             if ocr_result is None or ocr_result.max is None:
-                return self.round_retry(wait=1)
+                return self.round_retry(wait=0.5)
 
             to_click = ocr_result.max.center + Point(200, 0)
             self.ctx.controller.click(to_click)
@@ -81,10 +81,27 @@ class ChoosePredefinedTeam(ZOperation):
 
         return self.round_wait()
 
+    @node_from(from_name='选择编队', success=False)
+    @operation_node(name='选择编队失败')
+    def choose_team_fail(self) -> OperationRoundResult:
+        self.choose_fail_times += 1
+        if self.choose_fail_times >= 2:
+            return self.round_fail('选择配队失败')
+
+        drag_start = Point(self.ctx.controller.standard_width // 2, self.ctx.controller.standard_height // 2)
+        drag_end = drag_start + Point(0, -500)
+        self.ctx.controller.drag_to(start=drag_start, end=drag_end)
+        return self.round_success(wait=1)
+
     @node_from(from_name='选择编队')
-    @operation_node(name='选择编队确认 ')
+    @operation_node(name='选择编队确认')
     def click_confirm(self) -> OperationRoundResult:
         screen = self.screenshot()
 
-        return self.round_by_find_and_click_area(screen, '实战模拟室', '预备出战',
-                                                   success_wait=1, retry_wait=1)
+        result = self.round_by_find_and_click_area(screen, '实战模拟室', '预备出战')
+        if result.is_success:
+            time.sleep(0.5)
+            self.ctx.controller.mouse_move(ScreenNormalWorldEnum.UID.value.center)  # 点击后 移开鼠标 防止识别不到出战
+            return self.round_success(result.status, wait=0.5)
+        else:
+            return self.round_retry(result.status, wait=1)

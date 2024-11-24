@@ -310,6 +310,17 @@ class HallowZeroDataService:
         """
         return ['危机', '双重危机', '限时战斗']
 
+    def get_no_battle_list(self) -> List[str]:
+        """
+        不包含战斗的类型
+        @return:
+        """
+        return [
+            i.entry_name
+            for i in self.entry_list
+            if i.entry_name not in ['危机', '双重危机', '限时战斗'] and i.can_go
+        ]
+
 
 if __name__ == '__main__':
     _data = HallowZeroDataService()

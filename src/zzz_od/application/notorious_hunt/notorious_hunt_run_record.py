@@ -1,6 +1,6 @@
 from typing import Optional
 
-from one_dragon.base.operation.application_run_record import AppRunRecord
+from one_dragon.base.operation.application_run_record import AppRunRecord, AppRunRecordPeriod
 
 
 class NotoriousHuntRunRecord(AppRunRecord):
@@ -10,12 +10,26 @@ class NotoriousHuntRunRecord(AppRunRecord):
             self,
             'notorious_hunt',
             instance_idx=instance_idx,
-            game_refresh_hour_offset=game_refresh_hour_offset
+            game_refresh_hour_offset=game_refresh_hour_offset,
+            record_period=AppRunRecordPeriod.WEEKLY
         )
 
     def reset_record(self) -> None:
         AppRunRecord.reset_record(self)
-        self.left_times = 0
+        self.left_times = 3
+
+    @property
+    def run_status_under_now(self):
+        """
+        基于当前时间显示的运行状态
+        :return:
+        """
+        if self._should_reset_by_dt():
+            return AppRunRecord.STATUS_WAIT
+        elif self.left_times > 0:
+            return self.run_status
+        else:
+            return AppRunRecord.STATUS_SUCCESS
 
     @property
     def left_times(self) -> int:

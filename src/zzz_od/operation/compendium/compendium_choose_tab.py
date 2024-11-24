@@ -54,7 +54,7 @@ def __debug():
     ctx.init_by_config()
     ctx.ocr.init_model()
     ctx.start_running()
-    op = CompendiumChooseTab(ctx, '训练')
+    op = CompendiumChooseTab(ctx, tab_name='训练')
     op.execute()
 
 

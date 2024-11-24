@@ -157,7 +157,7 @@ class CommissionAssistantApp(ZApplication):
         self.ctx.hollow.init_event_yolo(self.ctx.yolo_config.hollow_zero_event_gpu)
 
         # 判断当前邦布是否存在
-        hollow_map = self.ctx.hollow.check_current_map(screen, screenshot_time)
+        hollow_map = self.ctx.hollow.map_service.cal_current_map_by_screen(screen, screenshot_time)
         if hollow_map is None or hollow_map.contains_entry('当前'):
             return self.round_wait(status='空洞走格子中', wait=1)
 

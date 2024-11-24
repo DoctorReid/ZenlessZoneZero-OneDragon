@@ -7,20 +7,18 @@ from typing import List, Optional
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.base.screen.template_info import TemplateInfo, TemplateShapeEnum
-from one_dragon.gui.component.column_widget import ColumnWidget
-from one_dragon.gui.component.cv2_image import Cv2Image
-from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.component.label.click_image_label import ClickImageLabel, ImageScaleEnum
-from one_dragon.gui.component.combo_box import ComboBox
-from one_dragon.gui.component.row_widget import RowWidget
-from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiPushSettingCard
-from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
-from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
+from one_dragon.gui.widgets.cv2_image import Cv2Image
+from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon.gui.widgets.click_image_label import ClickImageLabel, ImageScaleEnum
+from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.widgets.setting_card.multi_push_setting_card import MultiPushSettingCard
+from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils import os_utils, cv2_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 
+from phosdeiz.gui.widgets import Row,Column,ComboBox
 
 class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
 
@@ -38,7 +36,7 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
         self.last_screen_dir: Optional[str] = None  # 上一次选择的图片路径
 
     def get_content_widget(self) -> QWidget:
-        content_widget = RowWidget()
+        content_widget = Row()
 
         content_widget.add_widget(self._init_left_part())
         content_widget.add_widget(self._init_mid_part())
@@ -47,9 +45,9 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
         return content_widget
 
     def _init_left_part(self) -> QWidget:
-        widget = ColumnWidget()
+        widget = Column()
 
-        btn_row = RowWidget()
+        btn_row = Row()
         widget.add_widget(btn_row)
 
         self.existed_yml_btn = ComboBox()
@@ -74,7 +72,7 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
 
         btn_row.add_stretch(1)
 
-        save_row = RowWidget()
+        save_row = Row()
         widget.add_widget(save_row)
 
         self.choose_image_btn = PushButton(text=gt('选择图片', 'ui'))
@@ -152,7 +150,7 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
         return widget
 
     def _init_mid_part(self) -> QWidget:
-        widget = ColumnWidget()
+        widget = Column()
 
         raw_label = CaptionLabel(text='模板原图')
         widget.add_widget(raw_label)
@@ -177,7 +175,7 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
         return widget
 
     def _init_right_part(self) -> QWidget:
-        widget = ColumnWidget()
+        widget = Column()
 
         self.image_display_size_opt = ComboBoxSettingCard(
             icon=FluentIcon.ZOOM_IN, title='图片显示大小',

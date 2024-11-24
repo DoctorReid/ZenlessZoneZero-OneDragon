@@ -4,7 +4,7 @@ from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
 from one_dragon.base.controller.pc_button.ds4_button_controller import Ds4ButtonEnum
 from one_dragon.base.controller.pc_button.xbox_button_controller import XboxButtonEnum
-from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
+from one_dragon.gui.widgets.setting_card.yaml_config_adapter import YamlConfigAdapter
 
 
 class GamePlatformEnum(Enum):
@@ -42,6 +42,12 @@ class GameConfig(YamlConfig):
 
     def __init__(self, instance_idx: int):
         YamlConfig.__init__(self, 'game', instance_idx=instance_idx)
+
+        # 兼容旧数据
+        if not self.xbox_key_lock.startswith('xbox'):
+            self.xbox_key_lock = XboxButtonEnum.R_THUMB.value.value
+        if not self.ds4_key_lock.startswith('ds4'):
+            self.ds4_key_lock = Ds4ButtonEnum.R_THUMB.value.value
 
     @property
     def platform(self) -> str:
@@ -367,7 +373,7 @@ class GameConfig(YamlConfig):
 
     @property
     def xbox_key_lock(self) -> str:
-        return self.get('xbox_key_lock', 'mouse_middle')
+        return self.get('xbox_key_lock', XboxButtonEnum.R_THUMB.value.value)
 
     @xbox_key_lock.setter
     def xbox_key_lock(self, new_value: str) -> None:
@@ -497,7 +503,7 @@ class GameConfig(YamlConfig):
 
     @property
     def ds4_key_lock(self) -> str:
-        return self.get('ds4_key_lock', 'mouse_middle')
+        return self.get('ds4_key_lock', Ds4ButtonEnum.R_THUMB.value.value)
 
     @ds4_key_lock.setter
     def ds4_key_lock(self, new_value: str) -> None:

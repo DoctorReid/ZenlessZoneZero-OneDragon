@@ -22,6 +22,8 @@ class XboxButtonEnum(Enum):
     L_STICK_S = ConfigItem('左摇杆-下', 'xbox_9')
     L_STICK_A = ConfigItem('左摇杆-左', 'xbox_10')
     L_STICK_D = ConfigItem('左摇杆-右', 'xbox_11')
+    L_THUMB = ConfigItem('左摇杆-按下', 'xbox_12')
+    R_THUMB = ConfigItem('右摇杆-按下', 'xbox_13')
 
 
 class XboxButtonController(PcButtonController):
@@ -34,19 +36,21 @@ class XboxButtonController(PcButtonController):
             self.pad = vg.VX360Gamepad()
             self._btn = vg.XUSB_BUTTON
 
-        self._tab_handler: List[Callable[[Optional[float]], None]] = [
-            self.tab_a,
-            self.tab_b,
-            self.tab_x,
-            self.tab_y,
-            self.tab_lt,
-            self.tab_rt,
-            self.tab_lb,
-            self.tab_rb,
-            self.tab_l_stick_w,
-            self.tab_l_stick_s,
-            self.tab_l_stick_a,
-            self.tab_l_stick_d,
+        self._tap_handler: List[Callable[[Optional[bool], Optional[float]], None]] = [
+            self.tap_a,
+            self.tap_b,
+            self.tap_x,
+            self.tap_y,
+            self.tap_lt,
+            self.tap_rt,
+            self.tap_lb,
+            self.tap_rb,
+            self.tap_l_stick_w,
+            self.tap_l_stick_s,
+            self.tap_l_stick_a,
+            self.tap_l_stick_d,
+            self.tap_l_thumb,
+            self.tap_r_thumb,
         ]
 
         self.release_handler: List[Callable[[], None]] = [
@@ -62,6 +66,8 @@ class XboxButtonController(PcButtonController):
             self.release_l_stick,
             self.release_l_stick,
             self.release_l_stick,
+            self.release_l_thumb,
+            self.release_r_thumb,
         ]
 
     def tap(self, key: str) -> None:
@@ -72,85 +78,139 @@ class XboxButtonController(PcButtonController):
         """
         if key is None:  # 部分按键不支持
             return
-        self._tab_handler[int(key.split('_')[-1])](None)
+        self._tap_handler[int(key.split('_')[-1])](False, None)
 
-    def tab_a(self, press_time: Optional[float] = None) -> None:
-        self._press_button(self._btn.XUSB_GAMEPAD_A, press_time)
+    def tap_a(self, press: bool = False, press_time: Optional[float] = None) -> None:
+        self._press_button(self._btn.XUSB_GAMEPAD_A, press=press, press_time=press_time)
 
-    def tab_b(self, press_time: Optional[float] = None) -> None:
-        self._press_button(self._btn.XUSB_GAMEPAD_B, press_time)
+    def tap_b(self, press: bool = False, press_time: Optional[float] = None) -> None:
+        self._press_button(self._btn.XUSB_GAMEPAD_B, press=press, press_time=press_time)
 
-    def tab_x(self, press_time: Optional[float] = None) -> None:
-        self._press_button(self._btn.XUSB_GAMEPAD_X, press_time)
+    def tap_x(self, press: bool = False, press_time: Optional[float] = None) -> None:
+        self._press_button(self._btn.XUSB_GAMEPAD_X, press=press, press_time=press_time)
 
-    def tab_y(self, press_time: Optional[float] = None) -> None:
-        self._press_button(self._btn.XUSB_GAMEPAD_Y, press_time)
+    def tap_y(self, press: bool = False, press_time: Optional[float] = None) -> None:
+        self._press_button(self._btn.XUSB_GAMEPAD_Y, press=press, press_time=press_time)
 
-    def tab_lt(self, press_time: Optional[float] = None) -> None:
+    def tap_lt(self, press: bool = False, press_time: Optional[float] = None) -> None:
         self.pad.left_trigger(value=255)
         self.pad.update()
-        if press_time is None:
-            press_time = 0
+
+        if press:
+            if press_time is None:  # 不放开
+                return
+        else:
+            if press_time is None:
+                press_time = self.key_press_time
+
         time.sleep(max(self.key_press_time, press_time))
         self.pad.left_trigger(value=0)
         self.pad.update()
 
-    def tab_rt(self, press_time: Optional[float] = None) -> None:
+    def tap_rt(self, press: bool = False, press_time: Optional[float] = None) -> None:
         self.pad.right_trigger(value=255)
         self.pad.update()
-        if press_time is None:
-            press_time = 0
+
+        if press:
+            if press_time is None:  # 不放开
+                return
+        else:
+            if press_time is None:
+                press_time = self.key_press_time
+
         time.sleep(max(self.key_press_time, press_time))
         self.pad.right_trigger(value=0)
         self.pad.update()
 
-    def tab_lb(self, press_time: Optional[float] = None) -> None:
-        self._press_button(self._btn.XUSB_GAMEPAD_LEFT_SHOULDER, press_time)
+    def tap_lb(self, press: bool = False, press_time: Optional[float] = None) -> None:
+        self._press_button(self._btn.XUSB_GAMEPAD_LEFT_SHOULDER, press=press, press_time=press_time)
 
-    def tab_rb(self, press_time: Optional[float] = None) -> None:
-        self._press_button(self._btn.XUSB_GAMEPAD_RIGHT_SHOULDER, press_time)
+    def tap_rb(self, press: bool = False, press_time: Optional[float] = None) -> None:
+        self._press_button(self._btn.XUSB_GAMEPAD_RIGHT_SHOULDER, press=press, press_time=press_time)
 
-    def tab_l_stick_w(self, press_time: Optional[float] = None) -> None:
-        self.pad.left_joystick_float(0, -1)
-        self.pad.update()
-        if press_time is None:
-            press_time = 0
-        time.sleep(max(self.key_press_time, press_time))
-        self.pad.left_joystick_float(0, 0)
-        self.pad.update()
-
-    def tab_l_stick_s(self, press_time: Optional[float] = None) -> None:
+    def tap_l_stick_w(self, press: bool = False, press_time: Optional[float] = None) -> None:
         self.pad.left_joystick_float(0, 1)
         self.pad.update()
-        if press_time is None:
-            press_time = 0
+
+        if press:
+            if press_time is None:  # 不放开
+                return
+        else:
+            if press_time is None:
+                press_time = self.key_press_time
+
         time.sleep(max(self.key_press_time, press_time))
         self.pad.left_joystick_float(0, 0)
         self.pad.update()
 
-    def tab_l_stick_a(self, press_time: Optional[float] = None) -> None:
+    def tap_l_stick_s(self, press: bool = False, press_time: Optional[float] = None) -> None:
+        self.pad.left_joystick_float(0, -1)
+        self.pad.update()
+
+        if press:
+            if press_time is None:  # 不放开
+                return
+        else:
+            if press_time is None:
+                press_time = self.key_press_time
+
+        time.sleep(max(self.key_press_time, press_time))
+        self.pad.left_joystick_float(0, 0)
+        self.pad.update()
+
+    def tap_l_stick_a(self, press: bool = False, press_time: Optional[float] = None) -> None:
         self.pad.left_joystick_float(-1, 0)
         self.pad.update()
-        if press_time is None:
-            press_time = 0
+
+        if press:
+            if press_time is None:  # 不放开
+                return
+        else:
+            if press_time is None:
+                press_time = self.key_press_time
+
         time.sleep(max(self.key_press_time, press_time))
         self.pad.left_joystick_float(0, 0)
         self.pad.update()
 
-    def tab_l_stick_d(self, press_time: Optional[float] = None) -> None:
+    def tap_l_stick_d(self, press: bool = False, press_time: Optional[float] = None) -> None:
         self.pad.left_joystick_float(1, 0)
         self.pad.update()
-        if press_time is None:
-            press_time = 0
+
+        if press:
+            if press_time is None:  # 不放开
+                return
+        else:
+            if press_time is None:
+                press_time = self.key_press_time
+
         time.sleep(max(self.key_press_time, press_time))
         self.pad.left_joystick_float(0, 0)
         self.pad.update()
 
-    def _press_button(self, btn, press_time: Optional[float] = None):
+    def tap_l_thumb(self, press: bool = False, press_time: Optional[float] = None) -> None:
+        self._press_button(self._btn.XUSB_GAMEPAD_LEFT_THUMB, press=press, press_time=press_time)
+
+    def tap_r_thumb(self, press: bool = False, press_time: Optional[float] = None) -> None:
+        self._press_button(self._btn.XUSB_GAMEPAD_RIGHT_THUMB, press=press, press_time=press_time)
+
+    def _press_button(self, btn, press: bool = False, press_time: Optional[float] = None):
+        """
+        :param btn: 按键
+        :param press: 是否按下
+        :param press_time: 按下时间。如果 press=False press_time=None，则使用key_press_time；如果 press=True press=None 则不放开
+        :return:
+        """
         self.pad.press_button(btn)
         self.pad.update()
-        if press_time is None:
-            press_time = 0
+
+        if press:
+            if press_time is None:  # 不放开
+                return
+        else:
+            if press_time is None:
+                press_time = self.key_press_time
+
         time.sleep(max(self.key_press_time, press_time))
         self.pad.release_button(btn)
         self.pad.update()
@@ -160,14 +220,9 @@ class XboxButtonController(PcButtonController):
         self.pad.update()
 
     def press(self, key: str, press_time: Optional[float] = None) -> None:
-        """
-        :param key: 按键
-        :param press_time: 持续按键时间
-        :return:
-        """
         if key is None:  # 部分按键不支持
             return
-        self._tab_handler[int(key.split('_')[-1])](press_time)
+        self._tap_handler[int(key.split('_')[-1])](True, press_time)
 
     def release(self, key: str) -> None:
         if key is None:  # 部分按键不支持
@@ -203,6 +258,12 @@ class XboxButtonController(PcButtonController):
     def release_l_stick(self) -> None:
         self.pad.left_joystick_float(0, 0)
         self.pad.update()
+
+    def release_l_thumb(self) -> None:
+        self._release_btn(self._btn.XUSB_GAMEPAD_LEFT_THUMB)
+
+    def release_r_thumb(self) -> None:
+        self._release_btn(self._btn.XUSB_GAMEPAD_RIGHT_THUMB)
 
     def _release_btn(self, btn) -> None:
         """

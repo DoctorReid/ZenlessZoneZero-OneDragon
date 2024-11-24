@@ -5,20 +5,22 @@ from qfluentwidgets import NavigationItemPosition, SplashScreen
 from typing import Optional
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
-from one_dragon.gui.app.one_dragon_window import OneDragonWindow
-from one_dragon.gui.common.od_style_sheet import OniStyleSheet
-from one_dragon.gui.component.interface.base_interface import BaseInterface
+from one_dragon.gui.widgets.base_interface import BaseInterface
+from one_dragon.gui.windows.app_window_base import AppWindowBase
 from one_dragon.utils import os_utils
+from phosdeiz.gui.services import PhosStyleSheet
 
 
-class InstallerWindowBase(OneDragonWindow):
+class InstallerWindowBase(AppWindowBase):
     """ Main Interface """
 
     def __init__(self, ctx: OneDragonEnvContext,
                  win_title: str,
                  app_icon: Optional[str] = None, parent=None):
-        OneDragonWindow.__init__(self, parent=parent)
         self.ctx: OneDragonEnvContext = ctx
+        AppWindowBase.__init__(self, win_title=win_title,
+                               project_config=ctx.project_config, app_icon=app_icon,
+                               parent=parent)
         self._last_stack_idx: int = 0
 
         # 设置窗口标题
@@ -26,7 +28,7 @@ class InstallerWindowBase(OneDragonWindow):
         if app_icon is not None:
             app_icon_path = os.path.join(os_utils.get_path_under_work_dir('assets', 'ui'), app_icon)
             self.setWindowIcon(QIcon(app_icon_path))
-
+        
         # 初始化窗口
         self.init_window()
 
@@ -76,7 +78,7 @@ class InstallerWindowBase(OneDragonWindow):
         self.move(100, 100)
 
         # 设置配置ID
-        self.setObjectName("OneDragonWindow")
+        self.setObjectName("PhosWindow")
         self.navigationInterface.setObjectName("NavigationInterface")
         self.stackedWidget.setObjectName("StackedWidget")
         self.titleBar.setObjectName("TitleBar")    
@@ -87,7 +89,10 @@ class InstallerWindowBase(OneDragonWindow):
         self.navigationInterface.setContentsMargins(0, 28, 0, 0)
 
         # 配置样式
-        OniStyleSheet.APP_WINDOW.apply(self)
-        OniStyleSheet.NAVIGATION_INTERFACE.apply(self.navigationInterface)
-        OniStyleSheet.STACKED_WIDGET.apply(self.stackedWidget)
-        OniStyleSheet.TITLE_BAR.apply(self.titleBar)
+        PhosStyleSheet.APP_WINDOW.apply(self)
+        PhosStyleSheet.NAVIGATION_INTERFACE.apply(self.navigationInterface)
+        PhosStyleSheet.STACKED_WIDGET.apply(self.stackedWidget)
+        PhosStyleSheet.TITLE_BAR.apply(self.titleBar)
+
+        # 设置参数
+        self.titleBar.issue_url = f"{self.ctx.project_config.github_homepage}/issues"

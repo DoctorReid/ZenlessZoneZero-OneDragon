@@ -252,9 +252,9 @@ def color_similarity_2d(image, color):
     :param color:
     :return:
     """
-    b, g, r = cv2.split(cv2.subtract(image, (*color, 0)))
+    r, g, b = cv2.split(cv2.subtract(image, (*color, 0)))
     positive = cv2.max(cv2.max(r, g), b)
-    b, g, r = cv2.split(cv2.subtract((*color, 0), image))
+    r, g, b = cv2.split(cv2.subtract((*color, 0), image))
     negative = cv2.max(cv2.max(r, g), b)
     return cv2.subtract(255, cv2.add(positive, negative))
 

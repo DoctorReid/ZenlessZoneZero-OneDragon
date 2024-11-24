@@ -1,6 +1,6 @@
 from qfluentwidgets import FluentIcon
 
-from one_dragon.gui.component.interface.pivot_navi_interface import PivotNavigatorInterface
+from one_dragon.gui.widgets.pivot_navi_interface import PivotNavigatorInterface
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.hollow_zero.hollow_zero_challenge_config_interface import HollowZeroChallengeConfigInterface
 from zzz_od.gui.view.hollow_zero.hollow_zero_run_interface import HollowZeroRunInterface

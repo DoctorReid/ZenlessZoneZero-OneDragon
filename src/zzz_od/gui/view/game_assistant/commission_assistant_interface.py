@@ -3,11 +3,10 @@ from qfluentwidgets import FluentIcon, HyperlinkCard
 from typing import Optional
 
 from one_dragon.base.operation.application_base import Application
-from one_dragon.gui.component.row_widget import RowWidget
-from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.component.setting_card.key_setting_card import KeySettingCard
-from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
-from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
+from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.widgets.setting_card.key_setting_card import KeySettingCard
+from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon.gui.view.app_run_interface import AppRunInterface
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_op_config_list
 from zzz_od.application.commission_assistant.commission_assistant_app import CommissionAssistantApp
@@ -15,6 +14,7 @@ from zzz_od.application.commission_assistant.commission_assistant_config import 
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 
+from phosdeiz.gui.widgets import Row
 
 class CommissionAssistantRunInterface(AppRunInterface):
 
@@ -33,7 +33,7 @@ class CommissionAssistantRunInterface(AppRunInterface):
         )
 
     def get_widget_at_top(self) -> QWidget:
-        content = RowWidget()
+        content = Row()
         left_layout = QVBoxLayout()
         right_layout = QVBoxLayout()
         content.h_layout.addLayout(left_layout)

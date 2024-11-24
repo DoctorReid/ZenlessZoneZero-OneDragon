@@ -6,10 +6,9 @@ from qfluentwidgets import FluentIcon, PushButton, HyperlinkCard
 from typing import Optional
 
 from one_dragon.base.operation.context_event_bus import ContextEventItem
-from one_dragon.gui.component.column_widget import ColumnWidget
-from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
-from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
+from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon.gui.view.app_run_interface import AppRunInterface
 from zzz_od.application.battle_assistant.auto_battle_app import AutoBattleApp
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_config_file_path, \
@@ -19,6 +18,8 @@ from zzz_od.application.zzz_application import ZApplication
 from zzz_od.config.game_config import GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.battle_assistant.battle_state_display import BattleStateDisplay, TaskDisplay
+
+from phosdeiz.gui.widgets import SharedConfigDialog,Column
 
 
 class AutoBattleInterface(AppRunInterface):
@@ -34,7 +35,7 @@ class AutoBattleInterface(AppRunInterface):
         self.auto_op_loaded_signal.connect(self._on_auto_op_loaded_signal)
 
     def get_widget_at_top(self) -> QWidget:
-        top_widget = ColumnWidget()
+        top_widget = Column()
 
         self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='使用说明', text='前往',
                                       url='https://one-dragon.org/zzz/zh/docs/feat_battle_assistant.html')
@@ -48,6 +49,10 @@ class AutoBattleInterface(AppRunInterface):
         self.debug_btn = PushButton(text='调试')
         self.debug_btn.clicked.connect(self._on_debug_clicked)
         self.config_opt.hBoxLayout.addWidget(self.debug_btn, alignment=Qt.AlignmentFlag.AlignRight)
+        self.config_opt.hBoxLayout.addSpacing(16)
+        self.shared_btn = PushButton(text='配置共享')
+        self.shared_btn.clicked.connect(self._on_shared_clicked)
+        self.config_opt.hBoxLayout.addWidget(self.shared_btn, alignment=Qt.AlignmentFlag.AlignRight)
         self.config_opt.hBoxLayout.addSpacing(16)
         self.del_btn = PushButton(text='删除')
         self.del_btn.clicked.connect(self._on_del_clicked)
@@ -158,6 +163,17 @@ class AutoBattleInterface(AppRunInterface):
         self.app = AutoBattleDebugApp(self.ctx)
         AppRunInterface._on_start_clicked(self)
 
+    def _on_shared_clicked(self) -> None:
+        """
+        弹出列表
+        """
+        dialog = SharedConfigDialog(self)
+        if dialog.exec():
+            self._refresh_interface()
+        else:
+            self._refresh_interface()
+        
+
     def _on_del_clicked(self) -> None:
         """
         删除配置 只删除非 sample 的
@@ -219,3 +235,13 @@ class AutoBattleInterface(AppRunInterface):
             return
         self.battle_state_display.set_update_display(True)
         self.task_display.set_update_display(True)
+        
+    def _refresh_interface(self):
+        """
+        刷新界面
+        """
+        self._update_auto_battle_config_opts()
+        self.config_opt.setValue(self.ctx.battle_assistant_config.auto_battle_config)
+        self.gpu_opt.init_with_adapter(self.ctx.yolo_config.flash_classifier_gpu_adapter)
+        self.screenshot_interval_opt.setValue(str(self.ctx.battle_assistant_config.screenshot_interval))
+        self.gamepad_type_opt.setValue(self.ctx.battle_assistant_config.gamepad_type)

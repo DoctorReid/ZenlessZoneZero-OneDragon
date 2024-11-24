@@ -3,13 +3,13 @@ from qfluentwidgets import ProgressBar, IndeterminateProgressBar, SettingCardGro
     FluentIcon
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
-from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.component.log_display_card import LogDisplayCard
-from one_dragon.gui.install_card.all_install_card import AllInstallCard
-from one_dragon.gui.install_card.code_install_card import CodeInstallCard
-from one_dragon.gui.install_card.git_install_card import GitInstallCard
-from one_dragon.gui.install_card.python_install_card import PythonInstallCard
-from one_dragon.gui.install_card.venv_install_card import VenvInstallCard
+from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon.gui.widgets.log_display_card import LogDisplayCard
+from one_dragon.gui.widgets.install_card.all_install_card import AllInstallCard
+from one_dragon.gui.widgets.install_card.code_install_card import CodeInstallCard
+from one_dragon.gui.widgets.install_card.git_install_card import GitInstallCard
+from one_dragon.gui.widgets.install_card.python_install_card import PythonInstallCard
+from one_dragon.gui.widgets.install_card.venv_install_card import VenvInstallCard
 from one_dragon.utils.i18_utils import gt
 
 
@@ -75,6 +75,7 @@ class InstallerInterface(VerticalScrollInterface):
         self.python_opt.check_and_update_display()
         self.venv_opt.check_and_update_display()
         self.log_card.set_update_log(True)
+        self.log_card.start()  # 开始日志更新
 
     def on_interface_hidden(self) -> None:
         """
@@ -83,6 +84,7 @@ class InstallerInterface(VerticalScrollInterface):
         """
         VerticalScrollInterface.on_interface_hidden(self)
         self.log_card.set_update_log(False)
+        self.log_card.stop()  # 开始日志更新
 
     def update_progress(self, progress: float, message: str) -> None:
         """

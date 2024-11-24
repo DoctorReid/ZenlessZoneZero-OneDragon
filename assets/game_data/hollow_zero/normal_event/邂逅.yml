@@ -179,6 +179,7 @@
   event_name: "外环人的优质睡眠"
   options:
     - option_name: "凯撒！不好了！有人来砸卡吕冬之子的场"
+    - option_name: "告知凯撒残酷的事实"
 
 # 珂蕾妲
 - entry_name: "邂逅"
@@ -206,3 +207,29 @@
   options:
     - option_name: "这些人是安比的朋友？"
     - option_name: "这些家伙绝对认错人了吧？"
+    
+# 柏妮思
+- entry_name: "邂逅"
+  event_name: "总之先烧成灰"
+  options:
+    - option_name: "立即启动「声波驱鼠程序」！"
+    - option_name: "好吧，「驱鼠绝招」启动！"
+
+# 丽娜
+- entry_name: "邂逅"
+  event_name: "真心话与大冒险"
+  options:
+    - option_name: "你们想玩什么呢？"
+    
+# 丽娜
+- entry_name: "邂逅"
+  event_name: "游戏奖励"
+  options:
+    - option_name: "怎么可能还有！不就你俩吗！"
+
+# 月城柳
+- entry_name: "邂逅"
+  event_name: "压缩饼干盒红豆包"
+  options:
+    - option_name: "我也来帮忙分担吧！"
+    - option_name: "我最会保守秘密了！"

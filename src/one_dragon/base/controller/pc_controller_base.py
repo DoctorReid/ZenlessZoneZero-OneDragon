@@ -186,7 +186,7 @@ class PcControllerBase(ControllerBase):
         :return:
         """
         try:
-            self.game_win.win.close()
+            self.game_win.get_win().close()
             log.info('关闭游戏成功')
         except:
             log.error('关闭游戏失败', exc_info=True)
@@ -198,6 +198,14 @@ class PcControllerBase(ControllerBase):
         :return:
         """
         self.keyboard_controller.keyboard.type(to_input)
+
+    def mouse_move(self, game_pos: Point):
+        """
+        鼠标移动到指定的位置
+        """
+        win_pos = self.game_win.game2win_pos(game_pos)
+        if win_pos is not None:
+            pyautogui.moveTo(win_pos.x, win_pos.y)
 
 
 def win_click(pos: Point = None, press_time: float = 0, primary: bool = True):

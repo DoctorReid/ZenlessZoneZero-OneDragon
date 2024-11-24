@@ -1,0 +1,33 @@
+PivotItem{
+    padding: 5px 0px 5px 0px;
+    color: #a1a1a1;
+    background-color:transparent;
+    border: none;
+    outline: none;
+    margin:0;
+}
+
+PivotItem[isSelected=true]{
+    color:white;
+}
+
+PivotItem[isSelected=true]:hover{
+    color:white;
+}
+
+PivotItem[isSelected=true]:pressed{
+    color:white;
+}
+
+PivotItem[isSelected=false]:hover{
+    color:white;
+}
+
+PivotItem[isSelected=false]:pressed{
+    color:white;
+}
+
+PivotItem[hasIcon=false]{
+padding-left: 0px;
+padding-right:0px,
+}

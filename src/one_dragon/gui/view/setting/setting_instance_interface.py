@@ -5,13 +5,12 @@ from qfluentwidgets import FluentIcon, LineEdit, PushButton, \
 
 from one_dragon.base.config.one_dragon_config import OneDragonInstance, RunInOneDragonApp
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
-from one_dragon.gui.component.column_widget import ColumnWidget
-from one_dragon.gui.component.combo_box import ComboBox
-from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiPushSettingCard
+from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon.gui.widgets.setting_card.multi_push_setting_card import MultiPushSettingCard
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 
+from phosdeiz.gui.widgets import Column,ComboBox
 
 class InstanceSettingCard(MultiPushSettingCard):
 
@@ -109,7 +108,7 @@ class SettingInstanceInterface(VerticalScrollInterface):
         子界面内的内容组件 由子类实现
         :return:
         """
-        self.content_widget = ColumnWidget()
+        self.content_widget = Column()
         return self.content_widget
 
     def on_interface_shown(self) -> None:

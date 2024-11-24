@@ -8,8 +8,8 @@ from one_dragon.base.operation.application_base import Application
 from one_dragon.base.operation.context_event_bus import ContextEventItem
 from one_dragon.base.operation.one_dragon_context import ContextKeyboardEventEnum, ContextRunningStateEventEnum, \
     OneDragonContext
-from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.component.log_display_card import LogDisplayCard
+from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon.gui.widgets.log_display_card import LogDisplayCard
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 

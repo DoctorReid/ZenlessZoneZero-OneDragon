@@ -1,11 +1,14 @@
 import time
 
 from cv2.typing import MatLike
-from typing import Type, ClassVar, List
+from typing import Type, ClassVar, List, Optional
 
+from one_dragon.base.geometry.point import Point
+from one_dragon.base.geometry.rectangle import Rect
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
+from one_dragon.utils import cal_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroExtraTask, HollowZeroExtraExitEnum
@@ -29,8 +32,7 @@ from zzz_od.hollow_zero.event.upgrade_resonium import UpgradeResonium
 from zzz_od.hollow_zero.game_data.hollow_zero_event import HollowZeroSpecialEvent
 from zzz_od.hollow_zero.hollow_battle import HollowBattle
 from zzz_od.hollow_zero.hollow_exit_by_menu import HollowExitByMenu
-from zzz_od.hollow_zero.hollow_map.hollow_pathfinding import RouteSearchRoute
-from zzz_od.hollow_zero.hollow_map.hollow_zero_map import HollowZeroMap
+from zzz_od.hollow_zero.hollow_map.hollow_zero_map import HollowZeroMap, HollowZeroMapNode
 from zzz_od.operation.zzz_operation import ZOperation
 
 
@@ -52,7 +54,7 @@ class HollowRunner(ZOperation):
             HollowZeroSpecialEvent.RESONIUM_STORE_2.value.event_name: BambooMerchant,
             HollowZeroSpecialEvent.RESONIUM_STORE_3.value.event_name: BambooMerchant,
             HollowZeroSpecialEvent.RESONIUM_STORE_4.value.event_name: BambooMerchant,
-            HollowZeroSpecialEvent.RESONIUM_STORE_5.value.event_name: BambooMerchant,
+            # HollowZeroSpecialEvent.RESONIUM_STORE_5.value.event_name: BambooMerchant,
 
             HollowZeroSpecialEvent.RESONIUM_CHOOSE.value.event_name: ChooseResonium,
             HollowZeroSpecialEvent.RESONIUM_CONFIRM_1.value.event_name: ConfirmResonium,
@@ -86,7 +88,7 @@ class HollowRunner(ZOperation):
             '不宜久留': LeaveRandomZone
         }
         self._entry_events: dict[str, List[str]] = {
-            '邦布商人': [HollowZeroSpecialEvent.RESONIUM_STORE_5.value.event_name],
+            '邦布商人': ['进入商店'],
         }
 
         self._last_save_image_time: float = 0
@@ -99,16 +101,29 @@ class HollowRunner(ZOperation):
         now = time.time()
         screen = self.screenshot()
         result = hollow_event_utils.check_screen(self.ctx, screen, self._handled_events)
-        if result is not None and result != HollowZeroSpecialEvent.HOLLOW_INSIDE.value.event_name:
+        if result is not None and result not in [
+            HollowZeroSpecialEvent.HOLLOW_INSIDE.value.event_name,  # 空洞内部比较特殊 仅为识别使用 不做响应处理
+            HollowZeroSpecialEvent.RESONIUM_STORE_5.value.event_name, # 商人格子不会消失 为了防止循环进入商店 仅在移动格子时候触发进入商店 平时出现这个选项不做点击
+        ]:
             return self._handle_event(screen, result)
 
-        if result == HollowZeroSpecialEvent.HOLLOW_INSIDE.value.event_name:
+        if result in [
+            HollowZeroSpecialEvent.HOLLOW_INSIDE.value.event_name,
+            HollowZeroSpecialEvent.RESONIUM_STORE_5.value.event_name,  # 商人格子也需要寻路
+        ]:
             # 当前有显示背包 可以尝试识别地图
-            current_map = self.ctx.hollow.check_current_map(screen, now)
-            if current_map is not None and current_map.current_idx is not None:
-                return self._handle_map_move(screen, now, current_map)
+            current_map = self.ctx.hollow.map_service.cal_map_by_screen(screen, now)
+            if current_map is not None:
+                result = self.try_move_by_map(screen, now, current_map)
+                if result is not None:
+                    return result
+            # 识别不到地图 说明可能是空洞里有需要确认的对话框 随便点击一下吧对话框取消掉
+            else:
+                self.round_by_click_area('零号空洞-事件', '空白')
+        else:
+            # 未知的情况 点击一下继续
+            self.round_by_click_area('零号空洞-事件', '空白')
 
-        self.round_by_click_area('零号空洞-事件', '空白')
         return self.round_retry('未能识别当前画面', wait=1)
 
     def _handle_event(self, screen: MatLike, event_name: str) -> OperationRoundResult:
@@ -118,17 +133,20 @@ class HollowRunner(ZOperation):
         :return:
         """
         normal_event = self.ctx.hollow.data_service.get_normal_event_by_name(event_name=event_name)
+        any_match = False
         if normal_event is not None:
+            any_match = True
+            log.info('匹配普通事件 [%s]', event_name)
             if normal_event.is_entry_opt:
                 self._handled_events.add(event_name)
             op = NormalEventHandler(self.ctx, normal_event)
             op_result = op.execute()
-            if op_result.success:
+            if op_result.success:  # 失败的时候继续尝试特殊事件 防止错误匹配到普通事件上
                 return self.round_wait()
-            else:
-                return self.round_retry()
 
         if event_name in self._special_event_handlers:
+            any_match = True
+            log.info('匹配特殊事件 [%s]', event_name)
             special_event = hollow_event_utils.get_special_event_by_name(event_name)
             if special_event.is_entry_opt:
                 self._handled_events.add(event_name)
@@ -137,32 +155,38 @@ class HollowRunner(ZOperation):
             op_result = op.execute()
             if op_result.success:
                 return self.round_wait()
-            else:
-                return self.round_retry()
 
         if event_name == HollowZeroSpecialEvent.MISSION_COMPLETE.value.event_name:
             return self.round_success(status='通关-完成')
 
-        return self.round_retry('当前事件未有对应指令', wait=1)
+        if any_match:
+            return self.round_retry('事件处理失败', wait=1)
+        else:
+            return self.round_retry('当前事件未有对应指令', wait=1)
 
-    def _handle_map_move(self, screen: MatLike, screen_time: float, current_map: HollowZeroMap) -> OperationRoundResult:
+    def try_move_by_map(self, screen: MatLike, screen_time: float, current_map: HollowZeroMap) -> Optional[OperationRoundResult]:
         """
-        识别到地图后 自动寻路
+        识别到地图后 尝试自动寻路并移动
         :param screen: 游戏画面
         :param screen_time: 截图时间
         :param current_map: 分析得到的地图
         :return:
         """
-        route: RouteSearchRoute = self.ctx.hollow.get_next_to_move(current_map)
-        next_to_move = route.first_need_step_node if route.go_way == 1 else route.first_node
-        log.info(f"前往目标: [{route.node.entry.entry_name}] 当前移动: [{next_to_move.entry.entry_name}]")
-        pathfinding_success = next_to_move is not None and next_to_move.entry.entry_name != 'fake'
+        target_node: HollowZeroMapNode = self.ctx.hollow.get_next_to_move(current_map)
+        if target_node is None:
+            return None
+
+        next_to_move = target_node.next_node_to_move
+        log.info(f"前往目标: [{target_node.entry.entry_name}] 当前移动: [{next_to_move.entry.entry_name}]")
+
+        # 999 是寻路兜底策略的特殊标识 是在识别识别的情况下使用的
+        pathfinding_success = next_to_move is not None and next_to_move.path_step_cnt != 999
         if not pathfinding_success:
             self._save_debug_image(screen)
             if next_to_move is None:
                 return self.round_retry('自动寻路失败')
 
-        # 寻路失败的话 间隔1秒才尝试一次随机移动
+        # 寻路失败的话 间隔1秒才尝试一次兜底策略的移动
         if not pathfinding_success and screen_time - self._last_move_time < 1:
             return self.round_retry('自动寻路失败')
 
@@ -174,14 +198,24 @@ class HollowRunner(ZOperation):
                 return self.round_success(HollowRunner.STATUS_LEAVE)
 
         self._last_move_time = screen_time
-        self.ctx.controller.click(next_to_move.pos.center)
-        self.ctx.hollow.update_context_after_move(next_to_move)
+        to_click = self.get_map_node_pos_to_click(screen, next_to_move)
+        self.ctx.controller.click(to_click)
+        # 每个格子大概需要0.25秒移动 再加一秒等待格子事件触发
+        move_time = next_to_move.path_node_cnt * 0.25 + 1
+        time.sleep(move_time)
+
+        # 如果是特殊需要选项的格子 则使用对应的事件指令处理 可以同时用来等待移动的时间
+        op: Optional[ZOperation] = None
+        entry_name = next_to_move.entry.entry_name
+        if entry_name in self._entry_event_handlers and not self.ctx.hollow.had_been_entry(entry_name):
+            op = self._entry_event_handlers[entry_name](self.ctx)
+
+        self.ctx.hollow.update_context_after_move(current_map, next_to_move)
         self._handled_events.clear()
 
         # 如果是特殊需要选项的格子 则使用对应的事件指令处理 可以同时用来等待移动的时间
         entry_name = next_to_move.entry.entry_name
-        if entry_name in self._entry_event_handlers:
-            op: ZOperation = self._entry_event_handlers[entry_name](self.ctx)
+        if op is not None:
             op_result = op.execute()
             if op_result.success:
                 events = self._entry_events.get(entry_name, [])
@@ -191,7 +225,40 @@ class HollowRunner(ZOperation):
             else:
                 return self.round_retry()
 
-        return self.round_wait(wait=1)
+        return self.round_wait()
+
+    def get_map_node_pos_to_click(self, screen: MatLike, node: HollowZeroMapNode) -> Point:
+        """
+        获取格子的点击位置 要避开画面上可能出现的选项
+        :param screen: 游戏画面
+        :param node: 需要点击的格子
+        :return: 需要点击的位置
+        """
+        # 识别画面上是否有选项
+        opt = hollow_event_utils.check_entry_opt_pos_at_right(self.ctx, screen, set())
+        if opt is None:  # 没有选项的时候 随便点击
+            return node.pos.center
+        else:
+            # 有选项的时候 点击离选项最远的一个角
+            node_rect: Rect = node.pos
+            opt_rect: Rect = opt.rect
+
+            # 格子的4个角 往里面移动一点 防止最终点击到格子外
+            offset = 10
+            pos_list = [
+                Point(node_rect.x1, node_rect.y1) + Point(offset, offset),
+                Point(node_rect.x1, node_rect.y2) + Point(offset, -offset),
+                Point(node_rect.x2, node_rect.y1) + Point(-offset, offset),
+                Point(node_rect.x2, node_rect.y2) + Point(-offset, -offset),
+            ]
+
+            # 找出离选项中点最远的点
+            target_pos = None
+            for pos in pos_list:
+                if target_pos is None or cal_utils.distance_between(pos, opt_rect.center) > cal_utils.distance_between(target_pos, opt_rect.center):
+                    target_pos = pos
+
+            return target_pos
 
     def _try_click_speed_up(self, screen: MatLike) -> None:
         # 快进
@@ -271,7 +338,10 @@ class HollowRunner(ZOperation):
     @operation_node(name='离开空洞')
     def exit_hollow(self) -> OperationRoundResult:
         op = HollowExitByMenu(self.ctx)
-        return self.round_by_op_result(op.execute())
+        result = op.execute()
+        if result.success:
+            self.ctx.hollow_zero_record.add_daily_times()
+        return self.round_by_op_result(result)
 
     @node_from(from_name='画面识别', status='通关-完成')
     @operation_node(name='通关-完成', node_max_retry_times=60)
@@ -284,6 +354,7 @@ class HollowRunner(ZOperation):
         # 一直尝试点击直到出现街区
         result = self.round_by_find_area(screen, '零号空洞-入口', '街区')
         if result.is_success:
+            self.ctx.hollow_zero_record.add_daily_times()
             return self.round_success(result.status)
 
         return self.round_retry(result.status, wait=1)
@@ -294,7 +365,7 @@ def __debug():
     ctx.init_by_config()
     ctx.start_running()
     ctx.ocr.init_model()
-    ctx.hollow.init_event_yolo(True)
+    ctx.hollow.init_before_hollow_start('旧都列车', '旧都列车-核心')
     op = HollowRunner(ctx)
     # from one_dragon.utils import debug_utils
     # screen = debug_utils.get_debug_image('_1723977819253')

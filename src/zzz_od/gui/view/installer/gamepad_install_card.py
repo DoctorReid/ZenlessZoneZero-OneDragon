@@ -4,7 +4,7 @@ from qfluentwidgets import FluentIcon, FluentThemeColor
 from typing import Tuple, Optional, Callable
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
-from one_dragon.gui.install_card.base_install_card import BaseInstallCard
+from one_dragon.gui.widgets.install_card.base_install_card import BaseInstallCard
 from one_dragon.utils import cmd_utils, os_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log

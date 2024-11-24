@@ -9,6 +9,7 @@ check_special_attack_interval: [0.4, 0.6]
 check_ultimate_interval: [0.4, 0.6]
 check_chain_interval: [0.9, 1.1]
 check_quick_interval: [0.9, 1.1]
+auto_lock_interval: 5
 
 scenes:
 
@@ -66,7 +67,6 @@ scenes:
     interval: 0.02
     handlers:
       # 刚开始未识别到角色时候不要乱切
-      - state_template: "通用模板-锁定敌人"
       - state_template: "站场模板-未识别角色"
       - states: "[自定义-黄光切人, 0, 2] | [自定义-红光闪避, 0, 2] | [自定义-临时站场]"
         sub_handlers:
