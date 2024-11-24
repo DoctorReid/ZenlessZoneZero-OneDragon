@@ -102,7 +102,6 @@ class HollowZeroApp(ZApplication):
         return self.round_by_ocr_and_click(screen, self.mission_type_name,
                                            success_wait=1, retry_wait=1)
 
-    @node_from(from_name='选择副本类型', status='下一步')
     @node_from(from_name='选择副本类型')
     @operation_node(name='选择副本')
     def choose_mission(self) -> OperationRoundResult:
@@ -111,6 +110,7 @@ class HollowZeroApp(ZApplication):
         return self.round_by_ocr_and_click(screen, self.mission_name, area=area,
                                            success_wait=1, retry_wait=1)
 
+    @node_from(from_name='选择副本类型', status='下一步')
     @node_from(from_name='选择副本')
     @operation_node(name='下一步')
     def click_next(self) -> OperationRoundResult:
