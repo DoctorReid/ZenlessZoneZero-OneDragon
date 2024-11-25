@@ -75,7 +75,16 @@ def construct_map_from_nodes(
     current_idx: Optional[int] = None
     for i in range(len(nodes)):
         if nodes[i].entry.entry_name == '当前':
-            current_idx = i
+            if current_idx is not None:
+                # 当出现多个[当前]节点时 说明上一次移动可能失败了 导致内存中有一个错误的节点
+                # 此时 只保留最新识别到的结果
+                if nodes[current_idx].check_time < nodes[i].check_time:
+                    # 将错误的[当前]节点 设置为未知 且0置信度 等待后续被识别结果覆盖
+                    nodes[current_idx].entry = ctx.hollow.data_service.name_2_entry['未知']
+                    nodes[current_idx].confidence = 0
+                    current_idx = i
+            else:
+                current_idx = i
 
     edges: dict[int, List[int]] = {}
 
@@ -256,6 +265,9 @@ def merge_map(ctx: ZContext, map_list: List[HollowZeroMap]):
                     to_merge.entry = node.entry
                 elif to_merge.entry.entry_name != '未知' and node.entry.entry_name == '未知':  # 新旧都是格子类型 新的是未知 保持不变
                     pass
+                elif to_merge.confidence > 0.95 and node.confidence > 0.95:
+                    if to_merge.check_time < node.check_time:  # 两者置信度都很高 保留时间最新的结果
+                        to_merge.entry = node.entry
                 elif to_merge.confidence < node.confidence:  # 新旧都是格子类型 旧的识别置信度低 将新的类型赋值上去
                     to_merge.entry = node.entry
                 elif to_merge.check_time < node.check_time:  # 新旧都是格子类型 新的识别时间更晚 将新的类型赋值上去
@@ -288,3 +300,13 @@ def is_same_node(x: HollowZeroMapNode, y: HollowZeroMapNode) -> bool:
     return x.entry.entry_name == y.entry.entry_name and is_same_node_pos(x, y)
 
 
+def get_node_index(current_map: HollowZeroMap, node: HollowZeroMapNode) -> int:
+    """
+    获取某个节点 在地图上的下标
+    @param current_map: 地图
+    @param node: 节点
+    @return: 下标
+    """
+    for i in range(len(current_map.nodes)):
+        if is_same_node(current_map.nodes[i], node):
+            return i

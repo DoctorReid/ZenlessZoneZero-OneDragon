@@ -149,5 +149,11 @@ class HollowZeroRunRecord(AppRunRecord):
 
     @period_reward_complete.setter
     def period_reward_complete(self, new_value: bool) -> None:
+        """
+        在精英怪战斗结束后提示周期奖励满
+        或者通关后 没有显示丁尼奖励
+        @param new_value:
+        @return:
+        """
         self.update('period_reward_complete', new_value)
 

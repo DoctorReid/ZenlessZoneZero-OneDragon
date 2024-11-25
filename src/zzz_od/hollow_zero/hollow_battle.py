@@ -198,11 +198,6 @@ class HollowBattle(ZOperation):
         time.sleep(2)
         screen = self.screenshot()
 
-        result = self.round_by_find_area(screen, '零号空洞-战斗', '关键进展-丁尼奖励')
-        if not result.is_success:
-            # 领满奖励了
-            self.ctx.hollow_zero_record.period_reward_complete = True
-
         # 有时候可能会识别到背景上的挑战结果 这时候也尝试点
         result = self.round_by_find_and_click_area(screen, '零号空洞-战斗', '结算周期上限-确认')
         if result.is_success:
@@ -229,6 +224,7 @@ class HollowBattle(ZOperation):
         if not result.is_success:
             # 领满奖励了
             self.ctx.hollow_zero_record.period_reward_complete = True
+            self.save_screenshot()
 
         return self.round_success(status='普通战斗-完成')
 

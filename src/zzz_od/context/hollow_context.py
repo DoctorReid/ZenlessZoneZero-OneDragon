@@ -34,7 +34,7 @@ class HollowContext:
 
         self.map_results: List[HollowZeroMap] = []  # 识别的地图结果
         self._visited_nodes: List[HollowZeroMapNode] = []  # 已经去过的点
-        self.last_node_to_go: Optional[HollowZeroMapNode] = None  # 上一次想前往的节点
+        self.last_target_node: Optional[HollowZeroMapNode] = None  # 上一次想前往的节点
         self._last_current_node: Optional[HollowZeroMapNode] = None  # 上一次当前所在的点
         self.speed_up_clicked: bool = False  # 是否已经点击加速
         self.invalid_map_times: int = 0  # 识别不到正确地图的次数
@@ -74,6 +74,7 @@ class HollowContext:
                         node.path_step_cnt = 999
                         node.path_node_cnt = 1
                         log.info(f"优先级 [空白已通行]")
+                        self.invalid_map_times = 0
                         return node
             # 没有识别到[当前]节点的话 就不需要寻路移动了
             return None
@@ -85,6 +86,7 @@ class HollowContext:
         # 优先考虑 一步可达时前往
         target = hollow_pathfinding.get_route_in_1_step(current_map, self._visited_nodes,
                                                        target_entry_list=self._get_go_in_1_step())
+        target = self.try_target_node(current_map, target)
         if target is not None:
             log.info(f"优先级 [一步]")
             return target
@@ -93,25 +95,9 @@ class HollowContext:
 
         for to_go in go_priority_list:
             target = hollow_pathfinding.get_route_by_entry(current_map, to_go, self._visited_nodes)
+            target = self.try_target_node(current_map, target)
             if target is None:
                 continue
-
-            # 两次想要前往同一个节点
-            if (self.last_node_to_go is not None
-                    and hollow_map_utils.is_same_node(self.last_node_to_go, target)):
-                last_node_to_move = self.last_node_to_go.next_node_to_move
-                curr_node_to_move = target.next_node_to_move
-                if (hollow_map_utils.is_same_node(last_node_to_move, curr_node_to_move)
-                        and (
-                                target.entry.entry_name in ['零号银行', '业绩考察点']  # 目标前往的点
-                                and curr_node_to_move.entry.entry_name in ['门扉禁闭-财富', '门扉禁闭-善战']  # 下一步前往的格子是门
-                        )
-                ):
-                    # 代表上一次点了之后 这次依然要点同样的位置 也就是无法通行 标记为已经去过了
-                    self.update_context_after_move(current_map, target, update_current=False)
-                    continue
-
-            self.last_node_to_go = target
             log.info(f"优先级 [途经]")
             return target
 
@@ -124,12 +110,14 @@ class HollowContext:
 
         for to_go in must_go_list:
             target = hollow_pathfinding.get_route_by_entry(current_map, to_go, self._visited_nodes)
+            target = self.try_target_node(current_map, target)
             if target is not None:
                 log.info(f"优先级 [终点]")
                 return target
 
             # 如果之前走过，但走不到 说明可能中间有格子识别错了 这种情况就一格一格地走
             target = hollow_pathfinding.get_route_by_entry(current_map, to_go, [])
+            target = self.try_target_node(current_map, target)
             if target is not None:
                 log.info(f"优先级 [终点]")
                 target.path_go_way = 0
@@ -138,6 +126,7 @@ class HollowContext:
         # 随便找个一步可达的格子
         target = hollow_pathfinding.get_route_in_1_step(current_map, self._visited_nodes,
                                                        target_entry_list=self.data_service.get_no_battle_list())
+        target = self.try_target_node(current_map, target)
         if target is not None:
             log.info(f"优先级 [随机一步]")
             return target
@@ -152,12 +141,14 @@ class HollowContext:
             direction = 'd'
 
         target = hollow_pathfinding.get_route_by_direction(current_map, direction)
+        target = self.try_target_node(current_map, target)
         if target is not None:
             log.info(f"优先级 [方向]")
             return target
 
         # 兜底 走一步能到的
         target = hollow_pathfinding.get_route_in_1_step(current_map, self._visited_nodes)
+        target = self.try_target_node(current_map, target)
         if target is not None:
             log.info(f"优先级 [兜底]")
             return target
@@ -191,6 +182,36 @@ class HollowContext:
             fake_node.path_node_cnt = 1
             log.info(f"优先级 [随机相邻]")
             return fake_node
+
+    def try_target_node(self, current_map: HollowZeroMap, target: HollowZeroMapNode) -> Optional[HollowZeroMapNode]:
+        """
+        找到目标点后 针对一些可能识别错误的场景进行修正
+        判断是否需要前往
+        @param current_map: 当前地图
+        @param target: 目标点
+        @return: 需要前往的目标点
+        """
+        if target is None:
+            return None
+        # 两次想要前往同一个节点
+        if (self.last_target_node is not None
+                and hollow_map_utils.is_same_node(self.last_target_node, target)):
+            # 第一步需要点击的节点都一样 可能是被卡着过不去了
+            last_node_to_move = self.last_target_node.next_node_to_move
+            curr_node_to_move = target.next_node_to_move
+            if hollow_map_utils.is_same_node(last_node_to_move, curr_node_to_move):
+                # 可能识别错了 导致点击的第一个位置不对 这里改为强行点击相邻节点
+                target.path_go_way = 0
+                if (
+                        target.entry.entry_name in ['零号银行', '业绩考察点']  # 目标前往的点
+                        and curr_node_to_move.entry.entry_name in ['门扉禁闭-财富', '门扉禁闭-善战']  # 下一步前往的格子是门
+                ):
+                    # 代表上一次点了之后 这次依然要点同样的位置 也就是无法通行 标记为已经去过了
+                    self.update_context_after_move(current_map, target, update_current=False)
+                    return None
+
+        self.last_target_node = target
+        return target
 
     def update_context_after_move(self, current_map: HollowZeroMap, node: HollowZeroMapNode,
                                   update_current: bool = True) -> None:
@@ -238,6 +259,11 @@ class HollowContext:
         next_current_node: HollowZeroMapNode = node
         if node.entry.entry_name == '门扉禁闭-善战':  # 这个节点不能直接前往 会停在前一个节点
             next_current_node = node.path_last_node
+        elif node.entry.entry_name in ['轨道-上', '轨道-下', '轨道-左', '轨道-右']:  # 轨道的移动 会到下一个节点
+            idx = hollow_map_utils.get_node_index(current_map, node)  # 找到节点下标
+            if idx is not None and idx in current_map.edges and len(current_map.edges[idx]) > 0:
+                # 按节点下标 找到边对应的下一个节点
+                next_current_node = current_map.nodes[current_map.edges[idx][0]]
 
         next_current_node_idx: int = -1
         for i in range(len(current_map.nodes)):
@@ -268,7 +294,7 @@ class HollowContext:
         self._visited_nodes.clear()
         if self.level_info is not None:
             self.level_info.to_next_level()
-        self.last_node_to_go = None
+        self.last_target_node = None
         self.map_service.clear_map_result()
 
     def init_level_info(self, mission_type_name: str, mission_name: str,
