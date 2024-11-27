@@ -301,11 +301,14 @@ class HollowRunner(ZOperation):
                 if current_map.contains_entry('业绩考察点空'):
                     extra_exit_by_level = True
         elif self.ctx.hollow_zero_config.extra_exit == HollowZeroExtraExitEnum.LEVEL_3_EVA.value.value:
+            if level_info.level == 3 and level_info.phase > 1:  # 已经过了指定的楼层
+                extra_exit_by_level = True
             if level_info.level == 3 and level_info.phase == 1:
                 if self.ctx.hollow.had_been_entry('业绩考察点') and not current_map.contains_entry('业绩考察点'):
                     extra_exit_by_level = True
                 if current_map.contains_entry('业绩考察点空'):
                     extra_exit_by_level = True
+
 
         if self.ctx.hollow_zero_config.extra_task == HollowZeroExtraTask.EVA_POINT.value.value:
             if self.ctx.hollow_zero_config.extra_exit == HollowZeroExtraExitEnum.COMPLETE.value.value:
@@ -349,6 +352,11 @@ class HollowRunner(ZOperation):
         screen = self.screenshot()
         result = self.round_by_find_and_click_area(screen, '零号空洞-事件', '通关-完成')
         if result.is_success:
+            reward = self.round_by_find_area(screen, '零号空洞-战斗', '通关-丁尼奖励')
+            if not reward.is_success:
+                # 领满奖励了
+                self.ctx.hollow_zero_record.period_reward_complete = True
+                self.save_screenshot()
             return self.round_wait(result.status, wait=1)
 
         # 一直尝试点击直到出现街区

@@ -237,14 +237,15 @@ class HollowContext:
             visited.visited_times = 1
             self._visited_nodes.append(visited)
 
-        # TODO 部分格子后摇时间长 第一次点击时候未必能进行移动 因此这个更新可能不准确
+        # 部分格子后摇时间长 第一次点击时候未必能进行移动 因此这个更新可能不准确
         if update_current:
             self.update_map_current_node(current_map, node)
 
-        if node.entry.is_tp:
+        # node的类型已经被改了 只能用visited来判断
+        if visited.entry.is_tp:
             self._visited_nodes.clear()
 
-            if node.entry.entry_name == '传送点':
+            if visited.entry.entry_name == '传送点':
                 if self.level_info is not None:
                     self.level_info.to_next_phase()
                 self.map_service.clear_map_result()
@@ -403,13 +404,14 @@ class HollowContext:
             digit = str_utils.get_positive_digits(ocr_result, err=-1)
             level_info.level = digit
 
-        if level_info.phase == -1 and level_info.level in [2, 3]:  # 没有阶段信息 先尝试识别
-            if current_map.contains_entry('传送点'):
+        if level_info.phase == -1:  # 没有阶段信息
+            if level_info.level in [2, 3]:  # 2 3层 可以先尝试识别
+                if current_map.contains_entry('传送点'):
+                    level_info.phase = 1
+                else:
+                    level_info.phase = 2
+            else:  # 1层固定只有1阶段
                 level_info.phase = 1
-            else:
-                level_info.phase = 2
-        else:  # 1楼固定只有1阶段
-            level_info.phase = 1
 
         # 旧都列车
         if level_info.mission_type_name is None:
