@@ -1,6 +1,6 @@
 from cv2.typing import MatLike
 from enum import Enum
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Tuple
 
 from one_dragon.utils.i18_utils import gt
 
@@ -76,8 +76,8 @@ class AgentStateDef:
     def __init__(self, state_name: str,
                  check_way: AgentStateCheckWay,
                  template_id: str,
-                 lower_color: Union[MatLike, int] = None,
-                 upper_color: Union[MatLike, int] = None,
+                 lower_color: Union[MatLike, Tuple, int] = None,
+                 upper_color: Union[MatLike, Tuple, int] = None,
                  connect_cnt: Optional[int] = None,
                  split_color_range: Optional[List[Union[MatLike, int]]] = None,
                  max_length: int = 100,
@@ -209,3 +209,6 @@ class AgentEnum(Enum):
                                       ])
 
     YANAGI = Agent('yanagi', '月城柳', RareTypeEnum.S, AgentTypeEnum.ANOMALY, DmgTypeEnum.ELECTRIC)
+    LIGHTER = Agent('lighter', '莱特', RareTypeEnum.S, AgentTypeEnum.STUN, DmgTypeEnum.FIRE,
+                    state_list=[AgentStateDef('莱特-士气', AgentStateCheckWay.BACKGROUND_GRAY_RANGE_LENGTH,
+                                              'lighter', lower_color=0, upper_color=10)])
