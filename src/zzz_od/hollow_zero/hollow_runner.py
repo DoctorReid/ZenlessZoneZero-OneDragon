@@ -357,6 +357,9 @@ class HollowRunner(ZOperation):
                 # 领满奖励了
                 self.ctx.hollow_zero_record.period_reward_complete = True
                 self.save_screenshot()
+            else:
+                # 防止因为动画效果 奖励还没有出现 就出现了按钮
+                self.ctx.hollow_zero_record.period_reward_complete = False
             return self.round_wait(result.status, wait=1)
 
         # 一直尝试点击直到出现街区

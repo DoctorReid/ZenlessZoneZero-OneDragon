@@ -43,6 +43,11 @@ class BackToNormalWorld(ZOperation):
         if result.is_success:
             return self.round_retry(result.status, wait=1)
 
+        # 大部分画面左上角都有返回按钮
+        result = self.round_by_find_and_click_area(screen, '菜单', '返回')
+        if result.is_success:
+            return self.round_retry(result.status, wait=1)
+
         # 进入游戏时 弹出来的继续对话框
         # 例如 空洞继续
         result = self.round_by_find_and_click_area(screen, '大世界', '对话框取消')
