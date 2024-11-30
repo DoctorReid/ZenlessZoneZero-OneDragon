@@ -35,7 +35,6 @@ class ZOneDragonApp(OneDragonApp, ZApplication):
     def get_app_list(self) -> List[ZApplication]:
         return [
             RedemptionCodeApp(self.ctx),
-            EmailApp(self.ctx),
             RandomPlayApp(self.ctx),
             ScratchCardApp(self.ctx),
             ChargePlanApp(self.ctx),
@@ -45,8 +44,9 @@ class ZOneDragonApp(OneDragonApp, ZApplication):
             HollowZeroApp(self.ctx),
             ShiyuDefenseApp(self.ctx),
             CityFundApp(self.ctx),
-            LifeOnLineApp(self.ctx),
             RiduWeeklyApp(self.ctx),
+            EmailApp(self.ctx),
+            LifeOnLineApp(self.ctx),
         ]
 
 

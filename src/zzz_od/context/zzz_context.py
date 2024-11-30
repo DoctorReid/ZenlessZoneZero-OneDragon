@@ -4,6 +4,7 @@ from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils import i18_utils
 
 
+
 class ZContext(OneDragonContext):
 
     def __init__(self,):
@@ -134,3 +135,8 @@ class ZContext(OneDragonContext):
         self.shiyu_defense_record: ShiyuDefenseRunRecord = ShiyuDefenseRunRecord(self.current_instance_idx, game_refresh_hour_offset)
         from zzz_od.application.shiyu_defense.shiyu_defense_config import ShiyuDefenseConfig
         self.shiyu_defense_config: ShiyuDefenseConfig = ShiyuDefenseConfig(self.current_instance_idx)
+
+        from zzz_od.application.miscellany.miscellany_run_record import MiscellanyRunRecord
+        self.miscellany_record: MiscellanyRunRecord = MiscellanyRunRecord(self.current_instance_idx, game_refresh_hour_offset)
+        from zzz_od.application.miscellany.miscellany_config import MiscellanyConfig
+        self.miscellany_config: MiscellanyConfig = MiscellanyConfig(self.current_instance_idx)
