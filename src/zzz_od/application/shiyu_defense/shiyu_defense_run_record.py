@@ -25,8 +25,8 @@ class ShiyuDefenseRunRecord(AppRunRecord):
         )
 
         self.critical_nodes: list[CriticalNode] = [
-            CriticalNode(7, '20241101', '20241115'),
             CriticalNode(7, '20241116', '20241131'),
+            CriticalNode(7, '20241201', '20241215'),
         ]
 
     @property
