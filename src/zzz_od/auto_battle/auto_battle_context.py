@@ -299,8 +299,10 @@ class AutoBattleContext:
         finish_time = time.time()
         pos, state_records = self.agent_context.switch_by_agent_name(agent_name, update_time=finish_time, update_state=False)
         if pos == 2:
+            self.ctx.controller.switch_next()
             state_records.append(StateRecord(BattleStateEnum.BTN_SWITCH_NEXT.value, finish_time))
         elif pos == 3:
+            self.ctx.controller.switch_prev()
             state_records.append(StateRecord(BattleStateEnum.BTN_SWITCH_PREV.value, finish_time))
         self.auto_op.batch_update_states(state_records)
 
