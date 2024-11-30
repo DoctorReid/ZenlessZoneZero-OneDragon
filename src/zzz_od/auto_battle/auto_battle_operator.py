@@ -28,6 +28,7 @@ from zzz_od.auto_battle.atomic_op.btn_switch_prev import AtomicBtnSwitchPrev
 from zzz_od.auto_battle.atomic_op.btn_ultimate import AtomicBtnUltimate
 from zzz_od.auto_battle.atomic_op.state_clear import AtomicClearState
 from zzz_od.auto_battle.atomic_op.state_set import AtomicSetState
+from zzz_od.auto_battle.atomic_op.switch_agent import AtomicSwitchAgent
 from zzz_od.auto_battle.atomic_op.wait import AtomicWait
 from zzz_od.auto_battle.auto_battle_context import AutoBattleContext
 from zzz_od.auto_battle.auto_battle_dodge_context import YoloStateEventEnum
@@ -161,6 +162,7 @@ class AutoBattleOperator(ConditionalOperator):
             event_ids.append('连携技-1-' + agent.agent_name)
             event_ids.append('连携技-2-' + agent.agent_name)
             event_ids.append('快速支援-' + agent.agent_name)
+            event_ids.append('切换角色-' + agent.agent_name)
 
             if agent.state_list is not None:
                 for state in agent.state_list:
@@ -175,6 +177,7 @@ class AutoBattleOperator(ConditionalOperator):
             event_ids.append('连携技-1-' + agent_type_enum.value)
             event_ids.append('连携技-2-' + agent_type_enum.value)
             event_ids.append('快速支援-' + agent_type_enum.value)
+            event_ids.append('切换角色-' + agent_type_enum.value)
 
         for state_enum in CommonAgentStateEnum:
             common_agent_state = state_enum.value
@@ -266,6 +269,8 @@ class AutoBattleOperator(ConditionalOperator):
             return AtomicSetState(self.auto_battle_context.custom_context, op_def)
         elif op_name == AtomicClearState.OP_NAME:
             return AtomicClearState(self.auto_battle_context.custom_context, op_def)
+        elif op_name == AtomicSwitchAgent.OP_NAME:
+            return AtomicSwitchAgent(self.auto_battle_context, op_def)
         else:
             raise ValueError('非法的指令 %s' % op_name)
 
@@ -372,7 +377,7 @@ class AutoBattleOperator(ConditionalOperator):
 def __debug():
     ctx = ZContext()
     ctx.init_by_config()
-    auto_op = AutoBattleOperator(ctx, 'auto_battle', '专属配队-简1')
+    auto_op = AutoBattleOperator(ctx, 'auto_battle', '测试')
     auto_op.init_before_running()
     auto_op.start_running_async()
     time.sleep(5)

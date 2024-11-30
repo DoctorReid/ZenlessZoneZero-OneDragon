@@ -290,6 +290,20 @@ class AutoBattleContext:
                 state_records.append(i)
         self.auto_op.batch_update_states(state_records)
 
+    def switch_by_name(self, agent_name: str) -> None:
+        """
+        根据代理人名称 切换到指定的代理人
+        :param agent_name: 代理人名称
+        :return:
+        """
+        finish_time = time.time()
+        pos, state_records = self.agent_context.switch_by_agent_name(agent_name, update_time=finish_time, update_state=False)
+        if pos == 2:
+            state_records.append(StateRecord(BattleStateEnum.BTN_SWITCH_NEXT.value, finish_time))
+        elif pos == 3:
+            state_records.append(StateRecord(BattleStateEnum.BTN_SWITCH_PREV.value, finish_time))
+        self.auto_op.batch_update_states(state_records)
+
     def init_battle_context(
             self,
             auto_op: ConditionalOperator,

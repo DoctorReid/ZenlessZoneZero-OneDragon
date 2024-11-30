@@ -24,6 +24,9 @@ class OperationDef:
                  state: Optional[str] = None,
                  value: Optional[int] = None,
                  add: Optional[int] = None,
+
+                 # 代理人
+                 agent_name: Optional[str] = None,
                  ):
         self.op_name: str = op_name
         self.data: List[str] = data
@@ -42,3 +45,5 @@ class OperationDef:
         self.state_seconds: float = seconds  # 状态处罚时间偏移量
         self.state_value: int = value  # 设置的状态值
         self.state_value_add: int = add  # 设置的状态值偏移量 state_value存在时不生效
+
+        self.agent_name: str = agent_name  # 代理人名称
