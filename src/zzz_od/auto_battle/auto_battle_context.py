@@ -676,10 +676,11 @@ class AutoBattleContext:
         finally:
             self._check_distance_lock.release()
 
-    def check_battle_distance(self, screen: MatLike) -> MatchResult:
+    def check_battle_distance(self, screen: MatLike, last_distance: Optional[float] = None) -> MatchResult:
         """
         识别画面上显示的距离
         :param screen:
+        :param last_distance: 上一次使用的距离 极少数情况会出现多个距离 这个时候转动画面保持向特定的距离转动
         :return:
         """
         area = self._check_distance_area
@@ -696,11 +697,23 @@ class AutoBattleContext:
             distance = str_utils.get_positive_float(pre_str, None)
             if distance is None:
                 continue
-            mr = mrl.max
+
+            tmp_mr = mrl.max
+            tmp_mr.data = distance
+            tmp_mr.add_offset(area.left_top)
+            # 极少数情况下会出现多个距离
+            mid_x = self.ctx.project_config.screen_standard_width // 2
+            if mr is None:
+                mr = tmp_mr
+            elif last_distance is not None:
+                # 有上一次记录时 需要继续使用上一次的
+                if abs(tmp_mr.data - last_distance) < abs(mr.data - last_distance):
+                    mr = tmp_mr
+            elif abs(tmp_mr.center.x - mid_x) < abs(mr.center.x - mid_x):
+                # 选离中间最近的
+                mr = tmp_mr
 
         if mr is not None:
-            mr.add_offset(area.left_top)
-            mr.data = distance
             self.without_distance_times = 0
             self.with_distance_times += 1
             self.last_check_distance = distance

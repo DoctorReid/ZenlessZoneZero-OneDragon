@@ -237,7 +237,8 @@ def is_same_map(map_1: HollowZeroMap, map_2: HollowZeroMap) -> bool:
 
     # 极端情况下 是在3个格子的情况下移动 剩下2个格子
     # 如果移动后有在内存将格子更新为当前 则本次识别的2个格子的应该跟之前的一样 因此至少有50%格子一致
-    return same_node_cnt >= node_cnt_1 * 0.5 or same_node_cnt >= node_cnt_2 * 0.5
+    # 必须要两个地图都有50%格子在另一张地图上 因为进入盲盒区域后 可能区域里只有少量格子 但跟外层的地图刚好重合
+    return same_node_cnt >= node_cnt_1 * 0.5 and same_node_cnt >= node_cnt_2 * 0.5
 
 
 def merge_map(ctx: ZContext, map_list: List[HollowZeroMap]):

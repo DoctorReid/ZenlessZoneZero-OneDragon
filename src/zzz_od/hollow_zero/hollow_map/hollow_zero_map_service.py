@@ -105,7 +105,7 @@ def __debug_cal_current_map_by_screen():
     service.init_event_yolo()
 
     from one_dragon.utils import debug_utils
-    screen = debug_utils.get_debug_image('_1732547629460')
+    screen = debug_utils.get_debug_image('_1733016932243')
     import time
     ctx.hollow.init_before_hollow_start('旧都列车', '旧都列车-核心')
     current_map = service.cal_current_map_by_screen(screen, time.time())
