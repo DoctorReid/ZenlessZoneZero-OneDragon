@@ -140,3 +140,8 @@ class ZContext(OneDragonContext):
         self.miscellany_record: MiscellanyRunRecord = MiscellanyRunRecord(self.current_instance_idx, game_refresh_hour_offset)
         from zzz_od.application.miscellany.miscellany_config import MiscellanyConfig
         self.miscellany_config: MiscellanyConfig = MiscellanyConfig(self.current_instance_idx)
+
+        from zzz_od.application.drive_disc_dismantle.drive_disc_dismantle_config import DriveDiscDismantleConfig
+        self.drive_disc_dismantle_config: DriveDiscDismantleConfig = DriveDiscDismantleConfig(self.current_instance_idx)
+        from zzz_od.application.drive_disc_dismantle.drive_disc_dismantle_run_record import DriveDiscDismantleRunRecord
+        self.drive_disc_dismantle_record: DriveDiscDismantleRunRecord = DriveDiscDismantleRunRecord(self.current_instance_idx, game_refresh_hour_offset)

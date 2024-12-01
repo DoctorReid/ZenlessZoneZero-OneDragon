@@ -15,7 +15,7 @@ from one_dragon.base.matcher.ocr.onnx_ocr_matcher import OnnxOcrMatcher
 from one_dragon.base.matcher.template_matcher import TemplateMatcher
 from one_dragon.base.operation.context_event_bus import ContextEventBus
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
-from one_dragon.base.screen.screen_loader import ScreenLoader
+from one_dragon.base.screen.screen_loader import ScreenContext
 from one_dragon.base.screen.template_loader import TemplateLoader
 from one_dragon.utils import debug_utils, log_utils
 from one_dragon.utils import thread_utils
@@ -69,7 +69,7 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
 
         self.context_running_state: ContextRunStateEnum = ContextRunStateEnum.STOP
 
-        self.screen_loader: ScreenLoader = ScreenLoader()
+        self.screen_loader: ScreenContext = ScreenContext()
         self.template_loader: TemplateLoader = TemplateLoader()
         self.tm: TemplateMatcher = TemplateMatcher(self.template_loader)
         self.ocr: OcrMatcher = OnnxOcrMatcher()

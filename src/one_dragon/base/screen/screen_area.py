@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.geometry.rectangle import Rect
@@ -14,7 +14,10 @@ class ScreenArea:
                  template_id: Optional[str] = '',
                  template_sub_dir: Optional[str] = '',
                  template_match_threshold: float = 0.7,
-                 pc_alt: bool = False):
+                 pc_alt: bool = False,
+                 id_mark: bool = False,
+                 goto_list: List[str] = None
+                 ):
         self.area_name: str = area_name
         self.pc_rect: Rect = pc_rect
         self.text: Optional[str] = text
@@ -23,6 +26,8 @@ class ScreenArea:
         self.template_sub_dir: Optional[str] = template_sub_dir
         self.template_match_threshold: float = template_match_threshold
         self.pc_alt: bool = pc_alt  # PC端需要使用ALT后才能点击
+        self.id_mark: bool = id_mark  # 是否用于画面的唯一标识
+        self.goto_list: List[str] = [] if goto_list is None else goto_list # 交互后 可能会跳转的画面名称列表
 
     @property
     def rect(self) -> Rect:
@@ -68,6 +73,13 @@ class ScreenArea:
             return f'{self.template_sub_dir}.{self.template_id}'
 
     @property
+    def goto_list_display_text(self) -> str:
+        if self.goto_list is None:
+            return ''
+        else:
+            return ';'.join(self.goto_list)
+
+    @property
     def is_text_area(self) -> bool:
         """
         是否文本区域
@@ -90,11 +102,13 @@ class ScreenArea:
         """
         order_dict = dict()
         order_dict['area_name'] = self.area_name
+        order_dict['id_mark'] = self.id_mark
         order_dict['pc_rect'] = [self.pc_rect.x1, self.pc_rect.y1, self.pc_rect.x2, self.pc_rect.y2]
         order_dict['text'] = self.text
         order_dict['lcs_percent'] = self.lcs_percent
         order_dict['template_sub_dir'] = self.template_sub_dir
         order_dict['template_id'] = self.template_id
         order_dict['template_match_threshold'] = self.template_match_threshold
+        order_dict['goto_list'] = self.goto_list
 
         return order_dict

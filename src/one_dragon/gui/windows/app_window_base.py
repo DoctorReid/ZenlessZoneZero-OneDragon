@@ -44,6 +44,8 @@ class AppWindowBase(PhosWindow):
         # 隐藏启动页面
         self.splashScreen.finish()
 
+        self.titleBar.issue_url = f"{project_config.github_homepage}/issues"
+
     def create_sub_interface(self) -> None:
         """
         创建子页面
