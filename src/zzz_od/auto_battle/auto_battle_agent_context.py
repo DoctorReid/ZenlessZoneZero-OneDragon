@@ -542,13 +542,16 @@ class AutoBattleAgentContext:
 
         return self._check_agent_state_in_parallel(screen, screenshot_time, to_check_list)
 
-    def switch_next_agent(self, update_time: float, update_state: bool = True) -> List[StateRecord]:
+    def switch_next_agent(self, update_time: float, update_state: bool = True, check_agent: bool = False) -> List[StateRecord]:
         """
         代理人列表 切换下一个
         :param update_time: 更新时间
         :param update_state: 是否更新状态
+        :param check_agent: 下一次截图是否需要识别代理人。普通切人场景可能会切错人（目标代理人还没有离场 没法再次切上场） 需要尽量快识别截图来更正代理人
         """
         if self.team_info.switch_next_agent(update_time):
+            if check_agent:
+                self._last_check_agent_time = 0
             records = self._get_agent_state_records(update_time, switch=True)
             records.append(StateRecord(BattleStateEnum.STATUS_SPECIAL_READY.value, is_clear=True))
             if update_state:
@@ -556,13 +559,16 @@ class AutoBattleAgentContext:
             return records
         return []
 
-    def switch_prev_agent(self, update_time: float, update_state: bool = True) -> List[StateRecord]:
+    def switch_prev_agent(self, update_time: float, update_state: bool = True, check_agent: bool = False) -> List[StateRecord]:
         """
         代理人列表 切换上一个
         :param update_time: 更新时间
         :param update_state: 是否更新状态
+        :param check_agent: 下一次截图是否需要识别代理人。普通切人场景可能会切错人（目标代理人还没有离场 没法再次切上场） 需要尽量快识别截图来更正代理人
         """
         if self.team_info.switch_prev_agent(update_time):
+            if check_agent:
+                self._last_check_agent_time = 0
             records = self._get_agent_state_records(update_time, switch=True)
             records.append(StateRecord(BattleStateEnum.STATUS_SPECIAL_READY.value, is_clear=True))
             if update_state:
@@ -682,9 +688,11 @@ class AutoBattleAgentContext:
 
         target_agent_pos = self.team_info.get_agent_pos(switch_agent)
         if target_agent_pos == 2:  # 在下一个
-            return target_agent_pos, self.switch_next_agent(update_time, update_state=update_state)
+            return target_agent_pos, self.switch_next_agent(update_time, update_state=update_state, check_agent=True)
         elif target_agent_pos == 3:  # 在上一个
-            return target_agent_pos, self.switch_prev_agent(update_time, update_state=update_state)
+            return target_agent_pos, self.switch_prev_agent(update_time, update_state=update_state, check_agent=True)
+        else:
+            return 0, []
 
     def _get_agent_state_records(self, update_time: float, switch: bool = False) -> List[StateRecord]:
         """

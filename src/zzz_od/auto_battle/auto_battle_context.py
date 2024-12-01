@@ -94,7 +94,7 @@ class AutoBattleContext:
         finish_time = time.time()
         state_records = [StateRecord(e, finish_time)]
         if update_agent:
-            agent_records = self.agent_context.switch_next_agent(finish_time, False)
+            agent_records = self.agent_context.switch_next_agent(finish_time, False, check_agent=True)
             for i in agent_records:
                 state_records.append(i)
         self.auto_op.batch_update_states(state_records)
@@ -115,7 +115,7 @@ class AutoBattleContext:
         finish_time = time.time()
         state_records = [StateRecord(e, finish_time)]
         if update_agent:
-            agent_records = self.agent_context.switch_prev_agent(finish_time, False)
+            agent_records = self.agent_context.switch_prev_agent(finish_time, False, check_agent=True)
             for i in agent_records:
                 state_records.append(i)
         self.auto_op.batch_update_states(state_records)
