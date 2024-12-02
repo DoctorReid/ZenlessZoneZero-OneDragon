@@ -692,6 +692,7 @@ class Operation(OperationBase):
         if color_range is not None:
             mask = cv2.inRange(to_ocr_part, color_range[0], color_range[1])
             to_ocr_part = cv2.bitwise_and(to_ocr_part, to_ocr_part, mask=mask)
+            # cv2_utils.show_image(to_ocr_part, win_name='round_by_ocr_and_click', wait=0)
 
         ocr_result_map = self.ctx.ocr.run_ocr(to_ocr_part)
 
