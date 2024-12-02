@@ -691,6 +691,7 @@ class Operation(OperationBase):
         to_ocr_part = screen if area is None else cv2_utils.crop_image_only(screen, area.rect)
         if color_range is not None:
             mask = cv2.inRange(to_ocr_part, color_range[0], color_range[1])
+            mask = cv2_utils.dilate(mask, 5)
             to_ocr_part = cv2.bitwise_and(to_ocr_part, to_ocr_part, mask=mask)
             # cv2_utils.show_image(to_ocr_part, win_name='round_by_ocr_and_click', wait=0)
 
