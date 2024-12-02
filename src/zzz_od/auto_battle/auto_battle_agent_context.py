@@ -710,9 +710,13 @@ class AutoBattleAgentContext:
                 state_records.append(StateRecord(prefix + agent.agent_name, update_time))
                 state_records.append(StateRecord(prefix + agent.agent_type.value, update_time))
 
+                if i > 0:
+                    state_records.append(StateRecord(f'后台-{agent.agent_name}', update_time))
                 if i == 0 and switch:
                     state_records.append(StateRecord(f'切换角色-{agent.agent_name}', update_time))
                     state_records.append(StateRecord(f'切换角色-{agent.agent_type.value}', update_time))
+
+                state_records.append(StateRecord(f'{agent.agent_name}-能量', update_time, agent_info.energy))
 
             state_records.append(StateRecord(prefix + '能量', update_time, agent_info.energy))
 

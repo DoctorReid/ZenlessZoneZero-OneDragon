@@ -102,12 +102,14 @@ class AutoBattleOperator(ConditionalOperator):
                     continue
                 mutex_list.append(mutex_agent_enum.value.agent_name)
 
-            self._mutex_list['前台-' + agent_enum.value.agent_name] = ['前台-' + i for i in mutex_list]
-            self._mutex_list['后台-1-' + agent_enum.value.agent_name] = ['后台-1-' + i for i in mutex_list]
-            self._mutex_list['后台-2-' + agent_enum.value.agent_name] = ['后台-2-' + i for i in mutex_list]
-            self._mutex_list['连携技-1-' + agent_enum.value.agent_name] = ['连携技-1-' + i for i in (mutex_list + ['邦布'])]
-            self._mutex_list['连携技-2-' + agent_enum.value.agent_name] = ['连携技-2-' + i for i in (mutex_list + ['邦布'])]
-            self._mutex_list['快速支援-' + agent_enum.value.agent_name] = ['快速支援-' + i for i in mutex_list]
+            agent_name = agent_enum.value.agent_name
+            self._mutex_list[f'前台-{agent_name}'] = [f'前台-{i}' for i in mutex_list] + [f'后台-1-{agent_name}', f'后台-2-{agent_name}', f'后台-{agent_name}']
+            self._mutex_list[f'后台-{agent_name}'] = [f'前台-{agent_name}']
+            self._mutex_list[f'后台-1-{agent_name}'] = [f'后台-1-{i}' for i in mutex_list] + [f'后台-2-{agent_name}', f'前台-{agent_name}']
+            self._mutex_list[f'后台-2-{agent_name}'] = [f'后台-2-{i}' for i in mutex_list] + [f'后台-1-{agent_name}', f'前台-{agent_name}']
+            self._mutex_list[f'连携技-1-{agent_name}'] = [f'连携技-1-{i}' for i in (mutex_list + ['邦布'])]
+            self._mutex_list[f'连携技-2-{agent_name}'] = [f'连携技-2-{i}' for i in (mutex_list + ['邦布'])]
+            self._mutex_list[f'快速支援-{agent_name}'] = [f'快速支援-{i}' for i in mutex_list]
 
         for agent_type_enum in AgentTypeEnum:
             if agent_type_enum == AgentTypeEnum.UNKNOWN:
@@ -129,8 +131,7 @@ class AutoBattleOperator(ConditionalOperator):
 
         # 特殊处理连携技的互斥
         for i in range(1, 3):
-            self._mutex_list[f'连携技-{i}-邦布'] = [f'连携技-{i}-' + agent_enum.value.agent_name for agent_enum in AgentEnum]
-
+            self._mutex_list[f'连携技-{i}-邦布'] = [f'连携技-{i}-{agent_enum.value.agent_name}' for agent_enum in AgentEnum]
 
         ConditionalOperator.init(
             self,
@@ -156,13 +157,16 @@ class AutoBattleOperator(ConditionalOperator):
 
         for agent_enum in AgentEnum:
             agent = agent_enum.value
-            event_ids.append('前台-' + agent.agent_name)
-            event_ids.append('后台-1-' + agent.agent_name)
-            event_ids.append('后台-2-' + agent.agent_name)
-            event_ids.append('连携技-1-' + agent.agent_name)
-            event_ids.append('连携技-2-' + agent.agent_name)
-            event_ids.append('快速支援-' + agent.agent_name)
-            event_ids.append('切换角色-' + agent.agent_name)
+            agent_name = agent.agent_name
+            event_ids.append(f'前台-{agent_name}')
+            event_ids.append(f'后台-{agent_name}')
+            event_ids.append(f'后台-1-{agent_name}')
+            event_ids.append(f'后台-2-{agent_name}')
+            event_ids.append(f'连携技-1-{agent_name}')
+            event_ids.append(f'连携技-2-{agent_name}')
+            event_ids.append(f'快速支援-{agent_name}')
+            event_ids.append(f'切换角色-{agent_name}')
+            event_ids.append(f'{agent_name}-能量')
 
             if agent.state_list is not None:
                 for state in agent.state_list:
@@ -377,7 +381,7 @@ class AutoBattleOperator(ConditionalOperator):
 def __debug():
     ctx = ZContext()
     ctx.init_by_config()
-    auto_op = AutoBattleOperator(ctx, 'auto_battle', '测试')
+    auto_op = AutoBattleOperator(ctx, 'auto_battle', '专属配队-莱卡恩')
     auto_op.init_before_running()
     auto_op.start_running_async()
     time.sleep(5)
