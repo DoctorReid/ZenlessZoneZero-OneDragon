@@ -1,10 +1,12 @@
-description: |
-  专属配队-月城柳
-  配队列表：柳-支援/防护-柏妮思 柳-支援/防护-支援
-  备注： 角色顺序没问题就行 你再问就要攻击你啦
-  版本号： 0.1
-  作者： 笙梦昱
-  协作： 巡夜子 starlight
+# 基础信息
+author: "笙梦昱"
+thanks: "巡夜子 starlight"
+homepage: "https://b23.tv/QBbqzRK"
+version: "1.0"
+team_list:
+  - ["柳", "支援", "柏妮思"]
+  - ["柳", "防护", "柏妮思"]
+introduction: "柏妮思 可换成支援"
 
 #基础配置
 check_dodge_interval: 0.01

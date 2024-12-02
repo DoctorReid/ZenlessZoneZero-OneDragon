@@ -133,12 +133,7 @@ class AutoBattleInterface(AppRunInterface):
         更新闪避指令
         :return:
         """
-        try:
-            self.config_opt.value_changed.disconnect(self._on_auto_battle_config_changed)
-        except:
-            pass
         self.config_opt.set_options_by_list(get_auto_battle_op_config_list('auto_battle'))
-        self.config_opt.value_changed.connect(self._on_auto_battle_config_changed)
 
     def _on_auto_battle_config_changed(self, index, value):
         self.ctx.battle_assistant_config.auto_battle_config = value

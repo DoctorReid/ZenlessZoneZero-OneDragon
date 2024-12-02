@@ -1,11 +1,13 @@
-description: |
-  专属配队-艾莲
-  配队列表：艾莲 + 凯撒/莱卡恩 + 莱卡恩/苍角
-  备注： 2号位、3号位可任意更换击破、支援、防护
-  版本号： 2.7
-  作者： 巡夜子
-  协作： 笙梦昱
-  
+# 基础信息
+author: "巡夜子"
+thanks: "笙梦昱"
+homepage: ""
+version: "2.7"
+team_list:
+  - ["艾莲", "凯撒", "莱卡恩"]
+  - ["艾莲", "莱卡恩", "苍角"]
+introduction: "2号位、3号位可任意更换击破、支援、防护"
+
 #基础配置
 check_dodge_interval: 0.02
 check_agent_interval: [0.4, 0.6]

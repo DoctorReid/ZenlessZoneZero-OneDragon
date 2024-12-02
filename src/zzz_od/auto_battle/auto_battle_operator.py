@@ -377,6 +377,30 @@ class AutoBattleOperator(ConditionalOperator):
             op.execute()
             self.last_lock_time = time.time()
 
+    @property
+    def team_list(self) -> List[List[str]]:
+        return self.get('team_list', [])
+
+    @property
+    def author(self) -> str:
+        return self.get('author', '')
+
+    @property
+    def homepage(self) -> str:
+        return self.get('homepage', 'https://qm.qq.com/q/wuVRYuZzkA')
+
+    @property
+    def thanks(self) -> str:
+        return self.get('thanks', '')
+
+    @property
+    def version(self) -> str:
+        return self.get('version', '')
+
+    @property
+    def introduction(self) -> str:
+        return self.get('introduction', '')
+
 
 def __debug():
     ctx = ZContext()

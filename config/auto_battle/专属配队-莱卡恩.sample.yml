@@ -1,4 +1,12 @@
-# 配队 莱卡恩 凯撒 苍角
+# 基础信息
+author: "DoctorReid"
+thanks: ""
+homepage: ""
+version: "1.0"
+team_list:
+  - ["莱卡恩", "凯撒", "苍角"]
+introduction: "纯整活 让狼哥在日常刷本露露脸"
+
 allow_ultimate:
   - agent_name: "莱卡恩"
 
