@@ -3,6 +3,7 @@ screen_name: 实战模拟室
 pc_alt: false
 area_list:
 - area_name: 挑战奖励
+  id_mark: false
   pc_rect:
   - 84
   - 1006
@@ -13,7 +14,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 副本名称列表
+  id_mark: false
   pc_rect:
   - 128
   - 724
@@ -24,7 +27,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 剩余电量
+  id_mark: false
   pc_rect:
   - 1440
   - 1016
@@ -35,7 +40,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 需要电量
+  id_mark: false
   pc_rect:
   - 1506
   - 1016
@@ -46,7 +53,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 下一步
+  id_mark: false
   pc_rect:
   - 1590
   - 984
@@ -57,18 +66,22 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 出战
+  id_mark: false
   pc_rect:
-  - 1600
-  - 1008
-  - 1834
-  - 1048
+  - 1638
+  - 1002
+  - 1832
+  - 1052
   text: 出战
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 挑战等级
+  id_mark: false
   pc_rect:
   - 1454
   - 26
@@ -79,7 +92,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 恢复电量
+  id_mark: false
   pc_rect:
   - 824
   - 348
@@ -90,7 +105,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 沉浸模式
+  id_mark: false
   pc_rect:
   - 1534
   - 32
@@ -101,7 +118,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 副本类型列表
+  id_mark: false
   pc_rect:
   - 406
   - 592
@@ -112,7 +131,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 外层-卡片1
+  id_mark: false
   pc_rect:
   - 130
   - 222
@@ -123,7 +144,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 内层-已选择卡片1
+  id_mark: false
   pc_rect:
   - 254
   - 128
@@ -134,7 +157,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 内层-卡片1
+  id_mark: false
   pc_rect:
   - 546
   - 170
@@ -145,7 +170,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 保存方案
+  id_mark: false
   pc_rect:
   - 1600
   - 1008
@@ -156,7 +183,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 确定并出战
+  id_mark: false
   pc_rect:
   - 1026
   - 602
@@ -167,7 +196,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 预备编队
+  id_mark: false
   pc_rect:
   - 368
   - 1008
@@ -178,7 +209,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 预备出战
+  id_mark: false
   pc_rect:
   - 1634
   - 1000
@@ -189,3 +222,4 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
