@@ -171,15 +171,15 @@ class ConditionalOperator(YamlConfig):
             if trigger_time - last_trigger_time < handler.interval_seconds:  # 冷却时间没过 不触发
                 return
 
-            ops, expr = handler.get_operations(trigger_time)
-            # 若ops为空，即无匹配state，则不打断当前task
-            if ops is None:
+            new_task = handler.get_operations(trigger_time)
+            # 若new_task为空，即无匹配state，则不打断当前task
+            if new_task is None:
                 return
 
             can_interrupt: bool = False
             if self.running_task is not None:
                 old_priority = self.running_task.priority
-                new_priority = handler.priority
+                new_priority = new_task.priority
                 if old_priority is None:  # 当前运行场景可随意打断
                     can_interrupt = True
                 elif new_priority is not None and new_priority > old_priority:  # 新触发场景优先级更高
@@ -195,7 +195,8 @@ class ConditionalOperator(YamlConfig):
             # 停止已有的操作
             self._stop_running_task()
 
-            self.running_task = OperationTask(ops, trigger=state_name, priority=handler.priority, expr=expr)
+            new_task.set_trigger(state_name)
+            self.running_task = new_task
             self.last_trigger_time[state_name] = trigger_time
             future = self.running_task.run_async()
             future.add_done_callback(self._on_task_done)
@@ -213,6 +214,7 @@ class ConditionalOperator(YamlConfig):
     def _stop_running_task(self) -> None:
         """
         停止正在运行的任务
+        调用这个函数的地方都使用了 self._task_lock 锁
         :return:
         """
         if self.running_task is not None:
@@ -278,6 +280,7 @@ class ConditionalOperator(YamlConfig):
         然后看是否需要触发对应的场景 清除状态的不进行触发
         只触发优先级最高的一个
         多个相同优先级时 随机触发一个
+        没有场景需要触发时 判断是否符合当前运行指令的打断 如果符合 则打断
         :param state_records: 状态记录列表
         :return:
         """
@@ -315,6 +318,19 @@ class ConditionalOperator(YamlConfig):
         if top_priority_state is not None:
             future: Future = _od_conditional_op_executor.submit(self._trigger_scene, top_priority_state)
             future.add_done_callback(thread_utils.handle_future_result)
+        else:
+            # 没有场景需要触发 看是否需要打断当前操作
+            with self._task_lock:
+                interrupt: bool = False
+                if (self.running_task is not None and self.running_task._running
+                    and self.running_task.interrupts is not None and len(self.running_task) > 0):
+                    for state_record in state_records:
+                        if state_record.state_name in self.running_task.interrupts):
+                            interrupt = True
+                            break
+
+                if interrupt:
+                    self._stop_running_task()
 
     def _update_state_recorder(self, new_record: StateRecord) -> Optional[StateRecorder]:
         """
