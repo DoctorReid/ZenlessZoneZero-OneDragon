@@ -22,6 +22,7 @@ class OperationDef:
 
                  # 状态
                  state: Optional[str] = None,
+                 state_list: Optional[List[str]] = None,
                  value: Optional[int] = None,
                  add: Optional[int] = None,
 
@@ -42,6 +43,7 @@ class OperationDef:
         self.wait_seconds: float = seconds  # 等待秒数
 
         self.state_name: str = state  # 状态名称
+        self.state_name_list: List[str] = state_list  # 状态名称列表 清除状态时候可用
         self.state_seconds: float = seconds  # 状态处罚时间偏移量
         self.state_value: int = value  # 设置的状态值
         self.state_value_add: int = add  # 设置的状态值偏移量 state_value存在时不生效

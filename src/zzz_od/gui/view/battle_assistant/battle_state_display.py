@@ -166,7 +166,7 @@ class TaskDisplay(TableWidget):
         
         # 计算持续时间
         past_time = str(round(now - self.auto_op.last_trigger_time.get(task.trigger_display, 0), 4))
-        states = task.expr if task.expr != "" else "/"
+        states = task.expr_display
 
         data = [
             ["[触发器]", task.trigger_display],

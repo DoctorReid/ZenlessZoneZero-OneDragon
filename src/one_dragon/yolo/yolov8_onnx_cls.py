@@ -99,7 +99,7 @@ class Yolov8Classifier(OnnxModelLoader):
         result = self.process_output(outputs, context)
         t4 = time.time()
 
-        log.info(f'识别完毕 预处理耗时 {t2 - t1:.3f}s, 推理耗时 {t3 - t2:.3f}s, 后处理耗时 {t4 - t3:.3f}s')
+        # log.info(f'识别完毕 预处理耗时 {t2 - t1:.3f}s, 推理耗时 {t3 - t2:.3f}s, 后处理耗时 {t4 - t3:.3f}s')
 
         self.record_result(context, result)
         return result

@@ -96,19 +96,19 @@ class TeamInfo:
                 return False
             self.agent_update_time = update_time
 
-            log.debug('当前角色列表 %s', [
-                i.agent.agent_name if i.agent is not None else 'none'
-                for i in self.agent_list
-            ])
+            # log.debug('当前角色列表 %s', [
+            #     i.agent.agent_name if i.agent is not None else 'none'
+            #     for i in self.agent_list
+            # ])
 
             self.agent_list = []
             for i in range(len(current_agent_list)):
                 energy = energy_list[i] if i < len(energy_list) else 0
                 self.agent_list.append(AgentInfo(current_agent_list[i], energy))
 
-            log.debug('更新后角色列表 %s 更新时间 %.4f',
-                      [i.agent.agent_name if i.agent is not None else 'none' for i in self.agent_list],
-                      update_time)
+            # log.debug('更新后角色列表 %s 更新时间 %.4f',
+            #           [i.agent.agent_name if i.agent is not None else 'none' for i in self.agent_list],
+            #           update_time)
 
             return True
 
@@ -166,9 +166,9 @@ class TeamInfo:
 
             self.agent_list = next_agent_list
 
-            log.debug('切换下一个 更新后角色列表 %s 更新时间 %.4f',
-                      [ i.agent.agent_name if i.agent is not None else 'none' for i in self.agent_list],
-                      update_time)
+            # log.debug('切换下一个 更新后角色列表 %s 更新时间 %.4f',
+            #           [ i.agent.agent_name if i.agent is not None else 'none' for i in self.agent_list],
+            #           update_time)
 
             return True
 
@@ -204,9 +204,9 @@ class TeamInfo:
                 next_agent_list.append(AgentInfo(None, 0))
             self.agent_list = next_agent_list
 
-            log.debug('切换上一个 更新后角色列表 %s 更新时间 %.4f',
-                      [ i.agent.agent_name if i.agent is not None else 'none' for i in self.agent_list],
-                      update_time)
+            # log.debug('切换上一个 更新后角色列表 %s 更新时间 %.4f',
+            #           [ i.agent.agent_name if i.agent is not None else 'none' for i in self.agent_list],
+            #           update_time)
 
             return True
 

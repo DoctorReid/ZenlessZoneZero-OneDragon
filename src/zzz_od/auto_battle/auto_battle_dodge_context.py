@@ -248,7 +248,7 @@ class AutoBattleDodgeContext:
             self._last_check_audio_time = screenshot_time
 
             corr = self.get_max_corr(self._audio_template, self._audio_recorder.latest_audio)
-            log.debug('声音相似度 %.2f' % corr)
+            # log.debug('声音相似度 %.2f' % corr)
 
             # 事件去重逻辑
             if corr > self._audio_recorder.trigger_threshold:

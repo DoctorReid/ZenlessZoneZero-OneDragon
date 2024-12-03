@@ -121,6 +121,7 @@ class ConditionalOperator(YamlConfig):
                 # 有其它场景在运行 等待
                 time.sleep(0.02)
             else:
+                # log.debug('开始等待新的主循环')
                 to_sleep: Optional[float] = None
 
                 # 上锁后确保运行状态不会被篡改
@@ -135,9 +136,9 @@ class ConditionalOperator(YamlConfig):
                     if past_time < self._normal_scene_handler.interval_seconds:
                         to_sleep = self._normal_scene_handler.interval_seconds - past_time
                     else:
-                        ops, expr = self._normal_scene_handler.get_operations(trigger_time)
-                        if ops is not None:
-                            self.running_task = OperationTask(ops, expr=expr)
+                        task = self._normal_scene_handler.get_operations(trigger_time)
+                        if task is not None:
+                            self.running_task = task
                             self.last_trigger_time[''] = trigger_time
                             self.running_task_cnt.inc()
                             future = self.running_task.run_async()
@@ -157,7 +158,7 @@ class ConditionalOperator(YamlConfig):
         """
         if state_name not in self._trigger_scene_handler:
             return
-        log.debug('场景触发 %s', state_name)
+        # log.debug('场景触发 %s', state_name)
         handler = self._trigger_scene_handler[state_name]
 
         # 上锁后确保运行状态不会被篡改
@@ -322,13 +323,16 @@ class ConditionalOperator(YamlConfig):
             # 没有场景需要触发 看是否需要打断当前操作
             with self._task_lock:
                 interrupt: bool = False
-                if (self.running_task is not None and self.running_task._running
-                    and self.running_task.interrupts is not None and len(self.running_task) > 0):
+                if (self.running_task is not None and self.running_task.running
+                        and self.running_task.interrupt_states is not None
+                        and len(self.running_task.interrupt_states) > 0):
                     for state_record in state_records:
-                        if state_record.state_name in self.running_task.interrupts):
+                        if state_record.is_clear:
+                            continue
+                        if state_record.state_name in self.running_task.interrupt_states:
                             interrupt = True
+                            log.debug('出现打断场景 %s', state_record.state_name)
                             break
-
                 if interrupt:
                     self._stop_running_task()
 

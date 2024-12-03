@@ -1,6 +1,5 @@
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
-from one_dragon.base.conditional_operation.atomic_op import AtomicOp
 from one_dragon.base.conditional_operation.operation_task import OperationTask
 from one_dragon.base.conditional_operation.state_handler import StateHandler
 

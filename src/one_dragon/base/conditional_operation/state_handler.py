@@ -13,19 +13,19 @@ class StateHandler:
                  state_cal_tree: StateCalNode,
                  sub_handlers: Optional[List] = None,
                  operations: Optional[List[AtomicOp]] = None,
-                 interrupts: Optional[Set[str]] = None,
+                 interrupt_states: Optional[Set[str]] = None,
                  ):
         """
         一个状态处理器 包含状态判断 + 对应指令
         :param state_cal_tree: 状态判断树
         :param operations: 执行指令
-        :param interrupts: 可以被这些状态打断
+        :param interrupt_states: 可以被这些状态打断
         """
         self.expr: str = expr
         self.state_cal_tree: StateCalNode = state_cal_tree
         self.sub_handlers: List[StateHandler] = sub_handlers
         self.operations: List[AtomicOp] = operations
-        self.interrupts: Set[str] = interrupts
+        self.interrupt_states: Set[str] = interrupt_states
 
     def get_operations(self, trigger_time: float) -> Optional[OperationTask]:
         """
@@ -34,18 +34,18 @@ class StateHandler:
         :return:
         """
         if self.state_cal_tree.in_time_range(trigger_time):
-            log.debug('满足条件 %s', self.expr)
+            # log.debug('满足条件 %s', self.expr)
             if self.sub_handlers is not None and len(self.sub_handlers) > 0:
                 for sub_handler in self.sub_handlers:
                     task = sub_handler.get_operations(trigger_time)
                     if task is not None:
                         task.add_expr(self.expr)
-                        task.add_interrupts(self.interrupts)
+                        task.add_interrupt_states(self.interrupt_states)
                         return task
             else:
                 task = OperationTask(self.operations)
                 task.add_expr(self.expr)
-                task.add_interrupts(self.interrupts)
+                task.add_interrupt_states(self.interrupt_states)
                 return task
 
         return None
