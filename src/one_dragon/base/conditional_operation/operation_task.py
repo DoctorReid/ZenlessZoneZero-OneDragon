@@ -129,7 +129,7 @@ class OperationTask:
 
     @property
     def expr_display(self) -> str:
-        return '->'.join(self.expr_list) if len(self.expr_list) > 0 else '/'
+        return '<-'.join(self.expr_list) if len(self.expr_list) > 0 else '/'
 
     @property
     def priority_display(self) -> str:

@@ -42,6 +42,8 @@ t-dodge-caesar: &t-dodge-caesar
     state: "自定义-凯撒-战意激昂"
   - op_name: "设置状态"
     state: "自定义-招架支援"
+  - op_name: "设置状态"
+    state: "自定义-原始朋克"
   - op_name: "切换角色"
     agent_name: "凯撒"
   # 注意清除其他相关的换人状态
@@ -62,6 +64,8 @@ t-switch-caesar: &t-switch-caesar
 t-dodge-soukaku: &t-dodge-soukaku
   - op_name: "设置状态"
     state: "自定义-招架支援"
+  - op_name: "设置状态"
+    state: "自定义-原始朋克"
   - op_name: "切换角色"
     agent_name: "苍角"
   # 注意清除其他相关的换人状态
@@ -76,12 +80,14 @@ t-switch-soukaku: &t-switch-soukaku
   - op_name: "清除状态"
     state_list: ["自定义-招架支援", "自定义-连携技换人", "自定义-快速支援换人", "自定义-下场", "自定义-动作不打断"]
   - op_name: "等待秒数"
-    seconds: 0.2
+    seconds: 0.3
 
 # 招架支援-莱卡恩
 t-dodge-lycaon: &t-dodge-lycaon
   - op_name: "设置状态"
     state: "自定义-招架支援"
+  - op_name: "设置状态"
+    state: "自定义-原始朋克"
   - op_name: "切换角色"
     agent_name: "莱卡恩"
   # 注意清除其他相关的换人状态
@@ -121,12 +127,12 @@ scenes:
 
                   # 连携技+1涡流 60能量发动特殊技 30能量+1涡流
                   # 平时准备着2个涡流 等连携时候可以直接展旗
-                  - states: "[苍角-涡流]{0,1} & [苍角-能量]{60, 120}"
-                    operations: *t-dodge-soukaku
+#                  - states: "[苍角-涡流]{0,1} & [苍角-能量]{60, 120}"
+#                    operations: *t-dodge-soukaku
 
               # 默认凯撒带了原始朋克
               # 10S内没有招架支援 或者 回避支援 (原始朋克的BUFF) 就要切一次角色
-              - states: "![自定义-招架支援, 0, 9]"
+              - states: "![自定义-原始朋克, 0, 9]"
                 sub_handlers:
                   # 优先切到莱卡恩
                   - states: "[后台-莱卡恩]"
@@ -197,7 +203,7 @@ scenes:
                 seconds: 3
 
           # 如果上一个是苍角而且上了buff 则切狼吃BUFF
-          - states: "([连携技-1-莱卡恩] | [连携技-2-莱卡恩]) & [自定义-苍角-展旗]{0, 3}"
+          - states: "([连携技-1-莱卡恩] | [连携技-2-莱卡恩]) & [自定义-苍角-展旗, 0, 3]"
             sub_handlers:
             - states: "[连携技-1-莱卡恩]"
               operations: *t-chain-left
@@ -286,7 +292,9 @@ scenes:
               - op_name: "按键-普通攻击"
                 pre_delay: 0.1
                 post_delay: 0.1
-                repeat: 20
+                repeat: 10
+              - op_name: "等待秒数"
+                seconds: 0.5
 
           # 有足够能量的话 就打一个特殊技能上盾再走
           # 有可能打出第一个盾击后 还不能切换到主C 这时候就不打第二个盾击浪费能量了
@@ -344,6 +352,10 @@ scenes:
                   - op_name: "设置状态"
                     state: "自定义-动作不打断"
                   - op_name: "按键-普通攻击"
+                    pre_delay: 0.1
+                    post_delay: 0.1
+                    repeat: 3
+                  - op_name: "按键-普通攻击"
                     way: "按下"
                     post_delay: 5
                   - op_name: "设置状态"
@@ -386,7 +398,7 @@ scenes:
                     state: "自定义-动作不打断"
                   - op_name: "按键-特殊攻击"
                     post_delay: 0.2
-                    repeat: 3
+                    repeat: 2
                   - op_name: "按键-特殊攻击"
                     way: "按下"
                     post_delay: 5
@@ -401,7 +413,7 @@ scenes:
                     state: "自定义-动作不打断"
                   - op_name: "按键-特殊攻击"
                     post_delay: 0.2
-                    repeat: 6
+                    repeat: 5
                   - op_name: "按键-特殊攻击"
                     way: "按下"
                     post_delay: 5
@@ -416,7 +428,7 @@ scenes:
                     state: "自定义-动作不打断"
                   - op_name: "按键-特殊攻击"
                     post_delay: 0.2
-                    repeat: 12
+                    repeat: 10
                   - op_name: "按键-特殊攻击"
                     way: "按下"
                     post_delay: 5
@@ -426,18 +438,30 @@ scenes:
                     state: "自定义-动作不打断"
 
           # BUFF没到期 先存2个涡流等连携技
-          # 由于1个涡流 + 60能量就可以展旗 所以1个涡流时候就不凑2个等连携技了
-          - states: "[苍角-能量]{60, 120} & [苍角-涡流]{0, 0}"
-            operations:
-              - op_name: "设置状态"
-                state: "自定义-动作不打断"
-              - op_name: "按键-特殊攻击"
-                post_delay: 0.2
-                repeat: 6
-              - op_name: "设置状态"
-                state: "自定义-下场"
-              - op_name: "清除状态"
-                state: "自定义-动作不打断"
+          - states: "[苍角-能量]{60, 120}"
+            sub_handlers:
+              - states: "[苍角-涡流]{0, 0}"
+                operations:
+                  - op_name: "设置状态"
+                    state: "自定义-动作不打断"
+                  - op_name: "按键-特殊攻击"
+                    post_delay: 0.2
+                    repeat: 10
+                  - op_name: "设置状态"
+                    state: "自定义-下场"
+                  - op_name: "清除状态"
+                    state: "自定义-动作不打断"
+              - states: "[苍角-涡流]{1, 1}"
+                operations:
+                  - op_name: "设置状态"
+                    state: "自定义-动作不打断"
+                  - op_name: "按键-特殊攻击"
+                    post_delay: 0.2
+                    repeat: 5
+                  - op_name: "设置状态"
+                    state: "自定义-下场"
+                  - op_name: "清除状态"
+                    state: "自定义-动作不打断"
 
           # 剩余情况 可以直接下场
           - states: ""

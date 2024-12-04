@@ -34,7 +34,6 @@ class StateHandler:
         :return:
         """
         if self.state_cal_tree.in_time_range(trigger_time):
-            # log.debug('满足条件 %s', self.expr)
             if self.sub_handlers is not None and len(self.sub_handlers) > 0:
                 for sub_handler in self.sub_handlers:
                     task = sub_handler.get_operations(trigger_time)

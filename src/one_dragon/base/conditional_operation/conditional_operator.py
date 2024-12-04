@@ -136,9 +136,10 @@ class ConditionalOperator(YamlConfig):
                     if past_time < self._normal_scene_handler.interval_seconds:
                         to_sleep = self._normal_scene_handler.interval_seconds - past_time
                     else:
-                        task = self._normal_scene_handler.get_operations(trigger_time)
-                        if task is not None:
-                            self.running_task = task
+                        new_task = self._normal_scene_handler.get_operations(trigger_time)
+                        if new_task is not None:
+                            log.debug(f'当前场景 主循环 当前条件 {new_task.expr_display}')
+                            self.running_task = new_task
                             self.last_trigger_time[''] = trigger_time
                             self.running_task_cnt.inc()
                             future = self.running_task.run_async()
@@ -158,7 +159,6 @@ class ConditionalOperator(YamlConfig):
         """
         if state_name not in self._trigger_scene_handler:
             return
-        # log.debug('场景触发 %s', state_name)
         handler = self._trigger_scene_handler[state_name]
 
         # 上锁后确保运行状态不会被篡改
@@ -195,6 +195,8 @@ class ConditionalOperator(YamlConfig):
             self.running_task_cnt.inc()
             # 停止已有的操作
             self._stop_running_task()
+
+            log.debug(f'当前场景 {state_name} 当前条件 {new_task.expr_display}')
 
             new_task.set_trigger(state_name)
             self.running_task = new_task
