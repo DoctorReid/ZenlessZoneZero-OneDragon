@@ -33,7 +33,7 @@ class LikeInterface(VerticalScrollInterface):
 
         cafe_opt = HyperlinkCard(icon=FluentIcon.CAFE, title='赞赏', text='前往',
                                  content='如果喜欢本项目，你也可以为作者赞助一点维护费用~',
-                                 url='https://one-dragon.org/other/zh/like.html')
+                                 url='https://one-dragon.org/other/zh/like/like.html')
         content.add_widget(cafe_opt)
 
         img_label = ImageLabel()

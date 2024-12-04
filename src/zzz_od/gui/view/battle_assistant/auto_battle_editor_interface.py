@@ -109,6 +109,7 @@ class AutoBattleEditorInterface(VerticalScrollInterface):
         widget.add_widget(basic_group)
         self.author_opt = HyperlinkCard(icon=FluentIcon.PEOPLE, title='作者', text='作者',
                                         url=self.ctx.project_config.qq_link)
+        self.author_opt.setContent('制作不易 可以到作者主页点个赞')
         basic_group.addSettingCard(self.author_opt)
         self.version_opt = HyperlinkCard(icon=FluentIcon.INFO, title='版本', text='1.0', url='')
         basic_group.addSettingCard(self.version_opt)
@@ -153,18 +154,18 @@ class AutoBattleEditorInterface(VerticalScrollInterface):
         self.update_team_group_display()
 
         if chosen:
-            self.author_opt.setContent(
-                f'感谢 {self.chosen_config.thanks}' if self.chosen_config.thanks != '' else ''
-            )
             self.author_opt.linkButton.setText(self.chosen_config.author)
             self.author_opt.linkButton.setUrl(self.chosen_config.homepage)
             self.version_opt.linkButton.setText(self.chosen_config.version)
+            self.version_opt.setContent(
+                f'感谢 {self.chosen_config.thanks}' if self.chosen_config.thanks != '' else ''
+            )
             self.introduction_opt.setContent(self.chosen_config.introduction)
         else:
-            self.author_opt.setContent('')
             self.author_opt.linkButton.setText('作者')
             self.author_opt.linkButton.setUrl(self.ctx.project_config.qq_link)
             self.version_opt.linkButton.setText('1.0')
+            self.version_opt.setContent('')
             self.introduction_opt.setContent('')
 
     def update_team_group_display(self) -> None:
