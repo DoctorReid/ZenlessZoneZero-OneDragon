@@ -81,8 +81,6 @@ class AtomicBtnCommon(AtomicOp):
             self._method = self.ctx.lock
         elif op_name == BattleStateEnum.BTN_CHAIN_CANCEL.value:
             self._method = self.ctx.chain_cancel
-        elif op_name == BattleStateEnum.BTN_QUICK_ASSIST.value:
-            self._method = self.ctx.quick_assist
         else:
             raise ValueError(f'非法按键 {self.btn_name}')
 

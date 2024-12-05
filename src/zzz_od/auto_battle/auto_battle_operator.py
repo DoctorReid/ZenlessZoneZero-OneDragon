@@ -22,20 +22,20 @@ from zzz_od.auto_battle.atomic_op.btn_move_d import AtomicBtnMoveD
 from zzz_od.auto_battle.atomic_op.btn_move_s import AtomicBtnMoveS
 from zzz_od.auto_battle.atomic_op.btn_move_w import AtomicBtnMoveW
 from zzz_od.auto_battle.atomic_op.btn_normal_attack import AtomicBtnNormalAttack
+from zzz_od.auto_battle.atomic_op.btn_quick_assist import AtomicBtnQuickAssist
 from zzz_od.auto_battle.atomic_op.btn_special_attack import AtomicBtnSpecialAttack
+from zzz_od.auto_battle.atomic_op.btn_switch_agent import AtomicBtnSwitchAgent
 from zzz_od.auto_battle.atomic_op.btn_switch_next import AtomicBtnSwitchNext
 from zzz_od.auto_battle.atomic_op.btn_switch_prev import AtomicBtnSwitchPrev
 from zzz_od.auto_battle.atomic_op.btn_ultimate import AtomicBtnUltimate
 from zzz_od.auto_battle.atomic_op.state_clear import AtomicClearState
 from zzz_od.auto_battle.atomic_op.state_set import AtomicSetState
-from zzz_od.auto_battle.atomic_op.switch_agent import AtomicSwitchAgent
 from zzz_od.auto_battle.atomic_op.wait import AtomicWait
 from zzz_od.auto_battle.auto_battle_context import AutoBattleContext
 from zzz_od.auto_battle.auto_battle_dodge_context import YoloStateEventEnum
 from zzz_od.auto_battle.auto_battle_state import BattleStateEnum
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import AgentEnum, AgentTypeEnum, CommonAgentStateEnum
-
 
 _auto_battle_operator_executor = ThreadPoolExecutor(thread_name_prefix='_auto_battle_operator_executor', max_workers=1)
 
@@ -86,7 +86,7 @@ class AutoBattleOperator(ConditionalOperator):
 
             return True, ''
         except Exception as e:
-            log.error('自动战斗初始化失败', exc_info=True)
+            log.error('自动战斗初始化失败 共享配队文件请联系对应作者修复', exc_info=True)
             return False, '初始化失败'
 
     def _init_operator(self) -> Tuple[bool, str]:
@@ -110,6 +110,7 @@ class AutoBattleOperator(ConditionalOperator):
             self._mutex_list[f'连携技-1-{agent_name}'] = [f'连携技-1-{i}' for i in (mutex_list + ['邦布'])]
             self._mutex_list[f'连携技-2-{agent_name}'] = [f'连携技-2-{i}' for i in (mutex_list + ['邦布'])]
             self._mutex_list[f'快速支援-{agent_name}'] = [f'快速支援-{i}' for i in mutex_list]
+            self._mutex_list[f'切换角色-{agent_name}'] = [f'切换角色-{i}' for i in mutex_list]
 
         for agent_type_enum in AgentTypeEnum:
             if agent_type_enum == AgentTypeEnum.UNKNOWN:
@@ -128,6 +129,7 @@ class AutoBattleOperator(ConditionalOperator):
             self._mutex_list['连携技-1-' + agent_type_enum.value] = ['连携技-1-' + i for i in mutex_list]
             self._mutex_list['连携技-2-' + agent_type_enum.value] = ['连携技-2-' + i for i in mutex_list]
             self._mutex_list['快速支援-' + agent_type_enum.value] = ['快速支援-' + i for i in mutex_list]
+            self._mutex_list['切换角色-' + agent_type_enum.value] = ['切换角色-' + i for i in mutex_list]
 
         # 特殊处理连携技的互斥
         for i in range(1, 3):
@@ -239,7 +241,12 @@ class AutoBattleOperator(ConditionalOperator):
         else:
             press_time = None
 
-        if op_name.startswith('按键') and not op_name.endswith('按下') and not op_name.endswith('松开'):
+        if op_name == AtomicBtnSwitchAgent.OP_NAME or op_name == '切换角色':
+            # 切换角色 只是一个兼容 后续删掉
+            return AtomicBtnSwitchAgent(self.auto_battle_context, op_def)
+        elif op_name == AtomicBtnQuickAssist.OP_NAME:
+            return AtomicBtnQuickAssist(self.auto_battle_context, op_def)
+        elif op_name.startswith('按键') and not op_name.endswith('按下') and not op_name.endswith('松开'):
             return AtomicBtnCommon(self.auto_battle_context, op_def)
         elif op_name.startswith(BattleStateEnum.BTN_DODGE.value):
             return AtomicBtnDodge(self.auto_battle_context, press=press, press_time=press_time, release=release)
@@ -273,8 +280,6 @@ class AutoBattleOperator(ConditionalOperator):
             return AtomicSetState(self.auto_battle_context.custom_context, op_def)
         elif op_name == AtomicClearState.OP_NAME:
             return AtomicClearState(self.auto_battle_context.custom_context, op_def)
-        elif op_name == AtomicSwitchAgent.OP_NAME:
-            return AtomicSwitchAgent(self.auto_battle_context, op_def)
         else:
             raise ValueError('非法的指令 %s' % op_name)
 

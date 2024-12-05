@@ -89,12 +89,14 @@ class AutoBattleContext:
             e = BattleStateEnum.BTN_SWITCH_NEXT.value
             update_agent = True
 
+        start_time = time.time()
         self.ctx.controller.switch_next(press=press, press_time=press_time, release=release)
 
         finish_time = time.time()
         state_records = [StateRecord(e, finish_time)]
         if update_agent:
-            agent_records = self.agent_context.switch_next_agent(finish_time, False, check_agent=True)
+            # 切换角色的状态时间应该是按键开始时间
+            agent_records = self.agent_context.switch_next_agent(start_time, False, check_agent=True)
             for i in agent_records:
                 state_records.append(i)
         self.auto_op.batch_update_states(state_records)
@@ -110,12 +112,14 @@ class AutoBattleContext:
             e = BattleStateEnum.BTN_SWITCH_PREV.value
             update_agent = True
 
+        start_time = time.time()
         self.ctx.controller.switch_prev(press=press, press_time=press_time, release=release)
 
         finish_time = time.time()
         state_records = [StateRecord(e, finish_time)]
         if update_agent:
-            agent_records = self.agent_context.switch_prev_agent(finish_time, False, check_agent=True)
+            # 切换角色的状态时间应该是按键开始时间
+            agent_records = self.agent_context.switch_prev_agent(start_time, False, check_agent=True)
             for i in agent_records:
                 state_records.append(i)
         self.auto_op.batch_update_states(state_records)
@@ -167,12 +171,14 @@ class AutoBattleContext:
             e = BattleStateEnum.BTN_CHAIN_LEFT.value
             update_agent = True
 
+        start_time = time.time()
         self.ctx.controller.chain_left(press=press, press_time=press_time, release=release)
 
         finish_time = time.time()
         state_records = [StateRecord(e, finish_time)]
         if update_agent:
-            agent_records = self.agent_context.switch_prev_agent(finish_time, False)
+            # 切换角色的状态时间应该是按键开始时间
+            agent_records = self.agent_context.switch_prev_agent(start_time, False)
             for i in agent_records:
                 state_records.append(i)
         self.auto_op.batch_update_states(state_records)
@@ -188,12 +194,14 @@ class AutoBattleContext:
             e = BattleStateEnum.BTN_CHAIN_RIGHT.value
             update_agent = True
 
+        start_time = time.time()
         self.ctx.controller.chain_right(press=press, press_time=press_time, release=release)
 
         finish_time = time.time()
         state_records = [StateRecord(e, finish_time)]
         if update_agent:
-            agent_records = self.agent_context.switch_next_agent(finish_time, False)
+            # 切换角色的状态时间应该是按键开始时间
+            agent_records = self.agent_context.switch_next_agent(start_time, False)
             for i in agent_records:
                 state_records.append(i)
         self.auto_op.batch_update_states(state_records)
@@ -270,24 +278,22 @@ class AutoBattleContext:
         finish_time = time.time()
         self.auto_op.update_state(StateRecord(e, finish_time))
 
-    def quick_assist(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
-        update_agent = False
-        if press:
-            e = BattleStateEnum.BTN_QUICK_ASSIST.value + '-按下'
-            update_agent = True
-        elif release:
-            e = BattleStateEnum.BTN_QUICK_ASSIST.value + '-松开'
-        else:
-            e = BattleStateEnum.BTN_QUICK_ASSIST.value
-            update_agent = True
+    def quick_assist(self):
+        # 切换角色的状态时间应该是按键开始时间
+        start_time = time.time()
+        pos, state_records = self.agent_context.switch_quick_assist(start_time, False)
 
-        self.ctx.controller.switch_next(press=press, press_time=press_time, release=release)
+        if pos == 2:
+            self.ctx.controller.switch_next()
+            btn_name = BattleStateEnum.BTN_SWITCH_NEXT.value
+        elif pos == 3:
+            self.ctx.controller.switch_prev()
+            btn_name = BattleStateEnum.BTN_SWITCH_PREV.value
+        else:
+            return
+
         finish_time = time.time()
-        state_records = [StateRecord(e, finish_time)]
-        if update_agent:
-            agent_records = self.agent_context.switch_quick_assist(finish_time, False)
-            for i in agent_records:
-                state_records.append(i)
+        state_records.append(StateRecord(btn_name, finish_time))
         self.auto_op.batch_update_states(state_records)
 
     def switch_by_name(self, agent_name: str) -> None:
@@ -296,14 +302,21 @@ class AutoBattleContext:
         :param agent_name: 代理人名称
         :return:
         """
-        finish_time = time.time()
-        pos, state_records = self.agent_context.switch_by_agent_name(agent_name, update_time=finish_time, update_state=False)
+        # 切换角色的状态时间应该是按键开始时间
+        start_time = time.time()
+        pos, state_records = self.agent_context.switch_by_agent_name(agent_name, update_time=start_time, update_state=False)
+
         if pos == 2:
             self.ctx.controller.switch_next()
-            state_records.append(StateRecord(BattleStateEnum.BTN_SWITCH_NEXT.value, finish_time))
+            btn_name = BattleStateEnum.BTN_SWITCH_NEXT.value
         elif pos == 3:
             self.ctx.controller.switch_prev()
-            state_records.append(StateRecord(BattleStateEnum.BTN_SWITCH_PREV.value, finish_time))
+            btn_name = BattleStateEnum.BTN_SWITCH_PREV.value
+        else:
+            return
+
+        finish_time = time.time()
+        state_records.append(StateRecord(btn_name, finish_time))
         self.auto_op.batch_update_states(state_records)
 
     def init_battle_context(
@@ -766,4 +779,3 @@ class AutoBattleContext:
         self.move_d(release=True)
         self.lock(release=True)
         self.chain_cancel(release=True)
-        self.quick_assist(release=True)

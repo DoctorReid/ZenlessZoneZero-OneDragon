@@ -17,7 +17,7 @@ class BattleStateEnum(Enum):
     BTN_MOVE_D = '按键-移动-右'
     BTN_LOCK = '按键-锁定敌人'
     BTN_CHAIN_CANCEL = '按键-连携技-取消'
-    BTN_QUICK_ASSIST = '按键-快速支援'
+    BTN_QUICK_ASSIST = '按键-快速支援'  # TODO 需要删除
 
     STATUS_SPECIAL_READY = '按键可用-特殊攻击'
     STATUS_ULTIMATE_READY = '按键可用-终结技'
