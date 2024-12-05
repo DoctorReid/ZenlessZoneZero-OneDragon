@@ -1,4 +1,4 @@
-from typing import ClassVar
+from typing import ClassVar, List
 
 from one_dragon.base.conditional_operation.atomic_op import AtomicOp
 from one_dragon.base.conditional_operation.operation_def import OperationDef
@@ -12,6 +12,7 @@ class AtomicSetState(AtomicOp):
     def __init__(self, ctx: AutoBattleCustomContext, op_def: OperationDef):
         self.ctx: AutoBattleCustomContext = ctx
         self.state_name: str = op_def.state_name
+        self.state_name_list: List[str] = op_def.state_name_list
         self.diff_time: float = op_def.state_seconds
         self.value: int = op_def.state_value
         self.value_add: int = op_def.state_value_add
@@ -27,4 +28,7 @@ class AtomicSetState(AtomicOp):
         AtomicOp.__init__(self, op_name='%s %s' % (AtomicSetState.OP_NAME,self.state_name))
 
     def execute(self):
-        self.ctx.set_state(self.state_name, self.diff_time, self.value, self.value_add)
+        if self.state_name_list is not None:
+            self.ctx.set_state(self.state_name_list, self.diff_time, self.value, self.value_add)
+        else:
+            self.ctx.set_state([self.state_name], self.diff_time, self.value, self.value_add)
