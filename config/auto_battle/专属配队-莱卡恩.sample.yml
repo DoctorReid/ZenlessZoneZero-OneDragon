@@ -2,7 +2,7 @@
 author: "DoctorReid"
 thanks: ""
 homepage: ""
-version: "1.0"
+version: "1.1"
 team_list:
   - ["莱卡恩", "凯撒", "苍角"]
 introduction: "纯整活 让狼哥在日常刷本露露脸"
@@ -44,7 +44,7 @@ t-dodge-caesar: &t-dodge-caesar
     state: "自定义-招架支援"
   - op_name: "设置状态"
     state: "自定义-原始朋克"
-  - op_name: "切换角色"
+  - op_name: "按键-切换角色"
     agent_name: "凯撒"
   # 注意清除其他相关的换人状态
   - op_name: "清除状态"
@@ -52,7 +52,7 @@ t-dodge-caesar: &t-dodge-caesar
 
 # 切换角色-凯撒
 t-switch-caesar: &t-switch-caesar
-  - op_name: "切换角色"
+  - op_name: "按键-切换角色"
     agent_name: "凯撒"
   # 注意清除其他相关的换人状态
   - op_name: "清除状态"
@@ -66,7 +66,7 @@ t-dodge-soukaku: &t-dodge-soukaku
     state: "自定义-招架支援"
   - op_name: "设置状态"
     state: "自定义-原始朋克"
-  - op_name: "切换角色"
+  - op_name: "按键-切换角色"
     agent_name: "苍角"
   # 注意清除其他相关的换人状态
   - op_name: "清除状态"
@@ -74,7 +74,7 @@ t-dodge-soukaku: &t-dodge-soukaku
 
 # 切换角色-苍角
 t-switch-soukaku: &t-switch-soukaku
-  - op_name: "切换角色"
+  - op_name: "按键-切换角色"
     agent_name: "苍角"
   # 注意清除其他相关的换人状态
   - op_name: "清除状态"
@@ -88,7 +88,7 @@ t-dodge-lycaon: &t-dodge-lycaon
     state: "自定义-招架支援"
   - op_name: "设置状态"
     state: "自定义-原始朋克"
-  - op_name: "切换角色"
+  - op_name: "按键-切换角色"
     agent_name: "莱卡恩"
   # 注意清除其他相关的换人状态
   - op_name: "清除状态"
@@ -96,7 +96,7 @@ t-dodge-lycaon: &t-dodge-lycaon
 
 # 切换角色-莱卡恩
 t-switch-lycaon: &t-switch-lycaon
-  - op_name: "切换角色"
+  - op_name: "按键-切换角色"
     agent_name: "莱卡恩"
   # 注意清除其他相关的换人状态
   - op_name: "清除状态"
@@ -211,7 +211,8 @@ scenes:
               operations: *t-chain-right
 
           # 如果苍角能展旗 则切苍角
-          - states: "([连携技-1-苍角] | [连携技-2-苍角]) & [苍角-涡流]{2, 3}"
+          # 连携技触发时 会有一段时间识别不到画面 因此相关状态识别需要延长时间范围
+          - states: "([连携技-1-苍角] | [连携技-2-苍角]) & [苍角-涡流, 0, 10]{2, 3}"
             sub_handlers:
             - states: "[连携技-1-苍角]"
               operations: *t-chain-left
@@ -334,7 +335,7 @@ scenes:
           # 连携技出场会触发展旗 判断涡流是否足够上buff
           - states: "[自定义-连携技换人, 0, 6]"
             sub_handlers:
-              - states: "[苍角-涡流]{3, 3}"
+              - states: "[苍角-涡流, 0, 10]{3, 3}"
                 operations:
                   - op_name: "设置状态"
                     state: "自定义-苍角-展旗"
