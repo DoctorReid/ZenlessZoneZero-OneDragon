@@ -8,7 +8,7 @@ from one_dragon.base.geometry.rectangle import Rect
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.base.screen.screen_area import ScreenArea
 from one_dragon.base.screen.screen_info import ScreenInfo
-from one_dragon.base.screen.screen_loader import ScreenLoader
+from one_dragon.base.screen.screen_loader import ScreenContext
 from one_dragon.base.screen.template_info import get_template_root_dir_path, get_template_sub_dir_path, TemplateInfo, \
     TemplateShapeEnum
     
@@ -274,8 +274,7 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
             self.area_table.setItem(idx, 4, QTableWidgetItem(str(area_item.lcs_percent)))
             self.area_table.setItem(idx, 5, QTableWidgetItem(area_item.template_id_display_text))
             self.area_table.setItem(idx, 6, QTableWidgetItem(str(area_item.template_match_threshold)))
-            self.area_table.setCellWidget(idx, 7, id_check)
-            self.area_table.setItem(idx, 8, QTableWidgetItem(area_item.goto_list_display_text))
+
 
 
         add_btn = ToolButton(FluentIcon.ADD, parent=None)
@@ -332,7 +331,7 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
         """
         log.info('选择平台 %s', platform)
         self.platform = platform
-        self.ctx.screen_loader = ScreenLoader(platform=self.platform)
+        self.ctx.screen_loader = ScreenContext(platform=self.platform)
         self._platform_opt_update.signal.emit()
 
     def _on_create_clicked(self):

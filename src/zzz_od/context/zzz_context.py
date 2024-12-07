@@ -38,7 +38,8 @@ class ZContext(OneDragonContext):
         from zzz_od.config.game_config import GamePlatformEnum
         from zzz_od.controller.zzz_pc_controller import ZPcController
         from zzz_od.controller.zzz_emulator_controller import ZEmulatorController
-        from one_dragon.base.screen.screen_loader import ScreenLoader
+        from one_dragon.base.screen.screen_loader import ScreenContext as ScreenContext
+        from one_dragon.base.screen.template_loader import TemplateLoader
         if self.game_config.platform == GamePlatformEnum.PC.value.value:
             self.controller = ZPcController(
                 game_config=self.game_config,
@@ -46,7 +47,8 @@ class ZContext(OneDragonContext):
                 standard_width=self.project_config.screen_standard_width,
                 standard_height=self.project_config.screen_standard_height
             )
-            self.screen_loader: ScreenLoader = ScreenLoader(platform='PC')
+            self.screen_loader: ScreenContext = ScreenContext(platform='PC')
+            self.template_finder: TemplateLoader = TemplateLoader(platform='PC')
         if self.game_config.platform == GamePlatformEnum.Emulator.value.value:
             self.controller = ZEmulatorController(
                 game_config=self.game_config,
@@ -54,7 +56,8 @@ class ZContext(OneDragonContext):
                 standard_width=self.project_config.screen_standard_width,
                 standard_height=self.project_config.screen_standard_height
             )
-            self.screen_loader: ScreenLoader = ScreenLoader(platform='Emulator')
+            self.screen_loader: ScreenContext = ScreenContext(platform='Emulator')
+            self.template_finder: TemplateLoader = TemplateLoader(platform='Emulator')
         self.hollow.data_service.reload()
         self.init_hollow_config()
 

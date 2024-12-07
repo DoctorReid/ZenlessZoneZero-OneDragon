@@ -235,7 +235,7 @@ class SettingGameInterface(VerticalScrollInterface):
         self.game_region_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('game_region'))
         self.game_account_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('account'))
         self.game_password_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('password'))
-        self.game_platform_opt.value_changed.disconnect(self.ctx.game_config.get_prop_adapter('game_platform'))
+        self.game_platform_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('platform'))
 
         self.game_path_opt.setContent(self.ctx.game_config.game_path)
         self.input_way_opt.init_with_adapter(self.ctx.game_config.type_input_way_adapter)
@@ -258,10 +258,10 @@ class SettingGameInterface(VerticalScrollInterface):
 
         self._update_gamepad_part()
 
-        self.game_region_opt.value_changed.connect(self._on_game_region_changed)
-        self.game_account_opt.value_changed.connect(self._on_game_account_changed)
-        self.game_password_opt.value_changed.connect(self._on_game_password_changed)
-        self.game_platform_opt.value_changed.connect(self._on_game_platform_changed)
+        # self.game_region_opt.value_changed.connect(self._on_game_region_changed)
+        # self.game_account_opt.value_changed.connect(self._on_game_account_changed)
+        # self.game_password_opt.value_changed.connect(self._on_game_password_changed)
+        # self.game_platform_opt.value_changed.connect(self._on_game_platform_changed)
 
     def _update_gamepad_part(self) -> None:
         """
