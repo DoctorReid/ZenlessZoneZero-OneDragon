@@ -68,23 +68,12 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: 关键进展-丁尼奖励
-  pc_rect:
-  - 670
-  - 708
-  - 1276
-  - 966
-  text: ''
-  lcs_percent: 0.5
-  template_sub_dir: hollow
-  template_id: critical_reward_money
-  template_match_threshold: 0.7
 - area_name: 通关-丁尼奖励
   pc_rect:
-  - 1314
-  - 534
-  - 1826
-  - 864
+  - 1312
+  - 530
+  - 1830
+  - 870
   text: ''
   lcs_percent: 0.5
   template_sub_dir: hollow

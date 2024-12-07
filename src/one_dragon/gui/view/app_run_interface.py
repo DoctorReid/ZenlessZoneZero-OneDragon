@@ -146,6 +146,8 @@ class AppRunInterface(VerticalScrollInterface):
         if app is None:
             log.error('未提供对应应用')
             return
+        if app.run_record is not None:
+            app.run_record.check_and_update_status()
         self.app_runner.app = app
         self.app_runner.start()
 

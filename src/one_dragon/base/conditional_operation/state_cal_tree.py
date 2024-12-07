@@ -72,21 +72,21 @@ class StateCalNode:
                 return not self.left_child.in_time_range(now)
         elif self.node_type == StateCalNodeType.STATE:
             diff = now - self.state_recorder.last_record_time
-            log.debug('状态 [ %s ] 距离上次 %.2f, 要求区间 [%.2f, %.2f]' % (
-                self.state_recorder.state_name,
-                999 if diff > 999 else diff,
-                self.state_time_range_min,
-                self.state_time_range_max
-            ))
+            # log.debug('状态 [ %s ] 距离上次 %.2f, 要求区间 [%.2f, %.2f]' % (
+            #     self.state_recorder.state_name,
+            #     999 if diff > 999 else diff,
+            #     self.state_time_range_min,
+            #     self.state_time_range_max
+            # ))
             time_valid = self.state_time_range_min <= diff <= self.state_time_range_max
             value_valid = True
             if self.state_value_range_min is not None and self.state_value_range_max is not None:
-                log.debug('状态 [ %s ] 当前值 %s, 值要求区间 [%d, %d]' % (
-                    self.state_recorder.state_name,
-                    self.state_recorder.last_value,
-                    self.state_value_range_min,
-                    self.state_value_range_max
-                ))
+                # log.debug('状态 [ %s ] 当前值 %s, 值要求区间 [%d, %d]' % (
+                #     self.state_recorder.state_name,
+                #     self.state_recorder.last_value,
+                #     self.state_value_range_min,
+                #     self.state_value_range_max
+                # ))
                 if self.state_recorder.last_value is None:
                     value_valid = False
                 else:

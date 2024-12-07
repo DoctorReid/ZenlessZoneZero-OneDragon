@@ -20,12 +20,13 @@ class OneDragonApp(Application):
     STATUS_NO_LOGIN: ClassVar[str] = '下一个'
 
     def __init__(self, ctx: OneDragonContext, app_id: str,
+                 op_name: str = '一条龙',
                  op_to_enter_game: Optional[Operation] = None,
                  op_to_switch_account: Optional[Operation] = None):
         Application.__init__(
             self,
             ctx, app_id,
-            op_name=gt('一条龙', 'ui'),
+            op_name=gt(op_name, 'ui'),
             op_to_enter_game=op_to_enter_game
         )
 
@@ -40,6 +41,21 @@ class OneDragonApp(Application):
 
     def get_app_list(self) -> List[Application]:
         return []
+
+    def get_app_order_list(self) -> List[str]:
+        """
+        获取应用运行顺序
+        :return: app id list
+        """
+        return self.ctx.one_dragon_app_config.app_order
+
+    def update_app_order_list(self, new_app_orders: List[str]) -> None:
+        """
+        更新引用运行顺序
+        :param new_app_orders: app id list
+        :return:
+        """
+        self.ctx.one_dragon_app_config.app_order = new_app_orders
 
     def handle_init(self) -> None:
         """
@@ -67,7 +83,7 @@ class OneDragonApp(Application):
         :return:
         """
         all_apps = self.get_app_list()
-        app_orders = self.ctx.one_dragon_app_config.app_order
+        app_orders = self.get_app_order_list()
 
         result_list: List[Application] = []
         # 按顺序加入
@@ -84,7 +100,7 @@ class OneDragonApp(Application):
 
         # 每次都更新配置
         new_app_orders = [app.app_id for app in result_list]
-        self.ctx.one_dragon_app_config.app_order = new_app_orders
+        self.update_app_order_list(new_app_orders)
 
         return result_list
 

@@ -89,12 +89,14 @@ class AutoBattleContext:
             e = BattleStateEnum.BTN_SWITCH_NEXT.value
             update_agent = True
 
+        start_time = time.time()
         self.ctx.controller.switch_next(press=press, press_time=press_time, release=release)
 
         finish_time = time.time()
         state_records = [StateRecord(e, finish_time)]
         if update_agent:
-            agent_records = self.agent_context.switch_next_agent(finish_time, False)
+            # 切换角色的状态时间应该是按键开始时间
+            agent_records = self.agent_context.switch_next_agent(start_time, False, check_agent=True)
             for i in agent_records:
                 state_records.append(i)
         self.auto_op.batch_update_states(state_records)
@@ -110,12 +112,14 @@ class AutoBattleContext:
             e = BattleStateEnum.BTN_SWITCH_PREV.value
             update_agent = True
 
+        start_time = time.time()
         self.ctx.controller.switch_prev(press=press, press_time=press_time, release=release)
 
         finish_time = time.time()
         state_records = [StateRecord(e, finish_time)]
         if update_agent:
-            agent_records = self.agent_context.switch_prev_agent(finish_time, False)
+            # 切换角色的状态时间应该是按键开始时间
+            agent_records = self.agent_context.switch_prev_agent(start_time, False, check_agent=True)
             for i in agent_records:
                 state_records.append(i)
         self.auto_op.batch_update_states(state_records)
@@ -167,12 +171,14 @@ class AutoBattleContext:
             e = BattleStateEnum.BTN_CHAIN_LEFT.value
             update_agent = True
 
+        start_time = time.time()
         self.ctx.controller.chain_left(press=press, press_time=press_time, release=release)
 
         finish_time = time.time()
         state_records = [StateRecord(e, finish_time)]
         if update_agent:
-            agent_records = self.agent_context.switch_prev_agent(finish_time, False)
+            # 切换角色的状态时间应该是按键开始时间
+            agent_records = self.agent_context.switch_prev_agent(start_time, False)
             for i in agent_records:
                 state_records.append(i)
         self.auto_op.batch_update_states(state_records)
@@ -188,12 +194,14 @@ class AutoBattleContext:
             e = BattleStateEnum.BTN_CHAIN_RIGHT.value
             update_agent = True
 
+        start_time = time.time()
         self.ctx.controller.chain_right(press=press, press_time=press_time, release=release)
 
         finish_time = time.time()
         state_records = [StateRecord(e, finish_time)]
         if update_agent:
-            agent_records = self.agent_context.switch_next_agent(finish_time, False)
+            # 切换角色的状态时间应该是按键开始时间
+            agent_records = self.agent_context.switch_next_agent(start_time, False)
             for i in agent_records:
                 state_records.append(i)
         self.auto_op.batch_update_states(state_records)
@@ -270,24 +278,45 @@ class AutoBattleContext:
         finish_time = time.time()
         self.auto_op.update_state(StateRecord(e, finish_time))
 
-    def quick_assist(self, press: bool = False, press_time: Optional[float] = None, release: bool = False):
-        update_agent = False
-        if press:
-            e = BattleStateEnum.BTN_QUICK_ASSIST.value + '-按下'
-            update_agent = True
-        elif release:
-            e = BattleStateEnum.BTN_QUICK_ASSIST.value + '-松开'
-        else:
-            e = BattleStateEnum.BTN_QUICK_ASSIST.value
-            update_agent = True
+    def quick_assist(self):
+        # 切换角色的状态时间应该是按键开始时间
+        start_time = time.time()
+        pos, state_records = self.agent_context.switch_quick_assist(start_time, False)
 
-        self.ctx.controller.switch_next(press=press, press_time=press_time, release=release)
+        if pos == 2:
+            self.ctx.controller.switch_next()
+            btn_name = BattleStateEnum.BTN_SWITCH_NEXT.value
+        elif pos == 3:
+            self.ctx.controller.switch_prev()
+            btn_name = BattleStateEnum.BTN_SWITCH_PREV.value
+        else:
+            return
+
         finish_time = time.time()
-        state_records = [StateRecord(e, finish_time)]
-        if update_agent:
-            agent_records = self.agent_context.switch_quick_assist(finish_time, False)
-            for i in agent_records:
-                state_records.append(i)
+        state_records.append(StateRecord(btn_name, finish_time))
+        self.auto_op.batch_update_states(state_records)
+
+    def switch_by_name(self, agent_name: str) -> None:
+        """
+        根据代理人名称 切换到指定的代理人
+        :param agent_name: 代理人名称
+        :return:
+        """
+        # 切换角色的状态时间应该是按键开始时间
+        start_time = time.time()
+        pos, state_records = self.agent_context.switch_by_agent_name(agent_name, update_time=start_time, update_state=False)
+
+        if pos == 2:
+            self.ctx.controller.switch_next()
+            btn_name = BattleStateEnum.BTN_SWITCH_NEXT.value
+        elif pos == 3:
+            self.ctx.controller.switch_prev()
+            btn_name = BattleStateEnum.BTN_SWITCH_PREV.value
+        else:
+            return
+
+        finish_time = time.time()
+        state_records.append(StateRecord(btn_name, finish_time))
         self.auto_op.batch_update_states(state_records)
 
     def init_battle_context(
@@ -660,10 +689,11 @@ class AutoBattleContext:
         finally:
             self._check_distance_lock.release()
 
-    def check_battle_distance(self, screen: MatLike) -> MatchResult:
+    def check_battle_distance(self, screen: MatLike, last_distance: Optional[float] = None) -> MatchResult:
         """
         识别画面上显示的距离
         :param screen:
+        :param last_distance: 上一次使用的距离 极少数情况会出现多个距离 这个时候转动画面保持向特定的距离转动
         :return:
         """
         area = self._check_distance_area
@@ -680,11 +710,23 @@ class AutoBattleContext:
             distance = str_utils.get_positive_float(pre_str, None)
             if distance is None:
                 continue
-            mr = mrl.max
+
+            tmp_mr = mrl.max
+            tmp_mr.data = distance
+            tmp_mr.add_offset(area.left_top)
+            # 极少数情况下会出现多个距离
+            mid_x = self.ctx.project_config.screen_standard_width // 2
+            if mr is None:
+                mr = tmp_mr
+            elif last_distance is not None:
+                # 有上一次记录时 需要继续使用上一次的
+                if abs(tmp_mr.data - last_distance) < abs(mr.data - last_distance):
+                    mr = tmp_mr
+            elif abs(tmp_mr.center.x - mid_x) < abs(mr.center.x - mid_x):
+                # 选离中间最近的
+                mr = tmp_mr
 
         if mr is not None:
-            mr.add_offset(area.left_top)
-            mr.data = distance
             self.without_distance_times = 0
             self.with_distance_times += 1
             self.last_check_distance = distance
@@ -737,4 +779,3 @@ class AutoBattleContext:
         self.move_d(release=True)
         self.lock(release=True)
         self.chain_cancel(release=True)
-        self.quick_assist(release=True)

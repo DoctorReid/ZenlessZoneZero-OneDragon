@@ -1,4 +1,4 @@
-from typing import List
+from cv2.typing import MatLike
 
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
@@ -43,15 +43,19 @@ class RiduWeeklyApp(ZApplication):
 
     @node_from(from_name='丽都周纪')
     @operation_node(name='领取积分')
-    def claim_score(self) -> OperationRoundResult:
-        screen = self.screenshot()
-        area = self.ctx.screen_loader.get_area('丽都周纪', '任务区域')
+    def claim_score(self, screen: MatLike = None) -> OperationRoundResult:
+        if screen is None:
+            screen = self.screenshot()
 
-        result = self.round_by_ocr_and_click(screen, '100', area=area,
-                                             color_range=[(150, 190, 0), (220, 255, 50)])
+        for i in range(3):
+            area = self.ctx.screen_loader.get_area('丽都周纪', f'积分行-{i+1}')
 
-        if result.is_success:
-            return self.round_wait(result.status, wait=1)
+            result = self.round_by_ocr_and_click(screen, '100', area=area,
+                                                 lcs_percent=1,
+                                                 color_range=[(250, 250, 250), (255, 255, 255)])
+
+            if result.is_success:
+                return self.round_wait(result.status, wait=1)
 
         return self.round_retry(result.status, wait=1)
 

@@ -1,6 +1,7 @@
 import os
-import yaml
 from typing import Optional
+
+import yaml
 
 from one_dragon.utils.log_utils import log
 

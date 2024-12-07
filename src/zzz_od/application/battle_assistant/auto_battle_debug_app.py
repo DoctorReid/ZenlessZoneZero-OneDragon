@@ -2,7 +2,6 @@ import time
 
 from typing import Optional
 
-from one_dragon.base.conditional_operation.operation_task import OperationTask
 from one_dragon.base.controller.pc_button import pc_button_utils
 from one_dragon.base.operation.operation_base import OperationResult
 from one_dragon.base.operation.operation_edge import node_from
@@ -90,10 +89,9 @@ class AutoBattleDebugApp(ZApplication):
         self.auto_op.auto_battle_context.check_battle_state(screen, now, sync=True)
 
         time.sleep(0.2)
-        ops = self.auto_op._normal_scene_handler.get_operations(time.time())
-        if ops is not None:
-            task = OperationTask(False, ops)
-            task.run_async().result()
+        new_task = self.auto_op._normal_scene_handler.get_operations(time.time())
+        if new_task is not None:
+            new_task.run_async().result()
 
         return self.round_success()
 

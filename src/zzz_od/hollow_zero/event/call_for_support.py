@@ -238,6 +238,7 @@ class CallForSupport(ZOperation):
             RejectOption('谢谢露西但我能搞定'),  # 露西
             RejectOption('之后有机会再一起玩吧'),  # 柏妮思
             RejectOption('不打扰你工作了'), # 月城柳
+            RejectOption('还不到常胜冠军出马的时候'), # 莱特
         ]
 
         part = cv2_utils.crop_image_only(screen, area.rect)

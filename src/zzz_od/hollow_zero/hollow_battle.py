@@ -39,9 +39,11 @@ class HollowBattle(ZOperation):
         self.is_critical_stage: bool = is_critical_stage  # 是否关键进展
         self.auto_op: Optional[AutoBattleOperator] = None
         self.move_times: int = 0  # 向前移动的次数
+        self.turn_times: int = 0  # 转动的次数
         self.last_distance: Optional[float] = None  # 上次移动前的距离
         self.last_stuck_distance: Optional[float] = None  # 上次受困显示的距离
         self.stuck_move_direction: int = 0  # 受困时移动的方向
+        self.last_distance_to_turn: Optional[float] = None  # 上次转向的距离
 
     def handle_init(self):
         self.distance_pos: Optional[Rect] = None  # 显示距离的区域
@@ -64,7 +66,7 @@ class HollowBattle(ZOperation):
     @operation_node(name='识别特殊移动')
     def check_special_move(self):
         screen = self.screenshot()
-        self._check_distance(screen)
+        self.check_distance_to_move(screen)
 
         if self.auto_op.auto_battle_context.with_distance_times >= 10:
             return self.round_success(HollowBattle.STATUS_NEED_SPECIAL_MOVE)
@@ -90,7 +92,7 @@ class HollowBattle(ZOperation):
     @operation_node(name='向前移动准备战斗')
     def move_to_battle(self) -> OperationRoundResult:
         screen = self.screenshot()
-        self._check_distance(screen)
+        self.check_distance_to_move(screen)
 
         if self.distance_pos is None:
             if self.auto_op.auto_battle_context.without_distance_times >= 10:
@@ -99,7 +101,7 @@ class HollowBattle(ZOperation):
             else:
                 return self.round_wait(wait=0.02)
 
-        if self.move_times >= 20:
+        if self.move_times >= 20 or self.turn_times >= 60:
             # 移动比较久也没到 就自动退出了
             return self.round_fail(HollowBattle.STATUS_FAIL_TO_MOVE)
 
@@ -123,15 +125,18 @@ class HollowBattle(ZOperation):
         pos = self.distance_pos.center
         if pos.x < 900:
             self.ctx.controller.turn_by_distance(-50)
+            self.turn_times += 1
             return self.round_wait(wait=0.5)
         elif pos.x > 1100:
             self.ctx.controller.turn_by_distance(+50)
+            self.turn_times += 1
             return self.round_wait(wait=0.5)
         else:
             self.last_distance = current_distance
             press_time = self.auto_op.auto_battle_context.last_check_distance / 7.2  # 朱鸢测出来的速度
             self.ctx.controller.move_w(press=True, press_time=press_time, release=True)
             self.move_times += 1
+            self.last_distance_to_turn = None  # 移动完后重新识别
             return self.round_wait(wait=0.5)
 
     def _get_rid_of_stuck(self):
@@ -162,6 +167,7 @@ class HollowBattle(ZOperation):
     @operation_node(name='自动战斗', timeout_seconds=600, mute=True)
     def auto_battle(self) -> OperationRoundResult:
         self.move_times = 0
+        self.turn_times = 0
         if self.auto_op.auto_battle_context.last_check_end_result is not None:
             auto_battle_utils.stop_running(self.auto_op)
             return self.round_success(status=self.auto_op.auto_battle_context.last_check_end_result)
@@ -198,11 +204,6 @@ class HollowBattle(ZOperation):
         time.sleep(2)
         screen = self.screenshot()
 
-        result = self.round_by_find_area(screen, '零号空洞-战斗', '关键进展-丁尼奖励')
-        if not result.is_success:
-            # 领满奖励了
-            self.ctx.hollow_zero_record.period_reward_complete = True
-
         # 有时候可能会识别到背景上的挑战结果 这时候也尝试点
         result = self.round_by_find_and_click_area(screen, '零号空洞-战斗', '结算周期上限-确认')
         if result.is_success:
@@ -229,6 +230,10 @@ class HollowBattle(ZOperation):
         if not result.is_success:
             # 领满奖励了
             self.ctx.hollow_zero_record.period_reward_complete = True
+            self.save_screenshot()
+        else:
+            # 防止因为动画效果 奖励还没有出现 就出现了按钮
+            self.ctx.hollow_zero_record.period_reward_complete = False
 
         return self.round_success(status='普通战斗-完成')
 
@@ -281,13 +286,14 @@ class HollowBattle(ZOperation):
         return self.round_by_find_area(screen, '零号空洞-事件', '通关-完成',
                                        success_wait=2, retry_wait=1)  # 找到后稍微等待 按钮刚出来的时候按没有用
 
-    def _check_distance(self, screen: MatLike) -> None:
-        mr = self.auto_op.auto_battle_context.check_battle_distance(screen)
+    def check_distance_to_move(self, screen: MatLike) -> None:
+        mr = self.auto_op.auto_battle_context.check_battle_distance(screen, self.last_distance_to_turn)
 
         if mr is None:
             self.distance_pos = None
         else:
             self.distance_pos = mr.rect
+            self.last_distance_to_turn = mr.data
 
     def _on_pause(self, e=None):
         ZOperation._on_pause(self, e)

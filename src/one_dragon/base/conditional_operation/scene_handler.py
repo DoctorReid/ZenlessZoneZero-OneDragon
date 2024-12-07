@@ -1,6 +1,6 @@
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
-from one_dragon.base.conditional_operation.atomic_op import AtomicOp
+from one_dragon.base.conditional_operation.operation_task import OperationTask
 from one_dragon.base.conditional_operation.state_handler import StateHandler
 
 
@@ -11,17 +11,18 @@ class SceneHandler:
         self.state_handlers: List[StateHandler] = state_handlers
         self.priority: Optional[int] = priority  # 优先级 只能被高等级的打断；为None时可以被随意打断
 
-    def get_operations(self, trigger_time: float) -> Tuple[Optional[List[AtomicOp]], str]:
+    def get_operations(self, trigger_time: float) -> Optional[OperationTask]:
         """
         根据触发时间 和优先级 获取符合条件的场景下的指令
         :param trigger_time: 触发时间
         :return:
         """
         for sh in self.state_handlers:
-            ops, expr = sh.get_operations(trigger_time)
-            if ops is not None:
-                return ops, expr
-        return None, ''
+            task = sh.get_operations(trigger_time)
+            if task is not None:
+                task.set_priority(self.priority)
+                return task
+        return None
 
     def get_usage_states(self) -> set[str]:
         """

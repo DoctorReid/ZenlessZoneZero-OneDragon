@@ -1,8 +1,10 @@
 from cv2.typing import MatLike
 from enum import Enum
+from typing import Optional
 
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.base.screen.screen_area import ScreenArea
+from one_dragon.base.screen.screen_info import ScreenInfo
 from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 
@@ -25,14 +27,25 @@ class FindAreaResultEnum(Enum):
 
 def find_area(ctx: OneDragonContext, screen: MatLike, screen_name: str, area_name: str) -> FindAreaResultEnum:
     """
-    在一个区域匹配成功后进行点击
-    :param ctx: 运行上下文
-    :param screen: 屏幕截图
+    游戏截图中 是否能找到对应的区域
+    :param ctx: 上下文
+    :param screen: 游戏截图
     :param screen_name: 画面名称
     :param area_name: 区域名称
-    :return:
+    :return: 结果
     """
     area: ScreenArea = ctx.screen_loader.get_area(screen_name, area_name)
+    return find_area_in_screen(ctx, screen, area)
+
+
+def find_area_in_screen(ctx: OneDragonContext, screen: MatLike, area: ScreenArea) -> FindAreaResultEnum:
+    """
+    游戏截图中 是否能找到对应的区域
+    :param ctx: 上下文
+    :param screen: 游戏截图
+    :param area: 区域
+    :return: 结果
+    """
     if area is None:
         return FindAreaResultEnum.AREA_NO_CONFIG
 
@@ -97,4 +110,79 @@ def find_and_click_area(ctx: OneDragonContext, screen: MatLike, screen_name: str
         else:
             return OcrClickResultEnum.OCR_CLICK_FAIL
     else:
-        return OcrClickResultEnum.OCR_CLICK_FAIL
+        ctx.controller.click(area.center, pc_alt=area.pc_alt)
+        return OcrClickResultEnum.OCR_CLICK_SUCCESS
+
+
+def get_match_screen_name(ctx: OneDragonContext, screen: MatLike) -> str:
+    """
+    根据游戏截图 匹配一个最合适的画面
+    :param ctx: 上下文
+    :param screen: 游戏截图
+    :return: 画面名字
+    """
+    bfs_list = []
+    if ctx.screen_loader.current_screen_name is not None:  # 如果有记录上次所在画面 则从这个画面开始搜索
+        bfs_list.append(ctx.screen_loader.current_screen_name)
+    if ctx.screen_loader.last_screen_name is not None:
+        bfs_list.append(ctx.screen_loader.last_screen_name)
+    if len(bfs_list) > 0:
+        bfs_idx = 0
+        while bfs_idx < len(bfs_list):
+            current_screen_name = bfs_list[bfs_idx]
+            bfs_idx += 1
+            if is_target_screen(ctx, screen, screen_name=current_screen_name):
+                return current_screen_name
+
+            screen_info = ctx.screen_loader.get_screen(current_screen_name)
+            if screen_info is None:
+                continue
+            for area in screen_info.area_list:
+                if area.goto_list is None or len(area.goto_list) == 0:
+                    continue
+                for goto_screen in area.goto_list:
+                    if goto_screen not in bfs_list:
+                        bfs_list.append(goto_screen)
+
+        # 最后 尝试搜索中没有出现的画面
+        for screen_info in ctx.screen_loader.screen_info_list:
+            if screen_info.screen_name in bfs_list:
+                continue
+            if is_target_screen(ctx, screen, screen_info=screen_info):
+                return screen_info.screen_name
+    else:
+        for screen_info in ctx.screen_loader.screen_info_list:
+            if is_target_screen(ctx, screen, screen_info=screen_info):
+                return screen_info.screen_name
+
+
+def is_target_screen(ctx: OneDragonContext, screen: MatLike,
+                     screen_name: Optional[str] = None,
+                     screen_info: Optional[ScreenInfo] = None) -> bool:
+    """
+    根据游戏截图 判断是否目标画面
+    :param ctx: 上下文
+    :param screen: 游戏截图
+    :param screen_name: 目标画面名称
+    :param screen_info: 目标画面信息 传入时优先使用
+    :return: 结果
+    """
+    if screen_info is None:
+        if screen_name is None:
+            return False
+        screen_info = ctx.screen_loader.get_screen(screen_name)
+        if screen_info is None:
+            return False
+
+    existed_id_mark: bool = False
+    fit_id_mark: bool = True
+    for screen_area in screen_info.area_list:
+        if not screen_area.id_mark:
+            continue
+        existed_id_mark = True
+
+        if find_area_in_screen(ctx, screen, screen_area) != FindAreaResultEnum.TRUE:
+            fit_id_mark = False
+            break
+
+    return existed_id_mark and fit_id_mark

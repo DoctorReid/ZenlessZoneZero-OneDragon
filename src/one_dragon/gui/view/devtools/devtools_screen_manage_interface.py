@@ -1,7 +1,7 @@
 import os
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QWidget, QFileDialog, QTableWidgetItem
-from qfluentwidgets import FluentIcon, PushButton, TableWidget, ToolButton
+from qfluentwidgets import FluentIcon, PushButton, TableWidget, ToolButton, CheckBox
 from typing import Optional
 
 from one_dragon.base.geometry.rectangle import Rect
@@ -127,12 +127,13 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
         widget.add_widget(self.pc_alt_opt)
 
         self.area_table = TableWidget()
-        self.area_table.setMinimumWidth(700)
+        self.area_table.cellChanged.connect(self._on_area_table_cell_changed)
+        self.area_table.setMinimumWidth(980)
         self.area_table.setMinimumHeight(420)
         self.area_table.setBorderVisible(True)
         self.area_table.setBorderRadius(8)
         self.area_table.setWordWrap(True)
-        self.area_table.setColumnCount(7)
+        self.area_table.setColumnCount(9)
         self.area_table.verticalHeader().hide()
         self.area_table.setHorizontalHeaderLabels([
             gt('操作', 'ui'),
@@ -141,7 +142,9 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
             gt('文本', 'ui'),
             gt('阈值', 'ui'),
             gt('模板', 'ui'),
-            gt('阈值', 'ui')
+            gt('阈值', 'ui'),
+            gt('唯一标识', 'ui'),
+            gt('前往画面', 'ui')
         ])
         self.area_table.setColumnWidth(0, 40)  # 操作
         self.area_table.setColumnWidth(2, 200)  # 位置
@@ -164,7 +167,7 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
             pass
         self.existed_yml_btn.clear()
         self.existed_yml_btn.addItems(
-            [i.screen_name for i in self.ctx.screen_loader._screen_info_list]
+            [i.screen_name for i in self.ctx.screen_loader.screen_info_list]
         )
         self.existed_yml_btn.setCurrentIndex(-1)
         self.existed_yml_btn.setPlaceholderText(gt('选择已有', 'ui'))
@@ -249,11 +252,7 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
         更新区域表格的显示
         :return:
         """
-        try:
-            # 更新之前 先取消原来的监听 防止触发事件
-            self.area_table.cellChanged.disconnect(self._on_area_table_cell_changed)
-        except Exception:
-            pass
+        self.area_table.blockSignals(True)
         area_list = [] if self.chosen_screen is None else self.chosen_screen.area_list
         area_cnt = len(area_list)
         self.area_table.setRowCount(area_cnt + 1)
@@ -263,6 +262,11 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
             del_btn = ToolButton(FluentIcon.DELETE, parent=None)
             del_btn.clicked.connect(self._on_row_delete_clicked)
 
+            id_check = CheckBox()
+            id_check.setChecked(area_item.id_mark)
+            id_check.setProperty('area_name', area_item.area_name)
+            id_check.stateChanged.connect(self.on_area_id_check_changed)
+
             self.area_table.setCellWidget(idx, 0, del_btn)
             self.area_table.setItem(idx, 1, QTableWidgetItem(area_item.area_name))
             self.area_table.setItem(idx, 2, QTableWidgetItem(str(area_item.rect)))
@@ -270,6 +274,9 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
             self.area_table.setItem(idx, 4, QTableWidgetItem(str(area_item.lcs_percent)))
             self.area_table.setItem(idx, 5, QTableWidgetItem(area_item.template_id_display_text))
             self.area_table.setItem(idx, 6, QTableWidgetItem(str(area_item.template_match_threshold)))
+            self.area_table.setCellWidget(idx, 7, id_check)
+            self.area_table.setItem(idx, 8, QTableWidgetItem(area_item.goto_list_display_text))
+
 
         add_btn = ToolButton(FluentIcon.ADD, parent=None)
         add_btn.clicked.connect(self._on_area_add_clicked)
@@ -280,8 +287,10 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
         self.area_table.setItem(area_cnt, 4, QTableWidgetItem(''))
         self.area_table.setItem(area_cnt, 5, QTableWidgetItem(''))
         self.area_table.setItem(area_cnt, 6, QTableWidgetItem(''))
+        self.area_table.setItem(area_cnt, 7, QTableWidgetItem(''))
+        self.area_table.setItem(area_cnt, 8, QTableWidgetItem(''))
 
-        self.area_table.cellChanged.connect(self._on_area_table_cell_changed)
+        self.area_table.blockSignals(False)
 
     def _update_image_display(self):
         """
@@ -309,7 +318,7 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
         :param screen_name:
         :return:
         """
-        for screen_info in self.ctx.screen_loader._screen_info_list:
+        for screen_info in self.ctx.screen_loader.screen_info_list:
             if screen_info.screen_name == screen_name:
                 self.chosen_screen = ScreenInfo(screen_id=screen_info.screen_id, platform=self.platform)
                 self._whole_update.signal.emit()
@@ -548,6 +557,8 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
                     area_item.template_id = template_list[0]
         elif column == 6:
             area_item.template_match_threshold = float(text) if len(text) > 0 else 0.7
+        elif column == 8:
+            area_item.goto_list = text.split(';')
 
     def _on_image_drag_released(self, x1: int, y1: int, x2: int, y2: int) -> None:
         """
@@ -568,4 +579,14 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
         real_x2 = int(x2 * image_width / display_width)
         real_y2 = int(y2 * image_height / display_height)
 
-        self.image_click_pos_opt.setValue(f'{real_x1}, {real_y1}, {real_x2}, {real_y2}')
+        self.image_click_pos_opt.setValue(f'({real_x1}, {real_y1}, {real_x2}, {real_y2})')
+
+    def on_area_id_check_changed(self):
+        if self.chosen_screen is None:
+            return
+        btn: CheckBox = self.sender()
+        if btn is not None:
+            row_idx = self.area_table.indexAt(btn.pos()).row()
+            if row_idx < 0 or row_idx >= len(self.chosen_screen.area_list):
+                return
+            self.chosen_screen.area_list[row_idx].id_mark = btn.isChecked()

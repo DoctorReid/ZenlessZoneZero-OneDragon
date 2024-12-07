@@ -1,7 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor, Future
 
 from threading import Lock
-from typing import Optional, List
+from typing import Optional, List, Set
 
 from one_dragon.base.conditional_operation.atomic_op import AtomicOp
 from one_dragon.utils import thread_utils
@@ -10,33 +10,32 @@ from one_dragon.utils.log_utils import log
 _od_op_task_executor = ThreadPoolExecutor(thread_name_prefix='_od_op_task_executor', max_workers=32)
 
 
-# 用于页面信息显示
 class OperationTask:
 
-    def __init__(self, op_list: List[AtomicOp], priority: Optional[int] = None,
-                 trigger: Optional[str] = None, expr: str = ''):
+    def __init__(self, op_list: List[AtomicOp]):
         """
         包含一串指令的任务
         :param op_list:
         """
-        self.is_trigger: bool = trigger is not None
+        self.trigger: Optional[str] = None  # 触发器
+        self.interrupt_states: Set[str] = set()  # 可被打断的状态
+        self.is_trigger: bool = False  # 是否触发器场景
+        self.priority: Optional[int] = None  # 优先级 只能被高等级的打断；为None时可以被随意打断
+
         self.op_list: List[AtomicOp] = op_list
-        self._running: bool = False
+        self.running: bool = False
         self._current_op: Optional[AtomicOp] = None  # 当前执行的指令
         self._async_ops: List[AtomicOp] = []  # 执行过异步操作
         self._op_lock: Lock = Lock()  # 操作锁 用于保证stop里的一定是最后执行的op
-        self.priority: Optional[int] = priority  # 优先级 只能被高等级的打断；为None时可以被随意打断
 
-        self.trigger_display: str = '主循环' if trigger is None else trigger  # 用于界面显示
-        self.priority_display: str = '无优先级' if priority is None else str(priority)  # 用于界面显示
-        self.expr: str = expr  # 用于界面显示
+        self.expr_list: List[str] = []  # 用于界面显示
 
     def run_async(self) -> Future:
         """
         异步执行
         :return:
         """
-        self._running = True
+        self.running = True
         future: Future = _od_op_task_executor.submit(self._run)
         future.add_done_callback(thread_utils.handle_future_result)
         return future
@@ -48,13 +47,14 @@ class OperationTask:
         """
         for idx in range(len(self.op_list)):
             with self._op_lock:
-                if not self._running:
+                if not self.running:
                     # 被stop中断了 不继续后续的操作
                     break
                 self._current_op = self.op_list[idx]
                 if self._current_op.async_op:
                     self._async_ops.append(self._current_op)
                 future: Future = _od_op_task_executor.submit(self._current_op.execute)
+                future.add_done_callback(thread_utils.handle_future_result)
 
             try:
                 future.result()
@@ -62,12 +62,12 @@ class OperationTask:
                 log.error('指令执行出错', exc_info=True)
 
             with self._op_lock:
-                if not self._running:
+                if not self.running:
                     # 被stop中断了 那么应该认为这个op没有执行完 不进行后续判断
                     break
                 self._current_op = None
-                if self._running and idx == len(self.op_list) - 1:
-                    self._running = False
+                if self.running and idx == len(self.op_list) - 1:
+                    self.running = False
                     return True
 
         return False
@@ -78,13 +78,13 @@ class OperationTask:
         :return: 停止前是否已经完成所有指令了
         """
         with self._op_lock:
-            if not self._running:
+            if not self.running:
                 # _run里面已经把op执行完了 就不需要额外的停止操作了
                 self._current_op = None
                 self._async_ops.clear()
                 return True
 
-            self._running = False
+            self.running = False
             if self._current_op is not None:
                 self._current_op.stop()
                 self._current_op = None
@@ -92,3 +92,49 @@ class OperationTask:
                 op.stop()
             self._async_ops.clear()
             return False
+
+    def add_expr(self, expr: str) -> None:
+        """
+        添加一个表达式
+        :param expr:
+        :return:
+        """
+        self.expr_list.append(expr)
+
+    def set_priority(self, priority: Optional[int]) -> None:
+        """
+        设置触发的场景信息
+        :param priority: 场景优先级
+        :return:
+        """
+        self.priority = priority
+
+    def set_trigger(self, trigger: Optional[str]) -> None:
+        """
+        设置触发的场景信息
+        :param trigger: 触发场景
+        :return:
+        """
+        self.trigger = trigger
+        self.is_trigger = trigger is not None and trigger != ''
+
+    def add_interrupt_states(self, interrupt_states: Set[str]) -> None:
+        """
+        添加可打断的场景
+        :param interrupt_states: 可以被打断的状态
+        :return:
+        """
+        if interrupt_states is not None:
+            self.interrupt_states.update(interrupt_states)
+
+    @property
+    def expr_display(self) -> str:
+        return '<-'.join(self.expr_list) if len(self.expr_list) > 0 else '/'
+
+    @property
+    def priority_display(self) -> str:
+        return '无优先级' if self.priority is None else str(self.priority)
+
+    @property
+    def trigger_display(self) -> str:
+        return '主循环' if self.trigger is None else self.trigger

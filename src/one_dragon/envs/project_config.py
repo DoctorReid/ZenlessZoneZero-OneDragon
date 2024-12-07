@@ -18,3 +18,5 @@ class ProjectConfig(YamlConfig):
 
         self.screen_standard_width = int(self.get('screen_standard_width'))
         self.screen_standard_height = int(self.get('screen_standard_height'))
+
+        self.qq_link = self.get('qq_link')

@@ -40,3 +40,13 @@ class ComboBox(qtComboBox):
 
         self.setCurrentIndex(new_idx)
         self.blockSignals(False)
+
+    def init_with_value(self, target_value: Any = None) -> None:
+        """
+        根据目标值初始化 不抛出事件
+        :param target_value:
+        :return:
+        """
+        self.blockSignals(True)
+        self.setCurrentIndex(self.findData(target_value))
+        self.blockSignals(False)

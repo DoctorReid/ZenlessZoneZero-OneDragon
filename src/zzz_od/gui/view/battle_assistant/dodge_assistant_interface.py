@@ -128,12 +128,7 @@ class DodgeAssistantInterface(AppRunInterface):
         更新闪避指令
         :return:
         """
-        try:
-            self.dodge_opt.value_changed.disconnect(self._on_dodge_way_changed)
-        except Exception:
-            pass
         self.dodge_opt.set_options_by_list(get_auto_battle_op_config_list('dodge'))
-        self.dodge_opt.value_changed.connect(self._on_dodge_way_changed)
 
     def _on_dodge_way_changed(self, index, value):
         self.ctx.battle_assistant_config.dodge_assistant_config = value

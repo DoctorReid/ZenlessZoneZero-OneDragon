@@ -1,6 +1,7 @@
-from typing import List, Optional, Tuple
+from typing import List, Optional, Set
 
 from one_dragon.base.conditional_operation.atomic_op import AtomicOp
+from one_dragon.base.conditional_operation.operation_task import OperationTask
 from one_dragon.base.conditional_operation.state_cal_tree import StateCalNode
 from one_dragon.utils.log_utils import log
 
@@ -11,35 +12,42 @@ class StateHandler:
                  expr: str,
                  state_cal_tree: StateCalNode,
                  sub_handlers: Optional[List] = None,
-                 operations: Optional[List[AtomicOp]] = None
+                 operations: Optional[List[AtomicOp]] = None,
+                 interrupt_states: Optional[Set[str]] = None,
                  ):
         """
         一个状态处理器 包含状态判断 + 对应指令
         :param state_cal_tree: 状态判断树
         :param operations: 执行指令
+        :param interrupt_states: 可以被这些状态打断
         """
         self.expr: str = expr
         self.state_cal_tree: StateCalNode = state_cal_tree
         self.sub_handlers: List[StateHandler] = sub_handlers
         self.operations: List[AtomicOp] = operations
+        self.interrupt_states: Set[str] = interrupt_states
 
-    def get_operations(self, trigger_time: float) -> Tuple[Optional[List[AtomicOp]], str]:
+    def get_operations(self, trigger_time: float) -> Optional[OperationTask]:
         """
         根据触发时间 和优先级 获取符合条件的场景下的指令
         :param trigger_time:
         :return:
         """
         if self.state_cal_tree.in_time_range(trigger_time):
-            log.debug('满足条件 %s', self.expr)
             if self.sub_handlers is not None and len(self.sub_handlers) > 0:
                 for sub_handler in self.sub_handlers:
-                    ops, expr = sub_handler.get_operations(trigger_time)
-                    if ops is not None:
-                        return ops, expr
+                    task = sub_handler.get_operations(trigger_time)
+                    if task is not None:
+                        task.add_expr(self.expr)
+                        task.add_interrupt_states(self.interrupt_states)
+                        return task
             else:
-                return self.operations, self.expr
+                task = OperationTask(self.operations)
+                task.add_expr(self.expr)
+                task.add_interrupt_states(self.interrupt_states)
+                return task
 
-        return None, ''
+        return None
 
     def get_usage_states(self) -> set[str]:
         """

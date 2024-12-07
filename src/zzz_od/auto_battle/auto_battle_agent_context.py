@@ -2,7 +2,7 @@ from concurrent.futures import ThreadPoolExecutor, Future
 
 import threading
 from cv2.typing import MatLike
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Tuple
 
 from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
 from one_dragon.base.conditional_operation.state_recorder import StateRecord, StateRecorder
@@ -96,19 +96,19 @@ class TeamInfo:
                 return False
             self.agent_update_time = update_time
 
-            log.debug('当前角色列表 %s', [
-                i.agent.agent_name if i.agent is not None else 'none'
-                for i in self.agent_list
-            ])
+            # log.debug('当前角色列表 %s', [
+            #     i.agent.agent_name if i.agent is not None else 'none'
+            #     for i in self.agent_list
+            # ])
 
             self.agent_list = []
             for i in range(len(current_agent_list)):
                 energy = energy_list[i] if i < len(energy_list) else 0
                 self.agent_list.append(AgentInfo(current_agent_list[i], energy))
 
-            log.debug('更新后角色列表 %s 更新时间 %.4f',
-                      [i.agent.agent_name if i.agent is not None else 'none' for i in self.agent_list],
-                      update_time)
+            # log.debug('更新后角色列表 %s 更新时间 %.4f',
+            #           [i.agent.agent_name if i.agent is not None else 'none' for i in self.agent_list],
+            #           update_time)
 
             return True
 
@@ -166,9 +166,9 @@ class TeamInfo:
 
             self.agent_list = next_agent_list
 
-            log.debug('切换下一个 更新后角色列表 %s 更新时间 %.4f',
-                      [ i.agent.agent_name if i.agent is not None else 'none' for i in self.agent_list],
-                      update_time)
+            # log.debug('切换下一个 更新后角色列表 %s 更新时间 %.4f',
+            #           [ i.agent.agent_name if i.agent is not None else 'none' for i in self.agent_list],
+            #           update_time)
 
             return True
 
@@ -204,9 +204,9 @@ class TeamInfo:
                 next_agent_list.append(AgentInfo(None, 0))
             self.agent_list = next_agent_list
 
-            log.debug('切换上一个 更新后角色列表 %s 更新时间 %.4f',
-                      [ i.agent.agent_name if i.agent is not None else 'none' for i in self.agent_list],
-                      update_time)
+            # log.debug('切换上一个 更新后角色列表 %s 更新时间 %.4f',
+            #           [ i.agent.agent_name if i.agent is not None else 'none' for i in self.agent_list],
+            #           update_time)
 
             return True
 
@@ -221,6 +221,22 @@ class TeamInfo:
             if self.agent_list[i].agent.agent_id == agent.agent_id:
                 return i + 1
         return 0
+
+    def get_agent_pos_by_name(self, agent_name: str) -> int:
+        """
+        根据代理人名称 获取指定代理人在队伍当前的位置
+        :return: 如果存在就返回1~3 不存在就返回0
+        """
+        switch_agent = None
+        for agent_enum in AgentEnum:
+            if agent_enum.value.agent_name == agent_name:
+                switch_agent = agent_enum.value
+                break
+        if switch_agent is None:
+            return 0
+
+        return self.get_agent_pos(switch_agent)
+
 
 
 class CheckAgentState:
@@ -526,35 +542,41 @@ class AutoBattleAgentContext:
 
         return self._check_agent_state_in_parallel(screen, screenshot_time, to_check_list)
 
-    def switch_next_agent(self, update_time: float, update_state: bool = True) -> List[StateRecord]:
+    def switch_next_agent(self, update_time: float, update_state: bool = True, check_agent: bool = False) -> List[StateRecord]:
         """
         代理人列表 切换下一个
         :param update_time: 更新时间
         :param update_state: 是否更新状态
+        :param check_agent: 下一次截图是否需要识别代理人。普通切人场景可能会切错人（目标代理人还没有离场 没法再次切上场） 需要尽量快识别截图来更正代理人
         """
         if self.team_info.switch_next_agent(update_time):
-            records = self._get_agent_state_records(update_time)
+            if check_agent:
+                self._last_check_agent_time = 0
+            records = self._get_agent_state_records(update_time, switch=True)
             records.append(StateRecord(BattleStateEnum.STATUS_SPECIAL_READY.value, is_clear=True))
             if update_state:
                 self.auto_op.batch_update_states(records)
             return records
         return []
 
-    def switch_prev_agent(self, update_time: float, update_state: bool = True) -> List[StateRecord]:
+    def switch_prev_agent(self, update_time: float, update_state: bool = True, check_agent: bool = False) -> List[StateRecord]:
         """
         代理人列表 切换上一个
         :param update_time: 更新时间
         :param update_state: 是否更新状态
+        :param check_agent: 下一次截图是否需要识别代理人。普通切人场景可能会切错人（目标代理人还没有离场 没法再次切上场） 需要尽量快识别截图来更正代理人
         """
         if self.team_info.switch_prev_agent(update_time):
-            records = self._get_agent_state_records(update_time)
+            if check_agent:
+                self._last_check_agent_time = 0
+            records = self._get_agent_state_records(update_time, switch=True)
             records.append(StateRecord(BattleStateEnum.STATUS_SPECIAL_READY.value, is_clear=True))
             if update_state:
                 self.auto_op.batch_update_states(records)
             return records
         return []
 
-    def switch_quick_assist(self, update_time: float, update_state: bool = True) -> List[StateRecord]:
+    def switch_quick_assist(self, update_time: float, update_state: bool = True) -> Tuple[int, List[StateRecord]]:
         """
         切换到快速支援的角色
         :param update_time: 更新时间
@@ -576,13 +598,15 @@ class AutoBattleAgentContext:
                 switch_agent = agent
 
         if switch_agent is None:
-            return []
+            return 0, []
 
         target_agent_pos = self.team_info.get_agent_pos(switch_agent)
         if target_agent_pos == 2:  # 在下一个
-            return self.switch_next_agent(update_time, update_state=update_state)
+            return target_agent_pos, self.switch_next_agent(update_time, update_state=update_state)
         elif target_agent_pos == 3:  # 在上一个
-            return self.switch_prev_agent(update_time, update_state=update_state)
+            return target_agent_pos, self.switch_prev_agent(update_time, update_state=update_state)
+        else:
+            return 0, []
 
     def chain_left(self, update_time: float, update_state: bool = True) -> List[StateRecord]:
         """
@@ -600,7 +624,9 @@ class AutoBattleAgentContext:
             agent_name = chain_name_list[1]
         else:
             agent_name = chain_name_list[0]
-        return self.switch_by_agent_name(agent_name, update_time, update_state=update_state)
+
+        _, states = self.switch_by_agent_name(agent_name, update_time, update_state=update_state)
+        return states
 
     def chain_right(self, update_time: float, update_state: bool = True) -> List[StateRecord]:
         """
@@ -618,7 +644,9 @@ class AutoBattleAgentContext:
             agent_name = chain_name_list[0]
         else:
             agent_name = chain_name_list[1]
-        return self.switch_by_agent_name(agent_name, update_time, update_state=update_state)
+
+        _, states = self.switch_by_agent_name(agent_name, update_time, update_state=update_state)
+        return states
 
     def get_chain_name(self) -> List[str]:
         """
@@ -644,13 +672,13 @@ class AutoBattleAgentContext:
 
         return result
 
-    def switch_by_agent_name(self, agent_name: str, update_time: float, update_state: bool = True) -> List[StateRecord]:
+    def switch_by_agent_name(self, agent_name: str, update_time: float, update_state: bool = True) -> Tuple[int, List[StateRecord]]:
         """
         根据代理人名称进行切换
         :param agent_name:
         :param update_time:
         :param update_state:
-        :return:
+        :return: 目标代理人的位置 切换导致的状态更新
         """
         switch_agent = None
         for agent_enum in AgentEnum:
@@ -658,18 +686,21 @@ class AutoBattleAgentContext:
                 switch_agent = agent_enum.value
                 break
         if switch_agent is None:
-            return []
+            return 0, []
 
         target_agent_pos = self.team_info.get_agent_pos(switch_agent)
         if target_agent_pos == 2:  # 在下一个
-            return self.switch_next_agent(update_time, update_state=update_state)
+            return target_agent_pos, self.switch_next_agent(update_time, update_state=update_state, check_agent=True)
         elif target_agent_pos == 3:  # 在上一个
-            return self.switch_prev_agent(update_time, update_state=update_state)
+            return target_agent_pos, self.switch_prev_agent(update_time, update_state=update_state, check_agent=True)
+        else:
+            return 0, []
 
-    def _get_agent_state_records(self, update_time: float) -> List[StateRecord]:
+    def _get_agent_state_records(self, update_time: float, switch: bool = False) -> List[StateRecord]:
         """
         获取代理人相关的状态
         :param update_time:
+        :param switch: 是否切换角色
         :return:
         """
         state_records = []
@@ -680,6 +711,14 @@ class AutoBattleAgentContext:
             if agent is not None:
                 state_records.append(StateRecord(prefix + agent.agent_name, update_time))
                 state_records.append(StateRecord(prefix + agent.agent_type.value, update_time))
+
+                if i > 0:
+                    state_records.append(StateRecord(f'后台-{agent.agent_name}', update_time))
+                if i == 0 and switch:
+                    state_records.append(StateRecord(f'切换角色-{agent.agent_name}', update_time))
+                    state_records.append(StateRecord(f'切换角色-{agent.agent_type.value}', update_time))
+
+                state_records.append(StateRecord(f'{agent.agent_name}-能量', update_time, agent_info.energy))
 
             state_records.append(StateRecord(prefix + '能量', update_time, agent_info.energy))
 

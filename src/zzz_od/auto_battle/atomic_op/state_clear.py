@@ -1,4 +1,4 @@
-from typing import ClassVar
+from typing import ClassVar, List
 
 from one_dragon.base.conditional_operation.atomic_op import AtomicOp
 from one_dragon.base.conditional_operation.operation_def import OperationDef
@@ -13,9 +13,13 @@ class AtomicClearState(AtomicOp):
         AtomicOp.__init__(self, op_name=AtomicClearState.OP_NAME)
         self.ctx: AutoBattleCustomContext = ctx
         self.state_name: str = op_def.state_name
+        self.state_name_list: List[str] = op_def.state_name_list
         if op_def.data is not None:
             if len(op_def.data) > 0:
                 self.state_name = op_def.data[0]
 
     def execute(self):
-        self.ctx.clear_state(self.state_name)
+        if self.state_name_list is not None:
+            self.ctx.clear_state(self.state_name_list)
+        else:
+            self.ctx.clear_state([self.state_name])
