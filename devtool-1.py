@@ -12,7 +12,7 @@ def match_template(img, template, scale_step=0.01, min_scale=0.5, max_scale=2.5)
 
     current_scale = min_scale
     while current_scale <= max_scale:
-        resized_template = cv2.resize(template, (0, 0), fx=current_scale, fy=current_scale)
+        resized_template = cv2.resize(template, (0, 0), fx=current_scale, fy=1)
         result = cv2.matchTemplate(img, resized_template, cv2.TM_CCOEFF_NORMED, mask)
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
 
@@ -27,9 +27,9 @@ def match_template(img, template, scale_step=0.01, min_scale=0.5, max_scale=2.5)
 
 
 # 读取图片和模板
-img = cv2.imread('D:/Code_Work/antec/ZenlessZoneZero-OneDragon/.debug/images/switch_1733585427645.png')
-template = cv2.imread('D:/Code_Work/antec/ZenlessZoneZero-OneDragon/assets/template/agent_state/zhu_yuan_2_2/raw.png')
-mask = cv2.imread('D:/Code_Work/antec/ZenlessZoneZero-OneDragon/assets/template/agent_state/zhu_yuan_2_2/mask.png')
+img = cv2.imread('D:/Code_Work/antec/ZenlessZoneZero-OneDragon/.debug/images/switch_1733588505972.png')
+template = cv2.imread('D:/Code_Work/antec/ZenlessZoneZero-OneDragon/assets/template/agent_state/qingyi_3_2/raw.png')
+mask = cv2.imread('D:/Code_Work/antec/ZenlessZoneZero-OneDragon/assets/template/agent_state/qingyi_3_2/mask.png')
 match_location, best_scale , best_match_value = match_template(img, template)
 
 if match_location is not None:

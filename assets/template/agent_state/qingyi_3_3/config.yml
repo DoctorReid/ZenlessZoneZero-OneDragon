@@ -6,3 +6,6 @@ auto_mask: true
 point_list:
 - 778, 95
 - 832, 96
+emulator_point_list:
+- 929, 116
+- 993, 117
