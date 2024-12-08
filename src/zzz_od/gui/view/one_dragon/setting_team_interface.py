@@ -1,6 +1,6 @@
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QWidget
-from qfluentwidgets import FluentIcon, LineEdit
+from qfluentwidgets import FluentIcon, LineEdit, HyperlinkCard
 from typing import Optional, List
 
 from one_dragon.base.config.config_item import ConfigItem
@@ -84,6 +84,10 @@ class SettingTeamInterface(VerticalScrollInterface):
 
     def get_content_widget(self) -> QWidget:
         content_widget = Column()
+
+        self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='使用默认队伍名称出现错选时 可更改名字解决',
+                                      text='', url='')
+        content_widget.add_widget(self.help_opt)
 
         self.team_opt_list = []
         team_list = self.ctx.team_config.team_list
