@@ -62,7 +62,7 @@ def find_area_in_screen(ctx: OneDragonContext, screen: MatLike, area: ScreenArea
     elif area.is_template_area:
         rect = area.rect
         part = cv2_utils.crop_image_only(screen, rect)
-        log.info("Screen: %s, Area: %s", screen_name, area_name)
+        # log.info("Screen: %s, Area: %s", screen_name, area_name)
         mrl = ctx.tm.match_template(part, area.template_sub_dir, area.template_id,
                                     threshold=area.template_match_threshold)
         find = mrl.max is not None
