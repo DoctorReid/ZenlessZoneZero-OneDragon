@@ -233,3 +233,10 @@
   options:
     - option_name: "我也来帮忙分担吧！"
     - option_name: "我最会保守秘密了！"
+    
+# 露西
+- entry_name: "邂逅"
+  event_name: "三只小猪"
+  options:
+    - option_name: "最好让小野猪们也休息一下哦"
+    - option_name: "严正拒绝！"
