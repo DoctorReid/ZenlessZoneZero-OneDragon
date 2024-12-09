@@ -247,3 +247,10 @@
     - option_name: "支付500齿轮硬币"
       desc 比利在下一场战斗中的伤害提升
     - option_name: "还是算了"
+
+# 露西
+- entry_name: "邂逅"
+  event_name: "三只小猪"
+  options:
+    - option_name: "最好让小野猪们也休息一下哦"
+    - option_name: "严正拒绝！"
