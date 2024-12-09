@@ -616,7 +616,7 @@ class AutoBattleAgentContext:
         # 由于连携有邦布的存在 因此要特殊判断切换的角色
         chain_name_list = self.get_chain_name()
 
-        # 有识别到的情况 就默认使用上一个
+        # 没有识别到的情况 就默认使用上一个
         if len(chain_name_list) < 1:
             return self.switch_prev_agent(update_time, update_state=update_state)
 
