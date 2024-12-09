@@ -254,3 +254,11 @@
   options:
     - option_name: "最好让小野猪们也休息一下哦"
     - option_name: "严正拒绝！"
+
+# 派派
+- entry_name: "邂逅"
+  event_name: "宝贝丢了"
+  options:
+    - option_name: "我陪你找找吧"
+    - option_name: "那样很快会被盯上的！"
+    
