@@ -54,7 +54,7 @@
   event_name: "张驰有度，收放自如"
   lcs_percent: 0.6
   options:
-    - option_name: "听从安比的建议，体息一会儿"
+    - option_name: "听从安比的建议，休息一会儿"
 
 # 安比
 - entry_name: "邂逅"
