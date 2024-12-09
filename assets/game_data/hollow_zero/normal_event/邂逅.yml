@@ -261,4 +261,15 @@
   options:
     - option_name: "我陪你找找吧"
     - option_name: "那样很快会被盯上的！"
-    
+
+# 格莉丝
+- entry_name: "邂逅"
+  event_name: "心灵充电"
+  options:
+    - option_name: "下不为例哦"
+
+# 格莉丝
+- entry_name: "邂逅"
+  event_name: "机械马杀鸡"
+  options:
+    - option_name: "我相信你格莉丝"
