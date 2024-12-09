@@ -228,6 +228,11 @@
 ## 卡吕冬之子
 
 # 莱特
+- entry_name: "邂逅"
+  event_name: "葡萄味的压力对策"
+  options:
+    - option_name: "完全看不出来呢"
+    - option_name: "莱特的口袋里"
 
 # 柏妮思
 - entry_name: "邂逅"
