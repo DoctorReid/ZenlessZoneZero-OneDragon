@@ -47,7 +47,7 @@
   event_name: "星徽骑士的保养"
   options:
     - option_name: "支付500齿轮硬币"
-      desc 比利在下一场战斗中的伤害提升
+      desc: "比利在下一场战斗中的伤害提升"
     - option_name: "还是算了"
 
 # 妮可
