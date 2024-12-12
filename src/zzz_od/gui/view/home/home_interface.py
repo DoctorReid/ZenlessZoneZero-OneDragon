@@ -1,21 +1,15 @@
 import os
-from typing import Callable, Optional
 from PySide6.QtCore import Qt, QThread, Signal, QSize, QUrl
 from PySide6.QtGui import (
-    QPixmap,
-    QPainter,
-    QPainterPath,
     QFont,
-    QDesktopServices,QColor
+    QDesktopServices, QColor
 )
 from PySide6.QtWidgets import (
-    QWidget,
     QVBoxLayout,
     QHBoxLayout,
     QSpacerItem,
     QSizePolicy,
 )
-
 from qfluentwidgets import (
     FluentIcon,
     InfoBar,
@@ -24,24 +18,25 @@ from qfluentwidgets import (
     SimpleCardWidget,
     PrimaryPushButton,
 )
+from typing import Callable, Optional
 
 from one_dragon.base.operation.operation import Operation
 from one_dragon.base.operation.operation_base import OperationResult
+from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
-from one_dragon.utils.log_utils import log
 from one_dragon.gui.widgets.vertical_scroll_interface import (
     VerticalScrollInterface,
 )
+from one_dragon.gui.windows.app_window_base import AppWindowBase
 from one_dragon.utils import os_utils
 from one_dragon.utils.i18_utils import gt
-from one_dragon.base.operation.operation_edge import node_from
-from one_dragon.base.operation.operation_node import operation_node
-
+from one_dragon.utils.log_utils import log
+from phosdeiz.gui.services import PhosStyleSheet
+from phosdeiz.gui.widgets import IconButton, NoticeCard, GameDialog, Banner
+from phosdeiz.gui.windows.window import PhosTitleBar
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.enter_game.open_game import OpenGame
 
-from phosdeiz.gui.services import PhosStyleSheet
-from phosdeiz.gui.widgets import IconButton,NoticeCard,GameDialog,Banner
 
 class ButtonGroup(SimpleCardWidget):
     """显示主页和 GitHub 按钮的竖直按钮组"""
@@ -252,7 +247,7 @@ class HomeInterface(VerticalScrollInterface):
         InfoBar.success(
             title=title,
             content=content,
-            orient=Qt.Horizontal,
+            orient=Qt.Orientation.Horizontal,
             isClosable=True,
             position=InfoBarPosition.TOP_RIGHT,
             duration=duration,

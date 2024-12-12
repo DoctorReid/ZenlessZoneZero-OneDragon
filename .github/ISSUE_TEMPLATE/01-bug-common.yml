@@ -18,7 +18,7 @@ body:
   - type: input
     attributes:
       label: 代码版本
-      description: "「代码同步」里第一行的ID 不填入大概率不受理"
+      description: "窗口上方显示 点击可复制到粘贴板 不填入大概率不受理"
     validations:
       required: true
 

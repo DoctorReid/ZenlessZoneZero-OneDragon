@@ -403,3 +403,11 @@ class GitService:
         """
         reset_result = cmd_utils.run_command([self.env_config.git_path, 'reset', '--hard', commit_id])
         return reset_result is not None
+
+    def get_current_version(self) -> Optional[str]:
+        """
+        获取当前代码版本
+        @return:
+        """
+        log_list = self.fetch_page_commit(1, 1)
+        return None if len(log_list) == 0 else log_list[0].commit_id
