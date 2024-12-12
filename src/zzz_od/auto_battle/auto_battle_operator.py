@@ -84,6 +84,7 @@ class AutoBattleOperator(ConditionalOperator):
                 allow_ultimate_list=self.get('allow_ultimate', None)
             )
 
+            log.info(f'自动战斗配置加载成功 {self.module_name}')
             return True, ''
         except Exception as e:
             log.error('自动战斗初始化失败 共享配队文件请在群内提醒对应作者修复', exc_info=True)
