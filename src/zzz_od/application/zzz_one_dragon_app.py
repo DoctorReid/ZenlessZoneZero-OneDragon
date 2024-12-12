@@ -75,6 +75,8 @@ def __debug():
     elif ctx.one_dragon_config.after_done == AfterDoneOpEnum.CLOSE_GAME.value.value:
         ctx.controller.close_game()
 
+    ctx.btn_listener.stop()
+
 
 if __name__ == '__main__':
     __debug()

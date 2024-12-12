@@ -193,3 +193,5 @@ if __name__ == "__main__":
 
     # 启动应用程序事件循环
     app.exec()
+
+    _ctx.btn_listener.stop()
