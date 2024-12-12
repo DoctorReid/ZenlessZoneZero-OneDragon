@@ -26,7 +26,6 @@ class OneDragonRunInterface(VerticalScrollInterface):
     def __init__(self, ctx: OneDragonContext,
                  nav_text_cn: str = '一条龙运行',
                  object_name: str = 'one_dragon_run_interface',
-                 app_config: OneDragonAppConfig = None,
                  need_multiple_instance: bool = True,
                  need_after_done_opt: bool = True,
                  help_url: Optional[str] = None, parent=None):
@@ -39,7 +38,6 @@ class OneDragonRunInterface(VerticalScrollInterface):
         )
 
         self.ctx: OneDragonContext = ctx
-        self.app_config: OneDragonAppConfig = ctx.one_dragon_app_config if app_config is None else app_config
         self._app_run_cards: List[AppRunCard] = []
         self._context_event_signal = ContextEventSignal()
         self.help_url: str = help_url  # 使用说明的链接
@@ -262,7 +260,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
         :param app_id:
         :return:
         """
-        self.app_config.move_up_app(app_id)
+        self.get_one_dragon_app_config().move_up_app(app_id)
         self._init_app_list()
 
     def _on_app_card_run(self, app_id: str) -> None:
@@ -282,7 +280,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
         :param value:
         :return:
         """
-        self.app_config.set_app_run(app_id, value)
+        self.get_one_dragon_app_config().set_app_run(app_id, value)
 
     def _on_instance_event(self, event) -> None:
         """
@@ -313,4 +311,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
         获取需要运行的app id列表
         :return:
         """
-        return self.app_config.app_run_list
+        return self.get_one_dragon_app_config().app_run_list
+
+    def get_one_dragon_app_config(self) -> OneDragonAppConfig:
+        return self.ctx.one_dragon_app_config
