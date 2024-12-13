@@ -181,7 +181,6 @@ class OneDragonApp(Application):
     @node_from(from_name='切换实例配置')
     @operation_node(name='切换账号')
     def switch_account(self) -> OperationRoundResult:
-        return self.round_success()
         if len(self._instance_list) == 1:
             return self.round_success('无需切换账号')
         if self._op_to_switch_account is None:
