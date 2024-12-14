@@ -409,5 +409,5 @@ class GitService:
         获取当前代码版本
         @return:
         """
-        log_list = self.fetch_page_commit(1, 1)
+        log_list = self.fetch_page_commit(0, 1)
         return None if len(log_list) == 0 else log_list[0].commit_id
