@@ -105,7 +105,7 @@ class DodgeAssistantInterface(AppRunInterface):
         """
         AppRunInterface.on_interface_shown(self)
         self._update_dodge_way_opts()
-        self.dodge_opt.setValue(self.ctx.battle_assistant_config.dodge_assistant_config)
+        self.dodge_opt.init_with_adapter(self.ctx.battle_assistant_config.get_prop_adapter('dodge_assistant_config'))
         self.gpu_opt.init_with_adapter(self.ctx.yolo_config.flash_classifier_gpu_adapter)
         self.screenshot_interval_opt.setValue(str(self.ctx.battle_assistant_config.screenshot_interval))
         self.gamepad_type_opt.setValue(self.ctx.battle_assistant_config.gamepad_type)
@@ -129,9 +129,6 @@ class DodgeAssistantInterface(AppRunInterface):
         :return:
         """
         self.dodge_opt.set_options_by_list(get_auto_battle_op_config_list('dodge'))
-
-    def _on_dodge_way_changed(self, index, value):
-        self.ctx.battle_assistant_config.dodge_assistant_config = value
 
     def _on_screenshot_interval_changed(self, value: str) -> None:
         self.ctx.battle_assistant_config.screenshot_interval = float(value)
