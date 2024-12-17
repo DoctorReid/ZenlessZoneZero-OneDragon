@@ -8,6 +8,8 @@ from one_dragon.utils import yolo_config_utils
 ZZZ_MODEL_DOWNLOAD_URL = 'https://github.com/DoctorReid/OneDragon-YOLO/releases/download/zzz_model'
 _DEFAULT_FLASH_CLASSIFIER = 'yolov8n-640-flash-1215'
 _DEFAULT_HOLLOW_ZERO_EVENT = 'yolov8s-736-hollow-zero-event-1130'
+_BACKUP_FLASH_CLASSIFIER = 'yolov8n-640-flash-0718'
+_BACKUP_HOLLOW_ZERO_EVENT = 'yolov8s-736-hollow-zero-event-1130'
 
 
 class YoloConfig(YamlConfig):
@@ -22,6 +24,10 @@ class YoloConfig(YamlConfig):
     @flash_classifier.setter
     def flash_classifier(self, new_value: str) -> None:
         self.update('flash_classifier', new_value)
+
+    @property
+    def flash_classifier_backup(self) -> str:
+        return _BACKUP_FLASH_CLASSIFIER
 
     @property
     def flash_classifier_gpu(self) -> bool:
@@ -42,6 +48,10 @@ class YoloConfig(YamlConfig):
     @hollow_zero_event.setter
     def hollow_zero_event(self, new_value: str) -> None:
         self.update('hollow_zero_event', new_value)
+
+    @property
+    def hollow_zero_event_backup(self) -> str:
+        return _BACKUP_HOLLOW_ZERO_EVENT
 
     @property
     def hollow_zero_event_gpu(self) -> bool:

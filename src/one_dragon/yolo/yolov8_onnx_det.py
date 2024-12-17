@@ -9,7 +9,6 @@ from typing import Optional, List
 from one_dragon.yolo import onnx_utils
 from one_dragon.yolo.detect_utils import DetectFrameResult, DetectClass, DetectContext, DetectObjectResult, xywh2xyxy, \
     multiclass_nms
-from one_dragon.yolo.log_utils import log
 from one_dragon.yolo.onnx_model_loader import OnnxModelLoader
 
 
@@ -22,6 +21,7 @@ class Yolov8Detector(OnnxModelLoader):
                  gh_proxy: bool = True,
                  personal_proxy: Optional[str] = '',
                  gpu: bool = False,
+                 backup_model_name: Optional[str] = None,
                  keep_result_seconds: float = 2
                  ):
         """
@@ -39,7 +39,8 @@ class Yolov8Detector(OnnxModelLoader):
             model_download_url=model_download_url,
             gh_proxy=gh_proxy,
             personal_proxy=personal_proxy,
-            gpu=gpu
+            gpu=gpu,
+            backup_model_name=backup_model_name
         )
 
         self.keep_result_seconds: float = keep_result_seconds  # 保留识别结果的秒数

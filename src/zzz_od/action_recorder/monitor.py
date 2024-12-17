@@ -154,6 +154,7 @@ class BattleDodgeContext4Recording(AutoBattleDodgeContext):
             use_gh_proxy = self.ctx.env_config.is_ghproxy
             self._flash_model = FlashClassifier(
                 model_name=self.ctx.yolo_config.flash_classifier,
+                backup_model_name=self.ctx.yolo_config.flash_classifier_backup,
                 model_parent_dir_path=yolo_config_utils.get_model_category_dir('flash_classifier'),
                 gh_proxy=use_gh_proxy,
                 personal_proxy=None if use_gh_proxy else self.ctx.env_config.personal_proxy,

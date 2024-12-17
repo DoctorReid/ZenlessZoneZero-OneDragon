@@ -9,6 +9,7 @@ class FlashClassifier(Yolov8Classifier):
 
     def __init__(self,
                  model_name: str = 'yolov8n-640-dodge-0718',
+                 backup_model_name: str = 'yolov8n-640-dodge-0718',
                  model_parent_dir_path: Optional[str] = os.path.abspath(__file__),  # 默认使用本文件的目录
                  gh_proxy: bool = True,
                  personal_proxy: Optional[str] = None,
@@ -24,6 +25,7 @@ class FlashClassifier(Yolov8Classifier):
         Yolov8Classifier.__init__(
             self,
             model_name=model_name,
+            backup_model_name=backup_model_name,
             model_parent_dir_path=model_parent_dir_path,
             model_download_url=ZZZ_MODEL_DOWNLOAD_URL,
             gh_proxy=gh_proxy,

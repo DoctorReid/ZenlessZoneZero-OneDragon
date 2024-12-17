@@ -1,11 +1,10 @@
 import time
-from typing import Optional, List
 
 import numpy as np
 from cv2.typing import MatLike
+from typing import Optional, List
 
 from one_dragon.yolo import onnx_utils
-from one_dragon.yolo.log_utils import log
 from one_dragon.yolo.onnx_model_loader import OnnxModelLoader
 
 
@@ -58,6 +57,7 @@ class Yolov8Classifier(OnnxModelLoader):
                  gh_proxy: bool = True,
                  personal_proxy: Optional[str] = None,
                  gpu: bool = False,
+                 backup_model_name: Optional[str] = None,
                  keep_result_seconds: float = 2,
                  ):
         """
@@ -73,7 +73,8 @@ class Yolov8Classifier(OnnxModelLoader):
             model_parent_dir_path=model_parent_dir_path,
             gh_proxy=gh_proxy,
             personal_proxy=personal_proxy,
-            gpu=gpu
+            gpu=gpu,
+            backup_model_name=backup_model_name
         )
 
         self.keep_result_seconds: float = keep_result_seconds  # 保留识别结果的秒数
