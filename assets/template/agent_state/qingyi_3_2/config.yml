@@ -4,5 +4,5 @@ template_name: 角色状态-青衣-32
 template_shape: rectangle
 auto_mask: true
 point_list:
-- 615, 95
-- 669, 96
+- 578, 96
+- 631, 97
