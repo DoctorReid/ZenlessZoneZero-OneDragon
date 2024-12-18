@@ -211,4 +211,4 @@ class AgentEnum(Enum):
     YANAGI = Agent('yanagi', '柳', RareTypeEnum.S, AgentTypeEnum.ANOMALY, DmgTypeEnum.ELECTRIC)
     LIGHTER = Agent('lighter', '莱特', RareTypeEnum.S, AgentTypeEnum.STUN, DmgTypeEnum.FIRE,
                     state_list=[AgentStateDef('莱特-士气', AgentStateCheckWay.BACKGROUND_GRAY_RANGE_LENGTH,
-                                              'lighter', lower_color=0, upper_color=10)])
+                                              'lighter', lower_color=0, upper_color=50)])

@@ -110,19 +110,26 @@ def check_length_by_background_gray(
 
     gray = cv2.cvtColor(to_check, cv2.COLOR_RGB2GRAY).mean(axis=0)
     mask = (gray >= state_def.lower_color) & (gray <= state_def.upper_color)
-    mask_idx = np.where(mask)
+    # 非背景色的
+    mask_idx = np.where(~mask)
     total_cnt = len(gray)
 
     left = np.min(mask_idx, initial=total_cnt+1)
     right = np.max(mask_idx, initial=0)
-    bg_cnt = right - left + 1
+    # bg_cnt = right - left + 1
+    #
+    # if bg_cnt < 0:
+    #     bg_cnt = 0
+    # if bg_cnt > total_cnt:
+    #     bg_cnt = total_cnt
+    #
+    # fg_cnt = total_cnt - bg_cnt
+    fg_cnt = right - left + 1
 
-    if bg_cnt < 0:
-        bg_cnt = 0
-    if bg_cnt > total_cnt:
-        bg_cnt = total_cnt
-
-    fg_cnt = total_cnt - bg_cnt
+    if fg_cnt < 0:
+        fg_cnt = 0
+    if fg_cnt > total_cnt:
+        fg_cnt = total_cnt
 
     return int(fg_cnt * 100.0 / total_cnt)
 
