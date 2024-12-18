@@ -17,6 +17,7 @@ from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCar
 from one_dragon.utils import os_utils, cv2_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
+from one_dragon.base.screen.template_loader import TemplateLoader
 
 from phosdeiz.gui.widgets import Row,Column,ComboBox
 
@@ -49,6 +50,12 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
 
         btn_row = Row()
         widget.add_widget(btn_row)
+        self.platform_opt = ComboBox()
+        self.platform_opt.setPlaceholderText(gt('选择平台', 'ui'))  # 设置占位符文本
+        self.platform_opt.addItems(['PC', 'Emulator'])  # 添加选项
+        self.platform_opt.setCurrentIndex(-1)  # 默认选择第一个选项（PC）
+        self._update_platform_opt()
+        btn_row.add_widget(self.platform_opt)  # 将选择框添加到按钮行
 
         self.existed_yml_btn = ComboBox()
         self.existed_yml_btn.setPlaceholderText(gt('选择已有', 'ui'))
@@ -211,6 +218,7 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
         """
         chosen = self.chosen_template is not None
 
+        self.platform_opt.setDisabled(chosen)
         self.existed_yml_btn.setDisabled(chosen)
         self.create_btn.setDisabled(chosen)
         self.copy_btn.setDisabled(not chosen)
@@ -269,6 +277,19 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
         self.existed_yml_btn.setCurrentIndex(-1)
         self.existed_yml_btn.setPlaceholderText(gt('选择已有', 'ui'))
         self.existed_yml_btn.currentIndexChanged.connect(self._on_choose_existed_yml)
+
+    def _update_platform_opt(self) -> None:
+        """
+        更新平台选项
+        :return:
+        """
+        try:
+            # 更新之前 先取消原来的监听 防止触发事件
+            self.platform_opt.currentTextChanged.disconnect(self._on_platform_opt_changed)
+        except Exception:
+            pass
+
+        self.platform_opt.currentTextChanged.connect(self._on_platform_opt_changed)
 
     def _update_point_table_display(self):
         """
@@ -373,6 +394,17 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
         :return:
         """
         self.chosen_template: TemplateInfo = self.existed_yml_btn.items[idx].userData
+        self._update_whole_display()
+
+    def _on_platform_opt_changed(self, platform: str):
+        """
+        选择了平台
+        :param platform:
+        :return:
+        """
+        log.info('选择平台 %s', platform)
+        self.platform = platform
+        self.ctx.template_loader = TemplateLoader(platform=self.platform)
         self._update_whole_display()
 
     def _on_create_clicked(self):

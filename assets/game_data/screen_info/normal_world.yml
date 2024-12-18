@@ -8,17 +8,29 @@ area_list:
   - 918
   - 1826
   - 1016
+  emulator_rect:
+  - 1277
+  - 832
+  - 1411
+  - 966
+  platform: Emulator
   text: ''
   lcs_percent: 0.1
   template_sub_dir: normal_world
   template_id: message
-  template_match_threshold: 0.7
+  template_match_threshold: 0.1
 - area_name: 菜单
   pc_rect:
   - 100
   - 54
   - 162
   - 94
+  emulator_rect:
+  - 134
+  - 74
+  - 184
+  - 106
+  platform: Emulator
   text: ''
   lcs_percent: 0.1
   template_sub_dir: ''
@@ -30,17 +42,29 @@ area_list:
   - 778
   - 1826
   - 876
+  emulator_rect:
+  - 1628
+  - 423
+  - 1762
+  - 557
+  platform: Emulator
   text: ''
   lcs_percent: 0.1
   template_sub_dir: normal_world
   template_id: map
-  template_match_threshold: 0.7
+  template_match_threshold: 0.2
 - area_name: 快捷手册
   pc_rect:
   - 1530
   - 44
   - 1584
   - 102
+  emulator_rect:
+  - 1438
+  - 64
+  - 1494
+  - 114
+  platform: Emulator
   text: ''
   lcs_percent: 0.5
   template_sub_dir: ''
@@ -52,6 +76,12 @@ area_list:
   - 798
   - 1042
   - 836
+  emulator_rect:
+  - 0
+  - 0
+  - 0
+  - 0
+  platform: Emulator
   text: ''
   lcs_percent: 0.5
   template_sub_dir: ''
@@ -63,6 +93,12 @@ area_list:
   - 552
   - 1918
   - 804
+  emulator_rect:
+  - 0
+  - 0
+  - 0
+  - 0
+  platform: Emulator
   text: ''
   lcs_percent: 0.5
   template_sub_dir: ''
@@ -74,6 +110,12 @@ area_list:
   - 600
   - 918
   - 652
+  emulator_rect:
+  - 0
+  - 0
+  - 0
+  - 0
+  platform: Emulator
   text: 取消
   lcs_percent: 0.5
   template_sub_dir: ''
