@@ -4,5 +4,5 @@ template_name: 角色状态-能量-32
 template_shape: rectangle
 auto_mask: true
 point_list:
-- 686, 74
-- 764, 75
+- 688, 74
+- 745, 75
