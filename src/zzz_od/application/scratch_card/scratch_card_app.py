@@ -33,14 +33,23 @@ class ScratchCardApp(ZApplication):
 
     @operation_node(name='传送', is_start_node=True)
     def transport(self) -> OperationRoundResult:
-        op = Transport(self.ctx, '六分街', '报刊亭')
+        op = Transport(self.ctx, '六分街', '报刊亭', wait_at_last=False)
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='传送')
-    @operation_node(name='等待加载')
+    @operation_node(name='等待加载', node_max_retry_times=60)
     def wait_world(self) -> OperationRoundResult:
-        op = WaitNormalWorld(self.ctx)
-        return self.round_by_op_result(op.execute())
+        screen = self.screenshot()
+
+        result = self.round_by_find_area(screen, '报刊亭', '刮刮卡')
+        if result.is_success:
+            return self.round_success(result.status)
+
+        result = self.round_by_find_area(screen, '大世界', '信息')
+        if result.is_success:
+            return self.round_success(result.status)
+
+        return self.round_retry(status=result.status, wait=1)
 
     @node_from(from_name='等待加载')
     @operation_node(name='移动交互')
@@ -57,6 +66,7 @@ class ScratchCardApp(ZApplication):
 
         return self.round_success()
 
+    @node_from(from_name='等待加载', status='刮刮卡')
     @node_from(from_name='移动交互')
     @operation_node(name='点击刮刮卡', node_max_retry_times=20)
     def click_scratch_card(self) -> OperationRoundResult:
