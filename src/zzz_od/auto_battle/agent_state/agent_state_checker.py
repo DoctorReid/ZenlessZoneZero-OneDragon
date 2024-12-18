@@ -52,6 +52,7 @@ def check_cnt_by_color_range(
     to_check = cv2.bitwise_and(part, part, mask=template.mask)
 
     mask = cv2.inRange(to_check, state_def.lower_color, state_def.upper_color)
+    mask = cv2_utils.dilate(mask, 2)
     # cv2_utils.show_image(mask, wait=0)
 
     # 查找连通区域
