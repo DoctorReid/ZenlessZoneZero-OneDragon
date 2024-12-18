@@ -91,7 +91,30 @@ class NotoriousHunt(ZOperation):
                 if self.ctx.controller.click(to_click):
                     return self.round_success(wait=2)
 
-        return self.round_retry(f'未能识别{self.plan.mission_type_name}', wait_round_time=1)
+        # 未匹配时 判断该往哪边滑动
+        hunt_category = self.ctx.compendium_service.get_category_data('挑战', '恶名狩猎')
+        with_left: bool = False  # 当前识别有在目标左边的副本
+        for mission_type in hunt_category.mission_type_list:
+            if mission_type.mission_type_name == self.plan.mission_type_name:
+                break
+
+            find: bool = False  # 当前画面有没有识别到 mission_type
+            for ocr_result, mrl in ocr_result_map.items():
+                if str_utils.find_by_lcs(gt(mission_type.mission_type_name), ocr_result, percent=0.5):
+                    find = True
+                    break
+
+            if find:
+                with_left = True
+
+        drag_from = area.center
+        if with_left:
+            drag_to = Point(drag_from.x - 500, drag_from.y)
+        else:
+            drag_to = Point(drag_from.x + 500, drag_from.y)
+        self.ctx.controller.drag_to(start=drag_from, end=drag_to)
+
+        return self.round_retry(f'未能识别{self.plan.mission_type_name}', wait_round_time=2)
 
     @node_from(from_name='选择副本')
     @operation_node(name='选择难度')

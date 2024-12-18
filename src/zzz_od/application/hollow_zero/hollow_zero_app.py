@@ -76,7 +76,7 @@ class HollowZeroApp(ZApplication):
         op = TransportByCompendium(self.ctx,
                                    '挑战',
                                    '零号空洞',
-                                   self.mission_type_name)
+                                   '枯萎之都')
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='传送')

@@ -59,3 +59,10 @@
 - area_name: "HAND总部"
   tp_list:
     - "HAND总部门口"
+- area_name: "UNKNOWN"
+  tp_list:
+    - "UNKNOWN"
+- area_name: "热望岛"
+  tp_list:
+    - "入口通道"
+    - "休闲区域"

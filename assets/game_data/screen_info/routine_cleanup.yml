@@ -3,6 +3,7 @@ screen_name: 定期清剿
 pc_alt: false
 area_list:
 - area_name: 副本名称列表
+  id_mark: false
   pc_rect:
   - 148
   - 714
@@ -13,25 +14,30 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 剩余电量
+  id_mark: false
   pc_rect:
-  - 1465
+  - 1430
   - 1016
-  - 1508
+  - 1488
   - 1045
   text: ''
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 需要电量
+  id_mark: false
   pc_rect:
-  - 1516
+  - 1495
   - 1016
-  - 1556
+  - 1546
   - 1045
   text: ''
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
