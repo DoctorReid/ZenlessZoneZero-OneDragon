@@ -212,3 +212,8 @@ class AgentEnum(Enum):
     LIGHTER = Agent('lighter', '莱特', RareTypeEnum.S, AgentTypeEnum.STUN, DmgTypeEnum.FIRE,
                     state_list=[AgentStateDef('莱特-士气', AgentStateCheckWay.BACKGROUND_GRAY_RANGE_LENGTH,
                                               'lighter', lower_color=0, upper_color=50)])
+
+    ASABA_HARUMASA = Agent('asaba_harumasa', '悠真', RareTypeEnum.S, AgentTypeEnum.ATTACK, DmgTypeEnum.ELECTRIC)
+    HOSHIMI_MIYABI = Agent('hoshimi_miyabi', '雅', RareTypeEnum.S, AgentTypeEnum.ANOMALY, DmgTypeEnum.ICE,
+                           state_list=[AgentStateDef('雅-落霜', AgentStateCheckWay.COLOR_RANGE_CONNECT,'hoshimi_miyabi',
+                                                     lower_color=(30, 250, 250), upper_color=(255, 255, 255), connect_cnt=5)])

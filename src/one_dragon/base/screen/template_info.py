@@ -25,6 +25,7 @@ class TemplateShapeEnum(Enum):
     CIRCLE = ConfigItem(label='圆形', value='circle')
     QUADRILATERAL = ConfigItem(label='四边形', value='quadrilateral')
     POLYGON = ConfigItem(label='多边形', value='polygon')
+    MULTI_RECT = ConfigItem(label='多个矩形', value='multi_rect')
 
 
 class TemplateInfo(YamlOperator):
@@ -104,6 +105,8 @@ class TemplateInfo(YamlOperator):
             if len(self.point_list) < 2:
                 self.point_list.append(point)
         elif self.template_shape == TemplateShapeEnum.POLYGON.value.value:
+            self.point_list.append(point)
+        elif self.template_shape == TemplateShapeEnum.MULTI_RECT.value.value:
             self.point_list.append(point)
 
     def get_image(self, t: Optional[str]) -> MatLike:
@@ -228,6 +231,10 @@ class TemplateInfo(YamlOperator):
             if len(self.point_list) < 3:
                 return None
             point_list = self.point_list
+        elif self.template_shape == TemplateShapeEnum.MULTI_RECT.value.value:
+            if len(self.point_list) < 2:
+                return None
+            point_list = self.point_list
 
         if len(point_list) == 0:
             return None
@@ -292,6 +299,13 @@ class TemplateInfo(YamlOperator):
               and len(self.point_list) > 2):
             points = np.array([[p.x, p.y] for p in self.point_list], dtype=np.int32)
             cv2.fillPoly(mask, [points], color=(255, 255, 255))
+        elif self.template_shape == TemplateShapeEnum.MULTI_RECT.value.value:
+            for i in range(0, len(self.point_list), 2):
+                if i + 1 >= len(self.point_list):
+                    break
+                left_top = self.point_list[i]
+                right_bottom = self.point_list[i + 1]
+                cv2.rectangle(mask, (left_top.x, left_top.y), (right_bottom.x, right_bottom.y), color=(255, 255, 255), thickness=-1)
         else:
             return None
 
@@ -347,6 +361,16 @@ class TemplateInfo(YamlOperator):
                 and len(self.point_list) > 2):
             points = np.array([[p.x, p.y] for p in self.point_list], dtype=np.int32)
             cv2.polylines(image_to_show, [points], isClosed=True, color=(255, 0, 0), thickness=2)
+        elif self.template_shape == TemplateShapeEnum.MULTI_RECT.value.value:
+            for i in range(0, len(self.point_list), 2):
+                if i + 1 >= len(self.point_list):
+                    break
+                left_top = self.point_list[i]
+                right_bottom = self.point_list[i + 1]
+                cv2.rectangle(image_to_show,
+                              (left_top.x, left_top.y),
+                              (right_bottom.x, right_bottom.y),
+                              (255, 0, 0), 2)
 
         return image_to_show
 
