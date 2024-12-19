@@ -111,26 +111,34 @@ def check_length_by_background_gray(
 
     gray = cv2.cvtColor(to_check, cv2.COLOR_RGB2GRAY).mean(axis=0)
     mask = (gray >= state_def.lower_color) & (gray <= state_def.upper_color)
-    # 非背景色的
-    mask_idx = np.where(~mask)
+    bg_mask_idx = np.where(mask)
+    fg_mask_idx = np.where(~mask)
     total_cnt = len(gray)
 
-    left = np.min(mask_idx, initial=total_cnt+1)
-    right = np.max(mask_idx, initial=0)
-    # bg_cnt = right - left + 1
-    #
-    # if bg_cnt < 0:
-    #     bg_cnt = 0
-    # if bg_cnt > total_cnt:
-    #     bg_cnt = total_cnt
-    #
-    # fg_cnt = total_cnt - bg_cnt
-    fg_cnt = right - left + 1
+    bg_left = np.min(bg_mask_idx, initial=total_cnt+1)
+    bg_right = np.max(bg_mask_idx, initial=0)
 
-    if fg_cnt < 0:
-        fg_cnt = 0
-    if fg_cnt > total_cnt:
-        fg_cnt = total_cnt
+    lg_left = np.min(fg_mask_idx, initial=total_cnt+1)
+    lg_right = np.max(fg_mask_idx, initial=0)
+
+    # 有一些条 中间是有分隔的 这部分有可能被认为前景色
+    # 所以如果前景色的左边如果能找到背景色 说明这个是分隔条
+    if bg_left < lg_left:  # 用背景色来判断长度
+        bg_cnt = bg_right - bg_left + 1
+
+        if bg_cnt < 0:
+            bg_cnt = 0
+        if bg_cnt > total_cnt:
+            bg_cnt = total_cnt
+
+        fg_cnt = total_cnt - bg_cnt
+    else:  # 用前景色来判断长度
+        fg_cnt = lg_right - lg_left + 1
+
+        if fg_cnt < 0:
+            fg_cnt = 0
+        if fg_cnt > total_cnt:
+            fg_cnt = total_cnt
 
     return int(fg_cnt * 100.0 / total_cnt)
 
