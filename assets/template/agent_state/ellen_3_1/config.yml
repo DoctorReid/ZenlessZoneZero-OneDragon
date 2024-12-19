@@ -4,5 +4,5 @@ template_name: 角色状态-艾莲-31
 template_shape: rectangle
 auto_mask: true
 point_list:
-- 143, 118
-- 210, 122
+- 143, 119
+- 210, 123
