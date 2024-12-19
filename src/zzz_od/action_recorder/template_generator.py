@@ -652,13 +652,6 @@ class SelfAdaptiveGenerator:
                     reserved_sub_handlers.pop(index)
         return reserved_sub_handlers
 
-    def _available_ultimate_setting(self, output_dict: dict, special_status: dict, ):
-        # 1.4 可改为所有角色均可使用
-        if special_status[BattleStateEnum.STATUS_ULTIMATE_READY.value]:
-            output_dict['allow_ultimate'] = [{'agent_name': '"{}"'.format(special_status[BattleStateEnum.STATUS_ULTIMATE_READY.value][1])}]
-
-        return output_dict
-
     def _default_setting(self, output_dict: dict):
         output_dict['check_dodge_interval'] = 0.01
         output_dict['check_agent_interval'] = '[0.4, 0.6]'
@@ -936,7 +929,7 @@ class SelfAdaptiveGenerator:
         output_dict = {}  # 导出字典
 
         # # # # # # # # 可用终结技 # # # # # # # #
-        output_dict = self._available_ultimate_setting(output_dict, special_status)
+        # output_dict = self._available_ultimate_setting(output_dict, special_status)
 
         # # # # # # # # 默认设置 # # # # # # # #
         output_dict = self._default_setting(output_dict)

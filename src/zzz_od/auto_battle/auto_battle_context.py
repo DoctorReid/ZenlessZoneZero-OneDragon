@@ -326,7 +326,6 @@ class AutoBattleContext:
             check_dodge_interval: Union[float, List[float]] = 0,
             agent_names: Optional[List[str]] = None,
             to_check_state_list: Optional[List[str]] = None,
-            allow_ultimate_list: Optional[List[dict[str, str]]] = None,
             check_agent_interval: Union[float, List[float]] = 0,
             check_special_attack_interval: Union[float, List[float]] = 0,
             check_ultimate_interval: Union[float, List[float]] = 0,
@@ -343,7 +342,6 @@ class AutoBattleContext:
             auto_op,
             agent_names,
             to_check_state_list,
-            allow_ultimate_list,
             check_agent_interval,
         )
         self.dodge_context.init_battle_dodge_context(
@@ -354,7 +352,6 @@ class AutoBattleContext:
         self.custom_context.init_battle_custom_context(auto_op)
 
         self._to_check_states: set[str] = set(to_check_state_list) if to_check_state_list is not None else None
-        self._allow_ultimate_list: List[dict[str, str]] = allow_ultimate_list  # 允许使用终结技的角色
 
         # 识别区域 先读取出来 不要每次用的时候再读取
         self._check_distance_area = self.ctx.screen_loader.get_area('战斗画面', '距离显示区域')
@@ -474,14 +471,6 @@ class AutoBattleContext:
             mrl = self.ctx.tm.match_template(part, 'battle', 'btn_ultimate_2',
                                              threshold=0.9)
             is_ready = mrl.max is not None
-
-            if is_ready and self._allow_ultimate_list is not None:  # 有限制可使用的终结技
-                try:  # 等待识别代理人
-                    check_agent_future.result()
-                except Exception:
-                    pass
-                if not self.agent_context.allow_to_use_ultimate():  # 当前代理人不允许使用终结技
-                    is_ready = False
 
             if is_ready:
                 self.auto_op.update_state(StateRecord(BattleStateEnum.STATUS_ULTIMATE_READY.value, screenshot_time))

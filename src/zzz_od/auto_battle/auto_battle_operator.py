@@ -80,8 +80,6 @@ class AutoBattleOperator(ConditionalOperator):
                 check_chain_interval=self.get('check_chain_interval', 1),
                 check_quick_interval=self.get('check_quick_interval', 0.5),
                 check_end_interval=self.get('check_end_interval', 5),
-
-                allow_ultimate_list=self.get('allow_ultimate', None)
             )
 
             log.info(f'自动战斗配置加载成功 {self.module_name}')

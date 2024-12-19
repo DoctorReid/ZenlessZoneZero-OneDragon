@@ -30,7 +30,6 @@ class BattleAgentContext4Recording(AutoBattleAgentContext):
             self,
             agent_names: Optional[List[str]] = None,
             to_check_state_list: Optional[List[str]] = None,
-            allow_ultimate_list: Optional[List[dict[str, str]]] = None,
             check_agent_interval: Union[float, List[float]] = 0,
             **kwargs) -> None:
         """
@@ -39,7 +38,6 @@ class BattleAgentContext4Recording(AutoBattleAgentContext):
         """
         # self.auto_op: ConditionalOperator = auto_op  # 重写部分,取消auto_op
         self.team_info: TeamInfo = TeamInfo(agent_names)
-        self._allow_ultimate_list: List[dict[str, str]] = allow_ultimate_list  # 允许使用终结技的角色
 
         # 识别区域 先读取出来 不要每次用的时候再读取
         self.area_agent_3_1: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '头像-3-1')
@@ -230,7 +228,6 @@ class BattleContext4Recording(AutoBattleContext):
             check_dodge_interval: Union[float, List[float]] = 0,
             agent_names: Optional[List[str]] = None,
             to_check_state_list: Optional[List[str]] = None,
-            allow_ultimate_list: Optional[List[dict[str, str]]] = None,
             check_agent_interval: Union[float, List[float]] = 0,
             check_special_attack_interval: Union[float, List[float]] = 0,
             check_ultimate_interval: Union[float, List[float]] = 0,
@@ -247,7 +244,6 @@ class BattleContext4Recording(AutoBattleContext):
         self.agent_context.init_battle_agent_context(
             agent_names,
             to_check_state_list,
-            allow_ultimate_list,
             check_agent_interval,
         )
         self.dodge_context.init_battle_dodge_context(
@@ -256,7 +252,6 @@ class BattleContext4Recording(AutoBattleContext):
         )
 
         self._to_check_states: set[str] = set(to_check_state_list) if to_check_state_list is not None else None
-        self._allow_ultimate_list: List[dict[str, str]] = allow_ultimate_list  # 允许使用终结技的角色
 
         # 识别区域 先读取出来 不要每次用的时候再读取
         self._check_distance_area = self.ctx.screen_loader.get_area('战斗画面', '距离显示区域')
@@ -421,14 +416,6 @@ class BattleContext4Recording(AutoBattleContext):
             mrl = self.ctx.tm.match_template(part, 'battle', 'btn_ultimate_2',
                                              threshold=0.9)
             is_ready = mrl.max is not None
-
-            if is_ready and self._allow_ultimate_list is not None:  # 有限制可使用的终结技
-                try:  # 等待识别代理人
-                    check_agent_future.result()
-                except Exception:
-                    pass
-                if not self.agent_context.allow_to_use_ultimate():  # 当前代理人不允许使用终结技
-                    is_ready = False
 
             if is_ready:
                 self.auto_op.update_state(StateRecord(BattleStateEnum.STATUS_ULTIMATE_READY.value, screenshot_time))
@@ -654,8 +641,6 @@ class RecordContext:
                 check_chain_interval=0.05,
                 check_quick_interval=0.05,
                 check_end_interval=5,
-
-                allow_ultimate_list=None
             )
 
             return True, ''

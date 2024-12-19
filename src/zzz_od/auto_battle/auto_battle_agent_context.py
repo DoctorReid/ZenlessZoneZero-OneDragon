@@ -262,7 +262,6 @@ class AutoBattleAgentContext:
             auto_op: ConditionalOperator,
             agent_names: Optional[List[str]] = None,
             to_check_state_list: Optional[List[str]] = None,
-            allow_ultimate_list: Optional[List[dict[str, str]]] = None,
             check_agent_interval: Union[float, List[float]] = 0,) -> None:
         """
         自动战斗前的初始化
@@ -270,7 +269,6 @@ class AutoBattleAgentContext:
         """
         self.auto_op: ConditionalOperator = auto_op
         self.team_info: TeamInfo = TeamInfo(agent_names)
-        self._allow_ultimate_list: List[dict[str, str]] = allow_ultimate_list  # 允许使用终结技的角色
 
         # 识别区域 先读取出来 不要每次用的时候再读取
         self.area_agent_3_1: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '头像-3-1')
@@ -722,36 +720,10 @@ class AutoBattleAgentContext:
 
             state_records.append(StateRecord(prefix + '能量', update_time, agent_info.energy))
 
-        if not self.allow_to_use_ultimate():
+        if switch:
             state_records.append(StateRecord(BattleStateEnum.STATUS_ULTIMATE_READY.value, is_clear=True))
 
         return state_records
-
-    def allow_to_use_ultimate(self) -> bool:
-        """
-        当前角色是否允许使用终结技
-        :return:
-        """
-        if self._allow_ultimate_list is not None:  # 如果配置了终结技
-            agent_info_list = self.team_info.agent_list
-            if agent_info_list is None or len(agent_info_list) == 0 or agent_info_list[0].agent is None:
-                # 未识别到角色时 不允许使用
-                return False
-
-            # 前台角色
-            front_agent = agent_info_list[0].agent
-            for allow_ultimate_item in self._allow_ultimate_list:
-                if 'agent_name' in allow_ultimate_item:
-                    if allow_ultimate_item.get('agent_name', '') == front_agent.agent_name:
-                        return True
-                elif 'agent_type' in allow_ultimate_item:
-                    if allow_ultimate_item.get('agent_type', '') == front_agent.agent_type.value:
-                        return True
-
-            return False
-
-        return True
-
 
 
 def __debug_agent():

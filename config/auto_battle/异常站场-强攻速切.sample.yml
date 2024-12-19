@@ -2,8 +2,6 @@
 # 战斗逻辑: 由异常站场打异常，优先使用强攻格挡，失衡后切支援再切强攻进行爆发输出
 # 作者   :  idk500
 # 已知问题: 露西的支援buff覆盖率太低, 后续优化
-allow_ultimate:
-  - agent_type: "强攻"
 
 check_dodge_interval: 0.02
 check_agent_interval: [0.4, 0.6]

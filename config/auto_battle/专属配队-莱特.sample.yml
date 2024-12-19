@@ -7,9 +7,6 @@ team_list:
   - ["莱特", "凯撒", "露西"]
 introduction: "帅就完事了"
 
-allow_ultimate:
-  - agent_name: "莱特"
-
 check_dodge_interval: 0.02
 check_agent_interval: [0.4, 0.6]
 check_special_attack_interval: [0.4, 0.6]
