@@ -1,0 +1,29 @@
+handlers:
+  - states: "[前台-赛斯]"
+    sub_handlers:
+    - states: "[按键-切换角色-下一个,0,0.4]"
+      operations:
+        - op_name: "按键-普通攻击"
+          seconds: 0.1
+          repeat: 4
+    - states: "[赛斯-意气]{95, 101}"
+      operations:
+        - op_name: "设置状态"
+          state: "自定义-动作不打断"
+          value: 1
+        - op_name: "按键-普通攻击"
+          way: "按下"
+          press: 2.2
+        - op_name: "设置状态"
+          state: "自定义-赛斯-意气风发"
+        - op_name: "清除状态"
+          state: "自定义-动作不打断"
+    - states: "[按键可用-特殊攻击]"
+      operations:
+        - op_name: "按键-特殊攻击-按下"
+          data: ["0.5"]
+          post_delay: 1.5
+    - states: "![按键可用-特殊攻击]"
+      operations:
+        - op_name: "按键-切换角色-下一个"
+          post_delay: 0.1

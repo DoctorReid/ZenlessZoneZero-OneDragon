@@ -1,7 +1,7 @@
 handlers:
   - states: "[前台-可琳]"
     sub_handlers:
-      - states: "[自定义-连携换人,0,1]"
+      - states: "[自定义-连携换人,0,2]"
         operations:
           - op_name: "清除状态"
             state: "自定义-可琳-这次不打特殊技"
@@ -38,3 +38,5 @@ handlers:
           - op_name: "按键-普通攻击"
             post_delay: 0.1
             repeat: 35
+          - op_name: "按键-切换角色-下一个"
+            post_delay: 0.1
