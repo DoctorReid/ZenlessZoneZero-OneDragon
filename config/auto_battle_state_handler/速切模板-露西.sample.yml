@@ -19,10 +19,10 @@ handlers:
 
       - states: "[按键可用-特殊攻击]"
         operations:
-          - op_name: "等待秒数"
-            seconds: 0.3
           - op_name: "设置状态"
             state: "自定义-动作不打断"
+          - op_name: "等待秒数"
+            seconds: 0.3
           - op_name: "按键-特殊攻击"
             way: "按下"
             post_delay: 1.0
