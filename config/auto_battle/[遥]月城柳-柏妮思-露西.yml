@@ -1,0 +1,295 @@
+description: |
+  配队列表：柳-柏妮思-露西
+  作者： 遥酱
+
+# 基础信息
+author: "遥酱"
+thanks: ""
+homepage: ""
+version: "3.3"
+team_list:
+  - ["柳", "柏妮思", "露西"]
+introduction: "紊乱队，邦布随意,组队顺序也是无所谓的"
+
+allow_ultimate:
+  - agent_name: "柳"
+
+
+#基础配置
+check_dodge_interval: 0.01
+check_agent_interval: [0.4, 0.6]
+check_special_attack_interval: [0.4, 0.6]
+check_ultimate_interval: [0.4, 0.6]
+check_chain_interval: 0.3
+check_quick_interval: 0.2
+auto_lock_interval: 1
+
+#速切模板-支援
+t-sup: &sup
+  - states: "[前台-露西]"
+    sub_handlers:
+      - states: "[按键可用-终结技] & ![自定义-动作不打断, 0, 30]"
+        operations:
+          - op_name: "设置状态"
+            state: "自定义-动作不打断"
+          - op_name: "按键-终结技"
+            post_delay: 1
+            repeat: 5
+          - op_name: "清除状态"
+            state: "自定义-动作不打断"    
+      - states: "[按键可用-特殊攻击]"
+        operations:
+          - op_name: "等待秒数"
+            seconds: 0.3 
+          - op_name: "设置状态"
+            state: "自定义-特殊技连招"
+          - op_name: "按键-特殊攻击"
+            way: "按下"
+            post_delay: 0.7
+          - op_name: "按键-特殊攻击"
+            way: "松开"
+          - op_name: "设置状态"
+            state: "自定义-加油"
+          - op_name: "按键-切换角色"
+            agent_name: "柏妮思"
+      - states: "![按键可用-特殊攻击]"
+        operations:
+          - op_name: "按键-切换角色"
+            agent_name: "柳"
+
+
+#战场模板-柳 [自定义-柳-森罗万象,0,15] | [自定义-柳-格挡,0,1]
+t-liu: &liu 
+  - states: "[前台-柳]"
+    sub_handlers:
+        #保露西BUFF
+      - states: "((![自定义-加油,0,20] & [露西-能量]{60, 120}))"
+        operations:
+          - op_name: "按键-切换角色"
+            agent_name: "露西"
+        #柏妮思能量太多了捏   
+      - states: "([柏妮思-能量]{60, 120})"
+        operations:
+          - op_name: "按键-切换角色"
+            agent_name: "柏妮思"
+        #开局情况下燃点太多了上一点燃点
+      - states: "(![自定义-柏妮思燃点,0,12] & [柏妮思-燃点]{80,100})"
+        operations:
+          - op_name: "按键-切换角色"
+            agent_name: "柏妮思"
+      - states: "[按键可用-特殊攻击]"
+        operations:
+          - op_name: "设置状态"
+            state: "自定义-特殊技连招"
+          - op_name: "按键-特殊攻击"
+            way: "按下"
+            post_delay: 0.7
+          - op_name: "按键-特殊攻击"
+            way: "松开"
+          - op_name: "设置状态"
+            state: "自定义-柳-森罗万象"
+      - states: "[按键可用-终结技]"
+        operations:
+          - op_name: "按键-终结技"
+            post_delay: 0.1
+            repeat: 10
+          - op_name: "按键-普通攻击"
+            post_delay: 0.1
+            repeat: 35
+        #普攻
+      - states: ""
+        operations:
+        - op_name: "按键-普通攻击"
+          post_delay: 0.1
+          repeat: 35
+
+#速切模板-柏妮思
+t-bns: &bns
+  - states: "[前台-柏妮思]"
+    sub_handlers:
+      - states: "[柏妮思-燃点]{21,100} & [前台-能量,20,60]"
+        operations:
+          - op_name: "按键-普通攻击"
+            post_delay: 0.2
+          - op_name: "按键-普通攻击"
+            way: "按下"
+            post_delay: 0.5
+          - op_name: "按键-特殊攻击"
+            post_delay: 0.05
+            repeat: 6
+          - op_name: "按键-特殊攻击"
+            way: "按下"
+            post_delay: 1.5
+          - op_name: "按键-特殊攻击"
+            way: "松开"
+          - op_name: "设置状态"
+            state: "自定义-柏妮思燃点"
+      - states: "[按键可用-特殊攻击] & [前台-能量]{40,121} & ![自定义-柏妮思刚喷过,0,1]"
+        operations:
+          - op_name: "等待秒数"
+            seconds: 0.5
+          - op_name: "设置状态"
+            state: "自定义-特殊技连招"
+          - op_name: "按键-特殊攻击"
+            post_delay: 0.1
+            repeat: 3
+          - op_name: "按键-特殊攻击"
+            way: "按下"
+            post_delay: 2.5
+          - op_name: "按键-特殊攻击"
+            way: "松开"
+          - op_name: "设置状态"
+            state: "自定义-柏妮思燃点"
+          - op_name: "设置状态"
+            state: "自定义-柏妮思刚喷过"
+      - states: "[柏妮思-燃点]{80,100}"
+        operations:
+          - op_name: "按键-普通攻击"
+            post_delay: 0.2
+          - op_name: "按键-普通攻击"
+            way: "按下"
+            post_delay: 0.5
+          - op_name: "设置状态"
+            state: "自定义-柏妮思燃点"
+      - states: "[按键可用-终结技] & ![自定义-动作不打断, 0, 30]"
+        operations:
+          - op_name: "设置状态"
+            state: "自定义-动作不打断"
+          - op_name: "按键-终结技"
+            post_delay: 1
+            repeat: 5
+          - op_name: "清除状态"
+            state: "自定义-动作不打断"
+      - states: "[柏妮思-能量]{0,60}"
+        operations:
+          - op_name: "按键-切换角色"
+            agent_name: "柳"
+      - states: ""
+        operations:
+          - op_name: "按键-普通攻击"
+            post_delay: 0.02
+            repeat: 35
+#连携模板-上一个
+t-up: &up
+  - op_name: "按键-移动-前"
+    way: "松开"
+    post_delay: 0.01
+  - op_name: "按键-连携技-左"
+    post_delay: 0.01
+  - op_name: "按键-普通攻击"
+    post_delay: 0.01
+
+#连携模板-下一个
+t-down: &down
+  - op_name: "按键-移动-前"
+    way: "松开"
+    post_delay: 0.01
+  - op_name: "按键-连携技-右"
+    post_delay: 0.01
+  - op_name: "按键-特殊攻击"
+    post_delay: 0.01
+#连携模板-取消
+t-cancel: &cancel
+  - op_name: "按键-连携技-取消"
+    way: "按下"
+    press: 0.02
+    post_delay: 0.01
+    repeat: 2
+
+scenes:
+  - triggers: ["闪避识别-黄光", "闪避识别-红光", "闪避识别-声音"]
+    priority: 90
+    handlers:
+      - states: "[前台-柳] & [闪避识别-黄光] & ![自定义-下格挡,0,10]" #10s内未触发过切人则触发赛斯格挡
+        operations:
+          - op_name: "按键-切换角色-下一个"
+            post_delay: 0.025
+          - op_name: "按键-普通攻击"
+            post_delay: 0.05
+            repeat: 12
+          - op_name: "按键-普通攻击"
+            post_delay: 0.1
+            repeat: 12
+          - op_name: "设置状态"
+            state: "自定义-下格挡"
+      - states: "[前台-柳] & ([闪避识别-黄光] | [闪避识别-红光] | [闪避识别-声音] )" #柳前台闪避反击
+        operations:
+          - op_name: "按键-移动-前"
+            way: "按下"
+            post_delay: 0.01
+          - op_name: "按键-闪避"
+            way: "按下"
+            press: 0.04
+            post_delay: 0.04
+          - op_name: "等待秒数"
+            seconds: 0.2
+          - op_name: "按键-普通攻击"
+            post_delay: 0.025
+            repeat: 20
+          - op_name: "按键-移动-前"
+            way: "松开"
+            post_delay: 0.01
+      - states: "![前台-柳] & ![自定义-特殊技连招,0,3] & ([闪避识别-黄光] | [闪避识别-红光] | [闪避识别-声音] )" #前台不是柳闪避反击
+        operations:
+          - op_name: "按键-移动-前"
+            way: "按下"
+            post_delay: 0.01
+          - op_name: "按键-闪避"
+            press: 0.01
+            post_delay: 0.15
+            repeat: 2
+          - op_name: "按键-普通攻击"
+            press: 0.3
+            post_delay: 0.025
+            repeat: 2
+          - op_name: "按键-闪避"
+            press: 0.01
+            post_delay: 0.15
+            repeat: 1
+          - op_name: "按键-移动-前"
+            way: "松开"
+            post_delay: 0.1
+  - triggers: ["按键可用-连携技"]
+    priority: 99
+    interval: 0.2
+    handlers:
+      - states: "[连携技-1-邦布]"
+        operations: *up
+      - states: ""
+        operations: *down
+
+  - triggers: ["按键可用-快速支援"]
+    priority: 98
+    handlers:
+      - states: "[按键可用-快速支援,0,0.2]" #快速支援触发时只有不是"柳"才会触发快速支援
+        sub_handlers:
+          - states: "![前台-柳]"
+            operations:
+              - op_name: "按键-移动-前"
+                way: "松开"
+              - op_name: "按键-切换角色-下一个"
+                post_delay: 0.2
+              - op_name: "按键-闪避"
+                post_delay: 0.3
+
+  - triggers: ["前台-柏妮思"]
+    priority: 5
+    interval: 0.1
+    handlers:
+      - states: "[前台-柏妮思]"
+        sub_handlers: *bns
+
+  - triggers: ["前台-支援"]
+    priority: 3
+    interval: 0.1
+    handlers:
+      - states: "[前台-支援]"
+        sub_handlers: *sup
+
+  - triggers: ["前台-柳"]
+    priority: 1
+    interval: 0.02
+    handlers:
+      - states: "[前台-柳]"
+        sub_handlers: *liu
+

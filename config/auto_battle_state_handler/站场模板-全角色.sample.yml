@@ -9,5 +9,7 @@ handlers:
   - state_template: "站场模板-可琳"
   - state_template: "站场模板-格莉丝"
   - state_template: "站场模板-派派"
+  - state_template: "站场模板-雅"
+  - state_template: "站场模板-柳"
   - state_template: "站场模板-简"
   - state_template: "站场模板-通用"
