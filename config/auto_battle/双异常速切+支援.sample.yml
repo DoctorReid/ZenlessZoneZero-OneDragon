@@ -1,8 +1,3 @@
-# 推荐配队: 强攻-支援-异常(猫露派)
-# 战斗逻辑: 由异常站场打异常，优先使用强攻格挡，失衡后切支援再切强攻进行爆发输出
-# 作者   :  idk500
-# 已知问题: 露西的支援buff覆盖率太低, 后续优化
-
 check_dodge_interval: 0.02
 check_agent_interval: [0.4, 0.6]
 check_special_attack_interval: [0.4, 0.6]
@@ -49,9 +44,6 @@ scenes:
       # 刚开始未识别到角色时候不要乱切
       - state_template: "站场模板-未识别角色"
       - states: "[自定义-黄光切人, 0, 2] | [自定义-红光闪避, 0, 2] | [自定义-临时站场]"
-        sub_handlers:
-          - state_template: "速切模板-全角色"
-      - states: "[自定义-连携换人, 0, 12] | [自定义-连携换人, 0, 12]"
         sub_handlers:
           - state_template: "速切模板-全角色"
       - states: "[后台-1-支援] & [后台-1-能量]{60,120}"
