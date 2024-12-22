@@ -4,10 +4,25 @@
 #支持的速切C包括：简 月城柳 星见雅 柏妮思 11号 派派 浅羽悠真 格莉丝 猫又
 #支持的速切辅助包括：安比 莱卡恩 苍角 凯撒 妮可 露西 珂蕾妲 赛斯
 
-check_dodge_interval: 0.01
+## 基础信息 ##
+author: "遥酱"
+thanks: "火"
+homepage: ""
+version: "1.7"
+team_list:
+  - ["简", "赛斯", "妮可"]
+  - ["派派", "露西", "柏妮思"]
+  - ["11号", "珂蕾妲", "本"]  
+  - ["悠真", "柳", "雅"]  
+  - ["格莉丝", "丽娜", "安比"]  
+  - ["猫又", "凯撒", "莱卡恩"]  
+  - ["苍角", "苍角", "苍角"]    
+introduction: "下面任意选三个都可以，最好2个输出1个辅助"
+
+check_dodge_interval: 0.02
 check_agent_interval: [0.4, 0.6]
 check_special_attack_interval: [0.2, 0.4]
-check_ultimate_interval: 0.02
+check_ultimate_interval: [0.4, 0.6]
 check_chain_interval: 0.3
 check_quick_interval: 0.2
 auto_lock_interval: 1
@@ -57,9 +72,8 @@ scenes:
       - state_template: "站场模板-未识别角色"
       - states: "[按键-切换角色-下一个,0,0.8] | [按键-切换角色-上一个,0,0.8]"
         operations:
-          - op_name: "按键-普通攻击"
-            seconds: 0.1
-            repeat: 4
+          - op_name: "清除状态"
+            state: "自定义-动作不打断"
       - state_template: "辅助补增益模板"
       - states: "[自定义-速切结束,0,12]"
         operations:
