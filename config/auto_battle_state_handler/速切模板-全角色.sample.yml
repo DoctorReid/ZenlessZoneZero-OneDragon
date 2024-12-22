@@ -13,5 +13,6 @@ handlers:
   - state_template: "速切模板-丽娜"
   - state_template: "速切模板-凯撒"
   - state_template: "速切模板-露西"
+  - state_template: "速切模板-悠真"
   - state_template: "速切模板-柏妮思"
   - state_template: "速切模板-通用"
