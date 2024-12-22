@@ -16,6 +16,7 @@ handlers:
   - state_template: "速切模板-露西"
   - state_template: "速切模板-悠真"
   - state_template: "速切模板-11号"
+  - state_template: "速切模板-本"
   - state_template: "速切模板-安比"
   - state_template: "速切模板-珂蕾妲"
   - state_template: "速切模板-柏妮思"
