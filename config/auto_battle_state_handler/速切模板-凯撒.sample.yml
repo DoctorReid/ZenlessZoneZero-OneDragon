@@ -22,10 +22,9 @@ handlers:
             repeat: 14
           - op_name: "设置状态"
             data: [ "自定义-速切结束" ]
+          - op_name: "设置状态"
+            data: [ "自定义-凯撒-护盾" ]
       - states: "![按键可用-特殊攻击]"
         operations:
-          - op_name: "按键-普通攻击"
-            post_delay: 0.05
-            repeat: 4
           - op_name: "设置状态"
             data: [ "自定义-速切结束" ]
