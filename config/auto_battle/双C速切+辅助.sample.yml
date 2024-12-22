@@ -4,13 +4,13 @@
 #支持的速切C包括：简 月城柳 星见雅 柏妮思 11号 派派 浅羽悠真 格莉丝 猫又
 #支持的速切辅助包括：安比 莱卡恩 苍角 凯撒 妮可 露西 珂蕾妲 赛斯
 
-check_dodge_interval: 0.02
+check_dodge_interval: 0.01
 check_agent_interval: [0.4, 0.6]
-check_special_attack_interval: [0.4, 0.6]
-check_ultimate_interval: [0.4, 0.6]
-check_chain_interval: [0.9, 1.1]
-check_quick_interval: [0.9, 1.1]
-auto_lock_interval: 5
+check_special_attack_interval: [0.2, 0.4]
+check_ultimate_interval: 0.1
+check_chain_interval: 0.3
+check_quick_interval: 0.2
+auto_lock_interval: 1
 
 scenes:
 
@@ -18,13 +18,13 @@ scenes:
     priority: 99
     interval: 0.02
     handlers:
-      - states: "![自定义-动作不打断, 0, 999]{1, 1} & [闪避识别-黄光]"
+      - states: "![自定义-动作不打断, 0, 30] & [闪避识别-黄光]"
         sub_handlers:
           - state_template: "双反模板-防护"
           - state_template: "双反模板-击破"
           - state_template: "双反模板-异常"
           - state_template: "双反模板-下一个"
-      - states: "![自定义-动作不打断, 0, 999]{1, 1} & ([闪避识别-红光] | [闪避识别-声音])"
+      - states: "![自定义-动作不打断, 0, 30]"
         sub_handlers:
           - state_template: "闪A模板-全角色"
 
@@ -55,9 +55,6 @@ scenes:
     handlers:
       # 刚开始未识别到角色时候不要乱切
       - state_template: "站场模板-未识别角色"
-      - states: "[自定义-黄光切人, 0, 2] | [自定义-红光闪避, 0, 2] | [自定义-临时站场]"
-        sub_handlers:
-          - state_template: "速切模板-全角色"
       - states: "![按键-切换角色-下一个,0,2] & ![自定义-动作不打断, 0, 30]"
         sub_handlers:
           - states: "([后台-1-支援]|[后台-1-防护]|[后台-1-击破]) & [后台-1-能量]{80,120}"
@@ -68,7 +65,7 @@ scenes:
             operations:
               - op_name: "按键-切换角色-上一个"
                 post_delay: 1
-      - states: "[按键-切换角色-下一个,0,0.4] | [按键-切换角色-上一个,0,0.4]"
+      - states: "[按键-切换角色-下一个,0,0.8] | [按键-切换角色-上一个,0,0.8]"
         operations:
           - op_name: "按键-普通攻击"
             seconds: 0.1
