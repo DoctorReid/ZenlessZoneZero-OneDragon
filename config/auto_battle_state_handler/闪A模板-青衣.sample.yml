@@ -1,13 +1,11 @@
 #红光青衣放开左键就行了
 handlers:
-  - states: "[前台-青衣]"
+  - states: "[前台-青衣] & [自定义-青衣-醉花云月转,0,2.5]"
     operations:
-      - states: "[自定义-青衣-醉花云月转,0,2.5]"
-        operations:
-          - op_name: "清除状态"
-            state: "自定义-连携"
-          - op_name: "按键-普通攻击"
-            post_delay: 0.1
-            repeat: 5
-          - op_name: "设置状态"
-            state: "自定义-青衣-特殊技续普攻"
+      - op_name: "清除状态"
+        state: "自定义-连携"
+      - op_name: "按键-普通攻击"
+        post_delay: 0.1
+        repeat: 5
+      - op_name: "设置状态"
+        state: "自定义-青衣-特殊技续普攻"
