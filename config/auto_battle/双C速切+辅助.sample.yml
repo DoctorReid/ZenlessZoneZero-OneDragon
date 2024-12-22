@@ -34,6 +34,7 @@ scenes:
     handlers:
       - states: "[按键可用-连携技]"
         sub_handlers:
+          - state_template: "连携模板-支援"
           - state_template: "连携模板-异常"
           - state_template: "连携模板-强攻"
           - state_template: "连携模板-跳过"
