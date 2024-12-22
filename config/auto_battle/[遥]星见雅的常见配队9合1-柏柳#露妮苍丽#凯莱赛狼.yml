@@ -35,7 +35,7 @@ t-ya: &ya # 有豆放豆（6豆）
       - states: "[按键-切换角色-下一个,0,0.8]"
         operations:
           - op_name: "按键-普通攻击"
-            seconds: 0.1
+            post_delay: 0.1
             repeat: 8
       - states: "[雅-落霜]{6, 6}"
         operations:
@@ -83,7 +83,7 @@ t-niKe: &niKe
       - states: "[按键-切换角色-下一个,0,0.4]"
         operations:
           - op_name: "按键-普通攻击"
-            seconds: 0.1
+            post_delay: 0.1
             repeat: 4
       - states: "[按键可用-终结技] & ![自定义-动作不打断, 0, 30]"
         operations:
@@ -139,7 +139,7 @@ t-niKe: &niKe
       - states: "![按键可用-特殊攻击]"
         operations:
           - op_name: "按键-普通攻击"
-            seconds: 0.1
+            post_delay: 0.1
             repeat: 5
           - op_name: "按键-切换角色-下一个"
 # 露西
@@ -149,7 +149,7 @@ t-luXi: &luXi
       - states: "[按键-切换角色-下一个,0,0.4]"
         operations:
           - op_name: "按键-普通攻击"
-            seconds: 0.1
+            post_delay: 0.1
             repeat: 4
 
       - states: "[按键可用-终结技] & ![自定义-动作不打断, 0, 30]"
@@ -182,7 +182,7 @@ t-luXi: &luXi
       - states: "![按键可用-特殊攻击]"
         operations:
           - op_name: "按键-普通攻击"
-            seconds: 0.1
+            post_delay: 0.1
             repeat: 5
           - op_name: "按键-切换角色-下一个"
 # 凯撒
@@ -192,7 +192,7 @@ t-kaiSa: &kaiSa
       - states: "[按键-切换角色-下一个,0,0.4]"
         operations:
           - op_name: "按键-普通攻击"
-            seconds: 0.1
+            post_delay: 0.1
             repeat: 4
       - states: "[按键可用-终结技] & ![自定义-动作不打断, 0, 30]"
         operations:
@@ -254,7 +254,7 @@ t-liNa: &liNa
       - states: "![按键可用-特殊攻击]"
         operations:
           - op_name: "按键-普通攻击"
-            seconds: 0.1
+            post_delay: 0.1
             repeat: 5
           - op_name: "按键-切换角色-下一个"
 # 莱特
@@ -265,7 +265,7 @@ t-lighter: &lighter
       - states: "[按键-切换角色-下一个,0,0.4]"
         operations:
           - op_name: "按键-普通攻击"
-            seconds: 0.1
+            post_delay: 0.1
             repeat: 4
 
       # 优先把士气用够，因为不好估算层数，就以能量值为限
@@ -391,14 +391,14 @@ t-boNiSi: &boNiSi
       - states: "[按键-切换角色-下一个,0,0.4]"
         operations:
           - op_name: "按键-普通攻击"
-            seconds: 0.1
+            post_delay: 0.1
             repeat: 4
           - op_name: "设置状态"
             state: "自定义-柏妮思站场时间"
       - states: "[自定义-柏妮思站场时间,12,999]"
         operations:
           - op_name: "按键-普通攻击"
-            seconds: 0.1
+            post_delay: 0.1
             repeat: 5
           - op_name: "清除状态"
             state: "自定义-柏妮思站场时间"
@@ -461,7 +461,7 @@ t-boNiSi: &boNiSi
       - states: "[柏妮思-能量]{0,60}"
         operations:
           - op_name: "按键-普通攻击"
-            seconds: 0.1
+            post_delay: 0.1
             repeat: 5
           - op_name: "按键-切换角色-下一个"
       - states: ""
@@ -476,7 +476,7 @@ t-cangJiao: &cangJiao
       - states: "[按键-切换角色-下一个,0,0.4]"
         operations:
           - op_name: "按键-普通攻击"
-            seconds: 0.1
+            post_delay: 0.1
             repeat: 4
       - states: "[按键可用-终结技] & ![自定义-动作不打断, 0, 30]"
         operations:
@@ -510,7 +510,7 @@ t-laiKaEn: &laiKaEn
       - states: "[按键-切换角色-下一个,0,0.4]"
         operations:
           - op_name: "按键-普通攻击"
-            seconds: 0.1
+            post_delay: 0.1
             repeat: 4
       - states: "[按键可用-终结技] & ![自定义-动作不打断, 0, 30]"
         operations:
@@ -579,7 +579,7 @@ t-yueChengLiu: &yueChengLiu
       - states: "[按键-切换角色-下一个,0,0.4]"
         operations:
           - op_name: "按键-普通攻击"
-            seconds: 0.1
+            post_delay: 0.1
             repeat: 4
       - states: "[按键可用-特殊攻击]"
         operations:
