@@ -6,6 +6,7 @@ handlers:
   - state_template: "速切模板-妮可"
   - state_template: "速切模板-猫又"
   - state_template: "速切模板-可琳"
+  - state_template: "速切模板-派派"
   - state_template: "速切模板-柳"
   - state_template: "速切模板-雅"
   - state_template: "速切模板-简"
