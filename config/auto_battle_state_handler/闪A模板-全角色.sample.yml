@@ -2,4 +2,6 @@
 handlers:
   - state_template: "闪A模板-艾莲"
   - state_template: "闪A模板-青衣"
+  - state_template: "闪A模板-柳"
+  - state_template: "闪A模板-柏妮思"
   - state_template: "闪A模板-通用"

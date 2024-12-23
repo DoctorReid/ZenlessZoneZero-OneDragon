@@ -1,11 +1,17 @@
 handlers:
   - states: "[前台-苍角]"
     sub_handlers:
+      - states: "[自定义-黄光切人, 0, 2]"
+        sub_handlers:
+          - state_template: "支援攻击模板-全角色"
+      - states: "[自定义-连携换人,0,1]"
+        operations:
+          - operation_template: "通用-连携攻击"
       - states: "[按键-切换角色-下一个,0,1]"
         operations:
           - op_name: "清除状态"
             state: "自定义-动作不打断"
-      - states: "[按键可用-终结技] & ![自定义-动作不打断, 0, 30]"
+      - states: "[按键可用-终结技] & !([按键-切换角色-下一个,0,1]|[按键-切换角色-上一个,0,1]) & ![自定义-动作不打断, 0, 30]"
         operations:
           - op_name: "设置状态"
             state: "自定义-苍角-展旗"
@@ -18,7 +24,7 @@ handlers:
             state: "自定义-动作不打断"
           - op_name: "设置状态"
             data: [ "自定义-速切结束" ]
-      - states: "[前台-能量]{60, 120} "
+      - states: "[苍角-能量]{60,120} & [按键可用-特殊攻击]"
         operations:
           - op_name: "设置状态"
             state: "自定义-苍角-展旗"
@@ -32,7 +38,7 @@ handlers:
             post_delay: 2
           - op_name: "清除状态"
             state: "自定义-动作不打断"
-      - states: "[前台-能量]{0,80}"
+      - states: "[苍角-能量]{0,60}"
         operations:
           - op_name: "设置状态"
             data: [ "自定义-速切结束" ]

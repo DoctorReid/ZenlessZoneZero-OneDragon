@@ -1,5 +1,14 @@
 template_name: "速切模板-全角色"
 handlers:
+  #青衣大哥，就是自信，其他人怎么好意思站场的？
+  - states: "[青衣-能量]{0, 120} & ![自定义-连携换人,0,12] & ![自定义-黄光切人, 0, 2] & ![前台-青衣]"
+    operations:
+      - op_name: "设置状态"
+        data: [ "自定义-速切结束" ]
+  - states: "[妮可-能量]{80, 120} & [自定义-连携换人,6,12] & ![自定义-黄光切人, 0, 2] & ![前台-妮可]"
+    operations:
+      - op_name: "设置状态"
+        data: [ "自定义-速切结束" ]
   - state_template: "速切模板-莱卡恩"
   - state_template: "速切模板-苍角"
   - state_template: "速切模板-格莉丝"
@@ -20,4 +29,7 @@ handlers:
   - state_template: "速切模板-安比"
   - state_template: "速切模板-珂蕾妲"
   - state_template: "速切模板-柏妮思"
+  - state_template: "站场模板-青衣"
+  - state_template: "站场模板-朱鸢"
+  - state_template: "站场模板-艾莲"
   - state_template: "速切模板-通用"

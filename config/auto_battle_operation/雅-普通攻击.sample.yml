@@ -1,0 +1,14 @@
+#根据动画实测，普攻1秒后进入无敌时间，无敌时间持续1.5秒，最后有0.5秒没有无敌
+operations:
+  - op_name: "按键-普通攻击"
+    post_delay: 0.1
+    repeat: 10
+  - op_name: "设置状态"
+    state: "自定义-动作不打断"
+  - op_name: "按键-普通攻击"
+    post_delay: 0.1
+    repeat: 15
+  - op_name: "清除状态"
+    state: "自定义-动作不打断"
+  - op_name: "等待秒数"
+    seconds: 0.5

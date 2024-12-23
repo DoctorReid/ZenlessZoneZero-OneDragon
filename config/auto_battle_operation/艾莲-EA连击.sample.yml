@@ -1,6 +1,8 @@
 # 连招：e接第3段a，可连接使用，即eaea
 operations:
   # 按e
+  - op_name: "等待秒数"
+    data: [ "0.2" ]
   - op_name: "按键-特殊攻击"
     data: []
   - op_name: "等待秒数"
