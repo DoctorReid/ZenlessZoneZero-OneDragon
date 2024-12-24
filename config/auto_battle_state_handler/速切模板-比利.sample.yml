@@ -7,6 +7,9 @@ handlers:
           - state_template: "支援攻击模板-全角色"
       - states: "[自定义-连携换人,0,1]"
         operations:
+          - op_name: "设置状态"
+            state: "自定义-比利-连携次数"
+            add: 1
           - operation_template: "通用-连携攻击"
 
       - states: "([按键-切换角色-下一个,0,0.3]|[按键-切换角色-上一个,0,0.3]) | [自定义-快速支援换人,0,0.3]"
@@ -25,15 +28,17 @@ handlers:
       - states: "[自定义-连携换人,0,12]"
         sub_handlers:
             #失衡的时候就不用考虑这么多了，射吧
-          - states: "[按键可用-终结技]"
+          - states: "[按键可用-终结技] & [自定义-比利-连携次数]{2,99}"
             operations:
             - op_name: "设置状态"
               state: "自定义-动作不打断"
             - op_name: "按键-终结技"
-              post_delay: 2
-              repeat: 2
+              post_delay: 0.1
+              repeat: 40
             - op_name: "清除状态"
               state: "自定义-动作不打断"
+            - op_name: "清除状态"
+              state: "自定义-比利-连携次数"
           #朴实无华
           - states: "[按键可用-特殊攻击]"
             operations:
@@ -54,15 +59,6 @@ handlers:
 
       - states: "![自定义-连携换人,0,12]"
         sub_handlers:
-        - states: " [按键可用-终结技] & !([按键-切换角色-下一个,0,1] | [按键-切换角色-上一个,0,1]) & ![自定义-动作不打断, 0, 30] & !( [前台-强攻] & ( [后台-1-击破] | [后台-2-击破] ) )"
-          operations:
-            - op_name: "设置状态"
-              state: "自定义-动作不打断"
-            - op_name: "按键-终结技"
-              post_delay: 2
-              repeat: 2
-            - op_name: "清除状态"
-              state: "自定义-动作不打断"
         - states: "[按键可用-特殊攻击] & [前台-能量]{100, 120}"
           operations:
             - op_name: "按键-特殊攻击"
