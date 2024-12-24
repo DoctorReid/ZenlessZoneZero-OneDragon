@@ -468,9 +468,9 @@ class AutoBattleContext:
 
             part = cv2_utils.crop_image_only(screen, self.area_btn_ultimate.rect)
             # 判断灰色按钮比较容易 发光时颜色会变
-            mrl = self.ctx.tm.match_template(part, 'battle', 'btn_ultimate_2',
+            mrl = self.ctx.tm.match_template(part, 'battle', 'btn_ultimate_1',
                                              threshold=0.9)
-            is_ready = mrl.max is not None
+            is_ready = mrl.max is None
 
             if is_ready:
                 self.auto_op.update_state(StateRecord(BattleStateEnum.STATUS_ULTIMATE_READY.value, screenshot_time))

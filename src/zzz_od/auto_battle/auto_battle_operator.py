@@ -168,6 +168,7 @@ class AutoBattleOperator(ConditionalOperator):
             event_ids.append(f'快速支援-{agent_name}')
             event_ids.append(f'切换角色-{agent_name}')
             event_ids.append(f'{agent_name}-能量')
+            event_ids.append(f'{agent_name}-终结技可用')
 
             if agent.state_list is not None:
                 for state in agent.state_list:
