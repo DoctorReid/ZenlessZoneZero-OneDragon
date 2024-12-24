@@ -1,20 +1,7 @@
 operations:
-  - op_name: "按键-移动-前"
-    way: "按下"
-    post_delay: 0.01
-  - op_name: "按键-闪避"
-    press: 0.01
-    post_delay: 0.15
-    repeat: 3
+  - op_name: "按键-普通攻击"
+    post_delay: 0.1
+    repeat: 15
   - op_name: "按键-普通攻击"
     way: "按下"
     press: 1.2
-    post_delay: 0.025
-  - op_name: "按键-移动-前"
-    way: "松开"
-  # 普通攻击
-  - op_name: "按键-普通攻击"
-    post_delay: 0.2
-    repeat: 17
-  - op_name: "按键-普通攻击"
-    post_delay: 0.35
