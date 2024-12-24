@@ -1,60 +1,51 @@
 handlers:
   - states: "[前台-简]"
     sub_handlers:
+
+      #支援
       - states: "[自定义-黄光切人, 0, 2]"
-        sub_handlers:
-          - state_template: "支援攻击模板-全角色"
+        operations:
+          - operation_template: "简-格挡攻击"
+
+      #连携
       - states: "[自定义-连携换人,0,1]"
         operations:
-          - operation_template: "通用-连携攻击"
-      - states: "[按键-切换角色-下一个,0,0.8]"
+          - operation_template: "简-连携攻击"
+
+      #防呆
+      - states: "([按键-切换角色-下一个,0,0.3]|[按键-切换角色-上一个,0,0.3])"
         operations:
-          - op_name: "按键-普通攻击"
-            post_delay: 0.1
-            repeat: 8
-      - states: "[按键-切换角色-下一个,12,999]"
-        operations:
-            - op_name: "等待秒数"
-              seconds: 0.2
-            - op_name: "设置状态"
-              data: [ "自定义-速切结束" ]
-      - states: "[按键可用-终结技] & !([按键-切换角色-下一个,0,1]|[按键-切换角色-上一个,0,1]) & ![自定义-动作不打断, 0, 30]"
-        operations:
-          - op_name: "设置状态"
-            state: "自定义-动作不打断"
-          - op_name: "按键-终结技"
-            post_delay: 2.5
-            repeat: 2
           - op_name: "清除状态"
             state: "自定义-动作不打断"
+
+      #合轴时刻      
+      - states: "![按键-切换角色-下一个,0,8] & ![按键-切换角色-上一个,0,8] &![自定义-速切结束]"
+        sub_handlers:
+
+          - states: "![简-狂热心流]{60, 101} & [简-萨霍夫跳]"
+            operations:
+              - operation_template: "简-长按A合轴"
+
+          - states: ""
+            operations:
+              - operation_template: "简-普通攻击合轴"
+
+      #终结技时刻，需要注意出场第一秒可能识别错误
+      - states: "[按键可用-终结技] & !([按键-切换角色-下一个,0,1]|[按键-切换角色-上一个,0,1])"
+        operations:
+          - operation_template: "简-终结技"
+
         #当前狂热心流不足50%且萨霍夫可使用则使用萨霍夫
       - states: "![简-狂热心流]{60, 101} & [简-萨霍夫跳]"
         operations:
-          - op_name: "按键-闪避"
-            post_delay: 0.1
-          - op_name: "设置状态"
-            state: "自定义-动作不打断"
-            value: 1
-          - op_name: "按键-普通攻击"
-            post_delay: 0.2
-          - op_name: "按键-普通攻击"
-            way: "按下"
-            post_delay: 0.9
-          - op_name: "按键-特殊攻击"
-            post_delay: 0.1
-            repeat: 18
+          - operation_template: "简-长按A"
 
-          - op_name: "清除状态"
-            state: "自定义-动作不打断"
+      #朴实无华
       - states: "[简-能量]{60,120} & [按键可用-特殊攻击]"
         operations:
-          - op_name: "按键-特殊攻击"
-            press: 0.05
-            repeat: 40
+          - operation_template: "简-强化特殊攻击"
 
       #简6段a
-      - states: ""
+      - states: "![简-能量]{60,120}"
         operations:
-          - op_name: "按键-普通攻击"
-            post_delay: 0.025
-            repeat: 20
+          - operation_template: "简-普通攻击"

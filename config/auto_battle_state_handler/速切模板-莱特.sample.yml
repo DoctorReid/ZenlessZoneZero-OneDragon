@@ -5,17 +5,9 @@ handlers:
       - states: "[自定义-黄光切人, 0, 2]"
         sub_handlers:
           - state_template: "支援攻击模板-全角色"
-      - states: "[自定义-连携换人,0,1]"
-        operations:
-          - operation_template: "通用-连携攻击"
-      # 刚切换角色的前置处理
-      - states: "[按键-切换角色-下一个,0,0.4]"
-        operations:
-          - op_name: "按键-普通攻击"
-            post_delay: 0.1
-            repeat: 4
-
-      # 优先把士气用够，因为不好估算层数，就以能量值为限
+            
+      # 优先把士气变成BUFF 
+      # 因为不好估算层数，就以士气值作为结束条件，浪费一点也无所谓
       - states: "[自定义-莱特-欧拉欧拉, 0, 30]"
         sub_handlers:
           - states: "[莱特-士气]{0, 70}"
@@ -24,16 +16,39 @@ handlers:
                 state_list: ["自定义-莱特-欧拉欧拉", "自定义-动作不打断"]
               - op_name: "设置状态"
                 state: "自定义-莱特-BUFF"
-              - op_name: "设置状态"
-                data: [ "自定义-速切结束" ]
+              # 加完BUFF，可以再放个Q，不浪费时间
           - states: ""
             operations:
               - op_name: "按键-普通攻击"
                 post_delay: 0.1
 
+      # # 刚切换角色的前置处理
+      - states: "([按键-切换角色-下一个,0,0.3]|[按键-切换角色-上一个,0,0.3]) | [自定义-快速支援换人,0,1]"
+        operations:
+          - op_name: "清除状态"
+            state: "自定义-动作不打断"
+
+      #合轴时刻      
+      - states: "![按键-切换角色-下一个,0,12] & ![按键-切换角色-上一个,0,12] &![自定义-速切结束]"
+        operations:
+          - operation_template: "通用-切人普通攻击"
+
+      - states: "[自定义-连携换人,0,1]"
+        sub_handlers:
+          - states: "![自定义-莱特-BUFF, 0, 16] & [莱特-士气]{80, 100}"
+            operations:
+              - op_name: "设置状态"
+                state_list: ["自定义-莱特-欧拉欧拉", "自定义-动作不打断"]
+          - states: ""
+            operations:
+              - op_name: "等待秒数"
+                seconds: 3
+              - op_name: "设置状态"
+                data: [ "自定义-速切结束" ]
+                
       - states: "[自定义-闪避]"
         sub_handlers:
-          - states: "[莱特-士气]{80, 100}"
+          - states: "![自定义-莱特-BUFF, 0, 16] & [莱特-士气]{80, 100}"
             operations:
               - op_name: "设置状态"
                 state_list: ["自定义-莱特-欧拉欧拉", "自定义-动作不打断"]
@@ -49,11 +64,12 @@ handlers:
 
       - states: "[自定义-快速支援换人]"
         sub_handlers:
-          - states: "[莱特-士气]{80, 100}"
+          - states: "![自定义-莱特-BUFF, 0, 16] & [莱特-士气]{80, 100}"
             operations:
               - op_name: "设置状态"
                 state_list: ["自定义-莱特-欧拉欧拉", "自定义-动作不打断"]
           - states: ""
+            # 其实这里会在士气够的情况下刷新BUFF，不过感觉不好判断，先不管了
             operations:
               - op_name: "按键-普通攻击"
                 post_delay: 0.2
@@ -65,12 +81,13 @@ handlers:
 
       - states: "[自定义-招架支援]"
         sub_handlers:
-          - states: "[莱特-士气]{80, 100}"
+          - states: "![自定义-莱特-BUFF, 0, 16] & [莱特-士气]{80, 100}"
             operations:
               - op_name: "设置状态"
                 state_list: ["自定义-莱特-欧拉欧拉", "自定义-动作不打断"]
           - states: ""
             operations:
+              # 其实这里会在士气够的情况下刷新BUFF，不过感觉不好判断，先不管了
               - op_name: "按键-普通攻击"
                 post_delay: 0.2
                 repeat: 8
@@ -79,21 +96,8 @@ handlers:
               - op_name: "设置状态"
                 data: [ "自定义-速切结束" ]
 
-      - states: "[自定义-连携技换人]"
-        sub_handlers:
-          - states: "[莱特-士气]{80, 100}"
-            operations:
-              - op_name: "设置状态"
-                state_list: ["自定义-莱特-欧拉欧拉", "自定义-动作不打断"]
-          - states: ""
-            operations:
-              - op_name: "等待秒数"
-                seconds: 3
-              - op_name: "设置状态"
-                data: [ "自定义-速切结束" ]
-
-      # 士气够了就放BUFF
-      - states: "[莱特-士气]{80, 100}"
+      # 士气够了、BUFF快结束了，才进入到放BUFF的状态
+      - states: "![自定义-莱特-BUFF, 0, 16] & [莱特-士气]{80, 100}"
         operations:
           - op_name: "设置状态"
             state_list: ["自定义-莱特-欧拉欧拉", "自定义-动作不打断"]
@@ -104,35 +108,25 @@ handlers:
           - op_name: "设置状态"
             state: "自定义-动作不打断"
           - op_name: "按键-终结技"
-            post_delay: 1
-            repeat: 3
-          - op_name: "清除状态"
-            state: "自定义-动作不打断"
-      # E技能
-      - states: "[莱特-能量]{60,120} & [按键可用-特殊攻击]"
-        operations:
-          - op_name: "设置状态"
-            state: "自定义-动作不打断"
-          - op_name: "按键-移动-前"
-            way: "按下"
-          - op_name: "按键-普通攻击"
-            post_delay: 0.2
-          - op_name: "按键-闪避"
-            post_delay: 0.2
-          - op_name: "按键-特殊攻击"
-            post_delay: 0.2
-          - op_name: "按键-普通攻击"
-            post_delay: 0.2
-            repeat: 8
-          - op_name: "按键-移动-前"
-            way: "松开"
-          - op_name: "等待秒数"
-            seconds: 0.5
+            post_delay: 0.5
+            repeat: 4
           - op_name: "清除状态"
             state: "自定义-动作不打断"
           - op_name: "设置状态"
             data: [ "自定义-速切结束" ]
-
+      # E技能
+      - states: "[莱特-能量]{80,120} & [按键可用-特殊攻击]"
+        operations:
+          - op_name: "设置状态"
+            state: "自定义-动作不打断"
+          - op_name: "按键-特殊攻击"
+            post_delay: 0.4
+            repeat: 4
+          - op_name: "清除状态"
+            state: "自定义-动作不打断"
+          - op_name: "设置状态"
+            data: [ "自定义-速切结束" ]
+      
       # 加不了BUFF也没有技能，不普通攻击，直接下场
       - states: ""
         operations:

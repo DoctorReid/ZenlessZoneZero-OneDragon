@@ -7,17 +7,21 @@ handlers:
       - states: "[自定义-连携换人,0,1]"
         operations:
           - operation_template: "通用-连携攻击"
-      - states: "[按键-切换角色-下一个,0,0.4]"
+          
+      - states: "([按键-切换角色-下一个,0,0.3]|[按键-切换角色-上一个,0,0.3]) | [自定义-快速支援换人,0,1]"
         operations:
-          - op_name: "按键-普通攻击"
-            post_delay: 0.1
-            repeat: 4
+          - op_name: "清除状态"
+            state: "自定义-动作不打断"
+
+      #合轴时刻      
+      - states: "![按键-切换角色-下一个,0,12] & ![按键-切换角色-上一个,0,12] &![自定义-速切结束]"
+        operations:
+          - operation_template: "通用-切人普通攻击"
+
       - states: "[自定义-连携换人,2,4]"
         operations:
           - op_name: "等待秒数"
-            data: [ "0.5" ]
-          - op_name: "设置状态"
-            state: "自定义-动作不打断"
+            data: [ "0.3" ]
           - op_name: "按键-普通攻击"
             way: "按下"
             press: 1.2
@@ -26,9 +30,6 @@ handlers:
           - op_name: "按键-普通攻击"
             post_delay: 0.1
             repeat: 20
-          - op_name: "清除状态"
-            state: "自定义-动作不打断"
-
       - states: "[按键可用-终结技] & !([按键-切换角色-下一个,0,1]|[按键-切换角色-上一个,0,1]) & ![自定义-动作不打断, 0, 30]"
         operations:
           - op_name: "设置状态"
@@ -54,6 +55,12 @@ handlers:
             state: "自定义-动作不打断"
       - states: "![悠真-能量]{60,120} & ![自定义-连携换人,0,12]"
         operations:
+          - op_name: "按键-普通攻击"
+            way: "按下"
+            press: 1.2
+          - op_name: "按键-普通攻击"
+            post_delay: 0.1
+            repeat: 25
           - op_name: "设置状态"
             data: ["自定义-速切结束"]
       - states: "![悠真-能量]{60,120}"
