@@ -8,17 +8,16 @@ team_list:
 introduction: "支持全角色 任意三人/单人/双人作战，通杀所有情况"
 
 check_dodge_interval: 0.02
-check_agent_interval: [0.4, 0.6]
-check_special_attack_interval: [0.2, 0.4]
-check_ultimate_interval: [0.4, 0.6]
-check_chain_interval: 0.3
-check_quick_interval: 0.2
+check_agent_interval: 0.1
+check_special_attack_interval: 0.1
+check_ultimate_interval: 0.1
+check_chain_interval: 0.1
+check_quick_interval: [0.9, 1.1]
 auto_lock_interval: 1
 
 scenes:
   - triggers: ["闪避识别-黄光", "闪避识别-红光", "闪避识别-声音"]
     priority: 99
-    interval: 0.2
     handlers:
       - states: "![自定义-动作不打断, 0, 30] & [闪避识别-黄光]"
         sub_handlers:
@@ -32,10 +31,10 @@ scenes:
 
   - triggers: ["按键可用-连携技"]
     priority: 98
-    interval: 0.02
     handlers:
       - states: "[按键可用-连携技]"
         sub_handlers:
+          - state_template: "连携模板-邦布"
           - state_template: "连携模板-支援"
           - state_template: "连携模板-异常"
           - state_template: "连携模板-强攻"
@@ -43,7 +42,6 @@ scenes:
 
   - triggers: ["按键可用-快速支援"]
     priority: 97
-    interval: 0.2
     handlers:
       - state_template: "快速支援模板-终结技"
       - states: ""          
@@ -51,14 +49,13 @@ scenes:
           - op_name: "按键-快速支援"
           - op_name: "设置状态"
             state: "自定义-快速支援换人"
-          - op_name: "清除状态"
-            state: "自定义-动作不打断"
           - op_name: "等待秒数"
             seconds: 0.5
 
+
   - triggers: ["前台-血量扣减"]
-    priority: 96
-    interval: 0.4
+    priority: 90
+    interval: 1  
     handlers:
       - states: "[前台-血量扣减]{1, 100} & ![自定义-动作不打断, 0, 999]"
         operations:
@@ -67,12 +64,28 @@ scenes:
             state: "自定义-血量扣减"
           - op_name: "清除状态"
             state: "自定义-动作不打断"
+          - op_name: "按键-移动-前"
+            way: "按下"
+            post_delay: 0.01
           - op_name: "按键-闪避"
-            post_delay: 0.5
+            press: 0.01
+            post_delay: 0.15
+            repeat: 2
+          - op_name: "按键-普通攻击"
+            press: 0.3
+            post_delay: 0.025
+            repeat: 2
+          - op_name: "按键-闪避"
+            press: 0.01
+            post_delay: 0.15
+            repeat: 1
+          - op_name: "按键-移动-前"
+            way: "松开"
+            post_delay: 0.1
 
   - triggers: ["自定义-速切结束"]
-    priority: 10
-    interval: 0.02
+    priority: 80
+    interval: 0.1
     handlers:
       - state_template: "速切补增益模板-全角色"
       - states: "[自定义-速切结束,0,12]"
@@ -82,14 +95,14 @@ scenes:
 
   - triggers: []
     priority: 9
-    interval: 0.04
+    interval: 0.2
     handlers:
       # 刚开始未识别到角色时候不要乱切
       - state_template: "站场模板-未识别角色"
-      - states: "([按键-切换角色-下一个,0,0.3] | [按键-切换角色-上一个,0,0.3])"
+      - states: "([按键-切换角色-下一个,0,0.2] | [按键-切换角色-上一个,0,0.2])"
         operations:
           - op_name: "清除状态"
             state_list: ["自定义-速切结束" , "自定义-动作不打断"] 
-      - states: "!([按键-切换角色-下一个,0,0.3] & ![按键-切换角色-上一个,0,0.3])"
+      - states: "!([按键-切换角色-下一个,0,0.2] & ![按键-切换角色-上一个,0,0.2])"
         sub_handlers:
           - state_template: "速切模板-全角色"

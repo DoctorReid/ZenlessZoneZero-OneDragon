@@ -18,7 +18,7 @@ handlers:
         operations:
           - operation_template: "通用-切人普通攻击"
 
-      - states: "[按键可用-终结技] & !([按键-切换角色-下一个,0,1]|[按键-切换角色-上一个,0,1]) & ![自定义-动作不打断, 0, 30] & ![自定义-露西-加油,0,1.4]"
+      - states: "[按键可用-终结技] & !([按键-切换角色-下一个,0,1]|[按键-切换角色-上一个,0,1]) & ![自定义-动作不打断, 0, 30]"
         operations:
           - op_name: "设置状态"
             state: "自定义-动作不打断"
@@ -26,7 +26,7 @@ handlers:
             state: "自定义-露西-加油"
           - op_name: "按键-终结技"
             post_delay: 1
-            repeat: 4
+            repeat: 3
           - op_name: "清除状态"
             state: "自定义-动作不打断"
           - op_name: "设置状态"
@@ -47,12 +47,12 @@ handlers:
                 press: 1
               - op_name: "按键-终结技"
                 post_delay: 1
-                repeat: 4
+                repeat: 3
               - op_name: "清除状态"
                 state: "自定义-动作不打断"
               - op_name: "设置状态"
                 data: [ "自定义-速切结束" ]
-          - states: ""        
+          - states: "![按键可用-特殊攻击]"
             operations:
               - op_name: "等待秒数"
                 seconds: 0.2
@@ -68,7 +68,7 @@ handlers:
               - op_name: "设置状态"
                 data: [ "自定义-速切结束" ]
 
-      - states: "![按键-切换角色-下一个,0,1.5] & ![按键-切换角色-上一个,0,1.5]"
+      - states: "![按键-切换角色-下一个,0,3] & ![按键-切换角色-上一个,0,3]"
         operations:
           - op_name: "设置状态"
             data: [ "自定义-速切结束" ]

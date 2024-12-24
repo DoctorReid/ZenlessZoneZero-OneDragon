@@ -40,7 +40,7 @@ handlers:
             post_delay: 0.2
             repeat: 4
           - op_name: "设置状态"
-            data: ["自定义-速切结束"]
+            data: [ "自定义-速切结束" ]
 
       - states: "![安比-能量]{60,120}"
         operations:
@@ -53,4 +53,4 @@ handlers:
             way: "按下"
             press: 0.8
           - op_name: "设置状态"
-            data: ["自定义-速切结束"]
+            data: [ "自定义-速切结束" ]
