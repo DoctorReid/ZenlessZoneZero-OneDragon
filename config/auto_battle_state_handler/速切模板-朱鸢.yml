@@ -19,7 +19,7 @@ handlers:
             state: "自定义-动作不打断"
 
       #失衡时刻
-      - states: "([自定义-连携换人,0,12]"
+      - states: "([自定义-连携换人,0,14]"
         sub_handlers:
             #失衡了你还不射还等什么！
           - states: "[朱鸢-子弹数]{3, 9}"
@@ -48,7 +48,7 @@ handlers:
               data: [ "自定义-速切结束" ]
               
         #子弹太多了
-      - states: "[朱鸢-子弹数]{7, 9}"
+      - states: "[朱鸢-子弹数]{9, 9}"
         operations:
           - operation_template: "朱鸢-长按A"
 
