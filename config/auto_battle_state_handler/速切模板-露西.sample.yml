@@ -12,6 +12,8 @@ handlers:
         operations:
           - op_name: "清除状态"
             state: "自定义-动作不打断"
+          - op_name: "等待秒数"
+            seconds: 0.1
 
       #合轴时刻      
       - states: "![按键-切换角色-下一个,0,12] & ![按键-切换角色-上一个,0,12] &![自定义-速切结束]"
@@ -32,7 +34,7 @@ handlers:
           - op_name: "设置状态"
             data: [ "自定义-速切结束" ]
 
-      - states: "[露西-能量]{60,120} & [按键可用-特殊攻击]"
+      - states: "[露西-能量]{60,121} & [按键可用-特殊攻击]"
         sub_handlers:
           - states: "[按键可用-终结技]"
             operations:
@@ -52,7 +54,7 @@ handlers:
                 state: "自定义-动作不打断"
               - op_name: "设置状态"
                 data: [ "自定义-速切结束" ]
-          - states: "![按键可用-特殊攻击]"
+          - states: "![按键可用-终结技]"
             operations:
               - op_name: "等待秒数"
                 seconds: 0.2

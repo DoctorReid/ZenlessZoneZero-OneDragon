@@ -1,5 +1,6 @@
+template_name: "速切模板-比利"
 handlers:
-  - states: ""
+  - states: "[前台-比利]"
     sub_handlers:
       - states: "[自定义-黄光切人, 0, 2]"
         sub_handlers:
