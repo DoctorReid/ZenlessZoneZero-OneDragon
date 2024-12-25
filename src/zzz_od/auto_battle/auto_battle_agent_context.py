@@ -2,7 +2,7 @@ from concurrent.futures import ThreadPoolExecutor, Future
 
 import threading
 from cv2.typing import MatLike
-from typing import Optional, List, Union, Tuple
+from typing import Optional, List, Union, Tuple, Callable
 
 from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
 from one_dragon.base.conditional_operation.state_recorder import StateRecord, StateRecorder
@@ -15,6 +15,15 @@ from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import Agent, AgentEnum, AgentStateCheckWay, CommonAgentStateEnum, AgentStateDef
 
 _battle_agent_context_executor = ThreadPoolExecutor(thread_name_prefix='od_battle_agent_context', max_workers=16)
+_agent_state_check_method: dict[AgentStateCheckWay, Callable] = {
+    AgentStateCheckWay.COLOR_RANGE_CONNECT: agent_state_checker.check_cnt_by_color_range,
+    AgentStateCheckWay.COLOR_RANGE_EXIST: agent_state_checker.check_exist_by_color_range,
+    AgentStateCheckWay.BACKGROUND_GRAY_RANGE_LENGTH: agent_state_checker.check_length_by_background_gray,
+    AgentStateCheckWay.FOREGROUND_GRAY_RANGE_LENGTH: agent_state_checker.check_length_by_foreground_gray,
+    AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH: agent_state_checker.check_length_by_foreground_color,
+    AgentStateCheckWay.TEMPLATE_NOT_FOUND: agent_state_checker.check_template_not_found,
+    AgentStateCheckWay.COLOR_CHANNEL_MAX_RANGE_EXIST: agent_state_checker.check_exist_by_color_channel_max_range,
+}
 
 
 class AgentInfo:
@@ -471,26 +480,8 @@ class AutoBattleAgentContext:
         """
         value: int = -1
         state = to_check.state
-        if state.check_way == AgentStateCheckWay.COLOR_RANGE_CONNECT:
-            value = agent_state_checker.check_cnt_by_color_range(self.ctx, screen, state,
-                                                                 total=to_check.total, pos=to_check.pos)
-        elif state.check_way == AgentStateCheckWay.COLOR_RANGE_EXIST:
-            value = agent_state_checker.check_exist_by_color_range(self.ctx, screen, state,
-                                                                   total=to_check.total, pos=to_check.pos)
-            value = 1 if value else 0
-        elif state.check_way == AgentStateCheckWay.BACKGROUND_GRAY_RANGE_LENGTH:
-            value = agent_state_checker.check_length_by_background_gray(self.ctx, screen, state,
-                                                                        total=to_check.total, pos=to_check.pos)
-        elif state.check_way == AgentStateCheckWay.FOREGROUND_GRAY_RANGE_LENGTH:
-            value = agent_state_checker.check_length_by_foreground_gray(self.ctx, screen, state,
-                                                                        total=to_check.total, pos=to_check.pos)
-        elif state.check_way == AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH:
-            value = agent_state_checker.check_length_by_foreground_color(self.ctx, screen, state,
-                                                                         total=to_check.total, pos=to_check.pos)
-        elif state.check_way == AgentStateCheckWay.TEMPLATE_NOT_FOUND:
-            value = agent_state_checker.check_template_not_found(self.ctx, screen, state,
-                                                                 total=to_check.total, pos=to_check.pos)
-            value = 1 if value else 0
+        check_method = _agent_state_check_method[state.check_way]
+        value = check_method(ctx=self.ctx, screen=screen, state_def=state, total=to_check.total, pos=to_check.pos)
 
         if value > -1 and value >= state.min_value_trigger_state:
             return StateRecord(state.state_name, screenshot_time, value)
@@ -789,7 +780,7 @@ def __debug_agent():
 
     from one_dragon.utils import debug_utils
     import time
-    screen = debug_utils.get_debug_image('_1728298774523')
+    screen = debug_utils.get_debug_image('1')
     agent_ctx.check_agent_related(screen, time.time())
     for i in agent_ctx.team_info.agent_list:
         print('角色 %s 能量 %d' % (i.agent.agent_name if i.agent is not None else 'none', i.energy))

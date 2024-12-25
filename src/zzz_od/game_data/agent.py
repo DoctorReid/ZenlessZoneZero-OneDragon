@@ -71,6 +71,7 @@ class AgentStateCheckWay(Enum):
     FOREGROUND_GRAY_RANGE_LENGTH: int = 5  # 根据前景的灰度颜色 在特定范围里计算横条的长度
     TEMPLATE_FOUND: int = 6  # 根据模板识别是否存在
     TEMPLATE_NOT_FOUND: int = 7  # 根据模板识别不存在
+    COLOR_CHANNEL_MAX_RANGE_EXIST: int = 8  # 根据颜色通道的最大值 在特定范围里匹配是否出现
 
 
 class AgentStateDef:
@@ -135,17 +136,17 @@ class CommonAgentStateEnum(Enum):
 
     SPECIAL_31 = AgentStateDef('前台-特殊技可用', AgentStateCheckWay.TEMPLATE_NOT_FOUND,
                                template_id='special_3_1', template_threshold=0.9)
-    SPECIAL_32 = AgentStateDef('后台-1-特殊技可用', AgentStateCheckWay.COLOR_RANGE_EXIST,
+    SPECIAL_32 = AgentStateDef('后台-1-特殊技可用', AgentStateCheckWay.COLOR_CHANNEL_MAX_RANGE_EXIST,
                                template_id='energy_3_2', min_value_trigger_state=0,  # 不存在的时候 也需要触发一个清除
-                               lower_color=(90, 90, 90), upper_color=(255, 255, 255), connect_cnt=10)
-    SPECIAL_33 = AgentStateDef('后台-2-特殊技可用', AgentStateCheckWay.COLOR_RANGE_EXIST,
+                               lower_color=150, upper_color=255, connect_cnt=10)
+    SPECIAL_33 = AgentStateDef('后台-2-特殊技可用', AgentStateCheckWay.COLOR_CHANNEL_MAX_RANGE_EXIST,
                                template_id = 'energy_3_3', min_value_trigger_state=0,  # 不存在的时候 也需要触发一个清除
-                               lower_color=(90, 90, 90), upper_color=(255, 255, 255), connect_cnt=10)
+                               lower_color=150, upper_color=255, connect_cnt=10)
     SPECIAL_21 = AgentStateDef('前台-特殊技可用', AgentStateCheckWay.TEMPLATE_NOT_FOUND,
                                template_id='special_3_1', template_threshold=0.9)
-    SPECIAL_22 = AgentStateDef('后台-1-特殊技可用', AgentStateCheckWay.COLOR_RANGE_EXIST,
+    SPECIAL_22 = AgentStateDef('后台-1-特殊技可用', AgentStateCheckWay.COLOR_CHANNEL_MAX_RANGE_EXIST,
                                template_id='energy_2_2', min_value_trigger_state=0,  # 不存在的时候 也需要触发一个清除
-                               lower_color=(90, 90, 90), upper_color=(255, 255, 255), connect_cnt=10)
+                               lower_color=150, upper_color=255, connect_cnt=10)
 
     ULTIMATE_31 = AgentStateDef('前台-终结技可用', AgentStateCheckWay.TEMPLATE_NOT_FOUND,
                                 template_id='ultimate_3_1', template_threshold=0.9)
