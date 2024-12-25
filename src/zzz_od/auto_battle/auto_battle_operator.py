@@ -75,8 +75,6 @@ class AutoBattleOperator(ConditionalOperator):
                 use_gpu=self.ctx.yolo_config.flash_classifier_gpu,
                 check_dodge_interval=self.get('check_dodge_interval', 0.02),
                 check_agent_interval=self.get('check_agent_interval', 0.5),
-                check_special_attack_interval=self.get('check_special_attack_interval', 0.5),
-                check_ultimate_interval=self.get('check_ultimate_interval', 0.5),
                 check_chain_interval=self.get('check_chain_interval', 1),
                 check_quick_interval=self.get('check_quick_interval', 0.5),
                 check_end_interval=self.get('check_end_interval', 5),
@@ -168,6 +166,7 @@ class AutoBattleOperator(ConditionalOperator):
             event_ids.append(f'快速支援-{agent_name}')
             event_ids.append(f'切换角色-{agent_name}')
             event_ids.append(f'{agent_name}-能量')
+            event_ids.append(f'{agent_name}-特殊技可用')
             event_ids.append(f'{agent_name}-终结技可用')
 
             if agent.state_list is not None:
