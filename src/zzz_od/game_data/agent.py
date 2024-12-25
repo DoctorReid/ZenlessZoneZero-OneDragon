@@ -108,7 +108,7 @@ class AgentStateDef:
         if min_value_trigger_state is not None:
             self.min_value_trigger_state = min_value_trigger_state
         elif self.check_way == AgentStateCheckWay.COLOR_RANGE_EXIST:
-            # 判断存在与否的话 默认为1
+            # 判断存在与否的话 默认为1 即只有存在的时候才触发记录
             self.min_value_trigger_state = 1
 
         # 模板匹配
@@ -136,30 +136,30 @@ class CommonAgentStateEnum(Enum):
     SPECIAL_31 = AgentStateDef('前台-特殊技可用', AgentStateCheckWay.TEMPLATE_NOT_FOUND,
                                template_id='special_3_1', template_threshold=0.9)
     SPECIAL_32 = AgentStateDef('后台-1-特殊技可用', AgentStateCheckWay.COLOR_RANGE_EXIST,
-                               template_id='energy_3_2',
+                               template_id='energy_3_2', min_value_trigger_state=0,  # 不存在的时候 也需要触发一个清除
                                lower_color=(90, 90, 90), upper_color=(255, 255, 255), connect_cnt=10)
     SPECIAL_33 = AgentStateDef('后台-2-特殊技可用', AgentStateCheckWay.COLOR_RANGE_EXIST,
-                               template_id = 'energy_3_3',
+                               template_id = 'energy_3_3', min_value_trigger_state=0,  # 不存在的时候 也需要触发一个清除
                                lower_color=(90, 90, 90), upper_color=(255, 255, 255), connect_cnt=10)
     SPECIAL_21 = AgentStateDef('前台-特殊技可用', AgentStateCheckWay.TEMPLATE_NOT_FOUND,
                                template_id='special_3_1', template_threshold=0.9)
     SPECIAL_22 = AgentStateDef('后台-1-特殊技可用', AgentStateCheckWay.COLOR_RANGE_EXIST,
-                               template_id='energy_2_2',
+                               template_id='energy_2_2', min_value_trigger_state=0,  # 不存在的时候 也需要触发一个清除
                                lower_color=(90, 90, 90), upper_color=(255, 255, 255), connect_cnt=10)
 
     ULTIMATE_31 = AgentStateDef('前台-终结技可用', AgentStateCheckWay.TEMPLATE_NOT_FOUND,
                                 template_id='ultimate_3_1', template_threshold=0.9)
     ULTIMATE_32 = AgentStateDef('后台-1-终结技可用', AgentStateCheckWay.COLOR_RANGE_EXIST,
-                                lower_color=(250, 150, 20), upper_color=(255, 255, 70), template_id='ultimate_3_2',
-                                connect_cnt=5)
+                                template_id='ultimate_3_2', min_value_trigger_state=0,  # 不存在的时候 也需要触发一个清除
+                                lower_color=(250, 150, 20), upper_color=(255, 255, 70), connect_cnt=5)
     ULTIMATE_33 = AgentStateDef('后台-2-终结技可用', AgentStateCheckWay.COLOR_RANGE_EXIST,
-                                lower_color=(250, 150, 20), upper_color=(255, 255, 70), template_id='ultimate_3_3',
-                                connect_cnt=5)
+                                template_id='ultimate_3_3', min_value_trigger_state=0,  # 不存在的时候 也需要触发一个清除
+                                lower_color=(250, 150, 20), upper_color=(255, 255, 70), connect_cnt=5)
     ULTIMATE_21 = AgentStateDef('前台-终结技可用', AgentStateCheckWay.TEMPLATE_NOT_FOUND,
                                 template_id='ultimate_3_1', template_threshold=0.9)
     ULTIMATE_22 = AgentStateDef('后台-1-终结技可用', AgentStateCheckWay.COLOR_RANGE_EXIST,
-                                lower_color=(250, 150, 20), upper_color=(255, 255, 70), template_id='ultimate_2_2',
-                                connect_cnt=5)
+                                template_id='ultimate_2_2', min_value_trigger_state=0,  # 不存在的时候 也需要触发一个清除
+                                lower_color=(250, 150, 20), upper_color=(255, 255, 70), connect_cnt=5)
 
     LIFE_DEDUCTION_31 = AgentStateDef('前台-血量扣减', AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH,
                                    lower_color=(140, 30, 30), upper_color=(160, 50, 50), template_id='life_deduction_3_1',
