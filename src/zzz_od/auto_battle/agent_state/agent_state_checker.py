@@ -15,7 +15,7 @@ def get_template(ctx: ZContext, state_def: AgentStateDef,
     :param ctx: 上下文
     :param state_def: 角色状态定义
     :param total: 总角色数量
-    :param pos: 角色位置
+    :param pos: 角色位置 从1开始
     :return:
     """
     if total is None or pos is None:
@@ -42,7 +42,7 @@ def check_cnt_by_color_range(
     :param screen: 游戏画面
     :param state_def: 角色状态定义
     :param total: 总角色数量
-    :param pos: 角色位置
+    :param pos: 角色位置 从1开始
     :return:
     """
     template = get_template(ctx, state_def, total, pos)
@@ -80,7 +80,7 @@ def check_exist_by_color_range(
     :param screen: 游戏画面
     :param state_def: 角色状态定义
     :param total: 总角色数量
-    :param pos: 角色位置
+    :param pos: 角色位置 从1开始
     """
     cnt = check_cnt_by_color_range(ctx, screen, state_def, total, pos)
     return cnt > 0
@@ -99,7 +99,7 @@ def check_length_by_background_gray(
     :param screen: 游戏画面
     :param state_def: 角色状态定义
     :param total: 总角色数量
-    :param pos: 角色位置
+    :param pos: 角色位置 从1开始
     :return: 0~100
     """
     template = get_template(ctx, state_def, total, pos)
@@ -156,7 +156,7 @@ def check_length_by_foreground_gray(
     :param screen: 游戏画面
     :param state_def: 角色状态定义
     :param total: 总角色数量
-    :param pos: 角色位置
+    :param pos: 角色位置 从1开始
     :return: 0~100
     """
     template = get_template(ctx, state_def, total, pos)
@@ -198,7 +198,7 @@ def check_length_by_foreground_color(
     :param screen: 游戏画面
     :param state_def: 角色状态定义
     :param total: 总角色数量
-    :param pos: 角色位置
+    :param pos: 角色位置 从1开始
     :return: 0~100
     """
     template = get_template(ctx, state_def, total, pos)
@@ -212,3 +212,29 @@ def check_length_by_foreground_color(
     total_cnt = mask.shape[1]
 
     return int(fg_cnt * 100.0 / total_cnt)
+
+
+def check_template_not_found(
+        ctx: ZContext,
+        screen: MatLike,
+        state_def: AgentStateDef,
+        total: Optional[int] = None,
+        pos: Optional[int] = None
+) -> bool:
+    """
+    在指定区域内，找不到对应模板
+    :param ctx: 上下文
+    :param screen: 游戏画面
+    :param state_def: 角色状态定义
+    :param total: 总角色数量
+    :param pos: 角色位置 从1开始
+    :return: 找不到对应模板
+    """
+    template = get_template(ctx, state_def, total, pos)
+    if template is None:
+        return False
+    to_check = cv2_utils.crop_image_only(screen, template.get_template_rect_by_point())
+    mrl = cv2_utils.match_template(source=to_check, template=template.raw, mask=template.mask,
+                                   threshold=state_def.template_threshold)
+
+    return mrl.max is None

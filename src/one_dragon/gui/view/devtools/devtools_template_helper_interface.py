@@ -170,6 +170,12 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
         self.template_merge_label = ImageLabel()
         widget.add_widget(self.template_merge_label)
 
+        reversed_label = CaptionLabel(text='反向抠图')
+        widget.add_widget(reversed_label)
+
+        self.template_reversed_label = ImageLabel()
+        widget.add_widget(self.template_reversed_label)
+
         widget.add_stretch(1)
 
         return widget
@@ -303,6 +309,7 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
         self._update_template_raw_display()
         self._update_template_mask_display()
         self._update_template_merge_display()
+        self._update_template_reversed_merge_display()
 
     def _update_screen_image_display(self):
         """
@@ -365,6 +372,20 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
             self.template_merge_label.setFixedSize(image.width(), image.height())
         else:
             self.template_merge_label.setImage(None)
+
+    def _update_template_reversed_merge_display(self) -> None:
+        """
+        更新反向抠图的显示
+        :return:
+        """
+        image_to_show = self.chosen_template.get_template_reversed_merge_to_display() if self.chosen_template is not None else None
+
+        if image_to_show is not None:
+            image = Cv2Image(image_to_show)
+            self.template_reversed_label.setImage(image)
+            self.template_reversed_label.setFixedSize(image.width(), image.height())
+        else:
+            self.template_reversed_label.setImage(None)
 
     def _on_choose_existed_yml(self, idx: int):
         """

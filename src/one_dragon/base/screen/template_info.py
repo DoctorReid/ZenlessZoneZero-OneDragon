@@ -330,6 +330,17 @@ class TemplateInfo(YamlOperator):
         mask = self.get_template_mask_to_display()
         return cv2.bitwise_and(raw, raw, mask=mask)
 
+    def get_template_reversed_merge_to_display(self) -> Optional[MatLike]:
+        """
+        获取用于开发工具显示的反向抠图
+        :return:
+        """
+        raw = self.get_template_raw_to_display()
+        mask = self.get_template_mask_to_display()
+        if mask is not None:
+            mask = 255 - mask
+        return cv2.bitwise_and(raw, raw, mask=mask)
+
     def get_screen_image_to_display(self) -> Optional[MatLike]:
         """
         获取用于开发工具显示的图片

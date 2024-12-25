@@ -19,9 +19,10 @@ _battle_agent_context_executor = ThreadPoolExecutor(thread_name_prefix='od_battl
 
 class AgentInfo:
 
-    def __init__(self, agent: Optional[Agent], energy: int = 0):
+    def __init__(self, agent: Optional[Agent], energy: int = 0, ultimate_ready: bool = False):
         self.agent: Agent = agent
         self.energy: int = energy  # 能量
+        self.ultimate_ready: bool = ultimate_ready  # 终结技
 
 
 class TeamInfo:
@@ -45,11 +46,13 @@ class TeamInfo:
     def update_agent_list(self,
                           current_agent_list: List[Agent],
                           energy_list: List[int],
+                          ultimate_list: List[int],
                           update_time: float,) -> bool:
         """
         更新角色列表
         :param current_agent_list: 新的角色列表
         :param energy_list: 能量列表
+        :param ultimate_list: 终结技列表
         :param update_time: 更新时间
         :return: 本次是否更新了
         """
@@ -104,7 +107,8 @@ class TeamInfo:
             self.agent_list = []
             for i in range(len(current_agent_list)):
                 energy = energy_list[i] if i < len(energy_list) else 0
-                self.agent_list.append(AgentInfo(current_agent_list[i], energy))
+                ultimate_ready = (ultimate_list[i] if i < len(ultimate_list) else 0) == 1
+                self.agent_list.append(AgentInfo(current_agent_list[i], energy, ultimate_ready))
 
             # log.debug('更新后角色列表 %s 更新时间 %.4f',
             #           [i.agent.agent_name if i.agent is not None else 'none' for i in self.agent_list],
@@ -334,20 +338,14 @@ class AutoBattleAgentContext:
             self._last_check_agent_time = screenshot_time
 
             screen_agent_list = self._check_agent_in_parallel(screen)
-            all_agent_state_list = self._check_all_agent_state(screen, screenshot_time, screen_agent_list)
-
-            if screen_agent_list is None or len(screen_agent_list) == 0:
-                energy_state_list = []
-                other_state_list = []
-            else:
-                energy_state_list = all_agent_state_list[:len(screen_agent_list)]
-                other_state_list = all_agent_state_list[len(screen_agent_list):]
+            energy_state_list, ultimate_state_list, other_state_list = self._check_all_agent_state(screen, screenshot_time, screen_agent_list)
 
             update_state_record_list = []
             # 尝试更新代理人列表 成功的话 更新状态记录
             if self.team_info.update_agent_list(
                     screen_agent_list,
                     [(i.value if i is not None else 0) for i in energy_state_list],
+                    [(i.value if i is not None else 0) for i in ultimate_state_list],
                     screenshot_time):
 
                 for i in self._get_agent_state_records(screenshot_time):
@@ -469,24 +467,29 @@ class AutoBattleAgentContext:
         if state.check_way == AgentStateCheckWay.COLOR_RANGE_CONNECT:
             value = agent_state_checker.check_cnt_by_color_range(self.ctx, screen, state,
                                                                  total=to_check.total, pos=to_check.pos)
-        if state.check_way == AgentStateCheckWay.COLOR_RANGE_EXIST:
+        elif state.check_way == AgentStateCheckWay.COLOR_RANGE_EXIST:
             value = agent_state_checker.check_exist_by_color_range(self.ctx, screen, state,
-                                                                 total=to_check.total, pos=to_check.pos)
+                                                                   total=to_check.total, pos=to_check.pos)
             value = 1 if value else 0
         elif state.check_way == AgentStateCheckWay.BACKGROUND_GRAY_RANGE_LENGTH:
             value = agent_state_checker.check_length_by_background_gray(self.ctx, screen, state,
-                                                                 total=to_check.total, pos=to_check.pos)
+                                                                        total=to_check.total, pos=to_check.pos)
         elif state.check_way == AgentStateCheckWay.FOREGROUND_GRAY_RANGE_LENGTH:
             value = agent_state_checker.check_length_by_foreground_gray(self.ctx, screen, state,
-                                                                 total=to_check.total, pos=to_check.pos)
+                                                                        total=to_check.total, pos=to_check.pos)
         elif state.check_way == AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH:
             value = agent_state_checker.check_length_by_foreground_color(self.ctx, screen, state,
+                                                                         total=to_check.total, pos=to_check.pos)
+        elif state.check_way == AgentStateCheckWay.TEMPLATE_NOT_FOUND:
+            value = agent_state_checker.check_template_not_found(self.ctx, screen, state,
                                                                  total=to_check.total, pos=to_check.pos)
+            value = 1 if value else 0
 
         if value > -1 and value >= state.min_value_trigger_state:
             return StateRecord(state.state_name, screenshot_time, value)
 
-    def _check_all_agent_state(self, screen: MatLike, screenshot_time: float, screen_agent_list: List[Agent]) -> List[StateRecord]:
+    def _check_all_agent_state(self, screen: MatLike, screenshot_time: float,
+                               screen_agent_list: List[Agent]) -> Tuple[List[StateRecord], List[StateRecord], List[StateRecord]]:
         """
         识别所有需要的角色状态
         - 能量条
@@ -495,31 +498,44 @@ class AutoBattleAgentContext:
         :param screen: 游戏画面
         :param screenshot_time: 截图时间
         :param screen_agent_list: 当前截图的角色列表
-        :return: 状态记录 外层使用要求能量必须在最开始的部分
+        :return: 三个状态记录 能量、终结技、角色状态
         """
         if screen_agent_list is None or len(screen_agent_list) == 0:
-            return []
+            return [], [], []
 
         total = len(screen_agent_list)
         to_check_list: List[CheckAgentState] = []
 
-        # 能量部分
+        # 能量、终结技
         if total == 3:
-            state_list = [
+            energy_state_list = [
                 CommonAgentStateEnum.ENERGY_31.value,
                 CommonAgentStateEnum.ENERGY_32.value,
                 CommonAgentStateEnum.ENERGY_33.value,
             ]
+            ultimate_state_list = [
+                CommonAgentStateEnum.ULTIMATE_31.value,
+                CommonAgentStateEnum.ULTIMATE_32.value,
+                CommonAgentStateEnum.ULTIMATE_32.value,
+            ]
         elif len(screen_agent_list) == 2:
-            state_list = [
+            energy_state_list = [
                 CommonAgentStateEnum.ENERGY_21.value,
                 CommonAgentStateEnum.ENERGY_22.value,
             ]
+            ultimate_state_list = [
+                CommonAgentStateEnum.ULTIMATE_21.value,
+                CommonAgentStateEnum.ULTIMATE_22.value,
+            ]
         else:
-            state_list = [CommonAgentStateEnum.ENERGY_21.value]
+            energy_state_list = [CommonAgentStateEnum.ENERGY_21.value]
+            ultimate_state_list = [CommonAgentStateEnum.ULTIMATE_31.value]
 
-        for energy_state in state_list:
+        for energy_state in energy_state_list:
             to_check_list.append(CheckAgentState(energy_state))
+
+        for ultimate_state in ultimate_state_list:
+            to_check_list.append(CheckAgentState(ultimate_state))
 
         # 角色独有状态
         for idx in range(total):
@@ -538,7 +554,15 @@ class AutoBattleAgentContext:
             state = CommonAgentStateEnum.LIFE_DEDUCTION_21.value
         to_check_list.append(CheckAgentState(state))
 
-        return self._check_agent_state_in_parallel(screen, screenshot_time, to_check_list)
+        all_state_result_list = self._check_agent_state_in_parallel(screen, screenshot_time, to_check_list)
+        energy_len = len(energy_state_list)
+        ultimate_len = len(ultimate_state_list)
+
+        energy_result_list = all_state_result_list[:energy_len]
+        ultimate_result_list = all_state_result_list[energy_len:energy_len + ultimate_len]
+        other_result_list = all_state_result_list[energy_len + ultimate_len:]
+
+        return energy_result_list, ultimate_result_list, other_result_list
 
     def switch_next_agent(self, update_time: float, update_state: bool = True, check_agent: bool = False) -> List[StateRecord]:
         """
@@ -717,11 +741,14 @@ class AutoBattleAgentContext:
                     state_records.append(StateRecord(f'切换角色-{agent.agent_type.value}', update_time))
 
                 state_records.append(StateRecord(f'{agent.agent_name}-能量', update_time, agent_info.energy))
+                state_records.append(StateRecord(f'{agent.agent_name}-终结技可用', update_time, is_clear=not agent_info.ultimate_ready))
 
-            state_records.append(StateRecord(prefix + '能量', update_time, agent_info.energy))
+            state_records.append(StateRecord(f'{prefix}能量', update_time, agent_info.energy))
+            state_records.append(StateRecord(f'{prefix}终结技可用', update_time, is_clear=not agent_info.ultimate_ready))
 
         if switch:
             state_records.append(StateRecord(BattleStateEnum.STATUS_ULTIMATE_READY.value, is_clear=True))
+            state_records.append(StateRecord(BattleStateEnum.STATUS_SPECIAL_READY.value, is_clear=True))
 
         return state_records
 
