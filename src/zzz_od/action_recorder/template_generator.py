@@ -655,8 +655,6 @@ class SelfAdaptiveGenerator:
     def _default_setting(self, output_dict: dict):
         output_dict['check_dodge_interval'] = 0.01
         output_dict['check_agent_interval'] = '[0.4, 0.6]'
-        output_dict['check_special_attack_interval'] = '[0.4, 0.6]'
-        output_dict['check_ultimate_interval'] = '[0.4, 0.6]'
         output_dict['check_chain_interval'] = 0.3
         output_dict['check_quick_interval'] = 0.2
 

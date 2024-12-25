@@ -10,8 +10,6 @@ introduction: "除 青衣 以外的其他击破没有做任何的优化"
 #基础配置
 check_dodge_interval: 0.01
 check_agent_interval: [0.4, 0.6]
-check_special_attack_interval: [0.4, 0.6]
-check_ultimate_interval: [0.4, 0.6]
 check_chain_interval: 0.3
 check_quick_interval: 0.2
 auto_lock_interval: 5

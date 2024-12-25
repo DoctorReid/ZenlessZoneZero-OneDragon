@@ -19,9 +19,12 @@ _battle_agent_context_executor = ThreadPoolExecutor(thread_name_prefix='od_battl
 
 class AgentInfo:
 
-    def __init__(self, agent: Optional[Agent], energy: int = 0, ultimate_ready: bool = False):
+    def __init__(self, agent: Optional[Agent], energy: int = 0,
+                 special_ready: bool = False,
+                 ultimate_ready: bool = False):
         self.agent: Agent = agent
         self.energy: int = energy  # 能量
+        self.special_ready: bool = special_ready  # 特殊技
         self.ultimate_ready: bool = ultimate_ready  # 终结技
 
 
@@ -46,12 +49,14 @@ class TeamInfo:
     def update_agent_list(self,
                           current_agent_list: List[Agent],
                           energy_list: List[int],
+                          special_list: List[int],
                           ultimate_list: List[int],
                           update_time: float,) -> bool:
         """
         更新角色列表
         :param current_agent_list: 新的角色列表
         :param energy_list: 能量列表
+        :param special_list: 特殊技列表
         :param ultimate_list: 终结技列表
         :param update_time: 更新时间
         :return: 本次是否更新了
@@ -107,8 +112,9 @@ class TeamInfo:
             self.agent_list = []
             for i in range(len(current_agent_list)):
                 energy = energy_list[i] if i < len(energy_list) else 0
+                special_ready = (special_list[i] if i < len(special_list) else 0) == 1
                 ultimate_ready = (ultimate_list[i] if i < len(ultimate_list) else 0) == 1
-                self.agent_list.append(AgentInfo(current_agent_list[i], energy, ultimate_ready))
+                self.agent_list.append(AgentInfo(current_agent_list[i], energy, special_ready, ultimate_ready))
 
             # log.debug('更新后角色列表 %s 更新时间 %.4f',
             #           [i.agent.agent_name if i.agent is not None else 'none' for i in self.agent_list],
@@ -338,13 +344,14 @@ class AutoBattleAgentContext:
             self._last_check_agent_time = screenshot_time
 
             screen_agent_list = self._check_agent_in_parallel(screen)
-            energy_state_list, ultimate_state_list, other_state_list = self._check_all_agent_state(screen, screenshot_time, screen_agent_list)
+            energy_state_list, special_state_list, ultimate_state_list, other_state_list = self._check_all_agent_state(screen, screenshot_time, screen_agent_list)
 
             update_state_record_list = []
             # 尝试更新代理人列表 成功的话 更新状态记录
             if self.team_info.update_agent_list(
                     screen_agent_list,
                     [(i.value if i is not None else 0) for i in energy_state_list],
+                    [(i.value if i is not None else 0) for i in special_state_list],
                     [(i.value if i is not None else 0) for i in ultimate_state_list],
                     screenshot_time):
 
@@ -489,7 +496,8 @@ class AutoBattleAgentContext:
             return StateRecord(state.state_name, screenshot_time, value)
 
     def _check_all_agent_state(self, screen: MatLike, screenshot_time: float,
-                               screen_agent_list: List[Agent]) -> Tuple[List[StateRecord], List[StateRecord], List[StateRecord]]:
+                               screen_agent_list: List[Agent]
+                               ) -> Tuple[List[StateRecord], List[StateRecord], List[StateRecord], List[StateRecord]]:
         """
         识别所有需要的角色状态
         - 能量条
@@ -501,27 +509,36 @@ class AutoBattleAgentContext:
         :return: 三个状态记录 能量、终结技、角色状态
         """
         if screen_agent_list is None or len(screen_agent_list) == 0:
-            return [], [], []
+            return [], [], [], []
 
         total = len(screen_agent_list)
         to_check_list: List[CheckAgentState] = []
 
-        # 能量、终结技
+        # 能量、特殊技、终结技
         if total == 3:
             energy_state_list = [
                 CommonAgentStateEnum.ENERGY_31.value,
                 CommonAgentStateEnum.ENERGY_32.value,
                 CommonAgentStateEnum.ENERGY_33.value,
             ]
+            special_state_list = [
+                CommonAgentStateEnum.SPECIAL_31.value,
+                CommonAgentStateEnum.SPECIAL_32.value,
+                CommonAgentStateEnum.SPECIAL_33.value,
+            ]
             ultimate_state_list = [
                 CommonAgentStateEnum.ULTIMATE_31.value,
                 CommonAgentStateEnum.ULTIMATE_32.value,
-                CommonAgentStateEnum.ULTIMATE_32.value,
+                CommonAgentStateEnum.ULTIMATE_33.value,
             ]
         elif len(screen_agent_list) == 2:
             energy_state_list = [
                 CommonAgentStateEnum.ENERGY_21.value,
                 CommonAgentStateEnum.ENERGY_22.value,
+            ]
+            special_state_list = [
+                CommonAgentStateEnum.SPECIAL_21.value,
+                CommonAgentStateEnum.SPECIAL_22.value,
             ]
             ultimate_state_list = [
                 CommonAgentStateEnum.ULTIMATE_21.value,
@@ -529,10 +546,14 @@ class AutoBattleAgentContext:
             ]
         else:
             energy_state_list = [CommonAgentStateEnum.ENERGY_21.value]
+            special_state_list = [CommonAgentStateEnum.SPECIAL_31.value]
             ultimate_state_list = [CommonAgentStateEnum.ULTIMATE_31.value]
 
         for energy_state in energy_state_list:
             to_check_list.append(CheckAgentState(energy_state))
+
+        for special_state in special_state_list:
+            to_check_list.append(CheckAgentState(special_state))
 
         for ultimate_state in ultimate_state_list:
             to_check_list.append(CheckAgentState(ultimate_state))
@@ -556,13 +577,15 @@ class AutoBattleAgentContext:
 
         all_state_result_list = self._check_agent_state_in_parallel(screen, screenshot_time, to_check_list)
         energy_len = len(energy_state_list)
+        special_len = len(special_state_list)
         ultimate_len = len(ultimate_state_list)
 
         energy_result_list = all_state_result_list[:energy_len]
-        ultimate_result_list = all_state_result_list[energy_len:energy_len + ultimate_len]
-        other_result_list = all_state_result_list[energy_len + ultimate_len:]
+        special_result_list = all_state_result_list[energy_len:energy_len + special_len]
+        ultimate_result_list = all_state_result_list[energy_len + special_len:energy_len + special_len + ultimate_len]
+        other_result_list = all_state_result_list[energy_len + special_len + ultimate_len:]
 
-        return energy_result_list, ultimate_result_list, other_result_list
+        return energy_result_list, special_result_list, ultimate_result_list, other_result_list
 
     def switch_next_agent(self, update_time: float, update_state: bool = True, check_agent: bool = False) -> List[StateRecord]:
         """
@@ -740,15 +763,18 @@ class AutoBattleAgentContext:
                     state_records.append(StateRecord(f'切换角色-{agent.agent_name}', update_time))
                     state_records.append(StateRecord(f'切换角色-{agent.agent_type.value}', update_time))
 
+                # 特殊技和终结技的按钮
+                if i == 0:
+                    state_records.append(StateRecord(BattleStateEnum.STATUS_SPECIAL_READY.value, is_clear=not agent_info.special_ready))
+                    state_records.append(StateRecord(BattleStateEnum.STATUS_ULTIMATE_READY.value, is_clear=not agent_info.ultimate_ready))
+
                 state_records.append(StateRecord(f'{agent.agent_name}-能量', update_time, agent_info.energy))
+                state_records.append(StateRecord(f'{agent.agent_name}-特殊技可用', update_time, is_clear=not agent_info.special_ready))
                 state_records.append(StateRecord(f'{agent.agent_name}-终结技可用', update_time, is_clear=not agent_info.ultimate_ready))
 
             state_records.append(StateRecord(f'{prefix}能量', update_time, agent_info.energy))
+            state_records.append(StateRecord(f'{prefix}特殊技可用', update_time, is_clear=not agent_info.special_ready))
             state_records.append(StateRecord(f'{prefix}终结技可用', update_time, is_clear=not agent_info.ultimate_ready))
-
-        if switch:
-            state_records.append(StateRecord(BattleStateEnum.STATUS_ULTIMATE_READY.value, is_clear=True))
-            state_records.append(StateRecord(BattleStateEnum.STATUS_SPECIAL_READY.value, is_clear=True))
 
         return state_records
 
