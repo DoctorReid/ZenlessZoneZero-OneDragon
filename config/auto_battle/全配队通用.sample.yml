@@ -85,13 +85,9 @@ scenes:
 
   - triggers: ["自定义-速切结束"]
     priority: 80
-    interval: 0.1
+    interval: 0.2
     handlers:
       - state_template: "速切补增益模板-全角色"
-      - states: "[自定义-速切结束,0,12]"
-        operations:
-          - op_name: "清除状态"
-            state_list: ["自定义-速切结束" , "自定义-动作不打断"]
 
   - triggers: []
     priority: 9
@@ -105,6 +101,6 @@ scenes:
             state_list: ["自定义-速切结束" , "自定义-动作不打断"] 
           - op_name: "等待秒数"
             seconds: 0.1
-      - states: "!([按键-切换角色-下一个,0,0.2] & ![按键-切换角色-上一个,0,0.2])"
+      - states: ""
         sub_handlers:
           - state_template: "速切模板-全角色"
