@@ -59,7 +59,7 @@ class CoffeeConfig(YamlConfig):
 
     @property
     def auto_battle(self) -> str:
-        return self.get('auto_battle', '击破站场-强攻速切')
+        return self.get('auto_battle', '全配队通用')
 
     @auto_battle.setter
     def auto_battle(self, new_value: str) -> None:

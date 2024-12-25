@@ -41,7 +41,7 @@ class BattleAssistantConfig(YamlConfig):
 
     @property
     def auto_battle_config(self) -> str:
-        return self.get('auto_battle_config', '击破站场-强攻速切')
+        return self.get('auto_battle_config', '全配队通用')
 
     @auto_battle_config.setter
     def auto_battle_config(self, new_value: str) -> None:

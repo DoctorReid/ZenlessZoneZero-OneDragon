@@ -9,10 +9,8 @@ introduction: "支持全角色 任意三人/单人/双人作战，通杀所有�
 
 check_dodge_interval: 0.02
 check_agent_interval: 0.1
-check_special_attack_interval: 0.1
-check_ultimate_interval: 0.1
 check_chain_interval: 0.1
-check_quick_interval: [0.9, 1.1]
+check_quick_interval: 0.4
 auto_lock_interval: 1
 
 scenes:
@@ -42,15 +40,20 @@ scenes:
 
   - triggers: ["按键可用-快速支援"]
     priority: 97
+    interval: 0.1
     handlers:
-      - state_template: "快速支援模板-终结技"
       - states: ""          
         operations:
+          - op_name: "清除状态"
+            state_list: ["自定义-速切结束" , "自定义-动作不打断"] 
           - op_name: "按键-快速支援"
           - op_name: "设置状态"
             state: "自定义-快速支援换人"
           - op_name: "等待秒数"
-            seconds: 0.5
+            seconds: 0.6
+          - op_name: "清除状态"
+            state_list: ["自定义-速切结束" , "自定义-动作不打断"] 
+
 
 
   - triggers: ["前台-血量扣减"]
@@ -58,43 +61,30 @@ scenes:
     interval: 1  
     handlers:
       - states: "[前台-血量扣减]{1, 100} & ![自定义-动作不打断, 0, 999]"
-        sub_handlers:
-        #有防护当然优先让防护出来挨打
-        - states: "[后台-2-防护]"
-          operations:
-            - op_name: "按键-切换角色-上一个"
-              post_delay: 0.3
-        #有防护当然优先让防护出来挨打
-        - states: "[后台-1-防护]"
-          operations:
-            - op_name: "按键-切换角色-下一个"
-              post_delay: 0.3
-
-        #没防护只能说自求多福了
-        - states: ""
-          operations:
-            - op_name: "设置状态"
-              state: "自定义-血量扣减"
-            - op_name: "清除状态"
-              state: "自定义-动作不打断"
-            - op_name: "按键-移动-前"
-              way: "按下"
-              post_delay: 0.01
-            - op_name: "按键-闪避"
-              press: 0.01
-              post_delay: 0.15
-              repeat: 2
-            - op_name: "按键-普通攻击"
-              press: 0.3
-              post_delay: 0.025
-              repeat: 2
-            - op_name: "按键-闪避"
-              press: 0.01
-              post_delay: 0.15
-              repeat: 1
-            - op_name: "按键-移动-前"
-              way: "松开"
-              post_delay: 0.1
+        operations:
+          # 由于每个角色的僵直不一样 由具体角色控制如何处理
+          - op_name: "设置状态"
+            state: "自定义-血量扣减"
+          - op_name: "清除状态"
+            state: "自定义-动作不打断"
+          - op_name: "按键-移动-前"
+            way: "按下"
+            post_delay: 0.01
+          - op_name: "按键-闪避"
+            press: 0.01
+            post_delay: 0.15
+            repeat: 2
+          - op_name: "按键-普通攻击"
+            press: 0.3
+            post_delay: 0.025
+            repeat: 2
+          - op_name: "按键-闪避"
+            press: 0.01
+            post_delay: 0.15
+            repeat: 1
+          - op_name: "按键-移动-前"
+            way: "松开"
+            post_delay: 0.1
 
   - triggers: ["自定义-速切结束"]
     priority: 80

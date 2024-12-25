@@ -26,11 +26,11 @@ class TeamConfig(YamlConfig):
             data = data_list[i]
             team_list.append(PredefinedTeamInfo(i,
                                                 name=data.get('name', f'编队{i+1}'),
-                                                auto_battle=data.get('auto_battle', '击破站场-强攻速切')))
+                                                auto_battle=data.get('auto_battle', '全配队通用')))
 
         current_cnt = len(team_list)
         for i in range(current_cnt + 1, max_cnt + 1):
-            team_list.append(PredefinedTeamInfo(i-1, f'编队{i}', '击破站场-强攻速切'))
+            team_list.append(PredefinedTeamInfo(i-1, f'编队{i}', '全配队通用'))
 
         return team_list
 

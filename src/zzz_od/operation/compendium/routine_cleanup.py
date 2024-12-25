@@ -228,7 +228,7 @@ def __debug():
     op = RoutineCleanup(ctx, ChargePlanItem(
         category_name='定期清剿',
         mission_type_name='怪兽与怪客',
-        auto_battle_config='击破站场-强攻速切',
+        auto_battle_config='全配队通用',
         predefined_team_idx=0
     ))
     op.execute()

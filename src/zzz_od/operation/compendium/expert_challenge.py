@@ -203,7 +203,7 @@ def __debug():
     op = ExpertChallenge(ctx, ChargePlanItem(
         category_name='专业挑战室',
         mission_type_name='恶名·杜拉罕',
-        auto_battle_config='击破站场-强攻速切',
+        auto_battle_config='全配队通用',
         predefined_team_idx=-1
     ))
     op.execute()

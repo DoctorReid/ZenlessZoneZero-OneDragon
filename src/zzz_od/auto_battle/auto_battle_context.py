@@ -451,6 +451,7 @@ class AutoBattleContext:
 
         for future in future_list:
             try:
+                future.add_done_callback(thread_utils.handle_future_result)
                 result = future.result()
                 result_agent_list.append(result)
             except Exception:
@@ -714,7 +715,7 @@ def __debug():
     auto_op = AutoBattleOperator(ctx, 'auto_battle', '专属配队-简')
     auto_op.init_before_running()
     from one_dragon.utils import debug_utils
-    screen = debug_utils.get_debug_image('3_1')
+    screen = debug_utils.get_debug_image('_1735134333210')
     now = time.time()
     auto_op.auto_battle_context.check_battle_state(screen, now, check_battle_end_normal_result=True)
     time.sleep(5)
