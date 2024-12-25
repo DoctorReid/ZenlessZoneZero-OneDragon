@@ -60,7 +60,7 @@ class CoffeeApp(ZApplication):
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='传送')
-    @operation_node(name='等待大世界加载')
+    @operation_node(name='等待大世界加载', node_max_retry_times=60)
     def wait_world(self) -> OperationRoundResult:
         screen = self.screenshot()
 
