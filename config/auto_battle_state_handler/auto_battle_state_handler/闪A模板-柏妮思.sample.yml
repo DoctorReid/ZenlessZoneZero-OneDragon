@@ -1,4 +1,0 @@
-handlers:
-  - states: "[前台-柏妮思]"
-    operations:
-      - operation_template: "柏妮思-闪A"
