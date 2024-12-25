@@ -705,3 +705,23 @@ class AutoBattleContext:
         self.move_d(release=True)
         self.lock(release=True)
         self.chain_cancel(release=True)
+
+
+def __debug():
+    ctx = ZContext()
+    ctx.init_by_config()
+    from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
+    auto_op = AutoBattleOperator(ctx, 'auto_battle', '专属配队-简')
+    auto_op.init_before_running()
+    from one_dragon.utils import debug_utils
+    screen = debug_utils.get_debug_image('3_1')
+    now = time.time()
+    auto_op.auto_battle_context.check_battle_state(screen, now, check_battle_end_normal_result=True)
+    time.sleep(5)
+    for r in auto_op.state_recorders.values():
+        if r.last_record_time != -1:
+            print(f'{r.state_name} {r.last_record_time} {r.last_value}')
+
+
+if __name__ == '__main__':
+    __debug()

@@ -598,7 +598,6 @@ class AutoBattleAgentContext:
             if check_agent:
                 self._last_check_agent_time = 0
             records = self._get_agent_state_records(update_time, switch=True)
-            records.append(StateRecord(BattleStateEnum.STATUS_SPECIAL_READY.value, is_clear=True))
             if update_state:
                 self.auto_op.batch_update_states(records)
             return records
@@ -615,7 +614,6 @@ class AutoBattleAgentContext:
             if check_agent:
                 self._last_check_agent_time = 0
             records = self._get_agent_state_records(update_time, switch=True)
-            records.append(StateRecord(BattleStateEnum.STATUS_SPECIAL_READY.value, is_clear=True))
             if update_state:
                 self.auto_op.batch_update_states(records)
             return records
@@ -752,6 +750,8 @@ class AutoBattleAgentContext:
         for i in range(len(self.team_info.agent_list)):
             prefix = '前台-' if i == 0 else ('后台-%d-' % i)
             agent_info = self.team_info.agent_list[i]
+
+            # 需要识别到角色的状态
             agent = agent_info.agent
             if agent is not None:
                 state_records.append(StateRecord(prefix + agent.agent_name, update_time))
@@ -763,14 +763,14 @@ class AutoBattleAgentContext:
                     state_records.append(StateRecord(f'切换角色-{agent.agent_name}', update_time))
                     state_records.append(StateRecord(f'切换角色-{agent.agent_type.value}', update_time))
 
-                # 特殊技和终结技的按钮
-                if i == 0:
-                    state_records.append(StateRecord(BattleStateEnum.STATUS_SPECIAL_READY.value, is_clear=not agent_info.special_ready))
-                    state_records.append(StateRecord(BattleStateEnum.STATUS_ULTIMATE_READY.value, is_clear=not agent_info.ultimate_ready))
-
                 state_records.append(StateRecord(f'{agent.agent_name}-能量', update_time, agent_info.energy))
                 state_records.append(StateRecord(f'{agent.agent_name}-特殊技可用', update_time, is_clear=not agent_info.special_ready))
                 state_records.append(StateRecord(f'{agent.agent_name}-终结技可用', update_time, is_clear=not agent_info.ultimate_ready))
+
+            # 特殊技和终结技的按钮
+            if i == 0:
+                state_records.append(StateRecord(BattleStateEnum.STATUS_SPECIAL_READY.value, update_time, is_clear=not agent_info.special_ready))
+                state_records.append(StateRecord(BattleStateEnum.STATUS_ULTIMATE_READY.value, update_time, is_clear=not agent_info.ultimate_ready))
 
             state_records.append(StateRecord(f'{prefix}能量', update_time, agent_info.energy))
             state_records.append(StateRecord(f'{prefix}特殊技可用', update_time, is_clear=not agent_info.special_ready))
