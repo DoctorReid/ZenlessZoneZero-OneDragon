@@ -241,6 +241,32 @@ def check_template_not_found(
     return 1 if mrl.max is None else 0
 
 
+def check_template_found(
+        ctx: ZContext,
+        screen: MatLike,
+        state_def: AgentStateDef,
+        total: Optional[int] = None,
+        pos: Optional[int] = None
+) -> int:
+    """
+    在指定区域内，找到对应模板
+    :param ctx: 上下文
+    :param screen: 游戏画面
+    :param state_def: 角色状态定义
+    :param total: 总角色数量
+    :param pos: 角色位置 从1开始
+    :return: 找不到对应模板返回1 否则返回0
+    """
+    template = get_template(ctx, state_def, total, pos)
+    if template is None:
+        return False
+    to_check = cv2_utils.crop_image_only(screen, template.get_template_rect_by_point())
+    mrl = cv2_utils.match_template(source=to_check, template=template.raw, mask=template.mask,
+                                   threshold=state_def.template_threshold)
+
+    return 1 if mrl.max is not None else 0
+
+
 def check_cnt_by_color_channel_max_range(
         ctx: ZContext,
         screen: MatLike,
