@@ -134,7 +134,7 @@ class CommonAgentStateEnum(Enum):
                               lower_color=90, upper_color=255, template_id='energy_2_2',
                               split_color_range=[0, 30], max_length=120)
 
-    SPECIAL_31 = AgentStateDef('前台-特殊技可用', AgentStateCheckWay.TEMPLATE_NOT_FOUND,
+    SPECIAL_31 = AgentStateDef('前台-特殊技可用', AgentStateCheckWay.TEMPLATE_FOUND,
                                template_id='special_3_1', template_threshold=0.9)
     SPECIAL_32 = AgentStateDef('后台-1-特殊技可用', AgentStateCheckWay.COLOR_CHANNEL_MAX_RANGE_EXIST,
                                template_id='energy_3_2', min_value_trigger_state=0,  # 不存在的时候 也需要触发一个清除
@@ -142,13 +142,13 @@ class CommonAgentStateEnum(Enum):
     SPECIAL_33 = AgentStateDef('后台-2-特殊技可用', AgentStateCheckWay.COLOR_CHANNEL_MAX_RANGE_EXIST,
                                template_id = 'energy_3_3', min_value_trigger_state=0,  # 不存在的时候 也需要触发一个清除
                                lower_color=150, upper_color=255, connect_cnt=10)
-    SPECIAL_21 = AgentStateDef('前台-特殊技可用', AgentStateCheckWay.TEMPLATE_NOT_FOUND,
+    SPECIAL_21 = AgentStateDef('前台-特殊技可用', AgentStateCheckWay.TEMPLATE_FOUND,
                                template_id='special_3_1', template_threshold=0.9)
     SPECIAL_22 = AgentStateDef('后台-1-特殊技可用', AgentStateCheckWay.COLOR_CHANNEL_MAX_RANGE_EXIST,
                                template_id='energy_2_2', min_value_trigger_state=0,  # 不存在的时候 也需要触发一个清除
                                lower_color=150, upper_color=255, connect_cnt=10)
 
-    ULTIMATE_31 = AgentStateDef('前台-终结技可用', AgentStateCheckWay.TEMPLATE_NOT_FOUND,
+    ULTIMATE_31 = AgentStateDef('前台-终结技可用', AgentStateCheckWay.TEMPLATE_FOUND,
                                 template_id='ultimate_3_1', template_threshold=0.9)
     ULTIMATE_32 = AgentStateDef('后台-1-终结技可用', AgentStateCheckWay.COLOR_RANGE_EXIST,
                                 template_id='ultimate_3_2', min_value_trigger_state=0,  # 不存在的时候 也需要触发一个清除
@@ -156,7 +156,7 @@ class CommonAgentStateEnum(Enum):
     ULTIMATE_33 = AgentStateDef('后台-2-终结技可用', AgentStateCheckWay.COLOR_RANGE_EXIST,
                                 template_id='ultimate_3_3', min_value_trigger_state=0,  # 不存在的时候 也需要触发一个清除
                                 lower_color=(250, 150, 20), upper_color=(255, 255, 70), connect_cnt=5)
-    ULTIMATE_21 = AgentStateDef('前台-终结技可用', AgentStateCheckWay.TEMPLATE_NOT_FOUND,
+    ULTIMATE_21 = AgentStateDef('前台-终结技可用', AgentStateCheckWay.TEMPLATE_FOUND,
                                 template_id='ultimate_3_1', template_threshold=0.9)
     ULTIMATE_22 = AgentStateDef('后台-1-终结技可用', AgentStateCheckWay.COLOR_RANGE_EXIST,
                                 template_id='ultimate_2_2', min_value_trigger_state=0,  # 不存在的时候 也需要触发一个清除

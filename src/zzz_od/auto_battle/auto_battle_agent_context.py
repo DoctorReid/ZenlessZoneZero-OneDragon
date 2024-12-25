@@ -22,6 +22,7 @@ _agent_state_check_method: dict[AgentStateCheckWay, Callable] = {
     AgentStateCheckWay.FOREGROUND_GRAY_RANGE_LENGTH: agent_state_checker.check_length_by_foreground_gray,
     AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH: agent_state_checker.check_length_by_foreground_color,
     AgentStateCheckWay.TEMPLATE_NOT_FOUND: agent_state_checker.check_template_not_found,
+    AgentStateCheckWay.TEMPLATE_FOUND: agent_state_checker.check_template_found,
     AgentStateCheckWay.COLOR_CHANNEL_MAX_RANGE_EXIST: agent_state_checker.check_exist_by_color_channel_max_range,
 }
 
