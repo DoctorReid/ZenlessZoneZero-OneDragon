@@ -1,0 +1,4 @@
+handlers:
+  - states: "[前台-柳]"
+    operations:
+      - operation_template: "柳-闪A"

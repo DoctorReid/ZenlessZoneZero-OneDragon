@@ -1,5 +1,6 @@
 # 朱鸢站场的主要动作
 main_zhu_yuan: &main
+
   # 子弹不满的情况再打终结技
   - states: "[按键可用-终结技] & ![自定义-临时站场] & ![朱鸢-子弹数, 0, 999]{7, 9}"
     operations:
@@ -69,16 +70,16 @@ main_zhu_yuan: &main
 handlers:
   - states: "[前台-朱鸢]"
     sub_handlers:
-    # 格挡出场后
-    - states: "[自定义-黄光切人]"
+
+    - states: "[自定义-黄光切人, 0, 2]"
+      sub_handlers:
+        - state_template: "支援攻击模板-全角色"
+    - states: "[自定义-连携换人,0,1]"
       operations:
-        - op_name: "按键-普通攻击"
-          pre_delay: 0.2
-          post_delay: 1.5
-        - op_name: "清除状态"
-          state: "自定义-黄光切人"
-        - op_name: "设置状态"
-          state: "自定义-临时站场"
+        - operation_template: "通用-连携攻击"
+    - states: "[自定义-连携换人,0,1]"
+      operations:
+        - operation_template: "通用-连携攻击"
 
     # 闪避后
     - states: "[自定义-红光闪避]"
@@ -91,11 +92,6 @@ handlers:
           repeat: 2
         - op_name: "清除状态"
           state: "自定义-红光闪避"
-
-    - states: "[自定义-连携换人]"
-      operations:
-        - op_name: "等待秒数"
-          data: [ "1.5" ]
 
     - states: "[自定义-快速支援换人]"
       operations:
@@ -113,6 +109,7 @@ handlers:
           post_delay: 0.5
         - op_name: "清除状态"
           state: "自定义-血量扣减"
+        
 
     - states: ""
       sub_handlers: *main
