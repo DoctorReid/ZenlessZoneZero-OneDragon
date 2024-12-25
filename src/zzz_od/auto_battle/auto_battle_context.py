@@ -36,24 +36,18 @@ class AutoBattleContext:
         self._check_distance_area: Optional[ScreenArea] = None
 
         # 识别锁 保证每种类型只有1实例在进行识别
-        self._check_special_attack_lock = threading.Lock()
-        self._check_ultimate_lock = threading.Lock()
         self._check_chain_lock = threading.Lock()
         self._check_quick_lock = threading.Lock()
         self._check_end_lock = threading.Lock()
         self._check_distance_lock = threading.Lock()
 
         # 识别间隔
-        self._check_special_attack_interval: Union[float, List[float]] = 0
-        self._check_ultimate_interval: Union[float, List[float]] = 0
         self._check_chain_interval: Union[float, List[float]] = 0
         self._check_quick_interval: Union[float, List[float]] = 0
         self._check_end_interval: Union[float, List[float]] = 5
         self._check_distance_interval: Union[float, List[float]] = 5
 
         # 上一次识别的时间
-        self._last_check_special_attack_time: float = 0
-        self._last_check_ultimate_time: float = 0
         self._last_check_chain_time: float = 0
         self._last_check_quick_time: float = 0
         self._last_check_end_time: float = 0
@@ -327,8 +321,6 @@ class AutoBattleContext:
             agent_names: Optional[List[str]] = None,
             to_check_state_list: Optional[List[str]] = None,
             check_agent_interval: Union[float, List[float]] = 0,
-            check_special_attack_interval: Union[float, List[float]] = 0,
-            check_ultimate_interval: Union[float, List[float]] = 0,
             check_chain_interval: Union[float, List[float]] = 0,
             check_quick_interval: Union[float, List[float]] = 0,
             check_end_interval: Union[float, List[float]] = 5,
@@ -365,16 +357,12 @@ class AutoBattleContext:
         self.area_chain_2: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '连携技-2')
 
         # 识别间隔
-        self._check_special_attack_interval = check_special_attack_interval
-        self._check_ultimate_interval = check_ultimate_interval
         self._check_chain_interval = check_chain_interval
         self._check_quick_interval = check_quick_interval
         self._check_end_interval = check_end_interval
         self._check_distance_interval = 5
 
         # 上一次识别的时间
-        self._last_check_special_attack_time: float = 0
-        self._last_check_ultimate_time: float = 0
         self._last_check_chain_time: float = 0
         self._last_check_quick_time: float = 0
         self._last_check_end_time: float = 0
@@ -410,8 +398,6 @@ class AutoBattleContext:
 
             agent_future = _battle_state_check_executor.submit(self.agent_context.check_agent_related, screen, screenshot_time)
             future_list.append(agent_future)
-            future_list.append(_battle_state_check_executor.submit(self.check_special_attack_btn, screen, screenshot_time))
-            future_list.append(_battle_state_check_executor.submit(self.check_ultimate_btn, screen, screenshot_time, agent_future))
             future_list.append(_battle_state_check_executor.submit(self.check_quick_assist, screen, screenshot_time))
             if check_distance:
                 future_list.append(_battle_state_check_executor.submit(self._check_distance_with_lock, screen, screenshot_time))
@@ -429,55 +415,6 @@ class AutoBattleContext:
         if sync:
             for future in future_list:
                 future.result()
-
-    def check_special_attack_btn(self, screen: MatLike, screenshot_time: float) -> None:
-        """
-        识别特殊攻击按钮 看是否可用
-        """
-        if not self._check_special_attack_lock.acquire(blocking=False):
-            return
-        try:
-            if screenshot_time - self._last_check_special_attack_time < cal_utils.random_in_range(self._check_special_attack_interval):
-                # 还没有达到识别间隔
-                return
-            self._last_check_special_attack_time = screenshot_time
-
-            part = cv2_utils.crop_image_only(screen, self.area_btn_special.rect)
-            mrl = self.ctx.tm.match_template(part, 'battle', 'btn_special_attack_2',
-                                             threshold=0.9)
-            is_ready = mrl.max is not None
-            if is_ready:
-                self.auto_op.update_state(StateRecord(BattleStateEnum.STATUS_SPECIAL_READY.value, screenshot_time))
-        except Exception:
-            log.error('识别特殊攻击按键出错', exc_info=True)
-        finally:
-            self._check_special_attack_lock.release()
-
-    def check_ultimate_btn(self, screen: MatLike, screenshot_time: float, check_agent_future: Future) -> None:
-        """
-        识别终结技按钮 看是否可用
-        """
-        if not self._check_ultimate_lock.acquire(blocking=False):
-            return
-
-        try:
-            if screenshot_time - self._last_check_ultimate_time < cal_utils.random_in_range(self._check_ultimate_interval):
-                # 还没有达到识别间隔
-                return
-            self._last_check_ultimate_time = screenshot_time
-
-            part = cv2_utils.crop_image_only(screen, self.area_btn_ultimate.rect)
-            # 判断灰色按钮比较容易 发光时颜色会变
-            mrl = self.ctx.tm.match_template(part, 'battle', 'btn_ultimate_1',
-                                             threshold=0.9)
-            is_ready = mrl.max is None
-
-            if is_ready:
-                self.auto_op.update_state(StateRecord(BattleStateEnum.STATUS_ULTIMATE_READY.value, screenshot_time))
-        except Exception:
-            log.error('识别终结技按键出错', exc_info=True)
-        finally:
-            self._check_ultimate_lock.release()
 
     def check_chain_attack(self, screen: MatLike, screenshot_time: float) -> None:
         """
@@ -768,3 +705,23 @@ class AutoBattleContext:
         self.move_d(release=True)
         self.lock(release=True)
         self.chain_cancel(release=True)
+
+
+def __debug():
+    ctx = ZContext()
+    ctx.init_by_config()
+    from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
+    auto_op = AutoBattleOperator(ctx, 'auto_battle', '专属配队-简')
+    auto_op.init_before_running()
+    from one_dragon.utils import debug_utils
+    screen = debug_utils.get_debug_image('3_1')
+    now = time.time()
+    auto_op.auto_battle_context.check_battle_state(screen, now, check_battle_end_normal_result=True)
+    time.sleep(5)
+    for r in auto_op.state_recorders.values():
+        if r.last_record_time != -1:
+            print(f'{r.state_name} {r.last_record_time} {r.last_value}')
+
+
+if __name__ == '__main__':
+    __debug()

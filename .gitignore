@@ -2,6 +2,7 @@
 build/
 dist/
 .idea/
+.vscode/
 __pycache__/
 
 # 子模块

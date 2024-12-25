@@ -211,6 +211,7 @@
   lcs_percent: 0.7
   options:
     - option_name: "你先放下锯子"
+    - option_name: "吓我一大跳！"
     - option_name: "拜托你了可琳"
     - option_name: "还是算了"
 

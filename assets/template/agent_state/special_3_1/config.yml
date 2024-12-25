@@ -1,0 +1,8 @@
+sub_dir: agent_state
+template_id: special_3_1
+template_name: 角色状态-特殊技-31
+template_shape: circle
+auto_mask: true
+point_list:
+- 1670, 967
+- 1629, 967

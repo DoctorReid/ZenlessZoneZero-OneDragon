@@ -73,7 +73,7 @@ def check_exist_by_color_range(
         state_def: AgentStateDef,
         total: Optional[int] = None,
         pos: Optional[int] = None
-) -> bool:
+) -> int:
     """
     在指定区域内，按颜色判断是否有出现
     :param ctx: 上下文
@@ -81,9 +81,10 @@ def check_exist_by_color_range(
     :param state_def: 角色状态定义
     :param total: 总角色数量
     :param pos: 角色位置 从1开始
+    :return 存在返回1 不存在返回0
     """
     cnt = check_cnt_by_color_range(ctx, screen, state_def, total, pos)
-    return cnt > 0
+    return 1 if cnt > 0 else 0
 
 
 def check_length_by_background_gray(
@@ -220,7 +221,7 @@ def check_template_not_found(
         state_def: AgentStateDef,
         total: Optional[int] = None,
         pos: Optional[int] = None
-) -> bool:
+) -> int:
     """
     在指定区域内，找不到对应模板
     :param ctx: 上下文
@@ -228,7 +229,7 @@ def check_template_not_found(
     :param state_def: 角色状态定义
     :param total: 总角色数量
     :param pos: 角色位置 从1开始
-    :return: 找不到对应模板
+    :return: 找不到对应模板返回1 否则返回0
     """
     template = get_template(ctx, state_def, total, pos)
     if template is None:
@@ -237,4 +238,89 @@ def check_template_not_found(
     mrl = cv2_utils.match_template(source=to_check, template=template.raw, mask=template.mask,
                                    threshold=state_def.template_threshold)
 
-    return mrl.max is None
+    return 1 if mrl.max is None else 0
+
+
+def check_template_found(
+        ctx: ZContext,
+        screen: MatLike,
+        state_def: AgentStateDef,
+        total: Optional[int] = None,
+        pos: Optional[int] = None
+) -> int:
+    """
+    在指定区域内，找到对应模板
+    :param ctx: 上下文
+    :param screen: 游戏画面
+    :param state_def: 角色状态定义
+    :param total: 总角色数量
+    :param pos: 角色位置 从1开始
+    :return: 找不到对应模板返回1 否则返回0
+    """
+    template = get_template(ctx, state_def, total, pos)
+    if template is None:
+        return False
+    to_check = cv2_utils.crop_image_only(screen, template.get_template_rect_by_point())
+    mrl = cv2_utils.match_template(source=to_check, template=template.raw, mask=template.mask,
+                                   threshold=state_def.template_threshold)
+
+    return 1 if mrl.max is not None else 0
+
+
+def check_cnt_by_color_channel_max_range(
+        ctx: ZContext,
+        screen: MatLike,
+        state_def: AgentStateDef,
+        total: Optional[int] = None,
+        pos: Optional[int] = None
+) -> int:
+    """
+    在指定区域内，按颜色通道的最大值判断连通块有多少个
+    :param ctx: 上下文
+    :param screen: 游戏画面
+    :param state_def: 角色状态定义
+    :param total: 总角色数量
+    :param pos: 角色位置 从1开始
+    :return:
+    """
+    template = get_template(ctx, state_def, total, pos)
+    if template is None:
+        return 0
+    part = cv2_utils.crop_image_only(screen, template.get_template_rect_by_point())
+    to_check = cv2.bitwise_and(part, part, mask=template.mask)
+
+    r, g, b = cv2.split(to_check)
+    max_channel = np.max(np.array([r, g, b]), axis=0)
+    mask = cv2.inRange(max_channel, state_def.lower_color, state_def.upper_color)
+    mask = cv2_utils.dilate(mask, 2)
+    # cv2_utils.show_image(mask, wait=0)
+
+    # 查找连通区域
+    num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(mask, connectivity=8)
+
+    # 统计连通区域数量
+    count = 0
+    for i in range(1, num_labels):
+        if stats[i, cv2.CC_STAT_AREA] >= state_def.connect_cnt:
+            count += 1
+
+    return count
+
+
+def check_exist_by_color_channel_max_range(
+        ctx: ZContext,
+        screen: MatLike,
+        state_def: AgentStateDef,
+        total: Optional[int] = None,
+        pos: Optional[int] = None
+) -> int:
+    """
+    在指定区域内，按颜色通道的最大值判断是否有出现
+    :param ctx: 上下文
+    :param screen: 游戏画面
+    :param state_def: 角色状态定义
+    :param total: 总角色数量
+    :param pos: 角色位置 从1开始
+    """
+    cnt = check_cnt_by_color_channel_max_range(ctx, screen, state_def, total, pos)
+    return 1 if cnt > 0 else 0
