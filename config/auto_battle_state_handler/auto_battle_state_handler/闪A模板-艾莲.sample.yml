@@ -1,0 +1,4 @@
+handlers:
+  - states: "[前台-艾莲]"
+    operations:
+      - operation_template: "艾莲-闪A"
