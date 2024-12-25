@@ -1,3 +1,4 @@
+template_name: "速切模板-朱鸢"
 handlers:
   - states: "[前台-朱鸢]"
     sub_handlers:
@@ -38,14 +39,6 @@ handlers:
       - states: "[按键可用-终结技] & !([按键-切换角色-下一个,0,1]|[按键-切换角色-上一个,0,1]) &![朱鸢-子弹数]{7, 9} & ( ![后台-1-击破] & ![后台-2-击破] )"
         operations:
           - operation_template: "朱鸢-终结技"
-
-      #合轴时刻      
-      - states: "(![按键-切换角色-下一个,0,8] & ![按键-切换角色-上一个,0,8])"
-        sub_handlers:
-          - states: ""
-            operations:
-            - op_name: "设置状态"
-              data: [ "自定义-速切结束" ]
               
         #子弹太多了
       - states: "[朱鸢-子弹数]{9, 9}"
@@ -60,4 +53,5 @@ handlers:
       #朴实无华
       - states: ""
         operations:
-          - operation_template: "朱鸢-普通攻击"
+        - op_name: "设置状态"
+          data: [ "自定义-速切结束" ]

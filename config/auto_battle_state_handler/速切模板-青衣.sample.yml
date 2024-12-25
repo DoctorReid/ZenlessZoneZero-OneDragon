@@ -1,3 +1,4 @@
+template_name: "速切模板-青衣"
 handlers:
   - states: "[前台-青衣]"
     sub_handlers:

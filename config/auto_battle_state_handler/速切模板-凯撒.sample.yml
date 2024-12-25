@@ -1,9 +1,24 @@
+template_name: "速切模板-凯撒"
 handlers:
   - states: "[前台-凯撒]"
     sub_handlers:
       - states: "[自定义-黄光切人, 0, 2]"
-        sub_handlers:
-          - state_template: "支援攻击模板-全角色"
+        operations:
+          - op_name: "按键-普通攻击"
+            post_delay: 0.1
+            repeat: 10      
+          - op_name: "设置状态"
+            state: "自定义-动作不打断"
+          - op_name: "设置状态"
+            data: [ "自定义-凯撒-护盾" ]
+          - op_name: "按键-特殊攻击"
+            post_delay: 0.1
+            repeat: 20
+          - op_name: "设置状态"
+            data: [ "自定义-速切结束" ]
+          - op_name: "清除状态"
+            state: "自定义-动作不打断"
+
       - states: "[自定义-连携换人,0,1]"
         operations:
           - operation_template: "通用-连携攻击"
@@ -12,11 +27,6 @@ handlers:
         operations:
           - op_name: "清除状态"
             state: "自定义-动作不打断"
-
-      #合轴时刻      
-      - states: "![按键-切换角色-下一个,0,8] & ![按键-切换角色-上一个,0,8] &![自定义-速切结束]"
-        operations:
-          - operation_template: "通用-切人普通攻击"
             
       - states: "[按键可用-终结技] & !([按键-切换角色-下一个,0,1]|[按键-切换角色-上一个,0,1]) & ![自定义-动作不打断, 0, 30]"
         operations:
@@ -36,6 +46,7 @@ handlers:
             data: [ "自定义-速切结束" ]
           - op_name: "设置状态"
             data: [ "自定义-凯撒-护盾" ]
+            
       - states: "![凯撒-能量]{60,120}"
         operations:
           - operation_template: "通用-切人普通攻击"

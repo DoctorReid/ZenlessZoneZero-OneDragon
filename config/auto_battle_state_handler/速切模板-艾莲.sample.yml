@@ -1,3 +1,4 @@
+template_name: "速切模板-艾莲"
 handlers:
   - states: "[前台-艾莲]"
     sub_handlers:

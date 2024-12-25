@@ -1,73 +1,109 @@
+template_name: "速切模板-悠真"
 handlers:
   - states: "[前台-悠真]"
     sub_handlers:
       - states: "[自定义-黄光切人, 0, 2]"
         sub_handlers:
-          - state_template: "支援攻击模板-全角色"
-      - states: "[自定义-连携换人,0,1]"
+          - state_template: "支援攻击模板-全角色" #悠真支援是2秒，是标准模板
+      - states: "[自定义-连携换人,0,1.8]"
         operations:
-          - operation_template: "通用-连携攻击"
+          - operation_template: "通用-连携攻击" #悠真连携是2秒，是标准模板
           
+      #防呆
       - states: "([按键-切换角色-下一个,0,0.3]|[按键-切换角色-上一个,0,0.3]) | [自定义-快速支援换人,0,1]"
         operations:
           - op_name: "清除状态"
             state: "自定义-动作不打断"
 
-      #合轴时刻      
-      - states: "![按键-切换角色-下一个,0,12] & ![按键-切换角色-上一个,0,12] &![自定义-速切结束]"
-        operations:
-          - operation_template: "通用-切人普通攻击"
+      #失衡时刻
+      - states: "[自定义-连携换人,0,14]"
+        sub_handlers:
+          - states: "[自定义-连携换人,0,4]" #清空掉异常打出的电壶
+            operations:
+              - operation_template: "悠真-闪A三刀"
+          - states: "[自定义-连携换人,3,12]"
+            sub_handlers:
+              - states: "[按键可用-终结技]"
+                sub_handlers:
+                - states: "[按键可用-特殊攻击]"
+                  operations:
+                    - operation_template: "悠真-强化特殊攻击"
+                    - operation_template: "悠真-终结技"
+                    - operation_template: "悠真-闪A四刀"
+                - states: ""
+                  operations:
+                    - operation_template: "悠真-终结技"
+              - states: "[按键可用-特殊攻击]"
+                operations:
+                  - operation_template: "悠真-强化特殊攻击"
+                  - operation_template: "悠真-闪A四刀"
+              #没能量了再打打
+              - states: ""
+                operations:
+                  - operation_template: "悠真-普通攻击"
+          #连携结束，离场
+          - states: "[自定义-连携换人,12,14]"
+            operations:
+              - operation_template: "悠真-射箭四刀" #清空电壶再下场
+              - op_name: "设置状态"
+                data: [ "自定义-速切结束" ]
 
-      - states: "[自定义-连携换人,2,4]"
+      #非失衡时刻
+
+      #后台如果没有击破
+      - states: "![后台-1-击破] & ![后台-2-击破]" 
+        sub_handlers:
+
+          #异常队，无脑输出
+        - states: "[后台-1-异常] | [后台-2-异常]"  
+          sub_handlers:
+              - states: "[按键可用-终结技]"
+                sub_handlers:
+                - states: "[按键可用-特殊攻击]"
+                  operations:
+                    - operation_template: "悠真-强化特殊攻击"
+                    - operation_template: "悠真-终结技"
+                    - operation_template: "悠真-闪A四刀"
+                - states: ""
+                  operations:
+                    - operation_template: "悠真-终结技"
+              - states: "[按键可用-特殊攻击]"
+                operations:
+                  - operation_template: "悠真-强化特殊攻击"
+                  - operation_template: "悠真-闪A四刀"
+              #没能量了再打打
+              - states: ""
+                operations:
+                  - operation_template: "悠真-射箭四刀" #清空电壶再下场
+                  - op_name: "设置状态"
+                    data: [ "自定义-速切结束" ]
+
+          #非异常队
+        - states: "" 
+          sub_handlers:
+          - states: "[按键可用-终结技] & !([按键-切换角色-下一个,0,1]|[按键-切换角色-上一个,0,1])"
+            operations:
+              - operation_template: "悠真-终结技"
+          - states: "[悠真-能量]{60,120} & [按键可用-特殊攻击]"
+            operations:
+              - operation_template: "悠真-强化特殊攻击"
+              - operation_template: "悠真-闪A三刀"
+          - states: ""
+            operations:
+              - operation_template: "悠真-射箭三刀" #清空电壶再下场
+              - op_name: "设置状态"
+                data: [ "自定义-速切结束" ]
+              - operation_template: "悠真-普通攻击"
+
+      #后台如果有击破，不管什么队友都留能量
+      - states: "[悠真-能量]{110,120} & [按键可用-特殊攻击]"
         operations:
-          - op_name: "等待秒数"
-            data: [ "0.3" ]
-          - op_name: "按键-普通攻击"
-            way: "按下"
-            press: 1.2
-          - op_name: "按键-普通攻击"
-            way: "松开"
-          - op_name: "按键-普通攻击"
-            post_delay: 0.1
-            repeat: 20
-      - states: "[按键可用-终结技] & !([按键-切换角色-下一个,0,1]|[按键-切换角色-上一个,0,1]) & ![自定义-动作不打断, 0, 30]"
+          - operation_template: "悠真-强化特殊攻击"
+          - operation_template: "悠真-闪A四刀"
+
+      - states: ""
         operations:
-          - op_name: "设置状态"
-            state: "自定义-动作不打断"
-          - op_name: "按键-终结技"
-            post_delay: 2
-            repeat: 2
-          - op_name: "清除状态"
-            state: "自定义-动作不打断"
-      - states: "[悠真-能量]{60,120} & [按键可用-特殊攻击]"
-        operations:
-          - op_name: "等待秒数"
-            data: [ "0.4" ]
-          - op_name: "设置状态"
-            state: "自定义-动作不打断"
-          - op_name: "按键-特殊攻击"
-            way: "按下"
-            press: 2
-          - op_name: "按键-普通攻击"
-            post_delay: 0.1
-            repeat: 20
-          - op_name: "清除状态"
-            state: "自定义-动作不打断"
-      - states: "![悠真-能量]{60,120} & ![自定义-连携换人,0,12]"
-        operations:
-          - op_name: "按键-普通攻击"
-            way: "按下"
-            press: 1.2
-          - op_name: "按键-普通攻击"
-            post_delay: 0.1
-            repeat: 25
+          - operation_template: "悠真-射箭三刀" #清空电壶再下场
           - op_name: "设置状态"
             data: [ "自定义-速切结束" ]
-      - states: "![悠真-能量]{60,120}"
-        operations:
-          - op_name: "按键-普通攻击"
-            way: "按下"
-            press: 1.2
-          - op_name: "按键-普通攻击"
-            post_delay: 0.1
-            repeat: 25
+          - operation_template: "悠真-普通攻击"

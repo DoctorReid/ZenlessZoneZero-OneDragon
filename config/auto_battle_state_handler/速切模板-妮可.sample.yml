@@ -1,3 +1,4 @@
+template_name: "速切模板-妮可"
 handlers:
   - states: "[前台-妮可]"
     sub_handlers:
@@ -12,11 +13,6 @@ handlers:
         operations:
           - op_name: "清除状态"
             state: "自定义-动作不打断"
-
-      #合轴时刻      
-      - states: "![按键-切换角色-下一个,0,12] & ![按键-切换角色-上一个,0,12] &![自定义-速切结束]"
-        operations:
-          - operation_template: "通用-切人普通攻击"
           
       #失衡时刻
       - states: "([自定义-连携换人,0,12]"
