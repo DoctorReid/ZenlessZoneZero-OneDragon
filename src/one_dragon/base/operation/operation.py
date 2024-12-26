@@ -802,9 +802,9 @@ class Operation(OperationBase):
             screen = self.screenshot()
 
         current_screen_name = screen_utils.get_match_screen_name(self.ctx, screen)
+        self.ctx.screen_loader.update_current_screen_name(current_screen_name)
         if current_screen_name is None:
             return self.round_retry('未能识别当前画面', wait=retry_wait, wait_round_time=retry_wait_round)
-        self.ctx.screen_loader.update_current_screen_name(current_screen_name)
         if current_screen_name == screen_name:
             return self.round_success(current_screen_name, wait=success_wait, wait_round_time=success_wait_round)
 

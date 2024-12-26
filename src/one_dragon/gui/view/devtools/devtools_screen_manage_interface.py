@@ -121,7 +121,7 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
         self.area_table.setBorderVisible(True)
         self.area_table.setBorderRadius(8)
         self.area_table.setWordWrap(True)
-        self.area_table.setColumnCount(9)
+        self.area_table.setColumnCount(10)
         self.area_table.verticalHeader().hide()
         self.area_table.setHorizontalHeaderLabels([
             gt('操作', 'ui'),
@@ -131,6 +131,7 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
             gt('阈值', 'ui'),
             gt('模板', 'ui'),
             gt('阈值', 'ui'),
+            gt('颜色范围', 'ui'),
             gt('唯一标识', 'ui'),
             gt('前往画面', 'ui')
         ])
@@ -248,8 +249,9 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
             self.area_table.setItem(idx, 4, QTableWidgetItem(str(area_item.lcs_percent)))
             self.area_table.setItem(idx, 5, QTableWidgetItem(area_item.template_id_display_text))
             self.area_table.setItem(idx, 6, QTableWidgetItem(str(area_item.template_match_threshold)))
-            self.area_table.setCellWidget(idx, 7, id_check)
-            self.area_table.setItem(idx, 8, QTableWidgetItem(area_item.goto_list_display_text))
+            self.area_table.setItem(idx, 7, QTableWidgetItem(str(area_item.color_range_display_text)))
+            self.area_table.setCellWidget(idx, 8, id_check)
+            self.area_table.setItem(idx, 9, QTableWidgetItem(area_item.goto_list_display_text))
 
 
         add_btn = ToolButton(FluentIcon.ADD, parent=None)
@@ -263,6 +265,7 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
         self.area_table.setItem(area_cnt, 6, QTableWidgetItem(''))
         self.area_table.setItem(area_cnt, 7, QTableWidgetItem(''))
         self.area_table.setItem(area_cnt, 8, QTableWidgetItem(''))
+        self.area_table.setItem(area_cnt, 9, QTableWidgetItem(''))
 
         self.area_table.blockSignals(False)
 
@@ -516,8 +519,16 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
                     area_item.template_id = template_list[0]
         elif column == 6:
             area_item.template_match_threshold = float(text) if len(text) > 0 else 0.7
-        elif column == 8:
-            area_item.goto_list = text.split(';')
+        elif column == 7:
+            try:
+                import json
+                arr = json.loads(text)
+                if isinstance(arr, list):
+                    area_item.color_range = arr
+            except Exception:
+                area_item.color_range = None
+        elif column == 9:
+            area_item.goto_list = text.split(',')
 
     def _on_image_drag_released(self, x1: int, y1: int, x2: int, y2: int) -> None:
         """

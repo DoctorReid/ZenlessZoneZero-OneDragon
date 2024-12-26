@@ -16,7 +16,8 @@ class ScreenArea:
                  template_match_threshold: float = 0.7,
                  pc_alt: bool = False,
                  id_mark: bool = False,
-                 goto_list: List[str] = None
+                 goto_list: List[str] = None,
+                 color_range: List[List[int]] = None,
                  ):
         self.area_name: str = area_name
         self.pc_rect: Rect = pc_rect
@@ -28,6 +29,7 @@ class ScreenArea:
         self.pc_alt: bool = pc_alt  # PC端需要使用ALT后才能点击
         self.id_mark: bool = id_mark  # 是否用于画面的唯一标识
         self.goto_list: List[str] = [] if goto_list is None else goto_list # 交互后 可能会跳转的画面名称列表
+        self.color_range: List[List[int]] = color_range  # 识别时候的筛选的颜色范围 文本时候有效
 
     @property
     def rect(self) -> Rect:
@@ -77,7 +79,14 @@ class ScreenArea:
         if self.goto_list is None:
             return ''
         else:
-            return ';'.join(self.goto_list)
+            return ','.join(self.goto_list)
+
+    @property
+    def color_range_display_text(self) -> str:
+        if self.color_range is None:
+            return ''
+        else:
+            return str(self.color_range)
 
     @property
     def is_text_area(self) -> bool:
@@ -109,6 +118,7 @@ class ScreenArea:
         order_dict['template_sub_dir'] = self.template_sub_dir
         order_dict['template_id'] = self.template_id
         order_dict['template_match_threshold'] = self.template_match_threshold
+        order_dict['color_range'] = self.color_range
         order_dict['goto_list'] = self.goto_list
 
         return order_dict
