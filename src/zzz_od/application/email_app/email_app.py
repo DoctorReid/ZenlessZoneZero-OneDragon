@@ -27,20 +27,11 @@ class EmailApp(ZApplication):
         """
         pass
 
-    @operation_node(name='打开菜单', is_start_node=True)
-    def open_menu(self) -> OperationRoundResult:
-        op = OpenMenu(self.ctx)
-        return self.round_by_op_result(op.execute())
+    @operation_node(name='打开邮件', is_start_node=True)
+    def goto_email(self) -> OperationRoundResult:
+        return self.round_by_goto_screen(screen_name='邮件', success_wait=1, retry_wait=1)
 
-    @node_from(from_name='打开菜单')
-    @operation_node(name='点击邮件')
-    def click_email(self) -> OperationRoundResult:
-        screen = self.screenshot()
-        area = self.ctx.screen_loader.get_area('菜单', '底部列表')
-        return self.round_by_ocr_and_click(screen, '邮件', area=area,
-                                           success_wait=1, retry_wait=1)
-
-    @node_from(from_name='点击邮件')
+    @node_from(from_name='打开邮件')
     @operation_node(name='全部领取')
     def click_get_all(self) -> OperationRoundResult:
         """

@@ -75,6 +75,7 @@ class ScreenInfo(YamlOperator):
                 template_id=data_area.get('template_id'),
                 template_sub_dir=data_area.get('template_sub_dir'),
                 template_match_threshold=data_area.get('template_match_threshold'),
+                color_range=data_area.get('color_range'),
                 pc_alt=self.pc_alt,
                 id_mark=data_area.get('id_mark', False),
                 goto_list=data_area.get('goto_list', [])

@@ -1,4 +1,4 @@
-sub_dir: menu_entry
+sub_dir: menu
 template_id: friends
 template_name: 菜单-朋友
 template_shape: circle

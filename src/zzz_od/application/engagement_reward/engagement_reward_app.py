@@ -34,18 +34,11 @@ class EngagementRewardApp(ZApplication):
         """
         self.idx: int = 4
 
-    @operation_node(name='快捷手册', is_start_node=True)
-    def open_compendium(self) -> OperationRoundResult:
-        op = OpenCompendium(self.ctx)
-        return self.round_by_op_result(op.execute())
+    @operation_node(name='快捷手册-日常', is_start_node=True)
+    def goto_compendium_daily(self) -> OperationRoundResult:
+        return self.round_by_goto_screen(screen_name='快捷手册-日常', success_wait=1, retry_wait=1)
 
-    @node_from(from_name='快捷手册')
-    @operation_node(name='日常')
-    def choose_train(self) -> OperationRoundResult:
-        op = CompendiumChooseTab(self.ctx, tab_name='日常')
-        return self.round_by_op_result(op.execute(), wait=1)
-
-    @node_from(from_name='日常')
+    @node_from(from_name='快捷手册-日常')
     @operation_node(name='识别活跃度')
     def check_engagement(self) -> OperationRoundResult:
         screen = self.screenshot()
@@ -59,10 +52,7 @@ class EngagementRewardApp(ZApplication):
 
         self.idx = 4  # 只需要点最后一个就可以领取
 
-        if self.idx == 0:
-            return self.round_success(EngagementRewardApp.STATUS_NO_REWARD)
-        else:
-            return self.round_success()
+        return self.round_success()
 
     @node_from(from_name='识别活跃度')
     @operation_node(name='点击奖励')
