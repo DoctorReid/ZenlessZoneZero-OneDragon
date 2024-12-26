@@ -9,5 +9,3 @@ operations:
     seconds: 1.7
   - op_name: "清除状态"
     state: "自定义-动作不打断"
-  - op_name: "设置状态"
-    state: "自定义-柳-流转"

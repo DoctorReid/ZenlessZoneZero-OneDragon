@@ -9,21 +9,26 @@ handlers:
         sub_handlers:
           - state_template: "速切补增益模板-全角色"
 
+      #防呆
       - states: "([按键-切换角色-下一个,0,0.3]|[按键-切换角色-上一个,0,0.3]) | [自定义-快速支援换人,0,1]"
         operations:
           - op_name: "清除状态"
-            state: "自定义-动作不打断"
+            state_list: [ "自定义-速切结束" , "自定义-动作不打断"]
 
       - states: "[丽娜-终结技可用]"
         operations:
           - op_name: "按键-终结技"
             post_delay: 1
             repeat: 5
+          - op_name: "设置状态"
+            state: "自定义-丽娜-人偶"
+          - operation_template: "通用-切人普通攻击"
 
       - states: ""
         operations:
+          - op_name: "设置状态"
+            state: "自定义-丽娜-人偶"
           - op_name: "按键-特殊攻击"
             post_delay: 0.1
             repeat: 4
-          - op_name: "设置状态"
-            data: [ "自定义-速切结束" ]
+          - operation_template: "通用-切人普通攻击"

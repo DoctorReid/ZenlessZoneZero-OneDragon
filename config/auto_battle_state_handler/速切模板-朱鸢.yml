@@ -4,20 +4,24 @@ handlers:
     sub_handlers:
 
       #支援
-      - states: "[自定义-黄光切人, 0, 2]"
+      - states: "[自定义-黄光切人, 0, 1]"
         operations:
+          - op_name: "清除状态"
+            state_list: [ "自定义-速切结束" , "自定义-动作不打断"]
           - operation_template: "朱鸢-支援攻击"
 
       #连携
       - states: "[自定义-连携换人,0,1]"
         operations:
+          - op_name: "清除状态"
+            state_list: [ "自定义-速切结束" , "自定义-动作不打断"]
           - operation_template: "朱鸢-连携攻击"
 
       #防呆
-      - states: "([按键-切换角色-下一个,0,0.3]|[按键-切换角色-上一个,0,0.3])"
+      - states: "([按键-切换角色-下一个,0,0.3]|[按键-切换角色-上一个,0,0.3]) | [自定义-快速支援换人,0,1]"
         operations:
           - op_name: "清除状态"
-            state: "自定义-动作不打断"
+            state_list: [ "自定义-速切结束" , "自定义-动作不打断"]
 
       #失衡时刻
       - states: "([自定义-连携换人,0,14]"
@@ -53,5 +57,4 @@ handlers:
       #朴实无华
       - states: ""
         operations:
-        - op_name: "设置状态"
-          data: [ "自定义-速切结束" ]
+          - operation_template: "通用-切人普通攻击"
