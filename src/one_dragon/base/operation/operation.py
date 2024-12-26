@@ -4,7 +4,7 @@ import cv2
 import difflib
 import inspect
 from cv2.typing import MatLike
-from typing import Optional, ClassVar, Callable, List, Any
+from typing import Optional, ClassVar, Callable, List, Any, Tuple
 
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.matcher.match_result import MatchResultList
@@ -590,6 +590,7 @@ class Operation(OperationBase):
     def round_by_find_and_click_area(self, screen: MatLike, screen_name: str, area_name: str,
                                      success_wait: Optional[float] = None, success_wait_round: Optional[float] = None,
                                      retry_wait: Optional[float] = None, retry_wait_round: Optional[float] = None,
+                                     until_find_all: List[Tuple[str, str]] = None,
                                      ) -> OperationRoundResult:
         """
         是否能找到目标区域 并进行点击
@@ -600,12 +601,27 @@ class Operation(OperationBase):
         :param success_wait_round: 成功后等待当前轮的运行时间到达这个时间时再结束 优先success_wait
         :param retry_wait: 失败后等待的秒数
         :param retry_wait_round: 失败后等待当前轮的运行时间到达这个时间时再结束 优先success_wait
+        :param until_find_all: 点击直到发现所有目标
         :return: 点击结果
         """
+        if until_find_all is not None:
+            all_found: bool = True
+            for (until_screen_name, until_area_name) in until_find_all:
+                result = screen_utils.find_area(ctx=self.ctx, screen=screen, screen_name=until_screen_name, area_name=until_area_name)
+                if result != FindAreaResultEnum.TRUE:
+                    all_found = False
+                    break
+
+            if all_found:
+                return self.round_success(status=area_name, wait=success_wait, wait_round_time=success_wait_round)
+
         click = screen_utils.find_and_click_area(ctx=self.ctx, screen=screen, screen_name=screen_name, area_name=area_name)
         if click == OcrClickResultEnum.OCR_CLICK_SUCCESS:
             self.update_screen_after_operation(screen_name, area_name)
-            return self.round_success(status=area_name, wait=success_wait, wait_round_time=success_wait_round)
+            if until_find_all is None:
+                return self.round_success(status=area_name, wait=success_wait, wait_round_time=success_wait_round)
+            else:
+                return self.round_wait(status=area_name, wait=retry_wait, wait_round_time=retry_wait_round)
         elif click == OcrClickResultEnum.OCR_CLICK_NOT_FOUND:
             return self.round_retry(status=f'未找到 {area_name}', wait=retry_wait, wait_round_time=retry_wait_round)
         elif click == OcrClickResultEnum.OCR_CLICK_FAIL:
