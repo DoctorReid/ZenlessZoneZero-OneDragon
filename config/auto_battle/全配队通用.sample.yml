@@ -10,7 +10,7 @@ introduction: "支持全角色 任意三人/单人/双人作战，通杀所有�
 check_dodge_interval: 0.02
 check_agent_interval: 0.1
 check_chain_interval: 0.1
-check_quick_interval: 0.4git
+check_quick_interval: 0.4
 auto_lock_interval: 0.5
 
 scenes:
