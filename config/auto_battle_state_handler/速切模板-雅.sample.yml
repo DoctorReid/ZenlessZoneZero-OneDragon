@@ -38,6 +38,8 @@ handlers:
       #防呆
       - states: "([按键-切换角色-下一个,0,0.4]|[按键-切换角色-上一个,0,0.4]) | [自定义-快速支援换人,0,1]"
         operations:
+          - op_name: "等待秒数"
+            seconds: 0.1
           - op_name: "清除状态"
             state_list:
               [
