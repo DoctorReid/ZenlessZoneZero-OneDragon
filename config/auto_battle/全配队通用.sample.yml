@@ -1,11 +1,11 @@
 ## 基础信息 ##
 author: "遥酱"
 thanks: "火"
-homepage: "https://github.com/kawayiYokami/ZenlessZoneZero-OneDragon"
-version: "2.1"
+homepage: ""
+version: "2.0"
 team_list:
-  - [" ", " ", " "]
-introduction: "支持全角色 任意三人/单人/双人作战，通杀所有情况，有问题去主页发需求"
+
+introduction: "支持全角色 任意三人/单人/双人作战，通杀所有情况"
 
 check_dodge_interval: 0.02
 check_agent_interval: 0.1
@@ -17,7 +17,7 @@ scenes:
   - triggers: ["闪避识别-黄光", "闪避识别-红光", "闪避识别-声音"]
     priority: 99
     handlers:
-      - states: "[闪避识别-声音] & ![自定义-动作不打断, 0, 30]"
+      - states: "![自定义-动作不打断, 0, 30]"
         sub_handlers:
         - states: "[闪避识别-黄光]"
           sub_handlers:
@@ -49,7 +49,7 @@ scenes:
     priority: 90
     interval: 0.2
     handlers:
-      - states: "[前台-血量扣减]{1, 100} & ![自定义-动作不打断, 0, 999]"
+      - states: "[前台-血量扣减]{1, 100} & ![自定义-动作不打断,0,30]"
         sub_handlers:
         - state_template: "血量扣减模板-切人终结技"
         # - states: ""

@@ -1,7 +1,6 @@
 template_name: "速切模板-全角色"
 handlers:
   # 特殊处理
-  
 
   # 速切加增益
   - state_template: "速切模板-莱卡恩"
@@ -27,15 +26,12 @@ handlers:
   - state_template: "速切模板-艾莲" #比站场更优
   - state_template: "速切模板-青衣"
 
-  
   # 兜底情况，如果你发现角色动作不符合预期，那八成就是走到兜底了
 
   #未细化模板
   - state_template: "速切模板-本"
 
-
-
- # - state_template: "速切模板-全角色"
+  # - state_template: "速切模板-全角色"
 
   #未优化的模板
   - state_template: "速切模板-比利"

@@ -2,24 +2,38 @@ template_name: "速切模板-可琳"
 handlers:
   - states: "[前台-可琳]"
     sub_handlers:
-
       - states: "[自定义-黄光切人, 0, 1]"
         operations:
           - op_name: "清除状态"
-            state_list: [ "自定义-速切结束","自定义-可琳-这次不打特殊技","自定义-动作不打断"]
+            state_list:
+              [
+                "自定义-速切结束",
+                "自定义-可琳-这次不打特殊技",
+                "自定义-动作不打断",
+              ]
           - operation_template: "可琳-支援攻击"
 
       - states: "[自定义-连携换人,0,1]"
         operations:
           - op_name: "清除状态"
-            state_list: [ "自定义-速切结束","自定义-可琳-这次不打特殊技","自定义-动作不打断"]
+            state_list:
+              [
+                "自定义-速切结束",
+                "自定义-可琳-这次不打特殊技",
+                "自定义-动作不打断",
+              ]
           - operation_template: "可琳-连携攻击"
 
       - states: "([按键-切换角色-下一个,0,0.3]|[按键-切换角色-上一个,0,0.3]) | [自定义-快速支援换人,0,1]"
         operations:
           - op_name: "清除状态"
-            state_list: [ "自定义-速切结束","自定义-可琳-这次不打特殊技","自定义-动作不打断"]
-            
+            state_list:
+              [
+                "自定义-速切结束",
+                "自定义-可琳-这次不打特殊技",
+                "自定义-动作不打断",
+              ]
+
       - states: "[可琳-终结技可用] & [自定义-连携换人,0,12]"
         operations:
           - op_name: "按键-终结技"
@@ -42,8 +56,7 @@ handlers:
       - states: ""
         operations:
           - op_name: "设置状态"
-            data: [ "自定义-速切结束" ]
+            data: ["自定义-速切结束"]
           - op_name: "按键-普通攻击"
             post_delay: 0.1
             repeat: 35
-
