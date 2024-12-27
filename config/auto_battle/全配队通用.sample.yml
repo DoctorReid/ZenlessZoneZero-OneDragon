@@ -1,11 +1,11 @@
 ## 基础信息 ##
 author: "遥酱"
 thanks: "火"
-homepage: ""
+homepage: "https://github.com/kawayiYokami/ZenlessZoneZero-OneDragon"
 version: "2.1"
 team_list:
-  - ["", "", ""]
-introduction: "支持全角色 任意三人/单人/双人作战，通杀所有情况"
+  - [" ", " ", " "]
+introduction: "支持全角色 任意三人/单人/双人作战，通杀所有情况，有问题去主页发需求"
 
 check_dodge_interval: 0.02
 check_agent_interval: 0.1
