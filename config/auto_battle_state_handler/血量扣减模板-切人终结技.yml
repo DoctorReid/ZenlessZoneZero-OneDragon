@@ -34,13 +34,25 @@ handlers:
       - op_name: "设置状态"
         data: [ "自定义-血量扣减" ]
 
-  - states: "[后台-1-终结技可用]"
+  - states: "[后台-1-支援] &[后台-1-终结技可用]"
     operations:
       - operation_template: "双反-下一个"
       - op_name: "设置状态"
         data: [ "自定义-血量扣减" ]
 
-  - states: "[后台-2-终结技可用]"
+  - states: "[后台-2-支援] & [后台-2-终结技可用]"
+    operations:
+      - operation_template: "双反-上一个"
+      - op_name: "设置状态"
+        data: [ "自定义-血量扣减" ]
+
+  - states: "[后台-1-异常] & [后台-1-终结技可用]"
+    operations:
+      - operation_template: "双反-下一个"
+      - op_name: "设置状态"
+        data: [ "自定义-血量扣减" ]
+
+  - states: "[后台-2-异常] & [后台-2-终结技可用]"
     operations:
       - operation_template: "双反-上一个"
       - op_name: "设置状态"
