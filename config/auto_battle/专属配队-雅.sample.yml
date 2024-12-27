@@ -2,11 +2,12 @@
 author: "笙梦昱"
 thanks: "巡夜子 starlight"
 homepage: "https://b23.tv/QBbqzRK"
-version: "1.0"
+version: "1.2"
 team_list:
   - ["莱卡恩", "苍角", "雅"]
   - ["柳", "露西", "雅"]
-introduction: "写道的角色都可以组合，比如莱卡恩-露西-雅"
+  - ["柳", "凯撒", "雅"]
+introduction: "发挥你的想象力,5选2就行,别管太多"
 
 check_dodge_interval: 0.02
 check_agent_interval: [0.4, 0.6]
@@ -34,28 +35,6 @@ t-chain-right: &t-chain-right
   - op_name: "清除状态"
     state_list: ["自定义-招架支援", "自定义-快速支援换人", "自定义-下场", "自定义-动作不打断"]
 
-# 招架支援-苍角
-t-dodge-soukaku: &t-dodge-soukaku
-  - op_name: "设置状态"
-    state: "自定义-招架支援"
-  - op_name: "设置状态"
-    state: "自定义-原始朋克"
-  - op_name: "按键-切换角色"
-    agent_name: "苍角"
-  # 注意清除其他相关的换人状态
-  - op_name: "清除状态"
-    state_list: ["自定义-连携技换人", "自定义-快速支援换人", "自定义-下场", "自定义-动作不打断"]
-
-# 切换角色-苍角
-t-switch-soukaku: &t-switch-soukaku
-  - op_name: "按键-切换角色"
-    agent_name: "苍角"
-  # 注意清除其他相关的换人状态
-  - op_name: "清除状态"
-    state_list: ["自定义-招架支援", "自定义-连携技换人", "自定义-快速支援换人", "自定义-下场", "自定义-动作不打断"]
-  - op_name: "等待秒数"
-    seconds: 0.3
-
 # 招架支援-露西
 t-dodge-lucy: &t-dodge-lucy
   - op_name: "设置状态"
@@ -74,7 +53,49 @@ t-switch-lucy: &t-switch-lucy
   - op_name: "清除状态"
     state_list: ["自定义-招架支援", "自定义-连携技换人", "自定义-快速支援换人", "自定义-下场", "自定义-动作不打断"]
   - op_name: "等待秒数"
-    seconds: 0.3
+    seconds: 0.1
+
+# 招架支援-苍角
+t-dodge-soukaku: &t-dodge-soukaku
+  - op_name: "设置状态"
+    state: "自定义-招架支援"
+  - op_name: "按键-切换角色"
+    agent_name: "苍角"
+  # 注意清除其他相关的换人状态
+  - op_name: "清除状态"
+    state_list: ["自定义-连携技换人", "自定义-快速支援换人", "自定义-下场", "自定义-动作不打断"]
+
+# 切换角色-苍角
+t-switch-soukaku: &t-switch-soukaku
+  - op_name: "按键-切换角色"
+    agent_name: "苍角"
+  # 注意清除其他相关的换人状态
+  - op_name: "清除状态"
+    state_list: ["自定义-招架支援", "自定义-连携技换人", "自定义-快速支援换人", "自定义-下场", "自定义-动作不打断"]
+  - op_name: "等待秒数"
+    seconds: 0.1
+
+# 招架支援-凯撒
+t-dodge-caesar: &t-dodge-caesar
+  - op_name: "设置状态"
+    state: "自定义-凯撒-战意激昂"
+  - op_name: "设置状态"
+    state: "自定义-招架支援"
+  - op_name: "按键-切换角色"
+    agent_name: "凯撒"
+  # 注意清除其他相关的换人状态
+  - op_name: "清除状态"
+    state_list: ["自定义-连携技换人", "自定义-快速支援换人", "自定义-下场", "自定义-动作不打断"]
+
+# 切换角色-凯撒
+t-switch-caesar: &t-switch-caesar
+  - op_name: "按键-切换角色"
+    agent_name: "凯撒"
+  # 注意清除其他相关的换人状态
+  - op_name: "清除状态"
+    state_list: ["自定义-招架支援", "自定义-连携技换人", "自定义-快速支援换人", "自定义-下场", "自定义-动作不打断"]
+  - op_name: "等待秒数"
+    seconds: 0.1
 
 # 招架支援-莱卡恩
 t-dodge-lycaon: &t-dodge-lycaon
@@ -94,7 +115,7 @@ t-switch-lycaon: &t-switch-lycaon
   - op_name: "清除状态"
     state_list: ["自定义-招架支援", "自定义-连携技换人", "自定义-快速支援换人", "自定义-下场", "自定义-动作不打断"]
   - op_name: "等待秒数"
-    seconds: 0.3
+    seconds: 0.1
 
 # 招架支援-柳
 t-dodge-yanagi: &t-dodge-yanagi
@@ -114,7 +135,7 @@ t-switch-yanagi: &t-switch-yanagi
   - op_name: "清除状态"
     state_list: ["自定义-招架支援", "自定义-连携技换人", "自定义-快速支援换人", "自定义-下场", "自定义-动作不打断"]
   - op_name: "等待秒数"
-    seconds: 0.3
+    seconds: 0.1
 
 # 招架支援-雅
 t-dodge-miyabi: &t-dodge-miyabi
@@ -134,18 +155,37 @@ t-switch-miyabi: &t-switch-miyabi
   - op_name: "清除状态"
     state_list: ["自定义-招架支援", "自定义-连携技换人", "自定义-快速支援换人", "自定义-下场", "自定义-动作不打断"]
   - op_name: "等待秒数"
-    seconds: 0.2
+    seconds: 0.1
 
 scenes:
 
   - triggers: [ "闪避识别-黄光", "闪避识别-红光", "闪避识别-声音" ]
-    interval: 1
+    interval: 0.4
     handlers:
       # 部分连招霸体可以不闪避
       - states: "![自定义-动作不打断, 0, 30]"
         sub_handlers:
           - states: "[闪避识别-黄光]"
             sub_handlers:
+              - states: "[前台-雅] & [雅-落霜]{6,6}"
+                operations:
+                  - op_name: "按键-移动-右"
+                    way: "按下"
+                  - op_name: "设置状态"
+                    state: "自定义-闪避"
+                  - op_name: "按键-闪避"
+                    post_delay: 0.05
+                    repeat: 4
+                  - op_name: "按键-普通攻击"
+                    post_delay: 0.05
+                    repeat: 2
+                  - op_name: "按键-移动-右"
+                    way: "松开"
+
+              # 优先切凯撒进行上盾 核心持续时间30s
+              - states: "[后台-凯撒] & ![自定义-凯撒-战意激昂, 0, 25]"
+                operations: *t-dodge-caesar
+
               # 切苍角上BUFF
               - states: "[后台-苍角]"
                 sub_handlers:
@@ -179,6 +219,9 @@ scenes:
                   - op_name: "按键-闪避"
                     post_delay: 0.05
                     repeat: 4
+                  - op_name: "按键-普通攻击"
+                    post_delay: 0.05
+                    repeat: 2
                   - op_name: "按键-移动-右"
                     way: "松开"
 
@@ -192,16 +235,22 @@ scenes:
               - op_name: "按键-闪避"
                 post_delay: 0.05
                 repeat: 4
+              - op_name: "按键-普通攻击"
+                post_delay: 0.05
+                repeat: 2
               - op_name: "按键-移动-右"
                 way: "松开"
 
 
   - triggers: [ "前台-血量扣减" ]
-    interval: 1
+    interval: 0.3
     handlers:
       # 部分连招霸体可以不闪避
       - states: "![自定义-动作不打断, 0, 30]"
         sub_handlers:
+          - states: "[后台-凯撒] & ![雅-落霜]{6,6}"
+            operations: *t-switch-caesar
+
           - states: ""
             operations:
               - op_name: "按键-移动-右"
@@ -211,6 +260,9 @@ scenes:
               - op_name: "按键-闪避"
                 post_delay: 0.05
                 repeat: 4
+              - op_name: "按键-普通攻击"
+                post_delay: 0.05
+                repeat: 2
               - op_name: "按键-移动-右"
                 way: "松开"
 
@@ -233,11 +285,24 @@ scenes:
                 state: "自定义-快速支援换人"
               - op_name: "清除状态"
                 state: "自定义-动作不打断"
+          - states: "![雅-落霜]{6,6}"
+            operations:
+              - op_name: "按键-快速支援"
+              - op_name: "设置状态"
+                state: "自定义-快速支援换人"
           - states: ""
             operations:
               - op_name: "按键-快速支援"
               - op_name: "设置状态"
                 state: "自定义-快速支援换人"
+              - op_name: "设置状态"
+                state: "自定义-闪避"
+              - op_name: "按键-闪避"
+                post_delay: 0.05
+                repeat: 4
+              - op_name: "按键-普通攻击"
+                post_delay: 0.05
+                repeat: 2
 
   - triggers: [ "按键可用-连携技" ]
     interval: 1
@@ -254,6 +319,14 @@ scenes:
                 state: "自定义-下场"
               - op_name: "等待秒数"
                 seconds: 3
+
+          # 凯撒没上buff的话 先出凯撒
+          - states: "([连携技-1-凯撒] | [连携技-2-凯撒]) & ![自定义-凯撒-战意激昂, 0, 25]"
+            sub_handlers:
+            - states: "[连携技-1-凯撒]"
+              operations: *t-chain-left
+            - states: "[连携技-2-凯撒]"
+              operations: *t-chain-right
 
           # 如果上一个是苍角而且上了buff 则切雅吃BUFF
           - states: "([连携技-1-雅] | [连携技-2-雅]) & [自定义-苍角-展旗, 0, 3]"
@@ -272,7 +345,7 @@ scenes:
             - states: "[连携技-2-苍角]"
               operations: *t-chain-right
 
-          # 剩余情况 莱卡恩-凯撒-苍角
+          # 剩余情况 
           - states: "[连携技-1-雅]"
             operations: *t-chain-left
           - states: "[连携技-2-雅]"
@@ -293,11 +366,13 @@ scenes:
             operations: *t-chain-left
           - states: "[连携技-2-露西]"
             operations: *t-chain-right
-
-
+          - states: "[连携技-1-凯撒]"
+            operations: *t-chain-left
+          - states: "[连携技-2-凯撒]"
+            operations: *t-chain-right
 
   - triggers: [ ]
-    interval: 0.02
+    interval: 0.5
     handlers:
 
       # 当前角色动作已经做完 可以切换角色了
@@ -308,6 +383,25 @@ scenes:
             sub_handlers:
               - states: "[雅-落霜]{6,6}"
                 operations: *t-switch-miyabi
+
+          - states: "[露西-终结技可用] & [后台-露西]"
+            operations: *t-switch-lucy
+
+          - states: "[苍角-终结技可用] & [后台-苍角]"
+            operations: *t-switch-soukaku
+
+          - states: "[莱卡恩-终结技可用] & [后台-莱卡恩]"
+            operations: *t-switch-lycaon
+
+          - states: "[柳-终结技可用] & [后台-柳]"
+            operations: *t-switch-yanagi
+
+          - states: "[凯撒-终结技可用] & [后台-凯撒]"
+            operations: *t-switch-caesar
+
+          # 上凯撒盾
+          - states: "![自定义-凯撒-战意激昂, 0, 25] & [后台-凯撒] & [凯撒-能量]{45, 120}"
+            operations: *t-switch-caesar
 
           # 上露西buff
           - states: "![自定义-露西-加油, -5, 15] & [后台-露西] & [露西-能量]{65, 120}"
@@ -326,9 +420,9 @@ scenes:
                 operations: *t-switch-soukaku
 
           # 切回雅
-          - states: "![自定义-霜月拔刀,0,5]"
+          - states: "![自定义-霜月拔刀,0,7]"
             operations: *t-switch-miyabi
-          - states: "[自定义-霜月拔刀,0,5]"
+          - states: "[自定义-霜月拔刀,0,7]"
             sub_handlers:
               - states: "[后台-柳]"
                 operations: *t-switch-yanagi
@@ -379,7 +473,7 @@ scenes:
               - op_name: "清除状态"
                 state: "自定义-动作不打断"
 
-          - states: "[按键可用-终结技] & ![切换角色-露西]"
+          - states: "[按键可用-终结技]"
             operations:
               - op_name: "设置状态"
                 state_list: ["自定义-动作不打断", "自定义-露西-加油"]
@@ -387,7 +481,7 @@ scenes:
                 post_delay: 0.1
                 repeat: 10
               - op_name: "等待秒数"
-                seconds: 3.6
+                seconds: 3
               - op_name: "清除状态"
                 state: "自定义-动作不打断"
               - op_name: "设置状态"
@@ -397,25 +491,20 @@ scenes:
             operations:
               - op_name: "设置状态"
                 state: "自定义-动作不打断"
-              - op_name: "等待秒数"
-                state: 1
+
               - op_name: "按键-特殊攻击"
-                post_delay: 0.3
-                repeat: 5
+                post_delay: 0.05
+                repeat: 24
               - op_name: "设置状态"
-                state: "自定义-下场"
-              # 击飞到落地还有一段距离 需要在一段时间后再设置buff时间
-              - op_name: "设置状态"
-                state: "自定义-露西-加油"
-                seconds: 1.5
+                state_list: ["自定义-下场", "自定义-露西-加油"]
               - op_name: "清除状态"
                 state: "自定义-动作不打断"
 
-          - states: ""
+          - states: "![切换角色-露西]"
             operations:
               - op_name: "按键-普通攻击"
-                post_delay: 0.05
-                repeat: 2
+                post_delay: 0.15
+                repeat: 3
               - op_name: "设置状态"
                 state: "自定义-下场"
 
@@ -481,7 +570,7 @@ scenes:
           - states: "[按键可用-终结技]"
             operations:
               - op_name: "设置状态"
-                state: "自定义-动作不打断"
+                state_list: ["自定义-动作不打断", "自定义-苍角-展旗"]
               - op_name: "按键-终结技"
                 post_delay: 0.1
                 repeat: 10
@@ -586,7 +675,77 @@ scenes:
               - op_name: "设置状态"
                 state: "自定义-下场"
 
+      # 凯撒
+      - states: "[前台-凯撒]"
+        interrupt_states: ["后台-凯撒"]
+        sub_handlers:
+          - states: "[自定义-闪避]"
+            operations:
+              - op_name: "按键-普通攻击"
+                post_delay: 0.1
+                repeat: 2
 
+          - states: "[自定义-快速支援换人]"
+            operations:
+              - op_name: "按键-普通攻击"
+                pre_delay: 0.15
+                post_delay: 0.15
+                repeat: 2
+
+          - states: "[自定义-招架支援]"
+            operations:
+              - op_name: "设置状态"
+                state: "自定义-动作不打断"
+              - op_name: "按键-普通攻击"
+                pre_delay: 0.1
+                post_delay: 0.1
+                repeat: 10
+              - op_name: "等待秒数"
+                seconds: 0.3
+              - op_name: "清除状态"
+                state: "自定义-动作不打断"
+
+          # 连携技出场会触发护盾
+          - states: "[自定义-连携技换人]"
+            operations:
+              - op_name: "设置状态"
+                state: "自定义-动作不打断"
+              - op_name: "等待秒数"
+                seconds: 2
+              - op_name: "设置状态"
+                state: "自定义-凯撒-战意激昂"
+              - op_name: "清除状态"
+                state: "自定义-动作不打断"
+
+          - states: "[按键可用-终结技]"
+            operations:
+              - op_name: "设置状态"
+                state_list: ["自定义-动作不打断", "自定义-凯撒-战意激昂"]
+              - op_name: "按键-终结技"
+                post_delay: 0.1
+                repeat: 10
+              - op_name: "等待秒数"
+                seconds: 4.4
+              - op_name: "清除状态"
+                state: "自定义-动作不打断"
+              - op_name: "设置状态"
+                state: "自定义-下场"
+
+          # 有足够能量的话 就打一个特殊技能上盾再走
+          # 有可能打出第一个盾击后 还不能切换到主C 这时候就不打第二个盾击浪费能量了
+          - states: "[前台-能量]{40, 120} & ![自定义-凯撒-招架反击, 0, 3]"
+            operations:
+              - op_name: "设置状态"
+                state: "自定义-动作不打断"
+              - op_name: "按键-特殊攻击"
+                post_delay: 0.1
+                repeat: 7
+              - op_name: "设置状态"
+                state: "自定义-凯撒-战意激昂"
+              - op_name: "设置状态"
+                state: "自定义-下场"
+              - op_name: "清除状态"
+                state: "自定义-动作不打断"
 
       # 莱卡恩
       - states: "[前台-莱卡恩]"
@@ -597,10 +756,10 @@ scenes:
               - op_name: "设置状态"
                 state: "自定义-动作不打断"
               - op_name: "按键-普通攻击"
-                post_delay: 0.1
+                post_delay: 0.05
                 repeat: 3
               - op_name: "等待秒数"
-                seconds: 0.6
+                seconds: 0.4
               - op_name: "清除状态"
                 state: "自定义-动作不打断"
 
@@ -623,7 +782,6 @@ scenes:
               - op_name: "等待秒数"
                 post_delay: 0.2
 
-          # 终结技 防止切换角色没切对 等一段时间再使用终结技
           - states: "[按键可用-终结技]"
             operations:
               - op_name: "设置状态"
@@ -636,7 +794,6 @@ scenes:
               - op_name: "清除状态"
                 state: "自定义-动作不打断"
 
-          # 强化特殊技 刚出场时候容易打不出来 先等等
           - states: "[前台-能量]{60, 120}"
             operations:
               - op_name: "设置状态"
@@ -679,10 +836,10 @@ scenes:
               - op_name: "设置状态"
                 state: "自定义-动作不打断"
               - op_name: "按键-普通攻击"
-                post_delay: 0.1
+                post_delay: 0.05
                 repeat: 3
               - op_name: "等待秒数"
-                seconds: 0.6
+                seconds: 0.4
               - op_name: "清除状态"
                 state: "自定义-动作不打断"
 
@@ -713,7 +870,7 @@ scenes:
                 post_delay: 0.1
                 repeat: 10
               - op_name: "等待秒数"
-                seconds: 3.6
+                seconds: 4.4
               - op_name: "清除状态"
                 state: "自定义-动作不打断"
               - op_name: "设置状态"
@@ -725,7 +882,7 @@ scenes:
                 state_list: ["自定义-动作不打断", "自定义-柳-月蚀"]
               - op_name: "按键-特殊攻击"
                 way: "按下"
-                post_delay: 2.5
+                post_delay: 1.5
               - op_name: "等待秒数"
                 seconds: 0.5
               - op_name: "清除状态"
@@ -737,11 +894,11 @@ scenes:
             operations:
               - op_name: "按键-普通攻击"
                 post_delay: 0.2
-                repeat: 16
+                repeat: 6
               - op_name: "等待秒数"
-                seconds: 1
+                seconds: 0.2
               - op_name: "按键-特殊攻击"
-                post_delay: 0.4
+                post_delay: 0.2
               - op_name: "设置状态"
                 state: "自定义-下场"
 
@@ -754,10 +911,10 @@ scenes:
               - op_name: "设置状态"
                 state: "自定义-动作不打断"
               - op_name: "按键-普通攻击"
-                post_delay: 0.1
+                post_delay: 0.05
                 repeat: 3
               - op_name: "等待秒数"
-                seconds: 0.6
+                seconds: 0.4
               - op_name: "清除状态"
                 state: "自定义-动作不打断"
 
@@ -783,6 +940,10 @@ scenes:
           # 看看有没有buff需要上 注意刚切换上场的时候可能无法在做动作无法切人 稍微等一段时间
           - states: "![切换角色-雅] & ![雅-落霜]{6,6}"
             sub_handlers:
+
+              # 上凯撒盾
+              - states: "![自定义-凯撒-战意激昂, 0, 25] & [后台-凯撒] & [凯撒-能量]{45, 120}"
+                operations: *t-switch-caesar
 
               - states: "![自定义-露西-加油, -5, 15] & [后台-露西] & [露西-能量]{65, 120}"
                 operations: *t-switch-lucy
@@ -820,7 +981,7 @@ scenes:
                     state: "自定义-动作不打断"
                   - op_name: "按键-普通攻击"
                     way: "按下"
-                    press: 2
+                    press: 2.2
                     post_delay: 0.8
                   - op_name: "设置状态"
                     state_list: ["自定义-下场", "自定义-霜月拔刀"]
@@ -835,7 +996,7 @@ scenes:
                 post_delay: 0.1
                 repeat: 20
               - op_name: "等待秒数"
-                seconds: 2.4
+                seconds: 3.3
               - op_name: "清除状态"
                 state: "自定义-动作不打断"
 
