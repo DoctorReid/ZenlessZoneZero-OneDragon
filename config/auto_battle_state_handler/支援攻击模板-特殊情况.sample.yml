@@ -2,10 +2,9 @@
 handlers:
 
   #青衣特殊技不可用的情况下没必要切人
-  - states: "[前台-青衣] & ![按键可用-特殊攻击]"
+  - states: "[前台-青衣] & ![自定义-血量扣减,0,8]"
     sub_handlers:
     - state_template: "闪A模板-青衣"
-
 
   - states: "[前台-异常]"
     sub_handlers:

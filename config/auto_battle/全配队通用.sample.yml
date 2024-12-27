@@ -1,33 +1,35 @@
 ## 基础信息 ##
 author: "遥酱"
 thanks: "火"
-homepage: "https://github.com/kawayiYokami/ZenlessZoneZero-OneDragon"
-version: "3.0"
+homepage: ""
+version: "2.0"
 team_list:
 
-introduction: "支持全角色 任意三人/单人/双人作战，通杀所有情况，有问题去主页发需求"
+introduction: "支持全角色 任意三人/单人/双人作战，通杀所有情况"
 
 check_dodge_interval: 0.02
 check_agent_interval: 0.1
 check_chain_interval: 0.1
-check_quick_interval: 0.4git
+check_quick_interval: 0.4
 auto_lock_interval: 0.5
 
 scenes:
   - triggers: ["闪避识别-黄光", "闪避识别-红光", "闪避识别-声音"]
     priority: 99
     handlers:
-      - states: "![自定义-动作不打断, 0, 30] & [闪避识别-黄光]"
+      - states: "[闪避识别-声音] & ![自定义-动作不打断, 0, 30]"
         sub_handlers:
-          - state_template: "支援攻击模板-特殊情况" #特殊情况不支援
-          - state_template: "支援攻击模板-击破"
-          - state_template: "支援攻击模板-防护"
-          - state_template: "支援攻击模板-异常"
-          - state_template: "支援攻击模板-下一个"
-          
-      - states: "![自定义-动作不打断, 0, 30]"
-        sub_handlers:
-          - state_template: "闪A模板-全角色"
+        - states: "[闪避识别-黄光]"
+          sub_handlers:
+            - state_template: "支援攻击模板-特殊情况" #特殊情况不支援
+            - state_template: "支援攻击模板-击破"
+            - state_template: "支援攻击模板-防护"
+            - state_template: "支援攻击模板-异常"
+            - state_template: "支援攻击模板-下一个"
+            
+        - states: ""
+          sub_handlers:
+            - state_template: "闪A模板-全角色"
 
   - triggers: ["按键可用-连携技"]
     priority: 98
@@ -45,7 +47,7 @@ scenes:
 
   - triggers: ["前台-血量扣减"]
     priority: 90
-    interval: 1  
+    interval: 0.2
     handlers:
       - states: "[前台-血量扣减]{1, 100} & ![自定义-动作不打断, 0, 999]"
         sub_handlers:
@@ -66,7 +68,7 @@ scenes:
     handlers:
       # 刚开始未识别到角色时候不要乱切
       - state_template: "站场模板-未识别角色"
-      - states: "([按键-切换角色-下一个,0,0.2] | [按键-切换角色-上一个,0,0.2])"
+      - states: "([按键-切换角色-下一个,0,0.2] | [按键-切换角色-上一个,0,0.2]) | [自定义-连携跳过,0,0.3]"
         operations:
           - op_name: "清除状态"
             state_list: ["自定义-速切结束" , "自定义-动作不打断"] 

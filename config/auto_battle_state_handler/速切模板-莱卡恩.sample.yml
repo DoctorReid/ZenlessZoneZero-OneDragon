@@ -31,7 +31,7 @@ handlers:
           - operation_template: "莱卡恩-普通攻击"
               
       #终结技时刻，需要注意出场第一秒可能识别错误
-      - states: "[莱卡恩-终结技可用]"
+      - states: "[莱卡恩-终结技可用] & ![自定义-连携换人,0,12]"
         operations:
           - operation_template: "莱卡恩-终结技"
             

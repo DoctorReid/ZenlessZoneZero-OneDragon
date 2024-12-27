@@ -37,4 +37,4 @@ handlers:
             
       - states: ""
         operations:
-          - operation_template: "凯撒-普通攻击合轴"
+          - operation_template: "通用-切人普通攻击"
