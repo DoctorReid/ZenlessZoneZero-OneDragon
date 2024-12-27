@@ -1,7 +1,7 @@
 # 向左闪避 通常用于规避线条怪
 operations:
   - op_name: "等待秒数"
-    seconds: 0.15
+    seconds: 0.12
   - op_name: "按键-移动-左"
     way: "按下"
   - op_name: "按键-闪避"
