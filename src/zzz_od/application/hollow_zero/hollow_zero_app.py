@@ -74,7 +74,7 @@ class HollowZeroApp(ZApplication):
     @operation_node(name='传送')
     def tp(self) -> OperationRoundResult:
         op = TransportByCompendium(self.ctx,
-                                   '挑战',
+                                   '作战',
                                    '零号空洞',
                                    '枯萎之都')
         return self.round_by_op_result(op.execute())

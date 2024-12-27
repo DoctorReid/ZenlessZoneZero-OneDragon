@@ -252,7 +252,7 @@ class CompendiumService:
     def get_notorious_hunt_plan_mission_type_list(self, category_name: str) -> List[ConfigItem]:
         config_list: List[ConfigItem] = []
 
-        mission_type_list = self.get_mission_type_list_data('挑战', category_name)
+        mission_type_list = self.get_mission_type_list_data('作战', category_name)
         for mission_type_item in mission_type_list:
             config_list.append(ConfigItem(
                 label=mission_type_item.mission_type_name_display,
@@ -263,7 +263,7 @@ class CompendiumService:
 
     def get_hollow_zero_mission_name_list(self) -> List[str]:
         mission_name_list: List[str] = []
-        mission_type_list = self.get_mission_type_list_data('挑战', '零号空洞')
+        mission_type_list = self.get_mission_type_list_data('作战', '零号空洞')
         for mission_type in mission_type_list:
             for mission in mission_type.mission_list:
                 mission_name_list.append(mission.mission_name)
