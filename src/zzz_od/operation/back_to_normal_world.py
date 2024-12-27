@@ -33,6 +33,14 @@ class BackToNormalWorld(ZOperation):
         if screen is None:
             screen = self.screenshot()
 
+        result = self.round_by_goto_screen(screen=screen, screen_name='大世界-普通')
+        if result.is_success:
+            return self.round_success(result.status)
+
+        if (not result.is_fail  # fail是没有路径可以到达
+                and self.ctx.screen_loader.current_screen_name is not None):
+            return self.round_wait(result.status, wait=1)
+
         result = self.round_by_find_area(screen, '大世界', '信息')
 
         if result.is_success:

@@ -1,3 +1,5 @@
+import cv2
+import numpy as np
 from cv2.typing import MatLike
 from enum import Enum
 from typing import Optional
@@ -53,7 +55,16 @@ def find_area_in_screen(ctx: OneDragonContext, screen: MatLike, area: ScreenArea
         rect = area.rect
         part = cv2_utils.crop_image_only(screen, rect)
 
-        ocr_result_map = ctx.ocr.run_ocr(part)
+        if area.color_range is None:
+            to_ocr = part
+        else:
+            mask = cv2.inRange(part,
+                               np.array(area.color_range[0], dtype=np.uint8),
+                               np.array(area.color_range[1], dtype=np.uint8))
+            mask = cv2_utils.dilate(mask, 2)
+            to_ocr = cv2.bitwise_and(part, part, mask=mask)
+
+        ocr_result_map = ctx.ocr.run_ocr(to_ocr)
         for ocr_result, mrl in ocr_result_map.items():
             if str_utils.find_by_lcs(gt(area.text), ocr_result, percent=area.lcs_percent):
                 find = True
