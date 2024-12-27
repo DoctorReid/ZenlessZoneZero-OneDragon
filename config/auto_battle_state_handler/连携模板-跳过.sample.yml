@@ -9,4 +9,4 @@ handlers:
         post_delay: 0.01
       - op_name: "设置状态"
         state: "自定义-连携换人"
-        add: 3
+        seconds: 1
