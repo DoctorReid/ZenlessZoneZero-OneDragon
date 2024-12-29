@@ -23,7 +23,7 @@ class LostVoidConfig(YamlConfig):
 
     @property
     def daily_plan_times(self) -> int:
-        return self.get('daily_plan_times', 0)
+        return self.get('daily_plan_times', 5)
 
     @daily_plan_times.setter
     def daily_plan_times(self, new_value: int):
@@ -31,7 +31,7 @@ class LostVoidConfig(YamlConfig):
 
     @property
     def weekly_plan_times(self) -> int:
-        return self.get('weekly_plan_times', 0)
+        return self.get('weekly_plan_times', 2)
 
     @weekly_plan_times.setter
     def weekly_plan_times(self, new_value: int):
@@ -39,8 +39,24 @@ class LostVoidConfig(YamlConfig):
 
     @property
     def extra_task(self) -> str:
-        return self.get('extra_task', HollowZeroExtraTask.PERIOD_REWARD.value.value)
+        return self.get('extra_task', LostVoidExtraTask.PERIOD_REWARD.value.value)
 
     @extra_task.setter
     def extra_task(self, new_value: str):
         self.update('extra_task', new_value)
+
+    @property
+    def mission_name(self) -> str:
+        return self.get('mission_name', '战线肃清')
+
+    @mission_name.setter
+    def mission_name(self, new_value: str):
+        self.update('mission_name', new_value)
+
+    @property
+    def challenge_config(self) -> str:
+        return self.get('challenge_config', '默认-终结')
+
+    @challenge_config.setter
+    def challenge_config(self, new_value: str):
+        self.update('challenge_config', new_value)

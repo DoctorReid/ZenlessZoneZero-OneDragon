@@ -4,6 +4,8 @@ from one_dragon.gui.widgets.pivot_navi_interface import PivotNavigatorInterface
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.hollow_zero.hollow_zero_challenge_config_interface import HollowZeroChallengeConfigInterface
 from zzz_od.gui.view.hollow_zero.hollow_zero_run_interface import HollowZeroRunInterface
+from zzz_od.gui.view.hollow_zero.lost_void_challenge_config_interface import LostVoidChallengeConfigInterface
+from zzz_od.gui.view.hollow_zero.lost_void_run_interface import LostVoidRunInterface
 
 
 class HollowZeroInterface(PivotNavigatorInterface):
@@ -22,3 +24,5 @@ class HollowZeroInterface(PivotNavigatorInterface):
         """
         self.add_sub_interface(HollowZeroRunInterface(self.ctx))
         self.add_sub_interface(HollowZeroChallengeConfigInterface(self.ctx))
+        self.add_sub_interface(LostVoidRunInterface(self.ctx))
+        self.add_sub_interface(LostVoidChallengeConfigInterface(self.ctx))

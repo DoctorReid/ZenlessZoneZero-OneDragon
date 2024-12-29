@@ -1,6 +1,6 @@
 import os
 from cv2.typing import MatLike
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
 from one_dragon.base.config.yaml_operator import YamlOperator
 from one_dragon.base.screen import screen_utils
@@ -8,6 +8,8 @@ from one_dragon.utils import os_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.hollow_zero.lost_void.context.lost_void_artifact import LostVoidArtifact
 from zzz_od.application.hollow_zero.lost_void.context.lost_void_detector import LostVoidDetector
+from zzz_od.application.hollow_zero.lost_void.lost_void_challenge_config import LostVoidRegionType, \
+    LostVoidChallengeConfig
 from zzz_od.auto_battle import auto_battle_utils
 from zzz_od.auto_battle.auto_battle_dodge_context import YoloStateEventEnum
 from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
@@ -22,6 +24,7 @@ class LostVoidContext:
 
         self.detector: Optional[LostVoidDetector] = None
         self.auto_op: Optional[AutoBattleOperator] = None  # 自动战斗指令
+        self.challenge_config: Optional[LostVoidChallengeConfig] = None
 
         self.all_artifact_list: List[LostVoidArtifact] = []  # 武备 + 鸣徽
         self.gear_by_name: dict[str, LostVoidArtifact] = {}  # key=名称 value=武备
@@ -30,6 +33,7 @@ class LostVoidContext:
     def init_before_run(self) -> None:
         self.init_lost_void_det_model()
         self.load_artifact_data()
+        self.load_challenge_config()
         self.init_auto_op()
 
     def load_artifact_data(self) -> None:
@@ -72,10 +76,17 @@ class LostVoidContext:
         """
         if self.auto_op is not None:  # 如果有上一个 先销毁
             self.auto_op.dispose()
-        self.auto_op = AutoBattleOperator(self.ctx, 'auto_battle', '全配队通用')
+        self.auto_op = AutoBattleOperator(self.ctx, 'auto_battle', self.challenge_config.auto_battle)
         success, msg = self.auto_op.init_before_running()
         if not success:
             raise Exception(msg)
+
+    def load_challenge_config(self) -> None:
+        """
+        加载挑战配置
+        :return:
+        """
+        self.challenge_config = LostVoidChallengeConfig(self.ctx.lost_void_config.challenge_config)
 
     def check_battle_encounter(self, screen: MatLike, screenshot_time: float) -> bool:
         """
@@ -141,3 +152,71 @@ class LostVoidContext:
                 suffix = name_full_str[-len(art_name):]
                 if str_utils.find_by_lcs(art_name, suffix, percent=0.5):
                     return art
+
+    def check_artifact_priority_input(self, input_str: str) -> Tuple[List[str], str]:
+        """
+        校验优先级的文本输入
+        错误的输入会被过滤掉
+        :param input_str:
+        :return: 匹配的藏品和错误信息
+        """
+        if input_str is None or len(input_str) == 0:
+            return [], ''
+
+        input_arr = [i.strip() for i in input_str.split('\n')]
+        filter_result_list = []
+        error_msg = ''
+        for i in input_arr:
+            if len(i) == 0:
+                continue
+            split_idx = i.find(' ')
+            if split_idx != -1:
+                cate_name = i[:split_idx]
+                item_name = i[split_idx+1:]
+            else:
+                cate_name = i
+                item_name = ''
+
+            is_valid: bool = False
+
+            if cate_name in self.cate_2_artifact:
+
+                if item_name == '':  # 整个分类
+                    is_valid = True
+                elif item_name in ['S', 'A', 'B']:  # 按等级
+                    is_valid = True
+                else:
+                    for art in self.cate_2_artifact[cate_name]:
+                        if item_name == art.name:
+                            is_valid = True
+                            break
+
+            if not is_valid:
+                error_msg += f'输入非法 {i}'
+            else:
+                filter_result_list.append(i)
+
+        return filter_result_list, error_msg
+
+    def check_region_type_priority_input(self, input_str: str) -> Tuple[List[str], str]:
+        """
+        校验优先级的文本输入
+        错误的输入会被过滤掉
+        :param input_str:
+        :return: 匹配的区域类型和错误信息
+        """
+        if input_str is None or len(input_str) == 0:
+            return [], ''
+
+        all_valid_region_type = [i.value.value for i in LostVoidRegionType]
+
+        input_arr = [i.strip() for i in input_str.split('\n')]
+        filter_result_list = []
+        error_msg = ''
+        for i in input_arr:
+            if i in all_valid_region_type:
+                filter_result_list.append(i)
+            else:
+                error_msg += f'输入非法 {i}'
+
+        return filter_result_list, error_msg

@@ -97,3 +97,11 @@ class LostVoidRunRecord(AppRunRecord):
             return False
         else:
             return True
+
+    def reset_record(self):
+        AppRunRecord.reset_record(self)
+
+        self.daily_run_times = 0
+        self.weekly_run_times = 0
+        self.eval_point_complete = False
+        self.period_reward_complete = False
