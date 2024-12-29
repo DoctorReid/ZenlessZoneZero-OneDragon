@@ -7,6 +7,11 @@ handlers:
         sub_handlers:
           - state_template: "支援攻击模板-全角色"
 
+      - states: "[自定义-红光闪避, 0, 1]"
+        operations:
+          - operation_template: "通用-闪A"
+          
+
       # 优先把士气变成BUFF
       # 因为不好估算层数，就以士气值作为结束条件，浪费一点也无所谓
       - states: "[自定义-莱特-欧拉欧拉, 0, 30]"
@@ -14,7 +19,7 @@ handlers:
           - states: "[莱特-士气]{0, 70}"
             operations:
               - op_name: "清除状态"
-                state_list: ["自定义-莱特-欧拉欧拉", "自定义-动作不打断"]
+                state_list: ["自定义-莱特-欧拉欧拉"]
               - op_name: "设置状态"
                 state: "自定义-莱特-BUFF"
               # 加完BUFF，可以再放个Q，不浪费时间
@@ -27,8 +32,6 @@ handlers:
       #防呆
       - states: "([按键-切换角色-下一个,0,0.3]|[按键-切换角色-上一个,0,0.3]) | [自定义-快速支援换人,0,1]"
         operations:
-          - op_name: "清除状态"
-            state_list: ["自定义-速切结束", "自定义-动作不打断"]
           - op_name: "等待秒数"
             seconds: 0.1
 
@@ -37,7 +40,7 @@ handlers:
           - states: "![自定义-莱特-BUFF, 0, 16] & [莱特-士气]{80, 100}"
             operations:
               - op_name: "设置状态"
-                state_list: ["自定义-莱特-欧拉欧拉", "自定义-动作不打断"]
+                state_list: ["自定义-莱特-欧拉欧拉"]
           - states: ""
             operations:
               - op_name: "等待秒数"
@@ -50,7 +53,7 @@ handlers:
           - states: "![自定义-莱特-BUFF, 0, 16] & [莱特-士气]{80, 100}"
             operations:
               - op_name: "设置状态"
-                state_list: ["自定义-莱特-欧拉欧拉", "自定义-动作不打断"]
+                state_list: ["自定义-莱特-欧拉欧拉"]
           - states: ""
             operations:
               - op_name: "按键-普通攻击"
@@ -66,7 +69,7 @@ handlers:
           - states: "![自定义-莱特-BUFF, 0, 16] & [莱特-士气]{80, 100}"
             operations:
               - op_name: "设置状态"
-                state_list: ["自定义-莱特-欧拉欧拉", "自定义-动作不打断"]
+                state_list: ["自定义-莱特-欧拉欧拉"]
           - states: ""
             # 其实这里会在士气够的情况下刷新BUFF，不过感觉不好判断，先不管了
             operations:
@@ -83,7 +86,7 @@ handlers:
           - states: "![自定义-莱特-BUFF, 0, 16] & [莱特-士气]{80, 100}"
             operations:
               - op_name: "设置状态"
-                state_list: ["自定义-莱特-欧拉欧拉", "自定义-动作不打断"]
+                state_list: ["自定义-莱特-欧拉欧拉"]
           - states: ""
             operations:
               # 其实这里会在士气够的情况下刷新BUFF，不过感觉不好判断，先不管了
@@ -99,13 +102,14 @@ handlers:
       - states: "![自定义-莱特-BUFF, 0, 16] & [莱特-士气]{80, 100}"
         operations:
           - op_name: "设置状态"
-            state_list: ["自定义-莱特-欧拉欧拉", "自定义-动作不打断"]
+            state_list: ["自定义-莱特-欧拉欧拉"]
 
       # Q技能
       - states: "[莱特-终结技可用]"
-        operations:
+        operations:          
           - op_name: "设置状态"
             state: "自定义-动作不打断"
+            seconds: 2
           - op_name: "按键-终结技"
             post_delay: 0.5
             repeat: 4
@@ -118,6 +122,7 @@ handlers:
         operations:
           - op_name: "设置状态"
             state: "自定义-动作不打断"
+            seconds: 1.6
           - op_name: "按键-特殊攻击"
             post_delay: 0.4
             repeat: 4
