@@ -1,0 +1,11 @@
+sub_dir: lost_void
+template_id: normal_world_tab
+template_name: 迷失之地-TAB
+template_shape: polygon
+auto_mask: true
+point_list:
+- 0, 492
+- 0, 590
+- 50, 590
+- 92, 538
+- 50, 492

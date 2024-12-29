@@ -2,7 +2,7 @@ import cv2
 from cv2.typing import MatLike
 from typing import Optional
 
-from one_dragon.base.matcher.match_result import MatchResultList
+from one_dragon.base.matcher.match_result import MatchResultList, MatchResult
 from one_dragon.base.screen.template_info import TemplateInfo
 from one_dragon.base.screen.template_loader import TemplateLoader
 from one_dragon.utils import cv2_utils
@@ -48,3 +48,32 @@ class TemplateMatcher:
             mask_usage = cv2.bitwise_or(mask_usage, mask) if mask_usage is not None else mask
         return cv2_utils.match_template(source, template.get_image(template_type), threshold, mask=mask_usage,
                                         only_best=only_best, ignore_inf=ignore_inf)
+
+    def match_one_by_feature(self, source: MatLike,
+                             template_sub_dir: str,
+                             template_id: str,
+                             source_mask: MatLike = None,
+                             knn_distance_percent: float = 0.7
+                             ) -> Optional[MatchResult]:
+        """
+        使用特征匹配找到模板的位置
+        @param source:
+        @param template_sub_dir:
+        @param template_id:
+        @param source_mask:
+        @param knn_distance_percent: 越小要求匹配程度越高
+        @return:
+        """
+        source_kps, source_desc = cv2_utils.feature_detect_and_compute(source, source_mask)
+        template = self.template_loader.get_template(template_sub_dir, template_id)
+        if template is None:
+            return None
+        template_kps, template_desc = template.features
+
+        return cv2_utils.feature_match_for_one(
+            source_kps, source_desc,
+            template_kps, template_desc,
+            template_width=template.raw.shape[1], template_height=template.raw.shape[0],
+            source_mask=source_mask,
+            knn_distance_percent=knn_distance_percent
+        )

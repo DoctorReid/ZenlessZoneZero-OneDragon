@@ -22,7 +22,8 @@ class Deploy(ZOperation):
 
         return self.round_by_find_and_click_area(
             screen, '通用-出战', '按钮-出战',
-            success_wait=1, retry_wait=1
+            success_wait=1, retry_wait=1,
+            until_not_find_all=[('通用-出战', '按钮-出战')]
         )
 
     @node_from(from_name='出战')

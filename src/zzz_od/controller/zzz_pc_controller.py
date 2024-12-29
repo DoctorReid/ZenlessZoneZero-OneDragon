@@ -37,6 +37,8 @@ class ZPcController(PcControllerBase):
         self.key_lock: str = self.game_config.key_lock
         self.key_chain_cancel: str = self.game_config.key_chain_cancel
 
+        self.is_moving: bool = False  # 是否正在移动
+
     def fill_uid_black(self, screen: MatLike) -> MatLike:
         """
         遮挡UID 由子类实现
@@ -283,3 +285,19 @@ class ZPcController(PcControllerBase):
             self.btn_controller.release(self.key_chain_cancel)
         else:
             self.btn_controller.tap(self.key_chain_cancel)
+
+    def start_moving_forward(self) -> None:
+        """
+        开始向前移动
+        """
+        if self.is_moving:
+            return
+        self.is_moving = True
+        self.move_w(press=True)
+
+    def stop_moving_forward(self) -> None:
+        """
+        停止向前移动
+        """
+        self.is_moving = False
+        self.move_w(release=True)

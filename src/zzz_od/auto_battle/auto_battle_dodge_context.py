@@ -248,6 +248,9 @@ class AutoBattleDodgeContext:
                 return False
             self._last_check_audio_time = screenshot_time
 
+            if self._audio_recorder.latest_audio.size == 0:
+                return False
+
             corr = self.get_max_corr(self._audio_template, self._audio_recorder.latest_audio)
             # log.debug('声音相似度 %.2f' % corr)
 

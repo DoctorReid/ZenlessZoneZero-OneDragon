@@ -1,0 +1,8 @@
+sub_dir: lost_void
+template_id: agent_gear_hoshimi_miyabi_3
+template_name: 迷失之地武备
+template_shape: circle
+auto_mask: true
+point_list:
+- 1112, 982
+- 1176, 978

@@ -1,0 +1,565 @@
+  #终结
+- category: "终结"
+  name: "律动节能器"
+  level: "S"
+  template_id: "gear_ultimate_1"
+
+- category: "终结"
+  name: "养气香囊"
+  level: "S"
+  template_id: "gear_ultimate_2"
+
+  #机敏
+- category: "机敏"
+  name: "机敏蓄能盾"
+  level: "S"
+  template_id: "gear_dexterity_1"
+
+- category: "机敏"
+  name: "五界天符"
+  level: "S"
+  template_id: "gear_dexterity_2"
+
+  #异常·击破
+- category: "异常·击破"
+  name: "溶剂弹射枪"
+  level: "S"
+  template_id: "gear_anomaly_stun_1"
+
+- category: "异常·击破"
+  name: "混元丹"
+  level: "S"
+  template_id: "gear_anomaly_stun_2"
+
+  #绝境
+- category: "绝境"
+  name: "战斗维生包"
+  level: "S"
+  template_id: "gear_adversity_1"
+
+- category: "绝境"
+  name: "浩劫令牌"
+  level: "S"
+  template_id: "gear_adversity_2"
+
+  #星见雅
+- category: "星见雅"
+  name: "花雪憩蜂"
+  level: "S"
+  template_id: "gear_hoshimi_miyabi_1"
+
+- category: "星见雅"
+  name: "心间舞雀"
+  level: "S"
+  template_id: "gear_hoshimi_miyabi_2"
+
+- category: "星见雅"
+  name: "花间雀"
+  level: "S"
+  template_id: "gear_hoshimi_miyabi_3"
+
+- category: "星见雅"
+  name: "无边飞雪"
+  level: "A"
+
+- category: "星见雅"
+  name: "冻炎不灭"
+  level: "A"
+
+- category: "星见雅"
+  name: "霜月残雪"
+  level: "A"
+
+  #比利
+- category: "比利"
+  name: "爆裂子弹"
+  level: "S"
+  template_id: "gear_billy_1"
+
+- category: "比利"
+  name: "旋转传动装置"
+  level: "S"
+  template_id: "gear_billy_2"
+
+- category: "比利"
+  name: "神秘变身器"
+  level: "S"
+  template_id: "gear_billy_3"
+
+- category: "比利"
+  name: "火力压制"
+  level: "A"
+
+- category: "比利"
+  name: "枪手时间"
+  level: "A"
+
+- category: "比利"
+  name: "清场裁决"
+  level: "A"
+
+  #艾莲
+- category: "艾莲"
+  name: "冻霜刀刃"
+  level: "S"
+  template_id: "gear_ellen_1"
+
+- category: "艾莲"
+  name: "凶险轴承"
+  level: "S"
+  template_id: "gear_ellen_1"
+
+- category: "艾莲"
+  name: "狩猎背鳍"
+  level: "S"
+  template_id: "gear_ellen_1"
+
+- category: "艾莲"
+  name: "雪暴修剪法"
+  level: "A"
+
+- category: "艾莲"
+  name: "永冬风迹"
+  level: "A"
+
+- category: "艾莲"
+  name: "寻血厉齿"
+  level: "A"
+
+  #月城柳
+- category: "月城柳"
+  name: "凌空月华"
+  level: "S"
+  template_id: "gear_yanagi_1"
+
+- category: "月城柳"
+  name: "翩飞神乐"
+  level: "S"
+  template_id: "gear_yanagi_3"
+
+- category: "月城柳"
+  name: "流转映镜"
+  level: "S"
+  template_id: "gear_yanagi_2"
+
+- category: "月城柳"
+  name: "月转天华"
+  level: "A"
+
+- category: "月城柳"
+  name: "流转自如"
+  level: "A"
+
+- category: "月城柳"
+  name: "月幻"
+  level: "A"
+
+  #终结
+- category: "终结"
+  name: "余音古筝"
+  level: "A"
+
+- category: "终结"
+  name: "蓄势架子鼓"
+  level: "A"
+
+- category: "终结"
+  name: "重播合成器"
+  level: "A"
+
+- category: "终结"
+  name: "重击鼓槌"
+  level: "B"
+
+- category: "终结"
+  name: "绵延长笛"
+  level: "B"
+
+- category: "终结"
+  name: "疗愈竖琴"
+  level: "B"
+
+  #机敏
+
+- category: "机敏"
+  name: "先进底盘"
+  level: "A"
+
+- category: "机敏"
+  name: "安全气囊"
+  level: "A"
+
+- category: "机敏"
+  name: "机敏档位"
+  level: "A"
+
+- category: "机敏"
+  name: "智能缓冲器"
+  level: "B"
+
+- category: "机敏"
+  name: "防护安全带"
+  level: "B"
+
+- category: "机敏"
+  name: "高效保险杠"
+  level: "B"
+
+
+  #异常·击破
+
+- category: "异常·击破"
+  name: "万能催化剂"
+  level: "A"
+
+- category: "异常·击破"
+  name: "爆裂试管"
+  level: "A"
+
+- category: "异常·击破"
+  name: "成长培养基"
+  level: "A"
+
+- category: "异常·击破"
+  name: "研究显微镜"
+  level: "B"
+
+- category: "异常·击破"
+  name: "混沌量杯"
+  level: "B"
+
+- category: "异常·击破"
+  name: "化合刺激剂"
+  level: "B"
+
+  #绝境
+
+- category: "绝境"
+  name: "强效透析仪"
+  level: "A"
+
+- category: "绝境"
+  name: "生命起搏器"
+  level: "A"
+
+- category: "绝境"
+  name: "应急挡板"
+  level: "A"
+
+- category: "绝境"
+  name: "双面注射器"
+  level: "B"
+
+- category: "绝境"
+  name: "靶向抗体"
+  level: "B"
+
+- category: "绝境"
+  name: "阵痛激素"
+  level: "B"
+
+
+  #通用
+- category: "通用"
+  name: "瓶中幸运星"
+  level: "A"
+
+- category: "通用"
+  name: "能量恢复器Ⅰ型"
+  level: "A"
+
+- category: "通用"
+  name: "喷水枪"
+  level: "A"
+
+- category: "通用"
+  name: "泡泡枪"
+  level: "A"
+
+- category: "通用"
+  name: "星海陨灭铠甲"
+  level: "A"
+
+- category: "通用"
+  name: "究极光耀圣剑"
+  level: "A"
+
+- category: "通用"
+  name: "三相战斗陀螺"
+  level: "A"
+
+- category: "通用"
+  name: "三枚玻璃弹珠"
+  level: "A"
+
+- category: "通用"
+  name: "拆弹器"
+  level: "A"
+
+- category: "通用"
+  name: "破拆锤"
+  level: "A"
+
+- category: "通用"
+  name: "秘密档案"
+  level: "A"
+
+- category: "通用"
+  name: "普通档案"
+  level: "A"
+
+- category: "通用"
+  name: "名刀图册"
+  level: "A"
+
+- category: "通用"
+  name: "植物图册"
+  level: "A"
+
+- category: "通用"
+  name: "能量恢复器Ⅱ型"
+  level: "B"
+
+- category: "通用"
+  name: "点赞枪"
+  level: "B"
+
+- category: "通用"
+  name: "BUG盾"
+  level: "B"
+
+- category: "通用"
+  name: "三头玩具听诊器"
+  level: "B"
+
+- category: "通用"
+  name: "冲击钻"
+  level: "B"
+
+- category: "通用"
+  name: "无名之书"
+  level: "B"
+
+- category: "通用"
+  name: "昆虫手册"
+  level: "B"
+
+  #契合
+
+- category: "契合"
+  name: "充盈电鸣"
+  level: "S"
+
+- category: "契合"
+  name: "巅峰猎手"
+  level: "S"
+
+- category: "契合"
+  name: "火力全开"
+  level: "S"
+
+- category: "契合"
+  name: "天衣无缝"
+  level: "S"
+
+- category: "契合"
+  name: "在我的BGM里"
+  level: "S"
+
+- category: "契合"
+  name: "肌肉狂欢"
+  level: "S"
+
+- category: "契合"
+  name: "熊熊怒火"
+  level: "S"
+
+- category: "契合"
+  name: "饭前运动"
+  level: "S"
+
+- category: "契合"
+  name: "冰冷逐客令"
+  level: "S"
+
+- category: "契合"
+  name: "邦布赐予我力量"
+  level: "S"
+
+- category: "契合"
+  name: "对敌起床气"
+  level: "S"
+
+- category: "契合"
+  name: "游刃有余"
+  level: "S"
+
+- category: "契合"
+  name: "热情大扫除"
+  level: "S"
+
+- category: "契合"
+  name: "烈锤火花"
+  level: "S"
+
+- category: "契合"
+  name: "砥砺同行"
+  level: "S"
+
+- category: "契合"
+  name: "大小姐冲锋"
+  level: "S"
+
+- category: "契合"
+  name: "拳法：综合果味"
+  level: "S"
+
+- category: "契合"
+  name: "希望的力量"
+  level: "S"
+
+- category: "契合"
+  name: "如鱼得水"
+  level: "S"
+
+- category: "契合"
+  name: "「共犯」的默契"
+  level: "S"
+
+- category: "契合"
+  name: "荣耀同路"
+  level: "S"
+
+- category: "契合"
+  name: "霸主同行"
+  level: "S"
+
+- category: "契合"
+  name: "燃油饮欢宴"
+  level: "S"
+
+- category: "契合"
+  name: "十七项检查"
+  level: "S"
+
+- category: "契合"
+  name: "俳句剑法"
+  level: "S"
+
+- category: "契合"
+  name: "高效时刻"
+  level: "S"
+
+- category: "契合"
+  name: "强攻战术交流"
+  level: "A"
+
+- category: "契合"
+  name: "击破战术交流"
+  level: "A"
+
+- category: "契合"
+  name: "异常战术交流"
+  level: "A"
+
+- category: "契合"
+  name: "支援战术交流"
+  level: "A"
+
+- category: "契合"
+  name: "防护战术交流"
+  level: "A"
+
+  # 卡牌
+
+- category: "卡牌"
+  name: "零号业绩"
+  level: "S"
+
+- category: "卡牌"
+  name: "讴歌喧响之唇"
+  level: "S"
+
+- category: "卡牌"
+  name: "超频机敏模式"
+  level: "S"
+
+- category: "卡牌"
+  name: "混沌异常之面"
+  level: "S"
+
+- category: "卡牌"
+  name: "超越绝境之志"
+  level: "S"
+
+- category: "卡牌"
+  name: "大垄断家"
+  level: "S"
+
+- category: "卡牌"
+  name: "优厚分红"
+  level: "S"
+
+- category: "卡牌"
+  name: "金钱攻势"
+  level: "S"
+
+- category: "卡牌"
+  name: "掠血夺心之印"
+  level: "S"
+
+- category: "卡牌"
+  name: "超越绝境之志"
+  level: "S"
+
+- category: "卡牌"
+  name: "荆刺镣铐之印"
+  level: "S"
+
+- category: "卡牌"
+  name: "账目屏知之印"
+  level: "S"
+
+- category: "卡牌"
+  name: "恶害追打之印"
+  level: "S"
+
+- category: "卡牌"
+  name: "关窍显绽之印"
+  level: "S"
+
+- category: "卡牌"
+  name: "异常封掩之印"
+  level: "S"
+
+- category: "卡牌"
+  name: "敌步稳健之印"
+  level: "S"
+
+- category: "卡牌"
+  name: "心灵复兴之印"
+  level: "S"
+
+- category: "卡牌"
+  name: "能量献祭之印"
+  level: "S"
+
+- category: "卡牌"
+  name: "明亮觉醒之印"
+  level: "S"
+
+- category: "卡牌"
+  name: "致命回击之印"
+  level: "S"
+
+- category: "卡牌"
+  name: "精准打击之印"
+  level: "S"
+
+- category: "卡牌"
+  name: "异常突破之印"
+  level: "S"
+
+- category: "卡牌"
+  name: "失衡猎杀之印"
+  level: "S"

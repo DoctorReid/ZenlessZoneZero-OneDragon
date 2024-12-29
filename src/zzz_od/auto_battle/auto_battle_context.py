@@ -381,10 +381,10 @@ class AutoBattleContext:
             check_battle_end_defense_result: bool = False,
             check_distance: bool = False,
             sync: bool = False
-    ) -> None:
+    ) -> bool:
         """
         识别战斗状态的总入口
-        :return:
+        :return: 当前是否在战斗画面
         """
         in_battle = self.is_normal_attack_btn_available(screen)
         self.last_check_in_battle = in_battle
@@ -415,6 +415,8 @@ class AutoBattleContext:
         if sync:
             for future in future_list:
                 future.result()
+
+        return in_battle
 
     def check_chain_attack(self, screen: MatLike, screenshot_time: float) -> None:
         """
