@@ -100,6 +100,8 @@
     - category_name: "零号空洞"
       mission_type_list:
         - mission_type_name: "迷失之地"
+          mission_list:
+            - mission_name: "战线肃清"
         - mission_type_name: "断层之谜"
         - mission_type_name: "枯萎之都"
         - mission_type_name: "旧都列车"

@@ -78,14 +78,22 @@ class OperationDebugInterface(AppRunInterface):
 
     def _update_auto_battle_config_opts(self) -> None:
         """
-        更新闪避指令
+        更新闪避指令，支持子目录中的模板文件
         :return:
         """
         try:
             self.config_opt.value_changed.disconnect(self._on_config_changed)
         except:
             pass
-        self.config_opt.set_options_by_list(get_operation_template_config_list())
+
+        # 获取模板列表（包含子目录路径）
+        config_list = get_operation_template_config_list()
+        # 打印模板列表
+        print(config_list)
+
+        # 设置下拉选项
+        self.config_opt.set_options_by_list(config_list)
+
         self.config_opt.value_changed.connect(self._on_config_changed)
 
     def _on_config_changed(self, index, value):

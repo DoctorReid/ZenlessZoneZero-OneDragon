@@ -2,8 +2,9 @@ import cv2
 import numpy as np
 from cv2.typing import MatLike
 from enum import Enum
-from typing import Optional
+from typing import Optional, List
 
+from one_dragon.base.geometry.point import Point
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.base.screen.screen_area import ScreenArea
 from one_dragon.base.screen.screen_info import ScreenInfo
@@ -196,3 +197,35 @@ def is_target_screen(ctx: OneDragonContext, screen: MatLike,
             break
 
     return existed_id_mark and fit_id_mark
+
+
+def find_by_ocr(ctx: OneDragonContext, screen: MatLike, target_cn: str,
+                area: Optional[ScreenArea] = None, lcs_percent: float = 0.5,
+                color_range: Optional[List] = None) -> bool:
+    """
+
+    @param ctx:
+    @param screen:
+    @param target_cn:
+    @param area:
+    @param lcs_percent:
+    @param color_range:
+    @return:
+    """
+    if lcs_percent is None:
+        lcs_percent = area.lcs_percent
+    to_ocr_part = screen if area is None else cv2_utils.crop_image_only(screen, area.rect)
+    if color_range is not None:
+        mask = cv2.inRange(to_ocr_part, color_range[0], color_range[1])
+        to_ocr_part = cv2.bitwise_and(to_ocr_part, to_ocr_part, mask=mask)
+    ocr_result_map = ctx.ocr.run_ocr(to_ocr_part)
+
+    to_click: Optional[Point] = None
+    for ocr_result, mrl in ocr_result_map.items():
+        if mrl.max is None:
+            continue
+        if str_utils.find_by_lcs(gt(target_cn), ocr_result, percent=lcs_percent):
+            to_click = mrl.max.center
+            break
+
+    return to_click is not None

@@ -28,6 +28,7 @@ class Yolov8Detector(OnnxModelLoader):
         yolov8 detect 导出 onnx 后使用
         参考自 https://github.com/ibaiGorordo/ONNX-YOLOv8-Object-Detection
         :param model_name: 模型名称 在根目录下会有一个以模型名称创建的子文件夹
+        :param backup_model_name: 备用模型名称 通常是上一个版本的模型 在新版本模型无法下载时兜底使用
         :param model_parent_dir_path: 放置所有模型的根目录
         :param gpu: 是否启用GPU运算
         :param keep_result_seconds: 保留多长时间的识别结果
@@ -58,7 +59,7 @@ class Yolov8Detector(OnnxModelLoader):
         对图片进行识别
         :param image: 使用 opencv 读取的图片 RGB通道
         :param conf: 置信度阈值
-        :param
+        :param iou: iou阈值
         :return: 识别结果
         """
         t1 = time.time()

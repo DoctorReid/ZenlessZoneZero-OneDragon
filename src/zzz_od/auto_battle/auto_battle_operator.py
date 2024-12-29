@@ -310,27 +310,29 @@ class AutoBattleOperator(ConditionalOperator):
     @staticmethod
     def get_operation_template(target_template_name: str) -> Optional[OperationTemplate]:
         """
-        获取操作模板
+        获取操作模板，支持递归查找子目录
         :param target_template_name: 模板名称
-        :return:
+        :return: OperationTemplate 对象或 None
         """
         sub_dir = 'auto_battle_operation'
         template_dir = os_utils.get_path_under_work_dir('config', sub_dir)
-        file_list = os.listdir(template_dir)
 
-        for file_name in file_list:
-            if file_name.endswith('.sample.yml'):
-                template_name = file_name[0:-11]
-            elif file_name.endswith('.yml'):
-                template_name = file_name[0:-4]
-            else:
-                continue
+        # 递归查找模板文件
+        for root, dirs, files in os.walk(template_dir):
+            for file_name in files:
+                if file_name.endswith('.sample.yml'):
+                    template_name = file_name[0:-11]
+                elif file_name.endswith('.yml'):
+                    template_name = file_name[0:-4]
+                else:
+                    continue
 
-            if target_template_name != template_name:
-                continue
+                if target_template_name == template_name:
+                    # 返回 OperationTemplate，包括子目录的路径信息
+                    relative_sub_dir = os.path.relpath(root, os_utils.get_path_under_work_dir('config'))
+                    return OperationTemplate(relative_sub_dir, template_name)
 
-            return OperationTemplate(sub_dir, template_name)
-
+        # 如果未找到，返回 None
         return None
 
     def dispose(self) -> None:

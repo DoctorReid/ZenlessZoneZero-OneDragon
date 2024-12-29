@@ -28,7 +28,7 @@ class HollowZeroRunInterface(AppRunInterface):
             self,
             ctx=ctx,
             object_name='hollow_zero_run_interface',
-            nav_text_cn='零号空洞',
+            nav_text_cn='枯萎之都',
             parent=parent,
         )
 

@@ -4,7 +4,6 @@ from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils import i18_utils
 
 
-
 class ZContext(OneDragonContext):
 
     def __init__(self,):
@@ -12,6 +11,8 @@ class ZContext(OneDragonContext):
 
         from zzz_od.context.hollow_context import HollowContext
         self.hollow: HollowContext = HollowContext(self)
+        from zzz_od.application.hollow_zero.lost_void.context.lost_void_context import LostVoidContext
+        self.lost_void: LostVoidContext = LostVoidContext(self)
 
         from zzz_od.config.yolo_config import YoloConfig
         from zzz_od.game_data.compendium import CompendiumService
@@ -145,3 +146,8 @@ class ZContext(OneDragonContext):
         self.drive_disc_dismantle_config: DriveDiscDismantleConfig = DriveDiscDismantleConfig(self.current_instance_idx)
         from zzz_od.application.drive_disc_dismantle.drive_disc_dismantle_run_record import DriveDiscDismantleRunRecord
         self.drive_disc_dismantle_record: DriveDiscDismantleRunRecord = DriveDiscDismantleRunRecord(self.current_instance_idx, game_refresh_hour_offset)
+
+        from zzz_od.application.hollow_zero.lost_void.lost_void_config import LostVoidConfig
+        self.lost_void_config: LostVoidConfig = LostVoidConfig(self.current_instance_idx)
+        from zzz_od.application.hollow_zero.lost_void.lost_void_run_record import LostVoidRunRecord
+        self.lost_void_record: LostVoidRunRecord = LostVoidRunRecord(self.current_instance_idx, game_refresh_hour_offset)

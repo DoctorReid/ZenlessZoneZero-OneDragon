@@ -23,6 +23,7 @@ from one_dragon.utils.log_utils import log
 
 class Operation(OperationBase):
     STATUS_TIMEOUT: ClassVar[str] = '执行超时'
+    STATUS_SCREEN_UNKNOWN: ClassVar[str] = '未能识别当前画面'
 
     def __init__(self, ctx: OneDragonContext,
                  node_max_retry_times: int = 3,
@@ -57,6 +58,9 @@ class Operation(OperationBase):
 
         self.op_to_enter_game: OperationBase = op_to_enter_game
         """用于打开游戏的指令"""
+
+        self.node_clicked: bool = False
+        """本节点是否已经完成了点击"""
 
     def _init_before_execute(self):
         """
@@ -342,8 +346,7 @@ class Operation(OperationBase):
                     break
             else:  # 继续下一个节点
                 self._current_node = next_node
-                self.node_retry_times = 0  # 每个节点都可以重试
-                self._current_node_start_time = time.time()  # 每个节点单独计算耗时
+                self._reset_status_for_new_node()  # 充值状态
                 continue
 
         self.after_operation_done(op_result)
@@ -411,6 +414,15 @@ class Operation(OperationBase):
             return self._node_map[final_next_node_id]
         else:
             return None
+
+    def _reset_status_for_new_node(self) -> None:
+        """
+        进入下一个节点前 进行初始化
+        @return:
+        """
+        self.node_retry_times = 0  # 每个节点都可以重试
+        self._current_node_start_time = time.time()  # 每个节点单独计算耗时
+        self.node_clicked = False  # 重置节点点击
 
     def _on_pause(self, e=None):
         """
@@ -587,10 +599,11 @@ class Operation(OperationBase):
             return self.round_fail(status=op_result.status, data=op_result.data, wait=wait,
                                    wait_round_time=wait_round_time)
 
-    def round_by_find_and_click_area(self, screen: MatLike, screen_name: str, area_name: str,
+    def round_by_find_and_click_area(self, screen: MatLike = None, screen_name: str = None, area_name: str = None,
                                      success_wait: Optional[float] = None, success_wait_round: Optional[float] = None,
                                      retry_wait: Optional[float] = None, retry_wait_round: Optional[float] = None,
                                      until_find_all: List[Tuple[str, str]] = None,
+                                     until_not_find_all: List[Tuple[str, str]] = None,
                                      ) -> OperationRoundResult:
         """
         是否能找到目标区域 并进行点击
@@ -602,9 +615,16 @@ class Operation(OperationBase):
         :param retry_wait: 失败后等待的秒数
         :param retry_wait_round: 失败后等待当前轮的运行时间到达这个时间时再结束 优先success_wait
         :param until_find_all: 点击直到发现所有目标
+        :param until_not_find_all: 点击直到没有发现所有目标
         :return: 点击结果
         """
-        if until_find_all is not None:
+        if screen is None:
+            screen = self.screenshot()
+
+        if screen_name is None or area_name is None:
+            return self.round_fail('未指定画面区域')
+
+        if until_find_all is not None and self.node_clicked:
             all_found: bool = True
             for (until_screen_name, until_area_name) in until_find_all:
                 result = screen_utils.find_area(ctx=self.ctx, screen=screen, screen_name=until_screen_name, area_name=until_area_name)
@@ -615,13 +635,25 @@ class Operation(OperationBase):
             if all_found:
                 return self.round_success(status=area_name, wait=success_wait, wait_round_time=success_wait_round)
 
+        if until_not_find_all is not None and self.node_clicked:
+            any_found: bool = False
+            for (until_screen_name, until_area_name) in until_not_find_all:
+                result = screen_utils.find_area(ctx=self.ctx, screen=screen, screen_name=until_screen_name, area_name=until_area_name)
+                if result == FindAreaResultEnum.TRUE:
+                    any_found = True
+                    break
+
+            if not any_found:
+                return self.round_success(status=area_name, wait=success_wait, wait_round_time=success_wait_round)
+
         click = screen_utils.find_and_click_area(ctx=self.ctx, screen=screen, screen_name=screen_name, area_name=area_name)
         if click == OcrClickResultEnum.OCR_CLICK_SUCCESS:
+            self.node_clicked = True
             self.update_screen_after_operation(screen_name, area_name)
-            if until_find_all is None:
+            if until_find_all is None and until_not_find_all is None:
                 return self.round_success(status=area_name, wait=success_wait, wait_round_time=success_wait_round)
             else:
-                return self.round_wait(status=area_name, wait=retry_wait, wait_round_time=retry_wait_round)
+                return self.round_wait(status=area_name, wait=success_wait, wait_round_time=success_wait_round)
         elif click == OcrClickResultEnum.OCR_CLICK_NOT_FOUND:
             return self.round_retry(status=f'未找到 {area_name}', wait=retry_wait, wait_round_time=retry_wait_round)
         elif click == OcrClickResultEnum.OCR_CLICK_FAIL:
@@ -766,28 +798,17 @@ class Operation(OperationBase):
         :param color_range: 文本匹配的颜色范围
         :return: 匹配结果
         """
-        to_ocr_part = screen if area is None else cv2_utils.crop_image_only(screen, area.rect)
-        if color_range is not None:
-            mask = cv2.inRange(to_ocr_part, color_range[0], color_range[1])
-            to_ocr_part = cv2.bitwise_and(to_ocr_part, to_ocr_part, mask=mask)
-        ocr_result_map = self.ctx.ocr.run_ocr(to_ocr_part)
-
-        to_click: Optional[Point] = None
-        for ocr_result, mrl in ocr_result_map.items():
-            if mrl.max is None:
-                continue
-            if str_utils.find_by_lcs(gt(target_cn), ocr_result, percent=lcs_percent):
-                to_click = mrl.max.center
-                break
-
-        if to_click is None:
+        if screen_utils.find_by_ocr(self.ctx, screen, target_cn,
+                                    lcs_percent=lcs_percent,
+                                    area=area, color_range=color_range):
+            return self.round_success(target_cn, wait=success_wait, wait_round_time=success_wait_round)
+        else:
             return self.round_retry(f'找不到 {target_cn}', wait=retry_wait, wait_round_time=retry_wait_round)
 
-        return self.round_success(target_cn, wait=success_wait, wait_round_time=success_wait_round)
 
     def round_by_goto_screen(self, screen: Optional[MatLike] = None, screen_name: Optional[str] = None,
                              success_wait: Optional[float] = None, success_wait_round: Optional[float] = None,
-                             retry_wait: Optional[float] = None, retry_wait_round: Optional[float] = None) -> OperationRoundResult:
+                             retry_wait: Optional[float] = 1, retry_wait_round: Optional[float] = None) -> OperationRoundResult:
         """
         从当前画面 尝试前往目标画面
         :param screen: 游戏截图
@@ -804,7 +825,7 @@ class Operation(OperationBase):
         current_screen_name = screen_utils.get_match_screen_name(self.ctx, screen)
         self.ctx.screen_loader.update_current_screen_name(current_screen_name)
         if current_screen_name is None:
-            return self.round_retry('未能识别当前画面', wait=retry_wait, wait_round_time=retry_wait_round)
+            return self.round_retry(Operation.STATUS_SCREEN_UNKNOWN, wait=retry_wait, wait_round_time=retry_wait_round)
         if current_screen_name == screen_name:
             return self.round_success(current_screen_name, wait=success_wait, wait_round_time=success_wait_round)
 
@@ -826,3 +847,37 @@ class Operation(OperationBase):
         area = self.ctx.screen_loader.get_area(screen_name, area_name)
         if area.goto_list is not None and len(area.goto_list) > 0:
             self.ctx.screen_loader.update_current_screen_name(area.goto_list[0])
+
+    def check_and_update_current_screen(self, screen: MatLike = None) -> str:
+        """
+        识别当前画面的名称 并保存起来
+        :param screen: 游戏截图
+        :return: 画面名称
+        """
+        if screen is None:
+            screen = self.screenshot()
+        current_screen_name = screen_utils.get_match_screen_name(self.ctx, screen)
+        self.ctx.screen_loader.update_current_screen_name(current_screen_name)
+        return current_screen_name
+
+    def check_screen_with_can_go(self, screen: MatLike, screen_name: str) -> Tuple[str, bool]:
+        """
+        识别当前画面的名称 并判断能否前往目标画面
+        :param screen: 游戏截图
+        :param screen_name: 目标画面名称
+        :return: 当前画面名称, 能否前往目标画面
+        """
+        current_screen_name = self.check_and_update_current_screen(screen)
+        route = self.ctx.screen_loader.get_screen_route(current_screen_name, screen_name)
+        can_go = route is not None and route.can_go
+        return current_screen_name, can_go
+
+    def check_current_can_go(self, screen_name: str) -> bool:
+        """
+        判断当前画面能否前往目标画面 需要已识别当前画面
+        :param screen_name: 目标画面名称
+        :return: 能否前往目标画面
+        """
+        current_screen_name = self.ctx.screen_loader.current_screen_name
+        route = self.ctx.screen_loader.get_screen_route(current_screen_name, screen_name)
+        return route is not None and route.can_go

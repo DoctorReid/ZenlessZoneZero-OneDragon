@@ -29,7 +29,7 @@ class EmailApp(ZApplication):
 
     @operation_node(name='打开邮件', is_start_node=True)
     def goto_email(self) -> OperationRoundResult:
-        return self.round_by_goto_screen(screen_name='邮件', success_wait=1, retry_wait=1)
+        return self.round_by_goto_screen(screen_name='邮件')
 
     @node_from(from_name='打开邮件')
     @operation_node(name='全部领取')

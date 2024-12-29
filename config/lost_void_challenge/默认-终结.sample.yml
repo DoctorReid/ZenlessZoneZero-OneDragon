@@ -1,0 +1,5 @@
+auto_battle: 全配队通用
+region_type_priority:
+- 战斗-武备
+artifact_priority:
+- 终结

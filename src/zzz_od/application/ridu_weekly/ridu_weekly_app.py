@@ -30,8 +30,7 @@ class RiduWeeklyApp(ZApplication):
     @node_from(from_name='快捷手册')
     @operation_node(name='日常')
     def choose_train(self) -> OperationRoundResult:
-        return self.round_by_goto_screen(screen_name=f'快捷手册-日常',
-                                         success_wait=1, retry_wait=1)
+        return self.round_by_goto_screen(screen_name=f'快捷手册-日常')
 
     @node_from(from_name='日常')
     @operation_node(name='丽都周纪')
