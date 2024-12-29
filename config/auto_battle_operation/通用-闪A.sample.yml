@@ -1,4 +1,4 @@
-#根据动画实测
+# 闪避普攻 普攻后摇等待时间各角色不同 由后续动作控制
 operations:
   - op_name: "设置状态"
     state: "自定义-动作不打断"
@@ -6,4 +6,4 @@ operations:
   - operation_template: "通用-闪避-左"
   - op_name: "按键-普通攻击"
     post_delay: 0.1
-    repeat: 8
+    repeat: 10
