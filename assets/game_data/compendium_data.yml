@@ -88,7 +88,7 @@
         - mission_type_name: "多佩冈亚·简"
         - mission_type_name: "色雷斯人"
 
-- tab_name: "挑战"
+- tab_name: "作战"
   category_list:
     - category_name: "恶名狩猎"
       mission_type_list:

@@ -36,7 +36,7 @@ class ShiyuDefenseApp(ZApplication):
 
     @operation_node(name='传送', is_start_node=True)
     def tp(self) -> OperationRoundResult:
-        op = TransportByCompendium(self.ctx, '挑战', '式舆防卫战', '剧变节点')
+        op = TransportByCompendium(self.ctx, '作战', '式舆防卫战', '剧变节点')
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='传送')
