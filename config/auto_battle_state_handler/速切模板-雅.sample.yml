@@ -46,16 +46,16 @@ handlers:
       - states: "[雅-落霜]{6, 6}"
         sub_handlers:
           #3秒后如果拔刀斩就切人
-          - states: "!([按键-切换角色-下一个,0,4]|[按键-切换角色-上一个,0,4])"
-            operations:
-              - op_name: "设置状态"
-                data: ["自定义-星见雅-使用过拔刀斩"]
-              - operation_template: "雅-拔刀斩合轴"
-          - states: ""
+          - states: "[按键-切换角色-下一个,0,4]|[按键-切换角色-上一个,0,4]"
             operations:
               - op_name: "设置状态"
                 data: ["自定义-星见雅-使用过拔刀斩"]
               - operation_template: "雅-拔刀斩"
+          - states: ""
+            operations:
+              - op_name: "设置状态"
+                data: ["自定义-星见雅-使用过拔刀斩"]
+              - operation_template: "雅-拔刀斩合轴"
 
       #使用过拔刀斩之后最多站3秒
       - states: "[自定义-星见雅-使用过拔刀斩, 8, 30]"
@@ -64,11 +64,11 @@ handlers:
             data: ["自定义-速切结束"]
           - operation_template: "雅-普通攻击"
 
-      - states: "[雅-特殊技可用] & [雅-落霜]{1, 3} & [雅-能量]{80,120}"
+      - states: "[雅-特殊技可用] & [雅-落霜,0,999]{0, 2} & [雅-能量]{80,120}"
         operations:
           - operation_template: "雅-特殊攻击二连"
 
-      - states: "[雅-特殊技可用]"
+      - states: "[雅-特殊技可用] & [雅-落霜,0,999]{1, 5}"
         operations:
           - operation_template: "雅-特殊攻击"
 

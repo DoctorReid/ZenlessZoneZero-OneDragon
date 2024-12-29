@@ -25,7 +25,7 @@ handlers:
               - op_name: "按键-切换角色"
                 agent_name: "苍角"
 
-          - states: "[丽娜-能量]{60, 120}"
+          - states: "[丽娜-能量]{0, 120} & ![自定义-丽娜-人偶-17,0]"
             operations:
               - op_name: "按键-切换角色"
                 agent_name: "丽娜"
