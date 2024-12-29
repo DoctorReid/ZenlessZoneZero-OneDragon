@@ -62,7 +62,7 @@ scenes:
     handlers:
       - states: "[前台-血量扣减]{1, 100} & ![自定义-动作不打断,0,30]"
         sub_handlers:
-        - state_template: "血量扣减模板-切人终结技ee"
+        - state_template: "血量扣减模板-切人终结技"
         - state_template: "闪A模板-全角色"
 
   - triggers: ["自定义-速切结束"]
