@@ -85,12 +85,13 @@ class LostVoidDetector(Yolov8Detector):
                 return True
         return False
 
-    def get_rightest_result(self, frame_result: Optional[DetectFrameResult] = None,
-                            target_type: str = None) -> Optional[DetectObjectResult]:
+    def get_result_by_x(self, frame_result: Optional[DetectFrameResult] = None,
+                        target_type: str = None, by_max_x: bool = True) -> Optional[DetectObjectResult]:
         """
         获取某帧的识别结果里 特定类别的最右方结果
         @param frame_result: 帧识别结果 不传入时使用最后一帧
         @param target_type: 特定的类别
+        @param by_max_x: 选择最大的x
         @return: 最右方的结果
         """
         if frame_result is None:
@@ -100,7 +101,10 @@ class LostVoidDetector(Yolov8Detector):
         target: Optional[DetectObjectResult] = None
         for result in frame_result.results:
             if result.detect_class.class_name == target_type:
-                if target is None or result.center[0] > target.center[0]:
+                if (target is None
+                        or (by_max_x and result.center[0] > target.center[0])
+                        or (not by_max_x and result.center[0] < target.center[0])
+                ):
                     target = result
 
         return target

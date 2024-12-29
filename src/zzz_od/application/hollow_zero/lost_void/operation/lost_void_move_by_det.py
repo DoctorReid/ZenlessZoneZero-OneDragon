@@ -11,6 +11,7 @@ from one_dragon.base.operation.operation_round_result import OperationRoundResul
 from one_dragon.utils import cal_utils
 from one_dragon.yolo.detect_utils import DetectObjectResult, DetectFrameResult
 from zzz_od.application.hollow_zero.lost_void.context.lost_void_detector import LostVoidDetector
+from zzz_od.application.hollow_zero.lost_void.lost_void_challenge_config import LostVoidRegionType
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.zzz_operation import ZOperation
 
@@ -84,15 +85,26 @@ class LostVoidMoveByDet(ZOperation):
 
     STATUS_IN_BATTLE: ClassVar[str] = '遭遇战斗'
 
-    def __init__(self, ctx: ZContext, target_type: str,
+    def __init__(self, ctx: ZContext,
+                 current_region: LostVoidRegionType, target_type: str,
                  stop_when_interact: bool = True,
-                 stop_when_disappear: bool = True):
+                 stop_when_disappear: bool = True,
+                 ):
         ZOperation.__init__(self, ctx, op_name=f'迷失之地-识别寻路-{target_type[5:]}')
 
+        self.current_region: LostVoidRegionType = current_region
         self.target_type: str = target_type
         self.stop_when_interact: bool = stop_when_interact  # 可交互时停止移动
         self.stop_when_disappear: bool = stop_when_disappear  # 目标消失时停止移动
         self.detector: LostVoidDetector = self.ctx.lost_void.detector
+
+        # 需要按方向选的时候 按最大x值选
+        # 入口时 从右往左选可以上楼梯
+        # 挚友会谈 从右往左选可以到商店
+        self.choose_by_max_x: bool = self.current_region in [
+            LostVoidRegionType.ENTRY.value.value,
+            LostVoidRegionType.FRIENDLY_TALK.value.value
+        ]
 
         self.last_target_result: Optional[MoveTargetWrapper] = None  # 最后一次识别到的目标
         self.last_target_name: Optional[str] = None  # 最后识别到的交互目标名称
@@ -175,11 +187,23 @@ class LostVoidMoveByDet(ZOperation):
         @param target: 目标位置
         @return: 是否进行了转动
         """
-        if target.x < 850:
+        if target.x < 760:
+            self.ctx.controller.turn_by_distance(-100)
+            return True
+        elif target.x < 860:
             self.ctx.controller.turn_by_distance(-50)
             return True
-        elif target.x > 1000:
+        elif target.x < 910:
+            self.ctx.controller.turn_by_distance(-25)
+            return True
+        elif target.x > 1160:
+            self.ctx.controller.turn_by_distance(+100)
+            return True
+        elif target.x > 1060:
             self.ctx.controller.turn_by_distance(+50)
+            return True
+        elif target.x > 1010:
+            self.ctx.controller.turn_by_distance(+25)
             return True
         else:
             return False
@@ -192,7 +216,8 @@ class LostVoidMoveByDet(ZOperation):
         @return:
         """
         if self.target_type != LostVoidDetector.CLASS_ENTRY:
-            detect_result = self.detector.get_rightest_result(frame_result, self.target_type)
+            detect_result = self.detector.get_result_by_x(frame_result, self.target_type,
+                                                          by_max_x=self.choose_by_max_x)
             if detect_result is not None:
                 return MoveTargetWrapper(detect_result)
             else:

@@ -7,23 +7,22 @@ from one_dragon.base.matcher.match_result import MatchResult
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
-from one_dragon.utils import cv2_utils, cal_utils, str_utils
-from one_dragon.utils.i18_utils import gt
+from one_dragon.utils import cv2_utils
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.zzz_operation import ZOperation
 
 
-class LostVoidChooseEval(ZOperation):
+class LostVoidChooseNoDetail(ZOperation):
 
     def __init__(self, ctx: ZContext):
-        ZOperation.__init__(self, ctx, op_name='迷失之地-业绩选择')
+        ZOperation.__init__(self, ctx, op_name='迷失之地-无详情选择')
 
         self.to_choose_num: int = 1  # 需要选择的数量
 
     @operation_node(name='等待加载', node_max_retry_times=10, is_start_node=True)
     def wait_loading(self) -> OperationRoundResult:
         screen_name = self.check_and_update_current_screen()
-        if screen_name == '迷失之地-业绩选择':
+        if screen_name == '迷失之地-无详情选择':
             return self.round_success()
         else:
             return self.round_retry(status=f'当前画面 {screen_name}', wait=1)
@@ -50,7 +49,7 @@ class LostVoidChooseEval(ZOperation):
         @param screen: 游戏画面
         @return: 识别到的武备的位置
         """
-        area = self.ctx.screen_loader.get_area('迷失之地-业绩选择', '区域-业绩名称')
+        area = self.ctx.screen_loader.get_area('迷失之地-无详情选择', '区域-藏品名称')
         part = cv2_utils.crop_image_only(screen, area.rect)
 
         result_list: List[MatchResult] = []
@@ -71,9 +70,9 @@ class LostVoidChooseEval(ZOperation):
     @node_from(from_name='选择')
     @operation_node(name='点击确定')
     def click_confirm(self) -> OperationRoundResult:
-        return self.round_by_find_and_click_area(screen_name='迷失之地-业绩选择', area_name='按钮-确定',
+        return self.round_by_find_and_click_area(screen_name='迷失之地-无详情选择', area_name='按钮-确定',
                                                  success_wait=1, retry_wait=1,
-                                                 until_not_find_all=[('迷失之地-业绩选择', '按钮-确定')])
+                                                 until_not_find_all=[('迷失之地-无详情选择', '按钮-确定')])
 
 
 def __debug():
@@ -83,7 +82,7 @@ def __debug():
     ctx.lost_void.init_before_run()
     ctx.start_running()
 
-    op = LostVoidChooseEval(ctx)
+    op = LostVoidChooseNoDetail(ctx)
     op.execute()
 
 

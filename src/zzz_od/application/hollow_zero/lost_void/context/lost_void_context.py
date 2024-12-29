@@ -137,7 +137,7 @@ class LostVoidContext:
         for cate, art_list in self.cate_2_artifact.items():
             cate_name = gt(cate)
 
-            if cate != '卡牌':
+            if cate not in ['卡牌', '无详情']:
                 if len(name_full_str) < len(cate_name):
                     continue
                 # 取出与分类名称长度一致的前缀 用来判断是否符合分类

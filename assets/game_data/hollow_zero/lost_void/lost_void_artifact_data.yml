@@ -473,10 +473,6 @@
   # 卡牌
 
 - category: "卡牌"
-  name: "零号业绩"
-  level: "S"
-
-- category: "卡牌"
   name: "讴歌喧响之唇"
   level: "S"
 
@@ -562,4 +558,13 @@
 
 - category: "卡牌"
   name: "失衡猎杀之印"
+  level: "S"
+
+  # 无详情的特殊品
+- category: "无详情"
+  name: "零号业绩"
+  level: "S"
+
+- category: "无详情"
+  name: "有代价的齿轮硬币"
   level: "S"
