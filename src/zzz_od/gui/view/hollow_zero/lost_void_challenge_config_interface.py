@@ -92,7 +92,7 @@ class LostVoidChallengeConfigInterface(VerticalScrollInterface):
 
         region_priority_widget = Column()
         widget.add_widget(region_priority_widget)
-        region_priority_title = SubtitleLabel(text='区域类型优先级 未生效')
+        region_priority_title = SubtitleLabel(text='区域类型优先级')
         region_priority_widget.v_layout.addWidget(region_priority_title)
         self.region_type_priority_input = PlainTextEdit()
         self.region_type_priority_input.textChanged.connect(self._on_region_type_priority_changed)

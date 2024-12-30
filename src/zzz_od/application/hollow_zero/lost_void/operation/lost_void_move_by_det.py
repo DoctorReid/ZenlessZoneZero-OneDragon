@@ -111,6 +111,8 @@ class LostVoidMoveByDet(ZOperation):
         self.same_target_times: int = 0  # 识别到相同目标的次数
         self.stuck_times: int = 0  # 被困次数
 
+        self.last_save_debug_image_time: float = 0  # 上一次保存debug图片的时间
+
     @node_from(from_name='移动', status='丢失目标')
     @node_from(from_name='脱困')
     @operation_node(name='移动前转向', node_max_retry_times=20, is_start_node=True)
@@ -168,6 +170,9 @@ class LostVoidMoveByDet(ZOperation):
             if self.stop_when_disappear:
                 return self.round_success(data=self.last_target_name)
             else:
+                if self.ctx.env_config.is_debug and screenshot_time - self.last_save_debug_image_time > 5:
+                    self.last_save_debug_image_time = screenshot_time
+                    self.save_screenshot()
                 return self.round_success(status='丢失目标', data=self.last_target_name)
 
         is_stuck = self.check_stuck(target_result)
@@ -257,22 +262,11 @@ class LostVoidMoveByDet(ZOperation):
         not_mixed_entry_list = [item for item in entry_list if not item.is_mixed]
         mixed_entry_list = [item for item in entry_list if item.is_mixed]
         if len(not_mixed_entry_list) > 0:
-            return self.get_entry_target_by_priority(entry_list)
+            return self.ctx.lost_void.get_entry_by_priority(entry_list)
         elif len(mixed_entry_list) > 0:
-            return self.get_entry_target_by_priority(mixed_entry_list)
+            return self.ctx.lost_void.get_entry_by_priority(mixed_entry_list)
         else:
             return None
-
-    def get_entry_target_by_priority(self, entry_list: List[MoveTargetWrapper]) -> Optional[MoveTargetWrapper]:
-        """
-        按优先级 选择下层入口
-        @param entry_list: 入口列表
-        @return:
-        """
-        if entry_list is None or len(entry_list) == 0:
-            return None
-
-        return entry_list[0]
 
     def check_stuck(self, new_target: MoveTargetWrapper) -> Optional[OperationRoundResult]:
         """

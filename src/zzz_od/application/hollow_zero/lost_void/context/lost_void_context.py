@@ -11,6 +11,7 @@ from zzz_od.application.hollow_zero.lost_void.context.lost_void_artifact import 
 from zzz_od.application.hollow_zero.lost_void.context.lost_void_detector import LostVoidDetector
 from zzz_od.application.hollow_zero.lost_void.lost_void_challenge_config import LostVoidRegionType, \
     LostVoidChallengeConfig
+from zzz_od.application.hollow_zero.lost_void.operation.lost_void_move_by_det import MoveTargetWrapper
 from zzz_od.auto_battle import auto_battle_utils
 from zzz_od.auto_battle.auto_battle_dodge_context import YoloStateEventEnum
 from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
@@ -280,3 +281,34 @@ class LostVoidContext:
             result_list.append(artifact_list[priority_idx_list[i]])
 
         return result_list
+
+    def get_entry_by_priority(self, entry_list: List[MoveTargetWrapper]) -> Optional[MoveTargetWrapper]:
+        """
+        根据优先级 返回一个前往的入口
+        多个相同入口时选择最右 (因为丢失寻找目标的时候是往左转找)
+        :param entry_list:
+        :return:
+        """
+        if entry_list is None or len(entry_list) == 0:
+            return None
+
+        for priority in self.challenge_config.region_type_priority:
+            target: Optional[MoveTargetWrapper] = None
+
+            for entry in entry_list:
+                for target_name in entry.target_name_list:
+                    if target_name != priority:
+                        continue
+
+                    if target is None or entry.entire_rect.x1 > target.entire_rect.x1:
+                        target = entry
+
+            if target is not None:
+                return target
+
+        target: Optional[MoveTargetWrapper] = None
+        for entry in entry_list:
+            if target is None or entry.entire_rect.x1 > target.entire_rect.x1:
+                target = entry
+
+        return target
