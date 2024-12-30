@@ -43,6 +43,16 @@ class LostVoidPeriodBuffNo(Enum):
     NO_3 = ConfigItem('第三个')
 
 
+class LostVoidBuyOnlyPriority(Enum):
+
+    NONE = ConfigItem('刷新0次', value=0)
+    NO_1 = ConfigItem('刷新1次(50硬币)', value=1)
+    NO_2 = ConfigItem('刷新2次(100硬币)', value=2)
+    NO_3 = ConfigItem('刷新3次(200硬币)', value=3)
+    NO_4 = ConfigItem('刷新4次(300硬币)', value=4)
+    ALWAYS = ConfigItem('一直刷新', value=999)
+
+
 class LostVoidChallengeConfig(YamlConfig):
 
     def __init__(self, module_name: str, is_mock: bool = False):
@@ -132,6 +142,14 @@ class LostVoidChallengeConfig(YamlConfig):
     @period_buff_no.setter
     def period_buff_no(self, new_value: str):
         self.update('period_buff_no', new_value)
+
+    @property
+    def buy_only_priority(self) -> int:
+        return self.get('buy_only_priority', LostVoidBuyOnlyPriority.NO_4.value.value)
+
+    @buy_only_priority.setter
+    def buy_only_priority(self, new_value: int):
+        self.update('buy_only_priority', new_value)
 
 
 def get_all_lost_void_challenge_config(with_sample: bool = True) -> List[LostVoidChallengeConfig]:
