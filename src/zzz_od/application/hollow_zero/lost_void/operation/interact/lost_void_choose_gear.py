@@ -57,7 +57,6 @@ class LostVoidChooseGear(ZOperation):
             for i in self.ctx.lost_void.all_artifact_list
             if i.template_id is not None
         ]
-        # TODO 后续只识别优先级中的武备
 
         result_list: List[MatchResult] = []
 

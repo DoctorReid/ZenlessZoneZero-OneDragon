@@ -223,11 +223,13 @@ class LostVoidContext:
 
         return filter_result_list, error_msg
 
-    def get_artifact_by_priority(self, artifact_list: List[MatchResult], choose_num: int) -> List[MatchResult]:
+    def get_artifact_by_priority(self, artifact_list: List[MatchResult], choose_num: int,
+                                 only_priority: bool = False) -> List[MatchResult]:
         """
         根据优先级 返回需要选择的藏品
         :param artifact_list: 识别到的藏品结果
         :param choose_num: 需要选择的数量
+        :param only_priority: 是否只保留优先级中的
         :return: 按优先级选择的结果
         """
         priority_idx_list: List[int] = []  # 优先级排序的下标
@@ -264,15 +266,16 @@ class LostVoidContext:
                     priority_idx_list.append(idx)
 
         # 将剩余的 按等级加入
-        for level in ['S', 'A', 'B']:
-            for idx in range(len(artifact_list)):
-                if idx in priority_idx_list:  # 已经加入过了
-                    continue
+        if not only_priority:
+            for level in ['S', 'A', 'B']:
+                for idx in range(len(artifact_list)):
+                    if idx in priority_idx_list:  # 已经加入过了
+                        continue
 
-                artifact: LostVoidArtifact = artifact_list[idx].data
+                    artifact: LostVoidArtifact = artifact_list[idx].data
 
-                if artifact.level == level:
-                    priority_idx_list.append(idx)
+                    if artifact.level == level:
+                        priority_idx_list.append(idx)
 
         result_list: List[MatchResult] = []
         for i in range(choose_num):
