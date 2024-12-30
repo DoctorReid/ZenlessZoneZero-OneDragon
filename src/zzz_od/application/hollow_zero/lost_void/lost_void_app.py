@@ -45,6 +45,11 @@ class LostVoidApp(ZApplication):
     def check_initial_screen(self) -> OperationRoundResult:
         screen = self.screenshot()
 
+        # 特殊兼容 在挑战区域开始
+        result = self.round_by_find_and_click_area(screen, '迷失之地-大世界', '按钮-挑战-确认')
+        if result.is_success:
+            return self.round_wait(result.status, wait=1)
+
         screen_name, can_go = self.check_screen_with_can_go(screen, '迷失之地-战线肃清')
         if screen_name is None:
             return self.round_retry(Operation.STATUS_SCREEN_UNKNOWN, wait=0.5)

@@ -390,7 +390,7 @@ class LostVoidRunLevel(ZOperation):
 
                 if not no_in_battle:
                     area = self.ctx.screen_loader.get_area('迷失之地-大世界', '区域-文本提示')
-                    if screen_utils.find_by_ocr(self.ctx, screen, target_cn='千万下一个区域', area=area):
+                    if screen_utils.find_by_ocr(self.ctx, screen, target_cn='前往下一个区域', area=area):
                         no_in_battle = True
 
                 if no_in_battle:
