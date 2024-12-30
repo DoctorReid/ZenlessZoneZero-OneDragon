@@ -102,8 +102,8 @@ class LostVoidMoveByDet(ZOperation):
         # 入口时 从右往左选可以上楼梯
         # 挚友会谈 从右往左选可以到商店
         self.choose_by_max_x: bool = self.current_region in [
-            LostVoidRegionType.ENTRY.value.value,
-            LostVoidRegionType.FRIENDLY_TALK.value.value
+            LostVoidRegionType.ENTRY,
+            LostVoidRegionType.FRIENDLY_TALK
         ]
 
         self.last_target_result: Optional[MoveTargetWrapper] = None  # 最后一次识别到的目标

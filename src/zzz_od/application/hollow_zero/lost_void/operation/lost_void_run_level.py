@@ -296,11 +296,16 @@ class LostVoidRunLevel(ZOperation):
         to_ocr = cv2.bitwise_and(part, part, mask=mask)
         ocr_result_map = self.ctx.ocr.run_ocr(to_ocr)
 
+        special_talk_list = [
+            '似乎购买了充值卡就会得到齿轮硬币奖励，但是在离开之后身上的齿轮硬币都',  # 奸商布
+            '（声音消失了，伸手从裂隙那头好像摸到了什么）',  # 零号业绩
+        ]
+
         for ocr_result in ocr_result_map.keys():
-            # 奸商布
-            if str_utils.find_by_lcs(gt('似乎购买了充值卡就会得到齿轮硬币奖励，但是在离开之后身上的齿轮硬币都'), ocr_result):
-                self.ctx.controller.click(area.center)
-                return self.round_wait(f'尝试交互 {str(ocr_result_map.keys)}', wait=0.5)
+            for special_talk in special_talk_list:
+                if str_utils.find_by_lcs(gt(special_talk), ocr_result):
+                    self.ctx.controller.click(area.center)
+                    return self.round_wait(f'尝试交互 {str(ocr_result_map.keys)}', wait=0.5)
 
     @node_from(from_name='交互处理', status='迷失之地-大世界')
     @node_from(from_name='交互处理', status='迷失之地-挑战结果')
@@ -400,6 +405,7 @@ class LostVoidRunLevel(ZOperation):
 
                 if self.no_in_battle_times >= 5:
                     auto_battle_utils.stop_running(self.auto_op)
+                    log.info('识别需移动交互')
                     return self.round_success('识别需移动交互')
 
                 return self.round_wait()
@@ -417,6 +423,7 @@ class LostVoidRunLevel(ZOperation):
                 if self.no_in_battle_times >= 5:
                     auto_battle_utils.stop_running(self.auto_op)
                     self.target_interact_type = LostVoidRunLevel.IT_BATTLE
+                    log.info('识别正在交互')
                     return self.round_success('识别正在交互')
 
                 return self.round_wait()
@@ -434,10 +441,24 @@ class LostVoidRunLevel(ZOperation):
         else:
             return result
 
-    @node_from(from_name='交互后处理', status='挑战结果-确定')
+    @node_from(from_name='交互后处理', status='挑战结果-完成')
     @operation_node(name='挑战结果处理完成')
     def handle_challenge_result_finish(self) -> OperationRoundResult:
-        result = self.round_by_find_and_click_area(screen_name='迷失之地-挑战结果', area_name='按钮-完成',
+        screen = self.screenshot()
+
+        result = self.round_by_find_area(screen, '迷失之地-挑战结果', '奖励-零号业绩')
+        if result.is_success:
+            self.ctx.lost_void_record.eval_point_complete = False
+            self.ctx.lost_void_record.period_reward_complete = False
+        else:
+            self.ctx.lost_void_record.eval_point_complete = True
+            result = self.round_by_find_area(screen, '迷失之地-挑战结果', '奖励-丁尼')
+            if result.is_success:
+                self.ctx.lost_void_record.period_reward_complete = False
+            else:
+                self.ctx.lost_void_record.period_reward_complete = True
+
+        result = self.round_by_find_and_click_area(screen=screen, screen_name='迷失之地-挑战结果', area_name='按钮-完成',
                                                    until_not_find_all=[('迷失之地-挑战结果', '按钮-完成')],
                                                    success_wait=1, retry_wait=1)
         if result.is_success:

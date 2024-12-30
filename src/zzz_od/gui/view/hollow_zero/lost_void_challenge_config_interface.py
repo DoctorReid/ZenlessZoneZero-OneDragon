@@ -9,7 +9,7 @@ from one_dragon.utils.i18_utils import gt
 from phosdeiz.gui.widgets import Column, ComboBox, Row
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_op_config_list
 from zzz_od.application.hollow_zero.lost_void.lost_void_challenge_config import LostVoidChallengeConfig, \
-    get_lost_void_challenge_new_name, get_all_lost_void_challenge_config
+    get_lost_void_challenge_new_name, get_all_lost_void_challenge_config, LostVoidPeriodBuffNo
 from zzz_od.context.zzz_context import ZContext
 
 
@@ -76,6 +76,10 @@ class LostVoidChallengeConfigInterface(VerticalScrollInterface):
         self.auto_battle_opt.value_changed.connect(self._on_auto_battle_config_changed)
         widget.add_widget(self.auto_battle_opt)
 
+        self.period_buff_no_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='周期增益',
+                                                      options_enum=LostVoidPeriodBuffNo)
+        widget.add_widget(self.period_buff_no_opt)
+
         widget.add_stretch(1)
         return widget
 
@@ -127,6 +131,7 @@ class LostVoidChallengeConfigInterface(VerticalScrollInterface):
 
         self.name_opt.setDisabled(not chosen or is_sample)
         self.auto_battle_opt.setDisabled(not chosen or is_sample)
+        self.period_buff_no_opt.setDisabled(not chosen or is_sample)
         self.artifact_priority_input.setDisabled(not chosen or is_sample)
         self.region_type_priority_input.setDisabled(not chosen or is_sample)
 
@@ -136,6 +141,7 @@ class LostVoidChallengeConfigInterface(VerticalScrollInterface):
         if chosen:
             self.name_opt.setValue(self.chosen_config.module_name)
             self.auto_battle_opt.setValue(self.chosen_config.auto_battle)
+            self.period_buff_no_opt.init_with_adapter(self.chosen_config.get_prop_adapter('period_buff_no'))
 
             self.artifact_priority_input.blockSignals(True)
             self.artifact_priority_input.setPlainText(self.chosen_config.artifact_priority_str)

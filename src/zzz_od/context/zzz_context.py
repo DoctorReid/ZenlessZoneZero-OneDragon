@@ -150,4 +150,4 @@ class ZContext(OneDragonContext):
         from zzz_od.application.hollow_zero.lost_void.lost_void_config import LostVoidConfig
         self.lost_void_config: LostVoidConfig = LostVoidConfig(self.current_instance_idx)
         from zzz_od.application.hollow_zero.lost_void.lost_void_run_record import LostVoidRunRecord
-        self.lost_void_record: LostVoidRunRecord = LostVoidRunRecord(self.current_instance_idx, game_refresh_hour_offset)
+        self.lost_void_record: LostVoidRunRecord = LostVoidRunRecord(self.lost_void_config, self.current_instance_idx, game_refresh_hour_offset)

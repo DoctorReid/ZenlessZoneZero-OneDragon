@@ -70,6 +70,11 @@ class LostVoidBangbooStore(ZOperation):
     def buy_artifact(self) -> OperationRoundResult:
         screen = self.screenshot()
 
+        # 按刷新之后的确认
+        result = self.round_by_find_and_click_area(screen, '迷失之地-邦布商店', '按钮-刷新-确认')
+        if result.is_success:
+            return self.round_wait(result.status, wait=1)
+
         art_list: List[MatchResult] = self.get_artifact_pos(screen)
         if len(art_list) == 0:
             return self.round_retry(status='未识别可购买藏品', wait=1)
