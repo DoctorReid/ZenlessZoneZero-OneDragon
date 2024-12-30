@@ -1,12 +1,9 @@
 # 向前闪避 通常用于靠近敌人
 operations:
-  - op_name: "等待秒数"
-    seconds: 0.12
-  - op_name: "按键-移动-前"
+  - op_name: "按键-移动-左"
     way: "按下"
-  - op_name: "等待秒数"
-    seconds: 0.1
-  - op_name: "按键-闪避"
     post_delay: 0.1
+  - op_name: "按键-闪避"
+    post_delay: 0.4
   - op_name: "按键-移动-前"
     way: "松开"

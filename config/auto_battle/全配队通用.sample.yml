@@ -9,16 +9,28 @@ introduction: "支持全角色 任意三人/单人/双人作战，通杀所有�
 
 check_dodge_interval: 0.02
 check_agent_interval: 0.1
-check_chain_interval: 0.4
-check_quick_interval: 0.4
+check_chain_interval: 0.1
+check_quick_interval: 0.2
 auto_lock_interval: 0.5
 
 scenes:
   - triggers: ["闪避识别-黄光", "闪避识别-红光", "闪避识别-声音"]
     priority: 99
     handlers:
-      - states: "![自定义-动作不打断, 0, 30]"
+      - states: "![自定义-动作不打断,-10,-0.3]"
         sub_handlers:
+        - states: "[自定义-连携换人,0,12]"
+          operations:
+            - op_name: "清除状态"
+              state_list: ["自定义-连携换人"] 
+            - op_name: "设置状态"
+              state: "自定义-动作不打断"
+              seconds: 1
+            - operation_template: "通用-闪避-左"
+            - op_name: "按键-普通攻击"
+              post_delay: 0.1
+              repeat: 10
+
         - states: "[闪避识别-黄光]"
           sub_handlers:
             - state_template: "支援攻击模板-特殊情况" #特殊情况不支援
@@ -26,7 +38,6 @@ scenes:
             - state_template: "支援攻击模板-防护"
             - state_template: "支援攻击模板-异常"
             - state_template: "支援攻击模板-下一个"
-            
         - states: ""
           sub_handlers:
             - state_template: "闪A模板-全角色"
@@ -52,9 +63,7 @@ scenes:
       - states: "[前台-血量扣减]{1, 100} & ![自定义-动作不打断,0,30]"
         sub_handlers:
         - state_template: "血量扣减模板-切人终结技"
-        # - states: ""
-        #   operations:
-        #     - operation_template: "掉血闪避"
+        - state_template: "闪A模板-全角色"
 
   - triggers: ["自定义-速切结束"]
     priority: 80
@@ -72,6 +81,10 @@ scenes:
         operations:
           - op_name: "清除状态"
             state_list: ["自定义-速切结束" , "自定义-动作不打断"] 
+          - op_name: "按键-普通攻击"
+            way: "松开"
+          - op_name: "按键-特殊攻击"
+            way: "松开"
           - op_name: "等待秒数"
             seconds: 0.1
       - states: ""

@@ -1,8 +1,40 @@
 template_name: "特殊情况-紧急切人"
 handlers:
   # 特殊处理
-  - states: "![自定义-血量扣减,0,1] & ![自定义-动作不打断,0,30]" #没有比掉血更特殊的
+  - states: "![自定义-血量扣减,0,1] & ![自定义-动作不打断,-10,0] & !([按键-切换角色-下一个,0,1]|[按键-切换角色-上一个,0,1])" #没有比掉血更特殊的
     sub_handlers:
+      #开局紧急补BUFF
+      - states: "![前台-露西] & [露西-特殊技可用] & ![自定义-露西-加油,0,30]"
+        operations:
+          - op_name: "按键-切换角色"
+            agent_name: "露西"
+          - operation_template: "露西-高飞球合轴"
+
+      - states: "![前台-苍角] & [苍角-特殊技可用] & ![自定义-苍角-展旗,0,30]"
+        operations:
+          - op_name: "按键-切换角色"
+            agent_name: "苍角"
+          - operation_template: "苍角-展旗"
+
+      - states: "![前台-丽娜] & [丽娜-能量]{60, 120} & [自定义-丽娜-人偶,0,20]"
+        operations:
+          - op_name: "设置状态"
+            state: "自定义-丽娜-人偶"
+            seconds: 14
+          - op_name: "按键-切换角色"
+            agent_name: "丽娜"
+          - op_name: "按键-特殊攻击"
+            post_delay: 0.1
+            repeat: 4
+          - operation_template: "通用-切人普通攻击"
+
+      - states: "![前台-凯撒] & [凯撒-特殊技可用] & ([自定义-血量扣减,0,3] | ![自定义-凯撒-护盾,0,30])"
+        operations:
+          - op_name: "按键-切换角色"
+            agent_name: "凯撒"
+          - op_name: "清除状态"
+            state_list: ["自定义-血量扣减"]
+
       # 星见雅 有6豆就切过去
       - states: "[雅-落霜]{6, 6} & ![前台-雅]"
         operations:
@@ -43,28 +75,30 @@ handlers:
                 sub_handlers:
                   - states: "[后台-2-异常]"
                     operations:
-                      - op_name: "清除状态"
-                        state_list:
-                          [
-                            "自定义-异常-火",
-                            "自定义-异常-冰",
-                            "自定义-异常-烈霜",
-                            "自定义-异常-电",
-                            "自定义-异常-物理",
-                          ]
-                      - op_name: "按键-切换角色-上一个"
-                  - states: "[后台-1-异常]"
-                    operations:
-                      - op_name: "清除状态"
-                        state_list:
-                          [
-                            "自定义-异常-火",
-                            "自定义-异常-冰",
-                            "自定义-异常-烈霜",
-                            "自定义-异常-电",
-                            "自定义-异常-物理",
-                          ]
-                      - op_name: "按键-切换角色-下一个"
+                      - op_name: "设置状态"
+                        data: ["自定义-速切结束"]
+                  #     - op_name: "清除状态"
+                  #       state_list:
+                  #         [
+                  #           "自定义-异常-火",
+                  #           "自定义-异常-冰",
+                  #           "自定义-异常-烈霜",
+                  #           "自定义-异常-电",
+                  #           "自定义-异常-物理",
+                  #         ]
+                  #     - op_name: "按键-切换角色-上一个"
+                  # - states: "[后台-1-异常]"
+                  #   operations:
+                  #     - op_name: "清除状态"
+                  #       state_list:
+                  #         [
+                  #           "自定义-异常-火",
+                  #           "自定义-异常-冰",
+                  #           "自定义-异常-烈霜",
+                  #           "自定义-异常-电",
+                  #           "自定义-异常-物理",
+                  #         ]
+                  #     - op_name: "按键-切换角色-下一个"
 
       - states: "[前台-击破] & ![自定义-速切结束,0,30] & [自定义-连携换人,0,12]"
         sub_handlers:
@@ -80,27 +114,3 @@ handlers:
                 repeat: 1
 
       #开局补个BUFF
-      - states: "!([按键-切换角色-下一个,0,1]|[按键-切换角色-上一个,0,1])"
-        sub_handlers:
-          - states: "![前台-凯撒]"
-            sub_handlers:
-              - states: "[凯撒-特殊技可用] & ([自定义-血量扣减,0,3] | ![自定义-凯撒-护盾,0,30])"
-                operations:
-                  - op_name: "按键-切换角色"
-                    agent_name: "凯撒"
-                  - op_name: "清除状态"
-                    state_list:
-                      [
-                        "自定义-血量扣减",
-                        "自定义-速切结束",
-                        "自定义-动作不打断",
-                      ]
-
-              - states: "![前台-苍角]"
-                sub_handlers:
-                  - states: "[苍角-特殊技可用] & ![自定义-苍角-展旗,0,30]"
-                    operations:
-                      - op_name: "按键-切换角色"
-                        agent_name: "苍角"
-                      - op_name: "清除状态"
-                        state_list: ["自定义-速切结束", "自定义-动作不打断"]

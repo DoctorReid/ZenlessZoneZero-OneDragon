@@ -139,6 +139,13 @@ handlers:
 
 
           #能量要溢出了兄弟
+          - states: "![后台-1-异常] & ![后台-1-强攻] & [后台-1-能量]{110,120}"
+            operations:
+              - op_name: "按键-切换角色-下一个"
+                post_delay: 0.1
+              - op_name: "清除状态"
+                state_list: ["自定义-速切结束", "自定义-动作不打断"]
+
           - states: "![后台-2-异常] & ![后台-2-强攻] & [后台-2-能量]{110,120}"
             operations:
               - op_name: "按键-切换角色-上一个"
@@ -146,9 +153,31 @@ handlers:
               - op_name: "清除状态"
                 state_list: ["自定义-速切结束", "自定义-动作不打断"]
 
-          - states: "![后台-1-异常] & ![后台-1-强攻] & [后台-1-能量]{110,120}"
+          #不是输出没必要切出来
+          - states: "[后台-1-异常] & [后台-1-特殊技可用]"
             operations:
               - op_name: "按键-切换角色-下一个"
+                post_delay: 0.1
+              - op_name: "清除状态"
+                state_list: ["自定义-速切结束", "自定义-动作不打断"]
+
+          - states: "[后台-1-强攻]& [后台-1-特殊技可用]"
+            operations:
+              - op_name: "按键-切换角色-下一个"
+                post_delay: 0.1
+              - op_name: "清除状态"
+                state_list: ["自定义-速切结束", "自定义-动作不打断"]  
+
+          - states: "[后台-2-异常]& [后台-2-特殊技可用]"
+            operations:
+              - op_name: "按键-切换角色-上一个"
+                post_delay: 0.1
+              - op_name: "清除状态"
+                state_list: ["自定义-速切结束", "自定义-动作不打断"]
+
+          - states: "[后台-2-强攻]& [后台-2-特殊技可用]"
+            operations:
+              - op_name: "按键-切换角色-上一个"
                 post_delay: 0.1
               - op_name: "清除状态"
                 state_list: ["自定义-速切结束", "自定义-动作不打断"]
@@ -161,16 +190,16 @@ handlers:
               - op_name: "清除状态"
                 state_list: ["自定义-速切结束", "自定义-动作不打断"]
 
-          - states: "[后台-2-异常]"
-            operations:
-              - op_name: "按键-切换角色-上一个"
-                post_delay: 0.1
-              - op_name: "清除状态"
-                state_list: ["自定义-速切结束", "自定义-动作不打断"]
-
           - states: "[后台-1-强攻]"
             operations:
               - op_name: "按键-切换角色-下一个"
+                post_delay: 0.1
+              - op_name: "清除状态"
+                state_list: ["自定义-速切结束", "自定义-动作不打断"]  
+
+          - states: "[后台-2-异常]"
+            operations:
+              - op_name: "按键-切换角色-上一个"
                 post_delay: 0.1
               - op_name: "清除状态"
                 state_list: ["自定义-速切结束", "自定义-动作不打断"]
