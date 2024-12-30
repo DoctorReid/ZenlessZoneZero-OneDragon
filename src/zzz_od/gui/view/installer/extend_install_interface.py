@@ -51,7 +51,7 @@ class ExtendInstallInterface(VerticalScrollInterface):
         """
         VerticalScrollInterface.on_interface_shown(self)
         self.gamepad_opt.check_and_update_display()
-        self.log_card.set_update_log(True)
+        self.log_card.start()
 
     def on_interface_hidden(self) -> None:
         """
@@ -59,7 +59,7 @@ class ExtendInstallInterface(VerticalScrollInterface):
         :return:
         """
         VerticalScrollInterface.on_interface_hidden(self)
-        self.log_card.set_update_log(False)
+        self.log_card.stop()
 
     def update_progress(self, progress: float, message: str) -> None:
         """

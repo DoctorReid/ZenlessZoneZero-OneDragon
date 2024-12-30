@@ -165,7 +165,6 @@ class OneDragonRunInterface(VerticalScrollInterface):
         VerticalScrollInterface.on_interface_shown(self)
         self._init_app_list()
 
-        self.log_card.set_update_log(True)
         self.ctx.listen_event(ContextKeyboardEventEnum.PRESS.value, self._on_key_press)
         self.ctx.listen_event(ApplicationEventId.APPLICATION_START.value, self._on_app_state_changed)
         self.ctx.listen_event(ApplicationEventId.APPLICATION_STOP.value, self._on_app_state_changed)
@@ -184,7 +183,6 @@ class OneDragonRunInterface(VerticalScrollInterface):
 
     def on_interface_hidden(self) -> None:
         VerticalScrollInterface.on_interface_hidden(self)
-        self.log_card.set_update_log(False)
         self.ctx.unlisten_all_event(self)
         self._context_event_signal.instance_changed.disconnect(self._on_instance_changed)
 

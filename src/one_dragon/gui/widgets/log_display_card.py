@@ -80,20 +80,18 @@ class LogDisplayCard(PlainTextEdit):
         else:
             self._color = '#00A064'
 
-    def set_update_log(self, update: bool) -> None:
-        """启用或停止日志更新"""
-        self.receiver.update = update
-        self.receiver.clear_logs()
-        self.clear()
-
-    def start(self):
+    def start(self, clear_log: bool = False):
         """启动日志显示"""
+        if clear_log:
+            self.receiver.clear_logs()
+            self.clear()
         self.init_color()
+        self.receiver.update = True
         if not self.is_running:
             self.is_running = True
         if not self.is_pause:
-                self.receiver.clear_logs()
-                self.clear()
+            self.receiver.clear_logs()
+            self.clear()
         self.auto_scroll = True
         self.update_timer.start(self.update_frequency)
 
@@ -104,6 +102,7 @@ class LogDisplayCard(PlainTextEdit):
         self.is_pause = True
         self.auto_scroll = False
         self.update_timer.stop()
+        self.receiver.update = False
 
     def stop(self):
         """停止日志显示"""
@@ -114,6 +113,7 @@ class LogDisplayCard(PlainTextEdit):
         self.auto_scroll = False
         self.update_timer.stop()
         self.update_logs()  # 停止后 最后更新一次日志
+        self.receiver.update = False
 
     def update_logs(self) -> None:
         """更新日志显示区域"""
