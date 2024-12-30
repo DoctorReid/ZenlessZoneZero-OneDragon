@@ -17,7 +17,7 @@ area_list:
   color_range: null
   goto_list:
   - 大世界-普通
-- area_name: 按键-悬赏委托
+- area_name: 按钮-悬赏委托
   id_mark: true
   pc_rect:
   - 1550

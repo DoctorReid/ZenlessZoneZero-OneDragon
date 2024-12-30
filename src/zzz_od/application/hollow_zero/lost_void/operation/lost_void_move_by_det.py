@@ -100,10 +100,8 @@ class LostVoidMoveByDet(ZOperation):
 
         # 需要按方向选的时候 按最大x值选
         # 入口时 从右往左选可以上楼梯
-        # 挚友会谈 从右往左选可以到商店
         self.choose_by_max_x: bool = self.current_region in [
             LostVoidRegionType.ENTRY,
-            LostVoidRegionType.FRIENDLY_TALK
         ]
 
         self.last_target_result: Optional[MoveTargetWrapper] = None  # 最后一次识别到的目标
@@ -135,10 +133,16 @@ class LostVoidMoveByDet(ZOperation):
             if self.stop_when_disappear:
                 return self.round_fail('目标消失')
 
+            if self.last_target_result is not None:
+                # 曾经识别到过 可能被血条 或者其它东西遮住了 尝试往前走一点
+                self.ctx.controller.move_w(press=True, press_time=0.5, release=True)
+                self.last_target_result = None
+
             # 没找到目标 转动
             self.ctx.controller.turn_by_distance(-100)
             return self.round_retry('未找到目标', wait=0.5)
 
+        self.last_target_result = target_result
         pos = target_result.entire_rect.center
         turn = self.turn_to_target(pos)
         if turn:
@@ -348,7 +352,7 @@ class LostVoidMoveByDet(ZOperation):
                 # 不考虑 [距离]白点
                 continue
 
-            if result.width > 40 and result.height > 40:
+            if result.width > 50 and result.height > 50:
                 return True
 
         return False

@@ -430,7 +430,9 @@ class LostVoidRunLevel(ZOperation):
             ):
                 self.last_check_finish_time = screenshot_time
                 screen_name = self.check_and_update_current_screen(screen)
-                if screen_name in ['迷失之地-武备选择', '迷失之地-通用选择', '迷失之地-挑战结果']:
+                if screen_name in ['迷失之地-武备选择', '迷失之地-通用选择', '迷失之地-挑战结果',
+                                   '迷失之地-大世界',  # 有可能是之前交互识别错了 认为进入了战斗楼层 实际上没有交互
+                                   ]:
                     self.no_in_battle_times += 1
                 else:
                     self.no_in_battle_times = 0
@@ -471,6 +473,8 @@ class LostVoidRunLevel(ZOperation):
             if result.is_success:
                 self.ctx.lost_void_record.period_reward_complete = False
             else:
+                if self.ctx.env_config.is_debug:
+                    self.save_screenshot()
                 self.ctx.lost_void_record.period_reward_complete = True
 
         result = self.round_by_find_and_click_area(screen=screen, screen_name='迷失之地-挑战结果', area_name='按钮-完成',

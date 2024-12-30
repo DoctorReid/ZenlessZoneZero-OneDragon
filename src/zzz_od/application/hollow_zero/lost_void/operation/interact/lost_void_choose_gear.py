@@ -17,21 +17,17 @@ class LostVoidChooseGear(ZOperation):
     def __init__(self, ctx: ZContext):
         ZOperation.__init__(self, ctx, op_name='迷失之地-武备选择')
 
-    @operation_node(name='等待加载', node_max_retry_times=10, is_start_node=True)
-    def wait_loading(self) -> OperationRoundResult:
-        screen_name = self.check_and_update_current_screen()
-        if screen_name == '迷失之地-武备选择':
-            return self.round_success()
-        else:
-            return self.round_retry(wait=1)
-
-    @node_from(from_name='等待加载')
-    @operation_node(name='选择武备')
+    @operation_node(name='选择武备', is_start_node=True)
     def choose_gear(self) -> OperationRoundResult:
         screen_list = []
         for i in range(10):
             screen_list.append(self.screenshot())
             time.sleep(0.1)
+
+        screen_name = self.check_and_update_current_screen(screen_list[0])
+        if screen_name != '迷失之地-武备选择':
+            # 进入本指令之前 有可能识别错画面
+            return self.round_retry(status=f'当前画面 {screen_name}', wait=1)
 
         gear_list = self.get_gear_pos(screen_list)
         if len(gear_list) == 0:

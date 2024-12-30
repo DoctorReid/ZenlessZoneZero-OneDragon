@@ -1,5 +1,3 @@
-import time
-
 import cv2
 from cv2.typing import MatLike
 from typing import List, Optional
@@ -9,7 +7,7 @@ from one_dragon.base.matcher.match_result import MatchResult
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
-from one_dragon.utils import cv2_utils, cal_utils, str_utils
+from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from zzz_od.application.hollow_zero.lost_void.context.lost_void_artifact import LostVoidArtifact
@@ -56,24 +54,23 @@ class LostVoidBangbooStore(ZOperation):
     def __init__(self, ctx: ZContext):
         ZOperation.__init__(self, ctx, op_name='迷失之地-邦布商店')
 
-    @operation_node(name='等待加载', node_max_retry_times=10, is_start_node=True)
-    def wait_loading(self) -> OperationRoundResult:
-        screen_name = self.check_and_update_current_screen()
-        if screen_name == '迷失之地-邦布商店':
-            return self.round_success()
-        else:
-            return self.round_retry(status=f'当前画面 {screen_name}', wait=1)
+        self.refresh_times: int = 0  # 刷新次数
 
-    @node_from(from_name='等待加载')
     @node_from(from_name='确认后处理')
-    @operation_node(name='购买藏品')
+    @operation_node(name='购买藏品', is_start_node=True)
     def buy_artifact(self) -> OperationRoundResult:
         screen = self.screenshot()
 
         # 按刷新之后的确认
         result = self.round_by_find_and_click_area(screen, '迷失之地-邦布商店', '按钮-刷新-确认')
         if result.is_success:
+            self.refresh_times += 1
             return self.round_wait(result.status, wait=1)
+
+        screen_name = self.check_and_update_current_screen()
+        if screen_name != '迷失之地-邦布商店':
+            # 进入本指令之前 有可能识别错画面
+            return self.round_retry(status=f'当前画面 {screen_name}', wait=1)
 
         art_list: List[MatchResult] = self.get_artifact_pos(screen)
         if len(art_list) == 0:
@@ -82,11 +79,12 @@ class LostVoidBangbooStore(ZOperation):
         priority_list: List[MatchResult] = self.ctx.lost_void.get_artifact_by_priority(art_list, len(art_list), only_priority=True)
 
         if len(priority_list) == 0:
-            result = self.round_by_find_and_click_area(screen, '迷失之地-邦布商店', '按钮-刷新-可用')
-            if result.is_success:
-                return self.round_wait(result.status, wait=1)
-            else:
-                priority_list = self.ctx.lost_void.get_artifact_by_priority(art_list, len(art_list), only_priority=False)
+            if self.refresh_times < self.ctx.lost_void.challenge_config.buy_only_priority:
+                result = self.round_by_find_and_click_area(screen, '迷失之地-邦布商店', '按钮-刷新-可用')
+                if result.is_success:
+                    return self.round_wait(result.status, wait=1)
+
+            priority_list = self.ctx.lost_void.get_artifact_by_priority(art_list, len(art_list), only_priority=False)
 
         if len(priority_list) == 0:
             return self.round_retry(status='按优先级选择藏品失败', wait=1)

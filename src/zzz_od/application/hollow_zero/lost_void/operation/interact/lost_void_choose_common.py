@@ -20,18 +20,14 @@ class LostVoidChooseCommon(ZOperation):
 
         self.to_choose_num: int = 1  # 需要选择的数量
 
-    @operation_node(name='等待加载', node_max_retry_times=10, is_start_node=True)
-    def wait_loading(self) -> OperationRoundResult:
-        screen_name = self.check_and_update_current_screen()
-        if screen_name == '迷失之地-通用选择':
-            return self.round_success()
-        else:
-            return self.round_retry(status=f'当前画面 {screen_name}', wait=1)
-
-    @node_from(from_name='等待加载')
-    @operation_node(name='选择')
+    @operation_node(name='选择', is_start_node=True)
     def choose_gear(self) -> OperationRoundResult:
         screen = self.screenshot()
+
+        screen_name = self.check_and_update_current_screen()
+        if screen_name != '迷失之地-通用选择':
+            # 进入本指令之前 有可能识别错画面
+            return self.round_retry(status=f'当前画面 {screen_name}', wait=1)
 
         result = self.round_by_find_area(screen, '迷失之地-通用选择', '标题-武备已升级')
         if result.is_success:
