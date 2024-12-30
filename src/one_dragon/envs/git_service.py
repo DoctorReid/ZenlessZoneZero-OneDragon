@@ -372,11 +372,9 @@ class GitService:
 
         if self.env_config.proxy_type != ProxyTypeEnum.PERSONAL.value.value:  # 没有代理
             cmd_utils.run_command([self.env_config.git_path, 'config', '--local', '--unset', 'http.proxy'])
-            cmd_utils.run_command([self.env_config.git_path, 'config', '--local', '--unset', 'https.proxy'])
         else:
             proxy_address = self.env_config.proxy_address
             cmd_utils.run_command([self.env_config.git_path, 'config', '--local', 'http.proxy', proxy_address])
-            cmd_utils.run_command([self.env_config.git_path, 'config', '--local', 'https.proxy', proxy_address])
         self.is_proxy_set = True
 
     def update_git_remote(self) -> None:
