@@ -12,6 +12,7 @@ check_agent_interval: 0.1
 check_chain_interval: 0.1
 check_quick_interval: 0.2
 auto_lock_interval: 0.5
+auto_turn_interval: 2
 
 scenes:
   - triggers: ["闪避识别-黄光", "闪避识别-红光", "闪避识别-声音"]

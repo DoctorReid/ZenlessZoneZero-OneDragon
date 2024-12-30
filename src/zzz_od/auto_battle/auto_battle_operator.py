@@ -57,8 +57,9 @@ class AutoBattleOperator(ConditionalOperator):
 
         self.auto_battle_context: AutoBattleContext = AutoBattleContext(ctx)
 
-        # 锁定敌人
+        # 自动周期
         self.last_lock_time: float = 0  # 上一次锁定的时间
+        self.last_turn_time: float = 0  # 上一次转动视角的时间
 
     def init_before_running(self) -> Tuple[bool, str]:
         """
@@ -356,32 +357,44 @@ class AutoBattleOperator(ConditionalOperator):
         success = ConditionalOperator.start_running_async(self)
         if success:
             self.auto_battle_context.start_context()
-            lock_f = _auto_battle_operator_executor.submit(self.lock_periodically)
+            lock_f = _auto_battle_operator_executor.submit(self.operate_periodically)
             lock_f.add_done_callback(thread_utils.handle_future_result)
 
         return success
 
-    def lock_periodically(self) -> None:
+    def operate_periodically(self) -> None:
         """
-        周期性锁定敌人
+        周期性完成动作
+
+        1. 锁定敌人
+        2. 转向 - 有机会找到后方太远的敌人；迷失之地可以转动下层入口
         :return:
         """
-        interval = self.get('auto_lock_interval', 0)
-        if interval <= 0:  # 不开启自动锁定
+        auto_lock_interval = self.get('auto_lock_interval', 0)
+        auto_turn_interval = self.get('auto_turn_interval', 0)
+        if auto_lock_interval <= 0 and auto_turn_interval <= 0:  # 不开启自动锁定 和 自动转向
             return
         op = AtomicBtnLock(self.auto_battle_context)
         while self.is_running:
-            since_last = time.time() - self.last_lock_time  # 上次锁定到现在的秒数
-            if since_last <= interval:  # 每固定秒数 锁定一次
-                time.sleep(interval - since_last)
+            now = time.time()
+            lock_since_last = now - self.last_lock_time  # 上次锁定到现在的秒数
+            turn_since_last = now - self.last_turn_time  # 上次转动到现在的秒数
+            if (lock_since_last <= auto_lock_interval
+                    and turn_since_last <= auto_turn_interval):  # 按周期运行
+                min_wait_time = min(auto_lock_interval - lock_since_last, auto_turn_interval - turn_since_last)
+                time.sleep(min_wait_time)
                 continue
 
-            if not self.auto_battle_context.last_check_in_battle:  # 当前画面不是战斗画面 就不锁定
+            if not self.auto_battle_context.last_check_in_battle:  # 当前画面不是战斗画面 就不运行了
                 time.sleep(0.5)
                 continue
 
-            op.execute()
-            self.last_lock_time = time.time()
+            if lock_since_last > auto_lock_interval:
+                op.execute()
+                self.last_lock_time = now
+            if turn_since_last > auto_turn_interval:
+                self.ctx.controller.turn_by_distance(-100)
+                self.last_turn_time = now
 
     @property
     def team_list(self) -> List[List[str]]:
