@@ -84,7 +84,7 @@ class LostVoidChallengeConfigInterface(VerticalScrollInterface):
 
         artifact_priority_widget = Column()
         widget.add_widget(artifact_priority_widget)
-        artifact_priority_title = SubtitleLabel(text='藏品优先级 未生效')
+        artifact_priority_title = SubtitleLabel(text='藏品优先级')
         artifact_priority_widget.v_layout.addWidget(artifact_priority_title)
         self.artifact_priority_input = PlainTextEdit()
         self.artifact_priority_input.textChanged.connect(self._on_artifact_priority_changed)

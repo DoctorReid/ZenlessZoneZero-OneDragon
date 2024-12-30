@@ -7,7 +7,7 @@ from one_dragon.base.matcher.match_result import MatchResult
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
-from one_dragon.utils import cv2_utils, cal_utils, str_utils
+from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.zzz_operation import ZOperation
@@ -41,11 +41,10 @@ class LostVoidChooseCommon(ZOperation):
         if len(art_list) == 0:
             return self.round_retry(status='无法识别藏品', wait=1)
 
-        # TODO 加入优先级
-        for i in range(self.to_choose_num):
-            if i < len(art_list):
-                self.ctx.controller.click(art_list[i].center)
-                time.sleep(0.5)
+        priority_list = self.ctx.lost_void.get_artifact_by_priority(art_list, self.to_choose_num)
+        for art in priority_list:
+            self.ctx.controller.click(art.center)
+            time.sleep(0.5)
 
         return self.round_success()
 

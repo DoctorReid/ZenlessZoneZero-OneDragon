@@ -3,6 +3,7 @@ from cv2.typing import MatLike
 from typing import Optional, List, Tuple
 
 from one_dragon.base.config.yaml_operator import YamlOperator
+from one_dragon.base.matcher.match_result import MatchResult
 from one_dragon.base.screen import screen_utils
 from one_dragon.utils import os_utils, str_utils
 from one_dragon.utils.i18_utils import gt
@@ -220,3 +221,62 @@ class LostVoidContext:
                 error_msg += f'输入非法 {i}'
 
         return filter_result_list, error_msg
+
+    def get_artifact_by_priority(self, artifact_list: List[MatchResult], choose_num: int) -> List[MatchResult]:
+        """
+        根据优先级 返回需要选择的藏品
+        :param artifact_list: 识别到的藏品结果
+        :param choose_num: 需要选择的数量
+        :return: 按优先级选择的结果
+        """
+        priority_idx_list: List[int] = []  # 优先级排序的下标
+
+        # 按优先级顺序 将匹配的藏品下标加入
+        for priority in self.challenge_config.artifact_priority:
+            split_idx = priority.find(' ')
+            if split_idx != -1:
+                cate_name = priority[:split_idx]
+                item_name = priority[split_idx+1:]
+            else:
+                cate_name = priority
+                item_name = ''
+
+            for idx in range(len(artifact_list)):
+                if idx in priority_idx_list:  # 已经加入过了
+                    continue
+
+                artifact: LostVoidArtifact = artifact_list[idx].data
+
+                if artifact.category != cate_name:
+                    continue
+
+                if item_name == '':
+                    priority_idx_list.append(idx)
+                    continue
+
+                if item_name in ['S', 'A', 'B']:
+                    if artifact.level == item_name:
+                        priority_idx_list.append(idx)
+                    continue
+
+                if item_name == artifact.name:
+                    priority_idx_list.append(idx)
+
+        # 将剩余的 按等级加入
+        for level in ['S', 'A', 'B']:
+            for idx in range(len(artifact_list)):
+                if idx in priority_idx_list:  # 已经加入过了
+                    continue
+
+                artifact: LostVoidArtifact = artifact_list[idx].data
+
+                if artifact.level == level:
+                    priority_idx_list.append(idx)
+
+        result_list: List[MatchResult] = []
+        for i in range(choose_num):
+            if i >= len(priority_idx_list):
+                continue
+            result_list.append(artifact_list[priority_idx_list[i]])
+
+        return result_list

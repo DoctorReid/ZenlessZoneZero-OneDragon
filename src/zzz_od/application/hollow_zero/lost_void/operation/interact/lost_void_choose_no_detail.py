@@ -17,8 +17,6 @@ class LostVoidChooseNoDetail(ZOperation):
     def __init__(self, ctx: ZContext):
         ZOperation.__init__(self, ctx, op_name='迷失之地-无详情选择')
 
-        self.to_choose_num: int = 1  # 需要选择的数量
-
     @operation_node(name='等待加载', node_max_retry_times=10, is_start_node=True)
     def wait_loading(self) -> OperationRoundResult:
         screen_name = self.check_and_update_current_screen()
@@ -36,10 +34,10 @@ class LostVoidChooseNoDetail(ZOperation):
         if len(art_list) == 0:
             return self.round_retry(status='无法识别藏品', wait=1)
 
-        for i in range(self.to_choose_num):
-            if i < len(art_list):
-                self.ctx.controller.click(art_list[i].center)
-                time.sleep(0.5)
+        priority_list = self.ctx.lost_void.get_artifact_by_priority(art_list, 1)
+        for art in priority_list:
+            self.ctx.controller.click(art.center)
+            time.sleep(0.5)
 
         return self.round_success()
 

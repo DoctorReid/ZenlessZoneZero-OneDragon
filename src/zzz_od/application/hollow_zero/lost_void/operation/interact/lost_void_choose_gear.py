@@ -38,8 +38,11 @@ class LostVoidChooseGear(ZOperation):
             # 识别耗时比较长 这里返回就不等待了
             return self.round_retry(status='无法识别武备')
 
-        # TODO 加入优先级
-        self.ctx.controller.click(gear_list[0].center)
+        priority_list = self.ctx.lost_void.get_artifact_by_priority(gear_list, 1)
+        for art in priority_list:
+            self.ctx.controller.click(art.center)
+            time.sleep(0.5)
+
         return self.round_success(wait=0.5)
 
     def get_gear_pos(self, screen_list: List[MatLike]) -> List[MatchResult]:
