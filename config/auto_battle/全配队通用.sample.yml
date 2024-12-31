@@ -9,11 +9,12 @@ introduction: "支持全角色 任意三人/单人/双人作战，通杀所有�
 
 
 #动作模板
-  #所有的state_template 都可以在config目录下的auto_battle_state_handler文件夹内找到对应名字的文件
+  #所有的operation_template 都可以在config目录下的auto_battle_operation文件夹内找到对应名字的文件
+
   #需要注意的是，每一个动作模板，都应该详细测定动作用时，无敌时间，根据预输入设定按键时机和合轴时刻，还有这个动作会上的个人BUFF
 
 #状态模板
-  #所有的operation_template 都可以在config目录下的auto_battle_operation文件夹内找到对应名字的文件
+  #所有的state_template 都可以在config目录下的auto_battle_state_handler文件夹内找到对应名字的文件
   #一般情况下根据角色状态选择动作模板必须包含如下状态
     #红光
     #黄光
