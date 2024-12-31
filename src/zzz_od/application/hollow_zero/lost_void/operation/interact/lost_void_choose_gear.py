@@ -1,5 +1,6 @@
 import time
 
+import cv2
 from cv2.typing import MatLike
 from typing import List
 
@@ -7,7 +8,8 @@ from one_dragon.base.matcher.match_result import MatchResult
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
-from one_dragon.utils import cv2_utils, cal_utils
+from one_dragon.utils import cv2_utils, cal_utils, str_utils
+from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.zzz_operation import ZOperation
 
@@ -41,10 +43,11 @@ class LostVoidChooseGear(ZOperation):
 
         return self.round_success(wait=0.5)
 
-    def get_gear_pos(self, screen_list: List[MatLike]) -> List[MatchResult]:
+    def get_gear_pos(self, screen_list: List[MatLike], only_no_level: bool = False) -> List[MatchResult]:
         """
         获取武备的位置
         @param screen_list: 游戏截图列表 由于武备的图像是动态的 需要多张识别后合并结果
+        @param only_no_level: 只获取无等级的
         @return: 识别到的武备的位置
         """
         area = self.ctx.screen_loader.get_area('迷失之地-武备选择', '武备列表')
@@ -58,6 +61,12 @@ class LostVoidChooseGear(ZOperation):
 
         for screen in screen_list:
             part = cv2_utils.crop_image_only(screen, area.rect)
+
+            if only_no_level:
+                level_pos_list = self.get_level_pos(screen)
+            else:
+                level_pos_list = []
+
             source_kps, source_desc = cv2_utils.feature_detect_and_compute(part)
             for gear in to_check_list:
                 template = self.ctx.template_loader.get_template('lost_void', gear.template_id)
@@ -84,10 +93,52 @@ class LostVoidChooseGear(ZOperation):
                         existed = True
                         break
 
+                if only_no_level:
+                    with_level: bool = False
+                    gear_width = mr.w
+                    gear_center = mr.center
+                    for level in level_pos_list:
+                        level_center = level.center
+                        if level_center.x < gear_center.x and abs(level_center.x - gear_center.x) < gear_width * 1.5:
+                            with_level = True
+                            break
+
+                    if with_level:
+                        continue
+
                 if not existed:
                     result_list.append(mr)
 
+        display_text = ','.join([i.data.name for i in result_list])
+        log.info(f'武备识别结果 {display_text}')
+
         return result_list
+
+    def get_level_pos(self, screen: MatLike) -> List[MatchResult]:
+        """
+        获取等级的位置
+        :param screen: 游戏画面
+        :return:
+        """
+        area = self.ctx.screen_loader.get_area('迷失之地-武备选择', '等级列表')
+        part = cv2_utils.crop_image_only(screen, area.rect)
+        mask = cv2.inRange(part, (150, 150, 150), (255, 255, 255))
+        mask = cv2_utils.dilate(mask, 2)
+        to_ocr = cv2.bitwise_and(part, part, mask=mask)
+        # cv2_utils.show_image(to_ocr, wait=0)
+
+        level_result_list: List[MatchResult] = []
+
+        ocr_result_map = self.ctx.ocr.run_ocr(to_ocr)
+        for ocr_result, mrl in ocr_result_map.items():
+            digit = str_utils.get_positive_digits(ocr_result)
+            if digit is None:
+                continue
+            for mr in mrl:
+                mr.add_offset(area.left_top)
+                level_result_list.append(mr)
+
+        return level_result_list
 
     @node_from(from_name='选择武备')
     @operation_node(name='点击携带')
@@ -111,7 +162,12 @@ def __debug():
     ctx.start_running()
 
     op = LostVoidChooseGear(ctx)
-    op.execute()
+    # op.execute()
+
+    from one_dragon.utils import debug_utils
+    screen = debug_utils.get_debug_image('gear')
+    # op.get_gear_pos([screen], only_no_level=False)
+    op.get_gear_pos([screen], only_no_level=True)
 
 
 if __name__ == '__main__':

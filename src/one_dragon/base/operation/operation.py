@@ -826,6 +826,7 @@ class Operation(OperationBase):
         self.ctx.screen_loader.update_current_screen_name(current_screen_name)
         if current_screen_name is None:
             return self.round_retry(Operation.STATUS_SCREEN_UNKNOWN, wait=retry_wait, wait_round_time=retry_wait_round)
+        log.debug(f'当前识别画面 {current_screen_name}')
         if current_screen_name == screen_name:
             return self.round_success(current_screen_name, wait=success_wait, wait_round_time=success_wait_round)
 
