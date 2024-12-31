@@ -377,24 +377,23 @@ class AutoBattleOperator(ConditionalOperator):
         op = AtomicBtnLock(self.auto_battle_context)
         while self.is_running:
             now = time.time()
-            lock_since_last = now - self.last_lock_time  # 上次锁定到现在的秒数
-            turn_since_last = now - self.last_turn_time  # 上次转动到现在的秒数
-            if (lock_since_last <= auto_lock_interval
-                    and turn_since_last <= auto_turn_interval):  # 按周期运行
-                min_wait_time = min(auto_lock_interval - lock_since_last, auto_turn_interval - turn_since_last)
-                time.sleep(min_wait_time)
-                continue
 
             if not self.auto_battle_context.last_check_in_battle:  # 当前画面不是战斗画面 就不运行了
-                time.sleep(0.5)
+                time.sleep(0.2)
                 continue
 
-            if lock_since_last > auto_lock_interval:
+            any_done: bool = False
+            if auto_lock_interval > 0 and now - self.last_lock_time > auto_lock_interval:
                 op.execute()
                 self.last_lock_time = now
-            if turn_since_last > auto_turn_interval:
+                any_done = True
+            if auto_turn_interval > 0 and now - self.last_turn_time > auto_turn_interval:
                 self.ctx.controller.turn_by_distance(-100)
                 self.last_turn_time = now
+                any_done = True
+
+            if not any_done:
+                time.sleep(0.2)
 
     @property
     def team_list(self) -> List[List[str]]:
