@@ -2,7 +2,7 @@
 author: "遥酱"
 thanks: "火"
 homepage: "https://github.com/kawayiYokami/ZenlessZoneZero-OneDragon"
-version: "3.0"
+version: "3.1"
 team_list: []
 
 introduction: "支持全角色 任意三人/单人/双人作战，通杀所有情况，有问题去主页发需求"
@@ -29,13 +29,18 @@ introduction: "支持全角色 任意三人/单人/双人作战，通杀所有�
   #特殊情况-紧急切人：      非合轴时刻，在角色完成一套动作之后，检测是否需要换人
   #速切模板-全角色：        所有角色的总模板，每个角色一个文件封装好，这样不会乱，需要新增角色只要在这里加入那个角色的模板即可
 
+#触发器
+  #triggers代表触发器，更高优先级的触发器触发的时候，如果满足状态可以打断低优先级的触发器，比如闪避识别优先级为99，可以打断其他所有比99小的触发器动作
+  #一般情况下，闪避＞连携＞快速支援＞扣血＞合轴＞主线程
+  #因为同一个触发器内不管触发多少次都不会打断本触发器，所以所有角色的默认动作都放在同一个触发器内，就不用怕打断动作导致错位了
 
-check_dodge_interval: 0.02
-check_agent_interval: 0.1
-check_chain_interval: 0.1
-check_quick_interval: 0.2
-auto_lock_interval: 0.5
-auto_turn_interval: 2
+
+check_dodge_interval: 0.02  #闪避识别间隔
+check_agent_interval: 0.1   #代理人识别间隔
+check_chain_interval: 0.1   #连携识别间隔
+check_quick_interval: 0.2   #快速支援识别间隔
+auto_lock_interval: 0.5     #锁定间隔
+auto_turn_interval: 2       #镜头转向间隔
 
 scenes:
   #这部分是用来识别闪光闪避的，这里不需要更改，哪怕角色更新也不需要动
