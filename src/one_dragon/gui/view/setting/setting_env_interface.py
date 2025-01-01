@@ -248,7 +248,11 @@ class SettingEnvInterface(VerticalScrollInterface):
         代理发生改变
         :return:
         """
+        # 清除当前代理设置的状态
         self.ctx.git_service.is_proxy_set = False
+
+        # 调用 init_git_proxy 同步更新 Git 的代理设置
+        self.ctx.git_service.init_git_proxy()
 
     def _on_key_start_running_changed(self, value: str) -> None:
         self.ctx.env_config.key_start_running = value
