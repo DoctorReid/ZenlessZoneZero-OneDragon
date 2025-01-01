@@ -34,6 +34,8 @@ class LostVoidChooseCommon(ZOperation):
             return result
 
         art_list = self.get_artifact_pos(screen)
+        if self.to_choose_num == 0:
+            return self.round_success('无需选择')
         if len(art_list) == 0:
             return self.round_retry(status='无法识别藏品', wait=1)
 
@@ -42,7 +44,7 @@ class LostVoidChooseCommon(ZOperation):
             self.ctx.controller.click(art.center)
             time.sleep(0.5)
 
-        return self.round_success()
+        return self.round_success(f'选择 {art.data.name}')
 
     def get_artifact_pos(self, screen: MatLike) -> List[MatchResult]:
         """
@@ -61,6 +63,9 @@ class LostVoidChooseCommon(ZOperation):
             gt('请选择1项'),
             gt('请选择2项'),
             gt('请选择1个武备'),
+            gt('获得武备'),
+            gt('武备已升级'),
+            gt('获得战利品')
         ]
 
         for ocr_word in ocr_result.keys():
@@ -77,6 +82,18 @@ class LostVoidChooseCommon(ZOperation):
             elif idx == 2:
                 is_gear = True
                 self.to_choose_num = 1
+            elif idx == 3:
+                is_gear = True
+                self.to_choose_num = 0
+            elif idx == 4:
+                is_gear = True
+                self.to_choose_num = 0
+            elif idx == 5:
+                is_artifact = True
+                self.to_choose_num = 0
+
+        if self.to_choose_num == 0:  # 不需要选择的
+            return []
 
         if is_artifact:
             area_name = '区域-藏品名称'
