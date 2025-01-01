@@ -129,7 +129,7 @@ class LostVoidMoveByDet(ZOperation):
         target_result = self.get_move_target(frame_result)
 
         if target_result is None:
-            self.round_success(LostVoidMoveByDet.STATUS_NO_FOUND)
+            return self.round_success(LostVoidMoveByDet.STATUS_NO_FOUND)
 
         self.last_target_result = target_result
         pos = target_result.entire_rect.center

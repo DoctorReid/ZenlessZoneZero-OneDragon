@@ -481,14 +481,16 @@ class Operation(OperationBase):
         self.last_screenshot = screen
         return self.last_screenshot
 
-    def save_screenshot(self) -> str:
+    def save_screenshot(self, prefix: Optional[str] = None) -> str:
         """
         保存上一次的截图 并对UID打码
         :return: 文件路径
         """
         if self.last_screenshot is None:
             return ''
-        return debug_utils.save_debug_image(self.last_screenshot, prefix=self.__class__.__name__)
+        if prefix is None:
+            prefix = self.__class__.__name__
+        return debug_utils.save_debug_image(self.last_screenshot, prefix=prefix)
 
     @property
     def display_name(self) -> str:
