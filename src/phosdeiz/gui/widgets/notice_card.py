@@ -18,24 +18,48 @@ from .label import EllipsisLabel
 from .pivot import CustomListItemDelegate, PhosPivot
 
 
+import os
+import json
+import time
+
 class DataFetcher(QThread):
     data_fetched = Signal(dict)
 
     BASE_URL = "https://hyp-api.mihoyo.com/hyp/hyp-connect/api/getGameContent"
     LAUNCHER_ID = "jGHBHlcOq1"
     GAME_ID = "x6znKlJ0xK"
+    CACHE_FILE = "notice_cache.json"
+    CACHE_DURATION = 259200  # 缓存时间为3天
 
     def run(self):
-        try:
-            response = requests.get(
-                f"{DataFetcher.BASE_URL}?launcher_id={DataFetcher.LAUNCHER_ID}&game_id={DataFetcher.GAME_ID}&language=zh-cn",
-                verify=False,
-                timeout=10,
-            )
-            response.raise_for_status()
-            self.data_fetched.emit(response.json())
-        except requests.RequestException as e:
-            self.data_fetched.emit({"error": str(e)})
+        if self.is_cache_valid():
+            with open(DataFetcher.CACHE_FILE, "r", encoding="utf-8") as cache_file:
+                cached_data = json.load(cache_file)
+                self.data_fetched.emit(cached_data)
+        else:
+            try:
+                # 调整错误时延时过长导致的启动缓慢问题
+                response = requests.get(
+                    f"{DataFetcher.BASE_URL}?launcher_id={DataFetcher.LAUNCHER_ID}&game_id={DataFetcher.GAME_ID}&language=zh-cn",
+                    verify=False,
+                    timeout=3,
+                )
+                response.raise_for_status()
+                data = response.json()
+                self.data_fetched.emit(data)
+                self.save_cache(data)
+            except requests.RequestException as e:
+                self.data_fetched.emit({"error": str(e)})
+
+    def is_cache_valid(self):
+        if not os.path.exists(DataFetcher.CACHE_FILE):
+            return False
+        cache_mtime = os.path.getmtime(DataFetcher.CACHE_FILE)
+        return time.time() - cache_mtime < DataFetcher.CACHE_DURATION
+
+    def save_cache(self, data):
+        with open(DataFetcher.CACHE_FILE, "w", encoding="utf-8") as cache_file:
+            json.dump(data, cache_file)
 
 
 class NoticeCard(SimpleCardWidget):
