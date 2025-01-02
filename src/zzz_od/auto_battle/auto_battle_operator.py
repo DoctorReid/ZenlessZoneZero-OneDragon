@@ -370,8 +370,8 @@ class AutoBattleOperator(ConditionalOperator):
         2. 转向 - 有机会找到后方太远的敌人；迷失之地可以转动下层入口
         :return:
         """
-        auto_lock_interval = self.get('auto_lock_interval', 0)
-        auto_turn_interval = self.get('auto_turn_interval', 0)
+        auto_lock_interval = self.get('auto_lock_interval', 1)
+        auto_turn_interval = self.get('auto_turn_interval', 2)
         if auto_lock_interval <= 0 and auto_turn_interval <= 0:  # 不开启自动锁定 和 自动转向
             return
         op = AtomicBtnLock(self.auto_battle_context)
