@@ -111,7 +111,7 @@ area_list:
   lcs_percent: 0.5
   template_sub_dir: menu
   template_id: back
-  template_match_threshold: 0.7
+  template_match_threshold: 0.9
   color_range: null
   goto_list:
   - 大世界-普通
@@ -141,7 +141,7 @@ area_list:
   lcs_percent: 0.5
   template_sub_dir: menu
   template_id: friends
-  template_match_threshold: 0.7
+  template_match_threshold: 0.9
   color_range: null
   goto_list: []
 - area_name: 底部-仓库
