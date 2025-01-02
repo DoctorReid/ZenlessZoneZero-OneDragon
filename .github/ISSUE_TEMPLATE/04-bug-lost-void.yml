@@ -14,7 +14,9 @@ body:
         - 请先在issue中搜索是否已有类似问题。
         - 请先阅读最新的[使用前须知](https://one-dragon.org/zzz/zh/quickstart.html#_2-%E4%BD%BF%E7%94%A8%E5%89%8D%E9%A1%BB%E7%9F%A5)，确保设置正确。
         - 请先阅读最新的[功能说明](https://one-dragon.org/zzz/zh/docs/feat_lost_void.html)，确保设置正确。
-        - 请使用脚本F11进行截图上传，图片保存在 .debug/images/ 文件夹中，其他截图方式有概率不受理。
+        - 请使用 __脚本F11__ 进行截图上传，其他截图方式大概率不受理。
+        - 请使用 __脚本F11__ 进行截图上传，其他截图方式大概率不受理。
+        - 请使用 __脚本F11__ 进行截图上传，其他截图方式大概率不受理。
         - 缺少日志/截图/录屏的情况，有概率不受理。
 
   - type: input
@@ -46,7 +48,10 @@ body:
   - type: textarea
     attributes:
       label: "游戏截图"
-      description: "使用脚本按F11进行截图，图片保存在 .debug/images/ 文件夹中"
+      description: |
+        - 请使用 __脚本F11__ 进行截图上传，图片保存在 .debug/images/ 文件夹中，其他截图方式大概率不受理。
+        - 请使用 __脚本F11__ 进行截图上传，图片保存在 .debug/images/ 文件夹中，其他截图方式大概率不受理。
+        - 请使用 __脚本F11__ 进行截图上传，图片保存在 .debug/images/ 文件夹中，其他截图方式大概率不受理。
       placeholder: "游戏截图"
 
   - type: textarea
