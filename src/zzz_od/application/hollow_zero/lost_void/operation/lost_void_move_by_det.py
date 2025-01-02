@@ -328,7 +328,12 @@ class LostVoidMoveByDet(ZOperation):
                 # 不考虑 [距离]白点
                 continue
 
-            if result.width > 50 and result.height > 50:
+            if result.detect_class.class_name == LostVoidDetector.CLASS_INTERACT:
+                min_width = 70  # 感叹号的图标会大一点
+            else:
+                min_width = 50  # 普通入口的图标
+
+            if result.width > min_width and result.height > min_width:
                 return True
 
         return False
