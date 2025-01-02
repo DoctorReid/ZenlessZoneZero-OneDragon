@@ -121,6 +121,7 @@ class LostVoidMoveByDet(ZOperation):
     def turn_at_first(self) -> OperationRoundResult:
         screenshot_time = time.time()
         screen = self.screenshot()
+
         frame_result = self.detector.run(screen)
 
         if self.check_interact_stop(screen, frame_result):
@@ -239,10 +240,15 @@ class LostVoidMoveByDet(ZOperation):
             if i.merge_parent is None
         ]
 
+        if self.last_target_result is not None:  # 优先保持与上次一致的目标
+            result = self.get_same_as_last_target(entry_list)
+            if result is not None:
+                return result
+
         not_mixed_entry_list = [item for item in entry_list if not item.is_mixed]
         mixed_entry_list = [item for item in entry_list if item.is_mixed]
         if len(not_mixed_entry_list) > 0:
-            return self.ctx.lost_void.get_entry_by_priority(entry_list)
+            return self.ctx.lost_void.get_entry_by_priority(not_mixed_entry_list)
         elif len(mixed_entry_list) > 0:
             return self.ctx.lost_void.get_entry_by_priority(mixed_entry_list)
         else:
@@ -346,15 +352,12 @@ class LostVoidMoveByDet(ZOperation):
 
         if self.stop_when_interact:  # 目标是要交互
             # 当前可能准备进入可以交互状态 先等等交互按钮出现
-            time.sleep(1)
+            in_battle = self.ctx.lost_void.check_battle_encounter_in_period(1)
+            if in_battle:
+                return self.round_success(LostVoidMoveByDet.STATUS_IN_BATTLE)
 
         screenshot_time = time.time()
         screen = self.screenshot()
-
-        # 识别不到目标的时候 判断是否在战斗
-        in_battle = self.ctx.lost_void.check_battle_encounter(screen, screenshot_time)
-        if in_battle:
-            return self.round_success(LostVoidMoveByDet.STATUS_IN_BATTLE)
 
         if self.stop_when_disappear:
             return self.round_success(LostVoidMoveByDet.STATUS_ARRIVAL, data=self.last_target_name)
@@ -380,7 +383,38 @@ class LostVoidMoveByDet(ZOperation):
             return self.round_fail(LostVoidMoveByDet.STATUS_NO_FOUND)
 
         self.ctx.controller.turn_by_distance(-100)
-        return self.round_success(LostVoidMoveByDet.STATUS_CONTINUE, wait=0.5)
+        # 识别不到目标的时候 判断是否在战斗 转动等待的时候持续识别 否则0.5秒才识别一次间隔太久 很难识别到黄光
+        in_battle = self.ctx.lost_void.check_battle_encounter_in_period(0.5)
+        if in_battle:
+            return self.round_success(LostVoidMoveByDet.STATUS_IN_BATTLE)
+
+        return self.round_success(LostVoidMoveByDet.STATUS_CONTINUE)
+
+    def get_same_as_last_target(self, entry_list: List[MoveTargetWrapper]) -> Optional[MoveTargetWrapper]:
+        """
+        从本次结果中 选择与上一次位置最接近
+        @param entry_list:
+        @return:
+        """
+        nearest_result: Optional[MoveTargetWrapper] = None
+        for entry in entry_list:
+            if len(entry.target_name_list) != len(self.last_target_result.target_name_list):
+                continue
+
+            # 偷懒 只判断最左边类型就算了
+            if entry.leftest_target_name != self.last_target_result.leftest_target_name:
+                continue
+
+            if nearest_result is None:
+                nearest_result = entry
+                continue
+
+            entry_dis = abs(cal_utils.distance_between(entry.entire_rect.center, self.last_target_result.entire_rect.center))
+            nearest_dis = abs(cal_utils.distance_between(nearest_result.entire_rect.center, self.last_target_result.entire_rect.center))
+            if entry_dis < nearest_dis:
+                nearest_result = entry
+
+        return nearest_result
 
     def handle_pause(self) -> None:
         ZOperation.handle_pause(self)
