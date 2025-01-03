@@ -13,7 +13,7 @@ _BACKUP_FLASH_CLASSIFIER = 'yolov8n-640-flash-0718'
 _DEFAULT_HOLLOW_ZERO_EVENT = 'yolov8s-736-hollow-zero-event-1130'
 _BACKUP_HOLLOW_ZERO_EVENT = 'yolov8s-736-hollow-zero-event-1130'
 
-_DEFAULT_LOST_VOID_DET = 'yolov8s-736-lost-void-det-1228'
+_DEFAULT_LOST_VOID_DET = 'yolov8s-736-lost-void-det-0101'
 _BACKUP_LOST_VOID_DET = 'yolov8s-736-lost-void-det-1228'
 
 

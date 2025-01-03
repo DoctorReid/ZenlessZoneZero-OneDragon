@@ -1,3 +1,5 @@
+import time
+
 import os
 from cv2.typing import MatLike
 from typing import Optional, List, Tuple
@@ -12,7 +14,6 @@ from zzz_od.application.hollow_zero.lost_void.context.lost_void_detector import 
 from zzz_od.application.hollow_zero.lost_void.lost_void_challenge_config import LostVoidRegionType, \
     LostVoidChallengeConfig
 from zzz_od.application.hollow_zero.lost_void.operation.lost_void_move_by_det import MoveTargetWrapper
-from zzz_od.auto_battle import auto_battle_utils
 from zzz_od.auto_battle.auto_battle_dodge_context import YoloStateEventEnum
 from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.context.zzz_context import ZContext
@@ -123,6 +124,26 @@ class LostVoidContext:
             return True
 
         return False
+
+    def check_battle_encounter_in_period(self, total_check_seconds: float) -> bool:
+        """
+        持续一段时间检测是否进入战斗
+        @param total_check_seconds: 总共检测的秒数
+        @return:
+        """
+        start = time.time()
+
+        while True:
+            screenshot_time = time.time()
+
+            if screenshot_time - start >= total_check_seconds:
+                return False
+
+            screen = self.ctx.controller.screenshot()
+            if self.check_battle_encounter(screen, screenshot_time):
+                return True
+
+            time.sleep(self.ctx.battle_assistant_config.screenshot_interval)
 
     def match_artifact_by_ocr_full(self, name_full_str: str) -> Optional[LostVoidArtifact]:
         """

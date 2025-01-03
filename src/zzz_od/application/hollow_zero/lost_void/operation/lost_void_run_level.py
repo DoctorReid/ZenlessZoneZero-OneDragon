@@ -70,14 +70,19 @@ class LostVoidRunLevel(ZOperation):
         self.last_det_time: float = 0  # 上一次进行识别的时间
         self.no_in_battle_times: int = 0  # 识别到不在战斗的次数
         self.last_check_finish_time: float = 0  # 上一次识别结束的时间
+        self.talk_opt_idx = 0  # 交互选择的选项
+        self.reward_eval_found: bool = False  # 挑战结果中可以识别到业绩点
+        self.reward_dn_found: bool = False  # 挑战结果中可以识别到丁尼
 
-    @operation_node(name='等待加载', node_max_retry_times=60, is_start_node=False)
+    @node_from(from_name='非战斗画面识别', status='未在大世界')  # 有小概率交互入口后 没处理好结束本次RunLevel 重新从等待加载 开始
+    @operation_node(name='等待加载', node_max_retry_times=60, is_start_node=True)
     def wait_loading(self) -> OperationRoundResult:
         screen = self.screenshot()
 
         if self.in_normal_world(screen):
             return self.round_success('大世界')
 
+        # 在精英怪后后 点击完挑战结果后 加载挚友会谈前 可能会弹出奖励 因此在加载这里判断是否有奖励需要选择
         screen_name = self.check_and_update_current_screen(screen)
         if screen_name in ['迷失之地-武备选择', '迷失之地-通用选择']:
             self.target_interact_type = LostVoidDetector.CLASS_INTERACT
@@ -186,6 +191,12 @@ class LostVoidRunLevel(ZOperation):
 
         self.ctx.controller.turn_by_distance(-100)
         self.nothing_times += 1
+
+        if self.nothing_times >= 10 and not self.in_normal_world(screen):
+            return self.round_success('未在大世界')
+
+        if self.nothing_times >= 50:
+            return self.round_fail('未发现目标')
         return self.round_wait(status='转动识别目标', wait=0.5)
 
     @node_from(from_name='非战斗画面识别', status=LostVoidDetector.CLASS_INTERACT)
@@ -250,7 +261,7 @@ class LostVoidRunLevel(ZOperation):
                 self.target_interact_type = LostVoidDetector.CLASS_INTERACT
             op_result = interact_op.execute()
             if op_result.success:
-                return self.round_wait(op_result.status)
+                return self.round_wait(op_result.status, wait=1)
             else:
                 return self.round_fail(op_result.status)
 
@@ -269,7 +280,12 @@ class LostVoidRunLevel(ZOperation):
         if result.is_success:
             return self.round_success('迷失之地-挑战结果')
 
-        return self.round_retry(status=f'未知画面', wait_round_time=0.3)
+        # 不在大世界的话 说明交互入口成功了
+        if self.target_interact_type == LostVoidDetector.CLASS_ENTRY:
+            return self.round_success(LostVoidRunLevel.STATUS_NEXT_LEVEL)
+
+        # 交互后 可能出现了后续的交互
+        return self.round_retry(status=f'未知画面', wait_round_time=1)
 
     def try_talk(self, screen: MatLike) -> OperationRoundResult:
         """
@@ -285,8 +301,14 @@ class LostVoidRunLevel(ZOperation):
         ocr_result_map = self.ctx.ocr.run_ocr(to_ocr)
 
         if len(ocr_result_map) > 0:  # 有可能在交互
+            # 判断是否有选项
+            opt_result = self.try_talk_options(screen)
+            if opt_result is not None:
+                return opt_result
+
             self.ctx.controller.click(area.center + Point(0, 50))  # 往下一点点击 防止遮住了名称
-            return self.round_wait(f'尝试交互 {str(ocr_result_map.keys)}', wait=0.5)
+
+            return self.round_wait(f'尝试交互 {str(list(ocr_result_map.keys()))}', wait=0.5)
 
         # 对话内容 特殊的 没有对话名称的
         area = self.ctx.screen_loader.get_area('迷失之地-大世界', '区域-对话内容')
@@ -303,12 +325,60 @@ class LostVoidRunLevel(ZOperation):
 
         for ocr_result in ocr_result_map.keys():
             for special_talk in special_talk_list:
-                if str_utils.find_by_lcs(gt(special_talk), ocr_result):
-                    self.ctx.controller.click(area.center)
-                    return self.round_wait(f'尝试交互 {str(ocr_result_map.keys)}', wait=0.5)
+                if not str_utils.find_by_lcs(gt(special_talk), ocr_result):
+                    continue
+
+                # 判断是否有选项
+                opt_result = self.try_talk_options(screen)
+                if opt_result is not None:
+                    return opt_result
+
+                self.ctx.controller.click(area.center)
+                return self.round_wait(f'尝试交互 {str(list(ocr_result_map.keys()))}', wait=0.5)
+
+    def try_talk_options(self, screen: MatLike) -> Optional[OperationRoundResult]:
+        """
+        判断是否有对话选项
+        @return:
+        """
+        area = self.ctx.screen_loader.get_area('迷失之地-大世界', '区域-右侧对话选项')
+        part = cv2_utils.crop_image_only(screen, area.rect)
+        mask = cv2.inRange(part, (200, 200, 200), (255, 255, 255))
+        mask = cv2_utils.dilate(mask, 2)
+        to_ocr = cv2.bitwise_and(part, part, mask=mask)
+        # cv2_utils.show_image(to_ocr, wait=0)
+        ocr_result_map = self.ctx.ocr.run_ocr(to_ocr)
+
+        ocr_result_list = []
+        mr_list = []
+        for ocr_result, mrl in ocr_result_map.items():
+            if mrl.max is None:
+                continue
+
+            for mr in mrl:
+                mr_list.append(mr)
+                ocr_result_list.append(ocr_result)
+
+        if len(mr_list) > 0:
+            to_click_mr = mr_list[self.talk_opt_idx] if self.talk_opt_idx < len(mr_list) else mr_list[0]
+            to_click_ocr_result = ocr_result_list[self.talk_opt_idx] if self.talk_opt_idx < len(ocr_result_list) else ocr_result_list[0]
+            to_click_mr.add_offset(area.left_top)
+
+            self.ctx.controller.click(to_click_mr.center)
+            self.talk_opt_idx += 1
+            return self.round_wait(f'尝试交互选项 {to_click_ocr_result}', wait=0.5)
+        else:
+            self.talk_opt_idx = 0
+
+        # 有可能选项里只有符号 识别不到 这时候用图标识别兜底
+
+        result = self.round_by_find_and_click_area(screen, '迷失之地-大世界', '区域-右侧对话图标')
+        if result.is_success:
+            return self.round_wait(f'尝试交互选项图标', wait=0.5)
 
     @node_from(from_name='交互处理', status='迷失之地-大世界')
     @node_from(from_name='交互处理', status='迷失之地-挑战结果')
+    @node_from(from_name='交互处理', status=STATUS_NEXT_LEVEL)
     @node_from(from_name='交互处理', success=False, status='未知画面')
     @operation_node(name='交互后处理', node_max_retry_times=10)
     def after_interact(self) -> OperationRoundResult:
@@ -391,7 +461,7 @@ class LostVoidRunLevel(ZOperation):
         if in_battle:  # 当前回到可战斗画面
             if (not self.last_frame_in_battle  # 之前在非战斗画面
                 or screenshot_time - self.last_det_time >= 5  # 5秒识别一次
-                or self.no_in_battle_times > 0  # 之前也识别到脱离战斗
+                or (self.no_in_battle_times > 0 and screenshot_time - self.last_check_finish_time >= 0.1)  # 之前也识别到脱离战斗 0.1秒识别一次
             ):
                 # 尝试识别目标
                 self.last_det_time = screenshot_time
@@ -418,7 +488,7 @@ class LostVoidRunLevel(ZOperation):
                 else:
                     self.no_in_battle_times = 0
 
-                if self.no_in_battle_times >= 5:
+                if self.no_in_battle_times >= 10:
                     auto_battle_utils.stop_running(self.auto_op)
                     log.info('识别需移动交互')
                     return self.round_success('识别需移动交互')
@@ -426,7 +496,7 @@ class LostVoidRunLevel(ZOperation):
                 return self.round_wait()
         else:  # 当前不在战斗画面
             if (screenshot_time - self.last_check_finish_time >= 5  # 5秒识别一次
-                or self.no_in_battle_times > 0  # 之前也识别到脱离战斗
+                or (self.no_in_battle_times > 0 and screenshot_time - self.last_check_finish_time >= 0.1) # 之前也识别到脱离战斗 0.1秒识别一次
             ):
                 self.last_check_finish_time = screenshot_time
                 screen_name = self.check_and_update_current_screen(screen)
@@ -437,7 +507,7 @@ class LostVoidRunLevel(ZOperation):
                 else:
                     self.no_in_battle_times = 0
 
-                if self.no_in_battle_times >= 5:
+                if self.no_in_battle_times >= 10:
                     auto_battle_utils.stop_running(self.auto_op)
                     self.target_interact_type = LostVoidRunLevel.IT_BATTLE
                     log.info('识别正在交互')
@@ -463,24 +533,31 @@ class LostVoidRunLevel(ZOperation):
     def handle_challenge_result_finish(self) -> OperationRoundResult:
         screen = self.screenshot()
 
+        # 由于有动画效果 这里需要识别很多轮 只要有一轮识别到就算有
         result = self.round_by_find_area(screen, '迷失之地-挑战结果', '奖励-零号业绩')
         if result.is_success:
-            self.ctx.lost_void_record.eval_point_complete = False
-            self.ctx.lost_void_record.period_reward_complete = False
-        else:
-            self.ctx.lost_void_record.eval_point_complete = True
-            result = self.round_by_find_area(screen, '迷失之地-挑战结果', '奖励-丁尼')
-            if result.is_success:
-                self.ctx.lost_void_record.period_reward_complete = False
-            else:
-                if self.ctx.env_config.is_debug:
-                    self.save_screenshot()
-                self.ctx.lost_void_record.period_reward_complete = True
+            self.reward_eval_found = True
+        result = self.round_by_find_area(screen, '迷失之地-挑战结果', '奖励-丁尼')
+        if result.is_success:
+            self.reward_dn_found = True
+
 
         result = self.round_by_find_and_click_area(screen=screen, screen_name='迷失之地-挑战结果', area_name='按钮-完成',
                                                    until_not_find_all=[('迷失之地-挑战结果', '按钮-完成')],
                                                    success_wait=1, retry_wait=1)
         if result.is_success:
+            if self.reward_eval_found:
+                # 有业绩点 说明两个都没达成
+                self.ctx.lost_void_record.eval_point_complete = False
+                self.ctx.lost_void_record.period_reward_complete = False
+            else:
+                self.ctx.lost_void_record.eval_point_complete = True
+                self.ctx.lost_void_record.period_reward_complete = not self.reward_dn_found
+
+            if self.ctx.lost_void_record.period_reward_complete:
+                if self.ctx.env_config.is_debug:
+                    self.save_screenshot(prefix='period_reward_complete')
+
             return self.round_success(LostVoidRunLevel.STATUS_COMPLETE, data=LostVoidRegionType.FRIENDLY_TALK.value.value)
         else:
             return result
@@ -499,12 +576,8 @@ def __debug():
 
     op = LostVoidRunLevel(ctx, LostVoidRegionType.ENTRY)
 
-    from one_dragon.utils import debug_utils
-    screen = debug_utils.get_debug_image('_1735464006666')
-    result = op.round_by_find_area(screen, '迷失之地-挑战结果', '标题-挑战结果')
-    print(result.is_success)
-
-    op.execute()
+    screen = op.screenshot()
+    op.try_talk(screen)
 
 
 if __name__ == '__main__':

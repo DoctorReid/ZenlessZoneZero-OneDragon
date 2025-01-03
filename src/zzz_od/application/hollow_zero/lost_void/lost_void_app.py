@@ -163,7 +163,6 @@ class LostVoidApp(ZApplication):
     @operation_node(name='全部领取')
     def claim_all(self) -> OperationRoundResult:
         return self.round_by_find_and_click_area(screen_name='迷失之地-入口', area_name='按钮-悬赏委托-全部领取',
-                                                 until_not_find_all=[('迷失之地-入口', '按钮-悬赏委托-全部领取')],
                                                  success_wait=1, retry_wait=1)
 
     @node_from(from_name='全部领取')

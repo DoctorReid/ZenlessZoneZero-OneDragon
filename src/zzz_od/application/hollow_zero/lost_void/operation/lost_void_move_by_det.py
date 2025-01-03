@@ -84,6 +84,9 @@ class MoveTargetWrapper:
 class LostVoidMoveByDet(ZOperation):
 
     STATUS_IN_BATTLE: ClassVar[str] = '遭遇战斗'
+    STATUS_ARRIVAL: ClassVar[str] = '到达目标'
+    STATUS_NO_FOUND: ClassVar[str] = '未识别到目标'
+    STATUS_CONTINUE: ClassVar[str] = '继续识别目标'
 
     def __init__(self, ctx: ZContext,
                  current_region: LostVoidRegionType, target_type: str,
@@ -108,39 +111,26 @@ class LostVoidMoveByDet(ZOperation):
         self.last_target_name: Optional[str] = None  # 最后识别到的交互目标名称
         self.same_target_times: int = 0  # 识别到相同目标的次数
         self.stuck_times: int = 0  # 被困次数
+        self.total_turn_times: int = 0  # 总共转向次数
 
         self.last_save_debug_image_time: float = 0  # 上一次保存debug图片的时间
 
-    @node_from(from_name='移动', status='丢失目标')
     @node_from(from_name='脱困')
+    @node_from(from_name='无目标处理', status=STATUS_CONTINUE)
     @operation_node(name='移动前转向', node_max_retry_times=20, is_start_node=True)
     def turn_at_first(self) -> OperationRoundResult:
         screenshot_time = time.time()
         screen = self.screenshot()
+
         frame_result = self.detector.run(screen)
 
         if self.check_interact_stop(screen, frame_result):
-            return self.round_success(data=self.last_target_name)
+            return self.round_success(LostVoidMoveByDet.STATUS_ARRIVAL, data=self.last_target_name)
 
         target_result = self.get_move_target(frame_result)
 
         if target_result is None:
-            # 识别不到目标的时候 判断是否在战斗
-            in_battle = self.ctx.lost_void.check_battle_encounter(screen, screenshot_time)
-            if in_battle:
-                return self.round_fail(LostVoidMoveByDet.STATUS_IN_BATTLE)
-
-            if self.stop_when_disappear:
-                return self.round_fail('目标消失')
-
-            if self.last_target_result is not None:
-                # 曾经识别到过 可能被血条 或者其它东西遮住了 尝试往前走一点
-                self.ctx.controller.move_w(press=True, press_time=0.5, release=True)
-                self.last_target_result = None
-
-            # 没找到目标 转动
-            self.ctx.controller.turn_by_distance(-100)
-            return self.round_retry('未找到目标', wait=0.5)
+            return self.round_success(LostVoidMoveByDet.STATUS_NO_FOUND)
 
         self.last_target_result = target_result
         pos = target_result.entire_rect.center
@@ -164,20 +154,7 @@ class LostVoidMoveByDet(ZOperation):
         target_result = self.get_move_target(frame_result)
 
         if target_result is None:
-            self.ctx.controller.stop_moving_forward()
-
-            # 识别不到目标的时候 判断是否在战斗
-            in_battle = self.ctx.lost_void.check_battle_encounter(screen, screenshot_time)
-            if in_battle:
-                return self.round_fail(LostVoidMoveByDet.STATUS_IN_BATTLE)
-
-            if self.stop_when_disappear:
-                return self.round_success(data=self.last_target_name)
-            else:
-                if self.ctx.env_config.is_debug and screenshot_time - self.last_save_debug_image_time > 5:
-                    self.last_save_debug_image_time = screenshot_time
-                    self.save_screenshot()
-                return self.round_success(status='丢失目标', data=self.last_target_name)
+            return self.round_success(LostVoidMoveByDet.STATUS_NO_FOUND)
 
         is_stuck = self.check_stuck(target_result)
         if is_stuck is not None:
@@ -263,10 +240,15 @@ class LostVoidMoveByDet(ZOperation):
             if i.merge_parent is None
         ]
 
+        if self.last_target_result is not None:  # 优先保持与上次一致的目标
+            result = self.get_same_as_last_target(entry_list)
+            if result is not None:
+                return result
+
         not_mixed_entry_list = [item for item in entry_list if not item.is_mixed]
         mixed_entry_list = [item for item in entry_list if item.is_mixed]
         if len(not_mixed_entry_list) > 0:
-            return self.ctx.lost_void.get_entry_by_priority(entry_list)
+            return self.ctx.lost_void.get_entry_by_priority(not_mixed_entry_list)
         elif len(mixed_entry_list) > 0:
             return self.ctx.lost_void.get_entry_by_priority(mixed_entry_list)
         else:
@@ -352,10 +334,87 @@ class LostVoidMoveByDet(ZOperation):
                 # 不考虑 [距离]白点
                 continue
 
-            if result.width > 50 and result.height > 50:
+            if result.detect_class.class_name == LostVoidDetector.CLASS_INTERACT:
+                min_width = 70  # 感叹号的图标会大一点
+            else:
+                min_width = 50  # 普通入口的图标
+
+            if result.width > min_width and result.height > min_width:
                 return True
 
         return False
+
+    @node_from(from_name='移动前转向', status=STATUS_NO_FOUND)
+    @node_from(from_name='移动', status=STATUS_NO_FOUND)
+    @operation_node(name='无目标处理')
+    def handle_no_target(self) -> OperationRoundResult:
+        self.ctx.controller.stop_moving_forward()
+
+        if self.stop_when_interact:  # 目标是要交互
+            # 当前可能准备进入可以交互状态 先等等交互按钮出现
+            in_battle = self.ctx.lost_void.check_battle_encounter_in_period(1)
+            if in_battle:
+                return self.round_success(LostVoidMoveByDet.STATUS_IN_BATTLE)
+
+        screenshot_time = time.time()
+        screen = self.screenshot()
+
+        if self.stop_when_disappear:
+            return self.round_success(LostVoidMoveByDet.STATUS_ARRIVAL, data=self.last_target_name)
+
+        if self.stop_when_interact:
+            result = self.round_by_find_area(screen, '战斗画面', '按键-交互')
+            if result.is_success:
+                return self.round_success(LostVoidMoveByDet.STATUS_ARRIVAL, data=self.last_target_name)
+
+        # 保存截图用于优化
+        if self.ctx.env_config.is_debug and screenshot_time - self.last_save_debug_image_time > 5:
+            self.last_save_debug_image_time = screenshot_time
+            self.save_screenshot()
+
+        if self.last_target_result is not None:
+            # 曾经识别到过 可能被血条 或者其它东西遮住了 尝试往前走一点
+            self.ctx.controller.move_w(press=True, press_time=0.5, release=True)
+            self.last_target_result = None
+
+        # 没找到目标 转动
+        self.total_turn_times += 1
+        if self.total_turn_times >= 100:  # 基本不可能转向这么多次还没有到达
+            return self.round_fail(LostVoidMoveByDet.STATUS_NO_FOUND)
+
+        self.ctx.controller.turn_by_distance(-100)
+        # 识别不到目标的时候 判断是否在战斗 转动等待的时候持续识别 否则0.5秒才识别一次间隔太久 很难识别到黄光
+        in_battle = self.ctx.lost_void.check_battle_encounter_in_period(0.5)
+        if in_battle:
+            return self.round_success(LostVoidMoveByDet.STATUS_IN_BATTLE)
+
+        return self.round_success(LostVoidMoveByDet.STATUS_CONTINUE)
+
+    def get_same_as_last_target(self, entry_list: List[MoveTargetWrapper]) -> Optional[MoveTargetWrapper]:
+        """
+        从本次结果中 选择与上一次位置最接近
+        @param entry_list:
+        @return:
+        """
+        nearest_result: Optional[MoveTargetWrapper] = None
+        for entry in entry_list:
+            if len(entry.target_name_list) != len(self.last_target_result.target_name_list):
+                continue
+
+            # 偷懒 只判断最左边类型就算了
+            if entry.leftest_target_name != self.last_target_result.leftest_target_name:
+                continue
+
+            if nearest_result is None:
+                nearest_result = entry
+                continue
+
+            entry_dis = abs(cal_utils.distance_between(entry.entire_rect.center, self.last_target_result.entire_rect.center))
+            nearest_dis = abs(cal_utils.distance_between(nearest_result.entire_rect.center, self.last_target_result.entire_rect.center))
+            if entry_dis < nearest_dis:
+                nearest_result = entry
+
+        return nearest_result
 
     def handle_pause(self) -> None:
         ZOperation.handle_pause(self)

@@ -1,6 +1,6 @@
-name: 问题反馈-零号空洞-枯萎之都
-description: 枯萎之都有问题的时候提这个
-title: "[问题反馈] [枯萎之都] "
+name: 问题反馈-零号空洞-迷失之地
+description: 迷失之地有问题的时候提这个
+title: "[问题反馈] [迷失之地] "
 labels: ["bug"]
 
 body:
@@ -13,7 +13,7 @@ body:
         - 最新版本代码有问题可尝试使用回滚功能看是否依然有问题。
         - 请先在issue中搜索是否已有类似问题。
         - 请先阅读最新的[使用前须知](https://one-dragon.org/zzz/zh/quickstart.html#_2-%E4%BD%BF%E7%94%A8%E5%89%8D%E9%A1%BB%E7%9F%A5)，确保设置正确。
-        - 请先阅读最新的[功能说明](https://one-dragon.org/zzz/zh/docs/feat_hollow_zero.html)，确保设置正确。
+        - 请先阅读最新的[功能说明](https://one-dragon.org/zzz/zh/docs/feat_lost_void.html)，确保设置正确。
         - 请使用 __脚本F11__ 进行截图上传，其他截图方式大概率不受理。
         - 请使用 __脚本F11__ 进行截图上传，其他截图方式大概率不受理。
         - 请使用 __脚本F11__ 进行截图上传，其他截图方式大概率不受理。
@@ -40,15 +40,10 @@ body:
 
   - type: textarea
     attributes:
-      label: "问题副本"
-      description: "是在哪个副本里触发这个问题的，方便作者复现"
+      label: "区域类型"
+      description: "是在哪个区域里触发这个问题的，方便作者复现"
     validations:
       required: true
-
-  - type: textarea
-    attributes:
-      label: "寻路方式"
-      description: "如果是在格子移动上卡死，提供速通还是默认还是自定义，方便作者复现"
 
   - type: textarea
     attributes:

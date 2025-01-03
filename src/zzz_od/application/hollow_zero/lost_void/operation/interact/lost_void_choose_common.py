@@ -1,10 +1,9 @@
 import time
 
 from cv2.typing import MatLike
-from typing import List
+from typing import List, Optional
 
 from one_dragon.base.matcher.match_result import MatchResult
-from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils import cv2_utils, str_utils
@@ -29,20 +28,24 @@ class LostVoidChooseCommon(ZOperation):
             # 进入本指令之前 有可能识别错画面
             return self.round_retry(status=f'当前画面 {screen_name}', wait=1)
 
-        result = self.round_by_find_area(screen, '迷失之地-通用选择', '标题-武备已升级')
-        if result.is_success:
-            return result
-
         art_list = self.get_artifact_pos(screen)
-        if len(art_list) == 0:
-            return self.round_retry(status='无法识别藏品', wait=1)
+        art: Optional[MatchResult] = None
+        if self.to_choose_num > 0:
+            if len(art_list) == 0:
+                return self.round_retry(status='无法识别藏品', wait=1)
 
-        priority_list = self.ctx.lost_void.get_artifact_by_priority(art_list, self.to_choose_num)
-        for art in priority_list:
-            self.ctx.controller.click(art.center)
-            time.sleep(0.5)
+            priority_list = self.ctx.lost_void.get_artifact_by_priority(art_list, self.to_choose_num)
+            for art in priority_list:
+                self.ctx.controller.click(art.center)
+                time.sleep(0.5)
 
-        return self.round_success()
+        result = self.round_by_find_and_click_area(screen_name='迷失之地-通用选择', area_name='按钮-确定',
+                                                   success_wait=1, retry_wait=1)
+        if result.is_success:
+            status = result.status if art is None else f'选择 {art.data.name}'
+            return self.round_success(status)
+        else:
+            return self.round_retry(result.status, wait=1)
 
     def get_artifact_pos(self, screen: MatLike) -> List[MatchResult]:
         """
@@ -61,6 +64,9 @@ class LostVoidChooseCommon(ZOperation):
             gt('请选择1项'),
             gt('请选择2项'),
             gt('请选择1个武备'),
+            gt('获得武备'),
+            gt('武备已升级'),
+            gt('获得战利品')
         ]
 
         for ocr_word in ocr_result.keys():
@@ -77,6 +83,18 @@ class LostVoidChooseCommon(ZOperation):
             elif idx == 2:
                 is_gear = True
                 self.to_choose_num = 1
+            elif idx == 3:
+                is_gear = True
+                self.to_choose_num = 0
+            elif idx == 4:
+                is_gear = True
+                self.to_choose_num = 0
+            elif idx == 5:
+                is_artifact = True
+                self.to_choose_num = 0
+
+        if self.to_choose_num == 0:  # 不需要选择的
+            return []
 
         if is_artifact:
             area_name = '区域-藏品名称'
@@ -108,13 +126,6 @@ class LostVoidChooseCommon(ZOperation):
             result_list.append(result)
 
         return result_list
-
-    @node_from(from_name='选择')
-    @operation_node(name='点击确定')
-    def click_confirm(self) -> OperationRoundResult:
-        return self.round_by_find_and_click_area(screen_name='迷失之地-通用选择', area_name='按钮-确定',
-                                                 success_wait=1, retry_wait=1,
-                                                 until_not_find_all=[('迷失之地-通用选择', '按钮-确定')])
 
 
 def __debug():
