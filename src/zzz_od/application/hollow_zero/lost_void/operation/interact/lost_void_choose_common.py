@@ -28,16 +28,31 @@ class LostVoidChooseCommon(ZOperation):
             # 进入本指令之前 有可能识别错画面
             return self.round_retry(status=f'当前画面 {screen_name}', wait=1)
 
+        result = self.round_by_find_area(screen, '迷失之地-通用选择', '按钮-刷新')
+        can_refresh = result.is_success
+
         art_list = self.get_artifact_pos(screen)
         art: Optional[MatchResult] = None
         if self.to_choose_num > 0:
             if len(art_list) == 0:
                 return self.round_retry(status='无法识别藏品', wait=1)
 
-            priority_list = self.ctx.lost_void.get_artifact_by_priority(art_list, self.to_choose_num)
-            for art in priority_list:
-                self.ctx.controller.click(art.center)
-                time.sleep(0.5)
+            priority_list = self.ctx.lost_void.get_artifact_by_priority(
+                art_list, self.to_choose_num,
+                consider_priority_1=True, consider_priority_2=not can_refresh,
+                consider_not_in_priority=not can_refresh
+            )
+
+            if len(priority_list) > 0:
+                for art in priority_list:
+                    self.ctx.controller.click(art.center)
+                    time.sleep(0.5)
+            elif can_refresh:
+                result = self.round_by_find_and_click_area(screen, '迷失之地-通用选择', '按钮-刷新')
+                if result.is_success:
+                    return self.round_wait(result.status, wait=1)
+                else:
+                    return self.round_retry(result.status, wait=1)
 
         result = self.round_by_find_and_click_area(screen_name='迷失之地-通用选择', area_name='按钮-确定',
                                                    success_wait=1, retry_wait=1)

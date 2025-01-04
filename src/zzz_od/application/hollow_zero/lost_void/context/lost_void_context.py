@@ -245,49 +245,59 @@ class LostVoidContext:
         return filter_result_list, error_msg
 
     def get_artifact_by_priority(self, artifact_list: List[MatchResult], choose_num: int,
-                                 only_priority: bool = False) -> List[MatchResult]:
+                                 consider_priority_1: bool = True, consider_priority_2: bool = True,
+                                 consider_not_in_priority: bool = True) -> List[MatchResult]:
         """
         根据优先级 返回需要选择的藏品
         :param artifact_list: 识别到的藏品结果
         :param choose_num: 需要选择的数量
-        :param only_priority: 是否只保留优先级中的
+        :param consider_priority_1: 是否考虑优先级1的内容
+        :param consider_priority_2: 是否考虑优先级2的内容
+        :param consider_not_in_priority: 是否考虑优先级以外的选项
         :return: 按优先级选择的结果
         """
+        priority_list_to_consider = []
+        if consider_priority_1:
+            priority_list_to_consider.append(self.challenge_config.artifact_priority)
+        if consider_priority_2:
+            priority_list_to_consider.append(self.challenge_config.artifact_priority_2)
+
         priority_idx_list: List[int] = []  # 优先级排序的下标
 
         # 按优先级顺序 将匹配的藏品下标加入
-        for priority in self.challenge_config.artifact_priority:
-            split_idx = priority.find(' ')
-            if split_idx != -1:
-                cate_name = priority[:split_idx]
-                item_name = priority[split_idx+1:]
-            else:
-                cate_name = priority
-                item_name = ''
+        for priority_list in priority_list_to_consider:
+            for priority in priority_list:
+                split_idx = priority.find(' ')
+                if split_idx != -1:
+                    cate_name = priority[:split_idx]
+                    item_name = priority[split_idx+1:]
+                else:
+                    cate_name = priority
+                    item_name = ''
 
-            for idx in range(len(artifact_list)):
-                if idx in priority_idx_list:  # 已经加入过了
-                    continue
+                for idx in range(len(artifact_list)):
+                    if idx in priority_idx_list:  # 已经加入过了
+                        continue
 
-                artifact: LostVoidArtifact = artifact_list[idx].data
+                    artifact: LostVoidArtifact = artifact_list[idx].data
 
-                if artifact.category != cate_name:
-                    continue
+                    if artifact.category != cate_name:
+                        continue
 
-                if item_name == '':
-                    priority_idx_list.append(idx)
-                    continue
-
-                if item_name in ['S', 'A', 'B']:
-                    if artifact.level == item_name:
+                    if item_name == '':
                         priority_idx_list.append(idx)
-                    continue
+                        continue
 
-                if item_name == artifact.name:
-                    priority_idx_list.append(idx)
+                    if item_name in ['S', 'A', 'B']:
+                        if artifact.level == item_name:
+                            priority_idx_list.append(idx)
+                        continue
+
+                    if item_name == artifact.name:
+                        priority_idx_list.append(idx)
 
         # 将剩余的 按等级加入
-        if not only_priority:
+        if consider_not_in_priority:
             for level in ['S', 'A', 'B']:
                 for idx in range(len(artifact_list)):
                     if idx in priority_idx_list:  # 已经加入过了

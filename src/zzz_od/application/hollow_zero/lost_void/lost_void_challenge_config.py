@@ -124,6 +124,18 @@ class LostVoidChallengeConfig(YamlConfig):
         return '\n'.join(self.artifact_priority)
 
     @property
+    def artifact_priority_2(self) -> List[str]:
+        return self.get('artifact_priority_2', [])
+
+    @artifact_priority_2.setter
+    def artifact_priority_2(self, new_value: List[str]):
+        self.update('artifact_priority_2', new_value)
+
+    @property
+    def artifact_priority_2_str(self) -> str:
+        return '\n'.join(self.artifact_priority_2)
+
+    @property
     def region_type_priority(self) -> List[str]:
         return self.get('region_type_priority', [])
 
@@ -144,12 +156,20 @@ class LostVoidChallengeConfig(YamlConfig):
         self.update('period_buff_no', new_value)
 
     @property
-    def buy_only_priority(self) -> int:
-        return self.get('buy_only_priority', LostVoidBuyOnlyPriority.NO_4.value.value)
+    def buy_only_priority_1(self) -> int:
+        return self.get('buy_only_priority_1', 1)
 
-    @buy_only_priority.setter
-    def buy_only_priority(self, new_value: int):
-        self.update('buy_only_priority', new_value)
+    @buy_only_priority_1.setter
+    def buy_only_priority_1(self, new_value: int):
+        self.update('buy_only_priority_1', new_value)
+
+    @property
+    def buy_only_priority_2(self) -> int:
+        return self.get('buy_only_priority_2', 3)
+
+    @buy_only_priority_2.setter
+    def buy_only_priority_2(self, new_value: int):
+        self.update('buy_only_priority_2', new_value)
 
 
 def get_all_lost_void_challenge_config(with_sample: bool = True) -> List[LostVoidChallengeConfig]:
