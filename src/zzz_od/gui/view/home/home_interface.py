@@ -135,6 +135,8 @@ class HomeInterface(VerticalScrollInterface):
             os_utils.get_path_under_work_dir('assets', 'ui'),
             'index.png'
         ))
+        v_widget.set_percentage_size(0.8, 0.5)  # 设置 Banner 大小为窗口的 80% 宽度和 50% 高度
+
         v_layout = QVBoxLayout(v_widget)
         v_layout.setContentsMargins(0, 0, 0, 15)
         v_layout.setSpacing(5)
@@ -190,7 +192,9 @@ class HomeInterface(VerticalScrollInterface):
         h2_layout.addLayout(v1_layout)
 
         # 空白占位符
-        h2_layout.addItem(QSpacerItem(25, 10, QSizePolicy.Fixed, QSizePolicy.Minimum))
+        v_layout.addItem(QSpacerItem(10, 20, QSizePolicy.Fixed, QSizePolicy.Minimum))
+
+        # self.setLayout(v_layout)
 
         # 将底部水平布局添加到垂直布局
         v_layout.addLayout(h2_layout)

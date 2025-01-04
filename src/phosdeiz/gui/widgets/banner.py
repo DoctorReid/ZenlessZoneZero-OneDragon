@@ -1,17 +1,14 @@
 import os
-from PySide6.QtCore import Qt,QSize
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap, QPainter, QPainterPath
 from PySide6.QtWidgets import QWidget
-
 
 class Banner(QWidget):
     """展示带有圆角的固定大小横幅小部件"""
 
     def __init__(self, image_path: str, parent=None):
         super().__init__(parent)
-
-        self.setFixedHeight(650)
-        self.setFixedWidth(870)
+        self.image_path = image_path
         self.banner_image = self.load_banner_image(image_path)
         self.update_scaled_image()
 
@@ -29,26 +26,15 @@ class Banner(QWidget):
 
     def update_scaled_image(self):
         """按高度缩放图片，宽度保持比例，超出裁剪"""
-        original_width = self.banner_image.width()
-        original_height = self.banner_image.height()
-
-        # 获取设备像素比
-        pixel_ratio = self.devicePixelRatio()
-
-        # 根据高度计算宽度
-        height_ratio = self.height() / original_height
-        new_width = int(original_width * height_ratio)
-
-        # 使用设备像素比进行缩放，避免模糊
-        size = QSize(new_width, self.height())
         self.scaled_image = self.banner_image.scaled(
-            size * pixel_ratio,  # 使用设备像素比来缩放
-            Qt.IgnoreAspectRatio,  # 忽略宽高比，强制缩放
-            Qt.SmoothTransformation,
+            self.width(), self.height(), Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation
         )
+        self.update()
 
-        # 设置设备像素比，确保图像在高分辨率设备上显示正确
-        self.scaled_image.setDevicePixelRatio(pixel_ratio)
+    def resizeEvent(self, event):
+        """重载 resizeEvent 以更新缩放后的图片"""
+        self.update_scaled_image()
+        super().resizeEvent(event)
 
     def paintEvent(self, event):
         """重载 paintEvent 以绘制缩放后的图片"""
@@ -60,5 +46,19 @@ class Banner(QWidget):
         path.addRoundedRect(0, 0, w, h, 20, 20)
         painter.setClipPath(path)
 
+        # 计算绘制位置，以原图的右下角为顶点进行渲染
+        source_w, source_h = self.scaled_image.width(), self.scaled_image.height()
+        target_x = max(0, source_w - w)
+        target_y = max(0, source_h - h)
+
         # 在窗口上绘制缩放后的图片
-        painter.drawPixmap(-80, 0, self.scaled_image)
+        painter.drawPixmap(0, 0, w, h, self.scaled_image, target_x, target_y, w, h)
+
+    def set_percentage_size(self, width_percentage, height_percentage):
+        """设置 Banner 的大小为窗口大小的百分比"""
+        parent = self.parentWidget()
+        if parent:
+            new_width = int(parent.width() * width_percentage)
+            new_height = int(parent.height() * height_percentage)
+            self.setFixedSize(new_width, new_height)
+            self.update_scaled_image()
