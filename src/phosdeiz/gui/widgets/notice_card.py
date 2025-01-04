@@ -1,6 +1,8 @@
 import requests
 import webbrowser
-
+import os
+import json
+import time
 from PySide6.QtCore import Qt, QSize, QTimer, QThread, Signal
 from PySide6.QtGui import QPixmap, QFont, QPainterPath, QRegion, QColor
 from PySide6.QtWidgets import (
@@ -11,32 +13,67 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QStackedWidget,
 )
-
 from qfluentwidgets import SimpleCardWidget, HorizontalFlipView, ListWidget
-
 from .label import EllipsisLabel
 from .pivot import CustomListItemDelegate, PhosPivot
 
 
+# 增加了缓存机制, 有效期为3天, 避免每次都请求数据
+# 调整了超时时间, 避免网络问题导致程序启动缓慢
 class DataFetcher(QThread):
     data_fetched = Signal(dict)
 
     BASE_URL = "https://hyp-api.mihoyo.com/hyp/hyp-connect/api/getGameContent"
     LAUNCHER_ID = "jGHBHlcOq1"
     GAME_ID = "x6znKlJ0xK"
+    CACHE_DIR = "notice_cache"
+    CACHE_FILE = os.path.join(CACHE_DIR, "notice_cache.json")
+    CACHE_DURATION = 259200  # 缓存时间为3天
+    TIMEOUTNUM = 3 # 超时时间
 
     def run(self):
         try:
             response = requests.get(
                 f"{DataFetcher.BASE_URL}?launcher_id={DataFetcher.LAUNCHER_ID}&game_id={DataFetcher.GAME_ID}&language=zh-cn",
                 verify=False,
-                timeout=10,
+                timeout=DataFetcher.TIMEOUTNUM,
             )
             response.raise_for_status()
-            self.data_fetched.emit(response.json())
+            data = response.json()
+            self.data_fetched.emit(data)
+            self.save_cache(data)
+            self.download_related_files(data)
         except requests.RequestException as e:
-            self.data_fetched.emit({"error": str(e)})
+            if self.is_cache_valid():
+                with open(DataFetcher.CACHE_FILE, "r", encoding="utf-8") as cache_file:
+                    cached_data = json.load(cache_file)
+                    self.data_fetched.emit(cached_data)
+            else:
+                self.data_fetched.emit({"error": str(e)})
 
+    def is_cache_valid(self):
+        if not os.path.exists(DataFetcher.CACHE_FILE):
+            return False
+        cache_mtime = os.path.getmtime(DataFetcher.CACHE_FILE)
+        return time.time() - cache_mtime < DataFetcher.CACHE_DURATION
+
+    def save_cache(self, data):
+        os.makedirs(DataFetcher.CACHE_DIR, exist_ok=True)
+        with open(DataFetcher.CACHE_FILE, "w", encoding="utf-8") as cache_file:
+            json.dump(data, cache_file)
+
+    def download_related_files(self, data):
+        related_files = data.get("related_files", [])
+        for file_url in related_files:
+            file_name = os.path.basename(file_url)
+            file_path = os.path.join(DataFetcher.CACHE_DIR, file_name)
+            try:
+                response = requests.get(file_url, verify=False, timeout=DataFetcher.TIMEOUTNUM)
+                response.raise_for_status()
+                with open(file_path, "wb") as file:
+                    file.write(response.content)
+            except requests.RequestException as e:
+                print(f"Failed to download {file_url}: {e}")
 
 class NoticeCard(SimpleCardWidget):
     def __init__(self):
