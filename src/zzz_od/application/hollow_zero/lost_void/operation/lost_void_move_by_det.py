@@ -370,7 +370,7 @@ class LostVoidMoveByDet(ZOperation):
         # 保存截图用于优化
         if self.ctx.env_config.is_debug and screenshot_time - self.last_save_debug_image_time > 5:
             self.last_save_debug_image_time = screenshot_time
-            self.save_screenshot()
+            self.save_screenshot(prefix='lost_void_move_by_det')
 
         if self.last_target_result is not None:
             # 曾经识别到过 可能被血条 或者其它东西遮住了 尝试往前走一点
