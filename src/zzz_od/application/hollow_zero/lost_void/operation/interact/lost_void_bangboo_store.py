@@ -1,3 +1,5 @@
+import time
+
 import cv2
 from cv2.typing import MatLike
 from typing import List, Optional
@@ -59,6 +61,10 @@ class LostVoidBangbooStore(ZOperation):
     @node_from(from_name='确认后处理')
     @operation_node(name='购买藏品', is_start_node=True)
     def buy_artifact(self) -> OperationRoundResult:
+        area = self.ctx.screen_loader.get_area('迷失之地-邦布商店', '文本-详情')
+        self.ctx.controller.mouse_move(area.center)
+        time.sleep(0.1)
+
         screen = self.screenshot()
 
         # 按刷新之后的确认

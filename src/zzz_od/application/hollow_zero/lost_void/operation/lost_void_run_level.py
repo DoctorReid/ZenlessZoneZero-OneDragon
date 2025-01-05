@@ -69,6 +69,7 @@ class LostVoidRunLevel(ZOperation):
         self.interact_entry_name: str = ''  # 交互的下层入口名称
 
         self.last_frame_in_battle: bool = True  # 上一帧画面在战斗
+        self.current_frame_in_battle: bool = True  # 当前帧画面在战斗
         self.last_det_time: float = 0  # 上一次进行识别的时间
         self.no_in_battle_times: int = 0  # 识别到不在战斗的次数
         self.last_check_finish_time: float = 0  # 上一次识别结束的时间
@@ -461,11 +462,12 @@ class LostVoidRunLevel(ZOperation):
 
         screenshot_time = time.time()
         screen = self.screenshot()
-        in_battle = self.auto_op.auto_battle_context.check_battle_state(screen, screenshot_time)
+        self.last_frame_in_battle = self.current_frame_in_battle
+        self.current_frame_in_battle = self.auto_op.auto_battle_context.check_battle_state(screen, screenshot_time)
 
-        if in_battle:  # 当前回到可战斗画面
+        if self.current_frame_in_battle:  # 当前回到可战斗画面
             if (not self.last_frame_in_battle  # 之前在非战斗画面
-                or screenshot_time - self.last_det_time >= 5  # 5秒识别一次
+                or screenshot_time - self.last_det_time >= 1  # 1秒识别一次
                 or (self.no_in_battle_times > 0 and screenshot_time - self.last_check_finish_time >= 0.1)  # 之前也识别到脱离战斗 0.1秒识别一次
             ):
                 # 尝试识别目标
@@ -485,7 +487,7 @@ class LostVoidRunLevel(ZOperation):
 
                 if not no_in_battle:
                     area = self.ctx.screen_loader.get_area('迷失之地-大世界', '区域-文本提示')
-                    if screen_utils.find_by_ocr(self.ctx, screen, target_cn='前往下一个区域', area=area):
+                    if screen_utils.find_by_ocr(self.ctx, screen2, target_cn='前往下一个区域', area=area):
                         no_in_battle = True
 
                 if no_in_battle:
@@ -498,9 +500,9 @@ class LostVoidRunLevel(ZOperation):
                     log.info('识别需移动交互')
                     return self.round_success('识别需移动交互')
 
-                return self.round_wait()
+                return self.round_wait(wait_round_time=self.ctx.battle_assistant_config.screenshot_interval)
         else:  # 当前不在战斗画面
-            if (screenshot_time - self.last_check_finish_time >= 5  # 5秒识别一次
+            if (screenshot_time - self.last_check_finish_time >= 1  # 1秒识别一次
                 or (self.no_in_battle_times > 0 and screenshot_time - self.last_check_finish_time >= 0.1) # 之前也识别到脱离战斗 0.1秒识别一次
             ):
                 self.last_check_finish_time = screenshot_time
@@ -523,9 +525,9 @@ class LostVoidRunLevel(ZOperation):
                         log.info('识别正在交互')
                         return self.round_success('识别正在交互')
 
-                return self.round_wait()
+                return self.round_wait(wait_round_time=self.ctx.battle_assistant_config.screenshot_interval)
 
-        return self.round_wait(self.ctx.battle_assistant_config.screenshot_interval)
+        return self.round_wait(wait_round_time=self.ctx.battle_assistant_config.screenshot_interval)
 
     @node_from(from_name='交互后处理', status='挑战结果-确定')
     @operation_node(name='挑战结果处理确定')
@@ -613,8 +615,10 @@ def __debug():
 
     op = LostVoidRunLevel(ctx, LostVoidRegionType.ENTRY)
 
-    screen = op.screenshot()
-    op.try_talk(screen)
+    from one_dragon.utils import debug_utils
+    screen = debug_utils.get_debug_image('_1736065936380')
+    area = op.ctx.screen_loader.get_area('迷失之地-大世界', '区域-文本提示')
+    print(screen_utils.find_by_ocr(op.ctx, screen, target_cn='前往下一个区域', area=area))
 
 
 if __name__ == '__main__':

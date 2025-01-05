@@ -7,7 +7,8 @@ from zzz_od.application.coffee.coffee_app import CoffeeApp
 from zzz_od.application.drive_disc_dismantle.drive_disc_dismantle_app import DriveDiscDismantleApp
 from zzz_od.application.email_app.email_app import EmailApp
 from zzz_od.application.engagement_reward.engagement_reward_app import EngagementRewardApp
-from zzz_od.application.hollow_zero.hollow_zero_app import HollowZeroApp
+from zzz_od.application.hollow_zero.lost_void.lost_void_app import LostVoidApp
+from zzz_od.application.hollow_zero.withered_domain.hollow_zero_app import HollowZeroApp
 from zzz_od.application.life_on_line.life_on_line_app import LifeOnLineApp
 from zzz_od.application.notorious_hunt.notorious_hunt_app import NotoriousHuntApp
 from zzz_od.application.random_play.random_play_app import RandomPlayApp
@@ -43,6 +44,7 @@ class ZOneDragonApp(OneDragonApp, ZApplication):
             NotoriousHuntApp(self.ctx),
             EngagementRewardApp(self.ctx),
             HollowZeroApp(self.ctx),
+            LostVoidApp(self.ctx),
             ShiyuDefenseApp(self.ctx),
             CityFundApp(self.ctx),
             RiduWeeklyApp(self.ctx),
