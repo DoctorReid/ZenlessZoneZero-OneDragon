@@ -438,13 +438,16 @@ class LostVoidRunLevel(ZOperation):
         if self.target_interact_type == LostVoidRunLevel.IT_BATTLE:  # 战斗后的交互 不需要往后走
             return
 
-        if self.region_type == LostVoidRegionType.ENTRY:
+        if self.region_type in LostVoidRegionType.ENTRY:
             # 第一层 两个武备选择后 往后走 可以方便走上楼梯
             self.ctx.controller.move_s(press=True, press_time=1, release=True)
         elif self.region_type == LostVoidRegionType.FRIENDLY_TALK:
             # 挚友会谈 交互从左往右 每次交互之后 向右移动 可以避开中间桌子的障碍
             self.ctx.controller.move_s(press=True, press_time=1, release=True)
             self.ctx.controller.move_d(press=True, press_time=1, release=True)
+        elif self.target_interact_type == LostVoidDetector.CLASS_INTERACT:
+            # 感叹号的情况 由于奸商布的位置和商店很靠近 因此固定交互后往后移动
+            self.ctx.controller.move_s(press=True, press_time=1, release=True)
 
     @node_from(from_name='区域类型初始化', status='战斗区域')
     @node_from(from_name='非战斗画面识别', status='进入战斗')

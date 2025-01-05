@@ -362,7 +362,8 @@ class LostVoidMoveByDet(ZOperation):
         if self.stop_when_disappear:
             return self.round_success(LostVoidMoveByDet.STATUS_ARRIVAL, data=self.last_target_name)
 
-        if self.stop_when_interact:
+        frame_result: DetectFrameResult = self.detector.run(screen)
+        if self.check_interact_stop(screen, frame_result):
             result = self.round_by_find_area(screen, '战斗画面', '按键-交互')
             if result.is_success:
                 return self.round_success(LostVoidMoveByDet.STATUS_ARRIVAL, data=self.last_target_name)
