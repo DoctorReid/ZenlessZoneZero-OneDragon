@@ -314,4 +314,4 @@ class LostVoidChallengeConfigInterface(VerticalScrollInterface):
         entry_list, err_msg = self.ctx.lost_void.check_region_type_priority_input(value)
         self._update_error_message(err_msg)
 
-        self.chosen_config.region_priority = entry_list
+        self.chosen_config.region_type_priority = entry_list
