@@ -5,6 +5,7 @@ from cv2.typing import MatLike
 from typing import ClassVar, Optional
 
 from one_dragon.base.geometry.point import Point
+from one_dragon.base.operation.operation import Operation
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
@@ -23,6 +24,7 @@ from zzz_od.application.hollow_zero.lost_void.operation.lost_void_move_by_det im
 from zzz_od.auto_battle import auto_battle_utils
 from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.context.zzz_context import ZContext
+from zzz_od.operation.challenge_mission.exit_in_battle import ExitInBattle
 from zzz_od.operation.zzz_operation import ZOperation
 
 
@@ -137,7 +139,7 @@ class LostVoidRunLevel(ZOperation):
     @node_from(from_name='交互后处理', status='大世界')  # 目前交互之后都不会有战斗
     @node_from(from_name='战斗中', status='识别需移动交互')  # 战斗后出现距离 或者下层入口
     @node_from(from_name='尝试交互', success=False)  # 没能交互到
-    @operation_node(name='非战斗画面识别')
+    @operation_node(name='非战斗画面识别', timeout_seconds=180)
     def non_battle_check(self) -> OperationRoundResult:
         now = time.time()
         screen = self.screenshot()
@@ -438,7 +440,7 @@ class LostVoidRunLevel(ZOperation):
         if self.target_interact_type == LostVoidRunLevel.IT_BATTLE:  # 战斗后的交互 不需要往后走
             return
 
-        if self.region_type in LostVoidRegionType.ENTRY:
+        if self.region_type == LostVoidRegionType.ENTRY:
             # 第一层 两个武备选择后 往后走 可以方便走上楼梯
             self.ctx.controller.move_s(press=True, press_time=1, release=True)
         elif self.region_type == LostVoidRegionType.FRIENDLY_TALK:
@@ -544,7 +546,6 @@ class LostVoidRunLevel(ZOperation):
         if result.is_success:
             self.reward_dn_found = True
 
-
         result = self.round_by_find_and_click_area(screen=screen, screen_name='迷失之地-挑战结果', area_name='按钮-完成',
                                                    until_not_find_all=[('迷失之地-挑战结果', '按钮-完成')],
                                                    success_wait=1, retry_wait=1)
@@ -562,6 +563,24 @@ class LostVoidRunLevel(ZOperation):
                     self.save_screenshot(prefix='period_reward_complete')
 
             return self.round_success(LostVoidRunLevel.STATUS_COMPLETE, data=LostVoidRegionType.FRIENDLY_TALK.value.value)
+        else:
+            return result
+
+    @node_from(from_name='非战斗画面识别', success=False, status=Operation.STATUS_TIMEOUT)
+    @operation_node(name='失败退出空洞')
+    def fail_exit_lost_void(self) -> OperationRoundResult:
+        op = ExitInBattle(self.ctx, '迷失之地-挑战结果', '按钮-完成')
+        return self.round_by_op_result(op.execute())
+
+    @node_from(from_name='失败退出空洞')
+    @operation_node(name='点击失败退出完成')
+    def handle_fail_exit(self) -> OperationRoundResult:
+        result = self.round_by_find_and_click_area(screen_name='迷失之地-挑战结果', area_name='按钮-完成',
+                                                 until_not_find_all=[('迷失之地-挑战结果', '按钮-完成')],
+                                                 success_wait=1, retry_wait=1)
+
+        if result.is_success:
+            return self.round_success(LostVoidRunLevel.STATUS_COMPLETE, data=LostVoidRegionType.ENTRY.value.value)
         else:
             return result
 
