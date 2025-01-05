@@ -454,7 +454,7 @@ class LostVoidRunLevel(ZOperation):
     @node_from(from_name='区域类型初始化', status='战斗区域')
     @node_from(from_name='非战斗画面识别', status='进入战斗')
     @node_from(from_name='非战斗画面识别', status=LostVoidMoveByDet.STATUS_IN_BATTLE)
-    @operation_node(name='战斗中', mute=True)
+    @operation_node(name='战斗中', mute=True, timeout_seconds=600)
     def in_battle(self) -> OperationRoundResult:
         if not self.auto_op.is_running:
             self.auto_op.start_running_async()
@@ -567,8 +567,10 @@ class LostVoidRunLevel(ZOperation):
             return result
 
     @node_from(from_name='非战斗画面识别', success=False, status=Operation.STATUS_TIMEOUT)
+    @node_from(from_name='战斗中', success=False, status=Operation.STATUS_TIMEOUT)
     @operation_node(name='失败退出空洞')
     def fail_exit_lost_void(self) -> OperationRoundResult:
+        auto_battle_utils.stop_running(self.auto_op)
         op = ExitInBattle(self.ctx, '迷失之地-挑战结果', '按钮-完成')
         return self.round_by_op_result(op.execute())
 
