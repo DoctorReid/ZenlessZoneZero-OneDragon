@@ -44,7 +44,7 @@ class ButtonGroup(SimpleCardWidget):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
 
-        self.setFixedSize(56, 320)
+        self.setFixedSize(56, 180)
 
         layout = QVBoxLayout(self)
         layout.setAlignment(Qt.AlignTop)
@@ -71,18 +71,52 @@ class ButtonGroup(SimpleCardWidget):
         github_button.clicked.connect(self.open_github)
         layout.addWidget(github_button)
 
-        # 添加一个可伸缩的空白区域
-        layout.addStretch()
-
-        # 创建 同步 按钮
-        sync_button = IconButton(
-            FluentIcon.SYNC.icon(color=QColor("#fff")), tip_title="未完工", tip_content="开发中", isTooltip=True
+        # 创建 文档 按钮
+        doc_button = IconButton(
+            FluentIcon.LIBRARY.icon(color=QColor("#fff")),  # Assuming FluentIcon.BOOK is suitable for a document
+            tip_title="自助排障文档",
+            tip_content="点击打开自助排障文档,好孩子都能看懂",
+            isTooltip=True,
         )
-        sync_button.setIconSize(QSize(32, 32))
-        layout.addWidget(sync_button)
+        doc_button.setIconSize(QSize(32, 32))
+        doc_button.clicked.connect(self.open_doc)
+        layout.addWidget(doc_button)
+
+        # 创建 Q群 按钮
+        doc_button = IconButton(
+            FluentIcon.CHAT.icon(color=QColor("#fff")),  # Assuming FluentIcon.BOOK is suitable for a document
+            tip_title="官方社群",
+            tip_content="加入官方群聊【绝区零&一条龙交流群】",
+            isTooltip=True,
+        )
+        doc_button.setIconSize(QSize(32, 32))
+        doc_button.clicked.connect(self.open_chat)
+        layout.addWidget(doc_button)
+
+        # 创建 官方店铺 按钮 (当然没有)
+        doc_button = IconButton(
+            FluentIcon.SHOPPING_CART.icon(color=QColor("#fff")),  # Assuming FluentIcon.BOOK is suitable for a document
+            tip_title="官方店铺",
+            tip_content="当然没有官方店铺,本软件完全免费, 速速加入官方社群!",
+            isTooltip=True,
+        )
+        doc_button.setIconSize(QSize(32, 32))
+        doc_button.clicked.connect(self.open_sales)
+        layout.addWidget(doc_button)
+
+        # 未完工区域, 暂时隐藏
+        # # 添加一个可伸缩的空白区域
+        # layout.addStretch()
+
+        # # 创建 同步 按钮
+        # sync_button = IconButton(
+        #     FluentIcon.SYNC.icon(color=QColor("#fff")), tip_title="未完工", tip_content="开发中", isTooltip=True
+        # )
+        # sync_button.setIconSize(QSize(32, 32))
+        # layout.addWidget(sync_button)
         
     def _normalBackgroundColor(self):
-        return QColor(0, 0, 0, 33)
+        return QColor(0, 0, 0, 96)
 
     def open_home(self):
         """打开主页链接"""
@@ -94,6 +128,17 @@ class ButtonGroup(SimpleCardWidget):
             QUrl("https://github.com/DoctorReid/ZenlessZoneZero-OneDragon")
         )
 
+    def open_chat(self):
+        """打开 Q群 链接"""
+        QDesktopServices.openUrl(QUrl("https://qm.qq.com/q/N5iEy8sTu0"))
+
+    def open_doc(self):
+        """打开 巡夜的金山文档 链接"""
+        QDesktopServices.openUrl(QUrl("https://kdocs.cn/l/cbSJUUNotJ3Z"))
+    
+    def open_sales(self):
+        """其实还是打开 Q群 链接"""
+        QDesktopServices.openUrl(QUrl("https://qm.qq.com/q/N5iEy8sTu0"))
 
 class CheckRunnerBase(QThread):
     """检查更新的基础线程类"""
@@ -181,7 +226,7 @@ class HomeInterface(VerticalScrollInterface):
         h2_layout.addStretch()
 
         # 启动游戏按钮布局
-        gameButton = PrimaryPushButton("启动游戏")
+        gameButton = PrimaryPushButton("启动游戏🚀")
         gameButton.setFont(QFont("Microsoft YaHei", 16, QFont.Weight.Bold))
         gameButton.setFixedSize(160, 48)
         gameButton.clicked.connect(self.start_game)
@@ -192,9 +237,7 @@ class HomeInterface(VerticalScrollInterface):
         h2_layout.addLayout(v1_layout)
 
         # 空白占位符
-        v_layout.addItem(QSpacerItem(10, 20, QSizePolicy.Fixed, QSizePolicy.Minimum))
-
-        # self.setLayout(v_layout)
+        h2_layout.addItem(QSpacerItem(25, 10, QSizePolicy.Fixed, QSizePolicy.Minimum))
 
         # 将底部水平布局添加到垂直布局
         v_layout.addLayout(h2_layout)
