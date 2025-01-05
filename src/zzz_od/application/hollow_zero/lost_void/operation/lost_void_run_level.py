@@ -507,6 +507,7 @@ class LostVoidRunLevel(ZOperation):
                 screen_name = self.check_and_update_current_screen(screen)
                 if screen_name in ['迷失之地-武备选择', '迷失之地-通用选择', '迷失之地-挑战结果',
                                    '迷失之地-大世界',  # 有可能是之前交互识别错了 认为进入了战斗楼层 实际上没有交互
+                                   '迷失之地-战斗失败'
                                    ]:
                     self.no_in_battle_times += 1
                 else:
@@ -514,9 +515,13 @@ class LostVoidRunLevel(ZOperation):
 
                 if self.no_in_battle_times >= 10:
                     auto_battle_utils.stop_running(self.auto_op)
-                    self.target_interact_type = LostVoidRunLevel.IT_BATTLE
-                    log.info('识别正在交互')
-                    return self.round_success('识别正在交互')
+
+                    if screen_name == '迷失之地-战斗失败':
+                        return self.round_success(screen_name)
+                    else:
+                        self.target_interact_type = LostVoidRunLevel.IT_BATTLE
+                        log.info('识别正在交互')
+                        return self.round_success('识别正在交互')
 
                 return self.round_wait()
 
@@ -574,7 +579,15 @@ class LostVoidRunLevel(ZOperation):
         op = ExitInBattle(self.ctx, '迷失之地-挑战结果', '按钮-完成')
         return self.round_by_op_result(op.execute())
 
+    @node_from(from_name='战斗中', status='迷失之地-战斗失败')
+    @operation_node(name='处理战斗失败')
+    def handle_battle_fail(self) -> OperationRoundResult:
+        return self.round_by_find_and_click_area(screen_name='迷失之地-战斗失败', area_name='按钮-撤退',
+                                                 until_not_find_all=[('迷失之地-战斗失败', '按钮-撤退')],
+                                                 success_wait=1, retry_wait=1)
+
     @node_from(from_name='失败退出空洞')
+    @node_from(from_name='处理战斗失败')
     @operation_node(name='点击失败退出完成')
     def handle_fail_exit(self) -> OperationRoundResult:
         result = self.round_by_find_and_click_area(screen_name='迷失之地-挑战结果', area_name='按钮-完成',
