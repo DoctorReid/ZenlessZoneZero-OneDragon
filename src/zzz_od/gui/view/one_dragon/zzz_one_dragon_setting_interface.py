@@ -36,7 +36,7 @@ class ZOneDragonSettingInterface(VerticalScrollInterface):
         return content_widget
 
     def get_coffee_shop_group(self) -> QWidget:
-        group = SettingCardGroup(gt('咖啡店'))
+        group = SettingCardGroup(gt('影像店'))
 
         self.random_play_agent_1 = ComboBoxSettingCard(
             icon=FluentIcon.PEOPLE, title=gt('影像店代理人-1'),
