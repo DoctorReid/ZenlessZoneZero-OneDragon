@@ -11,6 +11,8 @@ from zzz_od.config.team_config import PredefinedTeamInfo
 from zzz_od.context.zzz_context import ZContext
 
 from phosdeiz.gui.widgets import Column,ComboBox
+from zzz_od.game_data.agent import AgentEnum
+
 
 class TeamSettingCard(MultiPushSettingCard):
 
@@ -21,38 +23,39 @@ class TeamSettingCard(MultiPushSettingCard):
 
         self.name_input = LineEdit()
         self.name_input.textChanged.connect(self.on_name_changed)
+        self.name_input.setMinimumWidth(100)
 
         self.auto_battle_btn = ComboBox()
         self.auto_battle_btn.currentIndexChanged.connect(self.on_auto_battle_changed)
 
+        self.agent_1_btn = ComboBox()
+        self.agent_1_btn.currentIndexChanged.connect(self.on_agent_1_changed)
+
+        self.agent_2_btn = ComboBox()
+        self.agent_2_btn.currentIndexChanged.connect(self.on_agent_2_changed)
+
+        self.agent_3_btn = ComboBox()
+        self.agent_3_btn.currentIndexChanged.connect(self.on_agent_3_changed)
+
         MultiPushSettingCard.__init__(self, icon=FluentIcon.PEOPLE, title='预备编队',
-                                      btn_list=[self.name_input, self.auto_battle_btn])
+                                      btn_list=[self.name_input,
+                                                self.agent_1_btn, self.agent_2_btn, self.agent_3_btn,
+                                                self.auto_battle_btn])
 
-    def init_auto_battle_btn(self, auto_battle_list: List[ConfigItem]) -> None:
-        """
-        初始化自动战斗配置的下拉框
-        """
-        self.auto_battle_btn.blockSignals(True)
-
-        self.auto_battle_btn.clear()
-        for config in auto_battle_list:
-            self.auto_battle_btn.addItem(text=config.label, userData=config.value)
-
-        self.auto_battle_btn.blockSignals(False)
-
-    def init_with_team(self, team: PredefinedTeamInfo) -> None:
+    def init_setting_card(self, auto_battle_list: List[ConfigItem], team: PredefinedTeamInfo) -> None:
         self.team_info = team
 
         self.name_input.blockSignals(True)
         self.name_input.setText(self.team_info.name)
         self.name_input.blockSignals(False)
 
-        self.auto_battle_btn.blockSignals(True)
-        for idx, item in enumerate(self.auto_battle_btn.items):
-            if item.userData == team.auto_battle:
-                self.auto_battle_btn.setCurrentIndex(idx)
-                break
-        self.auto_battle_btn.blockSignals(False)
+        self.auto_battle_btn.set_items(auto_battle_list, team.auto_battle)
+
+        agent_opts = ([ConfigItem(label='未知代理人', value='unknown')]
+            + [ConfigItem(label=i.value.agent_name, value=i.value.agent_id) for i in AgentEnum])
+        self.agent_1_btn.set_items(agent_opts, team.agent_id_list[0])
+        self.agent_2_btn.set_items(agent_opts, team.agent_id_list[1])
+        self.agent_3_btn.set_items(agent_opts, team.agent_id_list[2])
 
     def on_name_changed(self, value: str) -> None:
         if self.team_info is None:
@@ -66,6 +69,27 @@ class TeamSettingCard(MultiPushSettingCard):
             return
 
         self.team_info.auto_battle = self.auto_battle_btn.itemData(idx)
+        self.changed.emit(self.team_info)
+
+    def on_agent_1_changed(self, idx: int) -> None:
+        if self.team_info is None:
+            return
+
+        self.team_info.agent_id_list[0] = self.agent_1_btn.itemData(idx)
+        self.changed.emit(self.team_info)
+
+    def on_agent_2_changed(self, idx: int) -> None:
+        if self.team_info is None:
+            return
+
+        self.team_info.agent_id_list[1] = self.agent_2_btn.itemData(idx)
+        self.changed.emit(self.team_info)
+
+    def on_agent_3_changed(self, idx: int) -> None:
+        if self.team_info is None:
+            return
+
+        self.team_info.agent_id_list[2] = self.agent_3_btn.itemData(idx)
         self.changed.emit(self.team_info)
 
 
@@ -86,6 +110,7 @@ class SettingTeamInterface(VerticalScrollInterface):
         content_widget = Column()
 
         self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='使用默认队伍名称出现错选时 可更改名字解决',
+                                      content='本页代理人可在游戏助手中自动识别，设置仅作用于避免式舆防卫战选择配队冲突',
                                       text='', url='')
         content_widget.add_widget(self.help_opt)
 
@@ -111,8 +136,7 @@ class SettingTeamInterface(VerticalScrollInterface):
             if i >= len(self.team_opt_list):
                 break
 
-            self.team_opt_list[i].init_auto_battle_btn(auto_battle_list)
-            self.team_opt_list[i].init_with_team(team_list[i])
+            self.team_opt_list[i].init_setting_card(auto_battle_list, team_list[i])
 
     def on_team_info_changed(self, team: PredefinedTeamInfo) -> None:
         self.ctx.team_config.update_team(team)

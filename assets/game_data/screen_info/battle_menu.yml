@@ -23,7 +23,7 @@ area_list:
   - 26
   - 1826
   - 76
-  text: ''
+  text: 设置
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''

@@ -128,6 +128,16 @@ class DefenseTeamSearcher:
         # 优先考虑弱点 迫不得已再选逆抗性
         candidate_idx_list = weakness_idx_list + normal_idx_list + resistance_idx_list
         for idx in candidate_idx_list:
+            new_team = self.predefined_team_list[idx]
+            conflict: bool = False  # 是否与现有配队有代理人冲突
+            for old_idx in self.chosen_idx:
+                if self.is_team_conflict(new_team, self.predefined_team_list[old_idx]):
+                    conflict = True
+                    break
+
+            if conflict:
+                continue
+
             self.chosen_idx.add(idx)
             current_phase_team.team_idx = idx
 
@@ -183,6 +193,17 @@ class DefenseTeamSearcher:
 
         # 剩余阶段都符合弱点拿1分 依然不能比现在更高分
         return new_score + phase_left <= old_score
+
+    def is_team_conflict(self, team_1: PredefinedTeamInfo, team_2: PredefinedTeamInfo) -> bool:
+        """
+        两队的代理人是否冲突
+        @param team_1:
+        @param team_2:
+        @return:
+        """
+        team_1_id_set = set([i for i in team_1.agent_id_list if i != 'unknown'])
+        team_2_id_set = set([i for i in team_2.agent_id_list if i != 'unknown'])
+        return len(team_1_id_set & team_2_id_set) > 0
 
 
 def calc_teams(ctx: ZContext, screen: MatLike, phase_cnt: int = 2, type_cnt: int = 2) -> List[DefensePhaseTeamInfo]:
