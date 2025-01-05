@@ -34,7 +34,7 @@ class ShiyuDefenseApp(ZApplication):
         self.phase_team_list: List[DefensePhaseTeamInfo] = []  # 每个阶段使用的配队
         self.phase_idx: int = 0  # 当前阶段
 
-    @operation_node(name='传送', is_start_node=False)
+    @operation_node(name='传送', is_start_node=True)
     def tp(self) -> OperationRoundResult:
         op = TransportByCompendium(self.ctx, '作战', '式舆防卫战', '剧变节点')
         return self.round_by_op_result(op.execute())
@@ -52,7 +52,7 @@ class ShiyuDefenseApp(ZApplication):
         return self.round_by_find_area(screen, '式舆防卫战', '街区', retry_wait=1)
 
     @node_from(from_name='等待画面加载')
-    @operation_node(name='选择节点', is_start_node=True)
+    @operation_node(name='选择节点')
     def choose_node_idx(self) -> OperationRoundResult:
         idx = self.ctx.shiyu_defense_record.next_node_idx()
 
