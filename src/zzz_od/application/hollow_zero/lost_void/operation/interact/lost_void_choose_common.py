@@ -15,12 +15,16 @@ from zzz_od.operation.zzz_operation import ZOperation
 class LostVoidChooseCommon(ZOperation):
 
     def __init__(self, ctx: ZContext):
+        """
+        有详情 有显示选择数量的选择
+        :param ctx:
+        """
         ZOperation.__init__(self, ctx, op_name='迷失之地-通用选择')
 
         self.to_choose_num: int = 1  # 需要选择的数量
 
     @operation_node(name='选择', is_start_node=True)
-    def choose_gear(self) -> OperationRoundResult:
+    def choose_artifact(self) -> OperationRoundResult:
         area = self.ctx.screen_loader.get_area('迷失之地-通用选择', '文本-详情')
         self.ctx.controller.mouse_move(area.center)
         time.sleep(0.1)
@@ -57,7 +61,7 @@ class LostVoidChooseCommon(ZOperation):
                 else:
                     return self.round_retry(result.status, wait=1)
 
-        result = self.round_by_find_and_click_area(screen_name='迷失之地-通用选择', area_name='按钮-确定',
+        result = self.round_by_find_and_click_area(screen=screen, screen_name='迷失之地-通用选择', area_name='按钮-确定',
                                                    success_wait=1, retry_wait=1)
         if result.is_success:
             status = result.status if art is None else f'选择 {art.data.name}'

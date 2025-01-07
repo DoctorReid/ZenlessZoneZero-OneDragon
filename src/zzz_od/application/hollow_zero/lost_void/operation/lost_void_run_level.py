@@ -18,8 +18,10 @@ from zzz_od.application.hollow_zero.lost_void.context.lost_void_detector import 
 from zzz_od.application.hollow_zero.lost_void.lost_void_challenge_config import LostVoidRegionType
 from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_bangboo_store import LostVoidBangbooStore
 from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_choose_common import LostVoidChooseCommon
-from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_choose_no_detail import LostVoidChooseNoDetail
 from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_choose_gear import LostVoidChooseGear
+from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_choose_no_detail import \
+    LostVoidChooseNoDetail
+from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_choose_no_num import LostVoidChooseNoNum
 from zzz_od.application.hollow_zero.lost_void.operation.lost_void_move_by_det import LostVoidMoveByDet
 from zzz_od.auto_battle import auto_battle_utils
 from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
@@ -253,6 +255,8 @@ class LostVoidRunLevel(ZOperation):
             interact_op = LostVoidChooseCommon(self.ctx)
         elif screen_name == '迷失之地-无详情选择':
             interact_op = LostVoidChooseNoDetail(self.ctx)
+        elif screen_name == '迷失之地-无数量选择':
+            interact_op = LostVoidChooseNoNum(self.ctx)
         elif screen_name == '迷失之地-邦布商店':
             interact_op = LostVoidBangbooStore(self.ctx)
         elif screen_name == '迷失之地-大世界':
@@ -506,12 +510,14 @@ class LostVoidRunLevel(ZOperation):
                 or (self.no_in_battle_times > 0 and screenshot_time - self.last_check_finish_time >= 0.1) # 之前也识别到脱离战斗 0.1秒识别一次
             ):
                 self.last_check_finish_time = screenshot_time
-                screen_name = self.check_and_update_current_screen(screen)
-                if screen_name in ['迷失之地-武备选择', '迷失之地-通用选择', '迷失之地-无详情选择',
-                                   '迷失之地-挑战结果',
-                                   '迷失之地-大世界',  # 有可能是之前交互识别错了 认为进入了战斗楼层 实际上没有交互
-                                   '迷失之地-战斗失败'
-                                   ]:
+                possible_screen_name_list = [
+                    '迷失之地-武备选择', '迷失之地-通用选择', '迷失之地-无详情选择', '迷失之地-无数量选择',
+                    '迷失之地-挑战结果',
+                    '迷失之地-大世界',  # 有可能是之前交互识别错了 认为进入了战斗楼层 实际上没有交互
+                    '迷失之地-战斗失败'
+                ]
+                screen_name = self.check_and_update_current_screen(screen, possible_screen_name_list)
+                if screen_name in possible_screen_name_list:
                     self.no_in_battle_times += 1
                 else:
                     self.no_in_battle_times = 0

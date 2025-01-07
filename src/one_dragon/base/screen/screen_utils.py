@@ -125,9 +125,31 @@ def find_and_click_area(ctx: OneDragonContext, screen: MatLike, screen_name: str
         return OcrClickResultEnum.OCR_CLICK_SUCCESS
 
 
-def get_match_screen_name(ctx: OneDragonContext, screen: MatLike) -> str:
+def get_match_screen_name(ctx: OneDragonContext, screen: MatLike, screen_name_list: Optional[List[str]] = None) -> str:
     """
     根据游戏截图 匹配一个最合适的画面
+    :param ctx: 上下文
+    :param screen: 游戏截图
+    :param screen_name_list: 传入时 只判断这里的画面
+    :return: 画面名字
+    """
+    if screen_name_list is not None:
+        for screen_info in ctx.screen_loader.screen_info_list:
+            if screen_info.screen_name not in screen_name_list:
+                continue
+            if is_target_screen(ctx, screen, screen_info=screen_info):
+                return screen_info.screen_name
+    elif ctx.screen_loader.current_screen_name is not None or ctx.screen_loader.last_screen_name is not None:
+        return get_match_screen_name_from_last(ctx, screen)
+    else:
+        for screen_info in ctx.screen_loader.screen_info_list:
+            if is_target_screen(ctx, screen, screen_info=screen_info):
+                return screen_info.screen_name
+
+
+def get_match_screen_name_from_last(ctx: OneDragonContext, screen: MatLike) -> str:
+    """
+    根据游戏截图 从上次记录的画面开始 匹配一个最合适的画面
     :param ctx: 上下文
     :param screen: 游戏截图
     :return: 画面名字
@@ -142,6 +164,7 @@ def get_match_screen_name(ctx: OneDragonContext, screen: MatLike) -> str:
         while bfs_idx < len(bfs_list):
             current_screen_name = bfs_list[bfs_idx]
             bfs_idx += 1
+
             if is_target_screen(ctx, screen, screen_name=current_screen_name):
                 return current_screen_name
 
@@ -161,11 +184,6 @@ def get_match_screen_name(ctx: OneDragonContext, screen: MatLike) -> str:
                 continue
             if is_target_screen(ctx, screen, screen_info=screen_info):
                 return screen_info.screen_name
-    else:
-        for screen_info in ctx.screen_loader.screen_info_list:
-            if is_target_screen(ctx, screen, screen_info=screen_info):
-                return screen_info.screen_name
-
 
 def is_target_screen(ctx: OneDragonContext, screen: MatLike,
                      screen_name: Optional[str] = None,

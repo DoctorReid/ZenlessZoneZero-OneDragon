@@ -17,6 +17,10 @@ from zzz_od.operation.zzz_operation import ZOperation
 class LostVoidChooseGear(ZOperation):
 
     def __init__(self, ctx: ZContext):
+        """
+        入口处 人物武备和通用武备的选择
+        :param ctx:
+        """
         ZOperation.__init__(self, ctx, op_name='迷失之地-武备选择')
 
     @operation_node(name='选择武备', is_start_node=True)
