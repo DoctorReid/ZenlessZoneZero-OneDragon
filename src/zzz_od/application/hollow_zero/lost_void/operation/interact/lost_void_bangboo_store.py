@@ -164,7 +164,7 @@ class LostVoidBangbooStore(ZOperation):
             if i.price is not None and i.buy_rect is not None
         ]
 
-        display_text = ','.join([i.data.name for i in result_list]) if len(result_list) > 0 else '无'
+        display_text = ','.join([i.data.display_name for i in result_list]) if len(result_list) > 0 else '无'
         log.info(f'当前识别藏品 {display_text}')
 
         return result_list
