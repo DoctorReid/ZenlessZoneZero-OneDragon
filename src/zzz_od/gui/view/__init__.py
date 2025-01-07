@@ -5,3 +5,4 @@ from .game_assistant import GameAssistantInterface
 from .hollow_zero import HollowZeroInterface
 from .home import HomeInterface
 from .setting import AppSettingInterface
+from .accounts import AccountsInterface

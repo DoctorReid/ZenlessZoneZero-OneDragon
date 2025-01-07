@@ -22,6 +22,7 @@ try:
         ZOneDragonInterface,
         AppSettingInterface,
         BattleAssistantInterface,
+        AccountsInterface,
     )
 
     _init_error = None
@@ -141,6 +142,12 @@ try:
             # 代码同步
             self.add_sub_interface(
                 CodeInterface(self.ctx, parent=self),
+                position=NavigationItemPosition.BOTTOM,
+            )
+
+            # 多账号管理
+            self.add_sub_interface(
+                AccountsInterface(self.ctx, parent=self),
                 position=NavigationItemPosition.BOTTOM,
             )
 
