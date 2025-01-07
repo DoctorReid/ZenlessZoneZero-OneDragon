@@ -507,7 +507,8 @@ class LostVoidRunLevel(ZOperation):
             ):
                 self.last_check_finish_time = screenshot_time
                 screen_name = self.check_and_update_current_screen(screen)
-                if screen_name in ['迷失之地-武备选择', '迷失之地-通用选择', '迷失之地-挑战结果',
+                if screen_name in ['迷失之地-武备选择', '迷失之地-通用选择', '迷失之地-无详情选择',
+                                   '迷失之地-挑战结果',
                                    '迷失之地-大世界',  # 有可能是之前交互识别错了 认为进入了战斗楼层 实际上没有交互
                                    '迷失之地-战斗失败'
                                    ]:
