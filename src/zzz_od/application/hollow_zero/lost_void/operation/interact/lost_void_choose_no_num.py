@@ -1,5 +1,6 @@
 import time
 
+from one_dragon.base.geometry.point import Point
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from zzz_od.context.zzz_context import ZContext
@@ -18,7 +19,7 @@ class LostVoidChooseNoNum(ZOperation):
     @operation_node(name='选择', is_start_node=True)
     def choose_artifact(self) -> OperationRoundResult:
         area = self.ctx.screen_loader.get_area('迷失之地-通用选择', '文本-详情')
-        self.ctx.controller.mouse_move(area.center)
+        self.ctx.controller.mouse_move(area.center + Point(0, 100))
         time.sleep(0.1)
         screen = self.screenshot()
 

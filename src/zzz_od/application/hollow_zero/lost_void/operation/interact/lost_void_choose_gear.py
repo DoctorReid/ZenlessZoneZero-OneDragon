@@ -4,6 +4,7 @@ import cv2
 from cv2.typing import MatLike
 from typing import List
 
+from one_dragon.base.geometry.point import Point
 from one_dragon.base.matcher.match_result import MatchResult
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
@@ -27,7 +28,7 @@ class LostVoidChooseGear(ZOperation):
     @operation_node(name='选择武备', is_start_node=True)
     def choose_gear(self) -> OperationRoundResult:
         area = self.ctx.screen_loader.get_area('迷失之地-通用选择', '文本-详情')
-        self.ctx.controller.mouse_move(area.center)
+        self.ctx.controller.mouse_move(area.center + Point(0, 100))
         time.sleep(0.1)
 
         screen_list = []
