@@ -15,10 +15,14 @@ from zzz_od.operation.zzz_operation import ZOperation
 class LostVoidChooseNoDetail(ZOperation):
 
     def __init__(self, ctx: ZContext):
+        """
+        没有详情 但有显示选择数量的选择
+        :param ctx:
+        """
         ZOperation.__init__(self, ctx, op_name='迷失之地-无详情选择')
 
     @operation_node(name='选择', is_start_node=True)
-    def choose_gear(self) -> OperationRoundResult:
+    def choose_artifact(self) -> OperationRoundResult:
         area = self.ctx.screen_loader.get_area('迷失之地-通用选择', '文本-详情')
         self.ctx.controller.mouse_move(area.center)
         time.sleep(0.1)

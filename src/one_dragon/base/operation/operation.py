@@ -851,15 +851,17 @@ class Operation(OperationBase):
         if area.goto_list is not None and len(area.goto_list) > 0:
             self.ctx.screen_loader.update_current_screen_name(area.goto_list[0])
 
-    def check_and_update_current_screen(self, screen: MatLike = None) -> str:
+    def check_and_update_current_screen(self, screen: MatLike = None, screen_name_list: Optional[List[str]] = None) -> str:
         """
         识别当前画面的名称 并保存起来
         :param screen: 游戏截图
+        :param screen_name_list: 传入时 只判断这里的画面
         :return: 画面名称
         """
         if screen is None:
             screen = self.screenshot()
-        current_screen_name = screen_utils.get_match_screen_name(self.ctx, screen)
+        current_screen_name = screen_utils.get_match_screen_name(self.ctx, screen,
+                                                                 screen_name_list=screen_name_list)
         self.ctx.screen_loader.update_current_screen_name(current_screen_name)
         return current_screen_name
 
