@@ -8,6 +8,7 @@ from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
+from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.zzz_operation import ZOperation
 
@@ -146,6 +147,9 @@ class LostVoidChooseCommon(ZOperation):
             result.add_offset(area.left_top)
             result.data = art
             result_list.append(result)
+
+        display_text = ','.join([i.data.display_name for i in result_list]) if len(result_list) > 0 else '无'
+        log.info(f'当前识别藏品 {display_text}')
 
         return result_list
 

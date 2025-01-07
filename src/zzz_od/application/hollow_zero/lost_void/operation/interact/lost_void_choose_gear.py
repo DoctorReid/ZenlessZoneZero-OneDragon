@@ -10,6 +10,7 @@ from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils import cv2_utils, cal_utils, str_utils
 from one_dragon.utils.log_utils import log
+from zzz_od.application.hollow_zero.lost_void.context.lost_void_artifact import LostVoidArtifact
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.zzz_operation import ZOperation
 
@@ -59,7 +60,7 @@ class LostVoidChooseGear(ZOperation):
         @return: 识别到的武备的位置
         """
         area = self.ctx.screen_loader.get_area('迷失之地-武备选择', '武备列表')
-        to_check_list = [
+        to_check_list: List[LostVoidArtifact] = [
             i
             for i in self.ctx.lost_void.all_artifact_list
             if i.template_id is not None
@@ -117,8 +118,8 @@ class LostVoidChooseGear(ZOperation):
                 if not existed:
                     result_list.append(mr)
 
-        display_text = ','.join([i.data.name for i in result_list])
-        log.info(f'武备识别结果 {display_text}')
+        display_text = ','.join([i.data.display_name for i in result_list]) if len(result_list) > 0 else '无'
+        log.info(f'当前识别藏品 {display_text}')
 
         return result_list
 

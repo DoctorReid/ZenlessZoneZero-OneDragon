@@ -8,3 +8,4 @@ class LostVoidArtifact:
         self.name: str = name  # 名称
         self.level: str = level  # 等级
         self.template_id: str = template_id  # 模板ID 仅初始武备有
+        self.display_name: str = f'{self.category} {self.name}'
