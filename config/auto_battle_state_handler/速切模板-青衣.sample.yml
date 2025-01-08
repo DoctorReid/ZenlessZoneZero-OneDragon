@@ -31,15 +31,12 @@ handlers:
 
       - states: "[青衣-终结技可用]"
         operations:
-          - operation_template: "通用-闪避-前"
           - operation_template: "青衣-终结技"
 
       - states: "[青衣-特殊技可用]"
         operations:
-          - operation_template: "通用-闪避-前"
           - operation_template: "青衣-特殊攻击接普通攻击"
 
       - states: "[青衣-电压]{0, 90}"
         operations:
-          - operation_template: "通用-闪避-前"
           - operation_template: "青衣-普通攻击"
