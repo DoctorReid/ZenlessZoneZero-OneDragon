@@ -2,7 +2,7 @@ from typing import Optional
 
 from one_dragon.base.operation.application_run_record import AppRunRecord, AppRunRecordPeriod
 from one_dragon.utils import os_utils
-from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroConfig, HollowZeroExtraTask
+from zzz_od.application.hollow_zero.withered_domain.hollow_zero_config import HollowZeroConfig, HollowZeroExtraTask
 
 
 class HollowZeroRunRecord(AppRunRecord):

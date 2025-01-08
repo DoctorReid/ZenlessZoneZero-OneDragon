@@ -3,11 +3,13 @@ import time
 from cv2.typing import MatLike
 from typing import List, Optional
 
+from one_dragon.base.geometry.point import Point
 from one_dragon.base.matcher.match_result import MatchResult
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
+from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.zzz_operation import ZOperation
 
@@ -15,12 +17,19 @@ from zzz_od.operation.zzz_operation import ZOperation
 class LostVoidChooseCommon(ZOperation):
 
     def __init__(self, ctx: ZContext):
+        """
+        有详情 有显示选择数量的选择
+        :param ctx:
+        """
         ZOperation.__init__(self, ctx, op_name='迷失之地-通用选择')
 
         self.to_choose_num: int = 1  # 需要选择的数量
 
     @operation_node(name='选择', is_start_node=True)
-    def choose_gear(self) -> OperationRoundResult:
+    def choose_artifact(self) -> OperationRoundResult:
+        area = self.ctx.screen_loader.get_area('迷失之地-通用选择', '文本-详情')
+        self.ctx.controller.mouse_move(area.center + Point(0, 100))
+        time.sleep(0.1)
         screen = self.screenshot()
 
         screen_name = self.check_and_update_current_screen()
@@ -54,7 +63,7 @@ class LostVoidChooseCommon(ZOperation):
                 else:
                     return self.round_retry(result.status, wait=1)
 
-        result = self.round_by_find_and_click_area(screen_name='迷失之地-通用选择', area_name='按钮-确定',
+        result = self.round_by_find_and_click_area(screen=screen, screen_name='迷失之地-通用选择', area_name='按钮-确定',
                                                    success_wait=1, retry_wait=1)
         if result.is_success:
             status = result.status if art is None else f'选择 {art.data.name}'
@@ -139,6 +148,9 @@ class LostVoidChooseCommon(ZOperation):
             result.add_offset(area.left_top)
             result.data = art
             result_list.append(result)
+
+        display_text = ','.join([i.data.display_name for i in result_list]) if len(result_list) > 0 else '无'
+        log.info(f'当前识别藏品 {display_text}')
 
         return result_list
 

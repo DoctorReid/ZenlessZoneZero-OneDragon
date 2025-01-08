@@ -21,9 +21,6 @@ class BackToNormalWorld(ZOperation):
         """
         ZOperation.__init__(self, ctx, op_name=gt('返回大世界', 'ui'))
 
-    def handle_init(self):
-        pass
-
     @operation_node(name='画面识别', is_start_node=True, node_max_retry_times=60)
     def check_screen_and_run(self, screen: Optional[MatLike] = None) -> OperationRoundResult:
         """

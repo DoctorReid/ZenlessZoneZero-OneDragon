@@ -2,7 +2,6 @@ from typing import List
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
-from one_dragon.gui.widgets.setting_card.yaml_config_adapter import YamlConfigAdapter
 from one_dragon.utils import yolo_config_utils
 
 ZZZ_MODEL_DOWNLOAD_URL = 'https://github.com/DoctorReid/OneDragon-YOLO/releases/download/zzz_model'
@@ -13,8 +12,8 @@ _BACKUP_FLASH_CLASSIFIER = 'yolov8n-640-flash-0718'
 _DEFAULT_HOLLOW_ZERO_EVENT = 'yolov8s-736-hollow-zero-event-1130'
 _BACKUP_HOLLOW_ZERO_EVENT = 'yolov8s-736-hollow-zero-event-1130'
 
-_DEFAULT_LOST_VOID_DET = 'yolov8s-736-lost-void-det-0101'
-_BACKUP_LOST_VOID_DET = 'yolov8s-736-lost-void-det-1228'
+_DEFAULT_LOST_VOID_DET = 'yolov8n-736-lost-void-det-0104'
+_BACKUP_LOST_VOID_DET = 'yolov8s-736-lost-void-det-0101'
 
 
 class YoloConfig(YamlConfig):

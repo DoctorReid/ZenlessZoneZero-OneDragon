@@ -129,6 +129,14 @@ scenes:
             way: "松开"
           - op_name: "按键-特殊攻击"
             way: "松开"
+          - op_name: "按键-移动-前"
+            way: "松开"
+          - op_name: "按键-移动-后"
+            way: "松开"
+          - op_name: "按键-移动-左"
+            way: "松开"
+          - op_name: "按键-移动-右"
+            way: "松开"
           - op_name: "等待秒数"
             seconds: 0.1
 

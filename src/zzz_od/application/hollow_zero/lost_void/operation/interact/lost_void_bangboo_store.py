@@ -1,7 +1,10 @@
+import time
+
 import cv2
 from cv2.typing import MatLike
 from typing import List, Optional
 
+from one_dragon.base.geometry.point import Point
 from one_dragon.base.geometry.rectangle import Rect
 from one_dragon.base.matcher.match_result import MatchResult
 from one_dragon.base.operation.operation_edge import node_from
@@ -59,6 +62,10 @@ class LostVoidBangbooStore(ZOperation):
     @node_from(from_name='确认后处理')
     @operation_node(name='购买藏品', is_start_node=True)
     def buy_artifact(self) -> OperationRoundResult:
+        area = self.ctx.screen_loader.get_area('迷失之地-邦布商店', '文本-详情')
+        self.ctx.controller.mouse_move(area.center + Point(0, 100))
+        time.sleep(0.1)
+
         screen = self.screenshot()
 
         # 按刷新之后的确认
@@ -158,7 +165,7 @@ class LostVoidBangbooStore(ZOperation):
             if i.price is not None and i.buy_rect is not None
         ]
 
-        display_text = ','.join([i.data.name for i in result_list]) if len(result_list) > 0 else '无'
+        display_text = ','.join([i.data.display_name for i in result_list]) if len(result_list) > 0 else '无'
         log.info(f'当前识别藏品 {display_text}')
 
         return result_list

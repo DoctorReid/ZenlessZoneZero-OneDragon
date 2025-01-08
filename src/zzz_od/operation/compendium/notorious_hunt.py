@@ -3,6 +3,7 @@ import time
 from typing import Optional, ClassVar
 
 from one_dragon.base.geometry.point import Point
+from one_dragon.base.operation.operation import Operation
 from one_dragon.base.operation.operation_base import OperationResult
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
@@ -14,6 +15,7 @@ from zzz_od.application.notorious_hunt.notorious_hunt_config import NotoriousHun
 from zzz_od.auto_battle import auto_battle_utils
 from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.context.zzz_context import ZContext
+from zzz_od.operation.challenge_mission.exit_in_battle import ExitInBattle
 from zzz_od.operation.choose_predefined_team import ChoosePredefinedTeam
 from zzz_od.operation.zzz_operation import ZOperation
 from zzz_od.screen_area.screen_normal_world import ScreenNormalWorldEnum
@@ -282,7 +284,7 @@ class NotoriousHunt(ZOperation):
 
     @node_from(from_name='向前移动准备战斗')
     @node_from(from_name='战斗失败', status='战斗结果-倒带')
-    @operation_node(name='自动战斗', mute=True)
+    @operation_node(name='自动战斗', mute=True, timeout_seconds=600)
     def auto_battle(self) -> OperationRoundResult:
         if self.auto_op.auto_battle_context.last_check_end_result is not None:
             auto_battle_utils.stop_running(self.auto_op)
@@ -369,47 +371,19 @@ class NotoriousHunt(ZOperation):
         )
 
     @node_from(from_name='移动靠近交互', success=False)
-    @operation_node(name='交互失败')
-    def fail_to_interact(self) -> OperationRoundResult:
-        screen = self.screenshot()
+    @node_from(from_name='自动战斗', success=False, status=Operation.STATUS_TIMEOUT)
+    @operation_node(name='退出战斗')
+    def exit_battle(self) -> OperationRoundResult:
+        auto_battle_utils.stop_running(self.auto_op)
+        op = ExitInBattle(self.ctx, '战斗-挑战结果-失败', '按钮-退出')
+        return self.round_by_op_result(op.execute())
 
-        result = self.round_by_find_area(screen, '恶名狩猎', '退出战斗')
-        if result.is_success:
-            return self.round_success(wait=1)  # 稍微等一下让按钮可按
-
-        result = self.round_by_click_area('战斗画面', '菜单')
-        if result.is_success:
-            return self.round_wait(result.status, wait=2)
-        else:
-            return self.round_fail(result.status)
-
-    @node_from(from_name='交互失败')
-    @operation_node(name='点击退出战斗')
-    def click_exit_battle(self) -> OperationRoundResult:
-        screen = self.screenshot()
-
-        return self.round_by_find_and_click_area(screen, '恶名狩猎', '退出战斗',
+    @node_from(from_name='退出战斗')
+    @operation_node(name='点击挑战结果退出')
+    def click_result_exit(self) -> OperationRoundResult:
+        return self.round_by_find_and_click_area(screen_name='战斗-挑战结果-失败', area_name='按钮-退出',
+                                                 until_not_find_all=[('战斗-挑战结果-失败', '按钮-退出')],
                                                  success_wait=1, retry_wait=1)
-
-    @node_from(from_name='点击退出战斗')
-    @operation_node(name='点击退出战斗确认')
-    def click_exit_battle_confirm(self) -> OperationRoundResult:
-        screen = self.screenshot()
-
-        return self.round_by_find_and_click_area(screen, '恶名狩猎', '退出战斗-确认',
-                                                 success_wait=5, retry_wait=1)
-
-    @node_from(from_name='点击退出战斗确认')
-    @operation_node(name='点击退出')
-    def click_exit(self) -> OperationRoundResult:
-        screen = self.screenshot()
-
-        result = self.round_by_find_and_click_area(screen, '战斗画面', '战斗结果-退出')
-
-        if result.is_success:  # 战斗失败 返回失败到外层 中断后续挑战
-            return self.round_fail(result.status, wait=10)
-        else:
-            return self.round_retry(result.status, wait=1)
 
     def _on_pause(self, e=None):
         ZOperation._on_pause(self, e)
