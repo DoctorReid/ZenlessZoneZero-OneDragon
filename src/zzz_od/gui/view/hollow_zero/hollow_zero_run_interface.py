@@ -7,9 +7,9 @@ from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxS
 from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon.gui.view.app_run_interface import AppRunInterface
 from one_dragon.utils.log_utils import log
-from zzz_od.application.hollow_zero.hollow_zero_app import HollowZeroApp
-from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroExtraTask, HollowZeroExtraExitEnum
-from zzz_od.application.hollow_zero.hollow_zero_debug_app import HollowZeroDebugApp
+from zzz_od.application.hollow_zero.withered_domain.hollow_zero_app import HollowZeroApp
+from zzz_od.application.hollow_zero.withered_domain.hollow_zero_config import HollowZeroExtraTask, HollowZeroExtraExitEnum
+from zzz_od.application.hollow_zero.withered_domain.hollow_zero_debug_app import HollowZeroDebugApp
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.hollow_zero.hollow_zero_challenge_config import get_all_hollow_zero_challenge_config, \

@@ -45,3 +45,6 @@ config/yolo.yml
 
 # 需自行下载的模型文件
 models/
+
+# 缓存文件
+notice_cache/

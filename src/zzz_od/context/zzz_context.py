@@ -73,8 +73,8 @@ class ZContext(OneDragonContext):
         from zzz_od.application.devtools.screenshot_helper.screenshot_helper_config import ScreenshotHelperConfig
         from zzz_od.application.email_app.email_run_record import EmailRunRecord
         from zzz_od.application.engagement_reward.engagement_reward_run_record import EngagementRewardRunRecord
-        from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroConfig
-        from zzz_od.application.hollow_zero.hollow_zero_run_record import HollowZeroRunRecord
+        from zzz_od.application.hollow_zero.withered_domain.hollow_zero_config import HollowZeroConfig
+        from zzz_od.application.hollow_zero.withered_domain.hollow_zero_run_record import HollowZeroRunRecord
         from zzz_od.application.life_on_line.life_on_line_config import LifeOnLineConfig
         from zzz_od.application.life_on_line.life_on_line_run_record import LifeOnLineRunRecord
         from zzz_od.application.notorious_hunt.notorious_hunt_config import NotoriousHuntConfig

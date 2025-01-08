@@ -1,7 +1,10 @@
+import time
+
 import cv2
 from cv2.typing import MatLike
 from typing import List, Optional
 
+from one_dragon.base.geometry.point import Point
 from one_dragon.base.geometry.rectangle import Rect
 from one_dragon.base.matcher.match_result import MatchResult
 from one_dragon.base.operation.operation_edge import node_from
@@ -59,6 +62,10 @@ class LostVoidBangbooStore(ZOperation):
     @node_from(from_name='确认后处理')
     @operation_node(name='购买藏品', is_start_node=True)
     def buy_artifact(self) -> OperationRoundResult:
+        area = self.ctx.screen_loader.get_area('迷失之地-邦布商店', '文本-详情')
+        self.ctx.controller.mouse_move(area.center + Point(0, 100))
+        time.sleep(0.1)
+
         screen = self.screenshot()
 
         # 按刷新之后的确认
@@ -76,15 +83,19 @@ class LostVoidBangbooStore(ZOperation):
         if len(art_list) == 0:
             return self.round_retry(status='未识别可购买藏品', wait=1)
 
-        priority_list: List[MatchResult] = self.ctx.lost_void.get_artifact_by_priority(art_list, len(art_list), only_priority=True)
+        priority_list: List[MatchResult] = self.ctx.lost_void.get_artifact_by_priority(
+            art_list, 1,
+            consider_priority_1=True, consider_priority_2=self.refresh_times > self.ctx.lost_void.challenge_config.buy_only_priority_1,
+            consider_not_in_priority=self.refresh_times > self.ctx.lost_void.challenge_config.buy_only_priority_2,
+        )
 
         if len(priority_list) == 0:
-            if self.refresh_times < self.ctx.lost_void.challenge_config.buy_only_priority:
-                result = self.round_by_find_and_click_area(screen, '迷失之地-邦布商店', '按钮-刷新-可用')
-                if result.is_success:
-                    return self.round_wait(result.status, wait=1)
+            result = self.round_by_find_and_click_area(screen, '迷失之地-邦布商店', '按钮-刷新-可用')
+            if result.is_success:
+                return self.round_wait(result.status, wait=1)
 
-            priority_list = self.ctx.lost_void.get_artifact_by_priority(art_list, len(art_list), only_priority=False)
+            # 不可以刷新了 就不管优先级都买了
+            priority_list = self.ctx.lost_void.get_artifact_by_priority(art_list, len(art_list))
 
         if len(priority_list) == 0:
             return self.round_retry(status='按优先级选择藏品失败', wait=1)
@@ -154,7 +165,7 @@ class LostVoidBangbooStore(ZOperation):
             if i.price is not None and i.buy_rect is not None
         ]
 
-        display_text = ','.join([i.data.name for i in result_list]) if len(result_list) > 0 else '无'
+        display_text = ','.join([i.data.display_name for i in result_list]) if len(result_list) > 0 else '无'
         log.info(f'当前识别藏品 {display_text}')
 
         return result_list

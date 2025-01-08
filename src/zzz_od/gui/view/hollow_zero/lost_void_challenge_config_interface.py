@@ -80,9 +80,13 @@ class LostVoidChallengeConfigInterface(VerticalScrollInterface):
                                                       options_enum=LostVoidPeriodBuffNo)
         widget.add_widget(self.period_buff_no_opt)
 
-        self.buy_only_priority_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='只购买优先级',
-                                                         options_enum=LostVoidBuyOnlyPriority)
-        widget.add_widget(self.buy_only_priority_opt)
+        self.buy_only_priority_1_opt = TextSettingCard(icon=FluentIcon.GAME, title='只购买第一优先级',
+                                                     content='刷新多少次数内 只购买第一优先级内的藏品')
+        widget.add_widget(self.buy_only_priority_1_opt)
+
+        self.buy_only_priority_2_opt = TextSettingCard(icon=FluentIcon.GAME, title='只购买第二优先级',
+                                                     content='刷新多少次数内 只购买第二优先级内的藏品')
+        widget.add_widget(self.buy_only_priority_2_opt)
 
         widget.add_stretch(1)
         return widget
@@ -92,11 +96,19 @@ class LostVoidChallengeConfigInterface(VerticalScrollInterface):
 
         artifact_priority_widget = Column()
         widget.add_widget(artifact_priority_widget)
-        artifact_priority_title = SubtitleLabel(text='藏品优先级')
+        artifact_priority_title = SubtitleLabel(text='藏品第一优先级')
         artifact_priority_widget.v_layout.addWidget(artifact_priority_title)
         self.artifact_priority_input = PlainTextEdit()
         self.artifact_priority_input.textChanged.connect(self._on_artifact_priority_changed)
         artifact_priority_widget.v_layout.addWidget(self.artifact_priority_input)
+
+        artifact_priority_widget_2 = Column()
+        widget.add_widget(artifact_priority_widget_2)
+        artifact_priority_title_2 = SubtitleLabel(text='藏品第二优先级(无刷新时考虑)')
+        artifact_priority_widget.v_layout.addWidget(artifact_priority_title_2)
+        self.artifact_priority_input_2 = PlainTextEdit()
+        self.artifact_priority_input_2.textChanged.connect(self._on_artifact_priority_2_changed)
+        artifact_priority_widget.v_layout.addWidget(self.artifact_priority_input_2)
 
         region_priority_widget = Column()
         widget.add_widget(region_priority_widget)
@@ -136,8 +148,10 @@ class LostVoidChallengeConfigInterface(VerticalScrollInterface):
         self.name_opt.setDisabled(not chosen or is_sample)
         self.auto_battle_opt.setDisabled(not chosen or is_sample)
         self.period_buff_no_opt.setDisabled(not chosen or is_sample)
-        self.buy_only_priority_opt.setDisabled(not chosen or is_sample)
+        self.buy_only_priority_1_opt.setDisabled(not chosen or is_sample)
+        self.buy_only_priority_2_opt.setDisabled(not chosen or is_sample)
         self.artifact_priority_input.setDisabled(not chosen or is_sample)
+        self.artifact_priority_input_2.setDisabled(not chosen or is_sample)
         self.region_type_priority_input.setDisabled(not chosen or is_sample)
 
         self._update_existed_yml_options()
@@ -147,12 +161,17 @@ class LostVoidChallengeConfigInterface(VerticalScrollInterface):
             self.name_opt.setValue(self.chosen_config.module_name)
             self.auto_battle_opt.setValue(self.chosen_config.auto_battle)
             self.period_buff_no_opt.init_with_adapter(self.chosen_config.get_prop_adapter('period_buff_no'))
-            self.buy_only_priority_opt.init_with_adapter(self.chosen_config.get_prop_adapter('buy_only_priority'))
-            self.buy_only_priority_opt.setContent('达到刷新次数前 只购买优先级内的藏品')  # 不知道为啥需要在这里设置才生效
+            self.buy_only_priority_1_opt.init_with_adapter(self.chosen_config.get_prop_adapter('buy_only_priority_1', getter_convert='str', setter_convert='int'))
+            self.buy_only_priority_2_opt.init_with_adapter(self.chosen_config.get_prop_adapter('buy_only_priority_2', getter_convert='str', setter_convert='int'))
+            # self.buy_only_priority_opt.setContent('达到刷新次数前 只购买优先级内的藏品')  # 不知道为啥需要在这里设置才生效
 
             self.artifact_priority_input.blockSignals(True)
             self.artifact_priority_input.setPlainText(self.chosen_config.artifact_priority_str)
             self.artifact_priority_input.blockSignals(False)
+
+            self.artifact_priority_input_2.blockSignals(True)
+            self.artifact_priority_input_2.setPlainText(self.chosen_config.artifact_priority_2_str)
+            self.artifact_priority_input_2.blockSignals(False)
 
             self.region_type_priority_input.blockSignals(True)
             self.region_type_priority_input.setPlainText(self.chosen_config.region_type_priority_str)
@@ -277,6 +296,16 @@ class LostVoidChallengeConfigInterface(VerticalScrollInterface):
 
         self.chosen_config.artifact_priority = entry_list
 
+    def _on_artifact_priority_2_changed(self) -> None:
+        if self.chosen_config is None:
+            return
+
+        value = self.artifact_priority_input_2.toPlainText()
+        entry_list, err_msg = self.ctx.lost_void.check_artifact_priority_input(value)
+        self._update_error_message(err_msg)
+
+        self.chosen_config.artifact_priority_2 = entry_list
+
     def _on_region_type_priority_changed(self) -> None:
         if self.chosen_config is None:
             return
@@ -285,4 +314,4 @@ class LostVoidChallengeConfigInterface(VerticalScrollInterface):
         entry_list, err_msg = self.ctx.lost_void.check_region_type_priority_input(value)
         self._update_error_message(err_msg)
 
-        self.chosen_config.region_priority = entry_list
+        self.chosen_config.region_type_priority = entry_list
