@@ -53,12 +53,12 @@ class SettingGameInterface(VerticalScrollInterface):
         self.game_account_opt = TextSettingCard(icon=FluentIcon.PEOPLE, title='账号')
         basic_group.addSettingCard(self.game_account_opt)
 
-        # 设置密码框为密码模式
+        # 设置密码框
         self.game_password_opt = TextSettingCard(
             icon=FluentIcon.EXPRESSIVE_INPUT_ENTRY,
             title='密码',
             input_placeholder='放心不会盗你的号 异地登陆需要验证',
-            is_password=True  # 新增参数，设置为密码输入框
+            is_password=True  # 设置为密码模式
         )
         basic_group.addSettingCard(self.game_password_opt)
 
@@ -67,7 +67,6 @@ class SettingGameInterface(VerticalScrollInterface):
         basic_group.addSettingCard(self.input_way_opt)
 
         return basic_group
-
 
     def _get_key_group(self) -> QWidget:
         key_group = SettingCardGroup(gt('游戏按键', 'ui'))
