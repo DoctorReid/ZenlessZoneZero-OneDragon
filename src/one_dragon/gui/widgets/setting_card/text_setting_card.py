@@ -16,6 +16,7 @@ class TextSettingCard(SettingCardBase):
     input_placeholder: Optional[str] = None
     input_max_width: int = 300
     adapter: Optional[YamlConfigAdapter] = None
+    is_password: bool = False  # 新增参数，用于控制是否为密码模式
 
     value_changed = Signal(str)
 
@@ -28,6 +29,11 @@ class TextSettingCard(SettingCardBase):
         self.line_edit.setMaximumWidth(self.input_max_width)
         self.line_edit.setPlaceholderText(self.input_placeholder)
         self.line_edit.setClearButtonEnabled(True)
+
+        # 设置密码模式（根据 is_password 参数决定）
+        if self.is_password:
+            self.line_edit.setEchoMode(LineEdit.Password)
+
         self.line_edit.editingFinished.connect(self._on_text_changed)
 
         # 将输入框添加到布局
