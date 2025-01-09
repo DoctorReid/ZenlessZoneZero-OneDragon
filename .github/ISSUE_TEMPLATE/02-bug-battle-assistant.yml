@@ -11,15 +11,18 @@ body:
         
         - 请先将代码更新至最新版本尝试是否依然有问题。
         - 最新版本代码有问题可尝试使用回滚功能看是否依然有问题。
+        - 请先在issue中搜索是否已有类似问题。
         - 请先阅读最新的[使用前须知](https://one-dragon.org/zzz/zh/quickstart.html#_2-%E4%BD%BF%E7%94%A8%E5%89%8D%E9%A1%BB%E7%9F%A5)，确保设置正确。
         - 请先阅读最新的[功能说明](https://one-dragon.org/zzz/zh/docs/feat_battle_assistant.html)，确保设置正确。
-        - 请使用脚本F11进行截图上传，图片保存在 .debug/images/ 文件夹中，其他截图方式有概率不受理。
+        - 请使用 __脚本F11__ 进行截图上传，图片保存在 .debug/images/ 文件夹中，其他截图方式大概率不受理。
+        - 请使用 __脚本F11__ 进行截图上传，图片保存在 .debug/images/ 文件夹中，其他截图方式大概率不受理。
+        - 请使用 __脚本F11__ 进行截图上传，图片保存在 .debug/images/ 文件夹中，其他截图方式大概率不受理。
         - 缺少日志/截图/录屏的情况，有概率不受理。
 
   - type: input
     attributes:
       label: 代码版本
-      description: "「代码同步」里第一行的ID 不填入大概率不受理"
+      description: "窗口上方显示 点击可复制到粘贴板 不填入大概率不受理"
     validations:
       required: true
 
@@ -39,10 +42,7 @@ body:
   - type: textarea
     attributes:
       label: "问题描述"
-      description: "尽量具体地描述产生这个问题的场景，详细的上下文有助于理解问题产生的原因。"
-      placeholder: |
-        1. 运行 闪避助手
-        2. 画面出现黄光未自动闪避
+      description: "请理解每个人的运行环境都不一样，为了知道如何修复问题，需要你详细描述重现这个问题的步骤，请当作者是没玩过游戏的人来讲解问题，如果作者无法重现，则大概率不受理。"
     validations:
       required: true
 
@@ -56,7 +56,10 @@ body:
   - type: textarea
     attributes:
       label: "游戏截图"
-      description: "使用脚本按F11进行截图，图片保存在 .debug/images/ 文件夹中"
+      description: |
+        - 请使用 __脚本F11__ 进行截图上传，图片保存在 .debug/images/ 文件夹中，其他截图方式大概率不受理。
+        - 请使用 __脚本F11__ 进行截图上传，图片保存在 .debug/images/ 文件夹中，其他截图方式大概率不受理。
+        - 请使用 __脚本F11__ 进行截图上传，图片保存在 .debug/images/ 文件夹中，其他截图方式大概率不受理。
       placeholder: "游戏截图"
 
   - type: textarea

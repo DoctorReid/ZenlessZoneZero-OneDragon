@@ -4,7 +4,7 @@ template_name: 战斗-头像-2-2
 template_shape: quadrilateral
 auto_mask: true
 point_list:
-- 635, 50
-- 622, 81
-- 692, 81
-- 705, 50
+- 616, 50
+- 603, 81
+- 673, 81
+- 686, 50

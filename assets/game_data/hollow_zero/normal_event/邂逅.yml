@@ -15,29 +15,175 @@
   options:
     - option_name: "接受学会的好意"
 
+## 狡兔屋
+
+# 安比
+- entry_name: "邂逅"
+  event_name: "张驰有度，收放自如"
+  lcs_percent: 0.6
+  options:
+    - option_name: "听从安比的建议，休息一会儿"
+
+- entry_name: "邂逅"
+  event_name: "有备无患"
+  lcs_percent: 0.8
+  options:
+    - option_name: "使用抗侵蚀剂"
+    - option_name: "感谢安比"
+
+- entry_name: "邂逅"
+  event_name: "绿耳机之谜"
+  options:
+    - option_name: "这些人是安比的朋友？"
+    - option_name: "这些家伙绝对认错人了吧？"
+
+# 比利
+- entry_name: "邂逅"
+  event_name: "星徽骑士的推销"
+  options:
+    - option_name: "不得不听了…"
+
+- entry_name: "邂逅"
+  event_name: "星徽骑士的保养"
+  options:
+    - option_name: "支付500齿轮硬币"
+      desc: "比利在下一场战斗中的伤害提升"
+    - option_name: "还是算了"
+
+# 妮可
+- entry_name: "邂逅"
+  event_name: "狡兔的逆鳞"
+  lcs_percent: 0.6
+  options:
+    - option_name: "为妮可打灯照明"
+
+- entry_name: "邂逅"
+  event_name: "狡兔的生意经"
+  lcs_percent: 0.8
+  options:
+    - option_name: "一手交钱一手拿货"
+    - option_name: "算了算了"
+
+# 猫又
+- entry_name: "邂逅"
+  event_name: "捕猎游戏高分段位"
+  options:
+    - option_name: "等待猫又吧已经习惯了"
+
+- entry_name: "邂逅"
+  event_name: "捕猎收获"
+  options:
+    - option_name: "接受补给包"
+      desc: "回复少量生命值，并降低少量压力值"
+
+## 刑侦特勤组
+
+# 简
+- entry_name: "邂逅"
+  event_name: "特别对策"
+  options:
+    - option_name: "对对不起"
+    - option_name: "私闯民宅是违反规定的吧"
+
+# 青衣
+- entry_name: "邂逅"
+  event_name: "提醒喝水小助手"
+  options:
+    - option_name: "里面装了什么好喝的"
+    - option_name: "我我记住了马马上会去喝的"
+
 # 朱鸢
 - entry_name: "邂逅"
   event_name: "体系的力量"
   options:
     - option_name: "恭敬不如从命"
 
-# 朱鸢
 - entry_name: "邂逅"
   event_name: "面子的力量"
   options:
     - option_name: "告知实情"
 
-# 朱鸢
+# 赛斯
 - entry_name: "邂逅"
-  event_name: "体系的力量"
+  event_name: "大魔头法厄同"
   options:
-    - option_name: "恭敬不如从命"
+    - option_name: "切，你很懂邦布吗？"
+    - option_name: "包扎一下伤口吧？疼不疼？"
 
-# 朱鸢
+## 对空六课
+
+# 柳
 - entry_name: "邂逅"
-  event_name: "面子的力量"
+  event_name: "压缩饼干盒红豆包"
   options:
-    - option_name: "告知实情"
+    - option_name: "我也来帮忙分担吧！"
+    - option_name: "我最会保守秘密了！"
+
+#苍角
+- entry_name: "邂逅"
+  event_name: "画饼充饥"
+  options:
+    - option_name: "结束后一定请你吃"
+
+- entry_name: "邂逅"
+  event_name: "天降馅饼"
+  options:
+    - option_name: "苍角，先垫垫肚子吧？"
+
+## 白祇重工
+
+# 珂蕾妲
+- entry_name: "邂逅"
+  event_name: "文明施工"
+  options:
+    - option_name: "好吧我带你去个没人的安全区域"
+
+- entry_name: "邂逅"
+  event_name: "举手之劳"
+  options:
+    - option_name: "要调查什么呢"
+    - option_name: "我陪你去"
+
+# 格莉丝
+- entry_name: "邂逅"
+  event_name: "心灵充电"
+  options:
+    - option_name: "下不为例哦"
+
+- entry_name: "邂逅"
+  event_name: "机械马杀鸡"
+  options:
+    - option_name: "我相信你格莉丝"
+
+# 本
+- entry_name: "邂逅"
+  event_name: "怒火报价"
+  lcs_percent: 0.7
+  options:
+    - option_name: "向敌人撒火吧"
+
+- entry_name: "邂逅"
+  event_name: "先礼后兵"
+  lcs_percent: 0.7
+  options:
+    - option_name: "拜托你了本"
+    - option_name: "还是算了"
+
+# 安东
+- entry_name: "邂逅"
+  event_name: "工业级自律"
+  lcs_percent: 0.8
+  options:
+    - option_name: "开始吧安东"
+
+- entry_name: "邂逅"
+  event_name: "工业级干劲"
+  lcs_percent: 0.8
+  options:
+    - option_name: "还是算了"
+    - option_name: "靠你了安东"
+
+## 维多利亚家政
 
 # 艾莲
 - entry_name: "邂逅"
@@ -48,85 +194,6 @@
     - option_name: "醒醒！艾莲！！！"
     - option_name: "艾莲？该出发了！"
       desc: "艾莲不参加下1场战斗，归队后回复生命值并提升伤害"
-
-# 安比
-- entry_name: "邂逅"
-  event_name: "张驰有度，收放自如"
-  lcs_percent: 0.6
-  options:
-    - option_name: "听从安比的建议，体息一会儿"
-
-# 安比
-- entry_name: "邂逅"
-  event_name: "有备无患"
-  lcs_percent: 0.8
-  options:
-    - option_name: "使用抗侵蚀剂"
-    - option_name: "感谢安比"
-
-# 安东
-- entry_name: "邂逅"
-  event_name: "工业级自律"
-  lcs_percent: 0.8
-  options:
-    - option_name: "开始吧安东"
-
-# 安东
-- entry_name: "邂逅"
-  event_name: "工业级干劲"
-  lcs_percent: 0.8
-  options:
-    - option_name: "还是算了"
-    - option_name: "靠你了安东"
-
-# 安东
-- entry_name: "邂逅"
-  event_name: "算了算了"
-
-# 妮可
-- entry_name: "邂逅"
-  event_name: "狡兔的逆鳞"
-  lcs_percent: 0.6
-  options:
-    - option_name: "为妮可打灯照明"
-
-# 妮可
-- entry_name: "邂逅"
-  event_name: "狡兔的生意经"
-  lcs_percent: 0.8
-  options:
-    - option_name: "一手交钱一手拿货"
-    - option_name: "算了算了"
-
-# 本
-- entry_name: "邂逅"
-  event_name: "怒火报价"
-  lcs_percent: 0.7
-  options:
-    - option_name: "向敌人撒火吧"
-
-# 本
-- entry_name: "邂逅"
-  event_name: "先礼后兵"
-  lcs_percent: 0.7
-  options:
-    - option_name: "拜托你了本"
-    - option_name: "还是算了"
-
-# 可琳
-- entry_name: "邂逅"
-  event_name: "失眠女仆"
-  lcs_percent: 0.7
-  options:
-    - option_name: "没那回事可琳的表现是全队第一名"
-
-- entry_name: "邂逅"
-  event_name: "结束痛苦"
-  lcs_percent: 0.7
-  options:
-    - option_name: "你先放下锯子"
-    - option_name: "拜托你了可琳"
-    - option_name: "还是算了"
 
 # 莱卡恩
 - entry_name: "邂逅"
@@ -141,38 +208,48 @@
   options:
     - option_name: "那就拜托你了"
 
-# 青衣
+# 可琳
 - entry_name: "邂逅"
-  event_name: "提醒喝水小助手"
+  event_name: "失眠女仆"
+  lcs_percent: 0.7
   options:
-    - option_name: "里面装了什么好喝的"
-    - option_name: "我我记住了马马上会去喝的"
+    - option_name: "没那回事可琳的表现是全队第一名"
 
-# 猫又
 - entry_name: "邂逅"
-  event_name: "捕猎游戏高分段位"
+  event_name: "结束痛苦"
+  lcs_percent: 0.7
   options:
-    - option_name: "等待猫又吧已经习惯了"
+    - option_name: "你先放下锯子"
+    - option_name: "吓我一大跳！"
+    - option_name: "拜托你了可琳"
+    - option_name: "还是算了"
 
-# 猫又
+# 丽娜
 - entry_name: "邂逅"
-  event_name: "捕猎收获"
+  event_name: "真心话与大冒险"
   options:
-    - option_name: "接受补给包"
-      desc: "回复少量生命值，并降低少量压力值"
+    - option_name: "你们想玩什么呢？"
 
-# 11
 - entry_name: "邂逅"
-  event_name: "防卫军的做法"
+  event_name: "游戏奖励"
   options:
-    - option_name: "招呼小队成员休息"
+    - option_name: "怎么可能还有！不就你俩吗！"
 
-# 简
+## 卡吕冬之子
+
+# 莱特
 - entry_name: "邂逅"
-  event_name: "特别对策"
+  event_name: "葡萄味的压力对策"
   options:
-    - option_name: "对对不起"
-    - option_name: "私闯民宅是违反规定的吧"
+    - option_name: "完全看不出来呢"
+    - option_name: "莱特的口袋里"
+
+# 柏妮思
+- entry_name: "邂逅"
+  event_name: "总之先烧成灰"
+  options:
+    - option_name: "立即启动「声波驱鼠程序」！"
+    - option_name: "好吧，「驱鼠绝招」启动！"
 
 # 凯撒
 - entry_name: "邂逅"
@@ -181,55 +258,24 @@
     - option_name: "凯撒！不好了！有人来砸卡吕冬之子的场"
     - option_name: "告知凯撒残酷的事实"
 
-# 珂蕾妲
+# 露西
 - entry_name: "邂逅"
-  event_name: "文明施工"
+  event_name: "三只小猪"
   options:
-    - option_name: "好吧我带你去个没人的安全区域"
+    - option_name: "最好让小野猪们也休息一下哦"
+    - option_name: "严正拒绝！"
 
-# 珂蕾妲
+# 派派
 - entry_name: "邂逅"
-  event_name: "举手之劳"
+  event_name: "宝贝丢了"
   options:
-    - option_name: "要调查什么呢"
-    - option_name: "我陪你去"
+    - option_name: "我陪你找找吧"
+    - option_name: "那样很快会被盯上的！"
 
-# 赛斯
-- entry_name: "邂逅"
-  event_name: "大魔头法厄同"
-  options:
-    - option_name: "切，你很懂邦布吗？"
-    - option_name: "包扎一下伤口吧？疼不疼？"
+## 奥波勒斯小队
 
-# 安比
+# 11号
 - entry_name: "邂逅"
-  event_name: "绿耳机之谜"
+  event_name: "防卫军的做法"
   options:
-    - option_name: "这些人是安比的朋友？"
-    - option_name: "这些家伙绝对认错人了吧？"
-    
-# 柏妮思
-- entry_name: "邂逅"
-  event_name: "总之先烧成灰"
-  options:
-    - option_name: "立即启动「声波驱鼠程序」！"
-    - option_name: "好吧，「驱鼠绝招」启动！"
-
-# 丽娜
-- entry_name: "邂逅"
-  event_name: "真心话与大冒险"
-  options:
-    - option_name: "你们想玩什么呢？"
-    
-# 丽娜
-- entry_name: "邂逅"
-  event_name: "游戏奖励"
-  options:
-    - option_name: "怎么可能还有！不就你俩吗！"
-
-# 月城柳
-- entry_name: "邂逅"
-  event_name: "压缩饼干盒红豆包"
-  options:
-    - option_name: "我也来帮忙分担吧！"
-    - option_name: "我最会保守秘密了！"
+    - option_name: "招呼小队成员休息"

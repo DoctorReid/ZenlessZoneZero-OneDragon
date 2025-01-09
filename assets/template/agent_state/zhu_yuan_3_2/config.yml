@@ -4,10 +4,10 @@ template_name: 角色状态-朱鸢-32
 template_shape: quadrilateral
 auto_mask: true
 point_list:
-- 624, 91
-- 628, 105
-- 656, 105
-- 660, 91
+- 586, 93
+- 590, 107
+- 618, 107
+- 622, 93
 emulator_point_list:
 - 744, 112
 - 757, 129

@@ -3,6 +3,7 @@ screen_name: 零号空洞-事件
 pc_alt: false
 area_list:
 - area_name: 事件文本
+  id_mark: false
   pc_rect:
   - 1230
   - 4
@@ -13,7 +14,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 角色-1
+  id_mark: false
   pc_rect:
   - 830
   - 966
@@ -24,7 +27,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 角色-2
+  id_mark: false
   pc_rect:
   - 930
   - 966
@@ -35,7 +40,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 角色-3
+  id_mark: false
   pc_rect:
   - 1030
   - 966
@@ -46,7 +53,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 呼叫增援-角色行
+  id_mark: false
   pc_rect:
   - 1232
   - 434
@@ -57,7 +66,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 消息-确认
+  id_mark: false
   pc_rect:
   - 880
   - 626
@@ -68,7 +79,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 空白
+  id_mark: false
   pc_rect:
   - 22
   - 1060
@@ -79,7 +92,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 底部-清除列表
+  id_mark: false
   pc_rect:
   - 278
   - 678
@@ -90,18 +105,22 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 底部-选择列表
+  id_mark: false
   pc_rect:
   - 332
   - 752
   - 1588
-  - 832
+  - 862
   text: ''
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 背包
+  id_mark: false
   pc_rect:
   - 1448
   - 980
@@ -112,7 +131,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 通关-完成
+  id_mark: false
   pc_rect:
   - 1564
   - 1004
@@ -123,7 +144,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 鸣徽名称-1
+  id_mark: false
   pc_rect:
   - 416
   - 490
@@ -134,7 +157,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 鸣徽名称-2
+  id_mark: false
   pc_rect:
   - 832
   - 490
@@ -145,7 +170,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 鸣徽名称-3
+  id_mark: false
   pc_rect:
   - 1248
   - 490
@@ -156,7 +183,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 鸣徽选择-1
+  id_mark: false
   pc_rect:
   - 456
   - 774
@@ -167,7 +196,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 鸣徽选择-2
+  id_mark: false
   pc_rect:
   - 872
   - 774
@@ -178,7 +209,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 鸣徽选择-3
+  id_mark: false
   pc_rect:
   - 1284
   - 774
@@ -189,7 +222,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 快进
+  id_mark: false
   pc_rect:
   - 174
   - 25
@@ -200,7 +235,9 @@ area_list:
   template_sub_dir: hollow
   template_id: speed_up
   template_match_threshold: 0.9
+  goto_list: []
 - area_name: 当前层数
+  id_mark: false
   pc_rect:
   - 420
   - 38
@@ -211,7 +248,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 放弃
+  id_mark: false
   pc_rect:
   - 1564
   - 1004
@@ -222,7 +261,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 放弃-确认
+  id_mark: false
   pc_rect:
   - 1024
   - 600
@@ -233,7 +274,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 菜单
+  id_mark: false
   pc_rect:
   - 74
   - 28
@@ -244,7 +287,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 背包已满
+  id_mark: false
   pc_rect:
   - 826
   - 344
@@ -255,7 +300,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 旧都失物-返回
+  id_mark: false
   pc_rect:
   - 82
   - 13
@@ -266,7 +313,9 @@ area_list:
   template_sub_dir: menu
   template_id: back
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 格子入口选项
+  id_mark: false
   pc_rect:
   - 1392
   - 750
@@ -277,7 +326,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 交互可再次触发事件
+  id_mark: false
   pc_rect:
   - 1004
   - 884
@@ -288,3 +339,4 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []

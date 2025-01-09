@@ -2,7 +2,8 @@ from collections import deque
 import logging
 from PySide6.QtCore import Signal, QObject, QTimer
 from qfluentwidgets import PlainTextEdit, isDarkTheme
-from one_dragon.utils.log_utils import log
+from one_dragon.utils.log_utils import log as od_log
+from one_dragon.yolo.log_utils import log as yolo_log
 
 class LogSignal(QObject):
     new_log = Signal(str)
@@ -50,7 +51,8 @@ class LogDisplayCard(PlainTextEdit):
 
         # 初始化接收器
         self.receiver = LogReceiver()
-        log.addHandler(self.receiver)
+        od_log.addHandler(self.receiver)
+        yolo_log.addHandler(self.receiver)
 
         # 初始化定时器
         self.update_timer = QTimer()
@@ -71,7 +73,6 @@ class LogDisplayCard(PlainTextEdit):
         # 限制显示行数
         self.setMaximumBlockCount(192)  
 
-
     def init_color(self):
         """根据主题设置颜色"""
         if isDarkTheme():
@@ -79,20 +80,18 @@ class LogDisplayCard(PlainTextEdit):
         else:
             self._color = '#00A064'
 
-    def set_update_log(self, update: bool) -> None:
-        """启用或停止日志更新"""
-        self.receiver.update = update
-        self.receiver.clear_logs()
-        self.clear()
-
-    def start(self):
+    def start(self, clear_log: bool = False):
         """启动日志显示"""
+        if clear_log:
+            self.receiver.clear_logs()
+            self.clear()
         self.init_color()
+        self.receiver.update = True
         if not self.is_running:
             self.is_running = True
         if not self.is_pause:
-                self.receiver.clear_logs()
-                self.clear()
+            self.receiver.clear_logs()
+            self.clear()
         self.auto_scroll = True
         self.update_timer.start(self.update_frequency)
 
@@ -103,6 +102,7 @@ class LogDisplayCard(PlainTextEdit):
         self.is_pause = True
         self.auto_scroll = False
         self.update_timer.stop()
+        self.receiver.update = False
 
     def stop(self):
         """停止日志显示"""
@@ -112,6 +112,8 @@ class LogDisplayCard(PlainTextEdit):
             self.is_pause = False
         self.auto_scroll = False
         self.update_timer.stop()
+        self.update_logs()  # 停止后 最后更新一次日志
+        self.receiver.update = False
 
     def update_logs(self) -> None:
         """更新日志显示区域"""
@@ -123,26 +125,26 @@ class LogDisplayCard(PlainTextEdit):
         if self.auto_scroll:
             self.verticalScrollBar().setValue(self.verticalScrollBar().maximum())  # 滚动到最新位置
 
-    def _format_logs(self, logs: list[str]) -> str:
+    def _format_logs(self, log_list: list[str]) -> str:
         """格式化日志"""
         formatted_logs = []
         formatted_log = ""
         
-        for log in logs:
+        for log_item in log_list:
             # 给方括号内的内容着色
-            if '[' in log and ']' in log:
-                start = log.find('[') + 1
-                end = log.find(']')
-                before = log[:start]
-                colored = f'<span style="color: {self._color};">{log[start:end]}</span>'
-                after = log[end:]
+            if '[' in log_item and ']' in log_item:
+                start = log_item.find('[') + 1
+                end = log_item.find(']')
+                before = log_item[:start]
+                colored = f'<span style="color: {self._color};">{log_item[start:end]}</span>'
+                after = log_item[end:]
                 formatted_log = before + colored + after
             else:
-                formatted_log = log
+                formatted_log = log_item
             formatted_logs.append(formatted_log)
 
         # 检查是否有日志
-        if len(logs) <= 1:
+        if len(log_list) <= 1:
             return formatted_log
         else:
             return '<br>'.join(formatted_logs)

@@ -9,7 +9,7 @@
     padding: 0 4px
 }
 
-#TitleBar>QPushButton#questionButton {
+#TitleBar>QPushButton {
     color: black;
     background: transparent;
     font: 13px 'Segoe UI', 'Microsoft YaHei', 'PingFang SC';
@@ -17,11 +17,11 @@
     border: none
 }
 
-#TitleBar > QPushButton#questionButton:hover {
+#TitleBar > QPushButton:hover {
     background: rgba(0, 0, 0, 0.1);
 }
 
-#TitleBar > QPushButton#questionButton:pressed {
+#TitleBar > QPushButton:pressed {
     background: rgba(0, 0, 0, 0.2);
 }
 

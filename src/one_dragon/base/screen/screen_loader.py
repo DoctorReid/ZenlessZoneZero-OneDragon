@@ -1,4 +1,5 @@
 import os
+from cv2.typing import MatLike
 from typing import Optional
 
 from one_dragon.base.screen.screen_area import ScreenArea

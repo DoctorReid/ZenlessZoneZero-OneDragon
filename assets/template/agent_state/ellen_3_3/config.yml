@@ -4,5 +4,5 @@ template_name: 角色状态-艾莲-33
 template_shape: rectangle
 auto_mask: true
 point_list:
-- 784, 93
-- 826, 98
+- 765, 94
+- 807, 99

@@ -30,6 +30,10 @@ class OperationRoundResult:
         return self.result == OperationRoundResultEnum.SUCCESS
 
     @property
+    def is_fail(self) -> bool:
+        return self.result == OperationRoundResultEnum.FAIL
+
+    @property
     def status_display(self) -> str:
         if self.result == OperationRoundResultEnum.SUCCESS:
             return '成功'

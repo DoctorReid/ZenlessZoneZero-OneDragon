@@ -1,6 +1,6 @@
 try:
     import sys
-    from PySide6.QtCore import Qt
+    from PySide6.QtCore import Qt, QThread, Signal
     from PySide6.QtWidgets import QApplication
     from qfluentwidgets import NavigationItemPosition, setTheme, Theme
     from one_dragon.gui.view.like_interface import LikeInterface
@@ -26,6 +26,20 @@ try:
 
     _init_error = None
 
+
+    class CheckVersionRunner(QThread):
+
+        get = Signal(str)
+
+        def __init__(self, ctx: ZContext, parent=None):
+            super().__init__(parent)
+            self.ctx = ctx
+
+        def run(self):
+            ver = self.ctx.git_service.get_current_version()
+            if ver is not None:
+                self.get.emit(ver)
+
     # 定义应用程序的主窗口类
     class AppWindow(AppWindowBase):
 
@@ -43,6 +57,9 @@ try:
                 app_icon="zzz_logo.ico",
                 parent=parent,
             )
+            self._check_version_runner = CheckVersionRunner(self.ctx)
+            self._check_version_runner.get.connect(self._update_version)
+            self._check_version_runner.start()
 
             self.ctx.listen_event(
                 ContextInstanceEventEnum.instance_active.value,
@@ -153,6 +170,14 @@ try:
                 )
             )
 
+        def _update_version(self, ver: str) -> None:
+            """
+            更新版本显示
+            @param ver:
+            @return:
+            """
+            self.titleBar.setVersion(ver)
+
 
 # 调用Windows错误弹窗
 except Exception as e:
@@ -193,3 +218,5 @@ if __name__ == "__main__":
 
     # 启动应用程序事件循环
     app.exec()
+
+    _ctx.btn_listener.stop()

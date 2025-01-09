@@ -28,6 +28,7 @@
 - entry_name: "0022-门扉禁闭-侵蚀"
   is_benefit: false
 - entry_name: "0023-残破的障碍物"
+  can_visited_times: 5
 - entry_name: "0024-双重危机"
   is_benefit: false
 - entry_name: "0025-门扉禁闭-善战"

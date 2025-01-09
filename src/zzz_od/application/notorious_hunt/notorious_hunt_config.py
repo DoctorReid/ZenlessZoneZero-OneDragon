@@ -43,10 +43,11 @@ class NotoriousHuntConfig(YamlConfig):
         默认的周本计划
         """
         return [
-            ChargePlanItem('挑战', '恶名狩猎', '初生死路屠夫', None),
-            ChargePlanItem('挑战', '恶名狩猎', '未知复合侵蚀体', None),
-            ChargePlanItem('挑战', '恶名狩猎', '冥宁芙·双子', None),
-            ChargePlanItem('挑战', '恶名狩猎', '「霸主侵蚀体·庞培」', None)
+            ChargePlanItem('作战', '恶名狩猎', '初生死路屠夫', None),
+            ChargePlanItem('作战', '恶名狩猎', '未知复合侵蚀体', None),
+            ChargePlanItem('作战', '恶名狩猎', '冥宁芙·双子', None),
+            ChargePlanItem('作战', '恶名狩猎', '「霸主侵蚀体·庞培」', None),
+            ChargePlanItem('作战', '恶名狩猎', '牲鬼·布林格', None)
         ]
 
     def save(self):

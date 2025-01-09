@@ -10,7 +10,8 @@ from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettin
 from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon.gui.widgets.setting_card.yolo_model_card import ModelDownloadSettingCard
 from one_dragon.utils.i18_utils import gt
-from zzz_od.config.yolo_config import ZZZ_MODEL_DOWNLOAD_URL, get_flash_classifier_opts, get_hollow_zero_event_opts
+from zzz_od.config.yolo_config import ZZZ_MODEL_DOWNLOAD_URL, get_flash_classifier_opts, get_hollow_zero_event_opts, \
+    get_lost_void_det_opts
 from zzz_od.context.zzz_context import ZContext
 
 from phosdeiz.gui.widgets import Column
@@ -77,6 +78,15 @@ class SettingYoloInterface(VerticalScrollInterface):
         self.hollow_zero_event_gpu_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='空洞格子识别-GPU运算')
         group.addSettingCard(self.hollow_zero_event_gpu_opt)
 
+        self.lost_void_det_opt = ModelDownloadSettingCard(
+            ctx=self.ctx, sub_dir='lost_void_det', download_url=ZZZ_MODEL_DOWNLOAD_URL,
+            icon=FluentIcon.GLOBE, title='迷失之地识别')
+        self.lost_void_det_opt.value_changed.connect(self._on_hollow_zero_event_changed)
+        group.addSettingCard(self.lost_void_det_opt)
+
+        self.lost_void_det_gpu_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='迷失之地识别-GPU运算')
+        group.addSettingCard(self.lost_void_det_gpu_opt)
+
         return group
 
     def _init_log_group(self) -> SettingCardGroup:
@@ -90,10 +100,13 @@ class SettingYoloInterface(VerticalScrollInterface):
         VerticalScrollInterface.on_interface_shown(self)
 
         self._init_flash_classifier_opts()
-        self.flash_classifier_gpu_opt.init_with_adapter(self.ctx.yolo_config.flash_classifier_gpu_adapter)
+        self.flash_classifier_gpu_opt.init_with_adapter(self.ctx.yolo_config.get_prop_adapter('flash_classifier_gpu'))
 
         self._init_hollow_zero_event_opts()
-        self.hollow_zero_event_gpu_opt.init_with_adapter(self.ctx.yolo_config.hollow_zero_event_gpu_adapter)
+        self.hollow_zero_event_gpu_opt.init_with_adapter(self.ctx.yolo_config.get_prop_adapter('hollow_zero_event_gpu'))
+
+        self._init_lost_void_det_opts()
+        self.lost_void_det_gpu_opt.init_with_adapter(self.ctx.yolo_config.get_prop_adapter('lost_void_det_gpu'))
 
         proxy_type = get_config_item_from_enum(ProxyTypeEnum, self.ctx.env_config.proxy_type)
         if proxy_type is not None:
@@ -101,34 +114,32 @@ class SettingYoloInterface(VerticalScrollInterface):
 
         self.personal_proxy_input.setValue(self.ctx.env_config.personal_proxy)
 
-        self.log_card.set_update_log(True)
+        self.log_card.start()
 
     def on_interface_hidden(self) -> None:
         VerticalScrollInterface.on_interface_hidden(self)
-        self.log_card.set_update_log(False)
+        self.log_card.stop()
 
     def _init_flash_classifier_opts(self) -> None:
-        try:
-            # 更新之前 先取消原来的监听 防止触发事件
-            self.flash_classifier_opt.value_changed.disconnect(self._on_flash_classifier_changed)
-        except Exception:
-            pass
+        self.flash_classifier_opt.blockSignals(True)
         self.flash_classifier_opt.set_options_by_list(get_flash_classifier_opts())
         self.flash_classifier_opt.setValue(self.ctx.yolo_config.flash_classifier)
         self.flash_classifier_opt.check_and_update_display()
-
-        self.flash_classifier_opt.value_changed.connect(self._on_flash_classifier_changed)
+        self.flash_classifier_opt.blockSignals(False)
 
     def _init_hollow_zero_event_opts(self) -> None:
-        try:
-            # 更新之前 先取消原来的监听 防止触发事件
-            self.hollow_zero_event_opt.value_changed.disconnect(self._on_hollow_zero_event_changed)
-        except Exception:
-            pass
+        self.hollow_zero_event_opt.blockSignals(True)
         self.hollow_zero_event_opt.set_options_by_list(get_hollow_zero_event_opts())
         self.hollow_zero_event_opt.setValue(self.ctx.yolo_config.hollow_zero_event)
         self.hollow_zero_event_opt.check_and_update_display()
-        self.hollow_zero_event_opt.value_changed.connect(self._on_hollow_zero_event_changed)
+        self.hollow_zero_event_opt.blockSignals(False)
+
+    def _init_lost_void_det_opts(self) -> None:
+        self.lost_void_det_opt.blockSignals(True)
+        self.lost_void_det_opt.set_options_by_list(get_lost_void_det_opts())
+        self.lost_void_det_opt.setValue(self.ctx.yolo_config.lost_void_det)
+        self.lost_void_det_opt.check_and_update_display()
+        self.lost_void_det_opt.blockSignals(False)
 
     def _on_proxy_type_changed(self, index: int, value: str) -> None:
         """
@@ -155,7 +166,12 @@ class SettingYoloInterface(VerticalScrollInterface):
         代理发生改变
         :return:
         """
+        # 清除当前代理设置的状态
         self.ctx.git_service.is_proxy_set = False
+
+        # 调用 init_git_proxy 同步更新 Git 的代理设置
+        self.ctx.git_service.init_git_proxy()
+
 
     def _on_flash_classifier_changed(self, index: int, value: str) -> None:
         self.ctx.yolo_config.flash_classifier = value
@@ -164,3 +180,7 @@ class SettingYoloInterface(VerticalScrollInterface):
     def _on_hollow_zero_event_changed(self, index: int, value: str) -> None:
         self.ctx.yolo_config.hollow_zero_event = value
         self.hollow_zero_event_opt.check_and_update_display()
+
+    def _on_lost_void_det_changed(self, index: int, value: str) -> None:
+        self.ctx.yolo_config.lost_void_det = value
+        self.lost_void_det_opt.check_and_update_display()

@@ -22,7 +22,7 @@ class DriveDiscDismantleApp(ZApplication):
     @node_from(from_name='开始前返回')
     @operation_node(name='前往分解画面')
     def goto_salvage(self) -> OperationRoundResult:
-        return self.round_by_goto_screen(screen_name='仓库-驱动仓库-驱动盘拆解', retry_wait_round=1)
+        return self.round_by_goto_screen(screen_name='仓库-驱动仓库-驱动盘拆解')
 
     @node_from(from_name='前往分解画面')
     @operation_node(name='快速选择')

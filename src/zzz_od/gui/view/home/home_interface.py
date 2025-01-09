@@ -1,21 +1,15 @@
 import os
-from typing import Callable, Optional
 from PySide6.QtCore import Qt, QThread, Signal, QSize, QUrl
 from PySide6.QtGui import (
-    QPixmap,
-    QPainter,
-    QPainterPath,
     QFont,
-    QDesktopServices,QColor
+    QDesktopServices, QColor
 )
 from PySide6.QtWidgets import (
-    QWidget,
     QVBoxLayout,
     QHBoxLayout,
     QSpacerItem,
     QSizePolicy,
 )
-
 from qfluentwidgets import (
     FluentIcon,
     InfoBar,
@@ -24,24 +18,25 @@ from qfluentwidgets import (
     SimpleCardWidget,
     PrimaryPushButton,
 )
+from typing import Callable, Optional
 
 from one_dragon.base.operation.operation import Operation
 from one_dragon.base.operation.operation_base import OperationResult
+from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
-from one_dragon.utils.log_utils import log
 from one_dragon.gui.widgets.vertical_scroll_interface import (
     VerticalScrollInterface,
 )
+from one_dragon.gui.windows.app_window_base import AppWindowBase
 from one_dragon.utils import os_utils
 from one_dragon.utils.i18_utils import gt
-from one_dragon.base.operation.operation_edge import node_from
-from one_dragon.base.operation.operation_node import operation_node
-
+from one_dragon.utils.log_utils import log
+from phosdeiz.gui.services import PhosStyleSheet
+from phosdeiz.gui.widgets import IconButton, NoticeCard, GameDialog, Banner
+from phosdeiz.gui.windows.window import PhosTitleBar
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.enter_game.open_game import OpenGame
 
-from phosdeiz.gui.services import PhosStyleSheet
-from phosdeiz.gui.widgets import IconButton,NoticeCard,GameDialog,Banner
 
 class ButtonGroup(SimpleCardWidget):
     """显示主页和 GitHub 按钮的竖直按钮组"""
@@ -49,7 +44,7 @@ class ButtonGroup(SimpleCardWidget):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
 
-        self.setFixedSize(56, 320)
+        self.setFixedSize(56, 180)
 
         layout = QVBoxLayout(self)
         layout.setAlignment(Qt.AlignTop)
@@ -76,18 +71,52 @@ class ButtonGroup(SimpleCardWidget):
         github_button.clicked.connect(self.open_github)
         layout.addWidget(github_button)
 
-        # 添加一个可伸缩的空白区域
-        layout.addStretch()
-
-        # 创建 同步 按钮
-        sync_button = IconButton(
-            FluentIcon.SYNC.icon(color=QColor("#fff")), tip_title="未完工", tip_content="开发中", isTooltip=True
+        # 创建 文档 按钮
+        doc_button = IconButton(
+            FluentIcon.LIBRARY.icon(color=QColor("#fff")),  # Assuming FluentIcon.BOOK is suitable for a document
+            tip_title="自助排障文档",
+            tip_content="点击打开自助排障文档,好孩子都能看懂",
+            isTooltip=True,
         )
-        sync_button.setIconSize(QSize(32, 32))
-        layout.addWidget(sync_button)
+        doc_button.setIconSize(QSize(32, 32))
+        doc_button.clicked.connect(self.open_doc)
+        layout.addWidget(doc_button)
+
+        # 创建 Q群 按钮
+        doc_button = IconButton(
+            FluentIcon.CHAT.icon(color=QColor("#fff")),  # Assuming FluentIcon.BOOK is suitable for a document
+            tip_title="官方社群",
+            tip_content="加入官方群聊【绝区零&一条龙交流群】",
+            isTooltip=True,
+        )
+        doc_button.setIconSize(QSize(32, 32))
+        doc_button.clicked.connect(self.open_chat)
+        layout.addWidget(doc_button)
+
+        # 创建 官方店铺 按钮 (当然没有)
+        doc_button = IconButton(
+            FluentIcon.SHOPPING_CART.icon(color=QColor("#fff")),  # Assuming FluentIcon.BOOK is suitable for a document
+            tip_title="官方店铺",
+            tip_content="当然没有官方店铺,本软件完全免费, 速速加入官方社群!",
+            isTooltip=True,
+        )
+        doc_button.setIconSize(QSize(32, 32))
+        doc_button.clicked.connect(self.open_sales)
+        layout.addWidget(doc_button)
+
+        # 未完工区域, 暂时隐藏
+        # # 添加一个可伸缩的空白区域
+        # layout.addStretch()
+
+        # # 创建 同步 按钮
+        # sync_button = IconButton(
+        #     FluentIcon.SYNC.icon(color=QColor("#fff")), tip_title="未完工", tip_content="开发中", isTooltip=True
+        # )
+        # sync_button.setIconSize(QSize(32, 32))
+        # layout.addWidget(sync_button)
         
     def _normalBackgroundColor(self):
-        return QColor(0, 0, 0, 33)
+        return QColor(0, 0, 0, 96)
 
     def open_home(self):
         """打开主页链接"""
@@ -99,6 +128,17 @@ class ButtonGroup(SimpleCardWidget):
             QUrl("https://github.com/DoctorReid/ZenlessZoneZero-OneDragon")
         )
 
+    def open_chat(self):
+        """打开 Q群 链接"""
+        QDesktopServices.openUrl(QUrl("https://qm.qq.com/q/N5iEy8sTu0"))
+
+    def open_doc(self):
+        """打开 巡夜的金山文档 链接"""
+        QDesktopServices.openUrl(QUrl("https://kdocs.cn/l/cbSJUUNotJ3Z"))
+    
+    def open_sales(self):
+        """其实还是打开 Q群 链接"""
+        QDesktopServices.openUrl(QUrl("https://qm.qq.com/q/N5iEy8sTu0"))
 
 class CheckRunnerBase(QThread):
     """检查更新的基础线程类"""
@@ -134,10 +174,14 @@ class HomeInterface(VerticalScrollInterface):
     def __init__(self, ctx: ZContext, parent=None):
 
         # 创建垂直布局的主窗口部件
+        # index.png 来自 C:\Users\YOUR_NAME\AppData\Roaming\miHoYo\HYP\1_1\fedata\Cache\Cache_Data
+        # 对此路径下文件增加后缀名.png后可见
         v_widget = Banner(os.path.join(
             os_utils.get_path_under_work_dir('assets', 'ui'),
-            '1.png'
+            'index.png'
         ))
+        v_widget.set_percentage_size(0.8, 0.5)  # 设置 Banner 大小为窗口的 80% 宽度和 50% 高度
+
         v_layout = QVBoxLayout(v_widget)
         v_layout.setContentsMargins(0, 0, 0, 15)
         v_layout.setSpacing(5)
@@ -182,7 +226,7 @@ class HomeInterface(VerticalScrollInterface):
         h2_layout.addStretch()
 
         # 启动游戏按钮布局
-        gameButton = PrimaryPushButton("启动游戏")
+        gameButton = PrimaryPushButton("启动游戏🚀")
         gameButton.setFont(QFont("Microsoft YaHei", 16, QFont.Weight.Bold))
         gameButton.setFixedSize(160, 48)
         gameButton.clicked.connect(self.start_game)
@@ -252,7 +296,7 @@ class HomeInterface(VerticalScrollInterface):
         InfoBar.success(
             title=title,
             content=content,
-            orient=Qt.Horizontal,
+            orient=Qt.Orientation.Horizontal,
             isClosable=True,
             position=InfoBarPosition.TOP_RIGHT,
             duration=duration,

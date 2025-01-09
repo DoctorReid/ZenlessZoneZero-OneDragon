@@ -1,0 +1,493 @@
+# 基础信息
+author: "DoctorReid"
+thanks: ""
+homepage: ""
+version: "1.0"
+team_list:
+  - ["莱特", "凯撒", "露西"]
+introduction: "帅就完事了"
+
+check_dodge_interval: 0.02
+check_agent_interval: [0.4, 0.6]
+check_chain_interval: [0.9, 1.1]
+check_quick_interval: [0.9, 1.1]
+auto_lock_interval: 5
+
+t-dodge: &t-dodge
+  - op_name: "设置状态"
+    state: "自定义-闪避"
+  - op_name: "按键-移动-前"
+    way: "按下"
+    post_delay: 0.1
+  - op_name: "按键-闪避"
+    post_delay: 0.1
+  - op_name: "按键-移动-前"
+    way: "松开"
+
+# 快速支援
+t-quick-assist: &t-quick-assist
+  - op_name: "按键-快速支援"
+  - op_name: "设置状态"
+    state: "自定义-快速支援换人"
+  - op_name: "清除状态"
+    state_list: ["自定义-招架支援", "自定义-连携技换人", "自定义-下场", "自定义-动作不打断"]
+
+# 快速支援-露西
+t-quick-assist-lucy: &t-quick-assist-lucy
+  - op_name: "按键-快速支援"
+  - op_name: "设置状态"
+    state_list: ["自定义-快速支援换人", "自定义-露西-加油"]
+  - op_name: "清除状态"
+    state_list: ["自定义-招架支援", "自定义-连携技换人", "自定义-下场", "自定义-动作不打断"]
+
+
+# 连携技 邦布
+t-chain-bamboo: &t-chain-bamboo
+  - op_name: "按键-连携技-左"
+  - op_name: "设置状态"
+    state: "自定义-连携技邦布"
+  # 注意清除其他相关的换人状态
+  - op_name: "清除状态"
+    state_list: ["自定义-招架支援", "自定义-连携技换人", "自定义-快速支援换人", "自定义-下场", "自定义-动作不打断"]
+  - op_name: "等待秒数"
+    seconds: 3
+
+
+# 连携技 上一个
+t-chain-left: &t-chain-left
+  - op_name: "按键-连携技-左"
+  - op_name: "设置状态"
+    state: "自定义-连携技换人"
+  # 注意清除其他相关的换人状态
+  - op_name: "清除状态"
+    state_list: ["自定义-招架支援", "自定义-快速支援换人", "自定义-下场", "自定义-动作不打断"]
+
+# 连携技 下一个
+t-chain-right: &t-chain-right
+  - op_name: "按键-连携技-右"
+  - op_name: "设置状态"
+    state: "自定义-连携技换人"
+  # 注意清除其他相关的换人状态
+  - op_name: "清除状态"
+    state_list: ["自定义-招架支援", "自定义-快速支援换人", "自定义-下场", "自定义-动作不打断"]
+
+# 招架支援-凯撒
+t-dodge-caesar: &t-dodge-caesar
+  - op_name: "设置状态"
+    state: "自定义-凯撒-战意激昂"
+  - op_name: "设置状态"
+    state: "自定义-招架支援"
+  - op_name: "设置状态"
+    state: "自定义-原始朋克"
+  - op_name: "按键-切换角色"
+    agent_name: "凯撒"
+  # 注意清除其他相关的换人状态
+  - op_name: "清除状态"
+    state_list: ["自定义-连携技换人", "自定义-快速支援换人", "自定义-下场", "自定义-动作不打断"]
+
+# 切换角色-凯撒
+t-switch-caesar: &t-switch-caesar
+  - op_name: "按键-切换角色"
+    agent_name: "凯撒"
+  # 注意清除其他相关的换人状态
+  - op_name: "清除状态"
+    state_list: ["自定义-招架支援", "自定义-连携技换人", "自定义-快速支援换人", "自定义-下场", "自定义-动作不打断"]
+  - op_name: "等待秒数"
+    seconds: 0.2
+
+# 招架支援-露西
+t-dodge-lucy: &t-dodge-lucy
+  - op_name: "设置状态"
+    state: "自定义-招架支援"
+  - op_name: "按键-切换角色"
+    agent_name: "露西"
+  # 注意清除其他相关的换人状态
+  - op_name: "清除状态"
+    state_list: ["自定义-连携技换人", "自定义-快速支援换人", "自定义-下场", "自定义-动作不打断"]
+
+# 切换角色-露西
+t-switch-lucy: &t-switch-lucy
+  - op_name: "按键-切换角色"
+    agent_name: "露西"
+  # 注意清除其他相关的换人状态
+  - op_name: "清除状态"
+    state_list: ["自定义-招架支援", "自定义-连携技换人", "自定义-快速支援换人", "自定义-下场", "自定义-动作不打断"]
+  - op_name: "等待秒数"
+    seconds: 0.3
+
+# 招架支援-莱特
+t-dodge-lighter: &t-dodge-lighter
+  - op_name: "设置状态"
+    state: "自定义-招架支援"
+  - op_name: "按键-切换角色"
+    agent_name: "莱特"
+  # 注意清除其他相关的换人状态
+  - op_name: "清除状态"
+    state_list: ["自定义-连携技换人", "自定义-快速支援换人", "自定义-下场", "自定义-动作不打断"]
+
+# 切换角色-莱特
+t-switch-lighter: &t-switch-lighter
+  - op_name: "按键-切换角色"
+    agent_name: "莱特"
+  # 注意清除其他相关的换人状态
+  - op_name: "清除状态"
+    state_list: ["自定义-招架支援", "自定义-连携技换人", "自定义-快速支援换人", "自定义-下场", "自定义-动作不打断"]
+  - op_name: "等待秒数"
+    seconds: 0.3
+
+scenes:
+
+  - triggers: [ "闪避识别-黄光", "闪避识别-红光", "闪避识别-声音" ]
+    interval: 1
+    handlers:
+      # 部分连招霸体可以不闪避
+      - states: "![自定义-动作不打断, 0, 30]"
+        sub_handlers:
+          - states: "[闪避识别-黄光]"
+            sub_handlers:
+              # 优先切凯撒进行上盾 核心持续时间30s
+              - states: "[后台-凯撒] & ![自定义-凯撒-战意激昂, 0, 25]"
+                operations: *t-dodge-caesar
+
+              # 露西补buff 长按持续15秒 连携技持续10秒
+              - states: "[后台-露西] & ![自定义-露西-加油, -5, 13]"
+                operations: *t-dodge-lucy
+
+              # 默认凯撒带了原始朋克
+              # 10S内没有招架支援 或者 回避支援 (原始朋克的BUFF) 就要切一次角色
+              - states: "![自定义-原始朋克, 0, 9]"
+                sub_handlers:
+                  # 优先切到莱特
+                  - states: "[后台-莱特]"
+                    operations: *t-dodge-lighter
+                  # 其余情况切露西
+                  - states: "[后台-露西]"
+                    operations: *t-dodge-lucy
+
+              # 其余情况 优先切到莱特
+              - states: "[后台-莱特]"
+                operations: *t-dodge-lighter
+
+              # 其余情况 闪避
+              - states: ""
+                operations: *t-dodge
+
+          # 闪避
+          - states: ""
+            operations: *t-dodge
+
+  - triggers: [ "按键可用-快速支援" ]
+    interval: 1
+    handlers:
+      - states: "[按键可用-快速支援]"
+        sub_handlers:
+          - states: "[前台-露西]"
+            operations: *t-quick-assist-lucy
+
+  - triggers: [ "按键可用-连携技" ]
+    interval: 1
+    handlers:
+      - states: "[按键可用-连携技]"
+        sub_handlers:
+          # 邦布的出场持续时间比较难评估
+          - states: "[连携技-1-邦布]"
+            operations: *t-chain-bamboo
+
+          # 凯撒没上buff的话 先出凯撒
+          - states: "([连携技-1-凯撒] | [连携技-2-凯撒]) & ![自定义-凯撒-战意激昂, 0, 25]"
+            sub_handlers:
+            - states: "[连携技-1-凯撒]"
+              operations: *t-chain-left
+            - states: "[连携技-2-凯撒]"
+              operations: *t-chain-right
+
+          # 剩余情况 露西-凯撒-莱特
+          - states: "[连携技-1-露西]"
+            operations: *t-chain-left
+          - states: "[连携技-2-露西]"
+            operations: *t-chain-right
+          - states: "[连携技-1-凯撒]"
+            operations: *t-chain-left
+          - states: "[连携技-2-凯撒]"
+            operations: *t-chain-right
+          - states: "[连携技-1-莱特]"
+            operations: *t-chain-left
+          - states: "[连携技-2-莱特]"
+            operations: *t-chain-right
+
+  - triggers: [ ]
+    interval: 0.02
+    handlers:
+      - state_template: "站场模板-未识别角色"
+
+      # 当前角色动作已经做完 可以切换角色了
+      - states: "[自定义-下场]"
+        sub_handlers:
+          # 上凯撒盾
+          - states: "![自定义-凯撒-战意激昂, 0, 25] & [后台-凯撒] & [凯撒-能量]{45, 120}"
+            operations: *t-switch-caesar
+
+          # 上露西BUFF
+          - states: "![自定义-露西-加油, -5, 13] & [后台-露西] & [露西-能量]{65, 120}"
+            operations: *t-switch-lucy
+
+          - states: ""
+            operations: *t-switch-lighter
+
+      # 凯撒
+      - states: "[前台-凯撒]"
+        interrupt_states: ["后台-凯撒"]
+        sub_handlers:
+          - states: "[自定义-闪避]"
+            operations:
+              - op_name: "按键-普通攻击"
+                post_delay: 0.2
+                repeat: 2
+
+          - states: "[自定义-快速支援换人]"
+            operations:
+              - op_name: "按键-普通攻击"
+                pre_delay: 0.15
+                post_delay: 0.15
+                repeat: 2
+
+          - states: "[自定义-招架支援]"
+            operations:
+              - op_name: "设置状态"
+                state: "自定义-动作不打断"
+              - op_name: "按键-普通攻击"
+                pre_delay: 0.1
+                post_delay: 0.1
+                repeat: 10
+              - op_name: "等待秒数"
+                seconds: 0.5
+              - op_name: "清除状态"
+                state: "自定义-动作不打断"
+
+          # 连携技出场会触发护盾
+          - states: "[自定义-连携技换人]"
+            operations:
+              - op_name: "设置状态"
+                state: "自定义-动作不打断"
+              - op_name: "等待秒数"
+                seconds: 2
+              - op_name: "设置状态"
+                state: "自定义-凯撒-战意激昂"
+              - op_name: "清除状态"
+                state: "自定义-动作不打断"
+
+          # 有足够能量的话 就打一个特殊技能上盾再走
+          # 有可能打出第一个盾击后 还不能切换到主C 这时候就不打第二个盾击浪费能量了
+          - states: "[前台-能量]{40, 120} & ![自定义-凯撒-招架反击, 0, 3]"
+            operations:
+              - op_name: "设置状态"
+                state: "自定义-动作不打断"
+              - op_name: "按键-特殊攻击"
+                post_delay: 0.1
+                repeat: 7
+              - op_name: "设置状态"
+                state: "自定义-凯撒-战意激昂"
+              - op_name: "设置状态"
+                state: "自定义-凯撒-招架反击"
+              - op_name: "设置状态"
+                state: "自定义-下场"
+              - op_name: "清除状态"
+                state: "自定义-动作不打断"
+
+          - states: ""
+            operations:
+              - op_name: "按键-普通攻击"
+                post_delay: 0.2
+              - op_name: "设置状态"
+                state: "自定义-下场"
+
+      # 露西
+      - states: "[前台-露西]"
+        interrupt_states: ["后台-露西"]
+        sub_handlers:
+          - states: "[自定义-闪避]"
+            operations:
+              - op_name: "按键-普通攻击"
+                post_delay: 0.2
+                repeat: 2
+              - op_name: "等待秒数"
+                seconds: 1
+
+          - states: "[自定义-快速支援换人]"
+            operations:
+              - op_name: "按键-普通攻击"
+                pre_delay: 0.15
+                post_delay: 0.15
+                repeat: 5
+
+          - states: "[自定义-招架支援]"
+            operations:
+              - op_name: "设置状态"
+                state: "自定义-动作不打断"
+              - op_name: "按键-普通攻击"
+                post_delay: 0.05
+                repeat: 28
+              - op_name: "等待秒数"
+                seconds: 1
+              - op_name: "清除状态"
+                state: "自定义-动作不打断"
+
+          - states: "[自定义-连携技换人]"
+            operations:
+              - op_name: "设置状态"
+                state: "自定义-动作不打断"
+              - op_name: "等待秒数"
+                seconds: 2
+              # 连携技buff只有10秒 因此需要设置buff时间提前
+              - op_name: "设置状态"
+                state: "自定义-露西-加油"
+                seconds: -5
+              - op_name: "清除状态"
+                state: "自定义-动作不打断"
+
+          - states: "[露西-能量]{65, 120} & ![自定义-露西-加油, -5, 13]"
+            operations:
+              - op_name: "设置状态"
+                state: "自定义-动作不打断"
+              - op_name: "按键-特殊攻击"
+                way: "按下"
+                press: 1
+              - op_name: "设置状态"
+                state: "自定义-下场"
+              # 击飞到落地还有一段距离 需要在一段时间后再设置buff时间
+              - op_name: "设置状态"
+                state: "自定义-露西-加油"
+                seconds: 1.5
+              - op_name: "清除状态"
+                state: "自定义-动作不打断"
+
+          - states: ""
+            operations:
+              - op_name: "按键-普通攻击"
+                post_delay: 0.2
+              - op_name: "设置状态"
+                state: "自定义-下场"
+
+      # 莱特
+      - states: "[前台-莱特]"
+        interrupt_states: ["后台-莱特"]
+        sub_handlers:
+          - states: "[自定义-莱特-欧拉欧拉, 0, 30]"
+            sub_handlers:
+              - states: "[莱特-士气]{0, 10}"
+                operations:
+                  - op_name: "清除状态"
+                    state_list: ["自定义-莱特-欧拉欧拉", "自定义-动作不打断"]
+                  - op_name: "设置状态"
+                    state: "自定义-下场"
+              - states: ""
+                operations:
+                  - op_name: "按键-普通攻击"
+                    post_delay: 0.1
+
+          - states: "[自定义-闪避]"
+            sub_handlers:
+              - states: "[莱特-士气]{80, 100}"
+                operations:
+                  - op_name: "设置状态"
+                    state_list: ["自定义-莱特-欧拉欧拉", "自定义-动作不打断"]
+              - states: ""
+                operations:
+                  - op_name: "按键-普通攻击"
+                    post_delay: 0.2
+                    repeat: 8
+                  - op_name: "等待秒数"
+                    seconds: 0.5
+                  - op_name: "设置状态"
+                    state: "自定义-下场"
+
+          - states: "[自定义-快速支援换人]"
+            sub_handlers:
+              - states: "[莱特-士气]{80, 100}"
+                operations:
+                  - op_name: "设置状态"
+                    state_list: ["自定义-莱特-欧拉欧拉", "自定义-动作不打断"]
+              - states: ""
+                operations:
+                  - op_name: "按键-普通攻击"
+                    post_delay: 0.2
+                    repeat: 8
+                  - op_name: "等待秒数"
+                    seconds: 0.5
+                  - op_name: "设置状态"
+                    state: "自定义-下场"
+
+          - states: "[自定义-招架支援]"
+            sub_handlers:
+              - states: "[莱特-士气]{80, 100}"
+                operations:
+                  - op_name: "设置状态"
+                    state_list: ["自定义-莱特-欧拉欧拉", "自定义-动作不打断"]
+              - states: ""
+                operations:
+                  - op_name: "按键-普通攻击"
+                    post_delay: 0.2
+                    repeat: 8
+                  - op_name: "等待秒数"
+                    seconds: 0.5
+                  - op_name: "设置状态"
+                    state: "自定义-下场"
+
+          - states: "[自定义-连携技换人]"
+            sub_handlers:
+              - states: "[莱特-士气]{80, 100}"
+                operations:
+                  - op_name: "设置状态"
+                    state_list: ["自定义-莱特-欧拉欧拉", "自定义-动作不打断"]
+              - states: ""
+                operations:
+                  - op_name: "等待秒数"
+                    seconds: 3
+                  - op_name: "设置状态"
+                    state: "自定义-下场"
+
+          - states: "[按键可用-终结技] & ![莱特-士气]{80, 100}"
+            operations:
+              - op_name: "按键-终结技"
+                post_delay: 0.1
+                repeat: 20
+              - op_name: "等待秒数"
+                seconds: 1.5
+              - op_name: "设置状态"
+                state: "自定义-下场"
+
+          - states: "[莱特-士气]{80, 100}"
+            operations:
+              - op_name: "设置状态"
+                state_list: ["自定义-莱特-欧拉欧拉", "自定义-动作不打断"]
+
+          - states: "[莱特-能量]{40, 120}"
+            operations:
+              - op_name: "设置状态"
+                state: "自定义-动作不打断"
+              - op_name: "按键-移动-前"
+                way: "按下"
+              - op_name: "按键-普通攻击"
+                post_delay: 0.2
+              - op_name: "按键-闪避"
+                post_delay: 0.2
+              - op_name: "按键-特殊攻击"
+                post_delay: 0.2
+              - op_name: "按键-普通攻击"
+                post_delay: 0.2
+                repeat: 8
+              - op_name: "按键-移动-前"
+                way: "松开"
+              - op_name: "等待秒数"
+                seconds: 0.5
+              - op_name: "设置状态"
+                state: "自定义-下场"
+              - op_name: "清除状态"
+                state: "自定义-动作不打断"
+
+          - states: ""
+            operations:
+              - op_name: "按键-普通攻击"
+                post_delay: 0.1
+              - op_name: "设置状态"
+                state: "自定义-下场"

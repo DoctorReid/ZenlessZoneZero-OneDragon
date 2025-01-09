@@ -26,6 +26,7 @@ class HollowZeroMapService:
             use_gh_proxy = self.ctx.env_config.is_ghproxy
             self.event_model = HollowEventDetector(
                 model_name=self.ctx.yolo_config.hollow_zero_event,
+                backup_model_name=self.ctx.yolo_config.hollow_zero_event_backup,
                 gh_proxy=use_gh_proxy,
                 personal_proxy=None if use_gh_proxy else self.ctx.env_config.personal_proxy,
                 gpu=use_gpu

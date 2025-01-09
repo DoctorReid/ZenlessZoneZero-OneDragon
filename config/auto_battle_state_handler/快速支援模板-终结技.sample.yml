@@ -1,0 +1,19 @@
+# 连携后摇等待时间各角色不同 由后续动作控制
+handlers:
+  - states: "[前台-支援] & [按键可用-终结技] & ![自定义-连携换人,0,12]"
+    sub_handlers:
+      - states: "[前台-苍角]"
+        operations:
+          - operation_template: "苍角-终结技"
+      - states: ""
+        operations:
+          - op_name: "设置状态"
+            state: "自定义-动作不打断"
+          - op_name: "按键-终结技"
+            post_delay: 1
+            repeat: 4
+          - op_name: "清除状态"
+            state: "自定义-动作不打断"
+          - op_name: "按键-快速支援"
+          - op_name: "设置状态"
+            state: "自定义-快速支援换人"

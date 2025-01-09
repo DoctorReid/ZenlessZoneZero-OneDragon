@@ -105,3 +105,17 @@ class ChoosePredefinedTeam(ZOperation):
             return self.round_success(result.status, wait=0.5)
         else:
             return self.round_retry(result.status, wait=1)
+
+
+def __debug():
+    ctx = ZContext()
+    ctx.init_by_config()
+    ctx.ocr.init_model()
+
+    from one_dragon.utils import debug_utils
+    screen = debug_utils.get_debug_image('img')
+    print(ctx.ocr.run_ocr(screen))
+
+
+if __name__ == '__main__':
+    __debug()

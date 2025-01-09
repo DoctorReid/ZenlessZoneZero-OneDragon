@@ -87,7 +87,7 @@ class CommissionAssistantConfig(YamlConfig):
 
     @property
     def auto_battle(self) -> str:
-        return self.get('auto_battle', '击破站场-强攻速切')
+        return self.get('auto_battle', '全配队通用')
 
     @auto_battle.setter
     def auto_battle(self, new_value: str) -> None:
@@ -95,7 +95,7 @@ class CommissionAssistantConfig(YamlConfig):
 
     @property
     def auto_battle_adapter(self) -> YamlConfigAdapter:
-        return YamlConfigAdapter(self, 'auto_battle', '击破站场-强攻速切',
+        return YamlConfigAdapter(self, 'auto_battle', '全配队通用',
                                  'str', 'str')
 
     @property

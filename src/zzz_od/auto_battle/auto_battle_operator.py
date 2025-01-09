@@ -57,8 +57,9 @@ class AutoBattleOperator(ConditionalOperator):
 
         self.auto_battle_context: AutoBattleContext = AutoBattleContext(ctx)
 
-        # 锁定敌人
+        # 自动周期
         self.last_lock_time: float = 0  # 上一次锁定的时间
+        self.last_turn_time: float = 0  # 上一次转动视角的时间
 
     def init_before_running(self) -> Tuple[bool, str]:
         """
@@ -75,15 +76,12 @@ class AutoBattleOperator(ConditionalOperator):
                 use_gpu=self.ctx.yolo_config.flash_classifier_gpu,
                 check_dodge_interval=self.get('check_dodge_interval', 0.02),
                 check_agent_interval=self.get('check_agent_interval', 0.5),
-                check_special_attack_interval=self.get('check_special_attack_interval', 0.5),
-                check_ultimate_interval=self.get('check_ultimate_interval', 0.5),
                 check_chain_interval=self.get('check_chain_interval', 1),
                 check_quick_interval=self.get('check_quick_interval', 0.5),
                 check_end_interval=self.get('check_end_interval', 5),
-
-                allow_ultimate_list=self.get('allow_ultimate', None)
             )
 
+            log.info(f'自动战斗配置加载成功 {self.module_name}')
             return True, ''
         except Exception as e:
             log.error('自动战斗初始化失败 共享配队文件请在群内提醒对应作者修复', exc_info=True)
@@ -169,6 +167,8 @@ class AutoBattleOperator(ConditionalOperator):
             event_ids.append(f'快速支援-{agent_name}')
             event_ids.append(f'切换角色-{agent_name}')
             event_ids.append(f'{agent_name}-能量')
+            event_ids.append(f'{agent_name}-特殊技可用')
+            event_ids.append(f'{agent_name}-终结技可用')
 
             if agent.state_list is not None:
                 for state in agent.state_list:
@@ -311,27 +311,29 @@ class AutoBattleOperator(ConditionalOperator):
     @staticmethod
     def get_operation_template(target_template_name: str) -> Optional[OperationTemplate]:
         """
-        获取操作模板
+        获取操作模板，支持递归查找子目录
         :param target_template_name: 模板名称
-        :return:
+        :return: OperationTemplate 对象或 None
         """
         sub_dir = 'auto_battle_operation'
         template_dir = os_utils.get_path_under_work_dir('config', sub_dir)
-        file_list = os.listdir(template_dir)
 
-        for file_name in file_list:
-            if file_name.endswith('.sample.yml'):
-                template_name = file_name[0:-11]
-            elif file_name.endswith('.yml'):
-                template_name = file_name[0:-4]
-            else:
-                continue
+        # 递归查找模板文件
+        for root, dirs, files in os.walk(template_dir):
+            for file_name in files:
+                if file_name.endswith('.sample.yml'):
+                    template_name = file_name[0:-11]
+                elif file_name.endswith('.yml'):
+                    template_name = file_name[0:-4]
+                else:
+                    continue
 
-            if target_template_name != template_name:
-                continue
+                if target_template_name == template_name:
+                    # 返回 OperationTemplate，包括子目录的路径信息
+                    relative_sub_dir = os.path.relpath(root, os_utils.get_path_under_work_dir('config'))
+                    return OperationTemplate(relative_sub_dir, template_name)
 
-            return OperationTemplate(sub_dir, template_name)
-
+        # 如果未找到，返回 None
         return None
 
     def dispose(self) -> None:
@@ -355,32 +357,43 @@ class AutoBattleOperator(ConditionalOperator):
         success = ConditionalOperator.start_running_async(self)
         if success:
             self.auto_battle_context.start_context()
-            lock_f = _auto_battle_operator_executor.submit(self.lock_periodically)
+            lock_f = _auto_battle_operator_executor.submit(self.operate_periodically)
             lock_f.add_done_callback(thread_utils.handle_future_result)
 
         return success
 
-    def lock_periodically(self) -> None:
+    def operate_periodically(self) -> None:
         """
-        周期性锁定敌人
+        周期性完成动作
+
+        1. 锁定敌人
+        2. 转向 - 有机会找到后方太远的敌人；迷失之地可以转动下层入口
         :return:
         """
-        interval = self.get('auto_lock_interval', 0)
-        if interval <= 0:  # 不开启自动锁定
+        auto_lock_interval = self.get('auto_lock_interval', 1)
+        auto_turn_interval = self.get('auto_turn_interval', 2)
+        if auto_lock_interval <= 0 and auto_turn_interval <= 0:  # 不开启自动锁定 和 自动转向
             return
         op = AtomicBtnLock(self.auto_battle_context)
         while self.is_running:
-            since_last = time.time() - self.last_lock_time  # 上次锁定到现在的秒数
-            if since_last <= interval:  # 每固定秒数 锁定一次
-                time.sleep(interval - since_last)
+            now = time.time()
+
+            if not self.auto_battle_context.last_check_in_battle:  # 当前画面不是战斗画面 就不运行了
+                time.sleep(0.2)
                 continue
 
-            if not self.auto_battle_context.last_check_in_battle:  # 当前画面不是战斗画面 就不锁定
-                time.sleep(0.5)
-                continue
+            any_done: bool = False
+            if auto_lock_interval > 0 and now - self.last_lock_time > auto_lock_interval:
+                op.execute()
+                self.last_lock_time = now
+                any_done = True
+            if auto_turn_interval > 0 and now - self.last_turn_time > auto_turn_interval:
+                self.ctx.controller.turn_by_distance(-100)
+                self.last_turn_time = now
+                any_done = True
 
-            op.execute()
-            self.last_lock_time = time.time()
+            if not any_done:
+                time.sleep(0.2)
 
     @property
     def team_list(self) -> List[List[str]]:

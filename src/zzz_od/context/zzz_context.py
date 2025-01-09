@@ -4,7 +4,6 @@ from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils import i18_utils
 
 
-
 class ZContext(OneDragonContext):
 
     def __init__(self,):
@@ -12,6 +11,8 @@ class ZContext(OneDragonContext):
 
         from zzz_od.context.hollow_context import HollowContext
         self.hollow: HollowContext = HollowContext(self)
+        from zzz_od.application.hollow_zero.lost_void.context.lost_void_context import LostVoidContext
+        self.lost_void: LostVoidContext = LostVoidContext(self)
 
         from zzz_od.config.yolo_config import YoloConfig
         from zzz_od.game_data.compendium import CompendiumService
@@ -88,8 +89,8 @@ class ZContext(OneDragonContext):
         from zzz_od.application.devtools.screenshot_helper.screenshot_helper_config import ScreenshotHelperConfig
         from zzz_od.application.email_app.email_run_record import EmailRunRecord
         from zzz_od.application.engagement_reward.engagement_reward_run_record import EngagementRewardRunRecord
-        from zzz_od.application.hollow_zero.hollow_zero_config import HollowZeroConfig
-        from zzz_od.application.hollow_zero.hollow_zero_run_record import HollowZeroRunRecord
+        from zzz_od.application.hollow_zero.withered_domain.hollow_zero_config import HollowZeroConfig
+        from zzz_od.application.hollow_zero.withered_domain.hollow_zero_run_record import HollowZeroRunRecord
         from zzz_od.application.life_on_line.life_on_line_config import LifeOnLineConfig
         from zzz_od.application.life_on_line.life_on_line_run_record import LifeOnLineRunRecord
         from zzz_od.application.notorious_hunt.notorious_hunt_config import NotoriousHuntConfig
@@ -161,3 +162,8 @@ class ZContext(OneDragonContext):
         self.drive_disc_dismantle_config: DriveDiscDismantleConfig = DriveDiscDismantleConfig(self.current_instance_idx)
         from zzz_od.application.drive_disc_dismantle.drive_disc_dismantle_run_record import DriveDiscDismantleRunRecord
         self.drive_disc_dismantle_record: DriveDiscDismantleRunRecord = DriveDiscDismantleRunRecord(self.current_instance_idx, game_refresh_hour_offset)
+
+        from zzz_od.application.hollow_zero.lost_void.lost_void_config import LostVoidConfig
+        self.lost_void_config: LostVoidConfig = LostVoidConfig(self.current_instance_idx)
+        from zzz_od.application.hollow_zero.lost_void.lost_void_run_record import LostVoidRunRecord
+        self.lost_void_record: LostVoidRunRecord = LostVoidRunRecord(self.lost_void_config, self.current_instance_idx, game_refresh_hour_offset)

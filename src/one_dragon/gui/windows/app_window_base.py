@@ -29,7 +29,7 @@ class AppWindowBase(PhosWindow):
             self.setWindowIcon(QIcon(app_icon_path))
 
         # 初始化窗口
-        self.init_window()  
+        self.init_window()
 
         # 创建启动页面
         self.splashScreen = SplashScreen(self.windowIcon(), self)

@@ -27,7 +27,7 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
             object_name='hollow_zero_challenge_config_interface',
             parent=parent,
             content_widget=None,
-            nav_text_cn='挑战配置'
+            nav_text_cn='挑战配置-枯'
         )
 
         self.ctx: ZContext = ctx
@@ -49,6 +49,7 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
 
         self.existed_yml_btn = ComboBox()
         self.existed_yml_btn.setPlaceholderText(gt('选择已有', 'ui'))
+        self.existed_yml_btn.currentIndexChanged.connect(self._on_choose_existed_yml)
         btn_row.add_widget(self.existed_yml_btn)
 
         self.create_btn = PushButton(text=gt('新建', 'ui'))
@@ -221,18 +222,14 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
         更新已有的yml选项
         :return:
         """
-        try:
-            # 更新之前 先取消原来的监听 防止触发事件
-            self.existed_yml_btn.currentIndexChanged.disconnect(self._on_choose_existed_yml)
-        except Exception:
-            pass
+        self.existed_yml_btn.blockSignals(True)
         self.existed_yml_btn.clear()
         config_list: List[HollowZeroChallengeConfig] = get_all_hollow_zero_challenge_config()
         for config in config_list:
             self.existed_yml_btn.addItem(text=config.module_name, icon=None, userData=config)
         self.existed_yml_btn.setCurrentIndex(-1)
         self.existed_yml_btn.setPlaceholderText(gt('选择已有', 'ui'))
-        self.existed_yml_btn.currentIndexChanged.connect(self._on_choose_existed_yml)
+        self.existed_yml_btn.blockSignals(False)
 
     def _update_auto_battle_opts(self) -> None:
         """

@@ -4,8 +4,8 @@ template_name: 角色状态-青衣-22
 template_shape: rectangle
 auto_mask: true
 point_list:
-- 631, 95
-- 685, 96
+- 611, 96
+- 665, 97
 emulator_point_list:
 - 752, 116
 - 816, 117

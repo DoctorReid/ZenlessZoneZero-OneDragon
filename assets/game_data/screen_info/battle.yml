@@ -3,6 +3,7 @@ screen_name: 战斗画面
 pc_alt: true
 area_list:
 - area_name: 头像-3-1
+  id_mark: false
   pc_rect:
   - 104
   - 40
@@ -19,7 +20,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 按键-特殊攻击
+  id_mark: false
   pc_rect:
   - 1620
   - 917
@@ -36,7 +39,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.9
+  goto_list: []
 - area_name: 按键-终结技
+  id_mark: false
   pc_rect:
   - 1728
   - 778
@@ -53,7 +58,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 连携技-1
+  id_mark: false
   pc_rect:
   - 479
   - 828
@@ -70,7 +77,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 连携技-2
+  id_mark: false
   pc_rect:
   - 1322
   - 828
@@ -87,7 +96,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 按键-切换角色
+  id_mark: false
   pc_rect:
   - 1731
   - 920
@@ -104,7 +115,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 按键-普通攻击
+  id_mark: false
   pc_rect:
   - 1403
   - 916
@@ -121,7 +134,9 @@ area_list:
   template_sub_dir: battle
   template_id: btn_normal_attack
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 战斗结果-完成
+  id_mark: false
   pc_rect:
   - 1566
   - 1004
@@ -138,7 +153,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 战斗结果-再来一次
+  id_mark: false
   pc_rect:
   - 1232
   - 1006
@@ -155,7 +172,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 距离显示区域
+  id_mark: false
   pc_rect:
   - 432
   - 132
@@ -172,7 +191,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 菜单
+  id_mark: false
   pc_rect:
   - 82
   - 46
@@ -189,7 +210,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 战斗结果-撤退
+  id_mark: false
   pc_rect:
   - 526
   - 848
@@ -206,7 +229,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 战斗结果-倒带
+  id_mark: false
   pc_rect:
   - 874
   - 850
@@ -223,7 +248,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 战斗结果-退出
+  id_mark: false
   pc_rect:
   - 1566
   - 1004
@@ -240,11 +267,13 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 头像-3-2
+  id_mark: false
   pc_rect:
-  - 595
+  - 559
   - 40
-  - 698
+  - 662
   - 91
   emulator_rect:
   - 720
@@ -257,11 +286,13 @@ area_list:
   template_sub_dir: battle
   template_id: avatar_2_anby
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 头像-3-3
+  id_mark: false
   pc_rect:
-  - 759
+  - 741
   - 40
-  - 862
+  - 844
   - 91
   emulator_rect:
   - 916
@@ -274,11 +305,13 @@ area_list:
   template_sub_dir: battle
   template_id: avatar_2_anton
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 头像-2-2
+  id_mark: false
   pc_rect:
-  - 612
+  - 594
   - 40
-  - 715
+  - 697
   - 91
   emulator_rect:
   - 735
@@ -291,7 +324,9 @@ area_list:
   template_sub_dir: battle
   template_id: avatar_2_piper
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 按键-交互
+  id_mark: false
   pc_rect:
   - 1403
   - 916
@@ -308,3 +343,4 @@ area_list:
   template_sub_dir: battle
   template_id: btn_interact
   template_match_threshold: 0.7
+  goto_list: []

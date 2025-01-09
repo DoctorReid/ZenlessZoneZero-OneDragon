@@ -36,7 +36,7 @@ class ShiyuDefenseApp(ZApplication):
 
     @operation_node(name='传送', is_start_node=True)
     def tp(self) -> OperationRoundResult:
-        op = TransportByCompendium(self.ctx, '挑战', '式舆防卫战', '剧变节点')
+        op = TransportByCompendium(self.ctx, '作战', '式舆防卫战', '剧变节点')
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='传送')
@@ -74,7 +74,11 @@ class ShiyuDefenseApp(ZApplication):
 
         # 可能之前人工挑战了 这里重新判断看哪个节点可以挑战
         node = self.ctx.shiyu_defense_record.current_dt_node()
-        for i in range(1, node.node_cnt + 1):
+        idx_to_check = (
+            [i for i in range(idx, node.node_cnt + 1)]  # 优先检测后续的关卡
+            + [i for i in range(1, idx)]
+        )
+        for i in idx_to_check:
             result2 = self.round_by_find_area(screen, '式舆防卫战', ('节点-%02d' % i))
             if not result2.is_success:
                 continue
@@ -227,7 +231,6 @@ def __debug():
     screen = debug_utils.get_debug_image('_1728799789929')
 
     app = ShiyuDefenseApp(ctx)
-    app.current_node_idx = 7
     app.execute()
 
 

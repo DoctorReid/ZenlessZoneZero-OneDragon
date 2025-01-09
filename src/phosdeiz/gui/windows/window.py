@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
     QSpacerItem,
     QSizePolicy,
     QHBoxLayout,
-    QPushButton,
+    QPushButton, QApplication,
 )
 from qfluentwidgets import (
     FluentStyleSheet,
@@ -31,7 +31,7 @@ from qfluentwidgets import (
     NavigationBar,
     qrouter,
     FluentIconBase,
-    NavigationItemPosition,
+    NavigationItemPosition, InfoBar, InfoBarPosition,
 )
 from qfluentwidgets.common.animation import BackgroundAnimationWidget
 from qfluentwidgets.common.config import qconfig
@@ -400,7 +400,11 @@ class PhosTitleBar(SplitTitleBar):
         Qlayout = QHBoxLayout()
         Qlayout.setContentsMargins(8, 10, 0, 0)
 
-        # 添加文字按钮
+        self.versionButton = QPushButton("ⓘ 代码版本 未知")
+        self.versionButton.setObjectName("versionButton")
+        self.versionButton.clicked.connect(self.copy_version)
+        Qlayout.addWidget(self.versionButton, 0, Qt.AlignLeft | Qt.AlignTop)
+
         self.questionButton = QPushButton("ⓘ 问题反馈")
         self.questionButton.setObjectName("questionButton")
         self.questionButton.clicked.connect(self.open_github)
@@ -410,6 +414,7 @@ class PhosTitleBar(SplitTitleBar):
         self.hBoxLayout.insertLayout(2, Qlayout)
 
         self.issue_url: str = ""
+        self.version: str = ""
 
     def setIcon(self, icon: QIcon):
         self.iconLabel.setPixmap(icon.pixmap(18, 18))
@@ -417,7 +422,33 @@ class PhosTitleBar(SplitTitleBar):
     def setTitle(self, title: str):
         self.titleLabel.setText(title)
 
+    def setVersion(self, version: str) -> None:
+        """
+        设置版本号 会更新UI
+        @param version: 版本号
+        @return:
+        """
+        self.version = version
+        self.versionButton.setText(f'ⓘ 代码版本 {version}')
+
     # 定义打开GitHub网页的函数
     def open_github(self):
         url = QUrl(self.issue_url)
         QDesktopServices.openUrl(url)
+
+    def copy_version(self):
+        """
+        将版本号复制到粘贴板
+        @return:
+        """
+        clipboard = QApplication.clipboard()
+        clipboard.setText(self.version)
+        InfoBar.success(
+            title='已复制版本号',
+            content='',
+            orient=Qt.Orientation.Horizontal,
+            isClosable=True,
+            position=InfoBarPosition.TOP_RIGHT,
+            duration=2000,
+            parent=self.window(),
+        ).setCustomBackgroundColor("white", "#202020")

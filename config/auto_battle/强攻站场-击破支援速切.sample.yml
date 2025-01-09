@@ -1,11 +1,7 @@
 # 推荐配队: 强攻-击破-支援
 # 战斗逻辑: 由强攻站场打输出，优先使用击破格挡，格挡后有E放E，然后切换回强攻继续，失衡后切支援再切强攻进行爆发输出
-allow_ultimate:
-  - agent_type: "强攻"
 check_dodge_interval: 0.02
 check_agent_interval: [0.4, 0.6]
-check_special_attack_interval: [0.4, 0.6]
-check_ultimate_interval: [0.4, 0.6]
 check_chain_interval: [0.9, 1.1]
 check_quick_interval: [0.9, 1.1]
 auto_lock_interval: 5

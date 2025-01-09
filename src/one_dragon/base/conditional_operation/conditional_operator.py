@@ -34,9 +34,9 @@ class ConditionalOperator(YamlConfig):
 
         self._inited: bool = False  # 是否已经完成初始化
 
-        self._trigger_scene_handler: dict[str, SceneHandler] = {}  # 需要状态触发的场景处理
-        self.last_trigger_time: dict[str, float] = {}  # 各状态场景最后一次的触发时间
-        self._normal_scene_handler: Optional[SceneHandler] = None  # 不需要状态触发的场景处理
+        self.trigger_scene_handler: dict[str, SceneHandler] = {}  # 需要状态触发的场景处理
+        self.last_trigger_time: dict[int, float] = {}  # 各handler最后一次的触发时间
+        self.normal_scene_handler: Optional[SceneHandler] = None  # 不需要状态触发的场景处理
         self.is_running: bool = False  # 整体是否正在运行
 
         self._task_lock: Lock = Lock()
@@ -55,8 +55,8 @@ class ConditionalOperator(YamlConfig):
         self._inited = False
 
         self.dispose()  # 先把旧的清除掉
-        self._trigger_scene_handler: dict[str, SceneHandler] = {}
-        self._normal_scene_handler = None
+        self.trigger_scene_handler: dict[str, SceneHandler] = {}
+        self.normal_scene_handler = None
         self.last_trigger_time = {}
 
         scenes = self.get('scenes', [])
@@ -71,11 +71,11 @@ class ConditionalOperator(YamlConfig):
                 for state in states:
                     if state in usage_states:
                         raise ValueError('状态监听 %s 出现在多个场景中' % state)
-                    self._trigger_scene_handler[state] = handler
-            elif self._normal_scene_handler is not None:
+                    self.trigger_scene_handler[state] = handler
+            elif self.normal_scene_handler is not None:
                 raise ValueError('存在多个无状态监听的场景')
             else:
-                self._normal_scene_handler = handler
+                self.normal_scene_handler = handler
 
         self._inited = True
 
@@ -85,11 +85,11 @@ class ConditionalOperator(YamlConfig):
         :return:
         """
         self.stop_running()  # 在这里强制停止运行
-        if self._trigger_scene_handler is not None:
-            for _, handler in self._trigger_scene_handler.items():
+        if self.trigger_scene_handler is not None:
+            for _, handler in self.trigger_scene_handler.items():
                 handler.dispose()
-        if self._normal_scene_handler is not None:
-            self._normal_scene_handler.dispose()
+        if self.normal_scene_handler is not None:
+            self.normal_scene_handler.dispose()
 
     def start_running_async(self) -> bool:
         """
@@ -105,7 +105,7 @@ class ConditionalOperator(YamlConfig):
         self.is_running = True
         self.running_task_cnt.set(0)  # 每次重置计数器 防止有bug导致无法正常运行
 
-        if self._normal_scene_handler is not None:
+        if self.normal_scene_handler is not None:
             future: Future = _od_conditional_op_executor.submit(self._normal_scene_loop)
             future.add_done_callback(thread_utils.handle_future_result)
 
@@ -116,6 +116,7 @@ class ConditionalOperator(YamlConfig):
         主循环
         :return:
         """
+        normal_handler_id = id(self.normal_scene_handler)
         while self.is_running:
             if self.running_task_cnt.get() > 0:
                 # 有其它场景在运行 等待
@@ -131,16 +132,16 @@ class ConditionalOperator(YamlConfig):
                         break
 
                     trigger_time = time.time()
-                    last_trigger_time = self.last_trigger_time.get('', 0)
+                    last_trigger_time = self.last_trigger_time.get(normal_handler_id, 0)
                     past_time = trigger_time - last_trigger_time
-                    if past_time < self._normal_scene_handler.interval_seconds:
-                        to_sleep = self._normal_scene_handler.interval_seconds - past_time
+                    if past_time < self.normal_scene_handler.interval_seconds:
+                        to_sleep = self.normal_scene_handler.interval_seconds - past_time
                     else:
-                        new_task = self._normal_scene_handler.get_operations(trigger_time)
+                        new_task = self.normal_scene_handler.get_operations(trigger_time)
                         if new_task is not None:
                             log.debug(f'当前场景 主循环 当前条件 {new_task.expr_display}')
                             self.running_task = new_task
-                            self.last_trigger_time[''] = trigger_time
+                            self.last_trigger_time[normal_handler_id] = trigger_time
                             self.running_task_cnt.inc()
                             future = self.running_task.run_async()
                             future.add_done_callback(self._on_task_done)
@@ -157,9 +158,10 @@ class ConditionalOperator(YamlConfig):
         :param state_name: 触发的状态
         :return:
         """
-        if state_name not in self._trigger_scene_handler:
+        if state_name not in self.trigger_scene_handler:
             return
-        handler = self._trigger_scene_handler[state_name]
+        handler = self.trigger_scene_handler[state_name]
+        trigger_handler_id = id(handler)
 
         # 上锁后确保运行状态不会被篡改
         with self._task_lock:
@@ -168,7 +170,7 @@ class ConditionalOperator(YamlConfig):
                 return
 
             trigger_time: float = time.time()  # 这里不应该使用事件发生时间 而是应该使用当前的实际操作时间
-            last_trigger_time = self.last_trigger_time.get(state_name, 0)
+            last_trigger_time = self.last_trigger_time.get(trigger_handler_id, 0)
             if trigger_time - last_trigger_time < handler.interval_seconds:  # 冷却时间没过 不触发
                 return
 
@@ -200,7 +202,7 @@ class ConditionalOperator(YamlConfig):
 
             new_task.set_trigger(state_name)
             self.running_task = new_task
-            self.last_trigger_time[state_name] = trigger_time
+            self.last_trigger_time[trigger_handler_id] = trigger_time
             future = self.running_task.run_async()
             future.add_done_callback(self._on_task_done)
 
@@ -246,10 +248,10 @@ class ConditionalOperator(YamlConfig):
         :return:
         """
         states: set[str] = set()
-        if self._normal_scene_handler is not None:
-            states = states.union(self._normal_scene_handler.get_usage_states())
-        if self._trigger_scene_handler is not None:
-            for event_id, handler in self._trigger_scene_handler.items():
+        if self.normal_scene_handler is not None:
+            states = states.union(self.normal_scene_handler.get_usage_states())
+        if self.trigger_scene_handler is not None:
+            for event_id, handler in self.trigger_scene_handler.items():
                 states.add(event_id)
                 states = states.union(handler.get_usage_states())
         return states
@@ -299,7 +301,7 @@ class ConditionalOperator(YamlConfig):
                 continue
 
             # 找优先级最高的场景
-            handler = self._trigger_scene_handler.get(state_name)
+            handler = self.trigger_scene_handler.get(state_name)
             if handler is None:
                 continue
 

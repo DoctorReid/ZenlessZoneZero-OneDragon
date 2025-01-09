@@ -1,9 +1,11 @@
 import time
 
 import difflib
-from typing import List, ClassVar
+from cv2.typing import MatLike
+from typing import List, ClassVar, Optional
 
 from one_dragon.base.geometry.point import Point
+from one_dragon.base.matcher.match_result import MatchResult
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
@@ -12,6 +14,7 @@ from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
+from zzz_od.game_data.agent import AgentEnum, Agent
 from zzz_od.operation.back_to_normal_world import BackToNormalWorld
 from zzz_od.operation.transport import Transport
 from zzz_od.operation.wait_normal_world import WaitNormalWorld
@@ -129,28 +132,64 @@ class RandomPlayApp(ZApplication):
 
         if (self.ctx.random_play_config.random_agent_name() == target_agent_name_1
                 or self.ctx.random_play_config.random_agent_name() == target_agent_name_2):
-
+            # 随机选择
             self.round_by_click_area('影像店营业', '宣传员-%d' % idx)
             time.sleep(0.5)
 
             return self.round_by_find_and_click_area(screen, '影像店营业', '确认', success_wait=1, retry_wait=1)
+
+        area = self.ctx.screen_loader.get_area('影像店营业', '宣传员列表')
+        if idx == 1:
+            target_agent_name = target_agent_name_1
         else:
-            area = self.ctx.screen_loader.get_area('影像店营业', '宣传员列表')
-            if idx == 1:
-                target_agent_name = target_agent_name_1
-            else:
-                target_agent_name = target_agent_name_2
-            result = self.round_by_ocr_and_click(screen, target_agent_name, area=area,
-                                                 color_range=[(230, 230, 230), (255, 255, 255)])
-            if result.is_success:
-                time.sleep(0.5)
-                return self.round_by_find_and_click_area(screen, '影像店营业', '确认', success_wait=1, retry_wait=1)
-            else:
-                # 找不到时 向下滚动
-                start_point = area.center
-                end_point = start_point + Point(0, -100)
-                self.ctx.controller.drag_to(start=start_point, end=end_point)
-                return self.round_retry(result.status, wait=0.5)
+            target_agent_name = target_agent_name_2
+
+        # 使用名称匹配
+        result = self.round_by_ocr_and_click(screen, target_agent_name, area=area,
+                                             color_range=[(230, 230, 230), (255, 255, 255)])
+        if result.is_success:
+            time.sleep(0.5)
+            return self.round_by_find_and_click_area(screen, '影像店营业', '确认', success_wait=1, retry_wait=1)
+
+        # 使用头像匹配
+        mr = self.get_pos_by_avatar(screen, target_agent_name)
+        if mr is not None:
+            self.ctx.controller.click(mr.center)
+            time.sleep(0.5)
+            return self.round_by_find_and_click_area(screen, '影像店营业', '确认', success_wait=1, retry_wait=1)
+
+        # 找不到时 向下滚动
+        start_point = area.center
+        end_point = start_point + Point(0, -100)
+        self.ctx.controller.drag_to(start=start_point, end=end_point)
+        return self.round_retry(result.status, wait=0.5)
+
+    def get_pos_by_avatar(self, screen: MatLike, target_agent_name: str) -> Optional[MatchResult]:
+        """
+        根据头像匹配
+        @param screen: 游戏画面
+        @param target_agent_name: 需要选择的代理人名称
+        @return:
+        """
+        agent: Optional[Agent] = None
+        for agent_enum in AgentEnum:
+            if agent_enum.value.agent_name == target_agent_name:
+                agent = agent_enum.value
+                break
+
+        area = self.ctx.screen_loader.get_area('影像店营业', '宣传员列表')
+        part = cv2_utils.crop_image_only(screen, area.rect)
+
+        if agent is None:
+            return None
+
+        mr = self.ctx.tm.match_one_by_feature(part, 'predefined_team', f'avatar_{agent.agent_id}')
+        if mr is None:
+            return None
+
+        mr.add_offset(area.left_top)
+        return mr
+
 
     @node_from(from_name='选择宣传员')
     @operation_node(name='识别录像带主题')

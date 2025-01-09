@@ -19,13 +19,14 @@ class Transport(ZOperation):
 
     STATUS_NOT_IN_MAP: ClassVar[str] = '未在地图页面'
 
-    def __init__(self, ctx: ZContext, area_name: str, tp_name: str):
+    def __init__(self, ctx: ZContext, area_name: str, tp_name: str, wait_at_last: bool = True):
         """
         传送到某个区域
         由于使用了返回大世界 应可保证在任何情况下使用
         :param ctx:
         :param area_name:
         :param tp_name:
+        :param wait_at_last: 最后等待大世界加载
         """
         ZOperation.__init__(self, ctx,
                             op_name='%s %s %s' % (
@@ -36,6 +37,7 @@ class Transport(ZOperation):
 
         self.area_name: str = area_name
         self.tp_name: str = tp_name
+        self.wait_at_last: bool = wait_at_last
 
     def handle_init(self):
         pass
@@ -171,7 +173,9 @@ class Transport(ZOperation):
         return self.round_by_find_and_click_area(screen, '地图', '确认', success_wait=1, retry_wait=1)
 
     @node_from(from_name='点击传送')
-    @operation_node(name='等待加载')
+    @operation_node(name='等待大世界加载')
     def wait_in_world(self) -> OperationRoundResult:
+        if not self.wait_at_last:
+            return self.round_success('不等待大世界加载')
         op = WaitNormalWorld(self.ctx)
         return self.round_by_op_result(op.execute())

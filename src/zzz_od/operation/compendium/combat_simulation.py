@@ -4,6 +4,7 @@ import difflib
 from typing import Optional, ClassVar
 
 from one_dragon.base.geometry.point import Point
+from one_dragon.base.operation.operation import Operation
 from one_dragon.base.operation.operation_base import OperationResult
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
@@ -16,6 +17,7 @@ from zzz_od.auto_battle import auto_battle_utils
 from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.challenge_mission.check_next_after_battle import ChooseNextOrFinishAfterBattle
+from zzz_od.operation.challenge_mission.exit_in_battle import ExitInBattle
 from zzz_od.operation.choose_predefined_team import ChoosePredefinedTeam
 from zzz_od.operation.deploy import Deploy
 from zzz_od.operation.zzz_operation import ZOperation
@@ -240,7 +242,7 @@ class CombatSimulation(ZOperation):
         return self.round_success()
 
     @node_from(from_name='向前移动准备战斗')
-    @operation_node(name='自动战斗', mute=True)
+    @operation_node(name='自动战斗', mute=True, timeout_seconds=600)
     def auto_battle(self) -> OperationRoundResult:
         if self.auto_op.auto_battle_context.last_check_end_result is not None:
             auto_battle_utils.stop_running(self.auto_op)
@@ -270,6 +272,13 @@ class CombatSimulation(ZOperation):
     @operation_node(name='识别电量失败')
     def check_charge_fail(self) -> OperationRoundResult:
         return self.round_success(CombatSimulation.STATUS_CHARGE_NOT_ENOUGH)
+
+    @node_from(from_name='自动战斗', success=False, status=Operation.STATUS_TIMEOUT)
+    @operation_node(name='战斗超时')
+    def battle_timeout(self) -> OperationRoundResult:
+        auto_battle_utils.stop_running(self.auto_op)
+        op = ExitInBattle(self.ctx, '画面-通用', '左上角-街区')
+        return self.round_by_op_result(op.execute())
 
     def handle_pause(self):
         if self.auto_op is not None:

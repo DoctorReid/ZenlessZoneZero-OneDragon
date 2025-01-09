@@ -4,5 +4,5 @@ template_name: 角色状态-简-萨霍夫跳-32
 template_shape: circle
 auto_mask: true
 point_list:
-- 664, 96
-- 664, 93
+- 626, 98
+- 626, 95

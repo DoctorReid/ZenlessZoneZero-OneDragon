@@ -20,13 +20,6 @@ class OpenCompendium(ZOperation):
             op_name=gt('打开快捷手册', 'ui'),
         )
 
-    def handle_init(self) -> None:
-        """
-        执行前的初始化 由子类实现
-        注意初始化要全面 方便一个指令重复使用
-        """
-        pass
-
     @operation_node(name='打开菜单', is_start_node=True)
     def open_menu(self) -> OperationRoundResult:
         op = OpenMenu(self.ctx)

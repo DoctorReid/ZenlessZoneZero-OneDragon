@@ -30,7 +30,6 @@ class BattleAgentContext4Recording(AutoBattleAgentContext):
             self,
             agent_names: Optional[List[str]] = None,
             to_check_state_list: Optional[List[str]] = None,
-            allow_ultimate_list: Optional[List[dict[str, str]]] = None,
             check_agent_interval: Union[float, List[float]] = 0,
             **kwargs) -> None:
         """
@@ -39,7 +38,6 @@ class BattleAgentContext4Recording(AutoBattleAgentContext):
         """
         # self.auto_op: ConditionalOperator = auto_op  # 重写部分,取消auto_op
         self.team_info: TeamInfo = TeamInfo(agent_names)
-        self._allow_ultimate_list: List[dict[str, str]] = allow_ultimate_list  # 允许使用终结技的角色
 
         # 识别区域 先读取出来 不要每次用的时候再读取
         self.area_agent_3_1: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '头像-3-1')
@@ -154,6 +152,7 @@ class BattleDodgeContext4Recording(AutoBattleDodgeContext):
             use_gh_proxy = self.ctx.env_config.is_ghproxy
             self._flash_model = FlashClassifier(
                 model_name=self.ctx.yolo_config.flash_classifier,
+                backup_model_name=self.ctx.yolo_config.flash_classifier_backup,
                 model_parent_dir_path=yolo_config_utils.get_model_category_dir('flash_classifier'),
                 gh_proxy=use_gh_proxy,
                 personal_proxy=None if use_gh_proxy else self.ctx.env_config.personal_proxy,
@@ -229,10 +228,7 @@ class BattleContext4Recording(AutoBattleContext):
             check_dodge_interval: Union[float, List[float]] = 0,
             agent_names: Optional[List[str]] = None,
             to_check_state_list: Optional[List[str]] = None,
-            allow_ultimate_list: Optional[List[dict[str, str]]] = None,
             check_agent_interval: Union[float, List[float]] = 0,
-            check_special_attack_interval: Union[float, List[float]] = 0,
-            check_ultimate_interval: Union[float, List[float]] = 0,
             check_chain_interval: Union[float, List[float]] = 0,
             check_quick_interval: Union[float, List[float]] = 0,
             check_end_interval: Union[float, List[float]] = 5,
@@ -246,7 +242,6 @@ class BattleContext4Recording(AutoBattleContext):
         self.agent_context.init_battle_agent_context(
             agent_names,
             to_check_state_list,
-            allow_ultimate_list,
             check_agent_interval,
         )
         self.dodge_context.init_battle_dodge_context(
@@ -255,7 +250,6 @@ class BattleContext4Recording(AutoBattleContext):
         )
 
         self._to_check_states: set[str] = set(to_check_state_list) if to_check_state_list is not None else None
-        self._allow_ultimate_list: List[dict[str, str]] = allow_ultimate_list  # 允许使用终结技的角色
 
         # 识别区域 先读取出来 不要每次用的时候再读取
         self._check_distance_area = self.ctx.screen_loader.get_area('战斗画面', '距离显示区域')
@@ -269,16 +263,12 @@ class BattleContext4Recording(AutoBattleContext):
         self.area_chain_2: ScreenArea = self.ctx.screen_loader.get_area('战斗画面', '连携技-2')
 
         # 识别间隔
-        self._check_special_attack_interval = check_special_attack_interval
-        self._check_ultimate_interval = check_ultimate_interval
         self._check_chain_interval = check_chain_interval
         self._check_quick_interval = check_quick_interval
         self._check_end_interval = check_end_interval
         self._check_distance_interval = 5
 
         # 上一次识别的时间
-        self._last_check_special_attack_time: float = 0
-        self._last_check_ultimate_time: float = 0
         self._last_check_chain_time: float = 0
         self._last_check_quick_time: float = 0
         self._last_check_end_time: float = 0
@@ -311,8 +301,6 @@ class BattleContext4Recording(AutoBattleContext):
             # 状态部分
             agent_future = _record_executor.submit(self.agent_context.check_agent_related, screen, screenshot_time)
             future_list.append(agent_future)
-            future_list.append(_record_executor.submit(self.check_special_attack_btn, screen, screenshot_time))
-            future_list.append(_record_executor.submit(self.check_ultimate_btn, screen, screenshot_time, agent_future))
             future_list.append(_record_executor.submit(self.check_quick_assist, screen, screenshot_time))
 
             audio_future = _record_executor.submit(self.dodge_context.check_dodge_audio, screenshot_time)
@@ -372,74 +360,6 @@ class BattleContext4Recording(AutoBattleContext):
         return output_status_record
 
         # # # # 重写部分 # # # #
-
-    def check_special_attack_btn(self, screen: MatLike, screenshot_time: float) -> str | None:
-        """
-        识别特殊攻击按钮 看是否可用
-        """
-        if not self._check_special_attack_lock.acquire(blocking=False):
-            return None
-        try:
-            if screenshot_time - self._last_check_special_attack_time < cal_utils.random_in_range(self._check_special_attack_interval):
-                # 还没有达到识别间隔
-                return None
-            self._last_check_special_attack_time = screenshot_time
-
-            part = cv2_utils.crop_image_only(screen, self.area_btn_special.rect)
-            mrl = self.ctx.tm.match_template(part, 'battle', 'btn_special_attack_2',
-                                             threshold=0.9)
-            is_ready = mrl.max is not None
-            if is_ready:
-                self.auto_op.update_state(StateRecord(BattleStateEnum.STATUS_SPECIAL_READY.value, screenshot_time))
-
-                # # # # 重写部分 # # # #
-                return BattleStateEnum.STATUS_SPECIAL_READY.value  # 返回按键可用-特殊攻击
-            else:
-                return None
-                # # # # 重写部分 # # # #
-        except Exception:
-            log.error('识别特殊攻击按键出错', exc_info=True)
-        finally:
-            self._check_special_attack_lock.release()
-
-    def check_ultimate_btn(self, screen: MatLike, screenshot_time: float, check_agent_future: Future) -> str | None:
-        """
-        识别终结技按钮 看是否可用
-        """
-        if not self._check_ultimate_lock.acquire(blocking=False):
-            return None
-
-        try:
-            if screenshot_time - self._last_check_ultimate_time < cal_utils.random_in_range(self._check_ultimate_interval):
-                # 还没有达到识别间隔
-                return None
-            self._last_check_ultimate_time = screenshot_time
-
-            part = cv2_utils.crop_image_only(screen, self.area_btn_ultimate.rect)
-            # 判断灰色按钮比较容易 发光时颜色会变
-            mrl = self.ctx.tm.match_template(part, 'battle', 'btn_ultimate_2',
-                                             threshold=0.9)
-            is_ready = mrl.max is not None
-
-            if is_ready and self._allow_ultimate_list is not None:  # 有限制可使用的终结技
-                try:  # 等待识别代理人
-                    check_agent_future.result()
-                except Exception:
-                    pass
-                if not self.agent_context.allow_to_use_ultimate():  # 当前代理人不允许使用终结技
-                    is_ready = False
-
-            if is_ready:
-                self.auto_op.update_state(StateRecord(BattleStateEnum.STATUS_ULTIMATE_READY.value, screenshot_time))
-
-                # # # # 重写部分 # # # #
-                return BattleStateEnum.STATUS_ULTIMATE_READY.value  # 返回按键可用-终结技
-                # # # # 重写部分 # # # #
-        except Exception:
-            log.error('识别终结技按键出错', exc_info=True)
-        finally:
-            self._check_ultimate_lock.release()
-
     def check_quick_assist(self, screen: MatLike, screenshot_time: float) -> tuple[str, str, str] | None:
         """
         识别快速支援
@@ -648,13 +568,9 @@ class RecordContext:
                 use_gpu=self.ctx.yolo_config.flash_classifier_gpu,
                 check_dodge_interval=0.02,
                 check_agent_interval=0.02,
-                check_special_attack_interval=0.02,
-                check_ultimate_interval=0.05,
                 check_chain_interval=0.05,
                 check_quick_interval=0.05,
                 check_end_interval=5,
-
-                allow_ultimate_list=None
             )
 
             return True, ''

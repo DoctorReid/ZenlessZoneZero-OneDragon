@@ -8,7 +8,7 @@ from typing import Optional, List
 
 from one_dragon.yolo.log_utils import log
 
-_GH_PROXY_URL = 'https://ghp.ci'
+_GH_PROXY_URL = 'https://ghgo.xyz'
 
 
 class OnnxModelLoader:
@@ -19,9 +19,11 @@ class OnnxModelLoader:
                  model_parent_dir_path: str = os.path.abspath(__file__),  # 默认使用本文件的目录
                  gh_proxy: bool = True,
                  personal_proxy: Optional[str] = '',
-                 gpu: bool = False
+                 gpu: bool = False,
+                 backup_model_name: Optional[str] = None,
                  ):
         self.model_name: str = model_name
+        self.backup_model_name: str = backup_model_name  # 备用模型 默认在本地一定有的模型 在新模型无法下载使用时使用
         self.model_download_url: str = model_download_url  # 模型下载地址
         self.model_parent_dir_path: str = model_parent_dir_path
         self.model_dir_path = os.path.join(self.model_parent_dir_path, self.model_name)
@@ -35,7 +37,12 @@ class OnnxModelLoader:
         self.onnx_input_width: int = 0
         self.onnx_input_height: int = 0
         self.output_names: List[str] = []
-        self.check_and_download_model()
+
+        if not self.check_and_download_model():  # 新模型不ok
+            log.error(f'模型 {self.model_name} 未下载成功 尝试使用备用模型 {self.backup_model_name}')
+            self.model_name = self.backup_model_name
+            self.model_dir_path = os.path.join(self.model_parent_dir_path, self.model_name)
+
         self.load_model()
 
     def check_and_download_model(self) -> bool:

@@ -1,4 +1,6 @@
 # 闪避普攻 普攻后摇等待时间各角色不同 由后续动作控制
 handlers:
-  - state_template: "闪A模板-艾莲"
-  - state_template: "闪A模板-通用"
+  - states: ""
+    operations:
+      - op_name: "设置状态"
+        state: "自定义-红光闪避"
