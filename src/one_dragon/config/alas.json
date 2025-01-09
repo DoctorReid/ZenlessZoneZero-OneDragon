@@ -1,0 +1,29 @@
+{
+  "Alas": {
+    "Emulator": {
+      "Serial": "127.0.0.1:16384",
+      "GameClient": "android",
+      "PackageName": "CN-Official",
+      "GameLanguage": "auto",
+      "ScreenshotMethod": "scrcpy",
+      "ControlMethod": "MaaTouch",
+      "AdbRestart": false
+    },
+    "EmulatorInfo": {
+      "Emulator": "MuMuPlayer12",
+      "name": "MuMuPlayer-12.0-0",
+      "path": "D:/game/MuMuPlayer-12.0/shell/MuMuPlayer.exe"
+    },
+    "Error": {
+      "Restart": "game",
+      "SaveError": true,
+      "ScreenshotLength": 1,
+      "OnePushConfig": "provider: null"
+    },
+    "Optimization": {
+      "ScreenshotInterval": 0.2,
+      "CombatScreenshotInterval": 1.0,
+      "WhenTaskQueueEmpty": "goto_main"
+    }
+  }
+}

@@ -9,6 +9,12 @@ area_list:
   - 626
   - 1086
   - 684
+  emulator_rect:
+  - 868
+  - 634
+  - 1042
+  - 690
+  platform: Emulator
   text: ''
   lcs_percent: 0.1
   template_sub_dir: ''
@@ -22,6 +28,12 @@ area_list:
   - 324
   - 644
   - 568
+  emulator_rect:
+  - 338
+  - 314
+  - 650
+  - 594
+  platform: Emulator
   text: ''
   lcs_percent: 0.1
   template_sub_dir: ''
@@ -35,6 +47,12 @@ area_list:
   - 338
   - 1554
   - 578
+  emulator_rect:
+  - 1264
+  - 314
+  - 1602
+  - 594
+  platform: Emulator
   text: ''
   lcs_percent: 0.1
   template_sub_dir: ''
@@ -48,6 +66,12 @@ area_list:
   - 1024
   - 1848
   - 1058
+  emulator_rect:
+  - 34
+  - 992
+  - 1878
+  - 1026
+  platform: Emulator
   text: ''
   lcs_percent: 0.1
   template_sub_dir: ''
@@ -61,6 +85,12 @@ area_list:
   - 28
   - 1840
   - 82
+  emulator_rect:
+  - 1604
+  - 34
+  - 1810
+  - 98
+  platform: Emulator
   text: 街区详情
   lcs_percent: 0.5
   template_sub_dir: ''
@@ -74,6 +104,12 @@ area_list:
   - 600
   - 1232
   - 708
+  emulator_rect:
+  - 1076
+  - 618
+  - 1292
+  - 682
+  platform: Emulator
   text: 确认
   lcs_percent: 0.1
   template_sub_dir: ''
