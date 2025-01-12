@@ -53,12 +53,17 @@ class SettingGameInterface(VerticalScrollInterface):
         self.game_account_opt = TextSettingCard(icon=FluentIcon.PEOPLE, title='账号')
         basic_group.addSettingCard(self.game_account_opt)
 
-        self.game_password_opt = TextSettingCard(icon=FluentIcon.EXPRESSIVE_INPUT_ENTRY, title='密码',
-                                                 content='放心不会盗你的号 异地登陆需要验证')
+        # 设置密码框
+        self.game_password_opt = TextSettingCard(
+            icon=FluentIcon.EXPRESSIVE_INPUT_ENTRY,
+            title='密码',
+            input_placeholder='放心不会盗你的号 异地登陆需要验证',
+            is_password=True  # 设置为密码模式
+        )
         basic_group.addSettingCard(self.game_password_opt)
 
         self.input_way_opt = ComboBoxSettingCard(icon=FluentIcon.CLIPPING_TOOL, title='输入方式',
-                                                 options_enum=TypeInputWay)
+                                                options_enum=TypeInputWay)
         basic_group.addSettingCard(self.input_way_opt)
 
         return basic_group
