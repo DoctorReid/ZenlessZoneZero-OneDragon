@@ -66,3 +66,4 @@ threadpoolctl==3.5.0      # via scikit-learn
 typing-extensions==4.12.2  # via librosa
 urllib3==2.2.2            # via requests
 wrapt==1.16.0             # via smart-open
+plyer==2.1.0              # via notifications-python-client

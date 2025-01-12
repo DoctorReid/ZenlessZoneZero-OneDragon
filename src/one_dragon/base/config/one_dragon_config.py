@@ -26,6 +26,7 @@ class OneDragonInstance:
 class AfterDoneOpEnum(Enum):
 
     NONE = ConfigItem('无')
+    SEND_NOTIFICATION = ConfigItem('发送通知')
     CLOSE_GAME = ConfigItem('关闭游戏')
     SHUTDOWN = ConfigItem('关机')
 

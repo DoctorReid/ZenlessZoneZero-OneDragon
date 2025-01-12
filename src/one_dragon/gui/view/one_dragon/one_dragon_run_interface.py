@@ -245,6 +245,8 @@ class OneDragonRunInterface(VerticalScrollInterface):
         if self.ctx.is_context_stop and self.need_after_done_opt:
             if self.ctx.one_dragon_config.after_done == AfterDoneOpEnum.SHUTDOWN.value.value:
                 cmd_utils.shutdown_sys(60)
+            elif self.ctx.one_dragon_config.after_done == AfterDoneOpEnum.SEND_NOTIFICATION.value.value:
+                cmd_utils.send_notification()
             elif self.ctx.one_dragon_config.after_done == AfterDoneOpEnum.CLOSE_GAME.value.value:
                 self.ctx.controller.close_game()
 
