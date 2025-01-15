@@ -215,4 +215,4 @@ def __get_get_artifact_pos():
 
 
 if __name__ == '__main__':
-    __get_get_artifact_pos()
+    __debug()

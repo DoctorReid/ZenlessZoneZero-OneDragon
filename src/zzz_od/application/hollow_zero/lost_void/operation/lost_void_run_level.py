@@ -79,8 +79,10 @@ class LostVoidRunLevel(ZOperation):
         self.talk_opt_idx = 0  # 交互选择的选项
         self.reward_eval_found: bool = False  # 挑战结果中可以识别到业绩点
         self.reward_dn_found: bool = False  # 挑战结果中可以识别到丁尼
+        self.click_challenge_confirm: bool = False  # 点击了挑战确认
 
     @node_from(from_name='非战斗画面识别', status='未在大世界')  # 有小概率交互入口后 没处理好结束本次RunLevel 重新从等待加载 开始
+    @node_from(from_name='非战斗画面识别', status='按钮-挑战-确认')  # 挑战类型的对话框确认后 第一次点击可能无效 跳回来这里点击到最后生效为止
     @operation_node(name='等待加载', node_max_retry_times=60, is_start_node=True)
     def wait_loading(self) -> OperationRoundResult:
         screen = self.screenshot()
@@ -98,6 +100,7 @@ class LostVoidRunLevel(ZOperation):
         result = self.round_by_find_and_click_area(screen, '迷失之地-大世界', '按钮-挑战-确认')
         if result.is_success:
             self.region_type = LostVoidRegionType.CHANLLENGE_TIME_TRAIL
+            self.click_challenge_confirm = True
             return self.round_wait(result.status)
 
         return self.round_retry('未找到攻击交互按键', wait=1)
@@ -122,7 +125,12 @@ class LostVoidRunLevel(ZOperation):
         if self.region_type == LostVoidRegionType.CHANLLENGE_FLAWLESS:
             return self.round_success('非战斗区域')
         if self.region_type == LostVoidRegionType.CHANLLENGE_TIME_TRAIL:
-            return self.round_success('非战斗区域')
+            if self.click_challenge_confirm:
+                # 恢复默认值 避免战斗之后 进入了下一层时 小概率还在这个op里 导致卡住
+                self.click_challenge_confirm = False
+                return self.round_success('战斗区域')
+            else:
+                return self.round_success('非战斗区域')
 
         if self.region_type == LostVoidRegionType.ENCOUNTER:
             return self.round_success('非战斗区域')
@@ -155,6 +163,8 @@ class LostVoidRunLevel(ZOperation):
         if not self.in_normal_world(screen):
             result = self.round_by_find_and_click_area(screen, '迷失之地-大世界', '按钮-挑战-确认')
             if result.is_success:
+                self.region_type = LostVoidRegionType.CHANLLENGE_TIME_TRAIL
+                self.click_challenge_confirm = True
                 return self.round_success(result.status)
 
             self.nothing_times += 1
@@ -481,7 +491,6 @@ class LostVoidRunLevel(ZOperation):
             # 感叹号的情况 由于奸商布的位置和商店很靠近 因此固定交互后往后移动
             self.ctx.controller.move_s(press=True, press_time=1, release=True)
 
-    @node_from(from_name='非战斗画面识别', status='按钮-挑战-确认')  # 挑战类型的对话框确认后
     @node_from(from_name='非战斗画面识别', status='进入战斗')  # 非挑战类型的 识别开始战斗后
     @node_from(from_name='非战斗画面识别', status=LostVoidMoveByDet.STATUS_IN_BATTLE)  # 移动过程中 识别到战斗
     @node_from(from_name='区域类型初始化', status='战斗区域')  # 区域类型就是战斗的
