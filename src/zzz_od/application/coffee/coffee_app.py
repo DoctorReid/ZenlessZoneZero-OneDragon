@@ -207,6 +207,9 @@ class CoffeeApp(ZApplication):
         :param plan:
         :return:
         """
+        if plan.category_name == '实战模拟室' and coffee.coffee_name == '浓缩咖啡':
+            return True
+
         if coffee.without_benefit:
             return False
 
