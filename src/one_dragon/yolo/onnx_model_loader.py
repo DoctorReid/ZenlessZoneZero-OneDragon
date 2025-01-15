@@ -8,7 +8,7 @@ from typing import Optional, List
 
 from one_dragon.yolo.log_utils import log
 
-_GH_PROXY_URL = 'https://ghgo.xyz'
+_GH_PROXY_URL = 'https://ghfast.top'
 
 
 class OnnxModelLoader:

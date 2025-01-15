@@ -187,5 +187,21 @@ def __debug():
     op.execute()
 
 
+def __get_get_artifact_pos():
+    ctx = ZContext()
+    ctx.init_by_config()
+    ctx.ocr.init_model()
+    ctx.lost_void.init_before_run()
+
+    op = LostVoidChooseCommon(ctx)
+    from one_dragon.utils import debug_utils
+    screen = debug_utils.get_debug_image('choose_2')
+    art_list, chosen_list = op.get_artifact_pos(screen)
+    print(len(chosen_list))
+    cv2_utils.show_image(screen, chosen_list[0], wait=0)
+    import cv2
+    cv2.destroyAllWindows()
+
+
 if __name__ == '__main__':
-    __debug()
+    __get_get_artifact_pos()
