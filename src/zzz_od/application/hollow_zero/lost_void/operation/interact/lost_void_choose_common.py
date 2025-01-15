@@ -51,7 +51,18 @@ class LostVoidChooseCommon(ZOperation):
                 consider_priority_1=True, consider_priority_2=not can_refresh,
                 consider_not_in_priority=not can_refresh
             )
-            if len(priority_list) > 0:
+
+            # 如果需要选择多个 则有任意一个符合优先级即可 剩下的用优先级以外的补上
+            if len(priority_list) > 0 and len(priority_list) < self.to_choose_num:
+                priority_list = self.ctx.lost_void.get_artifact_by_priority(
+                    art_list, self.to_choose_num,
+                    consider_priority_1=True, consider_priority_2=True,
+                    consider_not_in_priority=True
+                )
+
+            # 注意最后筛选优先级的长度一定要符合需求的选择数量
+            # 不然在选择2个情况下会一直选择1个 导致无法继续
+            if len(priority_list) == self.to_choose_num:
                 for chosen in chosen_list:
                     self.ctx.controller.click(chosen.center + Point(0, 100))
                     time.sleep(0.5)
@@ -197,7 +208,7 @@ def __get_get_artifact_pos():
     from one_dragon.utils import debug_utils
     screen = debug_utils.get_debug_image('choose_2')
     art_list, chosen_list = op.get_artifact_pos(screen)
-    print(len(chosen_list))
+    print(len(art_list), len(chosen_list))
     cv2_utils.show_image(screen, chosen_list[0], wait=0)
     import cv2
     cv2.destroyAllWindows()

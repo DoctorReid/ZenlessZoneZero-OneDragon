@@ -9,6 +9,7 @@ from one_dragon.base.matcher.match_result import MatchResult
 from one_dragon.base.screen import screen_utils
 from one_dragon.utils import os_utils, str_utils
 from one_dragon.utils.i18_utils import gt
+from one_dragon.utils.log_utils import log
 from zzz_od.application.hollow_zero.lost_void.context.lost_void_artifact import LostVoidArtifact
 from zzz_od.application.hollow_zero.lost_void.context.lost_void_detector import LostVoidDetector
 from zzz_od.application.hollow_zero.lost_void.lost_void_challenge_config import LostVoidRegionType, \
@@ -313,6 +314,10 @@ class LostVoidContext:
             if i >= len(priority_idx_list):
                 continue
             result_list.append(artifact_list[priority_idx_list[i]])
+
+        log.info(f'当前考虑优先级 数量={choose_num} 第一优先级={consider_priority_1} 第二优先级={consider_priority_2} 其他={consider_not_in_priority}')
+        display_text = ','.join([i.data.display_name for i in result_list]) if len(result_list) > 0 else '无'
+        log.info(f'当前符合优先级列表 {display_text}')
 
         return result_list
 
