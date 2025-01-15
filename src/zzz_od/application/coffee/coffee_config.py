@@ -8,8 +8,8 @@ from one_dragon.gui.widgets.setting_card.yaml_config_adapter import YamlConfigAd
 
 class CoffeeChooseWay(Enum):
 
-    PLAN_PRIORITY = ConfigItem('优先体力计划', desc='优先选择符合体力计划的咖啡，没有时候再选择指定的咖啡')
-    CUSTOM = ConfigItem('只按定制', desc='只选择指定的咖啡')
+    PLAN_PRIORITY = ConfigItem('优先体力计划', desc='优先选择符合体力计划的咖啡，没有的时候选择汀曼特调')
+    CUSTOM = ConfigItem('汀曼特调', desc='只选择汀曼特调')
 
 
 class CoffeeChallengeWay(Enum):
