@@ -23,7 +23,15 @@ class YoloConfig(YamlConfig):
 
     @property
     def flash_classifier(self) -> str:
-        return self.get('flash_classifier', _DEFAULT_FLASH_CLASSIFIER)
+        """
+        识别闪光模式 只允许使用最新的两个模型
+        :return:
+        """
+        current = self.get('flash_classifier', _DEFAULT_FLASH_CLASSIFIER)
+        if current != _DEFAULT_FLASH_CLASSIFIER and current != _BACKUP_FLASH_CLASSIFIER:
+            current = _DEFAULT_FLASH_CLASSIFIER
+            self.flash_classifier = _DEFAULT_FLASH_CLASSIFIER
+        return current
 
     @flash_classifier.setter
     def flash_classifier(self, new_value: str) -> None:
@@ -43,7 +51,15 @@ class YoloConfig(YamlConfig):
 
     @property
     def hollow_zero_event(self) -> str:
-        return self.get('hollow_zero_event', _DEFAULT_HOLLOW_ZERO_EVENT)
+        """
+        枯萎之都格子模型 只允许使用最新的两个模型
+        :return:
+        """
+        current = self.get('hollow_zero_event', _DEFAULT_HOLLOW_ZERO_EVENT)
+        if current!= _DEFAULT_HOLLOW_ZERO_EVENT and current!= _BACKUP_HOLLOW_ZERO_EVENT:
+            current = _DEFAULT_HOLLOW_ZERO_EVENT
+            self.hollow_zero_event = _DEFAULT_HOLLOW_ZERO_EVENT
+        return current
 
     @hollow_zero_event.setter
     def hollow_zero_event(self, new_value: str) -> None:
@@ -63,7 +79,15 @@ class YoloConfig(YamlConfig):
 
     @property
     def lost_void_det(self) -> str:
-        return self.get('lost_void_det', _DEFAULT_LOST_VOID_DET)
+        """
+        迷失之地识别模型 只允许使用最新的两个模型
+        :return:
+        """
+        current = self.get('lost_void_det', _DEFAULT_LOST_VOID_DET)
+        if current!= _DEFAULT_LOST_VOID_DET and current!= _BACKUP_LOST_VOID_DET:
+            current = _DEFAULT_LOST_VOID_DET
+            self.lost_void_det = _DEFAULT_LOST_VOID_DET
+        return current
 
     @lost_void_det.setter
     def lost_void_det(self, new_value: str) -> None:
@@ -88,6 +112,7 @@ class YoloConfig(YamlConfig):
         """
         return (self.flash_classifier != _DEFAULT_FLASH_CLASSIFIER
                 or self.hollow_zero_event != _DEFAULT_HOLLOW_ZERO_EVENT
+                or self.lost_void_det != _DEFAULT_LOST_VOID_DET
                 )
 
 
