@@ -61,7 +61,7 @@ class ShiyuDefenseRunRecord(AppRunRecord):
 
         if node_idx not in history:
             history.append(node_idx)
-            self.data['critical'] = history
+            self.data['critical_history'] = history
             self.save()
 
     @property
@@ -74,5 +74,5 @@ class ShiyuDefenseRunRecord(AppRunRecord):
     def reset_record(self):
         AppRunRecord.reset_record(self)
 
-        self.data['critical'] = []
+        self.data['critical_history'] = []
         self.save()
