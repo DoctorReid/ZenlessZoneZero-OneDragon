@@ -1,7 +1,8 @@
+from concurrent.futures import Future
 import time
 
 import difflib
-from typing import Optional, ClassVar
+from typing import Optional, ClassVar, Tuple
 
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.operation.operation import Operation
@@ -49,7 +50,23 @@ class CombatSimulation(ZOperation):
         self.charge_need: Optional[int] = None
 
         self.auto_op: Optional[AutoBattleOperator] = None
+        self.async_init_future: Optional[Future[Tuple[bool, str]]] = None  # 初始化自动战斗的future
 
+    @operation_node(name='异步初始化自动战斗')
+    def async_init_auto_op(self) -> OperationRoundResult:
+        """
+        暂时不需要异步加载
+        """
+        if self.plan.predefined_team_idx == -1:
+            auto_battle = self.plan.auto_battle_config
+        else:
+            team_list = self.ctx.team_config.team_list
+            auto_battle = team_list[self.plan.predefined_team_idx].auto_battle
+
+        self.async_init_future = auto_battle_utils.load_auto_op_async(self, 'auto_battle', auto_battle)
+        return self.round_success(auto_battle)
+
+    @node_from(from_name='异步初始化自动战斗')
     @operation_node(name='等待入口加载', is_start_node=True, node_max_retry_times=60)
     def wait_entry_load(self) -> OperationRoundResult:
         screen = self.screenshot()
@@ -219,13 +236,21 @@ class CombatSimulation(ZOperation):
     @node_from(from_name='判断下一次', status='战斗结果-再来一次')
     @operation_node(name='加载自动战斗指令')
     def init_auto_battle(self) -> OperationRoundResult:
-        if self.plan.predefined_team_idx == -1:
-            auto_battle = self.plan.auto_battle_config
+        if self.async_init_future is not None:
+            try:
+                success, msg = self.async_init_future.result(60)
+                if not success:
+                    return self.round_fail(msg)
+            except Exception as e:
+                return self.round_fail('自动战斗初始化失败')
         else:
-            team_list = self.ctx.team_config.team_list
-            auto_battle = team_list[self.plan.predefined_team_idx].auto_battle
+            if self.plan.predefined_team_idx == -1:
+                auto_battle = self.plan.auto_battle_config
+            else:
+                team_list = self.ctx.team_config.team_list
+                auto_battle = team_list[self.plan.predefined_team_idx].auto_battle
 
-        return auto_battle_utils.load_auto_op(self, 'auto_battle', auto_battle)
+            return auto_battle_utils.load_auto_op(self, 'auto_battle', auto_battle)
 
     @node_from(from_name='加载自动战斗指令')
     @operation_node(name='等待战斗画面加载', node_max_retry_times=60)

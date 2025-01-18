@@ -16,7 +16,7 @@ DEFAULT_VENV_DIR_PATH = os.path.join(DEFAULT_ENV_PATH, 'venv')  # 默认的虚�
 DEFAULT_VENV_PYTHON_PATH = os.path.join(DEFAULT_VENV_DIR_PATH, 'scripts', 'python.exe')  # 默认的虚拟环境中python.exe的路径
 DEFAULT_PYTHON_PTH_PATH = os.path.join(DEFAULT_PYTHON_DIR_PATH, 'python311._pth')  # 默认安装的python配置文件路径
 
-GH_PROXY_URL = 'https://ghgo.xyz/'  # 免费代理的路径
+GH_PROXY_URL = 'https://ghfast.top/'  # 免费代理的路径
 
 class ProxyTypeEnum(Enum):
 

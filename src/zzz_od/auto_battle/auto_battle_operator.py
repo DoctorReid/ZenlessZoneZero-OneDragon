@@ -1,5 +1,5 @@
 import time
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import Future, ThreadPoolExecutor
 
 import os
 from typing import List, Optional, Tuple
@@ -56,6 +56,7 @@ class AutoBattleOperator(ConditionalOperator):
         self._mutex_list: dict[str, List[str]] = {}
 
         self.auto_battle_context: AutoBattleContext = AutoBattleContext(ctx)
+        self.async_init_future: Optional[Future[Tuple[bool, str]]] = None
 
         # 自动周期
         self.last_lock_time: float = 0  # 上一次锁定的时间
@@ -86,6 +87,13 @@ class AutoBattleOperator(ConditionalOperator):
         except Exception as e:
             log.error('自动战斗初始化失败 共享配队文件请在群内提醒对应作者修复', exc_info=True)
             return False, '初始化失败'
+        
+    def init_before_running_async(self) -> Future[Tuple[bool, str]]:
+        """
+        异步初始化
+        """
+        self.async_init_future = _auto_battle_operator_executor.submit(self.init_before_running)
+        return self.async_init_future
 
     def _init_operator(self) -> Tuple[bool, str]:
         if not self.is_file_exists():
@@ -341,7 +349,13 @@ class AutoBattleOperator(ConditionalOperator):
         销毁 注意要解绑各种事件监听
         :return:
         """
+        if self.async_init_future is not None:
+            try:
+                self.async_init_future.result(10)
+            except Exception as e:
+                pass
         ConditionalOperator.dispose(self)
+        self.async_init_future = None
         for sr in self.state_recorders.values():
             sr.dispose()
         self.state_recorders.clear()
@@ -423,11 +437,11 @@ class AutoBattleOperator(ConditionalOperator):
 def __debug():
     ctx = ZContext()
     ctx.init_by_config()
-    auto_op = AutoBattleOperator(ctx, 'auto_battle', '专属配队-莱卡恩')
+    auto_op = AutoBattleOperator(ctx, 'auto_battle', '全配对通用')
     auto_op.init_before_running()
-    auto_op.start_running_async()
-    time.sleep(5)
-    auto_op.stop_running()
+    # auto_op.start_running_async()
+    # time.sleep(5)
+    # auto_op.stop_running()
 
 
 if __name__ == '__main__':

@@ -29,7 +29,11 @@ class NotoriousHuntConfig(YamlConfig):
 
         if 'plan_list' in self.data:
             for plan_item in self.data.get('plan_list', []):
-                self.plan_list.append(ChargePlanItem(**plan_item))
+                old_plan = ChargePlanItem(**plan_item)
+                # 1.4版本 快捷手册中的TAB名称改动 在这里做检测兼容
+                if old_plan.tab_name == '挑战':
+                    old_plan.tab_name = '作战'
+                self.plan_list.append(old_plan)
 
         existed_missions = [i.mission_type_name for i in self.plan_list]
         default_list = self._get_default_plan()

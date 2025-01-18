@@ -1,6 +1,6 @@
 from typing import Optional
 
-from one_dragon.base.operation.application_run_record import AppRunRecord
+from one_dragon.base.operation.application_run_record import AppRunRecord, AppRunRecordPeriod
 from zzz_od.application.hollow_zero.lost_void.lost_void_config import LostVoidConfig, LostVoidExtraTask
 
 
@@ -11,7 +11,8 @@ class LostVoidRunRecord(AppRunRecord):
             self,
             'lost_void',
             instance_idx=instance_idx,
-            game_refresh_hour_offset=game_refresh_hour_offset
+            game_refresh_hour_offset=game_refresh_hour_offset,
+            record_period=AppRunRecordPeriod.WEEKLY
         )
 
         self.config: LostVoidConfig = config

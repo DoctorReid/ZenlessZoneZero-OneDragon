@@ -139,6 +139,9 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
         self.area_table.setColumnWidth(2, 200)  # 位置
         self.area_table.setColumnWidth(4, 70)  # 文本阈值
         self.area_table.setColumnWidth(6, 70)  # 模板阈值
+        # table的行被选中时 触发
+        self.area_table_row_selected: int = -1  # 选中的行
+        self.area_table.cellClicked.connect(self.on_area_table_cell_clicked)
         widget.add_widget(self.area_table)
 
         widget.add_stretch(1)
@@ -274,7 +277,7 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
         更新图片显示
         :return:
         """
-        image_to_show = None if self.chosen_screen is None else self.chosen_screen.get_image_to_show()
+        image_to_show = None if self.chosen_screen is None else self.chosen_screen.get_image_to_show(self.area_table_row_selected)
         if image_to_show is not None:
             image = Cv2Image(image_to_show)
             self.image_label.setImage(image)
@@ -343,6 +346,7 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
         """
         self.chosen_screen = None
         self.existed_yml_btn.setCurrentIndex(-1)
+        self.area_table_row_selected = -1
         self._whole_update.signal.emit()
 
     def choose_existed_image(self) -> None:
@@ -560,3 +564,10 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
             if row_idx < 0 or row_idx >= len(self.chosen_screen.area_list):
                 return
             self.chosen_screen.area_list[row_idx].id_mark = btn.isChecked()
+
+    def on_area_table_cell_clicked(self, row: int, column: int):
+        if self.area_table_row_selected == row:
+            self.area_table_row_selected = None
+        else:
+            self.area_table_row_selected = row
+        self._update_image_display()

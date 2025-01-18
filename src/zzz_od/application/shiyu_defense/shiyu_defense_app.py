@@ -73,9 +73,8 @@ class ShiyuDefenseApp(ZApplication):
             return self.round_success(result.status, wait=1)
 
         # 可能之前人工挑战了 这里重新判断看哪个节点可以挑战
-        node = self.ctx.shiyu_defense_record.current_dt_node()
         idx_to_check = (
-            [i for i in range(idx, node.node_cnt + 1)]  # 优先检测后续的关卡
+            [i for i in range(idx, self.ctx.shiyu_defense_config.critical_max_node_idx + 1)]  # 优先检测后续的关卡
             + [i for i in range(1, idx)]
         )
         for i in idx_to_check:
@@ -156,7 +155,7 @@ class ShiyuDefenseApp(ZApplication):
             self.current_node_idx += 1
             return self.round_success(result.status, wait=1)
 
-        if self.current_node_idx == self.ctx.shiyu_defense_record.current_dt_node().node_cnt:
+        if self.current_node_idx == self.ctx.shiyu_defense_config.critical_max_node_idx:
             # 已经是最后一层了
             return self.round_by_find_and_click_area(screen, '式舆防卫战', '战斗结束-退出',
                                                      success_wait=5, retry_wait=1)
@@ -218,6 +217,7 @@ class ShiyuDefenseApp(ZApplication):
     @node_from(from_name='关闭奖励')
     @operation_node(name='结束后返回')
     def back_after_all(self) -> OperationRoundResult:
+        log.info('新一期刷新后 可到「式舆防卫战」重置运行记录')
         op = BackToNormalWorld(self.ctx)
         return self.round_by_op_result(op.execute())
 

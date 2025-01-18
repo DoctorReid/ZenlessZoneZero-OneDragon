@@ -51,7 +51,9 @@
 
 - 使用本项目产生的所有问题与本项目与及开发者团队无关。
 
-- 若您遇到商家使用本软件进行代练并收费，产生的任何问题及后果与本软件无关。
+- 本项目未授权任何个人、商家、自媒体账号等进行宣传，并收取任何费用(宣传、使用等)的行为。
+
+- 若您遇到商家使用本软件进行代练并收费，产生的任何问题及后果与本软件无关；开发者团队也不会为您提供任何"售后"服务。
 
 - 本软件 logo 由 [巡夜子](https://github.com/yokuminto) 绘制，巡夜子及软件全体开发者保留所有权利。不得在未经授权的情况下使用本软件 logo，或将其用于任何用途。
 
@@ -61,10 +63,18 @@
 
 ![Contributors](https://contrib.rocks/image?repo=DoctorReid/ZenlessZoneZero-OneDragon)
 
+## 加入讨论
+
+❤ [ 唯一指定 QQ 群 `861603314` ] ❤
+
+点Star后，填入Github账号的ID作为入群申请即可 (右上角头像 -> Your Profile，网址上显示的ID)。
+
+❤ [ 新手村 QQ 群 `925199190` ] ❤
+
 ## 赞助
 
 如果喜欢本项目，可以为作者的赞助一点服务器维护费用~
 
-感谢 [小伙伴们的支持](https://github.com/DoctorReid/OneDragon-Thanks)
+感谢 [小伙伴们的支持](https://one-dragon.org/other/zh/like/thanks_2024.html)
 
 <img alt="赞助" src="./image/sponsor.png" width="512" height="256" />

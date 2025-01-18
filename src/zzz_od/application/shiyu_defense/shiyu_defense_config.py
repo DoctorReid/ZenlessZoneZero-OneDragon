@@ -120,3 +120,11 @@ class ShiyuDefenseConfig(YamlConfig):
 
         team_config.for_critical = for_critical
         self.save_team_list()
+
+    @property
+    def critical_max_node_idx(self) -> int:
+        return self.get('critical_max_node_idx', 7)
+
+    @critical_max_node_idx.setter
+    def critical_max_node_idx(self, value: int) -> None:
+        self.update('critical_max_node_idx', value)

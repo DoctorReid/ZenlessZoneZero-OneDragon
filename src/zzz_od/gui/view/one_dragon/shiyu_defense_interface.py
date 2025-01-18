@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QWidget, QTableWidgetItem
-from qfluentwidgets import TableWidget, CheckBox
+from qfluentwidgets import TableWidget, CheckBox, FluentIcon
 
+from one_dragon.gui.widgets.setting_card.push_setting_card import PushSettingCard
 from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.utils.i18_utils import gt
 from zzz_od.context.zzz_context import ZContext
@@ -22,6 +23,11 @@ class ShiyuDefenseInterface(VerticalScrollInterface):
 
     def get_content_widget(self) -> QWidget:
         content_widget = Column()
+
+        self.critical_reset_opt = PushSettingCard(icon=FluentIcon.SYNC, title='剧变节点 重置运行记录',
+                                                  text='重置')
+        self.critical_reset_opt.clicked.connect(self.on_critical_reset_clicked)
+        content_widget.add_widget(self.critical_reset_opt)
 
         self.team_table = TableWidget()
 
@@ -109,3 +115,6 @@ class ShiyuDefenseInterface(VerticalScrollInterface):
         btn: CheckBox = self.sender()
         team_idx = btn.property('team_idx')
         self.ctx.shiyu_defense_config.change_for_critical(team_idx, btn.isChecked())
+
+    def on_critical_reset_clicked(self) -> None:
+        self.ctx.shiyu_defense_record.reset_record()

@@ -1,7 +1,7 @@
 import time
 
 from cv2.typing import MatLike
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.matcher.match_result import MatchResult
@@ -40,7 +40,7 @@ class LostVoidChooseCommon(ZOperation):
         result = self.round_by_find_area(screen, '迷失之地-通用选择', '按钮-刷新')
         can_refresh = result.is_success
 
-        art_list = self.get_artifact_pos(screen)
+        art_list, chosen_list = self.get_artifact_pos(screen)
         art: Optional[MatchResult] = None
         if self.to_choose_num > 0:
             if len(art_list) == 0:
@@ -52,7 +52,21 @@ class LostVoidChooseCommon(ZOperation):
                 consider_not_in_priority=not can_refresh
             )
 
-            if len(priority_list) > 0:
+            # 如果需要选择多个 则有任意一个符合优先级即可 剩下的用优先级以外的补上
+            if len(priority_list) > 0 and len(priority_list) < self.to_choose_num:
+                priority_list = self.ctx.lost_void.get_artifact_by_priority(
+                    art_list, self.to_choose_num,
+                    consider_priority_1=True, consider_priority_2=True,
+                    consider_not_in_priority=True
+                )
+
+            # 注意最后筛选优先级的长度一定要符合需求的选择数量
+            # 不然在选择2个情况下会一直选择1个 导致无法继续
+            if len(priority_list) == self.to_choose_num:
+                for chosen in chosen_list:
+                    self.ctx.controller.click(chosen.center + Point(0, 100))
+                    time.sleep(0.5)
+
                 for art in priority_list:
                     self.ctx.controller.click(art.center)
                     time.sleep(0.5)
@@ -71,11 +85,11 @@ class LostVoidChooseCommon(ZOperation):
         else:
             return self.round_retry(result.status, wait=1)
 
-    def get_artifact_pos(self, screen: MatLike) -> List[MatchResult]:
+    def get_artifact_pos(self, screen: MatLike) -> Tuple[List[MatchResult], List[MatchResult]]:
         """
         获取藏品的位置
         @param screen: 游戏画面
-        @return: 识别到的武备的位置
+        @return: Tuple[识别到的武备的位置, 已经选择的位置]
         """
         is_gear: bool = False  # 区域-武备名称
         is_artifact: bool = False # 区域-藏品名称
@@ -118,12 +132,14 @@ class LostVoidChooseCommon(ZOperation):
                 self.to_choose_num = 0
 
         if self.to_choose_num == 0:  # 不需要选择的
-            return []
+            return [], []
 
         if is_artifact:
             area_name = '区域-藏品名称'
+            chosen_area_name = '区域-藏品已选择'
         elif is_gear:
             area_name = '区域-武备名称'
+            chosen_area_name = None
         else:
             result = self.round_by_find_area(screen, '迷失之地-通用选择', '标题-请选择1个武备')
             if result.is_success:
@@ -132,6 +148,7 @@ class LostVoidChooseCommon(ZOperation):
             else:
                 area_name = '区域-藏品名称'
                 self.to_choose_num = 1
+            chosen_area_name = None
 
         area = self.ctx.screen_loader.get_area('迷失之地-通用选择', area_name)
         part = cv2_utils.crop_image_only(screen, area.rect)
@@ -152,7 +169,22 @@ class LostVoidChooseCommon(ZOperation):
         display_text = ','.join([i.data.display_name for i in result_list]) if len(result_list) > 0 else '无'
         log.info(f'当前识别藏品 {display_text}')
 
-        return result_list
+        to_cancel_list: List[MatchResult] = []
+        target_chosen_words = ['有同流派武备', '已选择']
+        if chosen_area_name is not None:
+            area = self.ctx.screen_loader.get_area('迷失之地-通用选择', chosen_area_name)
+            part = cv2_utils.crop_image_only(screen, area.rect)
+            ocr_result_map = self.ctx.ocr.run_ocr(part)
+            for ocr_word, mrl in ocr_result_map.items():
+                idx = str_utils.find_best_match_by_difflib(ocr_word, target_chosen_words)
+                if idx is None:
+                    continue
+
+                for mr in mrl:
+                    mr.add_offset(area.left_top)
+                    to_cancel_list.append(mr)
+
+        return result_list, to_cancel_list
 
 
 def __debug():
@@ -164,6 +196,22 @@ def __debug():
 
     op = LostVoidChooseCommon(ctx)
     op.execute()
+
+
+def __get_get_artifact_pos():
+    ctx = ZContext()
+    ctx.init_by_config()
+    ctx.ocr.init_model()
+    ctx.lost_void.init_before_run()
+
+    op = LostVoidChooseCommon(ctx)
+    from one_dragon.utils import debug_utils
+    screen = debug_utils.get_debug_image('choose_2')
+    art_list, chosen_list = op.get_artifact_pos(screen)
+    print(len(art_list), len(chosen_list))
+    cv2_utils.show_image(screen, chosen_list[0], wait=0)
+    import cv2
+    cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':
