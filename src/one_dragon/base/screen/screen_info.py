@@ -87,16 +87,23 @@ class ScreenInfo(YamlOperator):
             )
             self.area_list.append(area)
 
-    def get_image_to_show(self) -> MatLike:
+    def get_image_to_show(self, highlight_area_idx: Optional[int] = None) -> MatLike:
         """
         用于显示的图片
+        :param highlight_area_idx: 高亮区域索引
         :return:
         """
         if self.screen_image is None:
             return None
 
         image = self.screen_image.copy()
-        for area in self.area_list:
+        for idx, area in enumerate(self.area_list):
+            if highlight_area_idx is not None and idx == highlight_area_idx:
+                color = (0, 0, 255)
+                thickness = 4
+            else:
+                color = (255, 0, 0)
+                thickness = 2
             cv2.rectangle(image,
                           (area.rect.x1, area.rect.y1),
                           (area.rect.x2, area.rect.y2),

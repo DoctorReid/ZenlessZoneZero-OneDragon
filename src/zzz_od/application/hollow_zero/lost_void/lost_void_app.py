@@ -33,14 +33,17 @@ class LostVoidApp(ZApplication):
 
     @operation_node(name='初始化加载', is_start_node=True)
     def init_for_lost_void(self) -> OperationRoundResult:
+        if self.ctx.lost_void_record.is_finished_by_day():
+            return self.round_success(LostVoidApp.STATUS_ENOUGH_TIMES)
+
         try:
             # 这里会加载迷失之洞的数据 识别模型 和自动战斗配置
             self.ctx.lost_void.init_before_run()
         except Exception:
             return self.round_fail('初始化失败')
-        return self.round_success()
+        return self.round_success(LostVoidApp.STATUS_AGAIN)
 
-    @node_from(from_name='初始化加载')
+    @node_from(from_name='初始化加载', status=STATUS_AGAIN)
     @operation_node(name='识别初始画面')
     def check_initial_screen(self) -> OperationRoundResult:
         screen = self.screenshot()

@@ -22,7 +22,7 @@ class RedemptionCodeRunRecord(AppRunRecord):
 
         self.valid_code_list = [
             RedemptionCode('ZZZ888', '20480101'),  # 开服兑换码
-            RedemptionCode('ZZZREBORN1218', '20241207'),  # 1.4 前瞻
+            RedemptionCode('HAPPYNEWYEAR', '20250111'),  # 1.5 前瞻
             RedemptionCode('SHISHIRUYIZZZ2025', '20250205'),  # 1.4 版本回馈
             RedemptionCode('ZZZCLOUDBANGBANG', '20250205'),  # 1.4 新增，未知过期时间和来源
         ]

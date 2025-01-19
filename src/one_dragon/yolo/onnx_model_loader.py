@@ -8,7 +8,7 @@ from typing import Optional, List
 
 from one_dragon.yolo.log_utils import log
 
-_GH_PROXY_URL = 'https://ghgo.xyz'
+_GH_PROXY_URL = 'https://ghfast.top'
 
 
 class OnnxModelLoader:
@@ -75,7 +75,8 @@ class OnnxModelLoader:
 
         download_url = f'{self.model_download_url}/{self.model_name}.zip'
         if self.personal_proxy is not None and len(self.personal_proxy) > 0:
-            pass
+            os.environ['http_proxy'] = self.personal_proxy
+            os.environ['https_proxy'] = self.personal_proxy
         elif self.gh_proxy:
             download_url = f'{_GH_PROXY_URL}/{self.model_download_url}/{self.model_name}.zip'
         log.info('开始下载 %s %s', self.model_name, download_url)
