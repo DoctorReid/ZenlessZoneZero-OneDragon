@@ -23,7 +23,7 @@ class GotoMenu(ZOperation):
         if screen is None:
             screen = self.screenshot()
 
-        result = self.round_by_goto_screen(screen=screen, screen_name='大世界-普通', retry_wait=None)
+        result = self.round_by_goto_screen(screen=screen, screen_name='菜单', retry_wait=None)
         if result.is_success:
             return self.round_success(result.status)
 

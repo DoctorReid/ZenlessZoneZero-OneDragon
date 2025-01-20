@@ -21,6 +21,8 @@ class BackToNormalWorld(ZOperation):
         """
         ZOperation.__init__(self, ctx, op_name=gt('返回大世界', 'ui'))
 
+        self.last_dialog_idx: int = -1  # 上次选择的对话选项下标
+
     @operation_node(name='画面识别', is_start_node=True, node_max_retry_times=60)
     def check_screen_and_run(self, screen: Optional[MatLike] = None) -> OperationRoundResult:
         """
@@ -114,9 +116,16 @@ class BackToNormalWorld(ZOperation):
         part = cv2_utils.crop_image_only(screen, area.rect)
         ocr_result_map = self.ctx.ocr.run_ocr(part)
         if len(ocr_result_map) > 0:
+            self.last_dialog_idx = 1  # 每次都换一个选项 防止错误识别点击了不是选项的地方
+            if self.last_dialog_idx >= len(ocr_result_map):  # 下标过大 从0开始
+                self.last_dialog_idx = 0
+
+            current_idx = -1
             for ocr_result, mrl in ocr_result_map.items():
-                self.ctx.controller.click(mrl.max.center + area.left_top)
-                return self.round_wait(ocr_result, wait=1)
+                current_idx += 1
+                if current_idx == self.last_dialog_idx:
+                    self.ctx.controller.click(mrl.max.center + area.left_top)
+                    return self.round_wait(ocr_result, wait=1)
         else:
             self.round_by_click_area('菜单', '返回')
             return self.round_wait('对话无选项', wait=1)
