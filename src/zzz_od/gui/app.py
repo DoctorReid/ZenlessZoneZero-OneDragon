@@ -201,6 +201,11 @@ if __name__ == "__main__":
 
     _ctx = ZContext()
 
+    if _ctx.env_config.auto_update:
+        from one_dragon.utils.log_utils import log
+        log.info("开始自动更新...")
+        _ctx.git_service.fetch_latest_code()
+
     # 加载配置
     _ctx.init_by_config()
 
