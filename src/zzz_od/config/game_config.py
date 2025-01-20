@@ -37,6 +37,19 @@ class TypeInputWay(Enum):
     CLIPBOARD = ConfigItem('剪贴板', 'clipboard', desc='出现剪切板失败时 切换到输入法')
 
 
+class ScreenSizeEnum(Enum):
+
+    SIZE_1920_1080 = ConfigItem('1920x1080', '1920x1080')
+    SIZE_2560_1440 = ConfigItem('2560x1440', '2560x1440')
+    SIZE_3840_2160 = ConfigItem('3840x2160', '3840x2160')
+
+
+class FullScreenEnum(Enum):
+
+    WINDOWED = ConfigItem('窗口化', '0')
+    FULL_SCREEN = ConfigItem('全屏', '1')
+
+
 class GameConfig(YamlConfig):
 
     def __init__(self, instance_idx: int):
@@ -107,6 +120,38 @@ class GameConfig(YamlConfig):
     @game_region.setter
     def game_region(self, new_value: str) -> None:
         self.update('game_region', new_value)
+
+    @property
+    def launch_arguement(self) -> bool:
+        return self.get('launch_arguement', False)
+
+    @launch_arguement.setter
+    def launch_arguement(self, new_value: bool) -> None:
+        self.update('launch_arguement', new_value)
+
+    @property
+    def screen_size(self) -> str:
+        return self.get('screen_size', ScreenSizeEnum.SIZE_1920_1080.value.value)
+
+    @screen_size.setter
+    def screen_size(self, new_value: str) -> None:
+        self.update('screen_size', new_value)
+
+    @property
+    def full_screen(self) -> str:
+        return self.get('full_screen', FullScreenEnum.WINDOWED.value.value)
+
+    @full_screen.setter
+    def full_screen(self, new_value: str) -> None:
+        self.update('full_screen', new_value)
+
+    @property
+    def launch_arguement_advance(self) -> str:
+        return self.get('launch_arguement_advance', '')
+    
+    @launch_arguement_advance.setter
+    def launch_arguement_advance(self, new_value: str) -> None:
+        self.update('launch_arguement_advance', new_value)
 
     @property
     def game_refresh_hour_offset(self) -> int:

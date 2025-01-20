@@ -29,7 +29,15 @@ class OpenGame(Operation):
         # 获取文件夹路径
         dir_path = os.path.dirname(full_path)
         exe_name = os.path.basename(full_path)
-        command = f'cmd /c "start "" /D "{dir_path}" "{exe_name}" & exit"'
+        command = f'cmd /c "start "" "{dir_path}\{exe_name}"'
+        if self.ctx.game_config.launch_arguement == True:
+            screen_size = self.ctx.game_config.screen_size
+            screen_width = screen_size.split('x')[0]
+            screen_height = screen_size.split('x')[1]
+            full_screen = self.ctx.game_config.full_screen
+            arguement = f'{self.ctx.game_config.launch_arguement_advance} -screen-width {screen_width} -screen-height {screen_height} -screen-fullscreen {full_screen}'
+            command = f'{command} {arguement}'
+        command = f'{command} & exit"'
         log.info('命令行指令 %s', command)
         subprocess.Popen(command)
         return self.round_success(wait=5)
