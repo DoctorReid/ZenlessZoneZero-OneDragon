@@ -119,7 +119,7 @@ def __debug():
                                 backup_model_name=ctx.yolo_config.lost_void_det_backup)
 
     from one_dragon.utils import debug_utils
-    screen = debug_utils.get_debug_image('_1735358148114')
+    screen = debug_utils.get_debug_image('_1736869628156')
     frame_result = detector.run(screen)
 
     from one_dragon.yolo import detect_utils
