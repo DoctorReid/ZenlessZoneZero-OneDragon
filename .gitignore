@@ -4,6 +4,7 @@ dist/
 .idea/
 .vscode/
 __pycache__/
+deploy/
 
 # 子模块
 test/
