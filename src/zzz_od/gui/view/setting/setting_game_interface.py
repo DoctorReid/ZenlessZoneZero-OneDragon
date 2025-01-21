@@ -74,15 +74,12 @@ class SettingGameInterface(VerticalScrollInterface):
         launch_arguement_group = SettingCardGroup(gt('启动参数', 'ui'))
 
         self.launch_arguement_switch = SwitchSettingCard(icon=FluentIcon.SETTING, title='启用')
-        self.launch_arguement_switch.value_changed.connect(self._on_launch_arguement_switch_changed)
         launch_arguement_group.addSettingCard(self.launch_arguement_switch)
         
         self.screen_size_opt = ComboBoxSettingCard(icon=FluentIcon.SETTING, title='窗口尺寸', options_enum=ScreenSizeEnum)
-        self.screen_size_opt.value_changed.connect(self._on_screen_size_changed)
         launch_arguement_group.addSettingCard(self.screen_size_opt)
 
         self.full_screen_opt = ComboBoxSettingCard(icon=FluentIcon.SETTING, title='全屏', options_enum=FullScreenEnum)
-        self.full_screen_opt.value_changed.connect(self._on_full_screen_changed)
         launch_arguement_group.addSettingCard(self.full_screen_opt)
         
         self.launch_arguement_advance = TextSettingCard(
@@ -391,12 +388,3 @@ class SettingGameInterface(VerticalScrollInterface):
 
     def _on_gamepad_type_changed(self, idx: int, value: str) -> None:
         self._update_gamepad_part()
-
-    def _on_launch_arguement_switch_changed(self, value: bool) -> None:
-        self.ctx.game_config.launch_arguement = value
-    
-    def _on_screen_size_changed(self, index, value: str) -> None:
-        self.ctx.game_config.screen_size = value
-
-    def _on_full_screen_changed(self, index, value: str) -> None:
-        self.ctx.game_config.full_screen = value
