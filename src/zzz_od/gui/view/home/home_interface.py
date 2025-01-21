@@ -275,8 +275,8 @@ class HomeInterface(VerticalScrollInterface):
         self._check_venv_runner.start()
         self._check_model_runner.start()
 
-    def _need_to_update_code(self, is_latest: bool):
-        if not is_latest:
+    def _need_to_update_code(self, with_new: bool):
+        if not with_new:
             self._show_info_bar("代码已是最新版本", "Enjoy it & have fun!")
             return
         else :
