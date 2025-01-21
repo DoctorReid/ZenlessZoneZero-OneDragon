@@ -279,7 +279,7 @@ class SettingGameInterface(VerticalScrollInterface):
         self.launch_arguement_switch.init_with_adapter(self.ctx.game_config.get_prop_adapter('launch_arguement'))
         self.screen_size_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('screen_size'))
         self.full_screen_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('full_screen'))
-        self.monitor_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('monitor'))
+        # self.monitor_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('monitor'))
         self.launch_arguement_advance.init_with_adapter(self.ctx.game_config.get_prop_adapter('launch_arguement_advance'))
         if not self.ctx.game_config.launch_arguement:
             self._on_launch_arguement_switch_changed(False)
@@ -401,10 +401,10 @@ class SettingGameInterface(VerticalScrollInterface):
         if value:
             self.screen_size_opt.setVisible(True)
             self.full_screen_opt.setVisible(True)
-            self.monitor_opt.setVisible(True)
+            # self.monitor_opt.setVisible(True)
             self.launch_arguement_advance.setVisible(True)
         else:
             self.screen_size_opt.setVisible(False)
             self.full_screen_opt.setVisible(False)
-            self.monitor_opt.setVisible(False)
+            # self.monitor_opt.setVisible(False)
             self.launch_arguement_advance.setVisible(False)
