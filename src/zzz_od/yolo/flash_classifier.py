@@ -12,6 +12,7 @@ class FlashClassifier(Yolov8Classifier):
                  backup_model_name: str = 'yolov8n-640-dodge-0718',
                  model_parent_dir_path: Optional[str] = os.path.abspath(__file__),  # 默认使用本文件的目录
                  gh_proxy: bool = True,
+                 gh_proxy_url: Optional[str] = None,
                  personal_proxy: Optional[str] = None,
                  gpu: bool = False,
                  keep_result_seconds: float = 2
@@ -29,6 +30,7 @@ class FlashClassifier(Yolov8Classifier):
             model_parent_dir_path=model_parent_dir_path,
             model_download_url=ZZZ_MODEL_DOWNLOAD_URL,
             gh_proxy=gh_proxy,
+            gh_proxy_url=gh_proxy_url,
             personal_proxy=personal_proxy,
             gpu=gpu,
             keep_result_seconds=keep_result_seconds

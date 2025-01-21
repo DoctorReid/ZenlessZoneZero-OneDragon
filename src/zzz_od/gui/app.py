@@ -207,6 +207,9 @@ if __name__ == "__main__":
     # 异步加载OCR
     _ctx.async_init_ocr()
 
+    # 异步更新免费代理
+    _ctx.async_update_gh_proxy()
+
     # 设置主题
     setTheme(Theme[_ctx.env_config.theme.upper()])
 

@@ -4,7 +4,7 @@ import os
 import shutil
 from typing import Optional, Callable, List, Tuple
 
-from one_dragon.envs.env_config import GH_PROXY_URL, DEFAULT_ENV_PATH, DEFAULT_GIT_DIR_PATH, ProxyTypeEnum, EnvConfig, \
+from one_dragon.envs.env_config import DEFAULT_ENV_PATH, DEFAULT_GIT_DIR_PATH, ProxyTypeEnum, EnvConfig, \
     RepositoryTypeEnum, GitMethodEnum
 from one_dragon.envs.project_config import ProjectConfig
 from one_dragon.utils import http_utils, cmd_utils, file_utils, os_utils
@@ -42,10 +42,12 @@ class GitService:
         :return: 是否下载成功
         """
         download_url = f'{GITHUB_ENV_DOWNLOAD_PREFIX}/{self.project_config.project_name}/{file_name}'
-        proxy = self.env_config.proxy_address
-        if proxy == GH_PROXY_URL:
-            download_url = GH_PROXY_URL + download_url
-            proxy = None
+        proxy = None
+        if self.env_config.is_gh_proxy:
+            download_url = f'{self.env_config.gh_proxy_url}/{download_url}'
+        elif self.env_config.is_personal_proxy:
+            proxy = self.env_config.personal_proxy
+
         return http_utils.download_file(download_url, save_file_path,
                                         proxy=proxy, progress_callback=progress_callback)
 
@@ -92,7 +94,7 @@ class GitService:
                 success = self.download_env_file(zip_file_name, zip_file_path,
                                                  progress_callback=progress_callback)
                 if not success:
-                    return False, '下载PortableGit.zip失败'
+                    return False, '下载PortableGit.zip失败 请尝试到「脚本环境」更改网络代理'
 
             msg = f'开始解压 {zip_file_name}'
             log.info(msg)
@@ -346,8 +348,8 @@ class GitService:
         """
         if self.env_config.repository_type == RepositoryTypeEnum.GITHUB.value.value:
             if self.env_config.git_method == GitMethodEnum.HTTPS.value.value:
-                if self.env_config.is_ghproxy and for_clone:
-                    return GH_PROXY_URL + self.project_config.github_https_repository
+                if self.env_config.is_gh_proxy and for_clone:
+                    return f'{self.env_config.gh_proxy_url}/{self.project_config.github_https_repository}'
                 else:
                     return self.project_config.github_https_repository
             else:
@@ -370,10 +372,10 @@ class GitService:
         if not os.path.exists(DOT_GIT_DIR_PATH):  # 未有.git文件夹
             return
 
-        if self.env_config.proxy_type != ProxyTypeEnum.PERSONAL.value.value:  # 没有代理
+        if not self.env_config.is_personal_proxy:  # 没有代理
             cmd_utils.run_command([self.env_config.git_path, 'config', '--local', '--unset', 'http.proxy'])
         else:
-            proxy_address = self.env_config.proxy_address
+            proxy_address = self.env_config.personal_proxy
             cmd_utils.run_command([self.env_config.git_path, 'config', '--local', 'http.proxy', proxy_address])
         self.is_proxy_set = True
 

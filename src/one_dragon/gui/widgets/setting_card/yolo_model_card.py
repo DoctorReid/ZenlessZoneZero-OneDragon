@@ -12,8 +12,8 @@ from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from one_dragon.utils.yolo_config_utils import is_model_existed
 from one_dragon.yolo.onnx_model_loader import OnnxModelLoader
-
 from phosdeiz.gui.widgets import ComboBox
+
 
 class DownloadRunner(QThread):
     finished = Signal(bool, str)
@@ -27,18 +27,18 @@ class DownloadRunner(QThread):
         运行 最后发送结束信号
         :return:
         """
-        use_gh_proxy = self.card.ctx.env_config.is_ghproxy
         try:
             onnx = OnnxModelLoader(
                 model_name=self.card.getValue(),
                 model_download_url=self.card.model_download_url,
                 model_parent_dir_path=yolo_config_utils.get_model_category_dir(self.card.model_sub_dir),
-                gh_proxy=use_gh_proxy,
-                personal_proxy=None if use_gh_proxy else self.card.ctx.env_config.proxy_address
+                gh_proxy=self.card.ctx.env_config.is_gh_proxy,
+                gh_proxy_url=self.card.ctx.env_config.gh_proxy_url if self.card.ctx.env_config.is_gh_proxy else None,
+                personal_proxy=self.card.ctx.env_config.personal_proxy if self.card.ctx.env_config.is_personal_proxy else None,
             )
             self.finished.emit(True, '下载模型成功')
         except Exception:
-            self.finished.emit(False, '下载模型失败')
+            self.finished.emit(False, '下载模型失败 请尝试更换代理')
 
 
 class ModelDownloadSettingCard(MultiPushSettingCard):

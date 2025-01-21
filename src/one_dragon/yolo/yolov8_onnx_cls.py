@@ -55,6 +55,7 @@ class Yolov8Classifier(OnnxModelLoader):
                  model_parent_dir_path: str,  # 默认使用本文件的目录
                  model_download_url: str,
                  gh_proxy: bool = True,
+                 gh_proxy_url: Optional[str] = None,
                  personal_proxy: Optional[str] = None,
                  gpu: bool = False,
                  backup_model_name: Optional[str] = None,
@@ -72,6 +73,7 @@ class Yolov8Classifier(OnnxModelLoader):
             model_download_url=model_download_url,
             model_parent_dir_path=model_parent_dir_path,
             gh_proxy=gh_proxy,
+            gh_proxy_url=gh_proxy_url,
             personal_proxy=personal_proxy,
             gpu=gpu,
             backup_model_name=backup_model_name
