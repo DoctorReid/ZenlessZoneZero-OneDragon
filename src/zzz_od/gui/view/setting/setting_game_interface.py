@@ -13,7 +13,7 @@ from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInter
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from phosdeiz.gui.widgets import Column
-from zzz_od.config.game_config import GameRegionEnum, GamepadTypeEnum, TypeInputWay, ScreenSizeEnum, FullScreenEnum
+from zzz_od.config.game_config import GameRegionEnum, GamepadTypeEnum, TypeInputWay, ScreenSizeEnum, FullScreenEnum, MonitorEnum
 from zzz_od.context.zzz_context import ZContext
 
 
@@ -74,6 +74,7 @@ class SettingGameInterface(VerticalScrollInterface):
         launch_arguement_group = SettingCardGroup(gt('启动参数', 'ui'))
 
         self.launch_arguement_switch = SwitchSettingCard(icon=FluentIcon.SETTING, title='启用')
+        self.launch_arguement_switch.value_changed.connect(self._on_launch_arguement_switch_changed)
         launch_arguement_group.addSettingCard(self.launch_arguement_switch)
         
         self.screen_size_opt = ComboBoxSettingCard(icon=FluentIcon.SETTING, title='窗口尺寸', options_enum=ScreenSizeEnum)
@@ -81,7 +82,11 @@ class SettingGameInterface(VerticalScrollInterface):
 
         self.full_screen_opt = ComboBoxSettingCard(icon=FluentIcon.SETTING, title='全屏', options_enum=FullScreenEnum)
         launch_arguement_group.addSettingCard(self.full_screen_opt)
-        
+
+        # self.monitor_opt = ComboBoxSettingCard(icon=FluentIcon.SETTING, title='显示器序号', options_enum=MonitorEnum)
+        # launch_arguement_group.addSettingCard(self.monitor_opt)
+        # 显示器选项等待ocr适配后解锁
+
         self.launch_arguement_advance = TextSettingCard(
             icon=FluentIcon.SETTING,
             title='高级参数',
@@ -94,7 +99,7 @@ class SettingGameInterface(VerticalScrollInterface):
         # self.help_opt.setContent('先看说明 再使用与提问')
         # launch_arguement_group.addSettingCard(self.help_opt)
 
-        #这里可以补充文档后取消注释
+        # 这里可以补充文档后取消注释
 
         return launch_arguement_group
 
@@ -274,7 +279,10 @@ class SettingGameInterface(VerticalScrollInterface):
         self.launch_arguement_switch.init_with_adapter(self.ctx.game_config.get_prop_adapter('launch_arguement'))
         self.screen_size_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('screen_size'))
         self.full_screen_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('full_screen'))
+        self.monitor_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('monitor'))
         self.launch_arguement_advance.init_with_adapter(self.ctx.game_config.get_prop_adapter('launch_arguement_advance'))
+        if not self.ctx.game_config.launch_arguement:
+            self._on_launch_arguement_switch_changed(False)
 
         self.key_normal_attack_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('key_normal_attack'))
         self.key_dodge_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('key_dodge'))
@@ -388,3 +396,15 @@ class SettingGameInterface(VerticalScrollInterface):
 
     def _on_gamepad_type_changed(self, idx: int, value: str) -> None:
         self._update_gamepad_part()
+    
+    def _on_launch_arguement_switch_changed(self, value: bool) -> None:
+        if value:
+            self.screen_size_opt.setVisible(True)
+            self.full_screen_opt.setVisible(True)
+            self.monitor_opt.setVisible(True)
+            self.launch_arguement_advance.setVisible(True)
+        else:
+            self.screen_size_opt.setVisible(False)
+            self.full_screen_opt.setVisible(False)
+            self.monitor_opt.setVisible(False)
+            self.launch_arguement_advance.setVisible(False)

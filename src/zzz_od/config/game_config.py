@@ -49,6 +49,13 @@ class FullScreenEnum(Enum):
     WINDOWED = ConfigItem('窗口化', '0')
     FULL_SCREEN = ConfigItem('全屏', '1')
 
+class MonitorEnum(Enum):
+
+    MONITOR_1 = ConfigItem('1', '1')
+    MONITOR_2 = ConfigItem('2', '2')
+    MONITOR_3 = ConfigItem('3', '3')
+    MONITOR_4 = ConfigItem('4', '4')
+
 
 class GameConfig(YamlConfig):
 
@@ -144,6 +151,14 @@ class GameConfig(YamlConfig):
     @full_screen.setter
     def full_screen(self, new_value: str) -> None:
         self.update('full_screen', new_value)
+    
+    @property
+    def monitor(self) -> str:
+        return self.get('monitor', MonitorEnum.MONITOR_1.value.value)
+    
+    @monitor.setter
+    def monitor(self, new_value: str) -> None:
+        self.update('monitor', new_value)
 
     @property
     def launch_arguement_advance(self) -> str:
