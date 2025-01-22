@@ -43,6 +43,7 @@ config/yolo.yml
 .conda/
 .vscode/
 .venv/
+notice_cache/
 
 # 需自行下载的模型文件
 models/
