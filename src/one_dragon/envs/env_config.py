@@ -110,6 +110,22 @@ class EnvConfig(YamlConfig):
         self.update('theme', new_value)
 
     @property
+    def banner(self) -> bool:
+        """
+        自定义主页背景
+        :return:
+        """
+        return self.get('banner', False)
+    
+    @banner.setter
+    def banner(self, new_value: bool) -> None:
+        """
+        自定义主页背景
+        :return:
+        """
+        self.update('banner', new_value)
+
+    @property
     def proxy_type(self) -> str:
         """
         代理类型
