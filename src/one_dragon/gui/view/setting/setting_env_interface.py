@@ -1,6 +1,10 @@
+import os
+import shutil
+import hashlib
+
 from PySide6.QtGui import Qt
-from PySide6.QtWidgets import QWidget
-from qfluentwidgets import FluentIcon, SettingCardGroup, setTheme, Theme, VBoxLayout, PushButton, HyperlinkButton
+from PySide6.QtWidgets import QWidget, QFileDialog
+from qfluentwidgets import FluentIcon, SettingCardGroup, setTheme, Theme, VBoxLayout, PrimaryPushButton, HyperlinkButton, PasswordLineEdit, MessageBox
 
 from one_dragon.base.config.config_item import get_config_item_from_enum
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
@@ -10,6 +14,7 @@ from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxS
 from one_dragon.gui.widgets.setting_card.key_setting_card import KeySettingCard
 from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
+from one_dragon.utils import os_utils
 from one_dragon.utils.i18_utils import gt
 
 
@@ -46,6 +51,19 @@ class SettingEnvInterface(VerticalScrollInterface):
         )
         self.theme_opt.value_changed.connect(self._on_theme_changed)
         basic_group.addSettingCard(self.theme_opt)
+
+        self.banner_opt = SwitchSettingCard(icon=FluentIcon.PHOTO, title='自定义主页背景', content='设置后重启脚本生效')
+        self.banner_opt.value_changed.connect(self._on_banner_changed)
+        self.banner_select_btn = PrimaryPushButton(FluentIcon.EDIT, '选择', self)
+        self.banner_select_btn.clicked.connect(self._on_banner_select_clicked)
+        self.banner_opt.hBoxLayout.addWidget(self.banner_select_btn, 0, Qt.AlignmentFlag.AlignRight)
+        self.banner_password = PasswordLineEdit()
+        self.banner_password.setPlaceholderText('使用此功能需要密码哦~')
+        self.banner_password.setMinimumWidth(210)
+        self.banner_opt.hBoxLayout.insertWidget(4, self.banner_password, 0, Qt.AlignmentFlag.AlignRight)
+        self.banner_opt.hBoxLayout.addSpacing(16)
+        
+        basic_group.addSettingCard(self.banner_opt)
 
         self.debug_opt = SwitchSettingCard(
             icon=FluentIcon.SEARCH, title='调试模式', content='正常无需开启'
@@ -114,7 +132,7 @@ class SettingEnvInterface(VerticalScrollInterface):
         self.auto_fetch_gh_proxy_url_opt = SwitchSettingCard(
             icon=FluentIcon.SYNC, title='自动获取免费代理地址', content='获取失败时 可前往 https://ghproxy.link/ 查看自行更新'
         )
-        self.fetch_gh_proxy_url_btn = PushButton('获取', self)
+        self.fetch_gh_proxy_url_btn = PrimaryPushButton(FluentIcon.SYNC, '获取', self)
         self.fetch_gh_proxy_url_btn.clicked.connect(self.on_fetch_gh_proxy_url_clicked)
         self.auto_fetch_gh_proxy_url_opt.hBoxLayout.addWidget(self.fetch_gh_proxy_url_btn, 0, Qt.AlignmentFlag.AlignRight)
         self.auto_fetch_gh_proxy_url_opt.hBoxLayout.addSpacing(16)
@@ -165,6 +183,10 @@ class SettingEnvInterface(VerticalScrollInterface):
         theme = get_config_item_from_enum(ThemeEnum, self.ctx.env_config.theme)
         if theme is not None:
             self.theme_opt.setValue(theme.value)
+        
+        self.banner_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('banner'))
+        if not self.ctx.env_config.banner:
+            self.banner_select_btn.setEnabled(False)
 
         self.debug_opt.setValue(self.ctx.env_config.is_debug)
 
@@ -204,6 +226,32 @@ class SettingEnvInterface(VerticalScrollInterface):
         config_item = get_config_item_from_enum(ThemeEnum, value)
         self.ctx.env_config.theme = config_item.value
         setTheme(Theme[config_item.value.upper()],lazy=True)
+
+    def _on_banner_changed(self, value: bool) -> None:
+        if value:
+            correct_password_hash = 'd7103a21d03b8b922c3af3d477a0adde1633053cde1a7574e8009293ca3b70f1'
+            def _hash_password(password: str) -> str:
+                return hashlib.sha256(password.encode()).hexdigest()
+            if _hash_password(self.banner_password.text()) != correct_password_hash:
+                MessageBox('嘻嘻~', '密码不对哦~', self).exec()
+                self.banner_opt.setValue(False)
+                self.banner_select_btn.setEnabled(False)
+            else:
+                self.banner_select_btn.setEnabled(True)
+        else:
+            self.banner_select_btn.setEnabled(False)
+
+    def _on_banner_select_clicked(self) -> None:
+        """
+        选择背景图片并复制
+        """
+        default_path = os_utils.get_path_under_work_dir('assets', 'ui')
+        file_path, _ = QFileDialog.getOpenFileName(self, gt('选择你的背景图片'), default_path, filter="Images (*.png *.jpg *.jpeg *.webp *.bmp)")
+        if file_path is not None and file_path != '':
+            banner_path = os.path.join(
+            os_utils.get_path_under_work_dir('assets', 'ui'),
+            'custom')
+            shutil.copyfile(file_path, banner_path)
 
     def _on_debug_changed(self, value: bool):
         """
