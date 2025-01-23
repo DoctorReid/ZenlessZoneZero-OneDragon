@@ -9,7 +9,6 @@ handlers:
       - states: "[自定义-红光闪避, 0, 1]"
         operations:
           - operation_template: "通用-闪A"
-          
 
       - states: "[自定义-连携换人,0,1]"
         operations:
@@ -24,23 +23,44 @@ handlers:
       #失衡时刻
       - states: "[自定义-连携换人,0,14]"
         sub_handlers:
-          - states: "[自定义-连携换人,0,3] & [自定义-连携跳过,0,2]" #清空掉异常打出的电壶
+          - states: "[自定义-连携换人,0,3] | [自定义-连携跳过,0,2]" #清空掉异常打出的电壶
             operations:
-              - op_name: "等待秒数"
-                seconds: 0.3
-              - operation_template: "悠真-射箭四刀" #清空电壶
-          - states: "[自定义-连携换人,0,3]" #清空掉异常打出的电壶
-            operations:
-              - operation_template: "悠真-射箭四刀" #清空电壶
+              - operation_template: "悠真-闪A三刀" #清空上一轮电壶
+              - operation_template: "悠真-射箭四刀" #清空连携电壶
+
           - states: "[自定义-连携换人,3,12]"
             sub_handlers:
+              #妮可来一发谢谢
+              - states: "( [妮可-特殊技可用] | [妮可-终结技可用] ) & [悠真-特殊技可用] &![自定义-妮可-能量场,-15,3.5]"
+                operations:
+                  - op_name: "按键-特殊攻击"
+                    post_delay: 0.1
+                    repeat: 10
+                  - op_name: "按键-切换角色"
+                    agent_name: "妮可"
+
+              #从妮可那回来了
+              - states: "[自定义-快速支援换人,0,2]"
+                sub_handlers:
+                  - states: "[悠真-终结技可用]"
+                    operations:
+                      - op_name: "等待秒数"
+                        seconds: 0.3
+                      - operation_template: "悠真-终结技"
+                      - operation_template: "悠真-射箭四刀" #清空连携电壶
+                  - states: ""
+                    operations:
+                      - op_name: "等待秒数"
+                        seconds: 0.3
+                      - operation_template: "悠真-闪A四刀"
+
               - states: "[悠真-终结技可用]"
                 sub_handlers:
                   - states: "[悠真-特殊技可用]"
                     operations:
                       - operation_template: "悠真-强化特殊攻击"
                       - operation_template: "悠真-终结技"
-                      - operation_template: "悠真-闪A四刀"
+                      - operation_template: "悠真-射箭四刀" #清空连携电壶
                   - states: ""
                     operations:
                       - operation_template: "悠真-终结技"
@@ -50,7 +70,7 @@ handlers:
               #没能量了再打打
               - states: ""
                 operations:
-                  - operation_template: "悠真-闪A三刀"
+                  - operation_template: "悠真-普通攻击"
           #连携结束，离场
           - states: "[自定义-连携换人,12,14]"
             operations:
