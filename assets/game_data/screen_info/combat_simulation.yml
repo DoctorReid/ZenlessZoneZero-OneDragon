@@ -33,10 +33,10 @@ area_list:
 - area_name: 剩余电量
   id_mark: false
   pc_rect:
-  - 1475
-  - 1042
-  - 1525
-  - 1020
+  - 1445
+  - 1000
+  - 1495
+  - 1055
   text: ''
   lcs_percent: 0.5
   template_sub_dir: ''
@@ -47,10 +47,10 @@ area_list:
 - area_name: 需要电量
   id_mark: false
   pc_rect:
-  - 1535
-  - 1042
-  - 1570
-  - 1020
+  - 1508
+  - 1000
+  - 1552
+  - 1055
   text: ''
   lcs_percent: 0.5
   template_sub_dir: ''
@@ -62,9 +62,9 @@ area_list:
   id_mark: false
   pc_rect:
   - 1590
-  - 984
+  - 1000
   - 1850
-  - 1080
+  - 1055
   text: 下一步
   lcs_percent: 0.5
   template_sub_dir: ''

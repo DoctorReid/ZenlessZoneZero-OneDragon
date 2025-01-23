@@ -31,7 +31,9 @@ class CombatSimulation(ZOperation):
     STATUS_CHARGE_NOT_ENOUGH: ClassVar[str] = '电量不足'
     STATUS_CHARGE_ENOUGH: ClassVar[str] = '电量充足'
 
-    def __init__(self, ctx: ZContext, plan: ChargePlanItem):
+    def __init__(self, ctx: ZContext, plan: ChargePlanItem,
+                 can_run_times: Optional[int] = None,
+                 need_check_power: bool = False):
         """
         使用快捷手册传送后
         用这个进行挑战
@@ -46,6 +48,8 @@ class CombatSimulation(ZOperation):
         )
 
         self.plan: ChargePlanItem = plan
+        self.need_check_power: bool = need_check_power
+        self.can_run_times: int = can_run_times
         self.charge_left: Optional[int] = None
         self.charge_need: Optional[int] = None
 
@@ -166,6 +170,12 @@ class CombatSimulation(ZOperation):
     @node_from(from_name='选择数量')
     @operation_node(name='识别电量')
     def check_charge(self) -> OperationRoundResult:
+        if not self.need_check_power:
+            if self.can_run_times > 0:
+                return self.round_success(CombatSimulation.STATUS_CHARGE_ENOUGH)
+            else:
+                return self.round_success(CombatSimulation.STATUS_CHARGE_NOT_ENOUGH)
+
         screen = self.screenshot()
 
         area = self.ctx.screen_loader.get_area('实战模拟室', '剩余电量')

@@ -28,6 +28,8 @@ class ExpertChallenge(ZOperation):
     STATUS_CHARGE_ENOUGH: ClassVar[str] = '电量充足'
 
     def __init__(self, ctx: ZContext, plan: ChargePlanItem,
+                 can_run_times: Optional[int] = None,
+                 need_check_power: bool = False
                  ):
         """
         使用快捷手册传送后
@@ -43,6 +45,8 @@ class ExpertChallenge(ZOperation):
         )
 
         self.plan: ChargePlanItem = plan
+        self.need_check_power: bool = need_check_power
+        self.can_run_times: int = can_run_times
         self.charge_left: Optional[int] = None
         self.charge_need: Optional[int] = None
 
@@ -59,6 +63,11 @@ class ExpertChallenge(ZOperation):
     @node_from(from_name='等待入口加载')
     @operation_node(name='识别电量')
     def check_charge(self) -> OperationRoundResult:
+        if not self.need_check_power:
+            if self.can_run_times > 0:
+                return self.round_success(ExpertChallenge.STATUS_CHARGE_ENOUGH)
+            else:
+                return self.round_success(ExpertChallenge.STATUS_CHARGE_NOT_ENOUGH)
         screen = self.screenshot()
 
         area = self.ctx.screen_loader.get_area('专业挑战室', '剩余电量')
