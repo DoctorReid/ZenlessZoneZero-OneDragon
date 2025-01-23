@@ -19,7 +19,8 @@ class Yolov8Detector(OnnxModelLoader):
                  model_parent_dir_path: str,
                  model_download_url: str,
                  gh_proxy: bool = True,
-                 personal_proxy: Optional[str] = '',
+                 gh_proxy_url: Optional[str] = None,
+                 personal_proxy: Optional[str] = None,
                  gpu: bool = False,
                  backup_model_name: Optional[str] = None,
                  keep_result_seconds: float = 2
@@ -39,6 +40,7 @@ class Yolov8Detector(OnnxModelLoader):
             model_parent_dir_path=model_parent_dir_path,
             model_download_url=model_download_url,
             gh_proxy=gh_proxy,
+            gh_proxy_url=gh_proxy_url,
             personal_proxy=personal_proxy,
             gpu=gpu,
             backup_model_name=backup_model_name

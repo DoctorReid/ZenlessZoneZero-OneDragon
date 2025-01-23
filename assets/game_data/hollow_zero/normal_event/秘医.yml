@@ -27,4 +27,13 @@
     - option_name: "获取大量受侵蚀的补给品"
       desc: "获得3个浓缩医疗，压力值+50"
 
+    - option_name: "全部催化"
+      desc: "消耗10个浓缩医疗，催化所有鸣徽"
+
+    - option_name: "大量催化"
+      desc: "消耗2个浓缩医疗，催化3枚鸣徽"
+
+    - option_name: "少量催化"
+      desc: "催化1枚鸣徽"
+
     - option_name: "跳过"

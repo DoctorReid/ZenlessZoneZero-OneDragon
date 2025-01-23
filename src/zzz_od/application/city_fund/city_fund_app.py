@@ -5,7 +5,7 @@ from one_dragon.utils.i18_utils import gt
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.back_to_normal_world import BackToNormalWorld
-from zzz_od.operation.open_menu import OpenMenu
+from zzz_od.operation.goto.goto_menu import GotoMenu
 
 
 class CityFundApp(ZApplication):
@@ -18,16 +18,9 @@ class CityFundApp(ZApplication):
             run_record=ctx.city_fund_record
         )
 
-    def handle_init(self) -> None:
-        """
-        执行前的初始化 由子类实现
-        注意初始化要全面 方便一个指令重复使用
-        """
-        pass
-
     @operation_node(name='打开菜单', is_start_node=True)
     def open_menu(self) -> OperationRoundResult:
-        op = OpenMenu(self.ctx)
+        op = GotoMenu(self.ctx)
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='打开菜单')
@@ -46,6 +39,10 @@ class CityFundApp(ZApplication):
         result = self.round_by_find_and_click_area(screen, '丽都城募', '开启丽都城募')
         if result.is_success:
             return self.round_wait(status=result.status, wait=1)
+
+        result = self.round_by_find_and_click_area(screen, '丽都城募', '按钮-已关闭-确认')
+        if result.is_success:
+            return self.round_success(status=result.status, wait=1)
 
         return self.round_by_find_and_click_area(screen, '丽都城募', '成长任务',
                                                  success_wait=1, retry_wait=1)
@@ -71,6 +68,7 @@ class CityFundApp(ZApplication):
         return self.round_by_find_and_click_area(screen, '丽都城募', '等级-全部领取',
                                                  success_wait=1, retry_wait=1)
 
+    @node_from(from_name='点击成长任务', status='按钮-已关闭-确认')
     @node_from(from_name='等级全部领取')
     @node_from(from_name='等级全部领取', success=False)
     @operation_node(name='返回大世界')

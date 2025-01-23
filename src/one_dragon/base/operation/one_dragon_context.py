@@ -1,5 +1,4 @@
 import time
-from concurrent.futures import ThreadPoolExecutor
 
 import logging
 from enum import Enum
@@ -14,15 +13,13 @@ from one_dragon.base.matcher.ocr.ocr_matcher import OcrMatcher
 from one_dragon.base.matcher.ocr.onnx_ocr_matcher import OnnxOcrMatcher
 from one_dragon.base.matcher.template_matcher import TemplateMatcher
 from one_dragon.base.operation.context_event_bus import ContextEventBus
-from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
+from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext, ONE_DRAGON_CONTEXT_EXECUTOR
 from one_dragon.base.screen.screen_loader import ScreenContext
 from one_dragon.base.screen.template_loader import TemplateLoader
 from one_dragon.utils import debug_utils, log_utils
 from one_dragon.utils import thread_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
-
-_one_dragon_context_executor = ThreadPoolExecutor(thread_name_prefix='one_dragon_context', max_workers=1)
 
 
 class ContextRunStateEnum(Enum):
@@ -214,7 +211,7 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
         异步初始化OCR
         :return:
         """
-        f = _one_dragon_context_executor.submit(self.ocr.init_model)
+        f = ONE_DRAGON_CONTEXT_EXECUTOR.submit(self.ocr.init_model)
         f.add_done_callback(thread_utils.handle_future_result)
 
 

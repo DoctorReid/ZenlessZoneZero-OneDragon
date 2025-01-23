@@ -33,6 +33,8 @@ class ZInstallerWindow(InstallerWindowBase):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     _ctx = OneDragonEnvContext()
+    # 异步更新免费代理
+    _ctx.async_update_gh_proxy()
     setTheme(Theme[_ctx.env_config.theme.upper()])
     w = ZInstallerWindow(_ctx, gt(f'{_ctx.project_config.project_name}-installer', 'ui'))
     w.show()

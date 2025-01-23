@@ -27,7 +27,7 @@ class LostVoidRunInterface(AppRunInterface):
             self,
             ctx=ctx,
             object_name='lost_void_run_interface',
-            nav_text_cn='迷失之地(测试)',
+            nav_text_cn='迷失之地',
             parent=parent,
         )
 

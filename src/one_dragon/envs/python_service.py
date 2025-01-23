@@ -211,10 +211,10 @@ class PythonService:
             shutil.rmtree(DEFAULT_VENV_DIR_PATH)
 
         if not self.install_default_python(progress_callback):
-            return False, '安装Python失败'
+            return False, '安装Python失败 请尝试到「脚本环境」更改网络代理'
         self.env_config.python_path = DEFAULT_PYTHON_PATH
         if not self.install_default_pip(progress_callback):
-            return False, '安装pip失败'
+            return False, '安装pip失败 请尝试到「脚本环境」更改网络代理'
         if not self.install_default_virtualenv(progress_callback):
             return False, '安装virtualenv失败'
         if not self.create_default_venv(progress_callback):

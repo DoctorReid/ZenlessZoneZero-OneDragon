@@ -19,10 +19,10 @@ area_list:
 - area_name: 按钮-出战
   id_mark: false
   pc_rect:
-  - 1634
-  - 1004
-  - 1826
-  - 1058
+  - 1570
+  - 982
+  - 1820
+  - 1044
   text: 出战
   lcs_percent: 0.5
   template_sub_dir: ''

@@ -153,9 +153,10 @@ class CheckRunnerBase(QThread):
 class CheckCodeRunner(CheckRunnerBase):
     def run(self):
         is_latest, msg = self.ctx.git_service.is_current_branch_latest()
-        if msg not in ["与远程分支不一致", "获取远程代码失败"]:
+        if msg in ["与远程分支不一致"]:
+            self.need_update.emit(True)
+        if msg not in ["获取远程代码失败"]:
             self.need_update.emit(not is_latest)
-
 
 class CheckVenvRunner(CheckRunnerBase):
     def run(self):
@@ -276,8 +277,10 @@ class HomeInterface(VerticalScrollInterface):
 
     def _need_to_update_code(self, with_new: bool):
         if not with_new:
+            self._show_info_bar("代码已是最新版本", "Enjoy it & have fun!")
             return
-        self._show_info_bar("有新版本啦", "到代码同步里更新吧~")
+        else :
+            self._show_info_bar("有新版本啦", "稍安勿躁~")
         if self.ctx.env_config.auto_update:
             result, msg = self.ctx.git_service.fetch_latest_code()
             if result:

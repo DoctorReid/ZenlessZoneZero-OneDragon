@@ -1,10 +1,8 @@
 import os
 from enum import Enum
-from typing import Optional
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
-from one_dragon.gui.widgets.setting_card.yaml_config_adapter import YamlConfigAdapter
 from one_dragon.utils import os_utils
 
 DEFAULT_ENV_PATH = os_utils.get_path_under_work_dir('.env')
@@ -16,7 +14,7 @@ DEFAULT_VENV_DIR_PATH = os.path.join(DEFAULT_ENV_PATH, 'venv')  # 默认的虚�
 DEFAULT_VENV_PYTHON_PATH = os.path.join(DEFAULT_VENV_DIR_PATH, 'scripts', 'python.exe')  # 默认的虚拟环境中python.exe的路径
 DEFAULT_PYTHON_PTH_PATH = os.path.join(DEFAULT_PYTHON_DIR_PATH, 'python311._pth')  # 默认安装的python配置文件路径
 
-GH_PROXY_URL = 'https://ghfast.top/'  # 免费代理的路径
+GH_PROXY_URL = 'https://ghfast.top'  # 免费代理的路径
 
 class ProxyTypeEnum(Enum):
 
@@ -128,7 +126,11 @@ class EnvConfig(YamlConfig):
         self.update('proxy_type', new_value)
 
     @property
-    def is_ghproxy(self) -> bool:
+    def is_personal_proxy(self) -> bool:
+        return self.proxy_type == ProxyTypeEnum.PERSONAL.value.value
+
+    @property
+    def is_gh_proxy(self) -> bool:
         return self.proxy_type == ProxyTypeEnum.GHPROXY.value.value
 
     @property
@@ -146,21 +148,6 @@ class EnvConfig(YamlConfig):
         :return:
         """
         self.update('personal_proxy', new_value)
-
-    @property
-    def proxy_address(self) -> Optional[str]:
-        """
-        :return: 真正使用的代理地址
-        """
-        proxy_type = self.proxy_type
-        if proxy_type == ProxyTypeEnum.NONE.value.value:
-            return None
-        elif proxy_type == ProxyTypeEnum.GHPROXY.value.value:
-            return GH_PROXY_URL
-        elif proxy_type == ProxyTypeEnum.PERSONAL.value.value:
-            proxy = self.personal_proxy
-            return None if proxy == '' else proxy
-        return None
 
     @property
     def requirement_time(self) -> str:
@@ -228,7 +215,7 @@ class EnvConfig(YamlConfig):
         自动更新
         :return:
         """
-        return self.get('auto_update', False)
+        return self.get('auto_update', True)
 
     @auto_update.setter
     def auto_update(self, new_value: bool) -> None:
@@ -251,9 +238,32 @@ class EnvConfig(YamlConfig):
         self.update('pip_source', new_value)
 
     @property
-    def pip_source_adapter(self) -> YamlConfigAdapter:
-        return YamlConfigAdapter(self, 'pip_source', PipSourceEnum.TSING_HUA.value.value,
-                                 'str', 'str')
+    def gh_proxy_url(self) -> str:
+        """
+        免费代理的url
+        :return:
+        """
+        return self.get('gh_proxy_url', GH_PROXY_URL)
+
+    @gh_proxy_url.setter
+    def gh_proxy_url(self, new_value: str) -> None:
+        """
+        免费代理的url
+        :return:
+        """
+        self.update('gh_proxy_url', new_value)
+
+    @property
+    def auto_fetch_gh_proxy_url(self) -> bool:
+        """
+        自动获取免费代理的url
+        :return:
+        """
+        return self.get('auto_fetch_gh_proxy_url', True)
+
+    @auto_fetch_gh_proxy_url.setter
+    def auto_fetch_gh_proxy_url(self, new_value: bool) -> None:
+        self.update('auto_fetch_gh_proxy_url', new_value)
 
     def write_env_bat(self) -> None:
         """

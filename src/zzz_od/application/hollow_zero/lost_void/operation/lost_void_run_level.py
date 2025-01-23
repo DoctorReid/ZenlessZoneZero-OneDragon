@@ -90,11 +90,16 @@ class LostVoidRunLevel(ZOperation):
         if self.in_normal_world(screen):
             return self.round_success('大世界')
 
-        # 在精英怪后后 点击完挑战结果后 加载挚友会谈前 可能会弹出奖励 因此在加载这里判断是否有奖励需要选择
-        screen_name = self.check_and_update_current_screen(screen)
-        if screen_name in ['迷失之地-武备选择', '迷失之地-通用选择']:
+        # 1. 在精英怪后 点击完挑战结果后 加载挚友会谈前 可能会弹出奖励
+        # 2. 有战略可以导致进入新一层时获取战利品
+        # 因此在加载这里判断是否有奖励需要选择
+        possible_screen_name_list = [
+            '迷失之地-武备选择', '迷失之地-通用选择', '迷失之地-无详情选择', '迷失之地-无数量选择'
+        ]
+        screen_name = self.check_and_update_current_screen(screen, screen_name_list=possible_screen_name_list)
+        if screen_name is not None:
             self.target_interact_type = LostVoidDetector.CLASS_INTERACT
-            return self.round_success(screen_name)
+            return self.round_success('识别正在交互')
 
         # 挑战-限时 挑战-无伤都是这个 都是需要战斗
         result = self.round_by_find_and_click_area(screen, '迷失之地-大世界', '按钮-挑战-确认')
@@ -266,8 +271,7 @@ class LostVoidRunLevel(ZOperation):
 
         return self.round_retry('未发现交互按键')
 
-    @node_from(from_name='等待加载', status='迷失之地-武备选择')
-    @node_from(from_name='等待加载', status='迷失之地-通用选择')
+    @node_from(from_name='等待加载', status='识别正在交互')
     @node_from(from_name='尝试交互', status='交互成功')
     @node_from(from_name='战斗中', status='识别正在交互')
     @node_from(from_name='交互后处理', status='迷失之地-通用选择')

@@ -64,12 +64,12 @@ class LostVoidContext:
     def init_lost_void_det_model(self):
         use_gpu = self.ctx.yolo_config.lost_void_det_gpu
         if self.detector is None or self.detector.gpu != use_gpu:
-            use_gh_proxy = self.ctx.env_config.is_ghproxy
             self.detector = LostVoidDetector(
                 model_name=self.ctx.yolo_config.lost_void_det,
                 backup_model_name=self.ctx.yolo_config.lost_void_det_backup,
-                gh_proxy=use_gh_proxy,
-                personal_proxy=None if use_gh_proxy else self.ctx.env_config.personal_proxy,
+                gh_proxy=self.ctx.env_config.is_gh_proxy,
+                gh_proxy_url=self.ctx.env_config.gh_proxy_url if self.ctx.env_config.is_gh_proxy else None,
+                personal_proxy=self.ctx.env_config.personal_proxy if self.ctx.env_config.is_personal_proxy else None,
                 gpu=use_gpu
             )
 

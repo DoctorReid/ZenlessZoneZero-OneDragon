@@ -155,13 +155,13 @@ class AutoBattleDodgeContext:
         self.auto_op = auto_op
 
         if self._flash_model is None or self._flash_model.gpu != use_gpu:
-            use_gh_proxy = self.ctx.env_config.is_ghproxy
             self._flash_model = FlashClassifier(
                 model_name=self.ctx.yolo_config.flash_classifier,
                 backup_model_name=self.ctx.yolo_config.flash_classifier_backup,
                 model_parent_dir_path=yolo_config_utils.get_model_category_dir('flash_classifier'),
-                gh_proxy=use_gh_proxy,
-                personal_proxy=None if use_gh_proxy else self.ctx.env_config.personal_proxy,
+                gh_proxy=self.ctx.env_config.is_gh_proxy,
+                gh_proxy_url=self.ctx.env_config.gh_proxy_url if self.ctx.env_config.is_gh_proxy else None,
+                personal_proxy=self.ctx.env_config.personal_proxy if self.ctx.env_config.is_personal_proxy else None,
                 gpu=use_gpu
             )
 
