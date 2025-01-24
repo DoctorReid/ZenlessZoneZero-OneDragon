@@ -158,18 +158,26 @@ class LostVoidContext:
         name_full_str = name_full_str.replace('【', '')
         name_full_str = name_full_str.replace('】', '')
 
-        for cate, art_list in self.cate_2_artifact.items():
+        to_sort_list = []
+
+        # 取出与分类名称长度一致的前缀 用LCS来判断对应的cate分类
+        for cate in self.cate_2_artifact.keys():
             cate_name = gt(cate)
 
             if cate not in ['卡牌', '无详情']:
                 if len(name_full_str) < len(cate_name):
                     continue
-                # 取出与分类名称长度一致的前缀 用来判断是否符合分类
+
                 prefix = name_full_str[:len(cate_name)]
+                to_sort_list.append((cate, str_utils.longest_common_subsequence_length(prefix, cate_name)))
 
-                if not str_utils.find_by_lcs(cate_name, prefix, percent=0.5):
-                    continue
+        # cate分类使用LCS排序
+        to_sort_list.sort(key=lambda x: x[1], reverse=True)
+        sorted_cate_list = [x[0] for x in to_sort_list] + ['卡牌', '无详情']
 
+        # 按排序后的cate去匹配对应的藏品
+        for cate in sorted_cate_list:
+            art_list = self.cate_2_artifact[cate]
             # 符合分类的情况下 判断后缀和藏品名字是否一致
             for art in art_list:
                 art_name = gt(art.name)
@@ -266,36 +274,41 @@ class LostVoidContext:
         priority_idx_list: List[int] = []  # 优先级排序的下标
 
         # 按优先级顺序 将匹配的藏品下标加入
-        for priority_list in priority_list_to_consider:
-            for priority in priority_list:
-                split_idx = priority.find(' ')
-                if split_idx != -1:
-                    cate_name = priority[:split_idx]
-                    item_name = priority[split_idx+1:]
-                else:
-                    cate_name = priority
-                    item_name = ''
+        # 同时 优先考虑等级高的
+        for target_level in ['S', 'A', 'B']:
+            for priority_list in priority_list_to_consider:
+                for priority in priority_list:
+                    split_idx = priority.find(' ')
+                    if split_idx != -1:
+                        cate_name = priority[:split_idx]
+                        item_name = priority[split_idx+1:]
+                    else:
+                        cate_name = priority
+                        item_name = ''
 
-                for idx in range(len(artifact_list)):
-                    if idx in priority_idx_list:  # 已经加入过了
-                        continue
+                    for idx in range(len(artifact_list)):
+                        artifact: LostVoidArtifact = artifact_list[idx].data
 
-                    artifact: LostVoidArtifact = artifact_list[idx].data
+                        if artifact.level != target_level:
+                            continue
 
-                    if artifact.category != cate_name:
-                        continue
+                        if idx in priority_idx_list:  # 已经加入过了
+                            continue
 
-                    if item_name == '':
-                        priority_idx_list.append(idx)
-                        continue
+                        if artifact.category != cate_name:  # 不符合分类
+                            continue
 
-                    if item_name in ['S', 'A', 'B']:
-                        if artifact.level == item_name:
+                        if item_name == '':
                             priority_idx_list.append(idx)
-                        continue
+                            continue
 
-                    if item_name == artifact.name:
-                        priority_idx_list.append(idx)
+                        if item_name in ['S', 'A', 'B']:
+                            if artifact.level == item_name:
+                                priority_idx_list.append(idx)
+                            continue
+
+                        if item_name == artifact.name:
+                            priority_idx_list.append(idx)
 
         # 将剩余的 按等级加入
         if consider_not_in_priority:
