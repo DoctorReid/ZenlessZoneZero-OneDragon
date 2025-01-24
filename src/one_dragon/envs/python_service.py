@@ -1,10 +1,13 @@
 import os.path
+import time
 
+import re
 import shutil
+import urllib.parse
 from typing import Optional, Callable, Tuple
 
 from one_dragon.envs.env_config import DEFAULT_ENV_PATH, DEFAULT_PYTHON_DIR_PATH, EnvConfig, \
-    DEFAULT_VENV_DIR_PATH, DEFAULT_VENV_PYTHON_PATH, DEFAULT_PYTHON_PATH
+    DEFAULT_VENV_DIR_PATH, DEFAULT_VENV_PYTHON_PATH, DEFAULT_PYTHON_PATH, PipSourceEnum
 from one_dragon.envs.git_service import GitService
 from one_dragon.envs.project_config import ProjectConfig
 from one_dragon.utils import file_utils, cmd_utils, os_utils
@@ -91,6 +94,7 @@ class PythonService:
 
             if progress_callback:
                 progress_callback(-1, '正在安装pip')
+            self.choose_best_pip_source(progress_callback)
             result = cmd_utils.run_command([python_path, py_file_path, '--index-url', self.env_config.pip_source])
             success = result is not None
             msg = '安装pip成功' if success else '安装pip失败 准备重试'
@@ -260,3 +264,43 @@ class PythonService:
             return version[4: version.find('from') - 1]
         else:
             return None
+
+    def choose_best_pip_source(self, progress_callback: Optional[Callable[[float, str], None]] = None) -> None:
+        """
+        对pip源进行测速 并选择最佳一个
+        :return:
+        """
+        display_log = '开始pip源测速'
+        log.info(display_log)
+        if progress_callback is not None:
+            progress_callback(-1, display_log)
+        ping_result_list = []
+        for source_enum in PipSourceEnum:
+            source = source_enum.value
+            source_url = source.value
+            parsed_url = urllib.parse.urlparse(source_url)
+            domain = parsed_url.netloc
+            start_time = time.time()
+            result = cmd_utils.run_command(['ping', '-n', '1', '-w', '1000', domain])
+            end_time = time.time()
+            ms_match = re.search(r'(\d+)ms', result)
+            if ms_match:
+                ms = int(ms_match.group(1))
+            else:
+                ms = int(1000 * (end_time - start_time))
+
+            display_log = f'{source.label} 耗时 {ms}ms'
+            log.info(display_log)
+            if progress_callback is not None:
+                progress_callback(-1, display_log)
+
+            ping_result_list.append((source, ms))
+
+        ping_result_list.sort(key=lambda x: x[1])
+
+        best_source = ping_result_list[0][0]
+        display_log = f'选择最优pip源 {best_source.label}'
+        log.info(display_log)
+        if progress_callback is not None:
+            progress_callback(-1, display_log)
+        self.env_config.pip_source = best_source.value
