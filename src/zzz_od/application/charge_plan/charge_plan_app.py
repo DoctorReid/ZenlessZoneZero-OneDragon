@@ -79,7 +79,7 @@ class ChargePlanApp(ZApplication):
 
         self.next_plan = next_plan
         self.next_can_run_times = 0
-        need_charge_power = 0
+        need_charge_power = 1000
         if self.next_plan.category_name == '实战模拟室' and self.next_plan.card_num == CardNumEnum.DEFAULT.value.value:
             self.need_to_check_power_in_mission = True
         else:
@@ -95,10 +95,11 @@ class ChargePlanApp(ZApplication):
         if not self.need_to_check_power_in_mission and self.charge_power < need_charge_power:
             return self.round_fail(f'电量不足 {need_charge_power}')
 
-        self.next_can_run_times = self.charge_power // need_charge_power
-        max_need_run_times = self.next_plan.plan_times - self.next_plan.run_times
-        if self.next_can_run_times > max_need_run_times:
-            self.next_can_run_times = max_need_run_times
+        if not self.need_to_check_power_in_mission:
+            self.next_can_run_times = self.charge_power // need_charge_power
+            max_need_run_times = self.next_plan.plan_times - self.next_plan.run_times
+            if self.next_can_run_times > max_need_run_times:
+                self.next_can_run_times = max_need_run_times
 
         op = TransportByCompendium(self.ctx,
                                    next_plan.tab_name,
