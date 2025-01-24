@@ -201,9 +201,12 @@ class NotoriousHunt(ZOperation):
         area = self.ctx.screen_loader.get_area('恶名狩猎', '难度选择区域')
         result = self.round_by_ocr_and_click(screen, self.plan.level, area=area,
                                            success_wait=1)
+
         # 如果选择的是最高难度 那第一下有可能选中不到 多选一下兜底
+        screen = self.screenshot()
         self.round_by_ocr_and_click(screen, self.plan.level, area=area,
                                     success_wait=1)
+
         if result.is_success:
             return result
         else:
