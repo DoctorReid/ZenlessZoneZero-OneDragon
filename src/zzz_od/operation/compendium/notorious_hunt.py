@@ -57,21 +57,39 @@ class NotoriousHunt(ZOperation):
         self.charge_need: Optional[int] = None
         self.move_times: int = 0  # 移动次数
 
-    @operation_node(name='等待入口加载', node_max_retry_times=60, is_start_node=True)
+    @operation_node(name='等待入口加载', node_max_retry_times=60)
     def wait_entry_load(self) -> OperationRoundResult:
         screen = self.screenshot()
         r1 = self.round_by_find_area(screen, '恶名狩猎', '当期剩余奖励次数')
         if r1.is_success:
-            return self.round_success(r1.status)
+            return self.round_success(r1.status, wait=1)  # 画面加载有延时 稍微等待
 
-        r2 = self.round_by_find_area(screen, '恶名狩猎', '剩余奖励次数')
+        r2 = self.round_by_find_area(screen, '恶名狩猎', '按钮-街区')
         if r2.is_success:
-            self.round_by_click_area('菜单', '返回')
-            return self.round_wait(r2.status, wait=1)
+            return self.round_success(r2.status, wait=1)  # 画面加载有延时 稍微等待
 
         return self.round_retry(r1.status, wait=1)
 
-    @node_from(from_name='等待入口加载')
+    @node_from(from_name='等待入口加载', status='按钮-街区')
+    @operation_node(name='判断副本名称')
+    def check_mission(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        area = self.ctx.screen_loader.get_area('恶名狩猎', '标题-副本名称')
+        part = cv2_utils.crop_image_only(screen, area.rect)
+        ocr_result_map = self.ctx.ocr.run_ocr(part)
+        is_target_mission: bool = False  # 当前是否目标副本
+        for ocr_result in ocr_result_map.keys():
+            if str_utils.find_by_lcs(gt(self.plan.mission_type_name), ocr_result, percent=0.5):
+                is_target_mission = True
+                break
+
+        if is_target_mission:
+            return self.round_success()
+        else:
+            return self.round_by_click_area('菜单', '返回', success_wait=1)
+
+    @node_from(from_name='等待入口加载', status='当期剩余奖励次数')  # 最开始在外面的副本列表
+    @node_from(from_name='判断副本名称', status='返回')  # 当前副本不符合 返回列表重新选择
     @operation_node(name='选择副本')
     def choose_mission(self) -> OperationRoundResult:
         screen = self.screenshot()
@@ -110,6 +128,7 @@ class NotoriousHunt(ZOperation):
 
         return self.round_retry(f'未能识别{self.plan.mission_type_name}', wait_round_time=2)
 
+    @node_from(from_name='判断副本名称')  # 当前副本符合 继续选择
     @node_from(from_name='选择副本')
     @operation_node(name='选择深度追猎')
     def choose_by_use_power(self):
@@ -274,17 +293,18 @@ class NotoriousHunt(ZOperation):
     @node_from(from_name='等待战斗画面加载')
     @operation_node(name='移动靠近交互', node_max_retry_times=10)
     def first_move(self) -> OperationRoundResult:
-        if self.plan.mission_type_name == '「霸主侵蚀体·庞培」':
-            return self._move_by_hint()
-        else:
-            if self.node_retry_times == 0:  # 第一次移动较远距离
-                self.ctx.controller.move_w(press=True, press_time=0.8, release=True)
-            else:
-                self.ctx.controller.move_w(press=True, press_time=0.2, release=True)
-            time.sleep(1)
-
-            screen = self.screenshot()
-            return self.round_by_find_area(screen, '战斗画面', '按键-交互')
+        return self._move_by_hint()  # 1.5 更新后 全部都有白点了
+        # if self.plan.mission_type_name == '「霸主侵蚀体·庞培」':
+        #     return self._move_by_hint()
+        # else:
+        #     if self.node_retry_times == 0:  # 第一次移动较远距离
+        #         self.ctx.controller.move_w(press=True, press_time=0.8, release=True)
+        #     else:
+        #         self.ctx.controller.move_w(press=True, press_time=0.2, release=True)
+        #     time.sleep(1)
+        #
+        #     screen = self.screenshot()
+        #     return self.round_by_find_area(screen, '战斗画面', '按键-交互')
 
     def _move_by_hint(self) -> OperationRoundResult:
         """
@@ -457,6 +477,8 @@ class NotoriousHunt(ZOperation):
     @node_from(from_name='判断下一次', status='战斗结果-再来一次')
     @operation_node(name='重新开始-确认')
     def restart_confirm(self) -> OperationRoundResult:
+        if self.use_charge_power:  # 使用体力的时候不需要重新确认
+            return self.round_success()
         screen = self.screenshot()
         return self.round_by_find_and_click_area(screen, '恶名狩猎', '重新开始-确认',
                                                  success_wait=1, retry_wait_round=1)
@@ -466,10 +488,16 @@ class NotoriousHunt(ZOperation):
     @operation_node(name='等待返回入口', node_max_retry_times=60)
     def wait_back_to_entry(self) -> OperationRoundResult:
         screen = self.screenshot()
-        return self.round_by_find_area(
-            screen, '恶名狩猎', '剩余奖励次数',
-            success_wait=1, retry_wait=1
-        )
+
+        result = self.round_by_find_area(screen, '恶名狩猎', '剩余奖励次数')
+        if result.is_success:  # 普通模式
+            return self.round_success(wait=1)
+
+        result = self.round_by_find_area(screen, '恶名狩猎', '按钮-街区')
+        if result.is_success:  # 深度追猎
+            return self.round_success(wait=1)
+
+        return self.round_retry(result.status, wait=1)
 
     @node_from(from_name='移动靠近交互', success=False)
     @node_from(from_name='自动战斗', success=False, status=Operation.STATUS_TIMEOUT)

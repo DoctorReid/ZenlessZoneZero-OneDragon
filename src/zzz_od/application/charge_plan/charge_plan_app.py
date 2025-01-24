@@ -131,7 +131,7 @@ class ChargePlanApp(ZApplication):
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='识别副本分类', status='恶名狩猎')
-    @operation_node(name='专业挑战室')
+    @operation_node(name='恶名狩猎')
     def notorious_hunt(self) -> OperationRoundResult:
         op = NotoriousHunt(self.ctx, self.next_plan,
                            use_charge_power=True,

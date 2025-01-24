@@ -77,7 +77,7 @@ class ChargePlanConfig(YamlConfig):
 
         for plan_item in self.plan_list:
             plan_data = {
-                'tab_name': plan_item.tab_name,
+                'tab_name': '作战' if plan_item.category_name == '恶名狩猎' else '训练',
                 'category_name': plan_item.category_name,
                 'mission_type_name': plan_item.mission_type_name,
                 'mission_name': plan_item.mission_name,
