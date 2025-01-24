@@ -28,7 +28,8 @@ class ChargePlanItem:
             run_times: int = 0,
             plan_times: int = 1,
             card_num: str = CardNumEnum.DEFAULT.value.value,
-            predefined_team_idx: int = -1
+            predefined_team_idx: int = -1,
+            notorious_hunt_buff_num: int = 1
     ):
         self.tab_name: str = tab_name
         self.category_name: str = category_name
@@ -41,6 +42,7 @@ class ChargePlanItem:
         self.card_num: str = card_num  # 实战模拟室的卡片数量
 
         self.predefined_team_idx: int = predefined_team_idx  # 预备配队下标 -1为使用当前配队
+        self.notorious_hunt_buff_num: int = notorious_hunt_buff_num  # 恶名狩猎 选择的buff
 
     @property
     def uid(self) -> str:
@@ -83,7 +85,8 @@ class ChargePlanConfig(YamlConfig):
                 'run_times': plan_item.run_times,
                 'plan_times': plan_item.plan_times,
                 'card_num': plan_item.card_num,
-                'predefined_team_idx': plan_item.predefined_team_idx
+                'predefined_team_idx': plan_item.predefined_team_idx,
+                'notorious_hunt_buff_num': plan_item.notorious_hunt_buff_num
             }
 
             new_history_list.append(plan_data.copy())
@@ -120,7 +123,8 @@ class ChargePlanConfig(YamlConfig):
             run_times=0,
             plan_times=1,
             card_num=str(CardNumEnum.DEFAULT.value.value),
-            predefined_team_idx=0
+            predefined_team_idx=0,
+            notorious_hunt_buff_num=1,
         ))
         self.save()
 

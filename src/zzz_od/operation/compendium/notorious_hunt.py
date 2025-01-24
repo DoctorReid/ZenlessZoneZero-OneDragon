@@ -1,8 +1,9 @@
 import time
 
-from typing import Optional, ClassVar
+from typing import Optional, ClassVar, List
 
 from one_dragon.base.geometry.point import Point
+from one_dragon.base.matcher.match_result import MatchResult
 from one_dragon.base.operation.operation import Operation
 from one_dragon.base.operation.operation_base import OperationResult
 from one_dragon.base.operation.operation_edge import node_from
@@ -10,6 +11,7 @@ from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
+from one_dragon.utils.log_utils import log
 from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem
 from zzz_od.application.notorious_hunt.notorious_hunt_config import NotoriousHuntLevelEnum
 from zzz_od.auto_battle import auto_battle_utils
@@ -270,10 +272,32 @@ class NotoriousHunt(ZOperation):
     def choose_buff(self) -> OperationRoundResult:
         screen = self.screenshot()
 
-        # TODO 当前没有选择鸣徽的优先级
+        area = self.ctx.screen_loader.get_area('恶名狩猎', '区域-鸣徽选择列表')
+        part = cv2_utils.crop_image_only(screen, area.rect)
+        ocr_result_map = self.ctx.ocr.run_ocr(part)
+        choose_mr_list: List[MatchResult] = []
 
-        return self.round_by_find_and_click_area(screen, '恶名狩猎', '选择',
-                                                 success_wait=1, retry_wait_round=1)
+        for ocr_result, mrl in ocr_result_map.items():
+            if str_utils.find_by_lcs(gt('选择'), ocr_result, percent=0.5):
+                for mr in mrl:
+                    choose_mr_list.append(mr)
+
+        log.info('当前识别鸣徽选项数量 %d', len(choose_mr_list))
+
+        if len(choose_mr_list) == 0:
+            return self.round_retry('未识别到鸣徽选择', wait=1)
+
+        # 按横坐标从左往右排序
+        choose_mr_list.sort(key=lambda x: x.left_top.x)
+
+        to_choose_idx = self.plan.notorious_hunt_buff_num - 1
+        if to_choose_idx >= len(choose_mr_list):
+            to_choose_idx = 0
+
+        to_click = choose_mr_list[to_choose_idx].center + area.left_top
+        self.ctx.controller.click(to_click)
+
+        return self.round_success(wait=1)
 
     @node_from(from_name='选择')
     @operation_node(name='向前移动准备战斗')
