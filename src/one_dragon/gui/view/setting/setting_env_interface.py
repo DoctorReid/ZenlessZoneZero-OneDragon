@@ -3,7 +3,7 @@ import shutil
 
 from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QWidget, QFileDialog
-from qfluentwidgets import FluentIcon, SettingCardGroup, setTheme, Theme, VBoxLayout, PrimaryPushButton, HyperlinkButton
+from qfluentwidgets import FluentIcon, SettingCardGroup, setTheme, Theme, VBoxLayout, PrimaryPushButton, HyperlinkButton, PasswordLineEdit
 
 from one_dragon.base.config.config_item import get_config_item_from_enum
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
@@ -53,7 +53,6 @@ class SettingEnvInterface(VerticalScrollInterface):
 
         self.banner_opt = SwitchSettingCard(icon=FluentIcon.PHOTO, title='自定义主页背景', content='设置后重启脚本生效')
         self.banner_opt.value_changed.connect(self._on_banner_changed)
-
         self.banner_select_btn = PrimaryPushButton(FluentIcon.EDIT, '选择', self)
         self.banner_select_btn.clicked.connect(self._on_banner_select_clicked)
         self.banner_opt.hBoxLayout.addWidget(self.banner_select_btn, 0, Qt.AlignmentFlag.AlignRight)
@@ -233,12 +232,17 @@ class SettingEnvInterface(VerticalScrollInterface):
         """
         选择背景图片并复制
         """
-        file_path, _ = QFileDialog.getOpenFileName(self, gt('选择你的背景图片'), filter="Images (*.png *.jpg *.jpeg *.webp *.bmp)")
-        if file_path is not None:
-            banner_path = os.path.join(
-            os_utils.get_path_under_work_dir('assets', 'ui'),
-            'custom')
-            shutil.copyfile(file_path, banner_path)
+        self.banner_password = TextSettingCard(
+            title='使用此功能需要输入密码哦~♡'
+        )
+        self.banner_password.show()
+        # default_path = os_utils.get_path_under_work_dir('assets', 'ui')
+        # file_path, _ = QFileDialog.getOpenFileName(self, gt('选择你的背景图片'), default_path, filter="Images (*.png *.jpg *.jpeg *.webp *.bmp)")
+        # if file_path is not None and file_path != '':
+        #     banner_path = os.path.join(
+        #     os_utils.get_path_under_work_dir('assets', 'ui'),
+        #     'custom')
+        #     shutil.copyfile(file_path, banner_path)
 
     def _on_debug_changed(self, value: bool):
         """
