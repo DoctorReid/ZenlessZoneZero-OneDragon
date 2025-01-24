@@ -76,7 +76,7 @@ class HollowRunner(ZOperation):
             HollowZeroSpecialEvent.FULL_IN_BAG.value.event_name: FullInBag,
             HollowZeroSpecialEvent.OLD_CAPITAL.value.event_name: OldCapital,
 
-            HollowZeroSpecialEvent.DOOR_BATTLE_ENTRY.value.event_name: DoorBattle,
+            # HollowZeroSpecialEvent.DOOR_BATTLE_ENTRY.value.event_name: DoorBattle,
             # HollowZeroSpecialEvent.NEED_INTERACT.value.event_name: HollowInteract,
         }
 
