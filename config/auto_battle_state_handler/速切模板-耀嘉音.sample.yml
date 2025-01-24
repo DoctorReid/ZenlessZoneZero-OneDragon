@@ -36,4 +36,4 @@ handlers:
             post_delay: 0.1
             repeat: 3
           - op_name: "等待秒数"
-            seconds: 2
+            seconds: 1
