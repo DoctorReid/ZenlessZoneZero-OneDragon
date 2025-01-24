@@ -43,21 +43,11 @@ class ChargePlanApp(ZApplication):
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='打开菜单')
-    @operation_node(name='快捷手册-训练')
-    def goto_training(self) -> OperationRoundResult:
-        return self.round_by_goto_screen(screen_name='快捷手册-训练', success_wait=1, retry_wait=1)
-
-    @node_from(from_name='快捷手册-训练')
     @operation_node(name='识别电量')
     def check_charge_power(self) -> OperationRoundResult:
         screen = self.screenshot()
-        result = self.round_by_find_area(screen, '快捷手册-训练', '按钮-奖励')
-        if result.is_success:
-            # 实战模拟式的电量位置
-            area = self.ctx.screen_loader.get_area('快捷手册-训练', '文本-电量2')
-        else:
-            # 其他两个的电量位置
-            area = self.ctx.screen_loader.get_area('快捷手册-训练', '文本-电量')
+        # 不能在快捷手册里面识别电量 因为每个人的备用电量不一样
+        area = self.ctx.screen_loader.get_area('菜单', '文本-电量')
         part = cv2_utils.crop_image_only(screen, area.rect)
         ocr_result = self.ctx.ocr.run_ocr_single_line(part)
         digit = str_utils.get_positive_digits(ocr_result, None)
