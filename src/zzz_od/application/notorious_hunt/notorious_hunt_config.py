@@ -77,7 +77,7 @@ class NotoriousHuntConfig(YamlConfig):
                 'auto_battle_config': plan_item.auto_battle_config,
                 'run_times': plan_item.run_times,
                 'plan_times': plan_item.plan_times,
-                'notorious_hunt_buff_num': plan_item.notorious_hunt_buff_num
+                'notorious_hunt_buff_num': plan_item.notorious_hunt_buff_num,
             })
 
         YamlConfig.save(self)

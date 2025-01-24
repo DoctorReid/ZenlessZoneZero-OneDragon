@@ -8,11 +8,11 @@ from one_dragon.base.config.yaml_config import YamlConfig
 class CardNumEnum(Enum):
 
     DEFAULT = ConfigItem('默认数量')
-    NUM_1 = ConfigItem('1')
-    NUM_2 = ConfigItem('2')
-    NUM_3 = ConfigItem('3')
-    NUM_4 = ConfigItem('4')
-    NUM_5 = ConfigItem('5')
+    NUM_1 = ConfigItem('1张卡片', '1')
+    NUM_2 = ConfigItem('2张卡片', '2')
+    NUM_3 = ConfigItem('3张卡片', '3')
+    NUM_4 = ConfigItem('4张卡片', '4')
+    NUM_5 = ConfigItem('5张卡片', '5')
 
 
 class ChargePlanItem:
@@ -29,7 +29,7 @@ class ChargePlanItem:
             plan_times: int = 1,
             card_num: str = CardNumEnum.DEFAULT.value.value,
             predefined_team_idx: int = -1,
-            notorious_hunt_buff_num: int = 1
+            notorious_hunt_buff_num: int = 1,
     ):
         self.tab_name: str = tab_name
         self.category_name: str = category_name
@@ -86,7 +86,7 @@ class ChargePlanConfig(YamlConfig):
                 'plan_times': plan_item.plan_times,
                 'card_num': plan_item.card_num,
                 'predefined_team_idx': plan_item.predefined_team_idx,
-                'notorious_hunt_buff_num': plan_item.notorious_hunt_buff_num
+                'notorious_hunt_buff_num': plan_item.notorious_hunt_buff_num,
             }
 
             new_history_list.append(plan_data.copy())
