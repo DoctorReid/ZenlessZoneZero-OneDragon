@@ -4,6 +4,7 @@ from typing import Optional
 
 from one_dragon.base.operation.context_event_bus import ContextEventItem
 from one_dragon.base.operation.one_dragon_context import ContextKeyboardEventEnum
+from one_dragon.base.operation.operation_base import OperationResult
 from one_dragon.base.operation.operation_node import OperationNode
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils import debug_utils
@@ -102,3 +103,8 @@ class ScreenshotHelperApp(ZApplication):
         self.last_save_screenshot_time = time.time()
 
         return self.round_success()
+
+    def after_operation_done(self, result: OperationResult):
+        ZApplication.after_operation_done(self, result)
+
+        self.ctx.controller.max_screenshot_cnt = 0
