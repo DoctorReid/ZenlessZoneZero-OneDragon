@@ -176,12 +176,15 @@ class Agent:
                  rare_type: RareTypeEnum,
                  agent_type: AgentTypeEnum,
                  dmg_type: DmgTypeEnum,
-                 state_list: Optional[List[AgentStateDef]] = None
+                 state_list: Optional[List[AgentStateDef]] = None,
                  ):
         """
         代理人
         """
         self.agent_id: str = agent_id  # 代理人的英文名称
+        # 代理人头像的模板ID 不同皮肤的头像会不一样 在启动时由context根据配置写入正确的皮肤
+        # 这里没有简单地用template_id_list去遍历可能的头像，主要是效率癖 + 对python运行效率的担忧
+        self.template_id: str = agent_id
         self.agent_name: str = agent_name  # 代理人的中文名称
         self.rare_type: RareTypeEnum = rare_type  # 稀有等级
 

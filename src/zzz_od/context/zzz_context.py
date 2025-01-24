@@ -2,6 +2,7 @@ from typing import Optional
 
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils import i18_utils
+from zzz_od.game_data.agent import AgentEnum
 
 
 class ZContext(OneDragonContext):
@@ -27,39 +28,6 @@ class ZContext(OneDragonContext):
 
         # 实例独有的配置
         self.load_instance_config()
-
-    def init_by_config(self) -> None:
-        """
-        根据配置进行初始化
-        :return:
-        """
-        OneDragonContext.init_by_config(self)
-        i18_utils.update_default_lang(self.game_config.game_language)
-
-        from zzz_od.config.game_config import GamePlatformEnum
-        from zzz_od.controller.zzz_pc_controller import ZPcController
-        if self.game_config.platform == GamePlatformEnum.PC.value.value:
-            self.controller = ZPcController(
-                game_config=self.game_config,
-                win_title=self.game_config.win_title,
-                standard_width=self.project_config.screen_standard_width,
-                standard_height=self.project_config.screen_standard_height
-            )
-
-        self.hollow.data_service.reload()
-        self.init_hollow_config()
-
-    def init_hollow_config(self) -> None:
-        """
-        对空洞配置进行初始化
-        :return:
-        """
-        from zzz_od.hollow_zero.hollow_zero_challenge_config import HollowZeroChallengeConfig
-        challenge_config = self.hollow_zero_config.challenge_config
-        if challenge_config is None:
-            self.hollow_zero_challenge_config = HollowZeroChallengeConfig('', is_mock=True)
-        else:
-            self.hollow_zero_challenge_config = HollowZeroChallengeConfig(challenge_config)
 
     def load_instance_config(self) -> None:
         OneDragonContext.load_instance_config(self)
@@ -102,6 +70,9 @@ class ZContext(OneDragonContext):
         self.commission_assistant_config: CommissionAssistantConfig = CommissionAssistantConfig(self.current_instance_idx)
         from zzz_od.application.random_play.random_play_config import RandomPlayConfig
         self.random_play_config: RandomPlayConfig = RandomPlayConfig(self.current_instance_idx)
+
+        from zzz_od.config.agent_outfit_config import AgentOutfitConfig
+        self.agent_outfit_config: AgentOutfitConfig = AgentOutfitConfig(self.current_instance_idx)
 
         # 运行记录
         game_refresh_hour_offset = self.game_config.game_refresh_hour_offset
@@ -151,3 +122,46 @@ class ZContext(OneDragonContext):
         self.lost_void_config: LostVoidConfig = LostVoidConfig(self.current_instance_idx)
         from zzz_od.application.hollow_zero.lost_void.lost_void_run_record import LostVoidRunRecord
         self.lost_void_record: LostVoidRunRecord = LostVoidRunRecord(self.lost_void_config, self.current_instance_idx, game_refresh_hour_offset)
+
+    def init_by_config(self) -> None:
+        """
+        根据配置进行初始化
+        :return:
+        """
+        OneDragonContext.init_by_config(self)
+        i18_utils.update_default_lang(self.game_config.game_language)
+
+        from zzz_od.config.game_config import GamePlatformEnum
+        from zzz_od.controller.zzz_pc_controller import ZPcController
+        if self.game_config.platform == GamePlatformEnum.PC.value.value:
+            self.controller = ZPcController(
+                game_config=self.game_config,
+                win_title=self.game_config.win_title,
+                standard_width=self.project_config.screen_standard_width,
+                standard_height=self.project_config.screen_standard_height
+            )
+
+        self.hollow.data_service.reload()
+        self.init_hollow_config()
+        self.init_agent_template_id()
+
+    def init_hollow_config(self) -> None:
+        """
+        对空洞配置进行初始化
+        :return:
+        """
+        from zzz_od.hollow_zero.hollow_zero_challenge_config import HollowZeroChallengeConfig
+        challenge_config = self.hollow_zero_config.challenge_config
+        if challenge_config is None:
+            self.hollow_zero_challenge_config = HollowZeroChallengeConfig('', is_mock=True)
+        else:
+            self.hollow_zero_challenge_config = HollowZeroChallengeConfig(challenge_config)
+
+    def init_agent_template_id(self) -> None:
+        """
+        代理人头像模板ID的初始化
+        :return:
+        """
+        AgentEnum.NICOLE.value.template_id = self.agent_outfit_config.nicola
+        AgentEnum.ELLEN.value.template_id = self.agent_outfit_config.ellen
+        AgentEnum.ASTRA_YAO.value.template_id = self.agent_outfit_config.astra_yao
