@@ -15,6 +15,7 @@ from one_dragon.gui.widgets.setting_card.key_setting_card import KeySettingCard
 from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils import os_utils
+from one_dragon.utils import os_utils
 from one_dragon.utils.i18_utils import gt
 
 
@@ -133,6 +134,7 @@ class SettingEnvInterface(VerticalScrollInterface):
             icon=FluentIcon.SYNC, title='自动获取免费代理地址', content='获取失败时 可前往 https://ghproxy.link/ 查看自行更新'
         )
         self.fetch_gh_proxy_url_btn = PrimaryPushButton(FluentIcon.SYNC, '获取', self)
+        self.fetch_gh_proxy_url_btn = PrimaryPushButton(FluentIcon.SYNC, '获取', self)
         self.fetch_gh_proxy_url_btn.clicked.connect(self.on_fetch_gh_proxy_url_clicked)
         self.auto_fetch_gh_proxy_url_opt.hBoxLayout.addWidget(self.fetch_gh_proxy_url_btn, 0, Qt.AlignmentFlag.AlignRight)
         self.auto_fetch_gh_proxy_url_opt.hBoxLayout.addSpacing(16)
@@ -183,6 +185,10 @@ class SettingEnvInterface(VerticalScrollInterface):
         theme = get_config_item_from_enum(ThemeEnum, self.ctx.env_config.theme)
         if theme is not None:
             self.theme_opt.setValue(theme.value)
+        
+        self.banner_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('banner'))
+        if not self.ctx.env_config.banner:
+            self.banner_select_btn.setEnabled(False)
         
         self.banner_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('banner'))
         if not self.ctx.env_config.banner:
