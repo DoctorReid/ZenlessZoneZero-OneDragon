@@ -223,12 +223,13 @@ class PythonService:
 
         return True, ''
 
-    def install_requirements(self, progress_callback: Optional[Callable[[float, str], None]]) -> Tuple[bool, str]:
+    def install_requirements(self, progress_callback: Optional[Callable[[float, str], None]] = None) -> Tuple[bool, str]:
         """
         安装依赖
         :return:
         """
-        progress_callback(-1, '正在安装...安装过程需要5~10分钟，请耐心等待')
+        if progress_callback is not None:
+            progress_callback(-1, '正在安装...安装过程需要5~10分钟，请耐心等待')
 
         # 部分人不升级pip会安装失败 不知道为什么
         result = cmd_utils.run_command([self.env_config.python_path, '-m', 'pip', 'install', '--upgrade', 'pip',
