@@ -104,12 +104,14 @@ class HollowRunner(ZOperation):
         if result is not None and result not in [
             HollowZeroSpecialEvent.HOLLOW_INSIDE.value.event_name,  # 空洞内部比较特殊 仅为识别使用 不做响应处理
             HollowZeroSpecialEvent.RESONIUM_STORE_5.value.event_name, # 商人格子不会消失 为了防止循环进入商店 仅在移动格子时候触发进入商店 平时出现这个选项不做点击
+            HollowZeroSpecialEvent.DOOR_BATTLE_ENTRY.value.event_name,  # 这扇门在第一次过去的时候就会开 如果没开到 说明上场战斗没有S 开不了 就不继续了
         ]:
             return self._handle_event(screen, result)
 
         if result in [
             HollowZeroSpecialEvent.HOLLOW_INSIDE.value.event_name,
             HollowZeroSpecialEvent.RESONIUM_STORE_5.value.event_name,  # 商人格子也需要寻路
+            HollowZeroSpecialEvent.DOOR_BATTLE_ENTRY.value.event_name,  # 门扉禁闭-善战 开不了门 就移动去其他地方
         ]:
             # 当前有显示背包 可以尝试识别地图
             current_map = self.ctx.hollow.map_service.cal_map_by_screen(screen, now)
@@ -176,6 +178,8 @@ class HollowRunner(ZOperation):
         if target_node is None:
             return None
 
+        # if target_node.entry.entry_name == '不宜久留':  # 测试代码 在特殊情况停下
+        #     return self.round_fail('不宜久留')
         next_to_move = target_node.next_node_to_move
         log.info(f"前往目标: [{target_node.entry.entry_name}] 当前移动: [{next_to_move.entry.entry_name}]")
 
@@ -244,7 +248,7 @@ class HollowRunner(ZOperation):
             opt_rect: Rect = opt.rect
 
             # 格子的4个角 往里面移动一点 防止最终点击到格子外
-            offset = 10
+            offset = 15
             pos_list = [
                 Point(node_rect.x1, node_rect.y1) + Point(offset, offset),
                 Point(node_rect.x1, node_rect.y2) + Point(offset, -offset),
