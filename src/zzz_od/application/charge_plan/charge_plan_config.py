@@ -8,11 +8,11 @@ from one_dragon.base.config.yaml_config import YamlConfig
 class CardNumEnum(Enum):
 
     DEFAULT = ConfigItem('默认数量')
-    NUM_1 = ConfigItem('1')
-    NUM_2 = ConfigItem('2')
-    NUM_3 = ConfigItem('3')
-    NUM_4 = ConfigItem('4')
-    NUM_5 = ConfigItem('5')
+    NUM_1 = ConfigItem('1张卡片', '1')
+    NUM_2 = ConfigItem('2张卡片', '2')
+    NUM_3 = ConfigItem('3张卡片', '3')
+    NUM_4 = ConfigItem('4张卡片', '4')
+    NUM_5 = ConfigItem('5张卡片', '5')
 
 
 class ChargePlanItem:
@@ -28,7 +28,8 @@ class ChargePlanItem:
             run_times: int = 0,
             plan_times: int = 1,
             card_num: str = CardNumEnum.DEFAULT.value.value,
-            predefined_team_idx: int = -1
+            predefined_team_idx: int = -1,
+            notorious_hunt_buff_num: int = 1,
     ):
         self.tab_name: str = tab_name
         self.category_name: str = category_name
@@ -41,6 +42,7 @@ class ChargePlanItem:
         self.card_num: str = card_num  # 实战模拟室的卡片数量
 
         self.predefined_team_idx: int = predefined_team_idx  # 预备配队下标 -1为使用当前配队
+        self.notorious_hunt_buff_num: int = notorious_hunt_buff_num  # 恶名狩猎 选择的buff
 
     @property
     def uid(self) -> str:
@@ -75,7 +77,7 @@ class ChargePlanConfig(YamlConfig):
 
         for plan_item in self.plan_list:
             plan_data = {
-                'tab_name': plan_item.tab_name,
+                'tab_name': '作战' if plan_item.category_name == '恶名狩猎' else '训练',
                 'category_name': plan_item.category_name,
                 'mission_type_name': plan_item.mission_type_name,
                 'mission_name': plan_item.mission_name,
@@ -83,7 +85,8 @@ class ChargePlanConfig(YamlConfig):
                 'run_times': plan_item.run_times,
                 'plan_times': plan_item.plan_times,
                 'card_num': plan_item.card_num,
-                'predefined_team_idx': plan_item.predefined_team_idx
+                'predefined_team_idx': plan_item.predefined_team_idx,
+                'notorious_hunt_buff_num': plan_item.notorious_hunt_buff_num,
             }
 
             new_history_list.append(plan_data.copy())
@@ -120,7 +123,8 @@ class ChargePlanConfig(YamlConfig):
             run_times=0,
             plan_times=1,
             card_num=str(CardNumEnum.DEFAULT.value.value),
-            predefined_team_idx=0
+            predefined_team_idx=0,
+            notorious_hunt_buff_num=1,
         ))
         self.save()
 

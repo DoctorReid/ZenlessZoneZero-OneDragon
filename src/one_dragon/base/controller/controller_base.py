@@ -17,7 +17,7 @@ class ControllerBase:
 
     def __init__(self,
                  screenshot_alive_seconds: float = 5,
-                 max_screenshot_cnt: int = 10):
+                 max_screenshot_cnt: int = 0):
         """
         基础控制器的定义
         """
@@ -59,13 +59,14 @@ class ControllerBase:
         screen = self.get_screenshot(independent)
         fix_screen = self.fill_uid_black(screen)
 
-        self.screenshot_history.append(ScreenshotWithTime(fix_screen, now))
-        while len(self.screenshot_history) > self.max_screenshot_cnt:
-            self.screenshot_history.pop(0)
+        if self.max_screenshot_cnt > 0:
+            self.screenshot_history.append(ScreenshotWithTime(fix_screen, now))
+            while len(self.screenshot_history) > self.max_screenshot_cnt:
+                self.screenshot_history.pop(0)
 
-        while (len(self.screenshot_history) > 0
-            and now - self.screenshot_history[0].create_time > self.screenshot_alive_seconds):
-            self.screenshot_history.pop(0)
+            while (len(self.screenshot_history) > 0
+                and now - self.screenshot_history[0].create_time > self.screenshot_alive_seconds):
+                self.screenshot_history.pop(0)
 
         return fix_screen
 
@@ -87,7 +88,7 @@ class ControllerBase:
         """
         遮挡UID 由子类实现
         """
-        pass
+        return screen
 
     def scroll(self, down: int, pos: Point = None):
         """

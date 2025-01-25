@@ -11,6 +11,7 @@ from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.back_to_normal_world import BackToNormalWorld
 from zzz_od.operation.compendium.combat_simulation import CombatSimulation
 from zzz_od.operation.compendium.expert_challenge import ExpertChallenge
+from zzz_od.operation.compendium.notorious_hunt import NotoriousHunt
 from zzz_od.operation.compendium.routine_cleanup import RoutineCleanup
 from zzz_od.operation.compendium.tp_by_compendium import TransportByCompendium
 from zzz_od.operation.goto.goto_menu import GotoMenu
@@ -37,6 +38,7 @@ class ChargePlanApp(ZApplication):
     @node_from(from_name='实战模拟室')
     @node_from(from_name='定期清剿')
     @node_from(from_name='专业挑战室')
+    @node_from(from_name='恶名狩猎')
     @operation_node(name='打开菜单', is_start_node=True)
     def goto_menu(self) -> OperationRoundResult:
         op = GotoMenu(self.ctx)
@@ -79,6 +81,8 @@ class ChargePlanApp(ZApplication):
                 need_charge_power = 60
             elif self.next_plan.category_name == '专业挑战室':
                 need_charge_power = 40
+            elif self.next_plan.category_name == '恶名狩猎':
+                need_charge_power = 60
             else:
                 self.need_to_check_power_in_mission = True
 
@@ -126,11 +130,21 @@ class ChargePlanApp(ZApplication):
                              can_run_times=None if self.need_to_check_power_in_mission else self.next_can_run_times)
         return self.round_by_op_result(op.execute())
 
+    @node_from(from_name='识别副本分类', status='恶名狩猎')
+    @operation_node(name='恶名狩猎')
+    def notorious_hunt(self) -> OperationRoundResult:
+        op = NotoriousHunt(self.ctx, self.next_plan,
+                           use_charge_power=True,
+                           need_check_power=self.need_to_check_power_in_mission,
+                           can_run_times=None if self.need_to_check_power_in_mission else self.next_can_run_times)
+        return self.round_by_op_result(op.execute())
+
     @node_from(from_name='传送', status=STATUS_ROUND_FINISHED)
     @node_from(from_name='传送', success=False)
     @node_from(from_name='实战模拟室', status=CombatSimulation.STATUS_CHARGE_NOT_ENOUGH)
     @node_from(from_name='定期清剿', status=RoutineCleanup.STATUS_CHARGE_NOT_ENOUGH)
     @node_from(from_name='专业挑战室', status=ExpertChallenge.STATUS_CHARGE_NOT_ENOUGH)
+    @node_from(from_name='恶名狩猎', status=ExpertChallenge.STATUS_CHARGE_NOT_ENOUGH)
     @operation_node(name='返回大世界', is_start_node=True)
     def back_to_world(self) -> OperationRoundResult:
         op = BackToNormalWorld(self.ctx)

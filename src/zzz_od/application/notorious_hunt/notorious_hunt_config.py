@@ -16,6 +16,13 @@ class NotoriousHuntLevelEnum(Enum):
     LEVEL_30 = ConfigItem('等级Lv.30')
 
 
+class NotoriousHuntBuffEnum(Enum):
+
+    BUFF_1 = ConfigItem('第一个BUFF', 1)
+    BUFF_2 = ConfigItem('第二个BUFF', 2)
+    BUFF_3 = ConfigItem('第三个BUFF', 3)
+
+
 class NotoriousHuntConfig(YamlConfig):
 
     def __init__(self, instance_idx: Optional[int] = None):
@@ -70,6 +77,7 @@ class NotoriousHuntConfig(YamlConfig):
                 'auto_battle_config': plan_item.auto_battle_config,
                 'run_times': plan_item.run_times,
                 'plan_times': plan_item.plan_times,
+                'notorious_hunt_buff_num': plan_item.notorious_hunt_buff_num,
             })
 
         YamlConfig.save(self)

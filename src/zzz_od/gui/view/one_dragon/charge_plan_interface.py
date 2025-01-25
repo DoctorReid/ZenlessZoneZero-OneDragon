@@ -9,6 +9,7 @@ from one_dragon.gui.widgets.setting_card.multi_push_setting_card import MultiLin
 from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_op_config_list
 from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem, CardNumEnum
+from zzz_od.application.notorious_hunt.notorious_hunt_config import NotoriousHuntBuffEnum
 from zzz_od.context.zzz_context import ZContext
 
 from phosdeiz.gui.widgets import Column,ComboBox
@@ -36,6 +37,9 @@ class ChargePlanCard(MultiLineSettingCard):
 
         self.card_num_box = ComboBox()
         self.card_num_box.currentIndexChanged.connect(self._on_card_num_changed)
+
+        self.notorious_hunt_buff_num_opt = ComboBox()
+        self.notorious_hunt_buff_num_opt.currentIndexChanged.connect(self.on_notorious_hunt_buff_num_changed)
 
         self.predefined_team_opt = ComboBox()
         self.predefined_team_opt.currentIndexChanged.connect(self.on_predefined_team_changed)
@@ -66,6 +70,7 @@ class ChargePlanCard(MultiLineSettingCard):
                     self.mission_type_combo_box,
                     self.mission_combo_box,
                     self.card_num_box,
+                    self.notorious_hunt_buff_num_opt,
                     self.predefined_team_opt,
                     self.auto_battle_combo_box,
                 ],
@@ -99,6 +104,14 @@ class ChargePlanCard(MultiLineSettingCard):
         config_list = [config_enum.value for config_enum in CardNumEnum]
         self.card_num_box.set_items(config_list, self.plan.card_num)
         self.card_num_box.setVisible(self.plan.category_name == '实战模拟室')
+
+    def init_notorious_hunt_buff_num_opt(self) -> None:
+        """
+        初始化不透明度下拉框
+        """
+        config_list = [config_enum.value for config_enum in NotoriousHuntBuffEnum]
+        self.notorious_hunt_buff_num_opt.set_items(config_list, self.plan.notorious_hunt_buff_num)
+        self.notorious_hunt_buff_num_opt.setVisible(self.plan.category_name == '恶名狩猎')
 
     def init_predefined_team_opt(self) -> None:
         """
@@ -134,6 +147,7 @@ class ChargePlanCard(MultiLineSettingCard):
         self.init_mission_combo_box()
 
         self.init_card_num_box()
+        self.init_notorious_hunt_buff_num_opt()
         self.init_predefined_team_opt()
         self.init_auto_battle_box()
 
@@ -146,6 +160,8 @@ class ChargePlanCard(MultiLineSettingCard):
 
         self.init_mission_type_combo_box()
         self.init_mission_combo_box()
+        self.init_card_num_box()
+        self.init_notorious_hunt_buff_num_opt()
 
         self.update_by_history()
 
@@ -169,6 +185,10 @@ class ChargePlanCard(MultiLineSettingCard):
 
     def _on_card_num_changed(self, idx: int) -> None:
         self.plan.card_num = self.card_num_box.itemData(idx)
+        self._emit_value()
+
+    def on_notorious_hunt_buff_num_changed(self, idx: int) -> None:
+        self.plan.notorious_hunt_buff_num = self.notorious_hunt_buff_num_opt.currentData()
         self._emit_value()
 
     def on_predefined_team_changed(self, idx: int) -> None:
@@ -208,11 +228,13 @@ class ChargePlanCard(MultiLineSettingCard):
             return
 
         self.plan.card_num = history.card_num
+        self.plan.notorious_hunt_buff_num = history.notorious_hunt_buff_num
         self.plan.predefined_team_idx = history.predefined_team_idx
         self.plan.auto_battle_config = history.auto_battle_config
         self.plan.plan_times = history.plan_times
 
         self.init_card_num_box()
+        self.init_notorious_hunt_buff_num_opt()
         self.init_predefined_team_opt()
         self.init_auto_battle_box()
         self.init_plan_times_input()

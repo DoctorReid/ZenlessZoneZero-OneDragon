@@ -85,6 +85,10 @@ class SettingEnvInterface(VerticalScrollInterface):
         code_group.addSettingCard(self.auto_update_opt)
 
         self.pip_source_opt = ComboBoxSettingCard(icon=FluentIcon.GLOBE, title='Pip源', options_enum=PipSourceEnum)
+        self.pip_choose_best_btn = PushButton('自动测速选择', self)
+        self.pip_choose_best_btn.clicked.connect(self.on_pip_choose_best_clicked)
+        self.pip_source_opt.hBoxLayout.addWidget(self.pip_choose_best_btn, 0, Qt.AlignmentFlag.AlignRight)
+        self.pip_source_opt.hBoxLayout.addSpacing(16)
         code_group.addSettingCard(self.pip_source_opt)
 
         return code_group
@@ -291,3 +295,7 @@ class SettingEnvInterface(VerticalScrollInterface):
     def on_fetch_gh_proxy_url_clicked(self) -> None:
         self.ctx.gh_proxy_service.update_proxy_url()
         self.gh_proxy_url_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('gh_proxy_url'))
+
+    def on_pip_choose_best_clicked(self) -> None:
+        self.ctx.python_service.choose_best_pip_source()
+        self.pip_source_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('pip_source'))

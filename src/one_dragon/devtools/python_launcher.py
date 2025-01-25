@@ -1,10 +1,13 @@
-import os
 import sys
-import subprocess
-import datetime
 import time
+
+import datetime
+import os
+import subprocess
 import yaml
 from colorama import init, Fore, Style
+
+from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 
 # 初始化 colorama
 init(autoreset=True)
@@ -116,16 +119,55 @@ def execute_python_script(app_path, log_folder, no_windows: bool):
         subprocess.Popen(["powershell", "-Command", powershell_command], creationflags=subprocess.CREATE_NO_WINDOW)
     else:
         subprocess.Popen(["powershell", "-Command", powershell_command])
-    print_message("绝区零一条龙 正在启动中，大约 5+ 秒...", "INFO")
+    print_message("一条龙 正在启动中，大约 5+ 秒...", "INFO")
+
+
+def fetch_latest_code(ctx: OneDragonEnvContext) -> None:
+    """
+    获取最新代码
+    """
+    if not ctx.env_config.auto_update:
+        print_message("未开启代码自动更新 跳过", "INFO")
+        return
+    print_message("开始获取最新代码...", "INFO")
+    success, msg = ctx.git_service.fetch_latest_code()
+    if success:
+        print_message("最新代码获取成功", "PASS")
+    else:
+        print_message(f'代码更新失败 {msg}', "ERROR")
+
+    check_dependencies(ctx)
+
+
+def check_dependencies(ctx: OneDragonEnvContext):
+    """
+    安装最新依赖
+    :return:
+    """
+    current = ctx.env_config.requirement_time
+    latest = ctx.git_service.get_requirement_time()
+    if current == latest:
+        print_message("运行依赖无更新 跳过", "INFO")
+        return
+
+    success, msg = ctx.python_service.install_requirements()
+    if success:
+        print_message("运行依赖安装成功", "PASS")
+        ctx.env_config.requirement_time = latest
+    else:
+        print_message(f'运行依赖安装失败 {msg}', "ERROR")
+
 
 def run_python(app_path, no_windows: bool = True):
     # 主函数
     try:
+        ctx = OneDragonEnvContext()
         print_message(f"当前工作目录：{path}", "INFO")
         verify_path_issues()
         configure_environment()
         log_folder = create_log_folder()
         clean_old_logs(log_folder)
+        fetch_latest_code(ctx)
         execute_python_script(app_path, log_folder, no_windows)
     except SystemExit as e:
         print_message(f"程序已退出，状态码：{e.code}", "ERROR")
