@@ -198,6 +198,8 @@ class NotoriousHunt(ZOperation):
             left_times = str_utils.get_positive_digits(ocr_result, None)
             if left_times is None:  # 识别不到时 使用记录中的数量
                 self.can_run_times = self.ctx.notorious_hunt_record.left_times
+            else:
+                self.can_run_times = left_times
 
             # 运行次数上限是计划剩余次数
             need_run_times = self.plan.plan_times - self.plan.run_times
