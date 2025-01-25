@@ -113,7 +113,7 @@ class LostVoidChooseCommon(ZOperation):
                 continue
 
             if idx == 0:
-                is_artifact = True
+                # 1.5 更新后 武备和普通鸣徽都是这个标题
                 self.to_choose_num = 1
             elif idx == 1:
                 is_artifact = True
@@ -141,7 +141,7 @@ class LostVoidChooseCommon(ZOperation):
             area_name = '区域-武备名称'
             chosen_area_name = None
         else:
-            result = self.round_by_find_area(screen, '迷失之地-通用选择', '标题-请选择1个武备')
+            result = self.round_by_find_area(screen, '迷失之地-通用选择', '区域-武备标识')  # 下方的GEAR
             if result.is_success:
                 area_name = '区域-武备名称'
                 self.to_choose_num = 1
@@ -206,13 +206,13 @@ def __get_get_artifact_pos():
 
     op = LostVoidChooseCommon(ctx)
     from one_dragon.utils import debug_utils
-    screen = debug_utils.get_debug_image('choose_2')
+    screen = debug_utils.get_debug_image('lost_void_choose_common')
     art_list, chosen_list = op.get_artifact_pos(screen)
     print(len(art_list), len(chosen_list))
-    cv2_utils.show_image(screen, chosen_list[0], wait=0)
+    cv2_utils.show_image(screen, chosen_list[0] if len(chosen_list) > 0 else None, wait=0)
     import cv2
     cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':
-    __debug()
+    __get_get_artifact_pos()
