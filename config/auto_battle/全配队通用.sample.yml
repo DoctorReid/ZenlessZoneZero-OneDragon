@@ -53,7 +53,7 @@ scenes:
         sub_handlers:
 
           #连携期间，如果有闪光，说明连携的是小怪，放弃连携模式，不然主C可能被打死
-          - states: "[自定义-连携换人,0,12]" 
+          - states: "[自定义-连携换人,0,10]" 
             operations:
               - op_name: "清除状态"
                 state_list: ["自定义-连携换人"]
