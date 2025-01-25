@@ -213,12 +213,11 @@ class CompendiumService:
 
         category_list = self.get_category_list_data('作战')
         for category_item in category_list:
-            if category_item.category_name not in ['恶名狩猎']:
-                continue
-            category_config_list.append(ConfigItem(
-                label=category_item.category_name,
-                value=category_item.category_name
-            ))
+            if category_item.category_name == '恶名狩猎':
+                category_config_list.append(ConfigItem(
+                    label=f'{category_item.category_name} 深度追猎',
+                    value=category_item.category_name
+                ))
 
         return category_config_list
 
