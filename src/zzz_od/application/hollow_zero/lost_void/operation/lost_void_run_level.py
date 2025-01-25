@@ -87,7 +87,7 @@ class LostVoidRunLevel(ZOperation):
     def wait_loading(self) -> OperationRoundResult:
         screen = self.screenshot()
 
-        if self.in_normal_world(screen):
+        if self.ctx.lost_void.in_normal_world(screen):
             return self.round_success('大世界')
 
         # 1. 在精英怪后 点击完挑战结果后 加载挚友会谈前 可能会弹出奖励
@@ -165,7 +165,7 @@ class LostVoidRunLevel(ZOperation):
         screen = self.screenshot()
 
         # 不在大世界处理
-        if not self.in_normal_world(screen):
+        if not self.ctx.lost_void.in_normal_world(screen):
             result = self.round_by_find_and_click_area(screen, '迷失之地-大世界', '按钮-挑战-确认')
             if result.is_success:
                 self.region_type = LostVoidRegionType.CHANLLENGE_TIME_TRAIL
@@ -193,6 +193,8 @@ class LostVoidRunLevel(ZOperation):
             if op_result.success:
                 if op_result.status == LostVoidMoveByDet.STATUS_IN_BATTLE:
                     return self.round_success(LostVoidMoveByDet.STATUS_IN_BATTLE)
+                elif op_result.status == LostVoidMoveByDet.STATUS_INTERACT:
+                    return self.round_success('未在大世界')
                 else:
                     return self.round_success(LostVoidDetector.CLASS_INTERACT, wait=1)
             else:
@@ -208,6 +210,8 @@ class LostVoidRunLevel(ZOperation):
             if op_result.success:
                 if op_result.status == LostVoidMoveByDet.STATUS_IN_BATTLE:
                     return self.round_success(LostVoidMoveByDet.STATUS_IN_BATTLE)
+                elif op_result.status == LostVoidMoveByDet.STATUS_INTERACT:
+                    return self.round_success('未在大世界')
                 else:
                     return self.round_success(LostVoidDetector.CLASS_DISTANCE)
             else:
@@ -223,6 +227,8 @@ class LostVoidRunLevel(ZOperation):
             if op_result.success:
                 if op_result.status == LostVoidMoveByDet.STATUS_IN_BATTLE:
                     return self.round_success(LostVoidMoveByDet.STATUS_IN_BATTLE)
+                elif op_result.status == LostVoidMoveByDet.STATUS_INTERACT:
+                    return self.round_success('未在大世界')
                 else:
                     self.interact_entry_name = op_result.data
                     return self.round_success(LostVoidDetector.CLASS_ENTRY)
@@ -258,7 +264,7 @@ class LostVoidRunLevel(ZOperation):
             self.ctx.controller.interact(press=True, press_time=0.2, release=True)
             return self.round_retry('交互', wait=1)
 
-        if not self.in_normal_world(screen):  # 按键消失 说明开始加载了
+        if not self.ctx.lost_void.in_normal_world(screen):  # 按键消失 说明开始加载了
             return self.round_success('交互成功')
 
         # 没有交互按钮 可能走过头了 尝试往后走
@@ -319,7 +325,7 @@ class LostVoidRunLevel(ZOperation):
 
             return talk_result
 
-        if self.in_normal_world(screen):
+        if self.ctx.lost_void.in_normal_world(screen):
             return self.round_success('迷失之地-大世界')
 
         result = self.round_by_find_area(screen, '迷失之地-挑战结果', '标题-挑战结果')
@@ -436,7 +442,7 @@ class LostVoidRunLevel(ZOperation):
         """
         screen = self.screenshot()
 
-        if self.in_normal_world(screen):
+        if self.ctx.lost_void.in_normal_world(screen):
             self.move_after_interact()
             return self.round_success(status='大世界', wait=1)
 
@@ -455,26 +461,6 @@ class LostVoidRunLevel(ZOperation):
             return self.round_success(LostVoidRunLevel.STATUS_NEXT_LEVEL, data=self.interact_entry_name)
 
         return self.round_retry('等待画面返回', wait=1)
-
-    def in_normal_world(self, screen: MatLike) -> bool:
-        """
-        判断当前画面是否在大世界里
-        @param screen: 游戏画面
-        @return:
-        """
-        result = self.round_by_find_area(screen, '战斗画面', '按键-普通攻击')
-        if result.is_success:
-            return True
-
-        result = self.round_by_find_area(screen, '战斗画面', '按键-交互')
-        if result.is_success:
-            return True
-
-        result = self.round_by_find_area(screen, '迷失之地-大世界', '按键-交互-不可用')
-        if result.is_success:
-            return True
-
-        return False
 
     def move_after_interact(self) -> None:
         """

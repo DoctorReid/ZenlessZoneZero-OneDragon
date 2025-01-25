@@ -7,6 +7,7 @@ from typing import Optional, List, Tuple
 from one_dragon.base.config.yaml_operator import YamlOperator
 from one_dragon.base.matcher.match_result import MatchResult
 from one_dragon.base.screen import screen_utils
+from one_dragon.base.screen.screen_utils import FindAreaResultEnum
 from one_dragon.utils import os_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
@@ -91,6 +92,26 @@ class LostVoidContext:
         :return:
         """
         self.challenge_config = LostVoidChallengeConfig(self.ctx.lost_void_config.challenge_config)
+
+    def in_normal_world(self, screen: MatLike) -> bool:
+        """
+        判断当前画面是否在大世界里
+        @param screen: 游戏画面
+        @return:
+        """
+        result = screen_utils.find_area(self.ctx, screen, '战斗画面', '按键-普通攻击')
+        if result == FindAreaResultEnum.TRUE:
+            return True
+
+        result = screen_utils.find_area(self.ctx, screen, '战斗画面', '按键-交互')
+        if result == FindAreaResultEnum.TRUE:
+            return True
+
+        result = screen_utils.find_area(self.ctx, screen, '迷失之地-大世界', '按键-交互-不可用')
+        if result == FindAreaResultEnum.TRUE:
+            return True
+
+        return False
 
     def check_battle_encounter(self, screen: MatLike, screenshot_time: float) -> bool:
         """

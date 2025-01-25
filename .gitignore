@@ -5,6 +5,7 @@ dist/
 .vscode/
 __pycache__/
 deploy/
+recording.jsonl
 
 # 子模块
 test/

@@ -87,6 +87,7 @@ class LostVoidMoveByDet(ZOperation):
     STATUS_ARRIVAL: ClassVar[str] = '到达目标'
     STATUS_NO_FOUND: ClassVar[str] = '未识别到目标'
     STATUS_CONTINUE: ClassVar[str] = '继续识别目标'
+    STATUS_INTERACT: ClassVar[str] = '处于交互中'
 
     def __init__(self, ctx: ZContext,
                  current_region: LostVoidRegionType, target_type: str,
@@ -115,12 +116,34 @@ class LostVoidMoveByDet(ZOperation):
 
         self.last_save_debug_image_time: float = 0  # 上一次保存debug图片的时间
 
+    def handle_not_in_world(self, screen: MatLike) -> OperationRoundResult:
+        """
+        处理不在大世界的情况
+
+        - 可能是进入新一层的时候 识别到里感叹号之类的 然后触发了获得战利品的效果 进入了选择
+        :param screen:
+        :return:
+        """
+        possible_screen_name_list = [
+            '迷失之地-武备选择', '迷失之地-通用选择', '迷失之地-无详情选择',
+            '迷失之地-无数量选择',
+        ]
+        screen_name = self.check_and_update_current_screen(screen, possible_screen_name_list)
+        if screen_name is not None:
+            return self.round_success(LostVoidMoveByDet.STATUS_INTERACT)
+        else:
+            return self.round_retry('未在大世界画面')
+
     @node_from(from_name='脱困')
     @node_from(from_name='无目标处理', status=STATUS_CONTINUE)
     @operation_node(name='移动前转向', node_max_retry_times=20, is_start_node=True)
     def turn_at_first(self) -> OperationRoundResult:
         screenshot_time = time.time()
         screen = self.screenshot()
+
+        in_world = self.ctx.lost_void.in_normal_world(screen)
+        if not in_world:
+            return self.handle_not_in_world(screen)
 
         frame_result = self.detector.run(screen)
 
