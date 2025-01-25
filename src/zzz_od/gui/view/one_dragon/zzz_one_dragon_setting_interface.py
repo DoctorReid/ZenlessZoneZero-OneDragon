@@ -8,7 +8,7 @@ from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInter
 from one_dragon.utils.i18_utils import gt
 from phosdeiz.gui.widgets import Column
 from zzz_od.application.drive_disc_dismantle.drive_disc_dismantle_config import DismantleLevelEnum
-from zzz_od.config.agent_outfit_config import AgentOutfitNicola, AgentOutfitEllen, AgentOutfitAstraYao
+from zzz_od.config.agent_outfit_config import AgentOutfitNicole, AgentOutfitEllen, AgentOutfitAstraYao
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import AgentEnum
 
@@ -39,9 +39,9 @@ class ZOneDragonSettingInterface(VerticalScrollInterface):
     def get_agent_outfit_group(self) -> QWidget:
         group = SettingCardGroup(gt('代理人皮肤'))
 
-        self.outfit_nicola_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='妮可', options_enum=AgentOutfitNicola)
-        self.outfit_nicola_opt.value_changed.connect(self.on_agent_outfit_changed)
-        group.addSettingCard(self.outfit_nicola_opt)
+        self.outfit_nicole_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='妮可', options_enum=AgentOutfitNicole)
+        self.outfit_nicole_opt.value_changed.connect(self.on_agent_outfit_changed)
+        group.addSettingCard(self.outfit_nicole_opt)
 
         self.outfit_ellen_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='艾莲', options_enum=AgentOutfitEllen)
         self.outfit_ellen_opt.value_changed.connect(self.on_agent_outfit_changed)
@@ -97,7 +97,7 @@ class ZOneDragonSettingInterface(VerticalScrollInterface):
         self.drive_disc_dismantle_level_opt.init_with_adapter(self.ctx.drive_disc_dismantle_config.get_prop_adapter('dismantle_level'))
         self.drive_disc_dismantle_abandon_opt.init_with_adapter(self.ctx.drive_disc_dismantle_config.get_prop_adapter('dismantle_abandon'))
 
-        self.outfit_nicola_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('nicola'))
+        self.outfit_nicole_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('nicola'))
         self.outfit_ellen_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('ellen'))
         self.outfit_astra_yao_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('astra_yao'))
 

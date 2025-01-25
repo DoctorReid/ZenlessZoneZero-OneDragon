@@ -10,12 +10,12 @@ class AgentOutfitConfig(YamlConfig):
         YamlConfig.__init__(self, 'agent_outfit', instance_idx=instance_idx)
 
     @property
-    def nicola(self) -> str:
-        return self.get('nicola', AgentOutfitNicola.DEFAULT.value.value)
+    def nicole(self) -> str:
+        return self.get('nicole', AgentOutfitNicole.DEFAULT.value.value)
 
-    @nicola.setter
-    def nicola(self, value: str) -> None:
-        self.update('nicola', value)
+    @nicole.setter
+    def nicole(self, value: str) -> None:
+        self.update('nicole', value)
 
     @property
     def ellen(self) -> str:
@@ -34,12 +34,12 @@ class AgentOutfitConfig(YamlConfig):
         self.update('astra_yao', value)
 
 
-class AgentOutfitNicola(Enum):
+class AgentOutfitNicole(Enum):
     """
     妮可皮肤
     """
-    DEFAULT = ConfigItem('默认', 'nicola')
-    CUNNING_CUTIE = ConfigItem('狡黠甜心', 'nicola_cunning_cutie')
+    DEFAULT = ConfigItem('默认', 'nicole')
+    CUNNING_CUTIE = ConfigItem('狡黠甜心', 'nicole_cunning_cutie')
 
 
 class AgentOutfitEllen(Enum):

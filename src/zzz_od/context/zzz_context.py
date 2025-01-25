@@ -162,6 +162,6 @@ class ZContext(OneDragonContext):
         代理人头像模板ID的初始化
         :return:
         """
-        AgentEnum.NICOLE.value.template_id = self.agent_outfit_config.nicola
+        AgentEnum.NICOLE.value.template_id = self.agent_outfit_config.nicole
         AgentEnum.ELLEN.value.template_id = self.agent_outfit_config.ellen
         AgentEnum.ASTRA_YAO.value.template_id = self.agent_outfit_config.astra_yao
