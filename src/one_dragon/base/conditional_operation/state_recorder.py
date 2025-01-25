@@ -5,7 +5,9 @@ class StateRecord:
 
     def __init__(self, state_name: str,
                  trigger_time: float = 0,
-                 value: Optional[int] = None, value_to_add: Optional[int] = None,
+                 value: Optional[int] = None, 
+                 value_to_add: Optional[int] = None,
+                 trigger_time_add: Optional[float] = None,
                  is_clear: bool = False,):
         """
         单次的状态记录
@@ -13,6 +15,7 @@ class StateRecord:
         self.state_name: str = state_name
         self.is_clear: bool = is_clear  # 是否清除状态
         self.trigger_time: float = trigger_time
+        self.trigger_time_add: float = trigger_time_add #时间修改
         self.value: int = value
         self.value_add: int = value_to_add
 
@@ -32,7 +35,13 @@ class StateRecorder:
         :param record:
         :return:
         """
-        self.last_record_time = record.trigger_time
+        #不需要增减则照常处理
+        if record.trigger_time_add is None or record.trigger_time_add == 0:
+            self.last_record_time = record.trigger_time
+        else:
+            if self.last_record_time != -1: #如果是不存在的状态则不做任何处理
+                self.last_record_time -= record.trigger_time_add
+
         if self.last_value is None:
             self.last_value = 0
 

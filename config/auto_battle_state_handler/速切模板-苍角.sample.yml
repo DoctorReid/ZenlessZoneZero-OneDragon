@@ -20,7 +20,7 @@ handlers:
           - op_name: "等待秒数"
             seconds: 0.1
 
-      - states: "[苍角-终结技可用] & ![自定义-连携换人,0,12]"
+      - states: "[苍角-终结技可用] & ![自定义-连携换人,0,10]"
         operations:
           - operation_template: "苍角-终结技"
           - op_name: "设置状态"

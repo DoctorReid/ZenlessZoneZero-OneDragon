@@ -22,16 +22,11 @@ handlers:
           - op_name: "等待秒数"
             seconds: 0.1
 
-      - states: "[珂蕾妲-终结技可用] & ![自定义-连携换人,0,12]"
+      - states: "[珂蕾妲-终结技可用] & ![自定义-连携换人,0,10]"
         operations:
           - op_name: "设置状态"
             state: "自定义-珂蕾妲-升温"
-          - op_name: "设置状态"
-            state: "自定义-动作不打断"
-            seconds: 5
-          - op_name: "按键-终结技"
-            post_delay: 1
-            repeat: 5
+          - operation_template: "通用-终结技"
 
       #补一个升温马上离开
       - states: "[珂蕾妲-特殊技可用] & ![自定义-珂蕾妲-升温,0,8]"

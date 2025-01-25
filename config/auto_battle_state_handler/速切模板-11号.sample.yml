@@ -28,9 +28,7 @@ handlers:
         operations:
           - op_name: "设置状态"
             state: "自定义-11号-火力压制"
-          - op_name: "按键-终结技"
-            post_delay: 2.5
-            repeat: 2
+          - operation_template: "通用-终结技"
           - op_name: "按键-闪避"
             post_delay: 0.2
           - op_name: "按键-普通攻击"
@@ -42,7 +40,7 @@ handlers:
           - op_name: "清除状态"
             state: "自定义-11号-火力压制"
 
-      - states: "[自定义-连携换人,4,12]"
+      - states: "[自定义-连携换人,4,10]"
         operations:
           - op_name: "设置状态"
             state: "自定义-11号-火力压制"

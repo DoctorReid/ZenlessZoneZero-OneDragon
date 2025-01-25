@@ -21,17 +21,12 @@ handlers:
             seconds: 0.1
 
       #失衡时刻
-      - states: "[自定义-连携换人,0,12]"
+      - states: "[自定义-连携换人,0,10]"
         sub_handlers:
           #失衡的时候就不用考虑这么多了，射吧
           - states: "[比利-终结技可用]"
             operations:
-              - op_name: "设置状态"
-                state: "自定义-动作不打断"
-                seconds: 4
-              - op_name: "按键-终结技"
-                post_delay: 0.1
-                repeat: 40
+              - operation_template: "通用-终结技"
           #朴实无华
           - states: "[比利-特殊技可用]"
             operations:
@@ -48,7 +43,7 @@ handlers:
                 post_delay: 0.1
                 repeat: 25
 
-      - states: "![自定义-连携换人,0,12]"
+      - states: "![自定义-连携换人,0,10]"
         sub_handlers:
           - states: "[比利-特殊技可用]"
             operations:

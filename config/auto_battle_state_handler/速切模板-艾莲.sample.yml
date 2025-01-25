@@ -21,7 +21,7 @@ handlers:
             seconds: 0.1
 
       #失衡时刻
-      - states: "[自定义-连携换人,0,12]"
+      - states: "[自定义-连携换人,0,10]"
         sub_handlers:
           # 失衡阶段：Q
           - states: "[艾莲-终结技可用]"
