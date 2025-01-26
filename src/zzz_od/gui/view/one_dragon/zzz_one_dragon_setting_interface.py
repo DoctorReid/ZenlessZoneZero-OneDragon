@@ -97,7 +97,7 @@ class ZOneDragonSettingInterface(VerticalScrollInterface):
         self.drive_disc_dismantle_level_opt.init_with_adapter(self.ctx.drive_disc_dismantle_config.get_prop_adapter('dismantle_level'))
         self.drive_disc_dismantle_abandon_opt.init_with_adapter(self.ctx.drive_disc_dismantle_config.get_prop_adapter('dismantle_abandon'))
 
-        self.outfit_nicole_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('nicola'))
+        self.outfit_nicole_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('nicole'))
         self.outfit_ellen_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('ellen'))
         self.outfit_astra_yao_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('astra_yao'))
 
