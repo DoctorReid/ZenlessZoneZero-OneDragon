@@ -70,7 +70,9 @@ class ScreenshotHelperApp(ZApplication):
 
         if self.ctx.screenshot_helper_config.dodge_detect:
             if self.auto_op.auto_battle_context.dodge_context.check_dodge_flash(screen, now):
-                debug_utils.save_debug_image(screen, prefix='dodge_wrong')
+                debug_utils.save_debug_image(screen, prefix='dodge')
+            elif self.auto_op.auto_battle_context.dodge_context.check_dodge_audio(now):
+                debug_utils.save_debug_image(screen, prefix='dodge')
 
         if self.to_save_screenshot:
             return self.round_success()

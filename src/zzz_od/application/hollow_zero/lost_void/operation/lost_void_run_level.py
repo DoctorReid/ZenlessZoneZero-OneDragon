@@ -110,6 +110,11 @@ class LostVoidRunLevel(ZOperation):
             self.click_challenge_confirm = True
             return self.round_wait(result.status)
 
+        # 可能某个卡在对话
+        result = self.try_talk(screen)
+        if result is not None:
+            return result
+
         return self.round_retry('未找到攻击交互按键', wait=1)
 
     @node_from(from_name='等待加载')
@@ -265,7 +270,7 @@ class LostVoidRunLevel(ZOperation):
         result = self.round_by_find_area(screen, '战斗画面', '按键-交互')
         if result.is_success:
             self.ctx.controller.interact(press=True, press_time=0.2, release=True)
-            return self.round_retry('交互', wait=1)
+            return self.round_wait('交互', wait=1)
 
         if not self.ctx.lost_void.in_normal_world(screen):  # 按键消失 说明开始加载了
             return self.round_success('交互成功')
