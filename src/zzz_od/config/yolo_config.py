@@ -9,7 +9,7 @@ ZZZ_MODEL_DOWNLOAD_URL = 'https://github.com/DoctorReid/OneDragon-YOLO/releases/
 _DEFAULT_FLASH_CLASSIFIER = 'yolov8n-640-flash-1215'
 _BACKUP_FLASH_CLASSIFIER = 'yolov8n-640-flash-0718'
 
-_DEFAULT_HOLLOW_ZERO_EVENT = 'yolov8s-736-hollow-zero-event-1130'
+_DEFAULT_HOLLOW_ZERO_EVENT = 'yolov8s-736-hollow-zero-event-0126'
 _BACKUP_HOLLOW_ZERO_EVENT = 'yolov8s-736-hollow-zero-event-1130'
 
 _DEFAULT_LOST_VOID_DET = 'yolov8n-736-lost-void-det-0125'

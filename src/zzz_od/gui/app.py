@@ -14,15 +14,13 @@ try:
     from one_dragon.utils.i18_utils import gt
 
     from zzz_od.context.zzz_context import ZContext
-    from zzz_od.gui.view import (
-        AppDevtoolsInterface,
-        GameAssistantInterface,
-        HollowZeroInterface,
-        HomeInterface,
-        ZOneDragonInterface,
-        AppSettingInterface,
-        BattleAssistantInterface,
-    )
+    from zzz_od.gui.view.battle_assistant.battle_assistant_interface import BattleAssistantInterface
+    from zzz_od.gui.view.devtools.app_devtools_interface import AppDevtoolsInterface
+    from zzz_od.gui.view.game_assistant.game_assistant import GameAssistantInterface
+    from zzz_od.gui.view.hollow_zero.hollow_zero_interface import HollowZeroInterface
+    from zzz_od.gui.view.home.home_interface import HomeInterface
+    from zzz_od.gui.view.one_dragon.zzz_one_dragon_interface import ZOneDragonInterface
+    from zzz_od.gui.view.setting.app_setting_interface import AppSettingInterface
 
     _init_error = None
 
