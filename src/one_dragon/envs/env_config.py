@@ -34,13 +34,6 @@ class GitMethodEnum(Enum):
     SSH = ConfigItem('ssh')
 
 
-class ThemeEnum(Enum):
-
-    LIGHT = ConfigItem('浅色', 'Light')
-    DARK = ConfigItem('深色', 'Dark')
-    AUTO = ConfigItem('跟随系统', 'Auto')
-
-
 class PipSourceEnum(Enum):
 
     PYPI = ConfigItem('官方', 'https://pypi.org/simple')
@@ -92,38 +85,6 @@ class EnvConfig(YamlConfig):
         :return: pythonw.exe的路径
         """
         return os.path.join(os.path.dirname(self.python_path), 'pythonw.exe')
-
-    @property
-    def theme(self) -> str:
-        """
-        主题
-        :return:
-        """
-        return self.get('theme', ThemeEnum.AUTO.value.value)
-
-    @theme.setter
-    def theme(self, new_value: str) -> None:
-        """
-        主题
-        :return:
-        """
-        self.update('theme', new_value)
-
-    @property
-    def banner(self) -> bool:
-        """
-        自定义主页背景
-        :return:
-        """
-        return self.get('banner', False)
-    
-    @banner.setter
-    def banner(self, new_value: bool) -> None:
-        """
-        自定义主页背景
-        :return:
-        """
-        self.update('banner', new_value)
 
     @property
     def proxy_type(self) -> str:

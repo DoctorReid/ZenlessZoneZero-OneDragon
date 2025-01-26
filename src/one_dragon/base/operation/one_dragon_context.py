@@ -14,6 +14,7 @@ from one_dragon.base.matcher.ocr.onnx_ocr_matcher import OnnxOcrMatcher
 from one_dragon.base.matcher.template_matcher import TemplateMatcher
 from one_dragon.base.operation.context_event_bus import ContextEventBus
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext, ONE_DRAGON_CONTEXT_EXECUTOR
+from one_dragon.base.operation.one_dragon_custom_context import OneDragonCustomContext
 from one_dragon.base.screen.screen_loader import ScreenContext
 from one_dragon.base.screen.template_loader import TemplateLoader
 from one_dragon.utils import debug_utils, log_utils
@@ -50,11 +51,12 @@ class ContextInstanceEventEnum(Enum):
     instance_active: str = 'instance_active'
 
 
-class OneDragonContext(ContextEventBus, OneDragonEnvContext):
+class OneDragonContext(ContextEventBus, OneDragonEnvContext, OneDragonCustomContext):
 
     def __init__(self, controller: Optional = None):
         ContextEventBus.__init__(self)
         OneDragonEnvContext.__init__(self)
+        OneDragonCustomContext.__init__(self)
 
         self.one_dragon_config: OneDragonConfig = OneDragonConfig()
 
