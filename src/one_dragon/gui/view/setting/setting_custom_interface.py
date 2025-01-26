@@ -1,6 +1,8 @@
 import os
 import shutil
 import hashlib
+import ctypes
+from ctypes import wintypes
 
 from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QWidget, QFileDialog
@@ -108,8 +110,10 @@ class SettingCustomInterface(VerticalScrollInterface):
         """
         选择背景图片并复制
         """
-        default_path = os_utils.get_path_under_work_dir('custom', 'assets', 'ui')
-        file_path, _ = QFileDialog.getOpenFileName(self, gt('选择你的背景图片'), default_path, filter="Images (*.png *.jpg *.jpeg *.webp *.bmp)")
+        # 将默认路径设为图片库路径
+        default_path = ctypes.create_unicode_buffer(wintypes.MAX_PATH)
+        ctypes.windll.shell32.SHGetFolderPathW(None, 0x0027, None, 0, default_path)
+        file_path, _ = QFileDialog.getOpenFileName(self, gt('选择你的背景图片'), default_path.value, filter="Images (*.png *.jpg *.jpeg *.webp *.bmp)")
         if file_path is not None and file_path != '':
             banner_path = os.path.join(
             os_utils.get_path_under_work_dir('custom', 'assets', 'ui'),
