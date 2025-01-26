@@ -87,11 +87,13 @@ class LostVoidMoveByDet(ZOperation):
     STATUS_ARRIVAL: ClassVar[str] = '到达目标'
     STATUS_NO_FOUND: ClassVar[str] = '未识别到目标'
     STATUS_CONTINUE: ClassVar[str] = '继续识别目标'
+    STATUS_INTERACT: ClassVar[str] = '处于交互中'
 
     def __init__(self, ctx: ZContext,
                  current_region: LostVoidRegionType, target_type: str,
                  stop_when_interact: bool = True,
                  stop_when_disappear: bool = True,
+                 ignore_entry_list: Optional[List[str]] = None
                  ):
         ZOperation.__init__(self, ctx, op_name=f'迷失之地-识别寻路-{target_type[5:]}')
 
@@ -99,7 +101,7 @@ class LostVoidMoveByDet(ZOperation):
         self.target_type: str = target_type
         self.stop_when_interact: bool = stop_when_interact  # 可交互时停止移动
         self.stop_when_disappear: bool = stop_when_disappear  # 目标消失时停止移动
-        self.detector: LostVoidDetector = self.ctx.lost_void.detector
+        self.ignore_entry_list: List[str] = ignore_entry_list
 
         # 需要按方向选的时候 按最大x值选
         # 入口时 从右往左选可以上楼梯
@@ -115,6 +117,24 @@ class LostVoidMoveByDet(ZOperation):
 
         self.last_save_debug_image_time: float = 0  # 上一次保存debug图片的时间
 
+    def handle_not_in_world(self, screen: MatLike) -> OperationRoundResult:
+        """
+        处理不在大世界的情况
+
+        - 可能是进入新一层的时候 识别到里感叹号之类的 然后触发了获得战利品的效果 进入了选择
+        :param screen:
+        :return:
+        """
+        possible_screen_name_list = [
+            '迷失之地-武备选择', '迷失之地-通用选择', '迷失之地-无详情选择',
+            '迷失之地-无数量选择',
+        ]
+        screen_name = self.check_and_update_current_screen(screen, possible_screen_name_list)
+        if screen_name is not None:
+            return self.round_success(LostVoidMoveByDet.STATUS_INTERACT)
+        else:
+            return self.round_retry('未在大世界画面')
+
     @node_from(from_name='脱困')
     @node_from(from_name='无目标处理', status=STATUS_CONTINUE)
     @operation_node(name='移动前转向', node_max_retry_times=20, is_start_node=True)
@@ -122,7 +142,12 @@ class LostVoidMoveByDet(ZOperation):
         screenshot_time = time.time()
         screen = self.screenshot()
 
-        frame_result = self.detector.run(screen)
+        in_world = self.ctx.lost_void.in_normal_world(screen)
+        if not in_world:
+            return self.handle_not_in_world(screen)
+
+        frame_result = self.ctx.lost_void.detect_to_go(screen, screenshot_time=screenshot_time,
+                                                       ignore_list=self.ignore_entry_list)
 
         if self.check_interact_stop(screen, frame_result):
             return self.round_success(LostVoidMoveByDet.STATUS_ARRIVAL, data=self.last_target_name)
@@ -145,7 +170,8 @@ class LostVoidMoveByDet(ZOperation):
     def move_towards(self) -> OperationRoundResult:
         screenshot_time = time.time()
         screen = self.screenshot()
-        frame_result: DetectFrameResult = self.detector.run(screen)
+        frame_result: DetectFrameResult = self.ctx.lost_void.detect_to_go(screen, screenshot_time=screenshot_time,
+                                                                          ignore_list=self.ignore_entry_list)
 
         if self.check_interact_stop(screen, frame_result):
             self.ctx.controller.stop_moving_forward()
@@ -202,8 +228,8 @@ class LostVoidMoveByDet(ZOperation):
         @return:
         """
         if self.target_type != LostVoidDetector.CLASS_ENTRY:
-            detect_result = self.detector.get_result_by_x(frame_result, self.target_type,
-                                                          by_max_x=self.choose_by_max_x)
+            detect_result = self.ctx.lost_void.detector.get_result_by_x(frame_result, self.target_type,
+                                                                        by_max_x=self.choose_by_max_x)
             if detect_result is not None:
                 return MoveTargetWrapper(detect_result)
             else:
@@ -362,7 +388,8 @@ class LostVoidMoveByDet(ZOperation):
         if self.stop_when_disappear:
             return self.round_success(LostVoidMoveByDet.STATUS_ARRIVAL, data=self.last_target_name)
 
-        frame_result: DetectFrameResult = self.detector.run(screen)
+        frame_result: DetectFrameResult = self.ctx.lost_void.detect_to_go(screen, screenshot_time=screenshot_time,
+                                                                          ignore_list=self.ignore_entry_list)
         if self.check_interact_stop(screen, frame_result):
             result = self.round_by_find_area(screen, '战斗画面', '按键-交互')
             if result.is_success:

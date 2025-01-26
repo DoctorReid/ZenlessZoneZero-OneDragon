@@ -7,9 +7,11 @@ from typing import Optional, List, Tuple
 from one_dragon.base.config.yaml_operator import YamlOperator
 from one_dragon.base.matcher.match_result import MatchResult
 from one_dragon.base.screen import screen_utils
+from one_dragon.base.screen.screen_utils import FindAreaResultEnum
 from one_dragon.utils import os_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
+from one_dragon.yolo.detect_utils import DetectFrameResult
 from zzz_od.application.hollow_zero.lost_void.context.lost_void_artifact import LostVoidArtifact
 from zzz_od.application.hollow_zero.lost_void.context.lost_void_detector import LostVoidDetector
 from zzz_od.application.hollow_zero.lost_void.lost_void_challenge_config import LostVoidRegionType, \
@@ -91,6 +93,46 @@ class LostVoidContext:
         :return:
         """
         self.challenge_config = LostVoidChallengeConfig(self.ctx.lost_void_config.challenge_config)
+
+    def in_normal_world(self, screen: MatLike) -> bool:
+        """
+        判断当前画面是否在大世界里
+        @param screen: 游戏画面
+        @return:
+        """
+        result = screen_utils.find_area(self.ctx, screen, '战斗画面', '按键-普通攻击')
+        if result == FindAreaResultEnum.TRUE:
+            return True
+
+        result = screen_utils.find_area(self.ctx, screen, '战斗画面', '按键-交互')
+        if result == FindAreaResultEnum.TRUE:
+            return True
+
+        result = screen_utils.find_area(self.ctx, screen, '迷失之地-大世界', '按键-交互-不可用')
+        if result == FindAreaResultEnum.TRUE:
+            return True
+
+        return False
+
+    def detect_to_go(self, screen: MatLike, screenshot_time: float, ignore_list: Optional[List[str]] = None) -> DetectFrameResult:
+        """
+        识别需要前往的内容
+        @param screen: 游戏画面
+        @param screenshot_time: 截图时间
+        @param ignore_list: 需要忽略的类别
+        @return:
+        """
+        if ignore_list is None or len(ignore_list) == 0:
+            to_detect_labels = None
+        else:
+            to_detect_labels = []
+            for det_class in self.detector.idx_2_class.values():
+                label = det_class.class_name
+                if label[5:] not in ignore_list:
+                    to_detect_labels.append(label)
+
+        return self.ctx.lost_void.detector.run(screen, run_time=screenshot_time,
+                                               label_list=to_detect_labels)
 
     def check_battle_encounter(self, screen: MatLike, screenshot_time: float) -> bool:
         """

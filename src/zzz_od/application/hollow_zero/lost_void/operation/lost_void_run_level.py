@@ -2,7 +2,7 @@ import time
 
 import cv2
 from cv2.typing import MatLike
-from typing import ClassVar, Optional
+from typing import ClassVar, Optional, List
 
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.operation.operation import Operation
@@ -81,13 +81,15 @@ class LostVoidRunLevel(ZOperation):
         self.reward_dn_found: bool = False  # 挑战结果中可以识别到丁尼
         self.click_challenge_confirm: bool = False  # 点击了挑战确认
 
+        self.had_been_list: List[str] = []  # 已经访问过的类型 1.5更新后 交互后交互类型的图标不会消失 需要自己过滤
+
     @node_from(from_name='非战斗画面识别', status='未在大世界')  # 有小概率交互入口后 没处理好结束本次RunLevel 重新从等待加载 开始
     @node_from(from_name='非战斗画面识别', status='按钮-挑战-确认')  # 挑战类型的对话框确认后 第一次点击可能无效 跳回来这里点击到最后生效为止
     @operation_node(name='等待加载', node_max_retry_times=60, is_start_node=True)
     def wait_loading(self) -> OperationRoundResult:
         screen = self.screenshot()
 
-        if self.in_normal_world(screen):
+        if self.ctx.lost_void.in_normal_world(screen):
             return self.round_success('大世界')
 
         # 1. 在精英怪后 点击完挑战结果后 加载挚友会谈前 可能会弹出奖励
@@ -165,7 +167,7 @@ class LostVoidRunLevel(ZOperation):
         screen = self.screenshot()
 
         # 不在大世界处理
-        if not self.in_normal_world(screen):
+        if not self.ctx.lost_void.in_normal_world(screen):
             result = self.round_by_find_and_click_area(screen, '迷失之地-大世界', '按钮-挑战-确认')
             if result.is_success:
                 self.region_type = LostVoidRegionType.CHANLLENGE_TIME_TRAIL
@@ -180,7 +182,8 @@ class LostVoidRunLevel(ZOperation):
                 return self.round_wait('未在大世界', wait=1)
 
         # 在大世界 开始检测
-        frame_result: DetectFrameResult = self.ctx.lost_void.detector.run(screen, run_time=now)
+        frame_result: DetectFrameResult = self.ctx.lost_void.detect_to_go(screen, screenshot_time=now,
+                                                                          ignore_list=self.had_been_list)
         with_interact, with_distance, with_entry = self.ctx.lost_void.detector.is_frame_with_all(frame_result)
 
         # 优先处理感叹号
@@ -193,6 +196,8 @@ class LostVoidRunLevel(ZOperation):
             if op_result.success:
                 if op_result.status == LostVoidMoveByDet.STATUS_IN_BATTLE:
                     return self.round_success(LostVoidMoveByDet.STATUS_IN_BATTLE)
+                elif op_result.status == LostVoidMoveByDet.STATUS_INTERACT:
+                    return self.round_success('未在大世界')
                 else:
                     return self.round_success(LostVoidDetector.CLASS_INTERACT, wait=1)
             else:
@@ -208,6 +213,8 @@ class LostVoidRunLevel(ZOperation):
             if op_result.success:
                 if op_result.status == LostVoidMoveByDet.STATUS_IN_BATTLE:
                     return self.round_success(LostVoidMoveByDet.STATUS_IN_BATTLE)
+                elif op_result.status == LostVoidMoveByDet.STATUS_INTERACT:
+                    return self.round_success('未在大世界')
                 else:
                     return self.round_success(LostVoidDetector.CLASS_DISTANCE)
             else:
@@ -218,11 +225,13 @@ class LostVoidRunLevel(ZOperation):
             self.nothing_times = 0
             self.target_interact_type = LostVoidDetector.CLASS_ENTRY
             op = LostVoidMoveByDet(self.ctx, self.region_type, LostVoidDetector.CLASS_ENTRY,
-                                   stop_when_disappear=False)
+                                   stop_when_disappear=False, ignore_entry_list=self.had_been_list)
             op_result = op.execute()
             if op_result.success:
                 if op_result.status == LostVoidMoveByDet.STATUS_IN_BATTLE:
                     return self.round_success(LostVoidMoveByDet.STATUS_IN_BATTLE)
+                elif op_result.status == LostVoidMoveByDet.STATUS_INTERACT:
+                    return self.round_success('未在大世界')
                 else:
                     self.interact_entry_name = op_result.data
                     return self.round_success(LostVoidDetector.CLASS_ENTRY)
@@ -258,7 +267,7 @@ class LostVoidRunLevel(ZOperation):
             self.ctx.controller.interact(press=True, press_time=0.2, release=True)
             return self.round_retry('交互', wait=1)
 
-        if not self.in_normal_world(screen):  # 按键消失 说明开始加载了
+        if not self.ctx.lost_void.in_normal_world(screen):  # 按键消失 说明开始加载了
             return self.round_success('交互成功')
 
         # 没有交互按钮 可能走过头了 尝试往后走
@@ -288,6 +297,7 @@ class LostVoidRunLevel(ZOperation):
 
         screen_name = self.check_and_update_current_screen(screen)
         interact_op: Optional[ZOperation] = None
+        interact_type: Optional[str] = None
         if screen_name == '迷失之地-武备选择':
             interact_op = LostVoidChooseGear(self.ctx)
         elif screen_name == '迷失之地-通用选择':
@@ -297,16 +307,20 @@ class LostVoidRunLevel(ZOperation):
         elif screen_name == '迷失之地-无数量选择':
             interact_op = LostVoidChooseNoNum(self.ctx)
         elif screen_name == '迷失之地-邦布商店':
+            interact_type = '邦布商店'
             interact_op = LostVoidBangbooStore(self.ctx)
         elif screen_name == '迷失之地-大世界':
             return self.round_success('迷失之地-大世界')
 
         if interact_op is not None:
-            # 出现选择的情况 交互到的不是下层入口 中途交互到其他内容了
+            # 出现选择的情况 交互到的不是下层入口 而是中途交互到其他内容了
             if self.target_interact_type == LostVoidDetector.CLASS_ENTRY:
                 self.target_interact_type = LostVoidDetector.CLASS_INTERACT
             op_result = interact_op.execute()
             if op_result.success:
+                if interact_type is not None:
+                    self.had_been_list.append(interact_type)
+
                 return self.round_wait(op_result.status, wait=1)
             else:
                 return self.round_fail(op_result.status)
@@ -319,7 +333,7 @@ class LostVoidRunLevel(ZOperation):
 
             return talk_result
 
-        if self.in_normal_world(screen):
+        if self.ctx.lost_void.in_normal_world(screen):
             return self.round_success('迷失之地-大世界')
 
         result = self.round_by_find_area(screen, '迷失之地-挑战结果', '标题-挑战结果')
@@ -436,7 +450,7 @@ class LostVoidRunLevel(ZOperation):
         """
         screen = self.screenshot()
 
-        if self.in_normal_world(screen):
+        if self.ctx.lost_void.in_normal_world(screen):
             self.move_after_interact()
             return self.round_success(status='大世界', wait=1)
 
@@ -455,26 +469,6 @@ class LostVoidRunLevel(ZOperation):
             return self.round_success(LostVoidRunLevel.STATUS_NEXT_LEVEL, data=self.interact_entry_name)
 
         return self.round_retry('等待画面返回', wait=1)
-
-    def in_normal_world(self, screen: MatLike) -> bool:
-        """
-        判断当前画面是否在大世界里
-        @param screen: 游戏画面
-        @return:
-        """
-        result = self.round_by_find_area(screen, '战斗画面', '按键-普通攻击')
-        if result.is_success:
-            return True
-
-        result = self.round_by_find_area(screen, '战斗画面', '按键-交互')
-        if result.is_success:
-            return True
-
-        result = self.round_by_find_area(screen, '迷失之地-大世界', '按键-交互-不可用')
-        if result.is_success:
-            return True
-
-        return False
 
     def move_after_interact(self) -> None:
         """
