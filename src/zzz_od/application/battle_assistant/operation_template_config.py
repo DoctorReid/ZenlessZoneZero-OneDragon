@@ -39,9 +39,14 @@ def get_all_operation_template() -> List[OperationTemplate]:
             relative_template_name = os.path.relpath(template_name, auto_battle_dir_path).replace("\\", "/")
             template_name_set.add(relative_template_name)
 
+    # 将 template_name_set 转换为列表并排序
+    sorted_template_names = sorted(template_name_set, key=lambda x: x.lower())
+
+    # 创建 OperationTemplate 对象列表
     result_op_list = []
-    for template_name in template_name_set:
-        result_op_list.append(OperationTemplate('auto_battle_operation', template_name))
+    for template_name in sorted_template_names:
+        op = OperationTemplate('auto_battle_operation', template_name)
+        result_op_list.append(op)
 
     return result_op_list
 
