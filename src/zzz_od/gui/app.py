@@ -21,6 +21,7 @@ try:
     from zzz_od.gui.view.home.home_interface import HomeInterface
     from zzz_od.gui.view.one_dragon.zzz_one_dragon_interface import ZOneDragonInterface
     from zzz_od.gui.view.setting.app_setting_interface import AppSettingInterface
+    from zzz_od.gui.view.accounts.app_accounts_interface import AccountsInterface
 
     _init_error = None
 
@@ -139,6 +140,12 @@ try:
             # 代码同步
             self.add_sub_interface(
                 CodeInterface(self.ctx, parent=self),
+                position=NavigationItemPosition.BOTTOM,
+            )
+
+            # 多账号管理
+            self.add_sub_interface(
+                AccountsInterface(self.ctx, parent=self),
                 position=NavigationItemPosition.BOTTOM,
             )
 
