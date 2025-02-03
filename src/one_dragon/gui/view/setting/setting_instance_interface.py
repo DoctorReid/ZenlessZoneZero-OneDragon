@@ -1,7 +1,10 @@
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QWidget
+from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.widgets.setting_card.push_setting_card import PushSettingCard
+from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
 from qfluentwidgets import FluentIcon, LineEdit, PushButton, \
-    ToolButton, PrimaryPushButton, HyperlinkCard
+    ToolButton, PrimaryPushButton, HyperlinkCard, SettingCardGroup
 
 from one_dragon.base.config.one_dragon_config import OneDragonInstance, RunInOneDragonApp
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
@@ -10,7 +13,9 @@ from one_dragon.gui.widgets.setting_card.multi_push_setting_card import MultiPus
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 
-from phosdeiz.gui.widgets import Column,ComboBox
+from phosdeiz.gui.widgets import Column, ComboBox
+from zzz_od.config.game_config import GameRegionEnum, TypeInputWay
+from zzz_od.context.zzz_context import ZContext
 
 class InstanceSettingCard(MultiPushSettingCard):
 
@@ -98,8 +103,9 @@ class SettingInstanceInterface(VerticalScrollInterface):
         VerticalScrollInterface.__init__(
             self,
             object_name='setting_instance_interface',
-            content_widget=None, parent=parent,
-            nav_text_cn='实例设置'
+            content_widget=self.get_content_widget(),
+            parent=parent,
+            nav_text_cn='多账户管理'
         )
         self.ctx: OneDragonContext = ctx
 
@@ -109,11 +115,16 @@ class SettingInstanceInterface(VerticalScrollInterface):
         :return:
         """
         self.content_widget = Column()
+        self._init_content_widget()  # 调用 _init_content_widget 方法初始化内容组件
+
+        # self.content_widget.add_widget(self._get_instanceSettings_group())
+        # self.content_widget.add_widget(self._get_instanceSwitch_group())
+        # self.content_widget.add_stretch(1)
+
         return self.content_widget
 
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)
-
         self._init_content_widget()
 
     def _init_content_widget(self) -> None:
@@ -132,21 +143,59 @@ class SettingInstanceInterface(VerticalScrollInterface):
             content='新实例需要点击启用后到各模块进行设置，各实例之间的设置是独立的。'
         )
         self.content_widget.add_widget(guide_opt)
+        self.content_widget.add_widget(self._get_instanceSettings_group())
+        self.content_widget.add_widget(self._get_instanceSwitch_group())
+        self.content_widget.add_stretch(1)
+
+        # 初始化账号和密码
+        self.game_region_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('game_region'))
+        self.game_account_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('account'))
+        self.game_password_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('password'))
+        # self.input_way_opt.init_with_adapter(self.ctx.game_config.type_input_way_adapter)
+
+    def _get_instanceSwitch_group(self) -> QWidget:
+        instance_switch_group = SettingCardGroup(gt('账户列表', 'ui'))
 
         for instance in self.ctx.one_dragon_config.instance_list:
             instance_card = InstanceSettingCard(instance)
             self.instance_card_list.append(instance_card)
-            self.content_widget.add_widget(instance_card)
+            instance_switch_group.addSettingCard(instance_card)
             instance_card.changed.connect(self._on_instance_changed)
             instance_card.active.connect(self._on_instance_active)
             instance_card.login.connect(self._on_instance_login)
             instance_card.delete.connect(self._on_instance_delete)
 
         self.add_btn = PrimaryPushButton(text='新增')
+        self.add_btn.setFixedHeight(40)  # 设置按钮的固定高度
         self.add_btn.clicked.connect(self._on_add_clicked)
+        instance_switch_group.addSettingCard(self.add_btn)
 
-        self.content_widget.add_widget(self.add_btn)
-        self.content_widget.add_stretch(1)
+        return instance_switch_group
+
+    def _get_instanceSettings_group(self) -> QWidget:
+        instance_settings_group = SettingCardGroup(gt('当前账户设置', 'ui'))
+
+        self.game_region_opt = ComboBoxSettingCard(icon=FluentIcon.HOME, title='游戏区服', options_enum=GameRegionEnum)
+        self.game_region_opt.value_changed.connect(self._on_instance_changed)
+        instance_settings_group.addSettingCard(self.game_region_opt)
+
+        self.game_account_opt = TextSettingCard(icon=FluentIcon.PEOPLE, title='账号')
+        self.game_account_opt.value_changed.connect(self._on_instance_changed)
+        instance_settings_group.addSettingCard(self.game_account_opt)
+
+        self.game_password_opt = TextSettingCard(
+            icon=FluentIcon.EXPRESSIVE_INPUT_ENTRY,
+            title='密码',
+            input_placeholder='所有信息都保存在本地 请自行妥善管理',
+            is_password=True  # 设置为密码模式
+        )
+        instance_settings_group.addSettingCard(self.game_password_opt)
+
+        # self.input_way_opt = ComboBoxSettingCard(icon=FluentIcon.CLIPPING_TOOL, title='输入方式',
+        #                                          options_enum=TypeInputWay)
+        # instance_settings_group.addSettingCard(self.input_way_opt)
+
+        return instance_settings_group
 
     def _on_add_clicked(self) -> None:
         self.ctx.one_dragon_config.create_new_instance(False)
@@ -161,6 +210,14 @@ class SettingInstanceInterface(VerticalScrollInterface):
         for instance_card in self.instance_card_list:
             instance_card.check_active(idx)
 
+        # 更新当前账户设置中的内容
+        active_instance = next((inst for inst in self.ctx.one_dragon_config.instance_list if inst.idx == idx), None)
+        if active_instance:
+            self.game_region_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('game_region'))
+            self.game_account_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('account'))
+            self.game_password_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('password'))
+            # self.input_way_opt.init_with_adapter(self.ctx.game_config.type_input_way_adapter)
+
     def _on_instance_login(self, idx: int) -> None:
         log.error('未配置登录操作')
 
@@ -170,3 +227,6 @@ class SettingInstanceInterface(VerticalScrollInterface):
 
         self.ctx.one_dragon_config.delete_instance(idx)
         self._init_content_widget()
+
+    def _on_game_region_changed(self, index, value):
+        self.ctx.init_by_config()
