@@ -83,9 +83,11 @@ class SettingGameInterface(VerticalScrollInterface):
         self.full_screen_opt = ComboBoxSettingCard(icon=FluentIcon.SETTING, title='全屏', options_enum=FullScreenEnum)
         launch_arguement_group.addSettingCard(self.full_screen_opt)
 
-        # self.monitor_opt = ComboBoxSettingCard(icon=FluentIcon.SETTING, title='显示器序号', options_enum=MonitorEnum)
-        # launch_arguement_group.addSettingCard(self.monitor_opt)
-        # 显示器选项等待ocr适配后解锁
+        self.popup_window_switch = SwitchSettingCard(icon=FluentIcon.SETTING, title='无边框窗口')
+        launch_arguement_group.addSettingCard(self.popup_window_switch)
+
+        self.monitor_opt = ComboBoxSettingCard(icon=FluentIcon.SETTING, title='显示器序号', options_enum=MonitorEnum)
+        launch_arguement_group.addSettingCard(self.monitor_opt)
 
         self.launch_arguement_advance = TextSettingCard(
             icon=FluentIcon.SETTING,
@@ -279,7 +281,8 @@ class SettingGameInterface(VerticalScrollInterface):
         self.launch_arguement_switch.init_with_adapter(self.ctx.game_config.get_prop_adapter('launch_arguement'))
         self.screen_size_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('screen_size'))
         self.full_screen_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('full_screen'))
-        # self.monitor_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('monitor'))
+        self.popup_window_switch.init_with_adapter(self.ctx.game_config.get_prop_adapter('popup_window'))
+        self.monitor_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('monitor'))
         self.launch_arguement_advance.init_with_adapter(self.ctx.game_config.get_prop_adapter('launch_arguement_advance'))
         if not self.ctx.game_config.launch_arguement:
             self._on_launch_arguement_switch_changed(False)
@@ -401,10 +404,12 @@ class SettingGameInterface(VerticalScrollInterface):
         if value:
             self.screen_size_opt.setVisible(True)
             self.full_screen_opt.setVisible(True)
-            # self.monitor_opt.setVisible(True)
+            self.popup_window_switch.setVisible(True)
+            self.monitor_opt.setVisible(True)
             self.launch_arguement_advance.setVisible(True)
         else:
             self.screen_size_opt.setVisible(False)
             self.full_screen_opt.setVisible(False)
-            # self.monitor_opt.setVisible(False)
+            self.popup_window_switch.setVisible(False)
+            self.monitor_opt.setVisible(False)
             self.launch_arguement_advance.setVisible(False)
