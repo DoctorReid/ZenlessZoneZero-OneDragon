@@ -1,6 +1,7 @@
 import os
 import subprocess
 from typing import List, Optional, Callable
+from plyer import notification
 import threading
 
 from one_dragon.utils import os_utils
@@ -93,6 +94,27 @@ def cancel_shutdown_sys():
     :return:
     """
     os.system("shutdown /a")
+
+# def send_notification(title: str, message: str, duration: int = 5):
+def send_notification():
+    """
+    发送桌面通知
+    :return:
+    """
+    title = "绝区零一条龙"
+    message = "一条龙任务运行完成!"
+    duration = 5  # 通知显示时间（秒）
+    try:
+        notification.notify(
+            title=title,
+            message=message,
+            timeout=duration,  # 通知显示的时间
+        )
+    except Exception as e:
+        print(f"发送通知失败: {e}")
+
+# 调用函数
+send_notification()
 
 
 if __name__ == '__main__':
