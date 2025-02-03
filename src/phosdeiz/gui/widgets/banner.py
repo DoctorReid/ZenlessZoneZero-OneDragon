@@ -1,5 +1,5 @@
 import os
-from PySide6.QtCore import Qt, QSize
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap, QPainter, QPainterPath
 from PySide6.QtWidgets import QWidget
 
@@ -46,7 +46,7 @@ class Banner(QWidget):
             painter.setClipPath(path)
 
             # 计算绘制位置，使图片居中
-            x = self.width() - self.scaled_image.width()
+            x = (self.width() - self.scaled_image.width()) // 2
             y = (self.height() - self.scaled_image.height()) // 2
 
             # 绘制缩放后的图片

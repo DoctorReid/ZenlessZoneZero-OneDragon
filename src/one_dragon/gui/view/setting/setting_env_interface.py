@@ -1,10 +1,10 @@
 from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QWidget
-from qfluentwidgets import FluentIcon, SettingCardGroup, setTheme, Theme, VBoxLayout, PushButton, HyperlinkButton
+from qfluentwidgets import FluentIcon, SettingCardGroup, VBoxLayout, PushButton, HyperlinkButton
 
 from one_dragon.base.config.config_item import get_config_item_from_enum
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
-from one_dragon.envs.env_config import RepositoryTypeEnum, GitMethodEnum, ProxyTypeEnum, ThemeEnum, PipSourceEnum
+from one_dragon.envs.env_config import RepositoryTypeEnum, GitMethodEnum, ProxyTypeEnum, PipSourceEnum
 from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.widgets.setting_card.key_setting_card import KeySettingCard
@@ -39,13 +39,6 @@ class SettingEnvInterface(VerticalScrollInterface):
 
     def _init_basic_group(self) -> SettingCardGroup:
         basic_group = SettingCardGroup(gt('基础', 'ui'))
-
-        self.theme_opt = ComboBoxSettingCard(
-            icon=FluentIcon.CONSTRACT, title='界面主题',
-            options_enum=ThemeEnum
-        )
-        self.theme_opt.value_changed.connect(self._on_theme_changed)
-        basic_group.addSettingCard(self.theme_opt)
 
         self.debug_opt = SwitchSettingCard(
             icon=FluentIcon.SEARCH, title='调试模式', content='正常无需开启'
@@ -166,9 +159,6 @@ class SettingEnvInterface(VerticalScrollInterface):
         :return:
         """
         VerticalScrollInterface.on_interface_shown(self)
-        theme = get_config_item_from_enum(ThemeEnum, self.ctx.env_config.theme)
-        if theme is not None:
-            self.theme_opt.setValue(theme.value)
 
         self.debug_opt.setValue(self.ctx.env_config.is_debug)
 
@@ -197,17 +187,6 @@ class SettingEnvInterface(VerticalScrollInterface):
 
         self.gh_proxy_url_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('gh_proxy_url'))
         self.auto_fetch_gh_proxy_url_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('auto_fetch_gh_proxy_url'))
-
-    def _on_theme_changed(self, index: int, value: str) -> None:
-        """
-        仓库类型改变
-        :param index: 选项下标
-        :param value: 值
-        :return:
-        """
-        config_item = get_config_item_from_enum(ThemeEnum, value)
-        self.ctx.env_config.theme = config_item.value
-        setTheme(Theme[config_item.value.upper()],lazy=True)
 
     def _on_debug_changed(self, value: bool):
         """

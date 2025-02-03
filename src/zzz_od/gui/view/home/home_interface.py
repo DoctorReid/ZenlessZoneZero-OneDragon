@@ -173,14 +173,20 @@ class HomeInterface(VerticalScrollInterface):
     """主页界面"""
 
     def __init__(self, ctx: ZContext, parent=None):
+        self.ctx: ZContext = ctx
 
         # 创建垂直布局的主窗口部件
         # index.png 来自 C:\Users\YOUR_NAME\AppData\Roaming\miHoYo\HYP\1_1\fedata\Cache\Cache_Data
         # 对此路径下文件增加后缀名.png后可见
-        v_widget = Banner(os.path.join(
+        if self.ctx.custom_config.banner:
+            banner_path = os.path.join(
+            os_utils.get_path_under_work_dir('custom', 'assets', 'ui'),
+            'banner')
+        else:
+            banner_path = os.path.join(
             os_utils.get_path_under_work_dir('assets', 'ui'),
-            'index.png'
-        ))
+            'index.png')
+        v_widget = Banner(banner_path)
         v_widget.set_percentage_size(0.8, 0.5)  # 设置 Banner 大小为窗口的 80% 宽度和 50% 高度
 
         v_layout = QVBoxLayout(v_widget)

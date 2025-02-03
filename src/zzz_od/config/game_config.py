@@ -151,6 +151,14 @@ class GameConfig(YamlConfig):
     @full_screen.setter
     def full_screen(self, new_value: str) -> None:
         self.update('full_screen', new_value)
+
+    @property
+    def popup_window(self) -> bool:
+        return self.get('popup_window', False)
+    
+    @popup_window.setter
+    def popup_window(self, new_value: bool) -> None:
+        self.update('popup_window', new_value)
     
     @property
     def monitor(self) -> str:

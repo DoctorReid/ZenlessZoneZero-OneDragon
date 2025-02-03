@@ -216,7 +216,7 @@ if __name__ == "__main__":
     _ctx.async_update_gh_proxy()
 
     # 设置主题
-    setTheme(Theme[_ctx.env_config.theme.upper()])
+    setTheme(Theme[_ctx.custom_config.theme.upper()])
 
     # 创建并显示主窗口
     w = AppWindow(_ctx)
