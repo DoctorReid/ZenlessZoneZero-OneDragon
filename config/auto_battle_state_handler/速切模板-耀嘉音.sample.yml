@@ -27,6 +27,7 @@ handlers:
 
       - states: ""
         operations:
+          - op_name: "按键-移动-前-按下"
           - op_name: "按键-特殊攻击"
             post_delay: 0.1
             repeat: 3

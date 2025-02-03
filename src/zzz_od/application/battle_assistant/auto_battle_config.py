@@ -34,8 +34,11 @@ def get_all_auto_battle_op(sub_dir: str) -> List[ConditionalOperator]:
 
         template_name_set.add(template_name)
 
+    # 将 template_name_set 转换为列表并排序
+    sorted_template_names = sorted(template_name_set, key=lambda x: x.lower())
+
     result_op_list = []
-    for template_name in template_name_set:
+    for template_name in sorted_template_names:
         result_op_list.append(ConditionalOperator(sub_dir, template_name))
 
     return result_op_list
