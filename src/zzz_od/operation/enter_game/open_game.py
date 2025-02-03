@@ -35,8 +35,9 @@ class OpenGame(Operation):
             screen_width = screen_size.split('x')[0]
             screen_height = screen_size.split('x')[1]
             full_screen = self.ctx.game_config.full_screen
+            popup_window = "-popupwindow " if self.ctx.game_config.popup_window else ""
             monitor = self.ctx.game_config.monitor
-            arguement = f'{self.ctx.game_config.launch_arguement_advance} -screen-width {screen_width} -screen-height {screen_height} -screen-fullscreen {full_screen} -monitor {monitor}' 
+            arguement = f'{self.ctx.game_config.launch_arguement_advance} -screen-width {screen_width} -screen-height {screen_height} -screen-fullscreen {full_screen} {popup_window}-monitor {monitor}' 
             command = f'{command} {arguement}'
         command = f'{command} & exit"'
         log.info('命令行指令 %s', command)
