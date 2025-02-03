@@ -5,10 +5,10 @@ from qfluentwidgets import NavigationItemPosition, Theme, setTheme
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon.base.operation.one_dragon_custom_context import OneDragonCustomContext
-from one_dragon.gui.app.installer import InstallerWindowBase
-from one_dragon.gui.view.code_interface import CodeInterface
-from one_dragon.gui.view.install_interface import InstallerInterface
-from one_dragon.gui.view.installer_setting_interface import InstallerSettingInterface
+from one_dragon_qt.app.installer import InstallerWindowBase
+from one_dragon_qt.view.code_interface import CodeInterface
+from one_dragon_qt.view.install_interface import InstallerInterface
+from one_dragon_qt.view.installer_setting_interface import InstallerSettingInterface
 from one_dragon.utils.i18_utils import gt
 from zzz_od.gui.view.installer.extend_install_interface import ExtendInstallInterface
 
@@ -41,3 +41,5 @@ if __name__ == '__main__':
     w = ZInstallerWindow(_ctx, gt(f'{_ctx.project_config.project_name}-installer', 'ui'))
     w.show()
     app.exec()
+
+    _ctx.after_app_shutdown()

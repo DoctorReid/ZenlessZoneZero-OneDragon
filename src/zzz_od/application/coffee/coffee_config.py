@@ -3,7 +3,7 @@ from typing import Optional
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
-from one_dragon.gui.widgets.setting_card.yaml_config_adapter import YamlConfigAdapter
+from one_dragon_qt.widgets.setting_card.yaml_config_adapter import YamlConfigAdapter
 
 
 class CoffeeChooseWay(Enum):

@@ -481,3 +481,10 @@ class HollowContext:
         self.map_service.init_event_yolo()
         self.init_level_info(mission_type_name, mission_name, level, phase)
         self.agent_list = None
+
+    def after_app_shutdown(self) -> None:
+        """
+        App关闭后进行的操作 关闭一切可能资源操作
+        @return:
+        """
+        _hollow_context_executor.shutdown(wait=False, cancel_futures=True)

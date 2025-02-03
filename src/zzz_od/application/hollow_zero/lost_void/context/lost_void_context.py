@@ -406,3 +406,12 @@ class LostVoidContext:
                 target = entry
 
         return target
+
+    def after_app_shutdown(self) -> None:
+        """
+        App关闭后进行的操作 关闭一切可能资源操作
+        @return:
+        """
+        if self.auto_op is not None:
+            self.auto_op.stop_running()
+            self.auto_op.dispose()

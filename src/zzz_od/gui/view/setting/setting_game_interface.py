@@ -1,19 +1,17 @@
-import os
-from PySide6.QtWidgets import QWidget, QFileDialog
-from qfluentwidgets import SettingCardGroup, FluentIcon, PushSettingCard, HyperlinkCard
+from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QWidget
+from qfluentwidgets import SettingCardGroup, FluentIcon
 
-from one_dragon.base.config.config_item import get_config_item_from_enum
 from one_dragon.base.controller.pc_button.ds4_button_controller import Ds4ButtonEnum
 from one_dragon.base.controller.pc_button.xbox_button_controller import XboxButtonEnum
-from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.widgets.setting_card.key_setting_card import KeySettingCard
-from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
-from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
-from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.utils.i18_utils import gt
-from one_dragon.utils.log_utils import log
-from phosdeiz.gui.widgets import Column
-from zzz_od.config.game_config import GameRegionEnum, GamepadTypeEnum, TypeInputWay, ScreenSizeEnum, FullScreenEnum, MonitorEnum
+from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon_qt.widgets.setting_card.key_setting_card import KeySettingCard
+from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon_qt.widgets.setting_card.text_setting_card import TextSettingCard
+from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon_qt.widgets.column import Column
+from zzz_od.config.game_config import GamepadTypeEnum, TypeInputWay, ScreenSizeEnum, FullScreenEnum, MonitorEnum
 from zzz_od.context.zzz_context import ZContext
 
 
@@ -43,26 +41,6 @@ class SettingGameInterface(VerticalScrollInterface):
 
     def _get_basic_group(self) -> QWidget:
         basic_group = SettingCardGroup(gt('游戏基础', 'ui'))
-
-        self.game_path_opt = PushSettingCard(icon=FluentIcon.FOLDER, title='游戏路径', text='选择')
-        self.game_path_opt.clicked.connect(self._on_game_path_clicked)
-        basic_group.addSettingCard(self.game_path_opt)
-
-        self.game_region_opt = ComboBoxSettingCard(icon=FluentIcon.HOME, title='游戏区服', options_enum=GameRegionEnum)
-        self.game_region_opt.value_changed.connect(self._on_game_region_changed)
-        basic_group.addSettingCard(self.game_region_opt)
-
-        self.game_account_opt = TextSettingCard(icon=FluentIcon.PEOPLE, title='账号')
-        basic_group.addSettingCard(self.game_account_opt)
-
-        # 设置密码框
-        self.game_password_opt = TextSettingCard(
-            icon=FluentIcon.EXPRESSIVE_INPUT_ENTRY,
-            title='密码',
-            input_placeholder='放心不会盗你的号 异地登陆需要验证',
-            is_password=True  # 设置为密码模式
-        )
-        basic_group.addSettingCard(self.game_password_opt)
 
         self.input_way_opt = ComboBoxSettingCard(icon=FluentIcon.CLIPPING_TOOL, title='输入方式',
                                                 options_enum=TypeInputWay)
@@ -271,11 +249,6 @@ class SettingGameInterface(VerticalScrollInterface):
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)
 
-        self.game_region_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('game_region'))
-        self.game_account_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('account'))
-        self.game_password_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('password'))
-
-        self.game_path_opt.setContent(self.ctx.game_config.game_path)
         self.input_way_opt.init_with_adapter(self.ctx.game_config.type_input_way_adapter)
 
         self.launch_arguement_switch.init_with_adapter(self.ctx.game_config.get_prop_adapter('launch_arguement'))
@@ -383,19 +356,6 @@ class SettingGameInterface(VerticalScrollInterface):
         self.ds4_key_move_d_opt.setVisible(is_ds4)
         self.ds4_key_lock_opt.setVisible(is_ds4)
         self.ds4_key_chain_cancel_opt.setVisible(is_ds4)
-
-    def _on_game_region_changed(self, index, value):
-        self.ctx.init_by_config()
-
-    def _on_game_path_clicked(self) -> None:
-        file_path, _ = QFileDialog.getOpenFileName(self, gt('选择你的 ZenlessZoneZero.exe'), filter="Exe (*.exe)")
-        if file_path is not None and file_path.endswith('.exe'):
-            log.info('选择路径 %s', file_path)
-            self._on_game_path_chosen(os.path.normpath(file_path))
-
-    def _on_game_path_chosen(self, file_path) -> None:
-        self.ctx.game_config.game_path = file_path
-        self.game_path_opt.setContent(file_path)
 
     def _on_gamepad_type_changed(self, idx: int, value: str) -> None:
         self._update_gamepad_part()

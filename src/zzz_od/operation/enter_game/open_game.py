@@ -22,9 +22,9 @@ class OpenGame(Operation):
         打开游戏
         :return:
         """
-        if self.ctx.game_config.game_path == '':
+        if self.ctx.game_account_config.game_path == '':
             return self.round_fail('未配置游戏路径')
-        full_path = self.ctx.game_config.game_path
+        full_path = self.ctx.game_account_config.game_path
         log.info('尝试自动启动游戏 路径为 %s', full_path)
         # 获取文件夹路径
         dir_path = os.path.dirname(full_path)

@@ -24,16 +24,17 @@ from one_dragon.base.operation.operation import Operation
 from one_dragon.base.operation.operation_base import OperationResult
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
-from one_dragon.gui.widgets.vertical_scroll_interface import (
-    VerticalScrollInterface,
-)
-from one_dragon.gui.windows.app_window_base import AppWindowBase
 from one_dragon.utils import os_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
-from phosdeiz.gui.services import PhosStyleSheet
-from phosdeiz.gui.widgets import IconButton, NoticeCard, GameDialog, Banner
-from phosdeiz.gui.windows.window import PhosTitleBar
+from one_dragon_qt.services.styles_manager import OdQtStyleSheet
+from one_dragon_qt.widgets.banner import Banner
+from one_dragon_qt.widgets.game_dialog import GameDialog
+from one_dragon_qt.widgets.icon_button import IconButton
+from one_dragon_qt.widgets.notice_card import NoticeCard
+from one_dragon_qt.widgets.vertical_scroll_interface import (
+    VerticalScrollInterface,
+)
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.enter_game.open_game import OpenGame
 
@@ -47,7 +48,7 @@ class ButtonGroup(SimpleCardWidget):
         self.setFixedSize(56, 180)
 
         layout = QVBoxLayout(self)
-        layout.setAlignment(Qt.AlignTop)
+        layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         # 创建主页按钮
         home_button = IconButton(
@@ -73,7 +74,7 @@ class ButtonGroup(SimpleCardWidget):
 
         # 创建 文档 按钮
         doc_button = IconButton(
-            FluentIcon.LIBRARY.icon(color=QColor("#fff")),  # Assuming FluentIcon.BOOK is suitable for a document
+            FluentIcon.LIBRARY.icon(color=QColor("#fff")),
             tip_title="自助排障文档",
             tip_content="点击打开自助排障文档,好孩子都能看懂",
             isTooltip=True,
@@ -84,7 +85,7 @@ class ButtonGroup(SimpleCardWidget):
 
         # 创建 Q群 按钮
         doc_button = IconButton(
-            FluentIcon.CHAT.icon(color=QColor("#fff")),  # Assuming FluentIcon.BOOK is suitable for a document
+            FluentIcon.CHAT.icon(color=QColor("#fff")),
             tip_title="官方社群",
             tip_content="加入官方群聊【绝区零&一条龙交流群】",
             isTooltip=True,
@@ -95,7 +96,7 @@ class ButtonGroup(SimpleCardWidget):
 
         # 创建 官方店铺 按钮 (当然没有)
         doc_button = IconButton(
-            FluentIcon.SHOPPING_CART.icon(color=QColor("#fff")),  # Assuming FluentIcon.BOOK is suitable for a document
+            FluentIcon.SHOPPING_CART.icon(color=QColor("#fff")),
             tip_title="官方店铺",
             tip_content="当然没有官方店铺,本软件完全免费, 速速加入官方社群!",
             isTooltip=True,
@@ -192,14 +193,14 @@ class HomeInterface(VerticalScrollInterface):
         v_layout = QVBoxLayout(v_widget)
         v_layout.setContentsMargins(0, 0, 0, 15)
         v_layout.setSpacing(5)
-        v_layout.setAlignment(Qt.AlignTop)
+        v_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         # 空白占位符
-        v_layout.addItem(QSpacerItem(10, 20, QSizePolicy.Fixed, QSizePolicy.Minimum))
+        v_layout.addItem(QSpacerItem(10, 20, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum))
 
         # 顶部部分 (按钮组)
         h1_layout = QHBoxLayout()
-        h1_layout.setAlignment(Qt.AlignTop)
+        h1_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         # 左边留白区域
         h1_layout.addStretch()
@@ -210,21 +211,21 @@ class HomeInterface(VerticalScrollInterface):
         h1_layout.addWidget(buttonGroup)
 
         # 空白占位符
-        h1_layout.addItem(QSpacerItem(20, 10, QSizePolicy.Fixed, QSizePolicy.Minimum))
+        h1_layout.addItem(QSpacerItem(20, 10, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum))
 
         # 将顶部水平布局添加到垂直布局
         v_layout.addLayout(h1_layout)
 
         # 中间留白区域
-        v_layout.addItem(QSpacerItem(10, 10, QSizePolicy.Fixed, QSizePolicy.Minimum))
+        v_layout.addItem(QSpacerItem(10, 10, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum))
         v_layout.addStretch()
 
         # 底部部分 (公告卡片 + 启动按钮)
         h2_layout = QHBoxLayout()
-        h2_layout.setAlignment(Qt.AlignTop)
+        h2_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         # 左边留白区域
-        h2_layout.addItem(QSpacerItem(20, 10, QSizePolicy.Fixed, QSizePolicy.Minimum))
+        h2_layout.addItem(QSpacerItem(20, 10, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum))
 
         # 公告卡片
         noticeCard = NoticeCard()
@@ -233,7 +234,7 @@ class HomeInterface(VerticalScrollInterface):
         h2_layout.addStretch()
 
         # 启动游戏按钮布局
-        gameButton = PrimaryPushButton("启动游戏🚀")
+        gameButton = PrimaryPushButton(text="启动游戏🚀")
         gameButton.setFont(QFont("Microsoft YaHei", 16, QFont.Weight.Bold))
         gameButton.setFixedSize(160, 48)
         gameButton.clicked.connect(self.start_game)
@@ -244,7 +245,7 @@ class HomeInterface(VerticalScrollInterface):
         h2_layout.addLayout(v1_layout)
 
         # 空白占位符
-        h2_layout.addItem(QSpacerItem(25, 10, QSizePolicy.Fixed, QSizePolicy.Minimum))
+        h2_layout.addItem(QSpacerItem(25, 10, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum))
 
         # 将底部水平布局添加到垂直布局
         v_layout.addLayout(h2_layout)
@@ -259,8 +260,8 @@ class HomeInterface(VerticalScrollInterface):
         )
 
         # 应用样式
-        PhosStyleSheet.GAME_BUTTON.apply(gameButton)
-        PhosStyleSheet.NOTICE_CARD.apply(noticeCard)
+        OdQtStyleSheet.GAME_BUTTON.apply(gameButton)
+        OdQtStyleSheet.NOTICE_CARD.apply(noticeCard)
 
         self.ctx = ctx
         self._init_check_runners()

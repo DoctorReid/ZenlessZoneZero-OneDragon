@@ -4,24 +4,7 @@ from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
 from one_dragon.base.controller.pc_button.ds4_button_controller import Ds4ButtonEnum
 from one_dragon.base.controller.pc_button.xbox_button_controller import XboxButtonEnum
-from one_dragon.gui.widgets.setting_card.yaml_config_adapter import YamlConfigAdapter
-
-
-class GamePlatformEnum(Enum):
-
-    PC = ConfigItem('PC')
-
-
-class GameLanguageEnum(Enum):
-
-    CN = ConfigItem('简体中文', 'cn')
-    EN = ConfigItem('English', 'en')
-
-
-class GameRegionEnum(Enum):
-
-    CN = ConfigItem('国服/B服', 'cn')
-    INTERNATIONAL = ConfigItem('国际服', 'international')
+from one_dragon_qt.widgets.setting_card.yaml_config_adapter import YamlConfigAdapter
 
 
 class GamepadTypeEnum(Enum):
@@ -62,52 +45,6 @@ class GameConfig(YamlConfig):
     def __init__(self, instance_idx: int):
         YamlConfig.__init__(self, 'game', instance_idx=instance_idx)
 
-        # 兼容旧数据
-        if not self.xbox_key_lock.startswith('xbox'):
-            self.xbox_key_lock = XboxButtonEnum.R_THUMB.value.value
-        if not self.ds4_key_lock.startswith('ds4'):
-            self.ds4_key_lock = Ds4ButtonEnum.R_THUMB.value.value
-
-    @property
-    def platform(self) -> str:
-        return self.get('platform', GamePlatformEnum.PC.value.value)
-
-    @platform.setter
-    def platform(self, new_value: str) -> None:
-        self.update('platform', new_value)
-
-    @property
-    def game_language(self) -> str:
-        return self.get('game_language', GameLanguageEnum.CN.value.value)
-
-    @game_language.setter
-    def game_language(self, new_value: str) -> None:
-        self.update('game_language', new_value)
-
-    @property
-    def game_path(self) -> str:
-        return self.get('game_path', '')
-
-    @game_path.setter
-    def game_path(self, new_value: str) -> None:
-        self.update('game_path', new_value)
-
-    @property
-    def account(self) -> str:
-        return self.get('account', '')
-
-    @account.setter
-    def account(self, new_value: str) -> None:
-        self.update('account', new_value)
-
-    @property
-    def password(self) -> str:
-        return self.get('password', '')
-
-    @password.setter
-    def password(self, new_value: str) -> None:
-        self.update('password', new_value)
-
     @property
     def type_input_way(self) -> str:
         return self.get('type_input_way', TypeInputWay.CLIPBOARD.value.value)
@@ -121,16 +58,8 @@ class GameConfig(YamlConfig):
         return YamlConfigAdapter(self, 'type_input_way', TypeInputWay.CLIPBOARD.value.value)
 
     @property
-    def game_region(self) -> str:
-        return self.get('game_region', GameRegionEnum.CN.value.value)
-
-    @game_region.setter
-    def game_region(self, new_value: str) -> None:
-        self.update('game_region', new_value)
-
-    @property
     def launch_arguement(self) -> bool:
-        return self.get('launch_arguement', False)
+        return self.get('launch_argument', False)
 
     @launch_arguement.setter
     def launch_arguement(self, new_value: bool) -> None:
@@ -175,24 +104,6 @@ class GameConfig(YamlConfig):
     @launch_arguement_advance.setter
     def launch_arguement_advance(self, new_value: str) -> None:
         self.update('launch_arguement_advance', new_value)
-
-    @property
-    def game_refresh_hour_offset(self) -> int:
-        if self.game_region == GameRegionEnum.CN.value.value:
-            return 4
-        elif self.game_region == GameRegionEnum.INTERNATIONAL.value.value:
-            return 4
-        return 4
-
-    @property
-    def win_title(self) -> str:
-        """
-        游戏窗口名称 只有区服有关
-        """
-        if self.game_region == GameRegionEnum.CN.value.value:
-            return '绝区零'
-        else:
-            return 'ZenlessZoneZero'
 
     @property
     def key_normal_attack(self) -> str:

@@ -32,6 +32,18 @@ class ZContext(OneDragonContext):
     def load_instance_config(self) -> None:
         OneDragonContext.load_instance_config(self)
 
+        from zzz_od.config.game_config import GameConfig
+        self.game_config: GameConfig = GameConfig(self.current_instance_idx)
+        from one_dragon.base.config.game_account_config import GameAccountConfig
+        self.game_account_config: GameAccountConfig = GameAccountConfig(
+            self.current_instance_idx,
+            default_platform=self.game_config.get('platform'),  # 迁移旧配置 2025-07 时候删除
+            default_game_region=self.game_config.get('game_region'),
+            default_game_path=self.game_config.get('game_path'),
+            default_account=self.game_config.get('account'),
+            default_password=self.game_config.get('password'),
+        )
+
         from zzz_od.application.battle_assistant.battle_assistant_config import BattleAssistantConfig
         from zzz_od.application.charge_plan.charge_plan_config import ChargePlanConfig
         from zzz_od.application.charge_plan.charge_plan_run_record import ChargePlanRunRecord
@@ -49,11 +61,9 @@ class ZContext(OneDragonContext):
         from zzz_od.application.notorious_hunt.notorious_hunt_run_record import NotoriousHuntRunRecord
         from zzz_od.application.random_play.random_play_run_record import RandomPlayRunRecord
         from zzz_od.application.scratch_card.scratch_card_run_record import ScratchCardRunRecord
-        from zzz_od.config.game_config import GameConfig
         from zzz_od.hollow_zero.hollow_zero_challenge_config import HollowZeroChallengeConfig
         from zzz_od.application.redemption_code.redemption_code_run_record import RedemptionCodeRunRecord
         from zzz_od.application.commission_assistant.commission_assistant_config import CommissionAssistantConfig
-        self.game_config: GameConfig = GameConfig(self.current_instance_idx)
         from zzz_od.config.team_config import TeamConfig
         self.team_config: TeamConfig = TeamConfig(self.current_instance_idx)
 
@@ -75,7 +85,7 @@ class ZContext(OneDragonContext):
         self.agent_outfit_config: AgentOutfitConfig = AgentOutfitConfig(self.current_instance_idx)
 
         # 运行记录
-        game_refresh_hour_offset = self.game_config.game_refresh_hour_offset
+        game_refresh_hour_offset = self.game_account_config.game_refresh_hour_offset
         self.email_run_record: EmailRunRecord = EmailRunRecord(self.current_instance_idx, game_refresh_hour_offset)
         self.email_run_record.check_and_update_status()
         self.random_play_run_record: RandomPlayRunRecord = RandomPlayRunRecord(self.current_instance_idx, game_refresh_hour_offset)
@@ -129,14 +139,16 @@ class ZContext(OneDragonContext):
         :return:
         """
         OneDragonContext.init_by_config(self)
-        i18_utils.update_default_lang(self.game_config.game_language)
+        i18_utils.update_default_lang(self.game_account_config.game_language)
 
-        from zzz_od.config.game_config import GamePlatformEnum
         from zzz_od.controller.zzz_pc_controller import ZPcController
-        if self.game_config.platform == GamePlatformEnum.PC.value.value:
+        from one_dragon.base.config.game_account_config import GamePlatformEnum
+        if self.game_account_config.platform == GamePlatformEnum.PC.value.value:
+            from one_dragon.base.config.game_account_config import GameRegionEnum
+            win_title = '绝区零' if self.game_account_config.game_region == GameRegionEnum.CN.value.value else 'ZenlessZoneZero'
             self.controller = ZPcController(
                 game_config=self.game_config,
-                win_title=self.game_config.win_title,
+                win_title=win_title,
                 standard_width=self.project_config.screen_standard_width,
                 standard_height=self.project_config.screen_standard_height
             )
@@ -165,3 +177,10 @@ class ZContext(OneDragonContext):
         AgentEnum.NICOLE.value.template_id = self.agent_outfit_config.nicole
         AgentEnum.ELLEN.value.template_id = self.agent_outfit_config.ellen
         AgentEnum.ASTRA_YAO.value.template_id = self.agent_outfit_config.astra_yao
+
+    def after_app_shutdown(self) -> None:
+        """
+        App关闭后进行的操作 关闭一切可能资源操作
+        @return:
+        """
+        OneDragonContext.after_app_shutdown(self)

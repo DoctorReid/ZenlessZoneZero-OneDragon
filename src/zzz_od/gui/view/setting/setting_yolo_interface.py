@@ -1,12 +1,12 @@
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import SettingCardGroup, FluentIcon, HyperlinkCard
 
-from one_dragon.gui.widgets.log_display_card import LogDisplayCard
-from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
-from one_dragon.gui.widgets.setting_card.yolo_model_card import ModelDownloadSettingCard
-from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon_qt.widgets.log_display_card import LogDisplayCard
+from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon_qt.widgets.setting_card.yolo_model_card import ModelDownloadSettingCard
+from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.utils.i18_utils import gt
-from phosdeiz.gui.widgets import Column
+from one_dragon_qt.widgets.column import Column
 from zzz_od.config.yolo_config import ZZZ_MODEL_DOWNLOAD_URL, get_flash_classifier_opts, get_hollow_zero_event_opts, \
     get_lost_void_det_opts
 from zzz_od.context.zzz_context import ZContext

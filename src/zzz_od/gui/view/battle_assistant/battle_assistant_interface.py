@@ -1,6 +1,6 @@
 from qfluentwidgets import FluentIcon
 
-from one_dragon.gui.widgets.pivot_navi_interface import PivotNavigatorInterface
+from one_dragon_qt.widgets.pivot_navi_interface import PivotNavigatorInterface
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.battle_assistant.auto_battle_editor_interface import AutoBattleEditorInterface
 from zzz_od.gui.view.battle_assistant.auto_battle_interface import AutoBattleInterface
@@ -34,4 +34,4 @@ class BattleAssistantInterface(PivotNavigatorInterface):
         self.add_sub_interface(AutoBattleInterface(self.ctx))
         self.add_sub_interface(OperationDebugInterface(self.ctx))
         self.add_sub_interface(AutoBattleEditorInterface(self.ctx))
-        self.add_sub_interface(TemplateGenerationInterface(self.ctx))
+        # self.add_sub_interface(TemplateGenerationInterface(self.ctx))

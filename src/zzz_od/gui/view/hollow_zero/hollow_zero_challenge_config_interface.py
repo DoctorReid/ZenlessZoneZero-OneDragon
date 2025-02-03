@@ -3,20 +3,20 @@ from qfluentwidgets import FluentIcon, PushButton, PlainTextEdit, SubtitleLabel,
     TitleLabel
 from typing import List, Optional
 
-
-from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.widgets.setting_card.multi_push_setting_card import MultiPushSettingCard
-from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
-from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils.i18_utils import gt
+from one_dragon_qt.widgets.column import Column
+from one_dragon_qt.widgets.combo_box import ComboBox
+from one_dragon_qt.widgets.row import Row
+from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon_qt.widgets.setting_card.multi_push_setting_card import MultiPushSettingCard
+from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon_qt.widgets.setting_card.text_setting_card import TextSettingCard
+from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_op_config_list
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import AgentEnum, AgentTypeEnum
 from zzz_od.hollow_zero.hollow_zero_challenge_config import HollowZeroChallengeConfig, \
     get_all_hollow_zero_challenge_config, get_hollow_zero_challenge_new_name, HollowZeroChallengePathFinding
-
-from phosdeiz.gui.widgets import Column,ComboBox,Row
 
 
 class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
@@ -236,12 +236,7 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
         自动战斗的配置下拉框
         :return:
         """
-        try:
-            self.auto_battle_opt.value_changed.disconnect(self._on_auto_battle_config_changed)
-        except:
-            pass
         self.auto_battle_opt.set_options_by_list(get_auto_battle_op_config_list('auto_battle'))
-        self.auto_battle_opt.value_changed.connect(self._on_auto_battle_config_changed)
 
     def _update_pathfinding_input_display(self) -> None:
         """

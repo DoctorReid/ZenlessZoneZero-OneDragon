@@ -3,14 +3,14 @@ try:
     from PySide6.QtCore import Qt, QThread, Signal
     from PySide6.QtWidgets import QApplication
     from qfluentwidgets import NavigationItemPosition, setTheme, Theme
-    from one_dragon.gui.view.like_interface import LikeInterface
+    from one_dragon_qt.view.like_interface import LikeInterface
     from one_dragon.base.operation.one_dragon_context import ContextInstanceEventEnum
 
-    from phosdeiz.gui.services import PhosStyleSheet
+    from one_dragon_qt.services.styles_manager import OdQtStyleSheet
 
-    from one_dragon.gui.view.code_interface import CodeInterface
-    from one_dragon.gui.view.context_event_signal import ContextEventSignal
-    from one_dragon.gui.windows.app_window_base import AppWindowBase
+    from one_dragon_qt.view.code_interface import CodeInterface
+    from one_dragon_qt.view.context_event_signal import ContextEventSignal
+    from one_dragon_qt.windows.app_window_base import AppWindowBase
     from one_dragon.utils.i18_utils import gt
 
     from zzz_od.context.zzz_context import ZContext
@@ -88,11 +88,11 @@ try:
             self.navigationInterface.setContentsMargins(0, 0, 0, 0)
 
             # 配置样式
-            PhosStyleSheet.APP_WINDOW.apply(self)
-            PhosStyleSheet.NAVIGATION_INTERFACE.apply(self.navigationInterface)
-            PhosStyleSheet.STACKED_WIDGET.apply(self.stackedWidget)
-            PhosStyleSheet.AREA_WIDGET.apply(self.areaWidget)
-            PhosStyleSheet.TITLE_BAR.apply(self.titleBar)
+            OdQtStyleSheet.APP_WINDOW.apply(self)
+            OdQtStyleSheet.NAVIGATION_INTERFACE.apply(self.navigationInterface)
+            OdQtStyleSheet.STACKED_WIDGET.apply(self.stackedWidget)
+            OdQtStyleSheet.AREA_WIDGET.apply(self.areaWidget)
+            OdQtStyleSheet.TITLE_BAR.apply(self.titleBar)
 
             # DEBUG
             # print("————APP WINDOW STYLE————")
@@ -227,4 +227,4 @@ if __name__ == "__main__":
     # 启动应用程序事件循环
     app.exec()
 
-    _ctx.btn_listener.stop()
+    _ctx.after_app_shutdown()

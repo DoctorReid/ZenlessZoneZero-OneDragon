@@ -16,8 +16,12 @@ class GhProxyService:
         :return:
         """
         url = 'https://ghproxy.link/js/src_views_home_HomeView_vue.js'  # 打开 https://ghproxy.link/ 后找到的js文件
-        with urllib.request.urlopen(url) as response:
-            js_content: str = response.read().decode('utf-8')
+        try:
+            with urllib.request.urlopen(url, timeout=10) as response:
+                js_content: str = response.read().decode('utf-8')
+        except Exception:
+            log.error('自动获取免费代理地址失败', exc_info=True)
+            return
 
         url_prefix = '<a href=\\\\\\"'
         url_prefix_idx = js_content.find(url_prefix)
