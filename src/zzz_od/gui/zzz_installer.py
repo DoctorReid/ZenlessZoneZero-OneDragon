@@ -4,6 +4,7 @@ from PySide6.QtWidgets import QApplication
 from qfluentwidgets import NavigationItemPosition, Theme, setTheme
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
+from one_dragon.base.operation.one_dragon_custom_context import OneDragonCustomContext
 from one_dragon.gui.app.installer import InstallerWindowBase
 from one_dragon.gui.view.code_interface import CodeInterface
 from one_dragon.gui.view.install_interface import InstallerInterface
@@ -33,9 +34,10 @@ class ZInstallerWindow(InstallerWindowBase):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     _ctx = OneDragonEnvContext()
+    __ctx = OneDragonCustomContext()
     # 异步更新免费代理
     _ctx.async_update_gh_proxy()
-    setTheme(Theme[_ctx.env_config.theme.upper()])
+    setTheme(Theme[__ctx.custom_config.theme.upper()])
     w = ZInstallerWindow(_ctx, gt(f'{_ctx.project_config.project_name}-installer', 'ui'))
     w.show()
     app.exec()
