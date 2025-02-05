@@ -68,7 +68,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
         main_layout.addLayout(horizontal_layout, stretch=1)
 
         self.app_runner = AppRunner(self.ctx)
-        self.app_runner.state_changed.connect(self._on_context_state_changed)
+        self.app_runner.state_changed.connect(self.on_context_state_changed)
 
         return content_widget
 
@@ -217,7 +217,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
         if key == self.ctx.key_start_running and self.ctx.is_context_stop:
             self.run_app(self.get_one_dragon_app())
 
-    def _on_context_state_changed(self) -> None:
+    def on_context_state_changed(self) -> None:
         """
         按运行状态更新显示
         :return:

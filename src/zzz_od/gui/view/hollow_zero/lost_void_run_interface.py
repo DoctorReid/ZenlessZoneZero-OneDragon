@@ -166,6 +166,7 @@ class LostVoidRunInterface(AppRunInterface):
 
     def _on_reset_record_clicked(self) -> None:
         self.ctx.lost_void_record.reset_record()
+        self.ctx.lost_void_record.reset_for_weekly()
         log.info('重置成功')
         self._update_run_record_display()
 
@@ -178,3 +179,11 @@ class LostVoidRunInterface(AppRunInterface):
         """
         self.app = LostVoidApp(self.ctx)
         AppRunInterface._on_start_clicked(self)
+
+    def _on_context_state_changed(self) -> None:
+        """
+        按运行状态更新显示
+        :return:
+        """
+        AppRunInterface.on_context_state_changed(self)
+        self._update_run_record_display()

@@ -216,3 +216,11 @@ class HollowZeroRunInterface(AppRunInterface):
 
     def _on_extra_exit_changed(self, idx: int, value: str) -> None:
         self.ctx.hollow_zero_config.extra_exit = value
+
+    def _on_context_state_changed(self) -> None:
+        """
+        按运行状态更新显示
+        :return:
+        """
+        AppRunInterface.on_context_state_changed(self)
+        self._update_run_record_display()

@@ -154,12 +154,12 @@ class DodgeAssistantInterface(AppRunInterface):
     def _on_gamepad_type_changed(self, idx: int, value: str) -> None:
         self.ctx.battle_assistant_config.gamepad_type = value
 
-    def _on_context_state_changed(self) -> None:
+    def on_context_state_changed(self) -> None:
         """
         按运行状态更新显示
         :return:
         """
-        AppRunInterface._on_context_state_changed(self)
+        AppRunInterface.on_context_state_changed(self)
 
         if self.battle_state_display is not None:
             self.battle_state_display.set_update_display(self.ctx.is_context_running)

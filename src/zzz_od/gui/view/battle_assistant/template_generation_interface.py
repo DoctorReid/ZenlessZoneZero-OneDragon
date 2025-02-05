@@ -132,7 +132,7 @@ class TemplateGenerationInterface(AppRunInterface):
         content_layout.addWidget(self.log_card)
 
         self.app_runner = AppRunner(self.ctx)
-        self.app_runner.state_changed.connect(self._on_context_state_changed)
+        self.app_runner.state_changed.connect(self.on_context_state_changed)
 
         widget_at_bottom = self.get_widget_at_bottom()
         if widget_at_bottom is not None:

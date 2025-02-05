@@ -197,12 +197,12 @@ class AutoBattleInterface(AppRunInterface):
         elif key == self.ctx.key_debug and self.ctx.is_context_stop:
             self._on_debug_clicked()
 
-    def _on_context_state_changed(self) -> None:
+    def on_context_state_changed(self) -> None:
         """
         按运行状态更新显示
         :return:
         """
-        AppRunInterface._on_context_state_changed(self)
+        AppRunInterface.on_context_state_changed(self)
 
         if self.battle_state_display is not None:
             self.battle_state_display.set_update_display(self.ctx.is_context_running)
