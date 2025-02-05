@@ -58,12 +58,12 @@ class GameConfig(YamlConfig):
         return YamlConfigAdapter(self, 'type_input_way', TypeInputWay.CLIPBOARD.value.value)
 
     @property
-    def launch_arguement(self) -> bool:
+    def launch_argument(self) -> bool:
         return self.get('launch_argument', False)
 
-    @launch_arguement.setter
-    def launch_arguement(self, new_value: bool) -> None:
-        self.update('launch_arguement', new_value)
+    @launch_argument.setter
+    def launch_argument(self, new_value: bool) -> None:
+        self.update('launch_argument', new_value)
 
     @property
     def screen_size(self) -> str:
@@ -98,12 +98,12 @@ class GameConfig(YamlConfig):
         self.update('monitor', new_value)
 
     @property
-    def launch_arguement_advance(self) -> str:
-        return self.get('launch_arguement_advance', '')
+    def launch_argument_advance(self) -> str:
+        return self.get('launch_argument_advance', '')
     
-    @launch_arguement_advance.setter
-    def launch_arguement_advance(self, new_value: str) -> None:
-        self.update('launch_arguement_advance', new_value)
+    @launch_argument_advance.setter
+    def launch_argument_advance(self, new_value: str) -> None:
+        self.update('launch_argument_advance', new_value)
 
     @property
     def key_normal_attack(self) -> str:
