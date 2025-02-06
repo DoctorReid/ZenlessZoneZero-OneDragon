@@ -101,7 +101,7 @@ class CoffeeApp(ZApplication):
     @node_from(from_name='电量确认', status=STATUS_EXTRA_COFFEE)
     @operation_node(name='选择咖啡')
     def choose_coffee(self) -> OperationRoundResult:
-        day = os_utils.get_current_day_of_week(self.ctx.game_config.game_refresh_hour_offset)
+        day = os_utils.get_current_day_of_week(self.ctx.game_account_config.game_refresh_hour_offset)
         to_choose_list = self._get_coffee_to_choose(day)
 
         screen = self.screenshot()

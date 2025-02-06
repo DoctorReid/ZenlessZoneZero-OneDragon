@@ -2,11 +2,11 @@ from PySide6.QtWidgets import QWidget
 from qfluentwidgets import SettingCardGroup, FluentIcon
 
 from one_dragon.base.config.config_item import ConfigItem
-from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
-from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.utils.i18_utils import gt
-from phosdeiz.gui.widgets import Column
+from one_dragon_qt.widgets.column import Column
 from zzz_od.application.drive_disc_dismantle.drive_disc_dismantle_config import DismantleLevelEnum
 from zzz_od.config.agent_outfit_config import AgentOutfitNicole, AgentOutfitEllen, AgentOutfitAstraYao
 from zzz_od.context.zzz_context import ZContext

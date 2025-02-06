@@ -62,23 +62,23 @@ class EnterGame(ZOperation):
     @node_from(from_name='画面识别', status='国服-账号密码')
     @operation_node(name='国服-输入账号密码')
     def input_account_password(self) -> OperationRoundResult:
-        if self.ctx.game_config.account == '' or self.ctx.game_config.password == '':
+        if self.ctx.game_account_config.account == '' or self.ctx.game_account_config.password == '':
             return self.round_fail('未配置账号密码')
 
         self.round_by_click_area('打开游戏', '国服-账号输入区域')
         time.sleep(0.5)
         if self.use_clipboard:
-            PcClipboard.copy_and_paste(self.ctx.game_config.account)
+            PcClipboard.copy_and_paste(self.ctx.game_account_config.account)
         else:
-            self.ctx.controller.keyboard_controller.keyboard.type(self.ctx.game_config.account)
+            self.ctx.controller.keyboard_controller.keyboard.type(self.ctx.game_account_config.account)
         time.sleep(1.5)
 
         self.round_by_click_area('打开游戏', '国服-密码输入区域')
         time.sleep(0.5)
         if self.use_clipboard:
-            PcClipboard.copy_and_paste(self.ctx.game_config.password)
+            PcClipboard.copy_and_paste(self.ctx.game_account_config.password)
         else:
-            self.ctx.controller.keyboard_controller.keyboard.type(self.ctx.game_config.password)
+            self.ctx.controller.keyboard_controller.keyboard.type(self.ctx.game_account_config.password)
         time.sleep(1.5)
 
         self.round_by_click_area('打开游戏', '国服-同意按钮')
@@ -92,7 +92,7 @@ class EnterGame(ZOperation):
     @node_from(from_name='画面识别', status='B服-登陆')
     @operation_node(name='B服-输入账号密码')
     def input_bilibili_account_password(self) -> OperationRoundResult:
-        if self.ctx.game_config.account == '' or self.ctx.game_config.password == '':
+        if self.ctx.game_account_config.account == '' or self.ctx.game_account_config.password == '':
             return self.round_fail('未配置账号密码')
 
         self.round_by_click_area('打开游戏', 'B服-账号输入区域')
@@ -100,9 +100,9 @@ class EnterGame(ZOperation):
         self.round_by_click_area('打开游戏', 'B服-账号删除区域')
         time.sleep(0.5)
         if self.use_clipboard:
-            PcClipboard.copy_and_paste(self.ctx.game_config.account)
+            PcClipboard.copy_and_paste(self.ctx.game_account_config.account)
         else:
-            self.ctx.controller.keyboard_controller.keyboard.type(self.ctx.game_config.account)
+            self.ctx.controller.keyboard_controller.keyboard.type(self.ctx.game_account_config.account)
         time.sleep(1.5)
 
         self.round_by_click_area('打开游戏', 'B服-密码输入区域')
@@ -112,9 +112,9 @@ class EnterGame(ZOperation):
         time.sleep(2)
         # return self.round_fail()
         if self.use_clipboard:
-            PcClipboard.copy_and_paste(self.ctx.game_config.password)
+            PcClipboard.copy_and_paste(self.ctx.game_account_config.password)
         else:
-            self.ctx.controller.keyboard_controller.keyboard.type(self.ctx.game_config.password)
+            self.ctx.controller.keyboard_controller.keyboard.type(self.ctx.game_account_config.password)
         time.sleep(1.5)
 
         # self.round_by_click_area('打开游戏', 'B服-同意按钮')

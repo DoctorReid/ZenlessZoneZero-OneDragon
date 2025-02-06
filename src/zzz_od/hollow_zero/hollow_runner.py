@@ -85,6 +85,7 @@ class HollowRunner(ZOperation):
             '邦布商人': BambooMerchant,
             '守门人': CriticalStage,
             '门扉禁闭-善战': DoorBattle,
+            '门扉禁闭-侵蚀': DoorBattle,
             '不宜久留': LeaveRandomZone
         }
         self._entry_events: dict[str, List[str]] = {
@@ -103,17 +104,16 @@ class HollowRunner(ZOperation):
         result = hollow_event_utils.check_screen(self.ctx, screen, self._handled_events)
         if result is not None and result not in [
             HollowZeroSpecialEvent.HOLLOW_INSIDE.value.event_name,  # 空洞内部比较特殊 仅为识别使用 不做响应处理
-            HollowZeroSpecialEvent.RESONIUM_STORE_5.value.event_name, # 商人格子不会消失 为了防止循环进入商店 仅在移动格子时候触发进入商店 平时出现这个选项不做点击
+            HollowZeroSpecialEvent.RESONIUM_STORE_5.value.event_name,  # 商人格子不会消失 为了防止循环进入商店 仅在移动格子时候触发进入商店 平时出现这个选项不做点击
             HollowZeroSpecialEvent.DOOR_BATTLE_ENTRY.value.event_name,  # 这扇门在第一次过去的时候就会开 如果没开到 说明上场战斗没有S 开不了 就不继续了
         ]:
             return self._handle_event(screen, result)
 
         if result in [
-            HollowZeroSpecialEvent.HOLLOW_INSIDE.value.event_name,
+            HollowZeroSpecialEvent.HOLLOW_INSIDE.value.event_name,  # 当前有显示背包 可以尝试识别地图
             HollowZeroSpecialEvent.RESONIUM_STORE_5.value.event_name,  # 商人格子也需要寻路
             HollowZeroSpecialEvent.DOOR_BATTLE_ENTRY.value.event_name,  # 门扉禁闭-善战 开不了门 就移动去其他地方
         ]:
-            # 当前有显示背包 可以尝试识别地图
             current_map = self.ctx.hollow.map_service.cal_map_by_screen(screen, now)
             if current_map is not None:
                 result = self.try_move_by_map(screen, now, current_map)

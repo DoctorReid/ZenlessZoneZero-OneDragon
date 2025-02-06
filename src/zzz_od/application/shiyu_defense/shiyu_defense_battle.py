@@ -45,6 +45,7 @@ class ShiyuDefenseBattle(ZOperation):
         self.distance_pos: Optional[Rect] = None  # 显示距离的区域
         self.move_times: int = 0  # 移动次数
         self.battle_fail: Optional[str] = None  # 战斗失败的原因
+        self.find_interact_btn_times: int = 0  # 发现交互按钮的次数
 
     @operation_node(name='加载自动战斗指令', is_start_node=True)
     def load_auto_op(self) -> OperationRoundResult:
@@ -106,10 +107,22 @@ class ShiyuDefenseBattle(ZOperation):
         now = time.time()
         screen = self.screenshot()
 
-        self.auto_op.auto_battle_context.check_battle_state(screen, now,
-                                                            check_battle_end_normal_result=True,
-                                                            check_battle_end_defense_result=True,
-                                                            check_distance=True)
+        in_battle = self.auto_op.auto_battle_context.check_battle_state(
+            screen, now,
+            check_battle_end_normal_result=True,
+            check_battle_end_defense_result=True,
+            check_distance=True)
+
+        if not in_battle:
+            result = self.round_by_find_area(screen, '战斗画面', '按键-交互')
+            if result.is_success:
+                self.find_interact_btn_times += 1
+            else:
+                self.find_interact_btn_times = 0
+
+            if self.find_interact_btn_times >= 10:
+                auto_battle_utils.stop_running(self.auto_op)
+                return self.round_success(status=ShiyuDefenseBattle.STATUS_NEED_SPECIAL_MOVE)
 
         return self.round_wait(wait=self.ctx.battle_assistant_config.screenshot_interval)
 

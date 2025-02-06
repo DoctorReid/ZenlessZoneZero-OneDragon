@@ -1,13 +1,13 @@
 from PySide6.QtWidgets import QWidget, QTableWidgetItem
 from qfluentwidgets import TableWidget, CheckBox, FluentIcon
 
-from one_dragon.gui.widgets.setting_card.push_setting_card import PushSettingCard
-from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon_qt.widgets.setting_card.push_setting_card import PushSettingCard
+from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.utils.i18_utils import gt
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import DmgTypeEnum
 
-from phosdeiz.gui.widgets import Column
+from one_dragon_qt.widgets.column import Column
 
 class ShiyuDefenseInterface(VerticalScrollInterface):
 

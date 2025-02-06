@@ -1,6 +1,6 @@
 from one_dragon.base.config.one_dragon_app_config import OneDragonAppConfig
 from one_dragon.base.operation.one_dragon_app import OneDragonApp
-from one_dragon.gui.view.one_dragon.one_dragon_run_interface import OneDragonRunInterface
+from one_dragon_qt.view.one_dragon.one_dragon_run_interface import OneDragonRunInterface
 from zzz_od.application.miscellany.miscellany_app import MiscellanyApp
 from zzz_od.context.zzz_context import ZContext
 

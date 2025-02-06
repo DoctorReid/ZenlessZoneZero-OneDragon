@@ -1,18 +1,18 @@
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, CaptionLabel, LineEdit
-from typing import Optional, List
+from typing import List
 
 from one_dragon.base.config.config_item import ConfigItem
-from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.widgets.setting_card.multi_push_setting_card import MultiPushSettingCard, MultiLineSettingCard
-from one_dragon.utils.i18_utils import gt
+from one_dragon_qt.widgets.column import Column
+from one_dragon_qt.widgets.combo_box import ComboBox
+from one_dragon_qt.widgets.setting_card.multi_push_setting_card import MultiLineSettingCard
+from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_op_config_list
 from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem
 from zzz_od.application.notorious_hunt.notorious_hunt_config import NotoriousHuntLevelEnum, NotoriousHuntBuffEnum
 from zzz_od.context.zzz_context import ZContext
 
-from phosdeiz.gui.widgets import Column,ComboBox
 
 class ChargePlanCard(MultiLineSettingCard):
 
