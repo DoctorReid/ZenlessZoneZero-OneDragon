@@ -3,8 +3,8 @@ from qfluentwidgets import FluentIcon, HyperlinkCard
 from typing import Optional
 
 from one_dragon.base.operation.application_base import Application
-from one_dragon.gui.view.app_run_interface import AppRunInterface
-from phosdeiz.gui.widgets import Column
+from one_dragon_qt.view.app_run_interface import AppRunInterface
+from one_dragon_qt.widgets.column import Column
 from zzz_od.application.predefined_team_checker.predefined_team_checker import PredefinedTeamChecker
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext

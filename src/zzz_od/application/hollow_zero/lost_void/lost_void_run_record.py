@@ -144,5 +144,5 @@ class LostVoidRunRecord(AppRunRecord):
     def reset_for_weekly(self) -> None:
         self.weekly_run_times = 0
         self.daily_run_times = 0
-        self.no_eval_point = False
+        self.eval_point_complete = False
         self.period_reward_complete = False

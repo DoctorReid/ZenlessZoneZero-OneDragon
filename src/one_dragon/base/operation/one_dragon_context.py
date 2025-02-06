@@ -1,10 +1,9 @@
-import time
-
 import logging
 from enum import Enum
 from pynput import keyboard, mouse
 from typing import Optional
 
+from one_dragon.base.config.game_account_config import GameAccountConfig
 from one_dragon.base.config.one_dragon_app_config import OneDragonAppConfig
 from one_dragon.base.config.one_dragon_config import OneDragonConfig
 from one_dragon.base.controller.controller_base import ControllerBase
@@ -13,6 +12,7 @@ from one_dragon.base.matcher.ocr.ocr_matcher import OcrMatcher
 from one_dragon.base.matcher.ocr.onnx_ocr_matcher import OnnxOcrMatcher
 from one_dragon.base.matcher.template_matcher import TemplateMatcher
 from one_dragon.base.operation.context_event_bus import ContextEventBus
+from one_dragon.base.operation.one_dragon_custom_context import OneDragonCustomContext
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext, ONE_DRAGON_CONTEXT_EXECUTOR
 from one_dragon.base.screen.screen_loader import ScreenContext
 from one_dragon.base.screen.template_loader import TemplateLoader
@@ -50,19 +50,18 @@ class ContextInstanceEventEnum(Enum):
     instance_active: str = 'instance_active'
 
 
-class OneDragonContext(ContextEventBus, OneDragonEnvContext):
+class OneDragonContext(ContextEventBus, OneDragonEnvContext, OneDragonCustomContext):
 
     def __init__(self, controller: Optional = None):
         ContextEventBus.__init__(self)
         OneDragonEnvContext.__init__(self)
+        OneDragonCustomContext.__init__(self)
 
         self.one_dragon_config: OneDragonConfig = OneDragonConfig()
 
         if self.one_dragon_config.current_active_instance is None:
             self.one_dragon_config.create_new_instance(True)
         self.current_instance_idx = self.one_dragon_config.current_active_instance.idx
-
-        self.one_dragon_app_config: OneDragonAppConfig = OneDragonAppConfig(self.current_instance_idx)
 
         self.context_running_state: ContextRunStateEnum = ContextRunStateEnum.STOP
 
@@ -203,8 +202,8 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
 
     def load_instance_config(self):
         log.info('开始加载实例配置 %d' % self.current_instance_idx)
-        from one_dragon.base.config.one_dragon_app_config import OneDragonAppConfig
-        self.one_dragon_app_config = OneDragonAppConfig(self.current_instance_idx)
+        self.one_dragon_app_config: OneDragonAppConfig = OneDragonAppConfig(self.current_instance_idx)
+        self.game_account_config: GameAccountConfig = GameAccountConfig(self.current_instance_idx)
 
     def async_init_ocr(self) -> None:
         """
@@ -214,13 +213,11 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
         f = ONE_DRAGON_CONTEXT_EXECUTOR.submit(self.ocr.init_model)
         f.add_done_callback(thread_utils.handle_future_result)
 
-
-def __debug_async_init_ocr():
-    ctx = OneDragonContext()
-    ctx.async_init_ocr()
-    ctx.ocr.init_model()
-    time.sleep(1)
-
-
-if __name__ == '__main__':
-    __debug_async_init_ocr()
+    def after_app_shutdown(self) -> None:
+        """
+        App关闭后进行的操作 关闭一切可能资源操作
+        @return:
+        """
+        self.btn_listener.stop()
+        ContextEventBus.after_app_shutdown(self)
+        OneDragonEnvContext.after_app_shutdown(self)
