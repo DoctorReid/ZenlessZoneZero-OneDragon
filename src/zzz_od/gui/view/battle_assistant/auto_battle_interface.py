@@ -6,11 +6,12 @@ from qfluentwidgets import FluentIcon, PushButton, HyperlinkCard
 from typing import Optional
 
 from one_dragon.base.operation.context_event_bus import ContextEventItem
+from one_dragon_qt.view.app_run_interface import AppRunInterface
 from one_dragon_qt.widgets.column import Column
 from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon_qt.widgets.setting_card.text_setting_card import TextSettingCard
-from one_dragon_qt.view.app_run_interface import AppRunInterface
+from one_dragon_qt.widgets.shared_battle_dialog import SharedConfigDialog
 from zzz_od.application.battle_assistant.auto_battle_app import AutoBattleApp
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_config_file_path, \
     get_auto_battle_op_config_list
@@ -19,7 +20,6 @@ from zzz_od.application.zzz_application import ZApplication
 from zzz_od.config.game_config import GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.battle_assistant.battle_state_display import BattleStateDisplay, TaskDisplay
-
 
 
 class AutoBattleInterface(AppRunInterface):
@@ -44,7 +44,7 @@ class AutoBattleInterface(AppRunInterface):
 
         self.config_opt = ComboBoxSettingCard(
             icon=FluentIcon.GAME, title='战斗配置',
-            tooltip='调试为以当前画面做一次判断执行。配置文件在 config/auto_battle 文件夹，删除会恢复默认配置'
+            content='调试为以当前画面做一次判断执行。配置文件在 config/auto_battle 文件夹，删除会恢复默认配置'
         )
         self.debug_btn = PushButton(text='调试')
         self.debug_btn.clicked.connect(self._on_debug_clicked)
