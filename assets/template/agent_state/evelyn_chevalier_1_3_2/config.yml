@@ -1,0 +1,8 @@
+sub_dir: agent_state
+template_id: evelyn_chevalier_1_3_2
+template_name: 角色状态-伊芙琳-燎火-32
+template_shape: rectangle
+auto_mask: true
+point_list:
+- 574, 99
+- 612, 100
