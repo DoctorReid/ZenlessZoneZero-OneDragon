@@ -1,13 +1,10 @@
 import sys
-
 from PySide6.QtCore import (
     Qt,
-    QPropertyAnimation,
-    Property,
+    Signal,
     QRect,
     QRectF,
-    QEasingCurve,
-    QUrl,
+    QUrl
 )
 from PySide6.QtGui import QIcon, QPainter, QColor, QFont, QDesktopServices
 from PySide6.QtWidgets import (
@@ -17,7 +14,7 @@ from PySide6.QtWidgets import (
     QSpacerItem,
     QSizePolicy,
     QHBoxLayout,
-    QPushButton, QApplication,
+    QPushButton, QApplication,QAbstractScrollArea
 )
 from qfluentwidgets import (
     FluentStyleSheet,
@@ -63,7 +60,7 @@ class PhosWindow(MSFluentWindow, PhosFluentWindowBase):
         PhosFluentWindowBase.__init__(self, parent=parent)
 
         self.hBoxLayout = QHBoxLayout(self)
-        self.stackedWidget = StackedWidget(self)
+        self.stackedWidget = PhosStackedWidget(self)
         self.navigationInterface = None
 
         # initialize layout
@@ -183,7 +180,9 @@ class OneDragonNavigationBar(NavigationBar):
         self.scrollWidget.setObjectName("scrollWidget")
         FluentStyleSheet.NAVIGATION_INTERFACE.apply(self)
         FluentStyleSheet.NAVIGATION_INTERFACE.apply(self.scrollWidget)
-        self.__initLayout()  # 初始化布局
+
+        # 初始化布局
+        self.__initLayout()  
 
     # 初始化布局
     def __initLayout(self):
@@ -223,138 +222,124 @@ class OneDragonNavigationBar(NavigationBar):
         if routeKey in self.items:
             return
 
-        # 创建自定义按钮
+        # 创建自定义导航按钮
         w = PhosNavigationBarPushButton(icon, text, selectable, selectedIcon, self)
         self.insertWidget(index, routeKey, w, onClick, position)
         return w
 
-
-# 图标动画类
-class IconAnimation(QPropertyAnimation):
-    """Icon sliding animation"""
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self._opacity = 0
-        self.minOpacity = 100
-        self.maxOpacity = 255
-        self.setTargetObject(self)
-        self.setPropertyName(b"opacity")
-
-    def getOpacity(self):
-        return self._opacity
-
-    def setOpacity(self, value: float):
-        self._opacity = value
-        self.parent().update()  # 更新父对象以重绘
-
-    opacity = Property(float, getOpacity, setOpacity)
-
-    def aniStart(self):
-        """slide down"""
-        self.setStartValue(self.minOpacity)
-        self.setEndValue(self.maxOpacity)
-        self.setDuration(400)  # 调整持续时间
-        self.setEasingCurve(QEasingCurve.Type.OutCubic)  # 使用缓动函数
-        self.start()
-
-    def aniStop(self):
-        """slide up"""
-        self.setStartValue(20)
-        self.setEndValue(0)  # 修改为从最大值到0
-        self.setDuration(100)  # 调整持续时间
-        self.setEasingCurve(QEasingCurve.Type.InCubic)  # 使用缓动函数
-        self.start()
-
+    def _onWidgetClicked(self):
+        widget = self.sender()
+        if widget.isSelectable:
+            # 路由切换逻辑
+            route_key = widget.property("routeKey")
+            self.setCurrentItem(route_key)
 
 # 自定义导航按钮类
 class PhosNavigationBarPushButton(NavigationBarPushButton):
-    """Navigation bar push button"""
-
     def __init__(
         self,
         icon: Union[str, QIcon, FIF],
         text: str,
         isSelectable: bool,
         selectedIcon=None,
-        parent=None,
+        parent=None
     ):
         super(NavigationBarPushButton, self).__init__(icon, text, isSelectable, parent)
-        self.iconAni = IconAnimation(self)  # 图标滑动动画
-        self._selectedIcon = selectedIcon
+
+        #几何参数
+        self.setFixedSize(64, 56)
+        self.icon_rect = QRectF(22, 13, 20, 20)
+        self.text_rect = QRect(0, 32, 64, 26)
+
+        #主题参数
+        self._theme_colors = {
+            'dark_icon': "#b2b2b2",
+            'light_icon': "#5c6e93",
+            'selected_icon': "#ffffff",
+            'background_dark': 255,
+            'background_light': 0
+        }
+
+        self._selectedIcon = selectedIcon or icon
+
+        #设置样式
+        setFont(self, 12, weight=QFont.Weight.ExtraBold)
         self._isSelectedTextVisible = True
 
-        self.setFixedSize(64, 58)  # 设置按钮大小
-        setFont(self, 12, weight=QFont.Weight.ExtraBold)  # 设置字体大小
-
-    # 绘制事件
     def paintEvent(self, e):
         painter = QPainter(self)
+        self._configure_painter(painter)
+        self._draw_background(painter)
+        self._draw_icon(painter)
+        self._draw_text(painter)
+
+    def _configure_painter(self, painter):
+        """配置参数"""
         painter.setRenderHints(
-            QPainter.RenderHint.Antialiasing
-            | QPainter.RenderHint.TextAntialiasing
-            | QPainter.RenderHint.SmoothPixmapTransform
+            QPainter.Antialiasing |
+            QPainter.TextAntialiasing |
+            QPainter.SmoothPixmapTransform
         )
-        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setPen(Qt.NoPen)
 
-        # 绘制选中按钮样式
-        if self.isSelected and not self.isPressed:
-            painter.setBrush(
-                QColor(214, 75, 84, self.iconAni.opacity)
-            )  # 设置选中背景颜色
-            painter.drawRoundedRect(self.rect().adjusted(4, 0, -4, 0), 10, 10)
-        elif self.isSelected and self.isPressed:
-            painter.setBrush(QColor(214, 75, 84, 100))  # 设置选中背景颜色
-            painter.drawRoundedRect(self.rect().adjusted(4, 0, -4, 0), 10, 10)
-        elif self.isPressed:
-            c = 255 if isDarkTheme() else 0
-            painter.setBrush(QColor(c, c, c, 20))  # 设置选中背景颜色
-            painter.drawRoundedRect(self.rect().adjusted(4, 0, -4, 0), 10, 10)
-        elif self.isEnter:
-            c = 255 if isDarkTheme() else 0
-            painter.setBrush(QColor(c, c, c, 10))
-            painter.drawRoundedRect(self.rect().adjusted(4, 0, -4, 0), 10, 10)
+    def _draw_background(self, painter):
+        """背景绘制"""
+        color = self._get_background_color()
+        painter.setBrush(color)
+        painter.drawRoundedRect(self.rect().adjusted(4, 0, -4, 0), 10, 10)
+
+    def _get_background_color(self):
+        """背景颜色"""
+
+        if not self.isSelected:
+            if self.isPressed:
+                c = self._theme_colors['background_dark' if isDarkTheme()  else 'background_light']
+                return QColor(c, c, c, 64)
+            elif self.isEnter:
+                c = self._theme_colors['background_dark' if isDarkTheme()  else 'background_light']
+                return QColor(c, c, c, 32)
+            else:
+                c = self._theme_colors['background_dark' if isDarkTheme()  else 'background_light']
+                return QColor(c, c, c, 0)
         else:
-            c = 255 if isDarkTheme() else 0
-            painter.setBrush(QColor(c, c, c, self.iconAni.opacity))  # 设置默认背景颜色
-            painter.drawRoundedRect(self.rect().adjusted(4, 0, -4, 0), 10, 10)
+            c = self._theme_colors['background_dark' if isDarkTheme()  else 'background_light']
+            return QColor(214, 75, 84, 255)
+    
 
-        # 绘制图标
-        rect = QRectF(22, 13, 20, 20)
-        selectedIcon = self._selectedIcon or self._icon
+    def _draw_icon(self, painter):
+        """图标绘制"""
+        fill_color = self._get_icon_color()
+        self._selectedIcon.render(painter, self.icon_rect, fill=fill_color)
 
-        if isinstance(selectedIcon, FluentIconBase) and self.isSelected:
-            selectedIcon.render(painter, rect, fill="#ffffff")
-        elif self.isSelected:
-            selectedIcon.render(painter, rect, fill="#5c6e93")
-        elif isDarkTheme():
-            selectedIcon.render(painter, rect, fill="#b2b2b2")
-        else:
-            selectedIcon.render(painter, rect, fill="#5c6e93")
+    def _get_icon_color(self):
+        """图标颜色"""
+        if self.isSelected:
+            if isinstance(self._selectedIcon, FluentIconBase):
+                return self._theme_colors['selected_icon']
+            return self._theme_colors['light_icon']
+        return self._theme_colors['dark_icon' if isDarkTheme()  else 'light_icon']
 
+    def _draw_text(self, painter):
+        """文本绘制"""
         if self.isSelected and not self._isSelectedTextVisible:
             return
-
-        # 绘制文字
-        painter.setPen(
-            QColor(255, 255, 255)
-            if self.isSelected
-            else QColor(178, 178, 178) if isDarkTheme() else QColor(92, 110, 147)
-        )
+        
+        painter.setPen(self._get_text_color())
         painter.setFont(self.font())
-        rect = QRect(0, 32, self.width(), 26)
-        painter.drawText(rect, Qt.AlignmentFlag.AlignCenter, self.text())
+        painter.drawText(self.text_rect, Qt.AlignCenter, self.text())
+
+    def _get_text_color(self):
+        """文本颜色"""
+        if self.isSelected:
+            return QColor(255, 255, 255)
+        return QColor(178, 178, 178) if isDarkTheme()  else QColor(92, 110, 147)
 
     def setSelected(self, isSelected: bool):
+        """选中状态切换"""
         if isSelected == self.isSelected:
             return
-
+        
         self.isSelected = isSelected
-
-        if isSelected:
-            self.iconAni.aniStart()
-        else:
-            self.iconAni.aniStop()
 
 
 class PhosTitleBar(SplitTitleBar):
@@ -452,3 +437,18 @@ class PhosTitleBar(SplitTitleBar):
             duration=2000,
             parent=self.window(),
         ).setCustomBackgroundColor("white", "#202020")
+
+
+
+class PhosStackedWidget(StackedWidget):
+    """ Stacked widget """
+
+    currentChanged = Signal(int)
+
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+
+    def setCurrentWidget(self, widget, popOut=True):
+        if isinstance(widget, QAbstractScrollArea):
+            widget.verticalScrollBar().setValue(0)
+        self.view.setCurrentWidget(widget, duration=0)
