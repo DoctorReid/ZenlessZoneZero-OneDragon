@@ -1,0 +1,12 @@
+sub_dir: agent_state
+template_id: evelyn_chevalier_2_3_3
+template_name: 角色状态-伊芙琳-燎索点-33
+template_shape: multi_rect
+auto_mask: true
+point_list:
+- 796, 98
+- 800, 102
+- 804, 98
+- 808, 102
+- 812, 98
+- 816, 102

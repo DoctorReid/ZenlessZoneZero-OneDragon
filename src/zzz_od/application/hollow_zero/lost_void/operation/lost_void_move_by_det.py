@@ -12,6 +12,7 @@ from one_dragon.utils import cal_utils
 from one_dragon.yolo.detect_utils import DetectObjectResult, DetectFrameResult
 from zzz_od.application.hollow_zero.lost_void.context.lost_void_detector import LostVoidDetector
 from zzz_od.application.hollow_zero.lost_void.lost_void_challenge_config import LostVoidRegionType
+from zzz_od.auto_battle import auto_battle_utils
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.zzz_operation import ZOperation
 
@@ -315,6 +316,9 @@ class LostVoidMoveByDet(ZOperation):
         脱困
         @return:
         """
+        # 在大世界 先切换到耀佳音以外的角色 防止进入状态无法移动
+        auto_battle_utils.check_astra_and_switch(self.ctx.lost_void.auto_op)
+
         if self.stuck_times % 6 == 1:  # 向左走
             self.ctx.controller.move_a(press=True, press_time=1, release=True)
         elif self.stuck_times % 6 == 2:  # 向右走

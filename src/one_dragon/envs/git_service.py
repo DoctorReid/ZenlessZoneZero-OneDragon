@@ -196,7 +196,7 @@ class GitService:
             return False, msg
         else:
             msg = '获取远程代码成功'
-            log.error(msg)
+            log.info(msg)
             return True, msg
 
     def checkout_latest_project_branch(self, progress_callback: Optional[Callable[[float, str], None]] = None) -> Tuple[bool, str]:

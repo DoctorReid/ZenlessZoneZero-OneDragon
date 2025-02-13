@@ -1,0 +1,8 @@
+sub_dir: agent_state
+template_id: evelyn_chevalier_1_2_2
+template_name: 角色状态-伊芙琳-燎火-22
+template_shape: rectangle
+auto_mask: true
+point_list:
+- 609, 99
+- 645, 100

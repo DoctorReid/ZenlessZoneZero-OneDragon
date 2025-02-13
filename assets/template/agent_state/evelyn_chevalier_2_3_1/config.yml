@@ -1,0 +1,12 @@
+sub_dir: agent_state
+template_id: evelyn_chevalier_2_3_1
+template_name: 角色状态-伊芙琳-燎索点-31
+template_shape: multi_rect
+auto_mask: true
+point_list:
+- 192, 121
+- 200, 128
+- 204, 121
+- 212, 128
+- 216, 121
+- 224, 128
