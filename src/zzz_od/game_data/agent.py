@@ -258,3 +258,12 @@ class AgentEnum(Enum):
                                                      lower_color=(30, 250, 250), upper_color=(255, 255, 255), connect_cnt=5)])
 
     ASTRA_YAO = Agent('astra_yao', '耀嘉音', RareTypeEnum.S, AgentTypeEnum.SUPPORT, DmgTypeEnum.ETHER)
+
+    EVELYN_CHEVALIER = Agent('evelyn_chevalier', '伊芙琳', RareTypeEnum.S, AgentTypeEnum.ATTACK, DmgTypeEnum.FIRE,
+                             state_list=[
+                                 AgentStateDef('伊芙琳-燎火', AgentStateCheckWay.BACKGROUND_GRAY_RANGE_LENGTH,
+                                               'evelyn_chevalier_1', lower_color=0, upper_color=30),
+                                 AgentStateDef('伊芙琳-燎索点', AgentStateCheckWay.COLOR_RANGE_CONNECT,
+                                               'evelyn_chevalier_2', lower_color=(70, 70, 70), upper_color=(255, 255, 255),
+                                               connect_cnt=5)
+                             ])

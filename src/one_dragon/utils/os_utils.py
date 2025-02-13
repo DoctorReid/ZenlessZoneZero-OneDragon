@@ -125,7 +125,7 @@ def get_sunday_dt(dt: str) -> str:
     return sunday_date.strftime("%Y%m%d")
 
 
-def get_money_dt(dt: str) -> str:
+def get_monday_dt(dt: str) -> str:
     """
     根据一个日期，获取对应星期一的日期
     :param dt: 日期 yyyyMMdd 格式

@@ -539,7 +539,6 @@ class LostVoidRunLevel(ZOperation):
 
                 if self.no_in_battle_times >= 10:
                     auto_battle_utils.stop_running(self.auto_op)
-                    log.info('识别需移动交互')
                     return self.round_success('识别需移动交互')
 
                 return self.round_wait(wait_round_time=self.ctx.battle_assistant_config.screenshot_interval)
