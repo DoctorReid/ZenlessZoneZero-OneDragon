@@ -84,6 +84,15 @@ handlers:
                 - op_name: "清除状态"
                   state_list: ["自定义-速切结束", "自定义-动作不打断"]
 
+          - states: "![前台-珂蕾妲]"
+            sub_handlers:
+            - states: "[珂蕾妲-特殊技可用]"
+              operations:
+                - op_name: "按键-切换角色"
+                  agent_name: "珂蕾妲"
+                - op_name: "清除状态"
+                  state_list: ["自定义-速切结束", "自定义-动作不打断"]
+
           - states: "![前台-苍角]"
             sub_handlers:
             - states: "[苍角-特殊技可用]"
