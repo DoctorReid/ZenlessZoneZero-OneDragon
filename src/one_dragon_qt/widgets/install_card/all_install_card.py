@@ -18,7 +18,7 @@ class AllInstallCard(BaseInstallCard):
             card.finished.connect(self.on_install_done)
 
         guide_btn = HyperlinkButton(
-            url='http://one-dragon.org/zzz/zh/quickstart.html',
+            url='http://onedragon-anything.github.io/zzz/zh/quickstart.html',
             text='安装指南'
         )
 

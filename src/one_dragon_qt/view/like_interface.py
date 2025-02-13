@@ -28,12 +28,12 @@ class LikeInterface(VerticalScrollInterface):
 
         help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='访问Github指南', text='前往',
                                  content='没法访问Github可以查看帮助文档',
-                                 url='https://one-dragon.org/other/zh/visit_github.html')
+                                 url='https://onedragon-anything.github.io/other/zh/visit_github.html')
         content.add_widget(help_opt)
 
         cafe_opt = HyperlinkCard(icon=FluentIcon.CAFE, title='赞赏', text='前往',
                                  content='如果喜欢本项目，你也可以为作者赞助一点维护费用~',
-                                 url='https://one-dragon.org/other/zh/like/like.html')
+                                 url='https://onedragon-anything.github.io/other/zh/like/like.html')
         content.add_widget(cafe_opt)
 
         img_label = ImageLabel()

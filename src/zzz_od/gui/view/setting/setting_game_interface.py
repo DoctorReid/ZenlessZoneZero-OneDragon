@@ -75,7 +75,7 @@ class SettingGameInterface(VerticalScrollInterface):
         launch_argument_group.addSettingCard(self.launch_argument_advance)
 
         # self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='使用说明', text='前往',
-        #                               url='https://one-dragon.org/zzz/zh/docs/feat_launch_argument.html')
+        #                               url='https://onedragon-anything.github.io/zzz/zh/docs/feat_launch_argument.html')
         # self.help_opt.setContent('先看说明 再使用与提问')
         # launch_argument_group.addSettingCard(self.help_opt)
 
