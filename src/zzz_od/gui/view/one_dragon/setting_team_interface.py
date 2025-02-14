@@ -1,5 +1,5 @@
-from PySide6.QtCore import Signal
-from PySide6.QtWidgets import QWidget
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import QWidget, QCompleter
 from qfluentwidgets import FluentIcon, LineEdit, HyperlinkCard
 from typing import Optional, List
 
@@ -12,6 +12,7 @@ from zzz_od.context.zzz_context import ZContext
 
 from one_dragon_qt.widgets.column import Column
 from one_dragon_qt.widgets.combo_box import ComboBox
+from one_dragon_qt.widgets.editable_combo_box import EditableComboBox
 from zzz_od.game_data.agent import AgentEnum
 
 
@@ -22,26 +23,36 @@ class TeamSettingCard(MultiPushSettingCard):
     def __init__(self):
         self.team_info: Optional[PredefinedTeamInfo] = None
 
-        self.name_input = LineEdit()
-        self.name_input.textChanged.connect(self.on_name_changed)
-        self.name_input.setMinimumWidth(100)
-
         self.auto_battle_btn = ComboBox()
         self.auto_battle_btn.currentIndexChanged.connect(self.on_auto_battle_changed)
 
-        self.agent_1_btn = ComboBox()
-        self.agent_1_btn.currentIndexChanged.connect(self.on_agent_1_changed)
-
-        self.agent_2_btn = ComboBox()
-        self.agent_2_btn.currentIndexChanged.connect(self.on_agent_2_changed)
-
-        self.agent_3_btn = ComboBox()
-        self.agent_3_btn.currentIndexChanged.connect(self.on_agent_3_changed)
-
         MultiPushSettingCard.__init__(self, icon=FluentIcon.PEOPLE, title='预备编队',
-                                      btn_list=[self.name_input,
-                                                self.agent_1_btn, self.agent_2_btn, self.agent_3_btn,
-                                                self.auto_battle_btn])
+                                      btn_list=[self.auto_battle_btn])
+
+        self.name_input = LineEdit()
+        self.name_input.textChanged.connect(self.on_name_changed)
+        self.name_input.setMinimumWidth(65)
+
+        self.agent_1_btn = EditableComboBox()
+        self.agent_1_btn.currentIndexChanged.connect(self.on_agent_1_changed)
+        self.agent_1_btn.setFixedWidth(100)
+
+        self.agent_2_btn = EditableComboBox()
+        self.agent_2_btn.currentIndexChanged.connect(self.on_agent_2_changed)
+        self.agent_2_btn.setFixedWidth(100)
+
+        self.agent_3_btn = EditableComboBox()
+        self.agent_3_btn.currentIndexChanged.connect(self.on_agent_3_changed)
+        self.agent_3_btn.setFixedWidth(100)
+
+        self.hBoxLayout.insertWidget(4, self.agent_1_btn, 0, Qt.AlignmentFlag.AlignLeft)
+        self.hBoxLayout.insertSpacing(5, 8)
+        self.hBoxLayout.insertWidget(6, self.agent_2_btn, 0, Qt.AlignmentFlag.AlignLeft)
+        self.hBoxLayout.insertSpacing(7, 8)
+        self.hBoxLayout.insertWidget(8, self.agent_3_btn, 0, Qt.AlignmentFlag.AlignLeft)
+        self.hBoxLayout.insertSpacing(9, 8)
+        self.hBoxLayout.insertWidget(10, self.name_input, 0, Qt.AlignmentFlag.AlignLeft)
+        self.hBoxLayout.insertSpacing(11, 8)
 
     def init_setting_card(self, auto_battle_list: List[ConfigItem], team: PredefinedTeamInfo) -> None:
         self.team_info = team
@@ -52,8 +63,13 @@ class TeamSettingCard(MultiPushSettingCard):
 
         self.auto_battle_btn.set_items(auto_battle_list, team.auto_battle)
 
-        agent_opts = ([ConfigItem(label='未知代理人', value='unknown')]
+        agent_opts = ([ConfigItem(label='代理人', value='unknown')]
             + [ConfigItem(label=i.value.agent_name, value=i.value.agent_id) for i in AgentEnum])
+
+        self.agent_1_btn.set_completer_options(agent_opts)
+        self.agent_2_btn.set_completer_options(agent_opts)
+        self.agent_3_btn.set_completer_options(agent_opts)
+
         self.agent_1_btn.set_items(agent_opts, team.agent_id_list[0])
         self.agent_2_btn.set_items(agent_opts, team.agent_id_list[1])
         self.agent_3_btn.set_items(agent_opts, team.agent_id_list[2])
