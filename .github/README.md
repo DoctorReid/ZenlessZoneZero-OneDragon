@@ -50,8 +50,8 @@ __ZenlessZoneZero-OneDragon__
 
 ## 🛠️ 快速开始
 
-🔧 [新手入门指南](https://one-dragon.org/zzz/zh/quickstart.html)  
-✨ [一条龙官网](https://one-dragon.org/)
+🔧 [新手入门指南](https://onedragon-anything.github.io/zzz/zh/quickstart.html)  
+✨ [一条龙官网](https://onedragon-anything.github.io/)
 
 ## ⚠️ 免责声明
 
@@ -71,7 +71,7 @@ __ZenlessZoneZero-OneDragon__
 ![Contributors](https://contrib.rocks/image?repo=DoctorReid/ZenlessZoneZero-OneDragon&columns=12)
 
 是你们的参与共同构建了这个项目，让这个项目越来越好♡  
-如果想要参与开发，可以参考 [一条龙官网](https://one-dragon.org/) 对应的开发指南，我们期待你的加入
+如果想要参与开发，可以参考 [一条龙官网](https://onedragon-anything.github.io/) 对应的开发指南，我们期待你的加入
 
 </div>
 
@@ -99,6 +99,6 @@ __ZenlessZoneZero-OneDragon__
 
 <img src="./image/sponsor.png" width = "480" alt="图片名称" align=center />
 
-💖 查看[致谢名单](https://one-dragon.org/other/zh/like/thanks_2024.html)
+💖 查看[致谢名单](https://onedragon-anything.github.io/other/zh/like/thanks_2024.html)
 
 </div>
