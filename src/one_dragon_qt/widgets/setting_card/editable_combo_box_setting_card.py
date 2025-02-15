@@ -72,15 +72,15 @@ class EditableComboBoxSettingCard(SettingCardBase):
 
     def _initialize_options(self, options_enum: Optional[Iterable[Enum]], options_list: Optional[List[ConfigItem]]) -> None:
         """从枚举或列表初始化下拉框选项。"""
-        if options_enum:
-            for opt in options_enum:
-                if isinstance(opt.value, ConfigItem):
-                    self._opts_list.append(opt.value)
-                    self.combo_box.addItem(opt.value.ui_text, userData=opt.value.value)
-        elif options_list:
-            for opt_item in options_list:
-                self._opts_list.append(opt_item)
-                self.combo_box.addItem(opt_item.ui_text, userData=opt_item.value)
+        if options_list is not None:
+            self.set_options_by_list(options_list)
+        else:
+            options_list = [
+                opt.value
+                for opt in options_enum
+                if isinstance(opt.value, ConfigItem)
+            ]
+            self.set_options_by_list(options_list)
 
     def eventFilter(self, obj, event: QEvent) -> bool:
         """处理标题标签的鼠标事件。"""
@@ -131,6 +131,7 @@ class EditableComboBoxSettingCard(SettingCardBase):
         for opt_item in options:
             self._opts_list.append(opt_item)
             self.combo_box.addItem(opt_item.ui_text, userData=opt_item.value)
+        self.set_completer_options(options)
 
         self.combo_box.blockSignals(False)
 

@@ -41,6 +41,7 @@ class EditableComboBox(qtEditableComboBox):
                 new_idx = i
 
         self.setCurrentIndex(new_idx)
+        self.set_completer_options(items)
         self.blockSignals(False)
 
     def init_with_value(self, target_value: Any = None) -> None:

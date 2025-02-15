@@ -65,7 +65,6 @@ class ZOneDragonSettingInterface(VerticalScrollInterface):
             icon=FluentIcon.PEOPLE, title=gt('影像店代理人-1'),
             options_list=agents_list,
         )
-        self.random_play_agent_1.set_completer_options(agents_list)
         self.random_play_agent_1.combo_box.setFixedWidth(100)
         group.addSettingCard(self.random_play_agent_1)
 
@@ -73,7 +72,6 @@ class ZOneDragonSettingInterface(VerticalScrollInterface):
             icon=FluentIcon.PEOPLE, title=gt('影像店代理人-2'),
             options_list=agents_list,
         )
-        self.random_play_agent_2.set_completer_options(agents_list)
         self.random_play_agent_2.combo_box.setFixedWidth(100)
         group.addSettingCard(self.random_play_agent_2)
 

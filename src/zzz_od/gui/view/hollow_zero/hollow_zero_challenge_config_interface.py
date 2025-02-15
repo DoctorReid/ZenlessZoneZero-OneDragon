@@ -3,9 +3,11 @@ from qfluentwidgets import FluentIcon, PushButton, PlainTextEdit, SubtitleLabel,
     TitleLabel
 from typing import List, Optional
 
+from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.utils.i18_utils import gt
 from one_dragon_qt.widgets.column import Column
 from one_dragon_qt.widgets.combo_box import ComboBox
+from one_dragon_qt.widgets.editable_combo_box import EditableComboBox
 from one_dragon_qt.widgets.row import Row
 from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon_qt.widgets.setting_card.multi_push_setting_card import MultiPushSettingCard
@@ -78,15 +80,9 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
         self.name_opt.value_changed.connect(self._on_name_changed)
         widget.add_widget(self.name_opt)
 
-        self.agent_btn_list: List[ComboBox] = []
+        self.agent_btn_list: List[EditableComboBox] = []
         for i in range(3):
-            agent_btn = ComboBox()
-            for agent_type_enum in AgentTypeEnum:
-                if agent_type_enum.value == '未知':
-                    continue
-                agent_btn.addItem(agent_type_enum.value, userData=agent_type_enum.value)
-            for agent_enum in AgentEnum:
-                agent_btn.addItem(agent_enum.value.agent_name, userData=agent_enum.value.agent_id)
+            agent_btn = EditableComboBox()
             agent_btn.currentIndexChanged.connect(self._on_agent_changed)
             self.agent_btn_list.append(agent_btn)
 
@@ -199,13 +195,18 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
             self.name_opt.setValue(self.chosen_config.module_name)
             self.auto_battle_opt.setValue(self.chosen_config.auto_battle)
             self.path_finding_opt.setValue(self.chosen_config.path_finding)
+            agent_opts = [
+                             ConfigItem(agent_type_enum.value)
+                             for agent_type_enum in AgentTypeEnum
+                             if agent_type_enum.value != '未知'
+                         ] + [
+                             ConfigItem(label=agent_enum.value.agent_name, value=agent_enum.value.agent_id)
+                             for agent_enum in AgentEnum
+                         ]
             agents = self.chosen_config.target_agents
             for i in range(3):
                 btn = self.agent_btn_list[i]
-                if agents[i] is None:
-                    btn.setCurrentIndex(-1)
-                else:
-                    btn.setCurrentIndex(btn.findData(agents[i]))
+                btn.set_items(agent_opts, agents[i])
             self.buy_only_priority_opt.setValue(self.chosen_config.buy_only_priority)
             self.resonium_priority_input.setPlainText(self.chosen_config.resonium_priority_str)
             self.event_priority_input.setPlainText(self.chosen_config.event_priority_str)

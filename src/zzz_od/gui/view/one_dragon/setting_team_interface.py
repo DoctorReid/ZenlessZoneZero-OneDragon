@@ -66,10 +66,6 @@ class TeamSettingCard(MultiPushSettingCard):
         agent_opts = ([ConfigItem(label='代理人', value='unknown')]
             + [ConfigItem(label=i.value.agent_name, value=i.value.agent_id) for i in AgentEnum])
 
-        self.agent_1_btn.set_completer_options(agent_opts)
-        self.agent_2_btn.set_completer_options(agent_opts)
-        self.agent_3_btn.set_completer_options(agent_opts)
-
         self.agent_1_btn.set_items(agent_opts, team.agent_id_list[0])
         self.agent_2_btn.set_items(agent_opts, team.agent_id_list[1])
         self.agent_3_btn.set_items(agent_opts, team.agent_id_list[2])
