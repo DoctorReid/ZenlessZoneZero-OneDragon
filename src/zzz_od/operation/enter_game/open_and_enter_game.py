@@ -45,6 +45,8 @@ class OpenAndEnterGame(Operation):
         self.ctx.controller.game_win.init_win()
         if self.ctx.controller.is_game_window_ready:
             self.ctx.controller.active_window()
+            import subprocess
+            subprocess.Popen(f'cmd /c "reg add "HKCU\\Software\\Microsoft\\DirectX\\UserGpuPreferences" /v "{self.ctx.game_account_config.game_path}" /d "AutoHDREnable=2097;" /f"')
             return self.round_success()
         else:
             return self.round_retry(wait=1)
