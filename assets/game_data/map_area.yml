@@ -67,3 +67,10 @@
   tp_list:
     - "入口通道"
     - "休闲区域"
+- area_name: "星环"
+  tp_list:
+    - "流光大厅"
+    - "星环VIP包厢"
+- area_name: "UNKNOWN"
+  tp_list:
+    - "UNKNOWN"
