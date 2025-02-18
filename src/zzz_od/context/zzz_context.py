@@ -101,9 +101,12 @@ class ZContext(OneDragonContext):
         from zzz_od.hollow_zero.hollow_zero_challenge_config import HollowZeroChallengeConfig
         from zzz_od.application.redemption_code.redemption_code_run_record import RedemptionCodeRunRecord
         from zzz_od.application.commission_assistant.commission_assistant_config import CommissionAssistantConfig
+        from zzz_od.config.emulator_config import EmulatorConfig
         self.game_config: GameConfig = GameConfig(self.current_instance_idx)
         from zzz_od.config.team_config import TeamConfig
         self.team_config: TeamConfig = TeamConfig(self.current_instance_idx)
+        self.emulator_config: EmulatorConfig = EmulatorConfig(self.current_instance_idx)
+
 
         # 应用配置
         self.screenshot_helper_config: ScreenshotHelperConfig = ScreenshotHelperConfig(self.current_instance_idx)

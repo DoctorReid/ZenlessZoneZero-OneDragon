@@ -30,8 +30,7 @@ class PythonService:
         log.info('开始安装 python')
         for _ in range(2):
             zip_file_name = f'python-{self.project_config.python_version}-embed-amd64.zip'
-            zip_file
-            if progress_callback: _path = os.path.join(DEFAULT_ENV_PATH, zip_file_name)
+            zip_file_path = os.path.join(DEFAULT_ENV_PATH, zip_file_name)
             if not os.path.exists(zip_file_path):
                 success = self.git_service.download_env_file(zip_file_name, zip_file_path,
                                                              progress_callback=progress_callback)
@@ -39,6 +38,7 @@ class PythonService:
                     return False  # 下载失败的 直接返回失败 不重试
             msg = f'开始解压 {zip_file_name}'
             log.info(msg)
+            if progress_callback:
                 progress_callback(-1, msg)
             success = file_utils.unzip_file(zip_file_path, DEFAULT_PYTHON_DIR_PATH)
             msg = '解压成功' if success else '解压失败 准备重试'

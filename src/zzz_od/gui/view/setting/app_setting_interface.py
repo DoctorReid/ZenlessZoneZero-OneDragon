@@ -6,6 +6,7 @@ from zzz_od.context.zzz_context import ZContext
 from zzz_od.gui.view.setting.setting_game_interface import SettingGameInterface
 from zzz_od.gui.view.setting.setting_yolo_interface import SettingYoloInterface
 from zzz_od.gui.view.setting.zzz_setting_instance_interface import ZSettingInstanceInterface
+from zzz_od.gui.view.setting.setting_emulator_interface import SettingEmulatorInterface
 
 
 class AppSettingInterface(PivotNavigatorInterface):
@@ -24,3 +25,4 @@ class AppSettingInterface(PivotNavigatorInterface):
         self.add_sub_interface(SettingYoloInterface(ctx=self.ctx))
         self.add_sub_interface(SettingEnvInterface(ctx=self.ctx))
         self.add_sub_interface(ZSettingInstanceInterface(ctx=self.ctx))
+        self.add_sub_interface(SettingEmulatorInterface(ctx=self.ctx))

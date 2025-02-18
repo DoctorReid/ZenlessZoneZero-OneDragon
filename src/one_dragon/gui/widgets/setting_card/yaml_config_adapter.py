@@ -1,4 +1,4 @@
-from typing import Optional, Any
+from typing import Optional, Any, Union, List
 
 from one_dragon.base.config.yaml_config import YamlConfig
 
@@ -16,7 +16,7 @@ class YamlConfigAdapter:
 
     def get_value(self) -> Any:
         # 获取self.field对应的property属性的值
-        val = getattr(self.config, self.field)
+        val = self._get_nested_value(self.field)
         if self.getter_convert == 'str':
             return str(val)
         elif self.getter_convert == 'int':
@@ -36,4 +36,30 @@ class YamlConfigAdapter:
         else:
             val = new_value
 
-        self.config.update(self.field, val)
+        self._set_nested_value(self.field, val)
+        self.config.save()
+
+    def _get_nested_value(self, field_path: Union[str, List[str]]) -> Any:
+        current = self.config.data
+        if isinstance(field_path, str):
+            field_path = field_path.split('.')
+        for key in field_path:
+            if isinstance(current, dict):
+                current = current.get(key, None)
+                if current is None:
+                    return self.default_val
+            else:
+                return self.default_val
+        return current
+
+    def _set_nested_value(self, field_path: Union[str, List[str]], value: Any) -> None:
+        if isinstance(field_path, str):
+            field_path = field_path.split('.')
+        current = self.config.data
+        for key in field_path[:-1]:
+            if isinstance(current, dict):
+                current = current.setdefault(key, {})
+            else:
+                current[key] = {}
+                current = current[key]
+        current[field_path[-1]] = value
