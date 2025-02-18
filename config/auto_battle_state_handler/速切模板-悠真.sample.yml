@@ -9,7 +9,6 @@ handlers:
       - states: "[自定义-红光闪避, 0, 1]"
         operations:
           - operation_template: "通用-闪A"
-          
 
       - states: "[自定义-连携换人,0,1]"
         operations:
@@ -22,41 +21,68 @@ handlers:
             seconds: 0.1
 
       #失衡时刻
-      - states: "[自定义-连携换人,0,14]"
+      - states: "[自定义-连携换人,0,10]"
         sub_handlers:
-          - states: "[自定义-连携换人,0,3] & [自定义-连携跳过,0,2]" #清空掉异常打出的电壶
+
+          #离场
+          - states: "[自定义-连携换人,9,10]"
             operations:
-              - op_name: "等待秒数"
-                seconds: 0.3
-              - operation_template: "悠真-射箭四刀" #清空电壶
-          - states: "[自定义-连携换人,0,3]" #清空掉异常打出的电壶
-            operations:
-              - operation_template: "悠真-射箭四刀" #清空电壶
-          - states: "[自定义-连携换人,3,12]"
+              - operation_template: "悠真-连携普攻产电壶" #连携奖励电壶别浪费了
+              - op_name: "设置状态"
+                data: ["自定义-速切结束"]
+
+          #连邂后第一套技能
+          - states: "[自定义-连携换人,0,3] | [自定义-连携跳过,0,2]" #清空掉异常打出的电壶
             sub_handlers:
+                - states: "[悠真-终结技可用]"
+                  operations:
+                    - operation_template: "悠真-终结技"   #上一轮的电壶
+                    - operation_template: "悠真-射箭四刀" #清空连携电壶
+                    - operation_template: "悠真-连携普攻产电壶" #连携奖励电壶别浪费了
+                    - operation_template: "悠真-射箭四刀" #清空连携电壶
+
+                - states: "![悠真-终结技可用]"
+                  operations:
+                    - operation_template: "悠真-射箭四刀" 
+                    - operation_template: "悠真-连携普攻产电壶" #连携奖励电壶别浪费了
+                    - operation_template: "悠真-射箭四刀" #清空连携电壶
+
+          - states: "[自定义-连携换人,3,10]"
+            sub_handlers:
+              #妮可来一发谢谢
+              - states: "( [妮可-特殊技可用] | [妮可-终结技可用] ) & [悠真-特殊技可用] &![自定义-妮可-能量场,-15,3.5]"
+                operations:
+                - operation_template: "悠真-强化特殊技合轴" #清空上一轮电壶
+
+              #从妮可那回来了
+              - states: "[自定义-快速支援换人,0,2]"
+                sub_handlers:
+                  - states: "[悠真-终结技可用]"
+                    operations:
+                      - operation_template: "悠真-终结技"
+                      - operation_template: "悠真-射箭四刀" #清空连携电壶
+                  - states: "![悠真-终结技可用]"
+                    operations:
+                      - operation_template: "悠真-射箭四刀" #清空连携电壶
+
               - states: "[悠真-终结技可用]"
                 sub_handlers:
                   - states: "[悠真-特殊技可用]"
                     operations:
-                      - operation_template: "悠真-强化特殊攻击"
+                      - operation_template: "悠真-强化特殊技"
                       - operation_template: "悠真-终结技"
-                      - operation_template: "悠真-闪A四刀"
-                  - states: ""
-                    operations:
-                      - operation_template: "悠真-终结技"
+                      - operation_template: "悠真-射箭四刀" #清空连携电壶
+
               - states: "[悠真-特殊技可用]"
                 operations:
-                  - operation_template: "悠真-强化特殊攻击速接普攻"
-              #没能量了再打打
-              - states: ""
+                  - operation_template: "悠真-强化特殊技速接普攻"
+
+              - states: "![悠真-特殊技可用]"
                 operations:
-                  - operation_template: "悠真-闪A三刀"
-          #连携结束，离场
-          - states: "[自定义-连携换人,12,14]"
-            operations:
-              - operation_template: "悠真-射箭四刀" #清空电壶再下场
-              - op_name: "设置状态"
-                data: ["自定义-速切结束"]
+                - operation_template: "悠真-连携普攻产电壶" #连携奖励电壶别浪费了
+                - op_name: "设置状态"
+                  data: ["自定义-速切结束"]
+
 
       #非失衡时刻
 
@@ -70,7 +96,7 @@ handlers:
                 sub_handlers:
                   - states: "[悠真-特殊技可用]"
                     operations:
-                      - operation_template: "悠真-强化特殊攻击"
+                      - operation_template: "悠真-强化特殊技"
                       - operation_template: "悠真-终结技"
                       - operation_template: "悠真-闪A四刀"
                   - states: ""
@@ -78,7 +104,7 @@ handlers:
                       - operation_template: "悠真-终结技"
               - states: "[悠真-特殊技可用]"
                 operations:
-                  - operation_template: "悠真-强化特殊攻击"
+                  - operation_template: "悠真-强化特殊技"
                   - operation_template: "悠真-闪A四刀"
               #没能量了再打打
               - states: ""
@@ -95,7 +121,7 @@ handlers:
                   - operation_template: "悠真-终结技"
               - states: "[悠真-特殊技可用]"
                 operations:
-                  - operation_template: "悠真-强化特殊攻击"
+                  - operation_template: "悠真-强化特殊技"
                   - operation_template: "悠真-闪A三刀"
               - states: ""
                 operations:
@@ -107,7 +133,7 @@ handlers:
       #后台如果有击破，不管什么队友都留能量
       - states: "[悠真-能量]{110,120}"
         operations:
-          - operation_template: "悠真-强化特殊攻击"
+          - operation_template: "悠真-强化特殊技"
           - operation_template: "悠真-闪A四刀"
 
       - states: ""

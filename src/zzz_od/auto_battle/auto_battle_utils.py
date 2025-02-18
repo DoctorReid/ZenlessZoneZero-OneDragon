@@ -1,9 +1,11 @@
+import time
 from concurrent.futures import Future
 from typing import Tuple, Union
 
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
+from zzz_od.game_data.agent import AgentEnum
 from zzz_od.operation.zzz_operation import ZOperation
 
 
@@ -45,3 +47,35 @@ def resume_running(auto_op: AutoBattleOperator) -> None:
     """
     if auto_op is not None:
         auto_op.start_running_async()
+
+
+def check_astra_and_switch(auto_op: AutoBattleOperator, timeout_seconds: float = 5) -> None:
+    """
+    停止后的特殊判断前台是否耀佳音 - 需要切换角色 防止进入状态无法移动
+    :return:
+    """
+    start_time = time.time()
+    while True:
+        now = time.time()
+        if now - start_time >= timeout_seconds:
+            break
+
+        screenshot = auto_op.ctx.controller.screenshot()
+
+        auto_op.auto_battle_context.agent_context.check_agent_related(screenshot, now)
+
+        team_info = auto_op.auto_battle_context.agent_context.team_info
+        if team_info.agent_list is None or len(team_info.agent_list) == 0:
+            time.sleep(0.2)
+            continue
+
+        agent = team_info.agent_list[0].agent
+        if agent is None:
+            time.sleep(0.2)
+            continue
+
+        if agent != AgentEnum.ASTRA_YAO.value:  # 不是耀佳音的话 不需要处理
+            break
+
+        auto_op.auto_battle_context.switch_next()  # 随便切换下一个角色
+        time.sleep(0.2)

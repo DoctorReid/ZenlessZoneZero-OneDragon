@@ -50,7 +50,7 @@ class HollowContext:
         for agent in possible_agents:
             if agent is None:
                 continue
-            mrl = self.ctx.tm.match_template(img, 'hollow', prefix + agent.agent_id, threshold=0.8)
+            mrl = self.ctx.tm.match_template(img, 'hollow', prefix + agent.template_id, threshold=0.8)
             if mrl.max is not None:
                 return agent
 
@@ -125,7 +125,7 @@ class HollowContext:
 
         # 随便找个一步可达的格子
         target = hollow_pathfinding.get_route_in_1_step(current_map, self._visited_nodes,
-                                                       target_entry_list=self.data_service.get_no_battle_list())
+                                                        target_entry_list=self.data_service.get_no_battle_list())
         target = self.try_target_node(current_map, target)
         if target is not None:
             log.info(f"优先级 [随机一步]")
@@ -204,7 +204,7 @@ class HollowContext:
                 target.path_go_way = 0
                 if (
                         target.entry.entry_name in ['零号银行', '业绩考察点']  # 目标前往的点
-                        and curr_node_to_move.entry.entry_name in ['门扉禁闭-财富', '门扉禁闭-善战']  # 下一步前往的格子是门
+                        and curr_node_to_move.entry.entry_name in ['门扉禁闭-财富', '门扉禁闭-善战', '门扉禁闭-侵蚀']  # 下一步前往的格子是门 门的类型有可能识别错
                 ):
                     # 代表上一次点了之后 这次依然要点同样的位置 也就是无法通行 标记为已经去过了
                     self.update_context_after_move(current_map, target, update_current=False)
@@ -481,3 +481,10 @@ class HollowContext:
         self.map_service.init_event_yolo()
         self.init_level_info(mission_type_name, mission_name, level, phase)
         self.agent_list = None
+
+    def after_app_shutdown(self) -> None:
+        """
+        App关闭后进行的操作 关闭一切可能资源操作
+        @return:
+        """
+        _hollow_context_executor.shutdown(wait=False, cancel_futures=True)

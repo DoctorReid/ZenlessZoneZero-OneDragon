@@ -4,10 +4,12 @@ from qfluentwidgets import PushButton, FluentIcon, SettingCardGroup, HyperlinkCa
 from typing import Optional, List
 
 from one_dragon.base.config.config_item import ConfigItem
-from one_dragon.gui.widgets.setting_card.multi_push_setting_card import MultiPushSettingCard
-from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.utils.i18_utils import gt
-from phosdeiz.gui.widgets import Column, ComboBox, Row
+from one_dragon_qt.widgets.column import Column
+from one_dragon_qt.widgets.combo_box import ComboBox
+from one_dragon_qt.widgets.row import Row
+from one_dragon_qt.widgets.setting_card.multi_push_setting_card import MultiPushSettingCard
+from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_op_config_list
 from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.context.zzz_context import ZContext
@@ -28,7 +30,7 @@ class TeamSettingCard(MultiPushSettingCard):
             opt.setDisabled(True)
             self.btn_list.append(opt)
 
-        MultiPushSettingCard.__init__(self, title='配队', btn_list=self.btn_list)
+        MultiPushSettingCard.__init__(self, icon=FluentIcon.PEOPLE, title='配队', btn_list=self.btn_list)
 
     def init_team(self, character_list: List[str]) -> None:
         """

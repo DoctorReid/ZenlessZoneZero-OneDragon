@@ -38,16 +38,30 @@ class TypeInputWay(Enum):
     CLIPBOARD = ConfigItem('剪贴板', 'clipboard', desc='出现剪切板失败时 切换到输入法')
 
 
+class ScreenSizeEnum(Enum):
+
+    SIZE_1920_1080 = ConfigItem('1920x1080', '1920x1080')
+    SIZE_2560_1440 = ConfigItem('2560x1440', '2560x1440')
+    SIZE_3840_2160 = ConfigItem('3840x2160', '3840x2160')
+
+
+class FullScreenEnum(Enum):
+
+    WINDOWED = ConfigItem('窗口化', '0')
+    FULL_SCREEN = ConfigItem('全屏', '1')
+
+class MonitorEnum(Enum):
+
+    MONITOR_1 = ConfigItem('1', '1')
+    MONITOR_2 = ConfigItem('2', '2')
+    MONITOR_3 = ConfigItem('3', '3')
+    MONITOR_4 = ConfigItem('4', '4')
+
+
 class GameConfig(YamlConfig):
 
     def __init__(self, instance_idx: int):
         YamlConfig.__init__(self, 'game', instance_idx=instance_idx)
-
-        # 兼容旧数据
-        if not self.xbox_key_lock.startswith('xbox'):
-            self.xbox_key_lock = XboxButtonEnum.R_THUMB.value.value
-        if not self.ds4_key_lock.startswith('ds4'):
-            self.ds4_key_lock = Ds4ButtonEnum.R_THUMB.value.value
 
     @property
     def platform(self) -> str:
@@ -56,38 +70,6 @@ class GameConfig(YamlConfig):
     @platform.setter
     def platform(self, new_value: str) -> None:
         self.update('platform', new_value)
-
-    @property
-    def game_language(self) -> str:
-        return self.get('game_language', GameLanguageEnum.CN.value.value)
-
-    @game_language.setter
-    def game_language(self, new_value: str) -> None:
-        self.update('game_language', new_value)
-
-    @property
-    def game_path(self) -> str:
-        return self.get('game_path', '')
-
-    @game_path.setter
-    def game_path(self, new_value: str) -> None:
-        self.update('game_path', new_value)
-
-    @property
-    def account(self) -> str:
-        return self.get('account', '')
-
-    @account.setter
-    def account(self, new_value: str) -> None:
-        self.update('account', new_value)
-
-    @property
-    def password(self) -> str:
-        return self.get('password', '')
-
-    @password.setter
-    def password(self, new_value: str) -> None:
-        self.update('password', new_value)
 
     @property
     def type_input_way(self) -> str:
@@ -102,30 +84,52 @@ class GameConfig(YamlConfig):
         return YamlConfigAdapter(self, 'type_input_way', TypeInputWay.CLIPBOARD.value.value)
 
     @property
-    def game_region(self) -> str:
-        return self.get('game_region', GameRegionEnum.CN.value.value)
+    def launch_argument(self) -> bool:
+        return self.get('launch_argument', False)
 
-    @game_region.setter
-    def game_region(self, new_value: str) -> None:
-        self.update('game_region', new_value)
-
-    @property
-    def game_refresh_hour_offset(self) -> int:
-        if self.game_region == GameRegionEnum.CN.value.value:
-            return 4
-        elif self.game_region == GameRegionEnum.INTERNATIONAL.value.value:
-            return 4
-        return 4
+    @launch_argument.setter
+    def launch_argument(self, new_value: bool) -> None:
+        self.update('launch_argument', new_value)
 
     @property
-    def win_title(self) -> str:
-        """
-        游戏窗口名称 只有区服有关
-        """
-        if self.game_region == GameRegionEnum.CN.value.value:
-            return '绝区零'
-        else:
-            return 'ZenlessZoneZero'
+    def screen_size(self) -> str:
+        return self.get('screen_size', ScreenSizeEnum.SIZE_1920_1080.value.value)
+
+    @screen_size.setter
+    def screen_size(self, new_value: str) -> None:
+        self.update('screen_size', new_value)
+
+    @property
+    def full_screen(self) -> str:
+        return self.get('full_screen', FullScreenEnum.WINDOWED.value.value)
+
+    @full_screen.setter
+    def full_screen(self, new_value: str) -> None:
+        self.update('full_screen', new_value)
+
+    @property
+    def popup_window(self) -> bool:
+        return self.get('popup_window', False)
+
+    @popup_window.setter
+    def popup_window(self, new_value: bool) -> None:
+        self.update('popup_window', new_value)
+
+    @property
+    def monitor(self) -> str:
+        return self.get('monitor', MonitorEnum.MONITOR_1.value.value)
+
+    @monitor.setter
+    def monitor(self, new_value: str) -> None:
+        self.update('monitor', new_value)
+
+    @property
+    def launch_argument_advance(self) -> str:
+        return self.get('launch_argument_advance', '')
+
+    @launch_argument_advance.setter
+    def launch_argument_advance(self, new_value: str) -> None:
+        self.update('launch_argument_advance', new_value)
 
     @property
     def key_normal_attack(self) -> str:

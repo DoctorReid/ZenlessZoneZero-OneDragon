@@ -77,7 +77,7 @@ class YamlConfig(YamlOperator):
         :param setter_convert: 设置时的转换器
         :return:
         """
-        from one_dragon.gui.widgets.setting_card.yaml_config_adapter import YamlConfigAdapter
+        from one_dragon_qt.widgets.setting_card.yaml_config_adapter import YamlConfigAdapter
         return YamlConfigAdapter(
             config=self,
             field=prop,

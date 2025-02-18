@@ -16,7 +16,7 @@ class AutoBattleCustomContext:
     def init_battle_custom_context(self, auto_op: ConditionalOperator):
         self.auto_op = auto_op
 
-    def set_state(self, state_name_list: List[str], time_diff: float, value: int, value_add: int) -> None:
+    def set_state(self, state_name_list: List[str], time_diff: float, time_diff_add: float, value: int, value_add: int) -> None:
         """
         设置状态
         :param state_name_list: 状态名称列表
@@ -27,7 +27,7 @@ class AutoBattleCustomContext:
         """
         now = time.time()
         self.auto_op.batch_update_states([
-            StateRecord(state_name, trigger_time=now + time_diff, value=value, value_to_add=value_add)
+            StateRecord(state_name, trigger_time=now + time_diff, value=value, value_to_add=value_add , trigger_time_add = time_diff_add)
             for state_name in state_name_list
         ])
 

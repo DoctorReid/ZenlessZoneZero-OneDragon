@@ -3,9 +3,9 @@ from qfluentwidgets import FluentIcon, PushSettingCard, HyperlinkCard
 from typing import Optional, List
 
 from one_dragon.base.config.config_item import ConfigItem
-from one_dragon.gui.view.app_run_interface import AppRunInterface
-from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
+from one_dragon_qt.view.app_run_interface import AppRunInterface
+from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon_qt.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils.log_utils import log
 from zzz_od.application.hollow_zero.lost_void.lost_void_app import LostVoidApp
 from zzz_od.application.hollow_zero.lost_void.lost_void_challenge_config import LostVoidChallengeConfig, \
@@ -27,7 +27,7 @@ class LostVoidRunInterface(AppRunInterface):
             self,
             ctx=ctx,
             object_name='lost_void_run_interface',
-            nav_text_cn='迷失之地(测试)',
+            nav_text_cn='迷失之地',
             parent=parent,
         )
 
@@ -50,7 +50,7 @@ class LostVoidRunInterface(AppRunInterface):
         left_widget.setLayout(left_layout)
 
         self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='使用说明', text='前往',
-                                      url='https://one-dragon.org/zzz/zh/docs/feat_lost_void.html')
+                                      url='https://onedragon-anything.github.io/zzz/zh/docs/feat_lost_void.html')
         self.help_opt.setContent('先看说明 再使用与提问')
         left_layout.addWidget(self.help_opt)
 
@@ -166,6 +166,7 @@ class LostVoidRunInterface(AppRunInterface):
 
     def _on_reset_record_clicked(self) -> None:
         self.ctx.lost_void_record.reset_record()
+        self.ctx.lost_void_record.reset_for_weekly()
         log.info('重置成功')
         self._update_run_record_display()
 
@@ -178,3 +179,11 @@ class LostVoidRunInterface(AppRunInterface):
         """
         self.app = LostVoidApp(self.ctx)
         AppRunInterface._on_start_clicked(self)
+
+    def _on_context_state_changed(self) -> None:
+        """
+        按运行状态更新显示
+        :return:
+        """
+        AppRunInterface.on_context_state_changed(self)
+        self._update_run_record_display()

@@ -3,9 +3,9 @@ from qfluentwidgets import FluentIcon, PushSettingCard, HyperlinkCard
 from typing import Optional, List
 
 from one_dragon.base.config.config_item import ConfigItem
-from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
-from one_dragon.gui.view.app_run_interface import AppRunInterface
+from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon_qt.widgets.setting_card.text_setting_card import TextSettingCard
+from one_dragon_qt.view.app_run_interface import AppRunInterface
 from one_dragon.utils.log_utils import log
 from zzz_od.application.hollow_zero.withered_domain.hollow_zero_app import HollowZeroApp
 from zzz_od.application.hollow_zero.withered_domain.hollow_zero_config import HollowZeroExtraTask, HollowZeroExtraExitEnum
@@ -51,7 +51,7 @@ class HollowZeroRunInterface(AppRunInterface):
         left_widget.setLayout(left_layout)
 
         self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='使用说明', text='前往',
-                                      url='https://one-dragon.org/zzz/zh/docs/feat_hollow_zero.html')
+                                      url='https://onedragon-anything.github.io/zzz/zh/docs/feat_hollow_zero.html')
         self.help_opt.setContent('先看说明 再使用与提问')
         left_layout.addWidget(self.help_opt)
 
@@ -154,18 +154,14 @@ class HollowZeroRunInterface(AppRunInterface):
         self.run_record_opt.setContent(content)
 
     def _update_mission_options(self) -> None:
-        try:
-            # 更新之前 先取消原来的监听 防止触发事件
-            self.mission_opt.value_changed.disconnect(self._on_mission_changed)
-        except Exception:
-            pass
+        self.mission_opt.blockSignals(True)
         mission_list: List[str] = self.ctx.compendium_service.get_hollow_zero_mission_name_list()
         opt_list = [
             ConfigItem(mission_name)
             for mission_name in mission_list
         ]
         self.mission_opt.set_options_by_list(opt_list)
-        self.mission_opt.value_changed.connect(self._on_mission_changed)
+        self.mission_opt.blockSignals(False)
 
     def _update_challenge_config_options(self) -> None:
         """
@@ -220,3 +216,11 @@ class HollowZeroRunInterface(AppRunInterface):
 
     def _on_extra_exit_changed(self, idx: int, value: str) -> None:
         self.ctx.hollow_zero_config.extra_exit = value
+
+    def _on_context_state_changed(self) -> None:
+        """
+        按运行状态更新显示
+        :return:
+        """
+        AppRunInterface.on_context_state_changed(self)
+        self._update_run_record_display()

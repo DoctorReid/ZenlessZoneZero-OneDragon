@@ -1,18 +1,18 @@
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, CaptionLabel, LineEdit
-from typing import Optional, List
+from typing import List
 
 from one_dragon.base.config.config_item import ConfigItem
-from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.widgets.setting_card.multi_push_setting_card import MultiPushSettingCard, MultiLineSettingCard
-from one_dragon.utils.i18_utils import gt
+from one_dragon_qt.widgets.column import Column
+from one_dragon_qt.widgets.combo_box import ComboBox
+from one_dragon_qt.widgets.setting_card.multi_push_setting_card import MultiLineSettingCard
+from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_op_config_list
 from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem
-from zzz_od.application.notorious_hunt.notorious_hunt_config import NotoriousHuntLevelEnum
+from zzz_od.application.notorious_hunt.notorious_hunt_config import NotoriousHuntLevelEnum, NotoriousHuntBuffEnum
 from zzz_od.context.zzz_context import ZContext
 
-from phosdeiz.gui.widgets import Column,ComboBox
 
 class ChargePlanCard(MultiLineSettingCard):
 
@@ -37,6 +37,9 @@ class ChargePlanCard(MultiLineSettingCard):
         self.auto_battle_combo_box = ComboBox()
         self.auto_battle_combo_box.currentIndexChanged.connect(self._on_auto_battle_changed)
 
+        self.buff_opt = ComboBox()
+        self.buff_opt.currentIndexChanged.connect(self.on_buff_changed)
+
         run_times_label = CaptionLabel(text='已运行次数')
         self.run_times_input = LineEdit()
         self.run_times_input.textChanged.connect(self._on_run_times_changed)
@@ -55,6 +58,7 @@ class ChargePlanCard(MultiLineSettingCard):
                     self.level_combo_box,
                     self.predefined_team_opt,
                     self.auto_battle_combo_box,
+                    self.buff_opt,
                 ],
                 [
                     run_times_label,
@@ -75,6 +79,7 @@ class ChargePlanCard(MultiLineSettingCard):
         self.init_predefined_team_opt()
         self.init_auto_battle_box()
         self.init_level_combo_box()
+        self.init_buff_combo_box()
 
         self.init_plan_times_input()
         self.init_run_times_input()
@@ -86,6 +91,10 @@ class ChargePlanCard(MultiLineSettingCard):
     def init_level_combo_box(self) -> None:
         config_list = [i.value for i in NotoriousHuntLevelEnum]
         self.level_combo_box.set_items(config_list, self.plan.level)
+
+    def init_buff_combo_box(self) -> None:
+        config_list = [i.value for i in NotoriousHuntBuffEnum]
+        self.buff_opt.set_items(config_list, self.plan.notorious_hunt_buff_num)
 
     def init_auto_battle_box(self) -> None:
         config_list = get_auto_battle_op_config_list(sub_dir='auto_battle')
@@ -120,6 +129,10 @@ class ChargePlanCard(MultiLineSettingCard):
         level = self.level_combo_box.itemData(idx)
         self.plan.level = level
 
+        self._emit_value()
+
+    def on_buff_changed(self, idx: int) -> None:
+        self.plan.notorious_hunt_buff_num = self.buff_opt.currentData()
         self._emit_value()
 
     def on_predefined_team_changed(self, idx: int) -> None:

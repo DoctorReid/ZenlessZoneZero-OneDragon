@@ -3,20 +3,18 @@ import os.path
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, PushButton
-from typing import Optional
 
-from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
-from one_dragon.gui.view.app_run_interface import AppRunInterface
+from one_dragon_qt.view.app_run_interface import AppRunInterface
+from one_dragon_qt.widgets.column import Column
+from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_config_file_path
 from zzz_od.application.battle_assistant.operation_debug_app import OperationDebugApp
 from zzz_od.application.battle_assistant.operation_template_config import get_operation_template_config_list
 from zzz_od.application.zzz_application import ZApplication
-from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
 from zzz_od.config.game_config import GamepadTypeEnum
 from zzz_od.context.zzz_context import ZContext
 
-from phosdeiz.gui.widgets import Column
 
 class OperationDebugInterface(AppRunInterface):
 
@@ -81,20 +79,14 @@ class OperationDebugInterface(AppRunInterface):
         更新闪避指令，支持子目录中的模板文件
         :return:
         """
-        try:
-            self.config_opt.value_changed.disconnect(self._on_config_changed)
-        except:
-            pass
-
+        self.config_opt.blockSignals(True)
         # 获取模板列表（包含子目录路径）
         config_list = get_operation_template_config_list()
-        # 打印模板列表
-        print(config_list)
 
         # 设置下拉选项
         self.config_opt.set_options_by_list(config_list)
 
-        self.config_opt.value_changed.connect(self._on_config_changed)
+        self.config_opt.blockSignals(False)
 
     def _on_config_changed(self, index, value):
         self.ctx.battle_assistant_config.debug_operation_config = value

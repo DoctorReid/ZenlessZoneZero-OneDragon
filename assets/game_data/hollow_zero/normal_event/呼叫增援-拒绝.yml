@@ -16,6 +16,7 @@
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
 
 # 朱鸢
 - entry_name: "呼叫增援"
@@ -33,6 +34,7 @@
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
 
 # 安比
 - entry_name: "呼叫增援"
@@ -50,6 +52,7 @@
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
 
 # 本
 - entry_name: "呼叫增援"
@@ -67,6 +70,7 @@
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
 
 # 11号
 - entry_name: "呼叫增援"
@@ -84,6 +88,7 @@
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
 
 # 莱卡恩
 - entry_name: "呼叫增援"
@@ -101,6 +106,7 @@
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
 
 # 安东
 - entry_name: "呼叫增援"
@@ -118,6 +124,7 @@
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
 
 # 妮可
 - entry_name: "呼叫增援"
@@ -135,6 +142,7 @@
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
 
 # 青衣
 - entry_name: "呼叫增援"
@@ -152,6 +160,7 @@
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
 
 # 派派
 - entry_name: "呼叫增援"
@@ -169,6 +178,7 @@
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
 
 # 可琳
 - entry_name: "呼叫增援"
@@ -186,6 +196,7 @@
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
 
 # 比利
 - entry_name: "呼叫增援"
@@ -203,6 +214,7 @@
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
 
 # 丽娜
 - entry_name: "呼叫增援"
@@ -220,6 +232,7 @@
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
 
 # 珂蕾妲
 - entry_name: "呼叫增援"
@@ -237,6 +250,7 @@
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
 
 # 露西
 - entry_name: "呼叫增援"
@@ -254,6 +268,7 @@
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
 
 # 艾莲
 - entry_name: "呼叫增援"
@@ -271,6 +286,7 @@
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
 
 # 苍角
 - entry_name: "呼叫增援"
@@ -288,6 +304,7 @@
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
 
 # 赛斯
 - entry_name: "呼叫增援"
@@ -305,6 +322,7 @@
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
 
 # 简
 - entry_name: "呼叫增援"
@@ -322,6 +340,7 @@
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
 
 # 猫又
 - entry_name: "呼叫增援"
@@ -338,6 +357,8 @@
     - option_name: "随机获得一枚S级或A级支援类型鸣徽"
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
+    - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
 
 # 柏妮思
 - entry_name: "呼叫增援"
@@ -355,7 +376,7 @@
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
-    - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
 
 # 月城柳
 - entry_name: "呼叫增援"
@@ -373,7 +394,7 @@
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
-    - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
 
 # 莱特
 - entry_name: "呼叫增援"
@@ -391,7 +412,7 @@
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
-    - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
 
 # 雅
 - entry_name: "呼叫增援"
@@ -409,7 +430,7 @@
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
-    - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
 
 # 悠真
 - entry_name: "呼叫增援"
@@ -427,4 +448,40 @@
     - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
     - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
+
+# 耀嘉音
+- entry_name: "呼叫增援"
+  event_name: "下次再一起找灵感吧"
+  options:
+    - option_name: "随机获得一枚S级或A级以太类型鸣徽"
+    - option_name: "随机获得一枚S级或A级冻结类型鸣徽"
+    - option_name: "随机获得一枚S级或A级感电类型鸣徽"
+    - option_name: "随机获得一枚S级或A级引燃类型鸣徽"
+    - option_name: "随机获得一枚S级或A级强袭类型鸣徽"
+    - option_name: "随机获得一枚S级或A级决斗类型鸣徽"
+    - option_name: "随机获得一枚S级或A级暴击类型鸣徽"
+    - option_name: "随机获得一枚S级或A级能量类型鸣微"
+    - option_name: "随机获得一枚S级或A级支援类型鸣徽"
+    - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
+    - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
     - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"
+
+# 伊芙琳
+- entry_name: "呼叫增援"
+  event_name: "放心去照顾嘉音吧，我没问题的"
+  options:
+    - option_name: "随机获得一枚S级或A级以太类型鸣徽"
+    - option_name: "随机获得一枚S级或A级冻结类型鸣徽"
+    - option_name: "随机获得一枚S级或A级感电类型鸣徽"
+    - option_name: "随机获得一枚S级或A级引燃类型鸣徽"
+    - option_name: "随机获得一枚S级或A级强袭类型鸣徽"
+    - option_name: "随机获得一枚S级或A级决斗类型鸣徽"
+    - option_name: "随机获得一枚S级或A级暴击类型鸣徽"
+    - option_name: "随机获得一枚S级或A级能量类型鸣微"
+    - option_name: "随机获得一枚S级或A级支援类型鸣徽"
+    - option_name: "随机获得一枚S级或A级护盾类型鸣徽"
+    - option_name: "随机获得一枚S级或A级闪避类型鸣徽"
+    - option_name: "随机获得一枚S级或A级通用类型鸣徽"
+    - option_name: "随机获得一枚S级或A级顽强类型鸣徽"

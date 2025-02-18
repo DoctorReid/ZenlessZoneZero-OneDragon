@@ -34,11 +34,29 @@ class TransportByCompendium(ZOperation):
         if self.mission_type_name == '自定义模板':  # 没法直接传送到自定义
             self.mission_type_name: str = '基础材料'
 
-    @operation_node(name='快捷手册', is_start_node=True)
+    @operation_node(name='识别初始画面', is_start_node=True)
+    def check_first_screen(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        possible_screen_names = [
+            '快捷手册-目标',
+            '快捷手册-日常',
+            '快捷手册-训练',
+            '快捷手册-作战',
+            '快捷手册-战术'
+        ]
+        screen_name = self.check_and_update_current_screen(screen, possible_screen_names)
+        if screen_name is None:
+            return self.round_success()
+        else:
+            return self.round_success('快捷手册')
+
+    @node_from(from_name='识别初始画面')
+    @operation_node(name='快捷手册')
     def open_compendium(self) -> OperationRoundResult:
         op = OpenCompendium(self.ctx)
         return self.round_by_op_result(op.execute())
 
+    @node_from(from_name='识别初始画面', status='快捷手册')
     @node_from(from_name='快捷手册')
     @operation_node(name='选择TAB')
     def choose_tab(self) -> OperationRoundResult:

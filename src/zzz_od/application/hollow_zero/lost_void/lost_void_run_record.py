@@ -1,6 +1,7 @@
 from typing import Optional
 
 from one_dragon.base.operation.application_run_record import AppRunRecord, AppRunRecordPeriod
+from one_dragon.utils import os_utils
 from zzz_od.application.hollow_zero.lost_void.lost_void_config import LostVoidConfig, LostVoidExtraTask
 
 
@@ -99,10 +100,49 @@ class LostVoidRunRecord(AppRunRecord):
         else:
             return True
 
-    def reset_record(self):
-        AppRunRecord.reset_record(self)
+    @property
+    def run_status_under_now(self):
+        """
+        基于当前时间显示的运行状态
+        :return:
+        """
+        current_dt = self.get_current_dt()
+        if os_utils.get_sunday_dt(self.dt) != os_utils.get_sunday_dt(current_dt):  # 上一次运行已经是上一周
+            # 必定是重置
+            return AppRunRecord.STATUS_WAIT
+        elif self.dt != current_dt:  # 上一次运行已经是一天前
+            if self.is_finished_by_week():  # 看本周是否已经完成
+                return AppRunRecord.STATUS_SUCCESS
+            else:
+                return AppRunRecord.STATUS_WAIT
+        else:  # 当天的
+            if self.is_finished_by_day():  # 看当天是否已经完成
+                return AppRunRecord.STATUS_SUCCESS
+            else:
+                return AppRunRecord.STATUS_WAIT
 
-        self.daily_run_times = 0
+    def check_and_update_status(self) -> None:
+        """
+        判断并更新状态
+        """
+        current_dt = self.get_current_dt()
+        if os_utils.get_sunday_dt(self.dt) != os_utils.get_sunday_dt(current_dt):  # 上一次运行已经是上一周
+            # 必定是重置
+            self.reset_record()
+            self.reset_for_weekly()
+        elif self.dt != current_dt:  # 上一次运行已经是一天前
+            self.reset_record()
+            self.daily_run_times = 0
+        else:  # 当天的
+            if self.is_finished_by_week():
+                pass
+            elif self.is_finished_by_day():
+                pass
+            else:
+                self.reset_record()
+
+    def reset_for_weekly(self) -> None:
         self.weekly_run_times = 0
+        self.daily_run_times = 0
         self.eval_point_complete = False
         self.period_reward_complete = False

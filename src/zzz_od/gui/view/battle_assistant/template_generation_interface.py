@@ -6,16 +6,16 @@ from qfluentwidgets import PrimaryPushButton, FluentIcon, PushButton, SubtitleLa
 from typing import Optional
 
 from one_dragon.base.operation.context_event_bus import ContextEventItem
-from one_dragon.gui.widgets.log_display_card import LogDisplayCard
-from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
-from one_dragon.gui.view.app_run_interface import AppRunInterface
+from one_dragon_qt.widgets.log_display_card import LogDisplayCard
+from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon_qt.view.app_run_interface import AppRunInterface
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from zzz_od.action_recorder.monitor import RecordContext
 from zzz_od.action_recorder.template_generator import PreProcessor, SelfAdaptiveGenerator
 from zzz_od.context.zzz_context import ZContext
 
-from phosdeiz.gui.widgets import Column
+from one_dragon_qt.widgets.column import Column
 
 class AppRunner(QThread):
 
@@ -132,7 +132,7 @@ class TemplateGenerationInterface(AppRunInterface):
         content_layout.addWidget(self.log_card)
 
         self.app_runner = AppRunner(self.ctx)
-        self.app_runner.state_changed.connect(self._on_context_state_changed)
+        self.app_runner.state_changed.connect(self.on_context_state_changed)
 
         widget_at_bottom = self.get_widget_at_bottom()
         if widget_at_bottom is not None:

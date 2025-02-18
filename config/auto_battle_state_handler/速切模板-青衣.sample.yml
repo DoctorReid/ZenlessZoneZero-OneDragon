@@ -21,7 +21,7 @@ handlers:
           - op_name: "等待秒数"
             seconds: 0.1
 
-      - states: "[青衣-电压]{80, 101}"
+      - states: "[青衣-电压]{75, 101}"
         operations:
           - operation_template: "青衣-醉花云月转"
 
@@ -37,6 +37,6 @@ handlers:
         operations:
           - operation_template: "青衣-特殊攻击接普通攻击"
 
-      - states: "[青衣-电压]{0, 90}"
+      - states: "[青衣-电压]{0, 75}"
         operations:
           - operation_template: "青衣-普通攻击"

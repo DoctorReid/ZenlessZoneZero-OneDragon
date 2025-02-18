@@ -4,6 +4,7 @@ from typing import Optional
 
 from one_dragon.base.operation.context_event_bus import ContextEventItem
 from one_dragon.base.operation.one_dragon_context import ContextKeyboardEventEnum
+from one_dragon.base.operation.operation_base import OperationResult
 from one_dragon.base.operation.operation_node import OperationNode
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils import debug_utils
@@ -69,7 +70,9 @@ class ScreenshotHelperApp(ZApplication):
 
         if self.ctx.screenshot_helper_config.dodge_detect:
             if self.auto_op.auto_battle_context.dodge_context.check_dodge_flash(screen, now):
-                debug_utils.save_debug_image(screen, prefix='dodge_wrong')
+                debug_utils.save_debug_image(screen, prefix='dodge')
+            elif self.auto_op.auto_battle_context.dodge_context.check_dodge_audio(now):
+                debug_utils.save_debug_image(screen, prefix='dodge')
 
         if self.to_save_screenshot:
             return self.round_success()
@@ -102,3 +105,8 @@ class ScreenshotHelperApp(ZApplication):
         self.last_save_screenshot_time = time.time()
 
         return self.round_success()
+
+    def after_operation_done(self, result: OperationResult):
+        ZApplication.after_operation_done(self, result)
+
+        self.ctx.controller.max_screenshot_cnt = 0

@@ -1,0 +1,41 @@
+- class_idx: 0
+  class_name: "0000-感叹号"
+
+- class_idx: 1
+  class_name: "0001-距离"
+
+- class_idx: 2
+  class_name: "0002-战斗-鸣徽"
+
+- class_idx: 3
+  class_name: "0003-战斗-武备"
+
+- class_idx: 4
+  class_name: "0004-战斗-硬币"
+
+- class_idx: 5
+  class_name: "0005-挑战-无伤"
+
+- class_idx: 6
+  class_name: "0006-挑战-限时"
+
+- class_idx: 7
+  class_name: "0007-偶遇事件"
+
+- class_idx: 8
+  class_name: "0008-代价之间"
+
+- class_idx: 9
+  class_name: "0009-休憩调息"
+
+- class_idx: 10
+  class_name: "0010-邦布商店"
+
+- class_idx: 11
+  class_name: "0011-挚交会谈"
+
+- class_idx: 12
+  class_name: "0012-战斗-道中危机"
+
+- class_idx: 13
+  class_name: "0013-战斗-终结之役"

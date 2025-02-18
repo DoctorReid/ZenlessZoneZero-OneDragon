@@ -7,4 +7,4 @@ operations:
     post_delay: 0.1
     repeat: 10
   - op_name: "等待秒数"
-    seconds: 1.3g
+    seconds: 1.3

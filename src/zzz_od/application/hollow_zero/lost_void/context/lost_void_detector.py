@@ -16,7 +16,8 @@ class LostVoidDetector(Yolov8Detector):
                  model_name: str,
                  backup_model_name: str,
                  gh_proxy: bool = True,
-                 personal_proxy: Optional[str] = '',
+                 gh_proxy_url: Optional[str] = None,
+                 personal_proxy: Optional[str] = None,
                  gpu: bool = False,
                  keep_result_seconds: float = 2
                  ):
@@ -34,6 +35,7 @@ class LostVoidDetector(Yolov8Detector):
             model_parent_dir_path=yolo_config_utils.get_model_category_dir('lost_void_det'),
             model_download_url=ZZZ_MODEL_DOWNLOAD_URL,
             gh_proxy=gh_proxy,
+            gh_proxy_url=gh_proxy_url,
             personal_proxy=personal_proxy,
             gpu=gpu,
             keep_result_seconds=keep_result_seconds
@@ -117,7 +119,7 @@ def __debug():
                                 backup_model_name=ctx.yolo_config.lost_void_det_backup)
 
     from one_dragon.utils import debug_utils
-    screen = debug_utils.get_debug_image('_1735358148114')
+    screen = debug_utils.get_debug_image('_1736869628156')
     frame_result = detector.run(screen)
 
     from one_dragon.yolo import detect_utils

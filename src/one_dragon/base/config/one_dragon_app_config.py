@@ -1,11 +1,6 @@
-import os
-import shutil
-from enum import Enum
 from typing import List, Optional
 
-from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
-from one_dragon.utils import os_utils
 
 
 class OneDragonAppConfig(YamlConfig):

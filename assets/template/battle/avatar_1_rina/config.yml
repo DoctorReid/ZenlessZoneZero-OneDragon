@@ -1,18 +1,12 @@
 sub_dir: battle
 template_id: avatar_1_rina
 template_name: 战斗-头像-3-1
-template_shape: quadrilateral
+template_shape: polygon
 auto_mask: true
 point_list:
-- 142, 52
-- 130, 77
-- 163, 77
-- 163, 100
-- 238, 100
-- 258, 52
-
-
-#- 140, 50
-#- 114, 100
-#- 238, 100
-#- 264, 50
+- 142, 50
+- 128, 77
+- 158, 77
+- 156, 101
+- 240, 101
+- 262, 50

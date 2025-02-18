@@ -1,9 +1,10 @@
 import time
 
+import pywintypes
 import win32clipboard
 import win32con
-import pywintypes
 from pynput.keyboard import Controller, Key
+
 from one_dragon.utils.log_utils import log, mask_text
 
 
@@ -32,7 +33,10 @@ class PcClipboard:
             win32clipboard.OpenClipboard()
             win32clipboard.EmptyClipboard()
         finally:
-            win32clipboard.CloseClipboard()
+            try:
+                win32clipboard.CloseClipboard()
+            except Exception:
+                pass
 
     @staticmethod
     def copy_string(text: str) -> None:
@@ -50,7 +54,10 @@ class PcClipboard:
             win32clipboard.SetClipboardText(text, win32con.CF_UNICODETEXT)
             log.info('复制文字到剪切板成功')
         finally:
-            win32clipboard.CloseClipboard()
+            try:
+                win32clipboard.CloseClipboard()
+            except Exception:
+                pass
 
     @staticmethod
     def paste_text() -> str:
@@ -69,7 +76,10 @@ class PcClipboard:
         except pywintypes.error:
             data = ''
         finally:
-            win32clipboard.CloseClipboard()
+            try:
+                win32clipboard.CloseClipboard()
+            except Exception:
+                pass
 
         # 使用 pynput 模拟粘贴操作
         log.info('粘贴文字, 按下 Ctrl+V')

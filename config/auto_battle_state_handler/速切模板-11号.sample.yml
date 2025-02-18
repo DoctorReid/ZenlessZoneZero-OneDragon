@@ -28,21 +28,12 @@ handlers:
         operations:
           - op_name: "设置状态"
             state: "自定义-11号-火力压制"
-          - op_name: "按键-终结技"
-            post_delay: 2.5
-            repeat: 2
-          - op_name: "按键-闪避"
-            post_delay: 0.2
-          - op_name: "按键-普通攻击"
-            post_delay: 0.4
-            repeat: 8
-          - op_name: "按键-普通攻击"
-            post_delay: 0.4
-            repeat: 8
+          - operation_template: "通用-终结技"
+          - operation_template: "11号-火刀八连"
           - op_name: "清除状态"
             state: "自定义-11号-火力压制"
 
-      - states: "[自定义-连携换人,4,12]"
+      - states: "[自定义-连携换人,4,10]"
         operations:
           - op_name: "设置状态"
             state: "自定义-11号-火力压制"
@@ -50,12 +41,7 @@ handlers:
             post_delay: 0.2
           - op_name: "按键-特殊攻击"
             post_delay: 1.2
-          - op_name: "按键-普通攻击"
-            post_delay: 0.4
-            repeat: 8
-          - op_name: "按键-普通攻击"
-            post_delay: 0.4
-            repeat: 8
+          - operation_template: "11号-火刀八连"
           - op_name: "清除状态"
             state: "自定义-11号-火力压制"
 
@@ -67,21 +53,12 @@ handlers:
             post_delay: 0.2
           - op_name: "按键-特殊攻击"
             post_delay: 1.2
-          - op_name: "按键-普通攻击"
-            post_delay: 0.4
-            repeat: 8
-          - op_name: "按键-普通攻击"
-            post_delay: 0.4
-            repeat: 8
+          - operation_template: "11号-火刀八连"
           - op_name: "清除状态"
             state: "自定义-11号-火力压制"
 
       - states: "![自定义-11号-火力压制,0,6] & ![11号-能量]{80,120}"
         operations:
-          - op_name: "按键-闪避"
-            post_delay: 0.2
-          - op_name: "按键-普通攻击"
-            post_delay: 0.4
-            repeat: 8
+          - operation_template: "11号-火刀八连"
           - op_name: "设置状态"
             data: ["自定义-速切结束"]

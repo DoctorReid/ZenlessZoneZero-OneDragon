@@ -73,3 +73,10 @@ class ContextEventBus:
         for key, removes in to_remove.items():
             for remove in removes:
                 self.callbacks[key].remove(remove)
+
+    def after_app_shutdown(self) -> None:
+        """
+        App关闭后进行的操作 关闭一切可能资源操作
+        @return:
+        """
+        _od_event_bus_executor.shutdown(wait=False, cancel_futures=True)

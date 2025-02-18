@@ -176,12 +176,15 @@ class Agent:
                  rare_type: RareTypeEnum,
                  agent_type: AgentTypeEnum,
                  dmg_type: DmgTypeEnum,
-                 state_list: Optional[List[AgentStateDef]] = None
+                 state_list: Optional[List[AgentStateDef]] = None,
                  ):
         """
         代理人
         """
         self.agent_id: str = agent_id  # 代理人的英文名称
+        # 代理人头像的模板ID 不同皮肤的头像会不一样 在启动时由context根据配置写入正确的皮肤
+        # 这里没有简单地用template_id_list去遍历可能的头像，主要是效率癖 + 对python运行效率的担忧
+        self.template_id: str = agent_id
         self.agent_name: str = agent_name  # 代理人的中文名称
         self.rare_type: RareTypeEnum = rare_type  # 稀有等级
 
@@ -253,3 +256,14 @@ class AgentEnum(Enum):
     HOSHIMI_MIYABI = Agent('hoshimi_miyabi', '雅', RareTypeEnum.S, AgentTypeEnum.ANOMALY, DmgTypeEnum.ICE,
                            state_list=[AgentStateDef('雅-落霜', AgentStateCheckWay.COLOR_RANGE_CONNECT,'hoshimi_miyabi',
                                                      lower_color=(30, 250, 250), upper_color=(255, 255, 255), connect_cnt=5)])
+
+    ASTRA_YAO = Agent('astra_yao', '耀嘉音', RareTypeEnum.S, AgentTypeEnum.SUPPORT, DmgTypeEnum.ETHER)
+
+    EVELYN_CHEVALIER = Agent('evelyn_chevalier', '伊芙琳', RareTypeEnum.S, AgentTypeEnum.ATTACK, DmgTypeEnum.FIRE,
+                             state_list=[
+                                 AgentStateDef('伊芙琳-燎火', AgentStateCheckWay.BACKGROUND_GRAY_RANGE_LENGTH,
+                                               'evelyn_chevalier_1', lower_color=0, upper_color=30),
+                                 AgentStateDef('伊芙琳-燎索点', AgentStateCheckWay.COLOR_RANGE_CONNECT,
+                                               'evelyn_chevalier_2', lower_color=(70, 70, 70), upper_color=(255, 255, 255),
+                                               connect_cnt=5)
+                             ])

@@ -4,6 +4,8 @@ dist/
 .idea/
 .vscode/
 __pycache__/
+deploy/
+recording.jsonl
 
 # 子模块
 test/
@@ -11,6 +13,7 @@ zzz-od-test/
 
 # 用户独有的配置文件
 env.bat
+config/custom.yml
 config/env.yml
 config/game.yml
 config/dodge_assistant.yml
@@ -29,6 +32,7 @@ config/hollow_zero_challenge/*
 config/lost_void_challenge/*
 !config/lost_void_challenge/*.sample.yml
 config/yolo.yml
+custom/assets/ui/banner
 
 # 执行文件
 *.exe
@@ -42,6 +46,7 @@ config/yolo.yml
 .conda/
 .vscode/
 .venv/
+notice_cache/
 
 # 需自行下载的模型文件
 models/

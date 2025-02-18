@@ -1,6 +1,6 @@
 from one_dragon.base.config.one_dragon_app_config import OneDragonAppConfig
 from one_dragon.base.operation.one_dragon_app import OneDragonApp
-from one_dragon.gui.view.one_dragon.one_dragon_run_interface import OneDragonRunInterface
+from one_dragon_qt.view.one_dragon.one_dragon_run_interface import OneDragonRunInterface
 from zzz_od.application.miscellany.miscellany_app import MiscellanyApp
 from zzz_od.context.zzz_context import ZContext
 
@@ -17,7 +17,7 @@ class MiscellanyRunInterface(OneDragonRunInterface):
             need_multiple_instance=False,
             need_after_done_opt=False,
             parent=parent,
-            help_url='https://one-dragon.org/zzz/zh/docs/feat_one_dragon.html'
+            help_url='https://onedragon-anything.github.io/zzz/zh/docs/feat_one_dragon.html'
         )
 
     def get_one_dragon_app(self) -> OneDragonApp:

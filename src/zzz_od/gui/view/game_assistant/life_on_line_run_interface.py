@@ -4,14 +4,14 @@ from typing import Optional
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.operation.application_base import Application
-from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
-from one_dragon.gui.view.app_run_interface import AppRunInterface
+from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon_qt.widgets.setting_card.text_setting_card import TextSettingCard
+from one_dragon_qt.view.app_run_interface import AppRunInterface
 from zzz_od.application.life_on_line.life_on_line_app import LifeOnLineApp
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 
-from phosdeiz.gui.widgets import Column
+from one_dragon_qt.widgets.column import Column
 
 class LifeOnLineRunInterface(AppRunInterface):
 
@@ -33,7 +33,7 @@ class LifeOnLineRunInterface(AppRunInterface):
         content = Column()
 
         self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='使用说明', text='前往',
-                                      url='https://one-dragon.org/zzz/zh/docs/feat_game_assistant.html#_2-%E6%8B%BF%E5%91%BD%E9%AA%8C%E6%94%B6')
+                                      url='https://onedragon-anything.github.io/zzz/zh/docs/feat_game_assistant.html#_2-%E6%8B%BF%E5%91%BD%E9%AA%8C%E6%94%B6')
         self.help_opt.setContent('先看说明 再使用与提问')
         content.add_widget(self.help_opt)
 

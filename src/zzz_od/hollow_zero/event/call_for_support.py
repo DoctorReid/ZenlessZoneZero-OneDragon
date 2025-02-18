@@ -220,7 +220,7 @@ class CallForSupport(ZOperation):
             RejectOption('这次没有研究的机会'),  # 格蕾丝
             RejectOption('先不劳烦青衣了'),  # 青衣
             RejectOption('暂不需要援护'),  # 丽娜
-            RejectOption('目前不需要支援'),  # 派派
+            RejectOption('目前不需要支援'),  # 派派, 耀嘉音
             RejectOption('下次再雇你'),  # 妮可
             RejectOption('市民更需要你'),  # 朱鸢
             RejectOption('无需增援', lcs_percent=0.6),  # 安比
@@ -241,6 +241,7 @@ class CallForSupport(ZOperation):
             RejectOption('还不到常胜冠军出马的时候'), # 莱特
             RejectOption('等遇到大问题再找你帮忙！'), # 雅
             RejectOption('怎么能让你加班呢'), # 悠真
+            RejectOption('放心去照顾嘉音吧，我没问题的'), # 伊芙琳
         ]
 
         part = cv2_utils.crop_image_only(screen, area.rect)

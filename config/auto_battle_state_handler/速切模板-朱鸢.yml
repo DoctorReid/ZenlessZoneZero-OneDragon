@@ -23,7 +23,7 @@ handlers:
             seconds: 0.1
 
       #失衡时刻
-      - states: "[自定义-连携换人,0,14]"
+      - states: "[自定义-连携换人,0,10]"
         sub_handlers:
           #失衡了你还不射还等什么！
           - states: "[朱鸢-子弹数]{3, 9}"

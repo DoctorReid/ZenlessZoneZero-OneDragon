@@ -51,21 +51,36 @@ def choose_resonium_by_priority(item_list: List[Resonium], priority_list: List[s
     :return:
     """
     idx_list: List[int] = []  # 最终的下标排序结果
-    for priority_item in priority_list:
-        for level in ['S', 'A', 'B', '']:
+
+    # 按优先级顺序 将匹配的鸣徽下标加入
+    # 同时 优先考虑等级高的
+    for target_level in ['S', 'A', 'B', '']:
+        for priority_item in priority_list:
+            split_idx = priority_item.find(' ')
+            if split_idx != -1:
+                cate_name = priority_item[:split_idx]
+                item_name = priority_item[split_idx + 1:]
+            else:
+                cate_name = priority_item
+                item_name = ''
+
             for i in range(len(item_list)):
-                if i in idx_list:
+                if i in idx_list:  # 已经加入过了
                     continue
                 item = item_list[i]
-                if item.level != level:
-                    continue
-                if item.category == priority_item:  # 分类符合
-                    idx_list.append(i)
-                    break
 
-                if item.name == priority_item:  # 名称符合
+                if item.level != target_level:
+                    continue
+
+                if item.category != cate_name:  # 不符合分类
+                    continue
+
+                if item_name == '':  # 不需要匹配名称
                     idx_list.append(i)
-                    break
+                    continue
+
+                if item.name == priority_item:  # 符合名称
+                    idx_list.append(i)
 
     if only_priority:
         return idx_list

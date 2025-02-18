@@ -7,9 +7,11 @@ from typing import Optional, List, Tuple
 from one_dragon.base.config.yaml_operator import YamlOperator
 from one_dragon.base.matcher.match_result import MatchResult
 from one_dragon.base.screen import screen_utils
+from one_dragon.base.screen.screen_utils import FindAreaResultEnum
 from one_dragon.utils import os_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
+from one_dragon.yolo.detect_utils import DetectFrameResult
 from zzz_od.application.hollow_zero.lost_void.context.lost_void_artifact import LostVoidArtifact
 from zzz_od.application.hollow_zero.lost_void.context.lost_void_detector import LostVoidDetector
 from zzz_od.application.hollow_zero.lost_void.lost_void_challenge_config import LostVoidRegionType, \
@@ -64,12 +66,12 @@ class LostVoidContext:
     def init_lost_void_det_model(self):
         use_gpu = self.ctx.yolo_config.lost_void_det_gpu
         if self.detector is None or self.detector.gpu != use_gpu:
-            use_gh_proxy = self.ctx.env_config.is_ghproxy
             self.detector = LostVoidDetector(
                 model_name=self.ctx.yolo_config.lost_void_det,
                 backup_model_name=self.ctx.yolo_config.lost_void_det_backup,
-                gh_proxy=use_gh_proxy,
-                personal_proxy=None if use_gh_proxy else self.ctx.env_config.personal_proxy,
+                gh_proxy=self.ctx.env_config.is_gh_proxy,
+                gh_proxy_url=self.ctx.env_config.gh_proxy_url if self.ctx.env_config.is_gh_proxy else None,
+                personal_proxy=self.ctx.env_config.personal_proxy if self.ctx.env_config.is_personal_proxy else None,
                 gpu=use_gpu
             )
 
@@ -91,6 +93,46 @@ class LostVoidContext:
         :return:
         """
         self.challenge_config = LostVoidChallengeConfig(self.ctx.lost_void_config.challenge_config)
+
+    def in_normal_world(self, screen: MatLike) -> bool:
+        """
+        判断当前画面是否在大世界里
+        @param screen: 游戏画面
+        @return:
+        """
+        result = screen_utils.find_area(self.ctx, screen, '战斗画面', '按键-普通攻击')
+        if result == FindAreaResultEnum.TRUE:
+            return True
+
+        result = screen_utils.find_area(self.ctx, screen, '战斗画面', '按键-交互')
+        if result == FindAreaResultEnum.TRUE:
+            return True
+
+        result = screen_utils.find_area(self.ctx, screen, '迷失之地-大世界', '按键-交互-不可用')
+        if result == FindAreaResultEnum.TRUE:
+            return True
+
+        return False
+
+    def detect_to_go(self, screen: MatLike, screenshot_time: float, ignore_list: Optional[List[str]] = None) -> DetectFrameResult:
+        """
+        识别需要前往的内容
+        @param screen: 游戏画面
+        @param screenshot_time: 截图时间
+        @param ignore_list: 需要忽略的类别
+        @return:
+        """
+        if ignore_list is None or len(ignore_list) == 0:
+            to_detect_labels = None
+        else:
+            to_detect_labels = []
+            for det_class in self.detector.idx_2_class.values():
+                label = det_class.class_name
+                if label[5:] not in ignore_list:
+                    to_detect_labels.append(label)
+
+        return self.ctx.lost_void.detector.run(screen, run_time=screenshot_time,
+                                               label_list=to_detect_labels)
 
     def check_battle_encounter(self, screen: MatLike, screenshot_time: float) -> bool:
         """
@@ -158,18 +200,26 @@ class LostVoidContext:
         name_full_str = name_full_str.replace('【', '')
         name_full_str = name_full_str.replace('】', '')
 
-        for cate, art_list in self.cate_2_artifact.items():
+        to_sort_list = []
+
+        # 取出与分类名称长度一致的前缀 用LCS来判断对应的cate分类
+        for cate in self.cate_2_artifact.keys():
             cate_name = gt(cate)
 
             if cate not in ['卡牌', '无详情']:
                 if len(name_full_str) < len(cate_name):
                     continue
-                # 取出与分类名称长度一致的前缀 用来判断是否符合分类
+
                 prefix = name_full_str[:len(cate_name)]
+                to_sort_list.append((cate, str_utils.longest_common_subsequence_length(prefix, cate_name)))
 
-                if not str_utils.find_by_lcs(cate_name, prefix, percent=0.5):
-                    continue
+        # cate分类使用LCS排序
+        to_sort_list.sort(key=lambda x: x[1], reverse=True)
+        sorted_cate_list = [x[0] for x in to_sort_list] + ['卡牌', '无详情']
 
+        # 按排序后的cate去匹配对应的藏品
+        for cate in sorted_cate_list:
+            art_list = self.cate_2_artifact[cate]
             # 符合分类的情况下 判断后缀和藏品名字是否一致
             for art in art_list:
                 art_name = gt(art.name)
@@ -266,36 +316,41 @@ class LostVoidContext:
         priority_idx_list: List[int] = []  # 优先级排序的下标
 
         # 按优先级顺序 将匹配的藏品下标加入
-        for priority_list in priority_list_to_consider:
-            for priority in priority_list:
-                split_idx = priority.find(' ')
-                if split_idx != -1:
-                    cate_name = priority[:split_idx]
-                    item_name = priority[split_idx+1:]
-                else:
-                    cate_name = priority
-                    item_name = ''
+        # 同时 优先考虑等级高的
+        for target_level in ['S', 'A', 'B']:
+            for priority_list in priority_list_to_consider:
+                for priority in priority_list:
+                    split_idx = priority.find(' ')
+                    if split_idx != -1:
+                        cate_name = priority[:split_idx]
+                        item_name = priority[split_idx+1:]
+                    else:
+                        cate_name = priority
+                        item_name = ''
 
-                for idx in range(len(artifact_list)):
-                    if idx in priority_idx_list:  # 已经加入过了
-                        continue
+                    for idx in range(len(artifact_list)):
+                        artifact: LostVoidArtifact = artifact_list[idx].data
 
-                    artifact: LostVoidArtifact = artifact_list[idx].data
+                        if artifact.level != target_level:
+                            continue
 
-                    if artifact.category != cate_name:
-                        continue
+                        if idx in priority_idx_list:  # 已经加入过了
+                            continue
 
-                    if item_name == '':
-                        priority_idx_list.append(idx)
-                        continue
+                        if artifact.category != cate_name:  # 不符合分类
+                            continue
 
-                    if item_name in ['S', 'A', 'B']:
-                        if artifact.level == item_name:
+                        if item_name == '':
                             priority_idx_list.append(idx)
-                        continue
+                            continue
 
-                    if item_name == artifact.name:
-                        priority_idx_list.append(idx)
+                        if item_name in ['S', 'A', 'B']:
+                            if artifact.level == item_name:
+                                priority_idx_list.append(idx)
+                            continue
+
+                        if item_name == artifact.name:
+                            priority_idx_list.append(idx)
 
         # 将剩余的 按等级加入
         if consider_not_in_priority:
@@ -351,3 +406,12 @@ class LostVoidContext:
                 target = entry
 
         return target
+
+    def after_app_shutdown(self) -> None:
+        """
+        App关闭后进行的操作 关闭一切可能资源操作
+        @return:
+        """
+        if self.auto_op is not None:
+            self.auto_op.stop_running()
+            self.auto_op.dispose()

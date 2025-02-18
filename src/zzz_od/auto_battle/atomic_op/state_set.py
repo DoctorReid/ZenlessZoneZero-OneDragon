@@ -14,6 +14,7 @@ class AtomicSetState(AtomicOp):
         self.state_name: str = op_def.state_name
         self.state_name_list: List[str] = op_def.state_name_list
         self.diff_time: float = op_def.state_seconds
+        self.diff_time_add: float = op_def.state_seconds_add
         self.value: int = op_def.state_value
         self.value_add: int = op_def.state_value_add
 
@@ -29,6 +30,6 @@ class AtomicSetState(AtomicOp):
 
     def execute(self):
         if self.state_name_list is not None:
-            self.ctx.set_state(self.state_name_list, self.diff_time, self.value, self.value_add)
+            self.ctx.set_state(self.state_name_list, self.diff_time, self.diff_time_add , self.value, self.value_add)
         else:
-            self.ctx.set_state([self.state_name], self.diff_time, self.value, self.value_add)
+            self.ctx.set_state([self.state_name], self.diff_time, self.diff_time_add , self.value, self.value_add)

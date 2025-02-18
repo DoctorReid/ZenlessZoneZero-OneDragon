@@ -165,28 +165,6 @@ class HollowZeroApp(ZApplication):
         return self.round_by_find_area(screen, '零号空洞-入口', '街区', retry_wait=1)
 
     @node_from(from_name='完成后等待加载')
-    @operation_node(name='点击奖励入口')
-    def click_reward_entry(self) -> OperationRoundResult:
-        return self.round_by_click_area('零号空洞-入口', '奖励入口', success_wait=1)
-
-    @node_from(from_name='点击奖励入口')
-    @operation_node(name='悬赏委托')
-    def click_task(self) -> OperationRoundResult:
-        screen = self.screenshot()
-
-        return self.round_by_find_and_click_area(screen, '零号空洞-入口', '悬赏委托',
-                                                 success_wait=1, retry_wait=1)
-
-    @node_from(from_name='悬赏委托')
-    @operation_node(name='领取奖励')
-    def claim_reward(self) -> OperationRoundResult:
-        screen = self.screenshot()
-
-        return self.round_by_find_and_click_area(screen, '零号空洞-入口', '全部领取',
-                                                 success_wait=1, retry_wait=1)
-
-    @node_from(from_name='领取奖励')
-    @node_from(from_name='领取奖励', success=False)
     @operation_node(name='完成')
     def finish(self) -> OperationRoundResult:
         op = BackToNormalWorld(self.ctx)

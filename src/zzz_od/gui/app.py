@@ -3,26 +3,25 @@ try:
     from PySide6.QtCore import Qt, QThread, Signal
     from PySide6.QtWidgets import QApplication
     from qfluentwidgets import NavigationItemPosition, setTheme, Theme
-    from one_dragon.gui.view.like_interface import LikeInterface
+    from one_dragon_qt.view.like_interface import LikeInterface
     from one_dragon.base.operation.one_dragon_context import ContextInstanceEventEnum
 
-    from phosdeiz.gui.services import PhosStyleSheet
+    from one_dragon_qt.services.styles_manager import OdQtStyleSheet
 
-    from one_dragon.gui.view.code_interface import CodeInterface
-    from one_dragon.gui.view.context_event_signal import ContextEventSignal
-    from one_dragon.gui.windows.app_window_base import AppWindowBase
+    from one_dragon_qt.view.code_interface import CodeInterface
+    from one_dragon_qt.view.context_event_signal import ContextEventSignal
+    from one_dragon_qt.windows.app_window_base import AppWindowBase
     from one_dragon.utils.i18_utils import gt
 
     from zzz_od.context.zzz_context import ZContext
-    from zzz_od.gui.view import (
-        AppDevtoolsInterface,
-        GameAssistantInterface,
-        HollowZeroInterface,
-        HomeInterface,
-        ZOneDragonInterface,
-        AppSettingInterface,
-        BattleAssistantInterface,
-    )
+    from zzz_od.gui.view.battle_assistant.battle_assistant_interface import BattleAssistantInterface
+    from zzz_od.gui.view.devtools.app_devtools_interface import AppDevtoolsInterface
+    from zzz_od.gui.view.game_assistant.game_assistant import GameAssistantInterface
+    from zzz_od.gui.view.hollow_zero.hollow_zero_interface import HollowZeroInterface
+    from zzz_od.gui.view.home.home_interface import HomeInterface
+    from zzz_od.gui.view.one_dragon.zzz_one_dragon_interface import ZOneDragonInterface
+    from zzz_od.gui.view.setting.app_setting_interface import AppSettingInterface
+    from zzz_od.gui.view.accounts.app_accounts_interface import AccountsInterface
 
     _init_error = None
 
@@ -89,11 +88,11 @@ try:
             self.navigationInterface.setContentsMargins(0, 0, 0, 0)
 
             # 配置样式
-            PhosStyleSheet.APP_WINDOW.apply(self)
-            PhosStyleSheet.NAVIGATION_INTERFACE.apply(self.navigationInterface)
-            PhosStyleSheet.STACKED_WIDGET.apply(self.stackedWidget)
-            PhosStyleSheet.AREA_WIDGET.apply(self.areaWidget)
-            PhosStyleSheet.TITLE_BAR.apply(self.titleBar)
+            OdQtStyleSheet.APP_WINDOW.apply(self)
+            OdQtStyleSheet.NAVIGATION_INTERFACE.apply(self.navigationInterface)
+            OdQtStyleSheet.STACKED_WIDGET.apply(self.stackedWidget)
+            OdQtStyleSheet.AREA_WIDGET.apply(self.areaWidget)
+            OdQtStyleSheet.TITLE_BAR.apply(self.titleBar)
 
             # DEBUG
             # print("————APP WINDOW STYLE————")
@@ -141,6 +140,12 @@ try:
             # 代码同步
             self.add_sub_interface(
                 CodeInterface(self.ctx, parent=self),
+                position=NavigationItemPosition.BOTTOM,
+            )
+
+            # 多账号管理
+            self.add_sub_interface(
+                AccountsInterface(self.ctx, parent=self),
                 position=NavigationItemPosition.BOTTOM,
             )
 
@@ -207,8 +212,11 @@ if __name__ == "__main__":
     # 异步加载OCR
     _ctx.async_init_ocr()
 
+    # 异步更新免费代理
+    _ctx.async_update_gh_proxy()
+
     # 设置主题
-    setTheme(Theme[_ctx.env_config.theme.upper()])
+    setTheme(Theme[_ctx.custom_config.theme.upper()])
 
     # 创建并显示主窗口
     w = AppWindow(_ctx)
@@ -219,4 +227,4 @@ if __name__ == "__main__":
     # 启动应用程序事件循环
     app.exec()
 
-    _ctx.btn_listener.stop()
+    _ctx.after_app_shutdown()

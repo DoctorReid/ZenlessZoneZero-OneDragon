@@ -25,23 +25,17 @@ handlers:
 
       - states: "[妮可-终结技可用]"
         operations:
-          - op_name: "设置状态"
-            state: "自定义-动作不打断"
-            seconds: 2
             #这里的意思是，妮可的能量场在5秒之后才结束，这里的一切都需要录屏实测
           - op_name: "设置状态"
             state: "自定义-妮可-能量场"
             seconds: 7
-
-          - op_name: "按键-终结技"
-            post_delay: 1
-            repeat: 2
+          - operation_template: "猫又-终结技" #时长一样
           
           - op_name: "设置状态"
             data: ["自定义-速切结束"]
 
       #失衡时刻
-      - states: "[自定义-连携换人,0,12]"
+      - states: "[自定义-连携换人,0,10]"
         sub_handlers:
           - states: "[妮可-特殊技可用]"
             operations:
@@ -53,10 +47,10 @@ handlers:
                 repeat: 4
                 #这里的意思是，妮可的能量场在2.2秒之后才结束
 
-
+      #非失衡时刻
       - states: "[妮可-特殊技可用]"
         operations:
-          - operation_template: "妮可-蓄力坐箱炮"
+          - operation_template: "妮可-2a接蓄力坐箱炮"
           - op_name: "设置状态"
           #这里的意思是，妮可的能量场在4秒之后才结束
             state: "自定义-妮可-能量场"

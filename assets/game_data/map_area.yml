@@ -59,10 +59,18 @@
 - area_name: "HAND总部"
   tp_list:
     - "HAND总部门口"
-- area_name: "UNKNOWN"
+- area_name: "厄匹斯港"
   tp_list:
-    - "UNKNOWN"
+    - "港口步道"
+    - "桶之贤者"
 - area_name: "热望岛"
   tp_list:
     - "入口通道"
     - "休闲区域"
+- area_name: "星环"
+  tp_list:
+    - "流光大厅"
+    - "星环VIP包厢"
+- area_name: "UNKNOWN"
+  tp_list:
+    - "UNKNOWN"

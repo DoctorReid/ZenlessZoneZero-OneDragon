@@ -2,6 +2,7 @@ from typing import Optional
 
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils import i18_utils
+from zzz_od.game_data.agent import AgentEnum
 
 
 class ZContext(OneDragonContext):
@@ -28,57 +29,20 @@ class ZContext(OneDragonContext):
         # 实例独有的配置
         self.load_instance_config()
 
-    def init_by_config(self) -> None:
-        """
-        根据配置进行初始化
-        :return:
-        """
-        OneDragonContext.init_by_config(self)
-        i18_utils.update_default_lang(self.game_config.game_language)
-
-        from zzz_od.config.game_config import GamePlatformEnum
-        from zzz_od.controller.zzz_pc_controller import ZPcController
-        from zzz_od.controller.zzz_emulator_controller import ZEmulatorController
-        from one_dragon.base.screen.screen_loader import ScreenContext as ScreenContext
-        from one_dragon.base.screen.template_loader import TemplateLoader
-        from one_dragon.base.matcher.template_matcher import TemplateMatcher
-        if self.game_config.platform == GamePlatformEnum.PC.value.value:
-            self.controller = ZPcController(
-                game_config=self.game_config,
-                win_title=self.game_config.win_title,
-                standard_width=self.project_config.screen_standard_width,
-                standard_height=self.project_config.screen_standard_height
-            )
-            self.screen_loader: ScreenContext = ScreenContext(platform='PC')
-            self.template_finder: TemplateLoader = TemplateLoader(platform='PC')
-            self.tm: TemplateMatcher = TemplateMatcher(self.template_loader)
-        if self.game_config.platform == GamePlatformEnum.Emulator.value.value:
-            self.controller = ZEmulatorController(
-                game_config=self.game_config,
-                win_title=self.game_config.win_title,
-                standard_width=self.project_config.screen_standard_width,
-                standard_height=self.project_config.screen_standard_height
-            )
-            self.screen_loader: ScreenContext = ScreenContext(platform='Emulator')
-            self.template_finder: TemplateLoader = TemplateLoader(platform='Emulator')
-            self.tm: TemplateMatcher = TemplateMatcher(self.template_loader)
-        self.hollow.data_service.reload()
-        self.init_hollow_config()
-
-    def init_hollow_config(self) -> None:
-        """
-        对空洞配置进行初始化
-        :return:
-        """
-        from zzz_od.hollow_zero.hollow_zero_challenge_config import HollowZeroChallengeConfig
-        challenge_config = self.hollow_zero_config.challenge_config
-        if challenge_config is None:
-            self.hollow_zero_challenge_config = HollowZeroChallengeConfig('', is_mock=True)
-        else:
-            self.hollow_zero_challenge_config = HollowZeroChallengeConfig(challenge_config)
-
     def load_instance_config(self) -> None:
         OneDragonContext.load_instance_config(self)
+
+        from zzz_od.config.game_config import GameConfig
+        self.game_config: GameConfig = GameConfig(self.current_instance_idx)
+        from one_dragon.base.config.game_account_config import GameAccountConfig
+        self.game_account_config: GameAccountConfig = GameAccountConfig(
+            self.current_instance_idx,
+            default_platform=self.game_config.get('platform'),  # 迁移旧配置 2025-07 时候删除
+            default_game_region=self.game_config.get('game_region'),
+            default_game_path=self.game_config.get('game_path'),
+            default_account=self.game_config.get('account'),
+            default_password=self.game_config.get('password'),
+        )
 
         from zzz_od.application.battle_assistant.battle_assistant_config import BattleAssistantConfig
         from zzz_od.application.charge_plan.charge_plan_config import ChargePlanConfig
@@ -97,16 +61,13 @@ class ZContext(OneDragonContext):
         from zzz_od.application.notorious_hunt.notorious_hunt_run_record import NotoriousHuntRunRecord
         from zzz_od.application.random_play.random_play_run_record import RandomPlayRunRecord
         from zzz_od.application.scratch_card.scratch_card_run_record import ScratchCardRunRecord
-        from zzz_od.config.game_config import GameConfig
         from zzz_od.hollow_zero.hollow_zero_challenge_config import HollowZeroChallengeConfig
         from zzz_od.application.redemption_code.redemption_code_run_record import RedemptionCodeRunRecord
         from zzz_od.application.commission_assistant.commission_assistant_config import CommissionAssistantConfig
-        from zzz_od.config.emulator_config import EmulatorConfig
-        self.game_config: GameConfig = GameConfig(self.current_instance_idx)
         from zzz_od.config.team_config import TeamConfig
         self.team_config: TeamConfig = TeamConfig(self.current_instance_idx)
+        from zzz_od.config.emulator_config import EmulatorConfig
         self.emulator_config: EmulatorConfig = EmulatorConfig(self.current_instance_idx)
-
 
         # 应用配置
         self.screenshot_helper_config: ScreenshotHelperConfig = ScreenshotHelperConfig(self.current_instance_idx)
@@ -122,8 +83,11 @@ class ZContext(OneDragonContext):
         from zzz_od.application.random_play.random_play_config import RandomPlayConfig
         self.random_play_config: RandomPlayConfig = RandomPlayConfig(self.current_instance_idx)
 
+        from zzz_od.config.agent_outfit_config import AgentOutfitConfig
+        self.agent_outfit_config: AgentOutfitConfig = AgentOutfitConfig(self.current_instance_idx)
+
         # 运行记录
-        game_refresh_hour_offset = self.game_config.game_refresh_hour_offset
+        game_refresh_hour_offset = self.game_account_config.game_refresh_hour_offset
         self.email_run_record: EmailRunRecord = EmailRunRecord(self.current_instance_idx, game_refresh_hour_offset)
         self.email_run_record.check_and_update_status()
         self.random_play_run_record: RandomPlayRunRecord = RandomPlayRunRecord(self.current_instance_idx, game_refresh_hour_offset)
@@ -170,3 +134,67 @@ class ZContext(OneDragonContext):
         self.lost_void_config: LostVoidConfig = LostVoidConfig(self.current_instance_idx)
         from zzz_od.application.hollow_zero.lost_void.lost_void_run_record import LostVoidRunRecord
         self.lost_void_record: LostVoidRunRecord = LostVoidRunRecord(self.lost_void_config, self.current_instance_idx, game_refresh_hour_offset)
+
+    def init_by_config(self) -> None:
+        """
+        根据配置进行初始化
+        :return:
+        """
+        OneDragonContext.init_by_config(self)
+        i18_utils.update_default_lang(self.game_account_config.game_language)
+
+        from zzz_od.controller.zzz_pc_controller import ZPcController
+        from one_dragon.base.config.game_account_config import GamePlatformEnum
+        if self.game_account_config.platform == GamePlatformEnum.PC.value.value:
+            from one_dragon.base.config.game_account_config import GameRegionEnum
+            win_title = '绝区零' if self.game_account_config.game_region == GameRegionEnum.CN.value.value else 'ZenlessZoneZero'
+            self.controller = ZPcController(
+                game_config=self.game_config,
+                win_title=win_title,
+                standard_width=self.project_config.screen_standard_width,
+                standard_height=self.project_config.screen_standard_height
+            )
+            self.screen_loader: ScreenContext = ScreenContext(platform='PC')
+            self.template_finder: TemplateLoader = TemplateLoader(platform='PC')
+            self.tm: TemplateMatcher = TemplateMatcher(self.template_loader)
+        if self.game_config.platform == GamePlatformEnum.Emulator.value.value:
+            self.controller = ZEmulatorController(
+                game_config=self.game_config,
+                win_title=self.game_config.win_title,
+                standard_width=self.project_config.screen_standard_width,
+                standard_height=self.project_config.screen_standard_height
+            )
+            self.screen_loader: ScreenContext = ScreenContext(platform='Emulator')
+            self.template_finder: TemplateLoader = TemplateLoader(platform='Emulator')
+            self.tm: TemplateMatcher = TemplateMatcher(self.template_loader)
+        self.hollow.data_service.reload()
+        self.init_hollow_config()
+        self.init_agent_template_id()
+
+    def init_hollow_config(self) -> None:
+        """
+        对空洞配置进行初始化
+        :return:
+        """
+        from zzz_od.hollow_zero.hollow_zero_challenge_config import HollowZeroChallengeConfig
+        challenge_config = self.hollow_zero_config.challenge_config
+        if challenge_config is None:
+            self.hollow_zero_challenge_config = HollowZeroChallengeConfig('', is_mock=True)
+        else:
+            self.hollow_zero_challenge_config = HollowZeroChallengeConfig(challenge_config)
+
+    def init_agent_template_id(self) -> None:
+        """
+        代理人头像模板ID的初始化
+        :return:
+        """
+        AgentEnum.NICOLE.value.template_id = self.agent_outfit_config.nicole
+        AgentEnum.ELLEN.value.template_id = self.agent_outfit_config.ellen
+        AgentEnum.ASTRA_YAO.value.template_id = self.agent_outfit_config.astra_yao
+
+    def after_app_shutdown(self) -> None:
+        """
+        App关闭后进行的操作 关闭一切可能资源操作
+        @return:
+        """
+        OneDragonContext.after_app_shutdown(self)

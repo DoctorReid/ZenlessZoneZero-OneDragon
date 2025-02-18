@@ -9,7 +9,7 @@ from one_dragon.base.operation.one_dragon_context import ContextKeyboardEventEnu
 from one_dragon.base.operation.operation_base import OperationResult
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
-from one_dragon.base.operation.operation_round_result import OperationRoundResult
+from one_dragon.base.operation.operation_round_result import OperationRoundResult, OperationRoundResultEnum
 from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 from zzz_od.application.commission_assistant.commission_assistant_config import DialogOptionEnum
@@ -90,6 +90,11 @@ class CommissionAssistantApp(ZApplication):
         if result.is_success:
             return self.round_wait(result.status, wait=1)
 
+        # 判断短信
+        result = self.check_knock_knock(screen)
+        if result.is_success:
+            return self.round_wait(result.status, wait=1)
+
         result = self.round_by_find_area(screen, '委托助手', '右上角自动')
         in_auto = result.is_success
         if in_auto and not config.dialog_click_when_auto:
@@ -163,6 +168,36 @@ class CommissionAssistantApp(ZApplication):
 
         # 处理对话
         return hollow_event_utils.check_event_text_and_run(self, screen, [])
+
+    def check_knock_knock(self, screen: MatLike) -> OperationRoundResult:
+        """
+        判断是否在短信中
+        :param screen: 游戏画面
+        :return:
+        """
+        result = self.round_by_find_area(screen, '委托助手', '标题-短信')
+        if not result.is_success:
+            return result
+
+        area = self.ctx.screen_loader.get_area('委托助手', '区域-短信-文本框')
+        part = cv2_utils.crop_image_only(screen, area.rect)
+        ocr_result_map = self.ctx.ocr.run_ocr(part)
+        bottom_text = None # 最下方的文本
+        bottom_mr = None  # 找到最下方的文本进行点击
+        for ocr_result, mrl in ocr_result_map.items():
+            if bottom_mr is None or mrl.max.center.y > bottom_mr.center.y:
+                bottom_mr = mrl.max
+                bottom_text = ocr_result
+
+        if bottom_mr is None:
+            result.result = OperationRoundResultEnum.FAIL
+            return result
+
+        bottom_mr.add_offset(area.left_top)
+        self.ctx.controller.click(bottom_mr.center)
+
+        result.status = bottom_text
+        return result
 
     @node_from(from_name='自动对话模式')
     @operation_node(name='自动战斗模式')

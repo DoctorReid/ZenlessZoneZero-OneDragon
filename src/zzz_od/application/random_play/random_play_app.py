@@ -183,7 +183,7 @@ class RandomPlayApp(ZApplication):
         if agent is None:
             return None
 
-        mr = self.ctx.tm.match_one_by_feature(part, 'predefined_team', f'avatar_{agent.agent_id}')
+        mr = self.ctx.tm.match_one_by_feature(part, 'predefined_team', f'avatar_{agent.template_id}')
         if mr is None:
             return None
 

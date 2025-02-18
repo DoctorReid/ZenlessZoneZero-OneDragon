@@ -23,12 +23,12 @@ class HollowZeroMapService:
     def init_event_yolo(self) -> None:
         use_gpu = self.ctx.yolo_config.hollow_zero_event_gpu
         if self.event_model is None or self.event_model.gpu != use_gpu:
-            use_gh_proxy = self.ctx.env_config.is_ghproxy
             self.event_model = HollowEventDetector(
                 model_name=self.ctx.yolo_config.hollow_zero_event,
                 backup_model_name=self.ctx.yolo_config.hollow_zero_event_backup,
-                gh_proxy=use_gh_proxy,
-                personal_proxy=None if use_gh_proxy else self.ctx.env_config.personal_proxy,
+                gh_proxy=self.ctx.env_config.is_gh_proxy,
+                gh_proxy_url=self.ctx.env_config.gh_proxy_url if self.ctx.env_config.is_gh_proxy else None,
+                personal_proxy=self.ctx.env_config.personal_proxy if self.ctx.env_config.is_personal_proxy else None,
                 gpu=use_gpu
             )
 
