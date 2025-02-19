@@ -1,3 +1,4 @@
+import os
 import subprocess
 
 from one_dragon.base.operation.operation import Operation
@@ -24,10 +25,12 @@ class OpenGame(Operation):
         if self.ctx.game_account_config.game_path == '':
             return self.round_fail('未配置游戏路径')
         full_path = self.ctx.game_account_config.game_path
+        dir_path = os.path.dirname(full_path)
+        exe_name = os.path.basename(full_path)
         log.info('尝试自动启动游戏 路径为 %s', full_path)
         # 获取文件夹路径
         hdr_command_before = f'cmd /c "reg add "HKCU\\Software\\Microsoft\\DirectX\\UserGpuPreferences" /v "{full_path}" /d "AutoHDREnable=2096;" /f"'
-        command = f'cmd /c "start "" "{full_path}"'
+        command = f'cmd /c "start "" /d "{dir_path}" "{exe_name}"'
         if self.ctx.game_config.launch_argument:
             screen_size = self.ctx.game_config.screen_size
             screen_width = screen_size.split('x')[0]
