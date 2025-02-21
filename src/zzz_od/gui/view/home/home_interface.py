@@ -121,7 +121,7 @@ class ButtonGroup(SimpleCardWidget):
 
     def open_home(self):
         """打开主页链接"""
-        QDesktopServices.openUrl(QUrl("https://one-dragon.org/zzz/zh/home.html"))
+        QDesktopServices.openUrl(QUrl("https://onedragon-anything.github.io/zzz/zh/home.html"))
 
     def open_github(self):
         """打开 GitHub 链接"""

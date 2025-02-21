@@ -25,21 +25,23 @@ class OpenGame(Operation):
         if self.ctx.game_account_config.game_path == '':
             return self.round_fail('未配置游戏路径')
         full_path = self.ctx.game_account_config.game_path
-        log.info('尝试自动启动游戏 路径为 %s', full_path)
-        # 获取文件夹路径
         dir_path = os.path.dirname(full_path)
         exe_name = os.path.basename(full_path)
-        command = f'cmd /c "start "" "{dir_path}\{exe_name}"'
+        log.info('尝试自动启动游戏 路径为 %s', full_path)
+        # 获取文件夹路径
+        hdr_command_before = f'cmd /c "reg add "HKCU\\Software\\Microsoft\\DirectX\\UserGpuPreferences" /v "{full_path}" /d "AutoHDREnable=2096;" /f"'
+        command = f'cmd /c "start "" /d "{dir_path}" "{exe_name}"'
         if self.ctx.game_config.launch_argument:
             screen_size = self.ctx.game_config.screen_size
             screen_width = screen_size.split('x')[0]
             screen_height = screen_size.split('x')[1]
             full_screen = self.ctx.game_config.full_screen
-            popup_window = "-popupwindow " if self.ctx.game_config.popup_window else ""
+            popup_window = "-popupwindow" if self.ctx.game_config.popup_window else ""
             monitor = self.ctx.game_config.monitor
-            arguement = f'{self.ctx.game_config.launch_argument_advance} -screen-width {screen_width} -screen-height {screen_height} -screen-fullscreen {full_screen} {popup_window}-monitor {monitor}'
+            arguement = f'{self.ctx.game_config.launch_argument_advance} -screen-width {screen_width} -screen-height {screen_height} -screen-fullscreen {full_screen} {popup_window} -monitor {monitor}'
             command = f'{command} {arguement}'
         command = f'{command} & exit"'
         log.info('命令行指令 %s', command)
+        subprocess.Popen(hdr_command_before)
         subprocess.Popen(command)
         return self.round_success(wait=5)

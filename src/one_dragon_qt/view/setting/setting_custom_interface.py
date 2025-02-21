@@ -6,7 +6,7 @@ from ctypes import wintypes
 
 from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QWidget, QFileDialog
-from qfluentwidgets import FluentIcon, SettingCardGroup, setTheme, Theme, VBoxLayout, PrimaryPushButton, PasswordLineEdit, MessageBox
+from qfluentwidgets import FluentIcon, SettingCardGroup, setTheme, Theme, VBoxLayout, PrimaryPushButton, PasswordLineEdit, MessageBox, Dialog
 
 from one_dragon.base.config.config_item import get_config_item_from_enum
 from one_dragon.base.operation.one_dragon_custom_context import OneDragonCustomContext
@@ -117,3 +117,14 @@ class SettingCustomInterface(VerticalScrollInterface):
             os_utils.get_path_under_work_dir('custom', 'assets', 'ui'),
             'banner')
             shutil.copyfile(file_path, banner_path)
+            self._show_dialog_after_banner_updated()
+
+    def _show_dialog_after_banner_updated(self):
+        """显示设置主页背景后的对话框"""
+        dialog = Dialog("主页背景已更新", "是否立即重启以应用更改?", self)
+        dialog.setTitleBarVisible(False) 
+        dialog.yesButton.setText("重启")
+        dialog.cancelButton.setText("稍后")
+        if dialog.exec():
+            from one_dragon.utils import app_utils
+            app_utils.start_one_dragon(restart=True)

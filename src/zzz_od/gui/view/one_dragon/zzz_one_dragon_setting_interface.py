@@ -3,6 +3,7 @@ from qfluentwidgets import SettingCardGroup, FluentIcon
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon_qt.widgets.setting_card.editable_combo_box_setting_card import EditableComboBoxSettingCard
 from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.utils.i18_utils import gt
@@ -56,22 +57,22 @@ class ZOneDragonSettingInterface(VerticalScrollInterface):
     def get_coffee_shop_group(self) -> QWidget:
         group = SettingCardGroup(gt('影像店'))
 
-        self.random_play_agent_1 = ComboBoxSettingCard(
-            icon=FluentIcon.PEOPLE, title=gt('影像店代理人-1'),
-            options_list=[ConfigItem(self.ctx.random_play_config.random_agent_name())] + [
+        agents_list = [ConfigItem(self.ctx.random_play_config.random_agent_name())] + [
                 ConfigItem(agent_enum.value.agent_name)
                 for agent_enum in AgentEnum
-            ],
+            ]
+        self.random_play_agent_1 = EditableComboBoxSettingCard(
+            icon=FluentIcon.PEOPLE, title=gt('影像店代理人-1'),
+            options_list=agents_list,
         )
+        self.random_play_agent_1.combo_box.setFixedWidth(100)
         group.addSettingCard(self.random_play_agent_1)
 
-        self.random_play_agent_2 = ComboBoxSettingCard(
+        self.random_play_agent_2 = EditableComboBoxSettingCard(
             icon=FluentIcon.PEOPLE, title=gt('影像店代理人-2'),
-            options_list=[ConfigItem(self.ctx.random_play_config.random_agent_name())] + [
-                ConfigItem(agent_enum.value.agent_name)
-                for agent_enum in AgentEnum
-            ],
+            options_list=agents_list,
         )
+        self.random_play_agent_2.combo_box.setFixedWidth(100)
         group.addSettingCard(self.random_play_agent_2)
 
         return group
