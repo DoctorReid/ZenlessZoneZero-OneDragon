@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 operations:
+=======
+operations:  
+>>>>>>> a004323 (伊芙琳长按时不打断技能)
   - op_name: "设置状态"
     state: "自定义-动作不打断"
     seconds: 1.5

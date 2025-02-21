@@ -1,7 +1,11 @@
 operations:
   - op_name: "设置状态"
     state: "自定义-动作不打断"
+<<<<<<< HEAD
     seconds: 4.5
+=======
+    seconds: 5.5
+>>>>>>> a004323 (伊芙琳长按时不打断技能)
   - op_name: "按键-特殊攻击-按下"
   - op_name: "等待秒数"
     seconds: 2.5
