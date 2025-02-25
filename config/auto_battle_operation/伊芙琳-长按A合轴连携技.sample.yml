@@ -1,11 +1,14 @@
 operations:
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> a004323 (伊芙琳长按时不打断技能)
   - op_name: "设置状态"
     state: "自定义-动作不打断"
     seconds: 2.6
+=======
+>>>>>>> b263730 (更改了连携技判断逻辑，现在不会因为失衡时间太长导致判断错误了)
   - op_name: "按键-普通攻击-按下"
   - op_name: "等待秒数"
     seconds: 0.6
@@ -16,5 +19,8 @@ operations:
     data: [ "伊芙琳-缠绕禁制" ]
   - op_name: "设置状态"
     data: [ "自定义-速切结束" ]
+  - op_name: "设置状态"
+    state: "自定义-动作不打断"
+    seconds: 2
   - op_name: "等待秒数"
     seconds: 1.5
