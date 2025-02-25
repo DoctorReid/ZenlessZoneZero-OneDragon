@@ -24,7 +24,7 @@ handlers:
           - operation_template: "柳-闪A"
           
 
-      - states: "[自定义-连携换人,0,1]"
+      - states: "[按键可用-连携技,0,0.5]"
         operations:
           - operation_template: "柳-连携攻击"
 
