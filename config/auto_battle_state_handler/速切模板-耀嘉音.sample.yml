@@ -20,7 +20,7 @@ handlers:
         operations:
         - op_name: "清除状态"
           state: "自定义-耀嘉音-终结技连携"
-        - operation_template: "猫又-终结技" #时长一样
+        - operation_template: "耀嘉音-终结技"
         - op_name: "设置状态"
           state: "自定义-耀嘉音-终结技连携"
           add: 2
