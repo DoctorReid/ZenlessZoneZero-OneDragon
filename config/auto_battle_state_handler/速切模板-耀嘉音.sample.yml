@@ -12,7 +12,7 @@ handlers:
         operations:
           - operation_template: "通用-闪A"
 
-      - states: "[自定义-连携换人,0,1]"
+      - states: "[按键可用-连携技,0,0.5]"
         operations:
           - operation_template: "通用-连携攻击"
 
@@ -20,7 +20,7 @@ handlers:
         operations:
         - op_name: "清除状态"
           state: "自定义-耀嘉音-终结技连携"
-        - operation_template: "猫又-终结技" #时长一样
+        - operation_template: "耀嘉音-终结技"
         - op_name: "设置状态"
           state: "自定义-耀嘉音-终结技连携"
           add: 2

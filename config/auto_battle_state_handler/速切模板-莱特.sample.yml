@@ -35,7 +35,7 @@ handlers:
           - op_name: "等待秒数"
             seconds: 0.1
 
-      - states: "[自定义-连携换人,0,1]"
+      - states: "[按键可用-连携技,0,0.5]"
         sub_handlers:
           - states: "![自定义-莱特-BUFF, 0, 16] & [莱特-士气]{80, 100}"
             operations:

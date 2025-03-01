@@ -1,0 +1,5 @@
+#根据动画实测，动画持续2秒
+operations:
+  - op_name: "按键-终结技"
+    post_delay: 0.1
+    repeat: 3
