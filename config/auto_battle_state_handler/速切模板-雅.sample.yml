@@ -30,7 +30,7 @@ handlers:
           - operation_template: "雅-闪A"
           
       #连携
-      - states: "[自定义-连携换人,0,1]"
+      - states: "[按键可用-连携技,0,0.5]"
         operations:
           - op_name: "清除状态"
             state_list: ["自定义-星见雅-使用过拔刀斩"]
