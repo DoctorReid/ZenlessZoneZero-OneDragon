@@ -42,7 +42,7 @@ handlers:
           operations:
             - operation_template: "伊芙琳-长按E合轴连携技"
 
-        - states: "[伊芙琳-燎火]{50, 100} & [伊芙琳-燎索点]{1, 1}"
+        - states: "[伊芙琳-燎火]{50, 99} & [伊芙琳-燎索点]{1, 1}"
           operations:
             - operation_template: "伊芙琳-长按E二连合轴连携技"
 
