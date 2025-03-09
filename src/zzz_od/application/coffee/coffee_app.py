@@ -141,6 +141,7 @@ class CoffeeApp(ZApplication):
 
                 mrl = mrl_list[ocr_result_list.index(results[0])]
                 self.chosen_coffee = self.ctx.compendium_service.name_2_coffee[coffee_name]
+                time.sleep(0.5) # 暂停半秒以防点不到咖啡
                 self.ctx.controller.click(mrl.max.center + area.left_top + Point(0, -50))
                 return self.round_success(wait=0.5)
 
