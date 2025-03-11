@@ -1,5 +1,5 @@
 import os
-from PySide6.QtCore import Qt, QThread, Signal, QSize, QUrl, QTimer
+from PySide6.QtCore import Qt, QThread, Signal, QSize, QUrl
 from PySide6.QtGui import (
     QFont,
     QDesktopServices, QColor
@@ -29,6 +29,7 @@ from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from one_dragon_qt.services.styles_manager import OdQtStyleSheet
 from one_dragon_qt.widgets.banner import Banner
+from one_dragon_qt.widgets.welcome_dialog import WelcomeDialog
 from one_dragon_qt.widgets.game_dialog import GameDialog
 from one_dragon_qt.widgets.icon_button import IconButton
 from one_dragon_qt.widgets.notice_card import NoticeCard
@@ -317,33 +318,9 @@ class HomeInterface(VerticalScrollInterface):
 
     def _show_dialog_at_first_run(self):
         """首次运行时显示防倒狗弹窗"""
-        dialog = Dialog("欢迎使用绝区零一条龙",
-                        """本软件完全免费，如果你是付费获取的，请立即退款并举报商家！
-                        有问题可以加入官方QQ群~
-                        925199190""", self)
-        dialog.setTitleBarVisible(False)
-        dialog.cancelButton.hide()
-        dialog.yesButton.setText("确定(5s)")
-        dialog.yesButton.setEnabled(False)
-
-        self.countdown_value = 5
-        self.countdown_timer = QTimer(dialog)
-        self.countdown_timer.setInterval(1000)  # 1秒
-        self.countdown_timer.timeout.connect(lambda: self._update_countdown(dialog))
-        self.countdown_timer.start()
-
+        dialog = WelcomeDialog(self)
         if dialog.exec():
             self.ctx.env_config.is_first_run = False
-
-    def _update_countdown(self, dialog):
-        """更新确认按钮上的倒计时"""
-        self.countdown_value -= 1
-        if self.countdown_value > 0:
-            dialog.yesButton.setText(f"确定({self.countdown_value}s)")
-        else:
-            dialog.yesButton.setText("确定")
-            dialog.yesButton.setEnabled(True)
-            self.countdown_timer.stop()
 
     def _show_dialog_after_code_updated(self):
         """显示代码更新后的对话框"""
