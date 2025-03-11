@@ -1,5 +1,5 @@
 import os
-from PySide6.QtCore import Qt, QThread, Signal, QSize, QUrl
+from PySide6.QtCore import Qt, QThread, Signal, QSize, QUrl, QTimer
 from PySide6.QtGui import (
     QFont,
     QDesktopServices, QColor
@@ -281,6 +281,8 @@ class HomeInterface(VerticalScrollInterface):
         self._check_code_runner.start()
         self._check_venv_runner.start()
         self._check_model_runner.start()
+        if self.ctx.env_config.is_first_run:
+            self._show_dialog_at_first_run()
 
     def _need_to_update_code(self, with_new: bool):
         if not with_new:
@@ -313,6 +315,36 @@ class HomeInterface(VerticalScrollInterface):
             parent=self,
         ).setCustomBackgroundColor("white", "#202020")
 
+    def _show_dialog_at_first_run(self):
+        """首次运行时显示防倒狗弹窗"""
+        dialog = Dialog("欢迎使用绝区零一条龙",
+                        """本软件完全免费，如果你是付费获取的，请立即退款并举报商家！
+                        有问题可以加入官方QQ群~
+                        925199190""", self)
+        dialog.setTitleBarVisible(False)
+        dialog.cancelButton.hide()
+        dialog.yesButton.setText("确定(5s)")
+        dialog.yesButton.setEnabled(False)
+
+        self.countdown_value = 5
+        self.countdown_timer = QTimer(dialog)
+        self.countdown_timer.setInterval(1000)  # 1秒
+        self.countdown_timer.timeout.connect(lambda: self._update_countdown(dialog))
+        self.countdown_timer.start()
+
+        if dialog.exec():
+            self.ctx.env_config.is_first_run = False
+
+    def _update_countdown(self, dialog):
+        """更新确认按钮上的倒计时"""
+        self.countdown_value -= 1
+        if self.countdown_value > 0:
+            dialog.yesButton.setText(f"确定({self.countdown_value}s)")
+        else:
+            dialog.yesButton.setText("确定")
+            dialog.yesButton.setEnabled(True)
+            self.countdown_timer.stop()
+
     def _show_dialog_after_code_updated(self):
         """显示代码更新后的对话框"""
         dialog = Dialog("更新提醒", "代码已自动更新，是否重启?", self)
@@ -320,8 +352,8 @@ class HomeInterface(VerticalScrollInterface):
         dialog.yesButton.setText("重启")
         dialog.cancelButton.setText("取消")
         if dialog.exec():
+            self.ctx.env_config.is_first_run = True
             from one_dragon.utils import app_utils
-
             app_utils.start_one_dragon(restart=True)
 
     def start_game(self):

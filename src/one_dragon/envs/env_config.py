@@ -327,3 +327,17 @@ class EnvConfig(YamlConfig):
         :return:
         """
         self.update('key_debug', new_value)
+
+    @property
+    def is_first_run(self) -> bool:
+        """
+        是否第一次运行
+        """
+        return self.get('is_first_run', True)
+    
+    @is_first_run.setter
+    def is_first_run(self, new_value: bool) -> None:
+        """
+        是否第一次运行
+        """
+        self.update('is_first_run', new_value)
