@@ -46,6 +46,14 @@ class BasicGameConfig(YamlConfig):
         return YamlConfigAdapter(self, 'type_input_way', TypeInputWay.CLIPBOARD.value.value)
 
     @property
+    def hdr(self) -> bool:
+        return self.get('hdr', False)
+    
+    @hdr.setter
+    def hdr(self, new_value: bool) -> None:
+        self.update('hdr', new_value)
+
+    @property
     def launch_argument(self) -> bool:
         return self.get('launch_argument', False)
 

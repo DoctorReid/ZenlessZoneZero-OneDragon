@@ -1,3 +1,4 @@
+import subprocess
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import SettingCardGroup, FluentIcon
 
@@ -46,6 +47,11 @@ class SettingGameInterface(VerticalScrollInterface):
                                                 options_enum=TypeInputWay)
         basic_group.addSettingCard(self.input_way_opt)
 
+        self.hdr_switch = SwitchSettingCard(icon=FluentIcon.SETTING, title='自动HDR',
+                                    content='手动启动游戏时「自动HDR」的状态')
+        self.hdr_switch.value_changed.connect(self._on_hdr_switch_changed)
+        basic_group.addSettingCard(self.hdr_switch)
+
         return basic_group
 
     def _get_launch_argument_group(self) -> QWidget:
@@ -55,20 +61,20 @@ class SettingGameInterface(VerticalScrollInterface):
         self.launch_argument_switch.value_changed.connect(self._on_launch_argument_switch_changed)
         launch_argument_group.addSettingCard(self.launch_argument_switch)
         
-        self.screen_size_opt = ComboBoxSettingCard(icon=FluentIcon.SETTING, title='窗口尺寸', options_enum=ScreenSizeEnum)
+        self.screen_size_opt = ComboBoxSettingCard(icon=FluentIcon.FIT_PAGE, title='窗口尺寸', options_enum=ScreenSizeEnum)
         launch_argument_group.addSettingCard(self.screen_size_opt)
 
-        self.full_screen_opt = ComboBoxSettingCard(icon=FluentIcon.SETTING, title='全屏', options_enum=FullScreenEnum)
+        self.full_screen_opt = ComboBoxSettingCard(icon=FluentIcon.FULL_SCREEN, title='全屏', options_enum=FullScreenEnum)
         launch_argument_group.addSettingCard(self.full_screen_opt)
 
-        self.popup_window_switch = SwitchSettingCard(icon=FluentIcon.SETTING, title='无边框窗口')
+        self.popup_window_switch = SwitchSettingCard(icon=FluentIcon.LAYOUT, title='无边框窗口')
         launch_argument_group.addSettingCard(self.popup_window_switch)
 
-        self.monitor_opt = ComboBoxSettingCard(icon=FluentIcon.SETTING, title='显示器序号', options_enum=MonitorEnum)
+        self.monitor_opt = ComboBoxSettingCard(icon=FluentIcon.COPY, title='显示器序号', options_enum=MonitorEnum)
         launch_argument_group.addSettingCard(self.monitor_opt)
 
         self.launch_argument_advance = TextSettingCard(
-            icon=FluentIcon.SETTING,
+            icon=FluentIcon.COMMAND_PROMPT,
             title='高级参数',
             input_placeholder='如果你不知道这是做什么的 请不要填写'
         )
@@ -250,6 +256,7 @@ class SettingGameInterface(VerticalScrollInterface):
         VerticalScrollInterface.on_interface_shown(self)
 
         self.input_way_opt.init_with_adapter(self.ctx.game_config.type_input_way_adapter)
+        self.hdr_switch.init_with_adapter(self.ctx.game_config.get_prop_adapter('hdr'))
 
         self.launch_argument_switch.init_with_adapter(self.ctx.game_config.get_prop_adapter('launch_argument'))
         self.screen_size_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('screen_size'))
@@ -359,6 +366,14 @@ class SettingGameInterface(VerticalScrollInterface):
 
     def _on_gamepad_type_changed(self, idx: int, value: str) -> None:
         self._update_gamepad_part()
+    
+    def _on_hdr_switch_changed(self, value: bool) -> None:
+        hdr_command_enable = f'cmd /c "reg add "HKCU\\Software\\Microsoft\\DirectX\\UserGpuPreferences" /v "{self.ctx.game_account_config.game_path}" /d "AutoHDREnable=2097;" /f"'
+        hdr_command_disable = f'cmd /c "reg add "HKCU\\Software\\Microsoft\\DirectX\\UserGpuPreferences" /v "{self.ctx.game_account_config.game_path}" /d "AutoHDREnable=2096;" /f"'
+        if value:
+            subprocess.Popen(hdr_command_enable)
+        else:
+            subprocess.Popen(hdr_command_disable)
     
     def _on_launch_argument_switch_changed(self, value: bool) -> None:
         if value:
