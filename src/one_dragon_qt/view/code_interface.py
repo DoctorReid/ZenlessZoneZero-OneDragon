@@ -212,6 +212,7 @@ class CodeInterface(VerticalScrollInterface):
         self.venv_card.check_and_update_display()
         self.pager.setCurrentIndex(0)
         self.page_num = -1
+        self.ctx.env_config.is_first_run = True
         self.start_fetch_total()
 
     def _on_force_update_changed(self, value: bool) -> None:
