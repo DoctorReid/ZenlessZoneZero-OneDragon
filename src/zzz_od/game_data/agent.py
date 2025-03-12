@@ -267,3 +267,5 @@ class AgentEnum(Enum):
                                                'evelyn_chevalier_2', lower_color=(70, 70, 70), upper_color=(255, 255, 255),
                                                connect_cnt=5)
                              ])
+
+    PULCHRA = Agent('pulchra', '波可娜', RareTypeEnum.A, AgentTypeEnum.STUN, DmgTypeEnum.PHYSICAL)
