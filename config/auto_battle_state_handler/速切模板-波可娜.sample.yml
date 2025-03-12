@@ -26,13 +26,13 @@ handlers:
           - op_name: "等待秒数"
             seconds: 0.1
 
-      - states: "[波克娜-终结技可用]"
+      - states: "[波可娜-终结技可用]"
         operations:
           - op_name: "按键-终结攻击"
             post_delay: 0.1
             repeat: 40
 
-      - states: "[波克娜-特殊技可用]"
+      - states: "[波可娜-特殊技可用]"
         operations:
           - op_name: "按键-特殊攻击"
             post_delay: 0.5

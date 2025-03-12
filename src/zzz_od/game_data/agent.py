@@ -269,3 +269,5 @@ class AgentEnum(Enum):
                              ])
 
     SOLDIER_0_ANBY = Agent('soldier_0_anby', '零号安比', RareTypeEnum.S, AgentTypeEnum.ATTACK, DmgTypeEnum.ELECTRIC)
+  
+    PULCHRA = Agent('pulchra', '波可娜', RareTypeEnum.A, AgentTypeEnum.STUN, DmgTypeEnum.PHYSICAL)
