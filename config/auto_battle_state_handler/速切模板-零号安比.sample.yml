@@ -27,8 +27,6 @@ handlers:
 
       - states: "[自定义-零号安比-白雷,0,99]{300,999}"
         operations:
-          - op_name: "清除状态"
-            state: "自定义-零号安比-白雷"
           - operation_template: "零号安比-特殊技突进"
           - operation_template: "零号安比-特殊技突进"
           - operation_template: "零号安比-特殊技突进"

@@ -28,7 +28,7 @@ handlers:
 
       - states: "[波可娜-终结技可用]"
         operations:
-          - op_name: "按键-终结攻击"
+          - op_name: "按键-终结技"
             post_delay: 0.1
             repeat: 40
 
