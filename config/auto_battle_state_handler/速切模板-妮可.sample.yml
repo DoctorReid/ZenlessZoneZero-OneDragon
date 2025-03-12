@@ -9,21 +9,27 @@ handlers:
       - states: "[自定义-红光闪避, 0, 1]"
         operations:
           - operation_template: "通用-闪A"
-          
-      - states: "[自定义-快速支援换人,0,0.5]"
+
+      - states: "([按键-切换角色-下一个,0,0.3]|[按键-切换角色-上一个,0,0.3])"
         sub_handlers:
-          - states: "[妮可-终结技可用]" #打断快速支援
-            operations:
-            - op_name: "设置状态"
-              state: "自定义-妮可-能量场"
-              seconds: 7
-            - operation_template: "猫又-终结技" #时长一样
-            - op_name: "设置状态"
-              data: ["自定义-速切结束"]
-          - states: ""
-            operations:
-              - op_name: "等待秒数"
-                seconds: 0.5
+        - states: "[自定义-快速支援换人,0,0.5]"
+          sub_handlers:
+            - states: "[妮可-终结技可用]" #打断快速支援
+              operations:
+              - op_name: "设置状态"
+                state: "自定义-妮可-能量场"
+                seconds: 7
+              - operation_template: "猫又-终结技" #时长一样
+              - op_name: "设置状态"
+                data: ["自定义-速切结束"]
+            - states: ""
+              operations:
+                - op_name: "等待秒数"
+                  seconds: 0.5
+        - states: ""
+          operations:
+            - op_name: "等待秒数"
+              seconds: 0.3
 
       - states: "[按键可用-连携技,0,0.5]"
         operations:
@@ -31,11 +37,6 @@ handlers:
           - op_name: "设置状态"
             state: "自定义-妮可-能量场"
             seconds: 0
-      #防呆
-      - states: "([按键-切换角色-下一个,0,0.3]|[按键-切换角色-上一个,0,0.3]) | [自定义-快速支援换人,0,0.5]"
-        operations:
-          - op_name: "等待秒数"
-            seconds: 0.1
 
       - states: "[妮可-终结技可用]"
         operations:

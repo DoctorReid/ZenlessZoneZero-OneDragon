@@ -30,4 +30,4 @@ operations:
     add: 60
   - op_name: "按键-普通攻击"
     post_delay: 0.1
-    repeat: 19
+    repeat: 16
