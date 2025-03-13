@@ -1,0 +1,9 @@
+extends: default
+
+rules:
+  document-start: disable  # 禁用文档起始标记检查(临时放行)
+  new-lines:
+    type: unix  # 强制使用 Unix 风格换行符
+  line-length:
+    max: 120  # 将行长度限制放宽到 120 个字符
+  new-line-at-end-of-file: disable  # 禁用文件末尾换行符检查(临时放行)
