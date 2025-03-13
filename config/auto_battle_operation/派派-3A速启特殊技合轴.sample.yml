@@ -27,4 +27,3 @@ operations:
     add: 200
   - op_name: "等待秒数"
     seconds: 1.8
-

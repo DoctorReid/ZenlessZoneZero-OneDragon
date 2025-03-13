@@ -168,7 +168,7 @@ scenes:
               - states: "[后台-露西] & ![自定义-露西-加油, -5, 13]"
                 operations: *t-dodge-lucy
 
-              # 其余情况 
+              # 其余情况
               - states: "[后台-伊芙琳]"
                 operations: *t-dodge-evelyn
               - states: "[后台-妮可]"
@@ -288,7 +288,7 @@ scenes:
             - states: "[连携技-2-凯撒]"
               operations: *t-chain-right
 
-          # 剩余情况 
+          # 剩余情况
           - states: "[连携技-1-伊芙琳]"
             operations: *t-chain-left
           - states: "[连携技-2-伊芙琳]"
@@ -705,7 +705,7 @@ scenes:
           - states: "[伊芙琳-燎索点]{3,3}"
             sub_handlers:
               - states: "[伊芙琳-燎火]{100,100}"
-                operations: 
+                operations:
                   - op_name: "设置状态"
                     state: "自定义-动作不打断"
                   - op_name: "按键-普通攻击"
@@ -718,7 +718,7 @@ scenes:
                     state: "自定义-动作不打断"
 
               - states: ""
-                operations: 
+                operations:
                   - op_name: "设置状态"
                     state: "自定义-动作不打断"
                   - op_name: "按键-普通攻击"
@@ -733,7 +733,7 @@ scenes:
           - states: "[伊芙琳-燎火]{100,100}"
             sub_handlers:
               - states: ""
-                operations: 
+                operations:
                   - op_name: "设置状态"
                     state: "自定义-动作不打断"
                   - op_name: "按键-普通攻击"
@@ -748,7 +748,7 @@ scenes:
           - states: "[伊芙琳-燎火]{50,90}"
             sub_handlers:
               - states: "[伊芙琳-燎索点]{2,2}"
-                operations: 
+                operations:
                   - op_name: "设置状态"
                     state: "自定义-动作不打断"
                   - op_name: "按键-普通攻击"
@@ -786,7 +786,3 @@ scenes:
               - op_name: "按键-普通攻击"
                 post_delay: 0.05
                 repeat: 7
-
-
-
-

@@ -9,7 +9,7 @@ handlers:
       - states: "[自定义-红光闪避, 0, 1]"
         operations:
           - operation_template: "通用-闪A"
-          
+
 
       - states: "[按键可用-连携技,0,0.5]"
         operations:
@@ -22,10 +22,10 @@ handlers:
           - op_name: "等待秒数"
             seconds: 0.1
 
-      #失衡时刻
-      - states: "[自定义-连携换人,0,10] | [自定义-感电,0,12]" #感电暂时不可用
+      # 失衡时刻
+      - states: "[自定义-连携换人,0,10] | [自定义-感电,0,12]" # 感电暂时不可用
         sub_handlers:
-          #失衡的时候就不用考虑这么多了，射吧
+          # 失衡的时候就不用考虑这么多了，射吧
           - states: "[安东-特殊技可用] & (![自定义-安东-爆发状态,0,12] | ([按键-切换角色-下一个,0,1]|[按键-切换角色-上一个,0,1]) )"
             operations:
               - op_name: "设置状态"
@@ -43,7 +43,7 @@ handlers:
 
           - states: "[自定义-安东-爆发状态,0,14]"
             operations:
-              #打桩打桩
+              # 打桩打桩
               - op_name: "按键-普通攻击"
                 post_delay: 0.1
                 repeat: 25

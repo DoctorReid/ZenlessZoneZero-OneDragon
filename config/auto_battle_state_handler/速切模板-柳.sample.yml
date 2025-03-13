@@ -22,13 +22,13 @@ handlers:
       - states: "[自定义-红光闪避, 0, 1]"
         operations:
           - operation_template: "柳-闪A"
-          
+
 
       - states: "[按键可用-连携技,0,0.5]"
         operations:
           - operation_template: "柳-连携攻击"
 
-      #防呆
+      # 防呆
       - states: "([按键-切换角色-下一个,0,0.4]|[按键-切换角色-上一个,0,0.4]) | [自定义-快速支援换人,0,1]"
         operations:
           - op_name: "等待秒数"
@@ -65,7 +65,7 @@ handlers:
             operations:
               - operation_template: "柳-普通攻击-下弦"
 
-      #说明是上弦
+      # 说明是上弦
       - states: "[自定义-柳-上弦,0,999]"
         sub_handlers:
           - states: "[柳-特殊技可用]"

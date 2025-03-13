@@ -174,7 +174,7 @@ scenes:
               - states: "[后台-露西] & ![自定义-露西-加油, -5, 13]"
                 operations: *t-dodge-lucy
 
-              # 其余情况 
+              # 其余情况
               - states: "[后台-简]"
                 operations: *t-dodge-jane
               - states: "[后台-赛斯]"
@@ -301,7 +301,7 @@ scenes:
             - states: "[连携技-2-凯撒]"
               operations: *t-chain-right
 
-          # 剩余情况 
+          # 剩余情况
           - states: "[连携技-1-简]"
             operations: *t-chain-left
           - states: "[连携技-2-简]"
@@ -571,7 +571,7 @@ scenes:
                 state: "自定义-下场"
               - op_name: "清除状态"
                 state: "自定义-动作不打断"
-  
+
           - states: ""
             operations:
               - op_name: "设置状态"
@@ -735,7 +735,7 @@ scenes:
           - states: "![简-狂热心流]{60, 101} & [简-萨霍夫跳]"
             sub_handlers:
               - states: "[简-能量]{80,120}"
-                operations: 
+                operations:
                   - op_name: "按键-普通攻击"
                     way: "按下"
                     press: 2.7
@@ -743,7 +743,7 @@ scenes:
                   - op_name: "设置状态"
                     state_list: ["自定义-萨霍夫跳"]
               - states: ""
-                operations: 
+                operations:
                   - op_name: "按键-普通攻击"
                     way: "按下"
                     press: 2.2
@@ -777,7 +777,3 @@ scenes:
               - op_name: "按键-普通攻击"
                 post_delay: 0.05
                 repeat: 7
-
-
-
-

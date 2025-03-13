@@ -2,7 +2,7 @@ template_name: "速切模板-丽娜"
 handlers:
   - states: "[前台-丽娜]"
     sub_handlers:
-      - states: "[自定义-黄光切人, 0, 1]" #丽娜的连携特别快
+      - states: "[自定义-黄光切人, 0, 1]" # 丽娜的连携特别快
         operations:
           - op_name: "设置状态"
             state: "自定义-丽娜-人偶"
@@ -15,15 +15,15 @@ handlers:
             state: "自定义-丽娜-人偶"
             seconds: 12
           - operation_template: "通用-闪A"
-          
-      - states: "[按键可用-连携技,0,0.5]" #丽娜的连携特别快
+
+      - states: "[按键可用-连携技,0,0.5]" # 丽娜的连携特别快
         operations:
           - op_name: "设置状态"
             state: "自定义-丽娜-人偶"
             seconds: 14
           - operation_template: "通用-切人普通攻击"
 
-      #防呆
+      # 防呆
       - states: "([按键-切换角色-下一个,0,0.3]|[按键-切换角色-上一个,0,0.3]) | [自定义-快速支援换人,0,1]"
         operations:
           - op_name: "等待秒数"

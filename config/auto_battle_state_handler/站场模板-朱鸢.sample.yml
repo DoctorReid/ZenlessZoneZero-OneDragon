@@ -109,7 +109,7 @@ handlers:
           post_delay: 0.5
         - op_name: "清除状态"
           state: "自定义-血量扣减"
-        
+
 
     - states: ""
       sub_handlers: *main

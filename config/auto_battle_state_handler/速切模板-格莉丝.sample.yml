@@ -22,7 +22,7 @@ handlers:
       - states: "[自定义-红光闪避, 0, 1]"
         operations:
           - operation_template: "通用-闪A"
-          
+
 
       - states: "[按键可用-连携技,0,0.5]"
         operations:
@@ -37,7 +37,7 @@ handlers:
         operations:
           - operation_template: "格莉丝-终结技"
 
-        #格莉丝3段a1e
+        # 格莉丝3段a1e
       - states: ""
         operations:
           - operation_template: "格莉丝-3AEAE"

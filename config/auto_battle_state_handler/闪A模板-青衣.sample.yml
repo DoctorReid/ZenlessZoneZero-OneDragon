@@ -1,4 +1,4 @@
-#红光青衣放开左键就行了
+# 红光青衣放开左键就行了
 handlers:
   - states: "[前台-青衣]"
     sub_handlers:
@@ -26,5 +26,3 @@ handlers:
             repeat: 10
           - op_name: "设置状态"
             state: "自定义-青衣-续普攻"
-            
-

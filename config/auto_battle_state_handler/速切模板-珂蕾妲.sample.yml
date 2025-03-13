@@ -9,7 +9,7 @@ handlers:
       - states: "[自定义-红光闪避, 0, 1]"
         operations:
           - operation_template: "通用-闪A"
-          
+
 
       - states: "[按键可用-连携技,0,0.5]"
         operations:
@@ -28,12 +28,12 @@ handlers:
             state: "自定义-珂蕾妲-升温"
           - operation_template: "通用-终结技"
 
-      #补一个升温马上离开
+      # 补一个升温马上离开
       - states: "[珂蕾妲-特殊技可用] & ![自定义-珂蕾妲-升温,0,8]"
         operations:
           - operation_template: "珂蕾妲-特殊技合轴"
 
-      #快乐连招
+      # 快乐连招
       - states: "[珂蕾妲-特殊技可用] & [自定义-珂蕾妲-升温,0,8]"
         operations:
           - op_name: "清除状态"
@@ -42,7 +42,7 @@ handlers:
           - op_name: "设置状态"
             state: "自定义-珂蕾妲-升温"
 
-      #快乐合轴
+      # 快乐合轴
       - states: "![珂蕾妲-特殊技可用] & [自定义-珂蕾妲-升温,0,8]"
         operations:
           - op_name: "清除状态"
