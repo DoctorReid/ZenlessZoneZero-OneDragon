@@ -75,6 +75,15 @@ handlers:
                 - op_name: "清除状态"
                   state_list: ["自定义-速切结束", "自定义-动作不打断"]
 
+          - states: "![前台-波可娜]"
+            sub_handlers:
+            - states: "[波可娜-特殊技可用] | [波可娜-终结技可用]"
+              operations:
+                - op_name: "按键-切换角色"
+                  agent_name: "波可娜"
+                - op_name: "清除状态"
+                  state_list: ["自定义-速切结束", "自定义-动作不打断"]
+
           - states: "![前台-莱卡恩]"
             sub_handlers:
             - states: "[莱卡恩-特殊技可用]"
