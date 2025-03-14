@@ -683,6 +683,10 @@
   level: "S"
 
 - category: "卡牌"
+  name: "优厚分红·强化版"
+  level: "S"
+
+- category: "卡牌"
   name: "诡诈筹码"
   level: "S"
 
@@ -830,4 +834,32 @@
 
 - category: "无详情"
   name: "有回报的损失生命值"
+  level: "S"
+
+- category: "无详情"
+  name: "升级武备"
+  level: "S"
+
+- category: "无详情"
+  name: "鸣徽组合-迷你装"
+  level: "S"
+
+- category: "无详情"
+  name: "鸣徽组合-便携装"
+  level: "S"
+
+- category: "无详情"
+  name: "鸣徽组合-畅享装"
+  level: "S"
+
+- category: "无详情"
+  name: "紧急避险"
+  level: "S"
+
+- category: "无详情"
+  name: "金牌调解师"
+  level: "S"
+
+- category: "无详情"
+  name: "自助索赔"
   level: "S"
