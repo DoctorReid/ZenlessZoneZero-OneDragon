@@ -6,7 +6,6 @@ from qfluentwidgets import FluentIcon, LineEdit, PushButton, \
 
 from one_dragon.base.config.game_account_config import GameRegionEnum
 from one_dragon.base.config.one_dragon_config import OneDragonInstance, RunInOneDragonApp
-from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
@@ -16,6 +15,7 @@ from one_dragon_qt.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon_qt.widgets.column import Column
 from one_dragon_qt.widgets.combo_box import ComboBox
+
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.config.agent_outfit_config import AgentOutfitNicole, AgentOutfitEllen, AgentOutfitAstraYao
 
@@ -144,6 +144,7 @@ class SettingInstanceInterface(VerticalScrollInterface):
         )
         self.content_widget.add_widget(guide_opt)
         self.content_widget.add_widget(self._get_instanceSettings_group())
+        self.content_widget.add_widget(self._get_agentOutfit_group())
         self.content_widget.add_widget(self._get_instanceSwitch_group())
         self.content_widget.add_stretch(1)
 
@@ -158,9 +159,9 @@ class SettingInstanceInterface(VerticalScrollInterface):
         self.game_password_opt.init_with_adapter(self.ctx.game_account_config.get_prop_adapter('password'))
 
     def init_agent_outfit_config(self) -> None:
-        self.nicole_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('nicole'))
-        self.ellen_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('ellen'))
-        self.astra_yao_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('astra_yao'))
+        self.outfit_nicole_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('nicole'))
+        self.outfit_ellen_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('ellen'))
+        self.outfit_astra_yao_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('astra_yao'))
 
     def _get_instanceSwitch_group(self) -> QWidget:
         instance_switch_group = SettingCardGroup(gt('账户列表', 'ui'))
@@ -206,18 +207,23 @@ class SettingInstanceInterface(VerticalScrollInterface):
         #                                          options_enum=TypeInputWay)
         # instance_settings_group.addSettingCard(self.input_way_opt)
 
-        self.nicole_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='妮可', options_enum=AgentOutfitNicole)
-        self.nicole_opt.value_changed.connect(self.on_agent_outfit_changed)
-        self.ellen_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='艾莲', options_enum=AgentOutfitEllen)
-        self.ellen_opt.value_changed.connect(self.on_agent_outfit_changed)
-        self.astra_yao_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='耀嘉音', options_enum=AgentOutfitAstraYao)
-        self.astra_yao_opt.value_changed.connect(self.on_agent_outfit_changed)
-
-        instance_settings_group.addSettingCard(self.nicole_opt)
-        instance_settings_group.addSettingCard(self.ellen_opt)
-        instance_settings_group.addSettingCard(self.astra_yao_opt)
-
         return instance_settings_group
+
+    def _get_agentOutfit_group(self) -> QWidget:
+        agent_outfit_group = SettingCardGroup(gt('代理人皮肤', 'ui'))
+
+        self.outfit_nicole_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='妮可', options_enum=AgentOutfitNicole)
+        self.outfit_nicole_opt.value_changed.connect(self._on_agent_outfit_changed)
+        self.outfit_ellen_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='艾莲', options_enum=AgentOutfitEllen)
+        self.outfit_ellen_opt.value_changed.connect(self._on_agent_outfit_changed)
+        self.outfit_astra_yao_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='耀嘉音', options_enum=AgentOutfitAstraYao)
+        self.outfit_astra_yao_opt.value_changed.connect(self._on_agent_outfit_changed)
+
+        agent_outfit_group.addSettingCard(self.outfit_nicole_opt)
+        agent_outfit_group.addSettingCard(self.outfit_ellen_opt)
+        agent_outfit_group.addSettingCard(self.outfit_astra_yao_opt)
+
+        return agent_outfit_group
 
     def _on_add_clicked(self) -> None:
         self.ctx.one_dragon_config.create_new_instance(False)
@@ -261,5 +267,5 @@ class SettingInstanceInterface(VerticalScrollInterface):
         self.ctx.game_account_config.game_path = file_path
         self.game_path_opt.setContent(file_path)
 
-    def on_agent_outfit_changed(self) -> None:
+    def _on_agent_outfit_changed(self) -> None:
         self.ctx.init_agent_template_id()
