@@ -119,5 +119,5 @@ coffee_list:
     mission_name: "共鸣测试"
 
 schedule:
-  - days: [ 1, 2, 3, 4, 5, 6, 7 ]
-    coffee_list: [ "浓缩咖啡", "汀曼特调" ]
+  - days: [1, 2, 3, 4, 5, 6, 7]
+    coffee_list: ["浓缩咖啡", "汀曼特调"]

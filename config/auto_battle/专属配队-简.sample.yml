@@ -140,7 +140,7 @@ t-switch-jane: &t-switch-jane
 
 scenes:
 
-  - triggers: [ "闪避识别-黄光", "闪避识别-红光", "闪避识别-声音" ]
+  - triggers: ["闪避识别-黄光", "闪避识别-红光", "闪避识别-声音"]
     interval: 0.4
     handlers:
       # 部分连招霸体可以不闪避
@@ -174,7 +174,7 @@ scenes:
               - states: "[后台-露西] & ![自定义-露西-加油, -5, 13]"
                 operations: *t-dodge-lucy
 
-              # 其余情况 
+              # 其余情况
               - states: "[后台-简]"
                 operations: *t-dodge-jane
               - states: "[后台-赛斯]"
@@ -214,7 +214,7 @@ scenes:
                 way: "松开"
 
 
-  - triggers: [ "前台-血量扣减" ]
+  - triggers: ["前台-血量扣减"]
     interval: 0.3
     handlers:
       # 部分连招霸体可以不闪避
@@ -238,7 +238,7 @@ scenes:
               - op_name: "按键-移动-右"
                 way: "松开"
 
-  - triggers: [ "按键可用-快速支援" ]
+  - triggers: ["按键可用-快速支援"]
     interval: 0.1
     handlers:
       - states: "[按键可用-快速支援]"
@@ -277,7 +277,7 @@ scenes:
                 post_delay: 0.05
                 repeat: 2
 
-  - triggers: [ "按键可用-连携技" ]
+  - triggers: ["按键可用-连携技"]
     interval: 1
     handlers:
       - states: "[按键可用-连携技]"
@@ -301,7 +301,7 @@ scenes:
             - states: "[连携技-2-凯撒]"
               operations: *t-chain-right
 
-          # 剩余情况 
+          # 剩余情况
           - states: "[连携技-1-简]"
             operations: *t-chain-left
           - states: "[连携技-2-简]"
@@ -319,7 +319,7 @@ scenes:
           - states: "[连携技-2-凯撒]"
             operations: *t-chain-right
 
-  - triggers: [ ]
+  - triggers: []
     interval: 0.5
     handlers:
 
@@ -351,7 +351,7 @@ scenes:
 
           - states: "[后台-柏妮思]"
             sub_handlers:
-              - states: "[自定义-萨霍夫跳,0,5]"
+              - states: "[自定义-萨霍夫跳, 0, 5]"
                 operations: *t-switch-burnice
 
           # 切回简
@@ -571,7 +571,7 @@ scenes:
                 state: "自定义-下场"
               - op_name: "清除状态"
                 state: "自定义-动作不打断"
-  
+
           - states: ""
             operations:
               - op_name: "设置状态"
@@ -633,7 +633,7 @@ scenes:
               - op_name: "设置状态"
                 state: "自定义-下场"
 
-          - states: "[柏妮思-能量]{60,120} & ![柏妮思-燃点]{20,100}"
+          - states: "[柏妮思-能量]{60, 120} & ![柏妮思-燃点]{20, 100}"
             operations:
               - op_name: "设置状态"
                 state_list: ["自定义-动作不打断"]
@@ -652,7 +652,7 @@ scenes:
               - op_name: "设置状态"
                 state: "自定义-下场"
 
-          - states: "[柏妮思-能量]{40,120} & ![柏妮思-燃点]{0,50}"
+          - states: "[柏妮思-能量]{40, 120} & ![柏妮思-燃点]{0, 50}"
             operations:
               - op_name: "设置状态"
                 state_list: ["自定义-动作不打断"]
@@ -726,7 +726,7 @@ scenes:
               - states: "![自定义-凯撒-战意激昂, 0, 25] & [后台-凯撒] & [凯撒-能量]{45, 120}"
                 operations: *t-switch-caesar
 
-              - states: "![柏妮思-燃点]{20,100} & [后台-柏妮思] & [柏妮思-能量]{60, 120}"
+              - states: "![柏妮思-燃点]{20, 100} & [后台-柏妮思] & [柏妮思-能量]{60, 120}"
                 operations: *t-switch-burnice
 
               - states: "![自定义-露西-加油, -5, 15] & [后台-露西] & [露西-能量]{65, 120}"
@@ -734,8 +734,8 @@ scenes:
 
           - states: "![简-狂热心流]{60, 101} & [简-萨霍夫跳]"
             sub_handlers:
-              - states: "[简-能量]{80,120}"
-                operations: 
+              - states: "[简-能量]{80, 120}"
+                operations:
                   - op_name: "按键-普通攻击"
                     way: "按下"
                     press: 2.7
@@ -743,7 +743,7 @@ scenes:
                   - op_name: "设置状态"
                     state_list: ["自定义-萨霍夫跳"]
               - states: ""
-                operations: 
+                operations:
                   - op_name: "按键-普通攻击"
                     way: "按下"
                     press: 2.2
@@ -763,7 +763,7 @@ scenes:
               - op_name: "清除状态"
                 state: "自定义-动作不打断"
 
-          - states: "[简-能量]{70,120}"
+          - states: "[简-能量]{70, 120}"
             operations:
               - op_name: "设置状态"
                 state: "自定义-动作不打断"
@@ -777,7 +777,5 @@ scenes:
               - op_name: "按键-普通攻击"
                 post_delay: 0.05
                 repeat: 7
-
-
 
 

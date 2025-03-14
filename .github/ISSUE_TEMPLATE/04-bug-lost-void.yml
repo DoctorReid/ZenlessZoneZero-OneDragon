@@ -7,12 +7,12 @@ body:
   - type: markdown
     attributes:
       value: |
-        ## 前置须知
-        
+        # # 前置须知
+
         - 请先将代码更新至最新版本尝试是否依然有问题。
         - 最新版本代码有问题可尝试使用回滚功能看是否依然有问题。
         - __请先在issue中搜索是否已有类似问题 请先在issue中搜索是否已有类似问题 请先在issue中搜索是否已有类似问题__。
-        - 请先阅读最新的[使用前须知](https://one-dragon.org/zzz/zh/quickstart.html#_2-%E4%BD%BF%E7%94%A8%E5%89%8D%E9%A1%BB%E7%9F%A5)，确保设置正确。
+        - 请先阅读最新的[使用前须知](https://one-dragon.org/zzz/zh/quickstart.html  # _2-%E4%BD%BF%E7%94%A8%E5%89%8D%E9%A1%BB%E7%9F%A5)，确保设置正确。
         - 请先阅读最新的[功能说明](https://one-dragon.org/zzz/zh/docs/feat_lost_void.html)，确保设置正确。
         - 请使用 __脚本F11__ 进行截图上传，其他截图方式大概率不受理。
         - 请使用 __脚本F11__ 进行截图上传，其他截图方式大概率不受理。
@@ -22,8 +22,8 @@ body:
   - type: markdown
     attributes:
       value: |
-        ## 好的提issue方式
-        
+        # # 好的提issue方式
+
         1. 停止当前脚本，删除日志文件 .log/log.txt
         2. 空洞中选择本层重新开始
         3. 运行脚本，直到问题出现的地方，停止脚本，截图，图片保存在 .debug/images 中
@@ -39,7 +39,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        ## 问题反馈
+        # # 问题反馈
 
   - type: textarea
     attributes:

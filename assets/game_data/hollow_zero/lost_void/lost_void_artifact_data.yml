@@ -1,4 +1,4 @@
-  #终结
+  # 终结
 - category: "终结"
   name: "律动节能器"
   level: "S"
@@ -9,7 +9,7 @@
   level: "S"
   template_id: "gear_ultimate_2"
 
-  #机敏
+  # 机敏
 - category: "机敏"
   name: "机敏蓄能盾"
   level: "S"
@@ -20,7 +20,7 @@
   level: "S"
   template_id: "gear_dexterity_2"
 
-  #异常·击破
+  # 异常·击破
 - category: "异常·击破"
   name: "溶剂弹射枪"
   level: "S"
@@ -31,7 +31,7 @@
   level: "S"
   template_id: "gear_anomaly_stun_2"
 
-  #绝境
+  # 绝境
 - category: "绝境"
   name: "战斗维生包"
   level: "S"
@@ -42,7 +42,7 @@
   level: "S"
   template_id: "gear_adversity_2"
 
-  #星见雅
+  # 星见雅
 - category: "星见雅"
   name: "花雪憩蜂"
   level: "S"
@@ -70,7 +70,7 @@
   name: "霜月残雪"
   level: "A"
 
-  #比利
+  # 比利
 - category: "比利"
   name: "旋转传动装置"
   level: "S"
@@ -98,7 +98,7 @@
   name: "清场裁决"
   level: "A"
 
-  #艾莲
+  # 艾莲
 - category: "艾莲"
   name: "冻霜刀刃"
   level: "S"
@@ -126,7 +126,7 @@
   name: "寻血厉齿"
   level: "A"
 
-  #月城柳
+  # 月城柳
 - category: "月城柳"
   name: "凌空月华"
   level: "S"
@@ -154,7 +154,7 @@
   name: "月幻"
   level: "A"
 
-  #终结
+  # 终结
 - category: "终结"
   name: "余音古筝"
   level: "A"
@@ -179,7 +179,7 @@
   name: "疗愈竖琴"
   level: "B"
 
-  #机敏
+  # 机敏
 
 - category: "机敏"
   name: "先进底盘"
@@ -206,7 +206,7 @@
   level: "B"
 
 
-  #异常·击破
+  # 异常·击破
 
 - category: "异常·击破"
   name: "万能催化剂"
@@ -232,7 +232,7 @@
   name: "化合刺激剂"
   level: "B"
 
-  #绝境
+  # 绝境
 
 - category: "绝境"
   name: "强效透析仪"
@@ -259,7 +259,7 @@
   level: "B"
 
 
-  #通用
+  # 通用
 - category: "通用"
   name: "瓶中幸运星"
   level: "A"
@@ -344,7 +344,7 @@
   name: "昆虫手册"
   level: "B"
 
-  #契合
+  # 契合
 
 - category: "契合"
   name: "返场时刻"

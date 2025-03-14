@@ -3,8 +3,8 @@
   options:
     - option_name: "使用共犯的钥匙扣"
     - option_name: "打开阀门"
-      desc: "支付999,或获得999枚齿轮硬币"
+      desc: "支付999, 或获得999枚齿轮硬币"
     - option_name: "打开哦1】"  # OCR识别错误
-      desc: "支付999,或获得999枚齿轮硬币"
+      desc: "支付999, 或获得999枚齿轮硬币"
     - option_name: "离开"
     - option_name: "暂时离开"
