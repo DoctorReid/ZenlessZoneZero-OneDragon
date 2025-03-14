@@ -9,7 +9,6 @@ handlers:
       - states: "[自定义-红光闪避, 0, 1]"
         operations:
           - operation_template: "通用-闪A"
-          
 
       - states: "[按键可用-连携技,0,0.5]"
         operations:
@@ -18,21 +17,21 @@ handlers:
       #防呆
       - states: "([按键-切换角色-下一个,0,0.3]|[按键-切换角色-上一个,0,0.3])"
         sub_handlers:
-        - states: "[按键可用-快速支援,0,0.5]"
-          operations:
-            - op_name: "等待秒数"
-              seconds: 1.0
-        - states: ""
-          operations:
-            - op_name: "等待秒数"
-              seconds: 0.3
+          - states: "[按键可用-快速支援,0,0.5]"
+            operations:
+              - op_name: "等待秒数"
+                seconds: 0.5
+          - states: ""
+            operations:
+              - op_name: "等待秒数"
+                seconds: 0.3
       #失衡时刻
       - states: "[自定义-连携换人,0,10]"
         sub_handlers:
           #失衡的时候就不用考虑这么多了，射吧
           - states: "[猫又-终结技可用]"
             operations:
-            - operation_template: "猫又-终结技"
+              - operation_template: "猫又-终结技"
           #朴实无华
           - states: "[猫又-特殊技可用]"
             operations:
@@ -68,7 +67,7 @@ handlers:
             state: "自定义-动作不打断"
             seconds: 2
           - op_name: "按键-特殊攻击"
-            post_delay: 0.3
+            post_delay: 0.5
             repeat: 2
 
       - states: ""

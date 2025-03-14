@@ -6,4 +6,4 @@ operations:
   - op_name: "按键-特殊攻击"
     post_delay: 0.1
     repeat: 9
-  - operation_template: "悠真-闪A四刀" 
+  - operation_template: "悠真-闪A四刀"

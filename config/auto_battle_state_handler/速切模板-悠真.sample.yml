@@ -17,19 +17,18 @@ handlers:
       #防呆
       - states: "([按键-切换角色-下一个,0,0.3]|[按键-切换角色-上一个,0,0.3])"
         sub_handlers:
-        - states: "[按键可用-快速支援,0,0.5]"
-          operations:
-            - op_name: "等待秒数"
-              seconds: 1.0
-        - states: ""
-          operations:
-            - op_name: "等待秒数"
-              seconds: 0.3
+          - states: "[按键可用-快速支援,0,0.5]"
+            operations:
+              - op_name: "等待秒数"
+                seconds: 1.0
+          - states: ""
+            operations:
+              - op_name: "等待秒数"
+                seconds: 0.3
 
       #失衡时刻
       - states: "[自定义-连携换人,0,10]"
         sub_handlers:
-
           #离场
           - states: "[自定义-连携换人,9,10]"
             operations:
@@ -40,25 +39,25 @@ handlers:
           #连邂后第一套技能
           - states: "[自定义-连携换人,0,3] | [自定义-连携跳过,0,2]" #清空掉异常打出的电壶
             sub_handlers:
-                - states: "[悠真-终结技可用]"
-                  operations:
-                    - operation_template: "悠真-终结技"   #上一轮的电壶
-                    - operation_template: "悠真-射箭四刀" #清空连携电壶
-                    - operation_template: "悠真-连携普攻产电壶" #连携奖励电壶别浪费了
-                    - operation_template: "悠真-射箭四刀" #清空连携电壶
+              - states: "[悠真-终结技可用]"
+                operations:
+                  - operation_template: "悠真-终结技" #上一轮的电壶
+                  - operation_template: "悠真-射箭四刀" #清空连携电壶
+                  - operation_template: "悠真-连携普攻产电壶" #连携奖励电壶别浪费了
+                  - operation_template: "悠真-射箭四刀" #清空连携电壶
 
-                - states: "![悠真-终结技可用]"
-                  operations:
-                    - operation_template: "悠真-射箭四刀" 
-                    - operation_template: "悠真-连携普攻产电壶" #连携奖励电壶别浪费了
-                    - operation_template: "悠真-射箭四刀" #清空连携电壶
+              - states: "![悠真-终结技可用]"
+                operations:
+                  - operation_template: "悠真-射箭四刀"
+                  - operation_template: "悠真-连携普攻产电壶" #连携奖励电壶别浪费了
+                  - operation_template: "悠真-射箭四刀" #清空连携电壶
 
           - states: "[自定义-连携换人,3,10]"
             sub_handlers:
               #妮可来一发谢谢
               - states: "( [妮可-特殊技可用] | [妮可-终结技可用] ) & [悠真-特殊技可用] &![自定义-妮可-能量场,-15,3.5]"
                 operations:
-                - operation_template: "悠真-强化特殊技合轴" #清空上一轮电壶
+                  - operation_template: "悠真-强化特殊技合轴" #清空上一轮电壶
 
               #从妮可那回来了
               - states: "[自定义-快速支援换人,0,2]"
@@ -85,10 +84,9 @@ handlers:
 
               - states: "![悠真-特殊技可用]"
                 operations:
-                - operation_template: "悠真-连携普攻产电壶" #连携奖励电壶别浪费了
-                - op_name: "设置状态"
-                  data: ["自定义-速切结束"]
-
+                  - operation_template: "悠真-连携普攻产电壶" #连携奖励电壶别浪费了
+                  - op_name: "设置状态"
+                    data: ["自定义-速切结束"]
 
       #非失衡时刻
 

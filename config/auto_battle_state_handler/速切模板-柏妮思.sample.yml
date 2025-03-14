@@ -42,14 +42,14 @@ handlers:
 
       - states: "([按键-切换角色-下一个,0,0.3]|[按键-切换角色-上一个,0,0.3])"
         sub_handlers:
-        - states: "[按键可用-快速支援,0,0.5]"
-          operations:
-            - op_name: "等待秒数"
-              seconds: 1.0
-        - states: ""
-          operations:
-            - op_name: "等待秒数"
-              seconds: 0.3
+          - states: "[按键可用-快速支援,0,0.5]"
+            operations:
+              - op_name: "等待秒数"
+                seconds: 1.0
+          - states: ""
+            operations:
+              - op_name: "等待秒数"
+                seconds: 0.3
 
       - states: "[柏妮思-终结技可用]"
         operations:
@@ -84,6 +84,10 @@ handlers:
           - operation_template: "柏妮思-短按接长按特殊攻击"
           - op_name: "设置状态"
             data: ["自定义-速切结束"]
+
+      - states: "[柏妮思-燃点]{100,100}"
+        operations:
+          - operation_template: "柏妮思-长按普通攻击"
 
       - states: ""
         operations:

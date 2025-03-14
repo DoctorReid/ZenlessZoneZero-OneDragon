@@ -243,8 +243,8 @@ class AgentEnum(Enum):
     CAESAR_KING = Agent('caesar_king', '凯撒', RareTypeEnum.S, AgentTypeEnum.DEFENSE, DmgTypeEnum.PHYSICAL)
 
     BURNICE_WHITE = Agent('burnice_white', '柏妮思', RareTypeEnum.S, AgentTypeEnum.ANOMALY, DmgTypeEnum.FIRE,
-                          state_list=[AgentStateDef('柏妮思-燃点', AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH,
-                                                    'burnice_white', lower_color=(100, 50, 0), upper_color=(255, 255, 255))
+                          state_list=[AgentStateDef('柏妮思-燃点', AgentStateCheckWay.BACKGROUND_GRAY_RANGE_LENGTH,
+                                                    'burnice_white',  lower_color=0, upper_color=70)
                                       ])
 
     YANAGI = Agent('yanagi', '柳', RareTypeEnum.S, AgentTypeEnum.ANOMALY, DmgTypeEnum.ELECTRIC)
@@ -270,4 +270,6 @@ class AgentEnum(Enum):
 
     SOLDIER_0_ANBY = Agent('soldier_0_anby', '零号安比', RareTypeEnum.S, AgentTypeEnum.ATTACK, DmgTypeEnum.ELECTRIC)
   
-    PULCHRA = Agent('pulchra', '波可娜', RareTypeEnum.A, AgentTypeEnum.STUN, DmgTypeEnum.PHYSICAL)
+    PULCHRA = Agent('pulchra', '波可娜', RareTypeEnum.A, AgentTypeEnum.STUN, DmgTypeEnum.PHYSICAL,
+                               state_list=[AgentStateDef('波可娜-猎步', AgentStateCheckWay.COLOR_RANGE_CONNECT,'pulchra_hunter',
+                                                     lower_color=(200, 120, 30), upper_color=(255, 255, 255), connect_cnt=1)])

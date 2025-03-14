@@ -15,4 +15,3 @@ operations:
     way: "松开"
   - op_name: "等待秒数"
     seconds: 0.6
-

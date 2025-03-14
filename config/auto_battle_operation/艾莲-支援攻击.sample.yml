@@ -11,7 +11,7 @@ operations:
     way: "松开"
   - op_name: "等待秒数"
     seconds: 0.1
-    
+
   - op_name: "按键-普通攻击"
     way: "按下"
     press: 1.2

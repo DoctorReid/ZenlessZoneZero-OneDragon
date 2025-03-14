@@ -1,7 +1,5 @@
 template_name: "速切模板-全角色"
 handlers:
-
-
   #每个角色一个模板，然后就可以进行
   - state_template: "速切模板-莱卡恩"
   - state_template: "速切模板-苍角"
