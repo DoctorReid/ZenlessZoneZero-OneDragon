@@ -3,7 +3,7 @@ from typing import Optional
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
-from qfluentwidgets import SettingCardGroup, FluentIcon
+from qfluentwidgets import FluentIcon
 
 
 class NotifyMethodEnum(Enum):

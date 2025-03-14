@@ -1,8 +1,6 @@
 from typing import Optional
 
 from one_dragon.base.operation.application_run_record import AppRunRecord
-from one_dragon.utils import cv2_utils, thread_utils, cal_utils, os_utils, yolo_config_utils
-from zzz_od.application.notify.notify_config import NotifyConfig
 
 
 class NotifyRunRecord(AppRunRecord):
