@@ -12,6 +12,6 @@ operations:
   - op_name: "等待秒数"
     seconds: 1.2
   - op_name: "设置状态"
-    data: [ "自定义-速切结束" , "自定义-扳机-绝意" ]
+    data: ["自定义-速切结束", "自定义-扳机-绝意"]
   - op_name: "等待秒数"
     seconds: 0.8
