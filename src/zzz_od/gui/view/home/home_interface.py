@@ -329,7 +329,6 @@ class HomeInterface(VerticalScrollInterface):
         dialog.yesButton.setText("重启")
         dialog.cancelButton.setText("取消")
         if dialog.exec():
-            self.ctx.env_config.is_first_run = True
             from one_dragon.utils import app_utils
             app_utils.start_one_dragon(restart=True)
 
