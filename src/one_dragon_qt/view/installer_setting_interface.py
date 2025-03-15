@@ -10,7 +10,7 @@ class InstallerSettingInterface(PivotNavigatorInterface):
     def __init__(self, ctx: OneDragonEnvContext, parent=None):
         self.ctx: OneDragonEnvContext = ctx
         PivotNavigatorInterface.__init__(self, object_name='installer_setting_interface', parent=parent,
-                                         nav_text_cn='设 置', nav_icon=FluentIcon.SETTING)
+                                         nav_text_cn='设置', nav_icon=FluentIcon.SETTING)
 
     def create_sub_interface(self):
         """

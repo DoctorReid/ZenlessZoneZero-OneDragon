@@ -11,6 +11,7 @@ try:
     from one_dragon_qt.view.code_interface import CodeInterface
     from one_dragon_qt.view.context_event_signal import ContextEventSignal
     from one_dragon_qt.windows.app_window_base import AppWindowBase
+    from one_dragon_qt.widgets.welcome_dialog import WelcomeDialog
     from one_dragon.utils.i18_utils import gt
 
     from zzz_od.context.zzz_context import ZContext
@@ -68,6 +69,9 @@ try:
             self._context_event_signal.instance_changed.connect(
                 self._on_instance_active_signal
             )
+            
+            # 检查是否首次运行
+            self._check_first_run()
 
         # 继承初始化函数
         def init_window(self):
@@ -182,6 +186,14 @@ try:
             @return:
             """
             self.titleBar.setVersion(ver)
+
+        # 添加首次运行检查方法
+        def _check_first_run(self):
+            """首次运行时显示防倒卖弹窗"""
+            if self.ctx.env_config.is_first_run:
+                dialog = WelcomeDialog(self)
+                if dialog.exec():
+                    self.ctx.env_config.is_first_run = False
 
 
 # 调用Windows错误弹窗
