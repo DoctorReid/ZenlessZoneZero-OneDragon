@@ -151,7 +151,6 @@ class CheckRunnerBase(QThread):
         super().__init__()
         self.ctx = ctx
 
-
 class CheckCodeRunner(CheckRunnerBase):
     def run(self):
         is_latest, msg = self.ctx.git_service.is_current_branch_latest()
@@ -282,8 +281,6 @@ class HomeInterface(VerticalScrollInterface):
         self._check_code_runner.start()
         self._check_venv_runner.start()
         self._check_model_runner.start()
-        if self.ctx.env_config.is_first_run:
-            self._show_dialog_at_first_run()
 
     def _need_to_update_code(self, with_new: bool):
         if not with_new:
@@ -315,12 +312,6 @@ class HomeInterface(VerticalScrollInterface):
             duration=duration,
             parent=self,
         ).setCustomBackgroundColor("white", "#202020")
-
-    def _show_dialog_at_first_run(self):
-        """首次运行时显示防倒狗弹窗"""
-        dialog = WelcomeDialog(self)
-        if dialog.exec():
-            self.ctx.env_config.is_first_run = False
 
     def _show_dialog_after_code_updated(self):
         """显示代码更新后的对话框"""

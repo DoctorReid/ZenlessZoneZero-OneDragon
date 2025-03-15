@@ -76,8 +76,6 @@ class InstallerInterface(VerticalScrollInterface):
         self.python_opt.check_and_update_display()
         self.venv_opt.check_and_update_display()
         self.log_card.start()  # 开始日志更新
-        if self.ctx.env_config.is_first_run:
-            self._show_dialog_at_first_run()
 
     def on_interface_hidden(self) -> None:
         """
@@ -112,9 +110,3 @@ class InstallerInterface(VerticalScrollInterface):
         """
         if success:
             self.venv_opt.check_and_update_display()
-        
-    def _show_dialog_at_first_run(self):
-        """首次运行时显示防倒狗弹窗"""
-        dialog = WelcomeDialog(self)
-        if dialog.exec():
-            self.ctx.env_config.is_first_run = False
