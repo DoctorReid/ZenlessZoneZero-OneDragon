@@ -49,7 +49,17 @@ class EnterGame(ZOperation):
             if result.is_success:
                 return self.round_success(result.status, wait=5)
 
+        result = self.round_by_find_area(screen, '打开游戏', '标题-退出登录')
+        if result.is_success:
+            result2 = self.round_by_find_and_click_area(screen, '打开游戏', '按钮-退出登录-确定')
+            if result2.is_success:
+                return self.round_wait(result2.status, wait=1)
+
         result = self.round_by_find_and_click_area(screen, '打开游戏', '国服-账号密码')
+        if result.is_success:
+            return self.round_success(result.status, wait=1)
+
+        result = self.round_by_find_and_click_area(screen, '打开游戏', '国服-账号密码-新')
         if result.is_success:
             return self.round_success(result.status, wait=1)
 
@@ -87,6 +97,41 @@ class EnterGame(ZOperation):
         screen = self.screenshot()
         self.already_login = True
         return self.round_by_find_and_click_area(screen, '打开游戏', '国服-账号密码进入游戏',
+                                                 success_wait=5, retry_wait=1)
+
+    @node_from(from_name='画面识别', status='国服-账号密码-新')
+    @operation_node(name='国服-输入账号密码-新')
+    def input_account_password_new(self) -> OperationRoundResult:
+        """
+        1.6版本后 部分账号灰度了保留账号记录的功能
+        所有按钮跟原来的有偏差
+        @return:
+        """
+        if self.ctx.game_account_config.account == '' or self.ctx.game_account_config.password == '':
+            return self.round_fail('未配置账号密码')
+
+        self.round_by_click_area('打开游戏', '国服-账号输入区域-新')
+        time.sleep(0.5)
+        if self.use_clipboard:
+            PcClipboard.copy_and_paste(self.ctx.game_account_config.account)
+        else:
+            self.ctx.controller.keyboard_controller.keyboard.type(self.ctx.game_account_config.account)
+        time.sleep(1.5)
+
+        self.round_by_click_area('打开游戏', '国服-密码输入区域-新')
+        time.sleep(0.5)
+        if self.use_clipboard:
+            PcClipboard.copy_and_paste(self.ctx.game_account_config.password)
+        else:
+            self.ctx.controller.keyboard_controller.keyboard.type(self.ctx.game_account_config.password)
+        time.sleep(1.5)
+
+        self.round_by_click_area('打开游戏', '国服-同意按钮-新')
+        time.sleep(0.5)
+
+        screen = self.screenshot()
+        self.already_login = True
+        return self.round_by_find_and_click_area(screen, '打开游戏', '国服-账号密码进入游戏-新',
                                                  success_wait=5, retry_wait=1)
 
     @node_from(from_name='画面识别', status='B服-登陆')
@@ -137,7 +182,7 @@ def __debug():
     ctx.init_by_config()
     ctx.start_running()
     ctx.ocr.init_model()
-    op = EnterGame(ctx)
+    op = EnterGame(ctx, switch=True)
     op.execute()
 
 
