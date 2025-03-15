@@ -2,7 +2,7 @@ template_name: "速切模板-派派"
 handlers:
   - states: "[前台-派派]"
     sub_handlers:
-      - states: "[自定义-异常-火,0,99] | [自定义-异常-冰,0,99] | [自定义-异常-烈霜,0,99] | [自定义-异常-电,0,99]"
+      - states: "[自定义-异常-火, 0, 99] | [自定义-异常-冰, 0, 99] | [自定义-异常-烈霜, 0, 99] | [自定义-异常-电, 0, 99]"
         sub_handlers:
           - states: "![雅-落霜]{6, 6}"
             operations:
@@ -22,30 +22,23 @@ handlers:
       - states: "[自定义-红光闪避, 0, 1]"
         operations:
           - operation_template: "派派-闪A"
-          
 
-      - states: "[按键可用-连携技,0,0.5]"
+      - states: "[按键可用-连携技, 0, 0.5]"
         operations:
           - operation_template: "派派-连携攻击"
 
-      #防呆
-      - states: "([按键-切换角色-下一个,0,0.3]|[按键-切换角色-上一个,0,0.3])"
-        sub_handlers:
-        - states: "[按键可用-快速支援,0,0.5]"
-          operations:
-            - op_name: "等待秒数"
-              seconds: 1.0
-        - states: ""
-          operations:
-            - op_name: "等待秒数"
-              seconds: 0.3
+      # 防呆
+      - states: "([按键-切换角色-下一个, 0, 0.3]|[按键-切换角色-上一个, 0, 0.3]) | [自定义-快速支援换人, 0, 1]"
+        operations:
+          - op_name: "等待秒数"
+            seconds: 0.1
 
       - states: "[派派-终结技可用]"
         operations:
           - operation_template: "派派-终结技"
 
-      #派派不得站场超过6秒
-      - states: "!([按键-切换角色-下一个,0,6]|[按键-切换角色-上一个,0,6])"
+      # 派派不得站场超过6秒
+      - states: "!([按键-切换角色-下一个, 0, 6]|[按键-切换角色-上一个, 0, 6])"
         sub_handlers:
           - states: "[派派-特殊技可用]"
             operations:

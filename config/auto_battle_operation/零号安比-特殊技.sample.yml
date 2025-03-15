@@ -6,4 +6,3 @@ operations:
   - op_name: "按键-特殊攻击"
     post_delay: 0.11
     repeat: 3
-
