@@ -129,7 +129,9 @@ class OperationTask:
 
     @property
     def expr_display(self) -> str:
-        return '<-'.join(self.expr_list) if len(self.expr_list) > 0 else '/'
+        # 创建一个新的列表，处理空元素
+        processed_list = ['[ ]' if not expr or expr.strip() == '' else expr for expr in self.expr_list]
+        return ' ← '.join(processed_list) if processed_list else '/'
 
     @property
     def priority_display(self) -> str:
