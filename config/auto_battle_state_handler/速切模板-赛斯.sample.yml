@@ -10,16 +10,21 @@ handlers:
         operations:
           - operation_template: "通用-闪A"
 
-
       - states: "[按键可用-连携技, 0, 0.5]"
         operations:
           - operation_template: "通用-连携攻击"
 
       # 防呆
-      - states: "([按键-切换角色-下一个, 0, 0.3]|[按键-切换角色-上一个, 0, 0.3]) | [自定义-快速支援换人, 0, 1]"
-        operations:
-          - op_name: "等待秒数"
-            seconds: 0.1
+      - states: "([按键-切换角色-下一个, 0, 0.3]|[按键-切换角色-上一个, 0, 0.3])"
+        sub_handlers:
+          - states: "[按键可用-快速支援, 0, 0.5]"
+            operations:
+              - op_name: "等待秒数"
+                seconds: 1.0
+          - states: ""
+            operations:
+              - op_name: "等待秒数"
+                seconds: 0.3
 
       - states: "[赛斯-终结技可用] & [自定义-血量扣减, 0, 2] "
         operations:
@@ -32,7 +37,6 @@ handlers:
           - op_name: "按键-普通攻击"
             way: "按下"
             press: 2.2
-
 
       - states: "[赛斯-特殊技可用]"
         operations:
