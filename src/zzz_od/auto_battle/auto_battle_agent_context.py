@@ -24,6 +24,7 @@ _agent_state_check_method: dict[AgentStateCheckWay, Callable] = {
     AgentStateCheckWay.TEMPLATE_NOT_FOUND: agent_state_checker.check_template_not_found,
     AgentStateCheckWay.TEMPLATE_FOUND: agent_state_checker.check_template_found,
     AgentStateCheckWay.COLOR_CHANNEL_MAX_RANGE_EXIST: agent_state_checker.check_exist_by_color_channel_max_range,
+    AgentStateCheckWay.COLOR_CHANNEL_EQUAL_RANGE_CONNECT: agent_state_checker.check_cnt_by_color_channel_equal_range,
 }
 
 
@@ -500,6 +501,7 @@ class AutoBattleAgentContext:
         :param screen_agent_list: 当前截图的角色列表
         :return: 三个状态记录 能量、终结技、角色状态
         """
+
         if screen_agent_list is None or len(screen_agent_list) == 0:
             return [], [], [], []
 
@@ -559,6 +561,9 @@ class AutoBattleAgentContext:
                 continue
             for state in agent.state_list:
                 to_check_list.append(CheckAgentState(state, total, idx + 1))
+
+        # 格挡破碎
+        to_check_list.append(CheckAgentState(CommonAgentStateEnum.GUARD_BREAK.value))
 
         # 血量扣减
         if len(screen_agent_list) == 3:
