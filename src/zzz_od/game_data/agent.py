@@ -72,6 +72,7 @@ class AgentStateCheckWay(Enum):
     TEMPLATE_FOUND: int = 6  # 根据模板识别是否存在
     TEMPLATE_NOT_FOUND: int = 7  # 根据模板识别不存在
     COLOR_CHANNEL_MAX_RANGE_EXIST: int = 8  # 根据颜色通道的最大值 在特定范围里匹配是否出现
+    COLOR_CHANNEL_EQUAL_RANGE_CONNECT: int = 9  # 在特定范围里匹配找三色相等的连通块的数量
 
 
 class AgentStateDef:
@@ -169,6 +170,11 @@ class CommonAgentStateEnum(Enum):
                                    lower_color=(140, 30, 30), upper_color=(160, 50, 50), template_id='life_deduction_2_1',
                                    min_value_trigger_state=1)
 
+    GUARD_BREAK = AgentStateDef('格挡破碎', AgentStateCheckWay.COLOR_CHANNEL_EQUAL_RANGE_CONNECT,
+                              template_id='guard_break', min_value_trigger_state=1,  # 只在检测到时触发
+                              lower_color=0, upper_color=255, connect_cnt=10000)  # 检测白色区域
+
+
 
 class Agent:
 
@@ -243,8 +249,8 @@ class AgentEnum(Enum):
     CAESAR_KING = Agent('caesar_king', '凯撒', RareTypeEnum.S, AgentTypeEnum.DEFENSE, DmgTypeEnum.PHYSICAL)
 
     BURNICE_WHITE = Agent('burnice_white', '柏妮思', RareTypeEnum.S, AgentTypeEnum.ANOMALY, DmgTypeEnum.FIRE,
-                          state_list=[AgentStateDef('柏妮思-燃点', AgentStateCheckWay.BACKGROUND_GRAY_RANGE_LENGTH,
-                                                    'burnice_white',  lower_color=0, upper_color=70)
+                          state_list=[AgentStateDef('柏妮思-燃点', AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH,
+                                                    'burnice_white', lower_color=(100, 50, 0), upper_color=(255, 255, 255))
                                       ])
 
     YANAGI = Agent('yanagi', '柳', RareTypeEnum.S, AgentTypeEnum.ANOMALY, DmgTypeEnum.ELECTRIC)
