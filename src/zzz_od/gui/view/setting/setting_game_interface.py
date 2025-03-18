@@ -1,6 +1,6 @@
 import subprocess
 from PySide6.QtWidgets import QWidget
-from qfluentwidgets import SettingCardGroup, FluentIcon
+from qfluentwidgets import FluentIcon, SettingCardGroup, HyperlinkCard
 
 from one_dragon.base.config.basic_game_config import TypeInputWay, ScreenSizeEnum, FullScreenEnum, MonitorEnum
 from one_dragon.base.controller.pc_button.ds4_button_controller import Ds4ButtonEnum
@@ -13,6 +13,7 @@ from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSetting
 from one_dragon_qt.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from zzz_od.config.game_config import GamepadTypeEnum
+from zzz_od.config.agent_outfit_config import AgentOutfitNicole, AgentOutfitEllen, AgentOutfitAstraYao
 from zzz_od.context.zzz_context import ZContext
 
 
@@ -32,6 +33,7 @@ class SettingGameInterface(VerticalScrollInterface):
     def get_content_widget(self) -> QWidget:
         content_widget = Column()
 
+        content_widget.add_widget(self._get_agent_outfit_group())
         content_widget.add_widget(self._get_basic_group())
         content_widget.add_widget(self._get_launch_argument_group())
         content_widget.add_widget(self._get_key_group())
@@ -39,6 +41,25 @@ class SettingGameInterface(VerticalScrollInterface):
         content_widget.add_stretch(1)
 
         return content_widget
+
+    def _get_agent_outfit_group(self) -> QWidget:
+        agent_outfit_group = SettingCardGroup(gt('代理人皮肤', 'ui'))
+
+        self.help_opt = HyperlinkCard(icon=FluentIcon.PIN, title='！设置皮肤以正常使用自动战斗功能  ！', url='', text='')
+        self.help_opt.linkButton.hide()
+        self.outfit_nicole_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='妮可', options_enum=AgentOutfitNicole)
+        self.outfit_nicole_opt.value_changed.connect(self._on_agent_outfit_changed)
+        self.outfit_ellen_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='艾莲', options_enum=AgentOutfitEllen)
+        self.outfit_ellen_opt.value_changed.connect(self._on_agent_outfit_changed)
+        self.outfit_astra_yao_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='耀嘉音', options_enum=AgentOutfitAstraYao)
+        self.outfit_astra_yao_opt.value_changed.connect(self._on_agent_outfit_changed)
+
+        agent_outfit_group.addSettingCard(self.help_opt)
+        agent_outfit_group.addSettingCard(self.outfit_nicole_opt)
+        agent_outfit_group.addSettingCard(self.outfit_ellen_opt)
+        agent_outfit_group.addSettingCard(self.outfit_astra_yao_opt)
+
+        return agent_outfit_group
 
     def _get_basic_group(self) -> QWidget:
         basic_group = SettingCardGroup(gt('游戏基础', 'ui'))
@@ -255,6 +276,10 @@ class SettingGameInterface(VerticalScrollInterface):
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)
 
+        self.outfit_nicole_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('nicole'))
+        self.outfit_ellen_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('ellen'))
+        self.outfit_astra_yao_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('astra_yao'))
+
         self.input_way_opt.init_with_adapter(self.ctx.game_config.type_input_way_adapter)
         self.hdr_switch.init_with_adapter(self.ctx.game_config.get_prop_adapter('hdr'))
 
@@ -366,6 +391,9 @@ class SettingGameInterface(VerticalScrollInterface):
 
     def _on_gamepad_type_changed(self, idx: int, value: str) -> None:
         self._update_gamepad_part()
+
+    def _on_agent_outfit_changed(self) -> None:
+        self.ctx.init_agent_template_id()
     
     def _on_hdr_switch_changed(self, value: bool) -> None:
         hdr_command_enable = f'cmd /c "reg add "HKCU\\Software\\Microsoft\\DirectX\\UserGpuPreferences" /v "{self.ctx.game_account_config.game_path}" /d "AutoHDREnable=2097;" /f"'

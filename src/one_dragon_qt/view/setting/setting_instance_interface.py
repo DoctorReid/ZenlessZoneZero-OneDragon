@@ -6,6 +6,7 @@ from qfluentwidgets import FluentIcon, LineEdit, PushButton, \
 
 from one_dragon.base.config.game_account_config import GameRegionEnum
 from one_dragon.base.config.one_dragon_config import OneDragonInstance, RunInOneDragonApp
+from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
@@ -15,9 +16,6 @@ from one_dragon_qt.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon_qt.widgets.column import Column
 from one_dragon_qt.widgets.combo_box import ComboBox
-
-from zzz_od.context.zzz_context import ZContext
-from zzz_od.config.agent_outfit_config import AgentOutfitNicole, AgentOutfitEllen, AgentOutfitAstraYao
 
 
 class InstanceSettingCard(MultiPushSettingCard):
@@ -102,7 +100,7 @@ class InstanceSettingCard(MultiPushSettingCard):
 
 class SettingInstanceInterface(VerticalScrollInterface):
 
-    def __init__(self, ctx: ZContext, show_login_btn: bool = False, parent=None):
+    def __init__(self, ctx: OneDragonContext, show_login_btn: bool = False, parent=None):
         VerticalScrollInterface.__init__(
             self,
             object_name='setting_instance_interface',
@@ -110,7 +108,7 @@ class SettingInstanceInterface(VerticalScrollInterface):
             parent=parent,
             nav_text_cn='多账户管理'
         )
-        self.ctx: ZContext = ctx
+        self.ctx: OneDragonContext = ctx
         self.show_login_btn: bool = show_login_btn
 
     def get_content_widget(self) -> QWidget:
@@ -144,12 +142,10 @@ class SettingInstanceInterface(VerticalScrollInterface):
         )
         self.content_widget.add_widget(guide_opt)
         self.content_widget.add_widget(self._get_instanceSettings_group())
-        self.content_widget.add_widget(self._get_agentOutfit_group())
         self.content_widget.add_widget(self._get_instanceSwitch_group())
         self.content_widget.add_stretch(1)
 
         self.init_game_account_config()
-        self.init_agent_outfit_config()
 
     def init_game_account_config(self) -> None:
         # 初始化账号和密码
@@ -157,11 +153,6 @@ class SettingInstanceInterface(VerticalScrollInterface):
         self.game_region_opt.init_with_adapter(self.ctx.game_account_config.get_prop_adapter('game_region'))
         self.game_account_opt.init_with_adapter(self.ctx.game_account_config.get_prop_adapter('account'))
         self.game_password_opt.init_with_adapter(self.ctx.game_account_config.get_prop_adapter('password'))
-
-    def init_agent_outfit_config(self) -> None:
-        self.outfit_nicole_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('nicole'))
-        self.outfit_ellen_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('ellen'))
-        self.outfit_astra_yao_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('astra_yao'))
 
     def _get_instanceSwitch_group(self) -> QWidget:
         instance_switch_group = SettingCardGroup(gt('账户列表', 'ui'))
@@ -212,22 +203,6 @@ class SettingInstanceInterface(VerticalScrollInterface):
 
         return instance_settings_group
 
-    def _get_agentOutfit_group(self) -> QWidget:
-        agent_outfit_group = SettingCardGroup(gt('代理人皮肤', 'ui'))
-
-        self.outfit_nicole_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='妮可', options_enum=AgentOutfitNicole)
-        self.outfit_nicole_opt.value_changed.connect(self._on_agent_outfit_changed)
-        self.outfit_ellen_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='艾莲', options_enum=AgentOutfitEllen)
-        self.outfit_ellen_opt.value_changed.connect(self._on_agent_outfit_changed)
-        self.outfit_astra_yao_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='耀嘉音', options_enum=AgentOutfitAstraYao)
-        self.outfit_astra_yao_opt.value_changed.connect(self._on_agent_outfit_changed)
-
-        agent_outfit_group.addSettingCard(self.outfit_nicole_opt)
-        agent_outfit_group.addSettingCard(self.outfit_ellen_opt)
-        agent_outfit_group.addSettingCard(self.outfit_astra_yao_opt)
-
-        return agent_outfit_group
-
     def _on_add_clicked(self) -> None:
         self.ctx.one_dragon_config.create_new_instance(False)
         self._init_content_widget()
@@ -245,7 +220,6 @@ class SettingInstanceInterface(VerticalScrollInterface):
         active_instance = next((inst for inst in self.ctx.one_dragon_config.instance_list if inst.idx == idx), None)
         if active_instance is not None:
             self.init_game_account_config()
-            self.init_agent_outfit_config()
 
     def _on_instance_login(self, idx: int) -> None:
         log.error('未配置登录操作')
@@ -269,6 +243,3 @@ class SettingInstanceInterface(VerticalScrollInterface):
     def _on_game_path_chosen(self, file_path) -> None:
         self.ctx.game_account_config.game_path = file_path
         self.game_path_opt.setContent(file_path)
-
-    def _on_agent_outfit_changed(self) -> None:
-        self.ctx.init_agent_template_id()

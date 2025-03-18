@@ -74,7 +74,6 @@ class ZContext(OneDragonContext):
         self.notorious_hunt_config: NotoriousHuntConfig = NotoriousHuntConfig(self.current_instance_idx)
         self.hollow_zero_config: HollowZeroConfig = HollowZeroConfig(self.current_instance_idx)
         self.hollow_zero_challenge_config: Optional[HollowZeroChallengeConfig] = None
-        self.init_hollow_config()
         self.coffee_config: CoffeeConfig = CoffeeConfig(self.current_instance_idx)
         self.life_on_line_config: LifeOnLineConfig = LifeOnLineConfig(self.current_instance_idx)
         self.commission_assistant_config: CommissionAssistantConfig = CommissionAssistantConfig(self.current_instance_idx)
@@ -132,6 +131,8 @@ class ZContext(OneDragonContext):
         self.lost_void_config: LostVoidConfig = LostVoidConfig(self.current_instance_idx)
         from zzz_od.application.hollow_zero.lost_void.lost_void_run_record import LostVoidRunRecord
         self.lost_void_record: LostVoidRunRecord = LostVoidRunRecord(self.lost_void_config, self.current_instance_idx, game_refresh_hour_offset)
+
+        self.init_by_config()
 
     def init_by_config(self) -> None:
         """
