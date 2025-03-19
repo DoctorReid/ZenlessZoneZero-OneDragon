@@ -150,6 +150,16 @@ class ChargePlanConfig(YamlConfig):
 
         self.save()
 
+    def move_top(self, idx: int) -> None:
+        if idx <= 0 or idx >= len(self.plan_list):
+            return
+
+        tmp = self.plan_list[idx]
+        self.plan_list.pop(idx)
+        self.plan_list.insert(0, tmp)
+
+        self.save()
+
     def reset_plans(self) -> None:
         """
         根据运行次数 重置运行计划
