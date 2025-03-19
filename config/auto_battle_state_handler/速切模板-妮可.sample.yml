@@ -11,6 +11,7 @@ handlers:
           - operation_template: "妮可-闪A普攻"
 
       - states: "([按键-切换角色-下一个, 0, 0.3]|[按键-切换角色-上一个, 0, 0.3])"
+        debug_name: "切人后等待"
         sub_handlers:
           - states: "[按键可用-快速支援, 0, 0.3]"
             sub_handlers:
@@ -33,28 +34,25 @@ handlers:
       - states: "[妮可-终结技可用]"
         operations:
           - operation_template: "妮可-终结技"
-        # 非失衡时刻
-      - states: "[自定义-连携换人, 0, 10]"
-        sub_handlers:
-          - states: "[妮可-特殊技可用]"
-            operations:
-              - operation_template: "妮可-快速蓄力炮合轴"
 
       # 非失衡时刻
       - states: "[妮可-特殊技可用]"
         sub_handlers:
           # 失衡期间快速合轴
           - states: "[自定义-连携换人, 0, 10]"
+            debug_name: "失衡期间快速蓄力"
             operations:
               - operation_template: "妮可-快速蓄力炮合轴"
           # 异常队友
           - states: "[后台-1-异常] | [后台-2-异常]"
+            debug_name: "异常队坐箱炮"
             operations:
               - operation_template: "妮可-闪A普攻"
               - operation_template: "妮可-闪A普攻"
               - operation_template: "妮可-蓄力坐箱炮"
           # 有嘉音可以打几下普攻刷快速支援，如果被打断了就不普攻了
           - states: "[耀嘉音-能量]{0, 120} & ![自定义-红光闪避, 0, 1.5]"
+            debug_name: "闪A快速蓄力炮"
             operations:
               - operation_template: "妮可-闪A普攻二连"
               - operation_template: "妮可-快速蓄力炮合轴"
@@ -64,5 +62,6 @@ handlers:
               - operation_template: "妮可-快速蓄力炮合轴"
 
       - states: "![妮可-特殊技可用]"
+        debug_name: "上弹普攻"
         operations:
           - operation_template: "妮可-闪A上弹普攻二连"

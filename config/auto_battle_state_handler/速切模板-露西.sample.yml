@@ -16,6 +16,7 @@ handlers:
 
       # 防呆
       - states: "([按键-切换角色-下一个, 0, 0.3]|[按键-切换角色-上一个, 0, 0.3])"
+        debug_name: "切人后等待"
         sub_handlers:
           - states: "[按键可用-快速支援, 0, 0.5]"
             operations:
@@ -37,14 +38,17 @@ handlers:
       - states: "[露西-特殊技可用]"
         sub_handlers:
           - states: "[自定义-连携换人, 0, 10]"
+            debug_name: "失衡期快速发球"
             operations:
               - operation_template: "露西-平直球合轴"
 
           # 高飞球
           - states: ""
+            debug_name: "非失衡期打高飞球"
             operations:
               - operation_template: "露西-高飞球合轴"
 
       - states: ""
+        debug_name: "打不了球打普攻"
         operations:
           - operation_template: "通用-切人普通攻击"

@@ -28,20 +28,19 @@ handlers:
           - op_name: "等待秒数"
             seconds: 0.1
       # 耀嘉音有终结技不切人, 有耀嘉音不切人, 除非耀嘉音或者其他支援防护在前台
-      - states: "
-          ((![耀嘉音-能量]{0, 120} | [前台-耀嘉音]) & ![耀嘉音-终结技可用]) |
-          [耀嘉音-能量]{50, 120} |
-          [前台-支援] |
-          [前台-防护] |
-          [前台-赛斯] |
-          [前台-波可娜]"
-        sub_handlers:
-          - states: ""
-            operations:
-              - op_name: "设置状态"
-                state: "自定义-快速支援换人"
-              - op_name: "按键-快速支援"
-              - op_name: "清除状态"
-                state_list: ["自定义-速切结束", "自定义-动作不打断"]
-              - op_name: "等待秒数"
-                seconds: 0.1
+
+      - states: "((![耀嘉音-能量]{0, 120} | [前台-耀嘉音]) & ![耀嘉音-终结技可用])"
+        operations: &switch_to_next
+          - op_name: "设置状态"
+            state: "自定义-快速支援换人"
+          - op_name: "按键-快速支援"
+          - op_name: "清除状态"
+            state_list: ["自定义-速切结束", "自定义-动作不打断"]
+          - op_name: "等待秒数"
+            seconds: 0.1
+      - states: "[前台-支援]"
+        operations: *switch_to_next
+      - states: "[前台-防护]"
+        operations: *switch_to_next
+      - states: "[前台-波可娜]"
+        operations: *switch_to_next
