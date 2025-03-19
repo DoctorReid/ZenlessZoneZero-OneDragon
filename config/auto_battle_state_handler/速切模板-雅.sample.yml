@@ -5,6 +5,7 @@ handlers:
       # 这里代表了异常角色出场，要清空其他异常积累的累计
       # 比如雅是烈霜异常，所以要清空火冰物电，一般只有异常角色需要清空
       - states: "[自定义-异常-物理, 0, 99] | [自定义-异常-冰, 0, 99] | [自定义-异常-火, 0, 99] | [自定义-异常-电, 0, 99]"
+        debug_name: "清除其他异常积蓄"
         operations:
           - op_name: "清除状态"
             state_list:
@@ -36,6 +37,7 @@ handlers:
 
       # 初始状态
       - states: "([按键-切换角色-下一个, 0, 0.3]|[按键-切换角色-上一个, 0, 0.3])"
+        debug_name: "切人后等待"
         sub_handlers:
           - states: "[按键可用-快速支援, 0, 0.5]"
             operations:
@@ -59,11 +61,13 @@ handlers:
       - states: "[雅-落霜]{6, 6}"
         sub_handlers:
           - states: "[按键-切换角色-下一个, 0, 4]|[按键-切换角色-上一个, 0, 4]"
+            debug_name: "刚出场，拔刀不合轴"
             operations:
               - op_name: "设置状态"
                 data: ["自定义-星见雅-使用过拔刀斩"]
               - operation_template: "雅-拔刀斩"
           - states: ""
+            debug_name: "拔刀合轴"
             operations:
               - op_name: "设置状态"
                 data: ["自定义-星见雅-使用过拔刀斩"]
@@ -71,6 +75,7 @@ handlers:
 
       # 使用过拔刀斩之后最多站3秒，防止星见雅打太多的站场
       - states: "[自定义-星见雅-使用过拔刀斩, 8, 30] & ![自定义-速切结束, 0, 30]"
+        debug_name: "寻找队友切人中"
         operations:
           # 设置速切结束之后继续打普攻，因为不是一定马上有人可以切
           - op_name: "设置状态"
@@ -79,14 +84,17 @@ handlers:
 
       # 雅的二连E和直接E是两套不同的动作，所以要分开写
       - states: "[雅-特殊技可用] & [雅-落霜, 0, 999]{0, 2} & [雅-能量]{80, 120}"
+        debug_name: "强化特殊技二连"
         operations:
           - operation_template: "雅-特殊攻击二连"
 
       - states: "[雅-特殊技可用] & [雅-落霜, 0, 999]{0, 5}"
+        debug_name: "强化特殊技"
         operations:
           - operation_template: "雅-特殊攻击"
 
       # 普通攻击
       - states: ""
+        debug_name: "普通攻击"
         operations:
           - operation_template: "雅-普通攻击"
