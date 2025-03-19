@@ -20,6 +20,7 @@ class ChargePlanCard(MultiLineSettingCard):
     changed = Signal(int, ChargePlanItem)
     delete = Signal(int)
     move_up = Signal(int)
+    move_top = Signal(int)
 
     def __init__(self, ctx: ZContext,
                  idx: int, plan: ChargePlanItem):
@@ -58,6 +59,8 @@ class ChargePlanCard(MultiLineSettingCard):
 
         self.move_up_btn = ToolButton(FluentIcon.UP, None)
         self.move_up_btn.clicked.connect(self._on_move_up_clicked)
+        self.move_top_btn = ToolButton(FluentIcon.PIN, None)
+        self.move_top_btn.clicked.connect(self._on_move_top_clicked)
         self.del_btn = ToolButton(FluentIcon.DELETE, None)
         self.del_btn.clicked.connect(self._on_del_clicked)
 
@@ -81,6 +84,7 @@ class ChargePlanCard(MultiLineSettingCard):
                     plan_times_label,
                     self.plan_times_input,
                     self.move_up_btn,
+                    self.move_top_btn,
                     self.del_btn,
                 ]
             ]
@@ -216,6 +220,9 @@ class ChargePlanCard(MultiLineSettingCard):
 
     def _on_move_up_clicked(self) -> None:
         self.move_up.emit(self.idx)
+    
+    def _on_move_top_clicked(self) -> None:
+        self.move_top.emit(self.idx)
 
     def _on_del_clicked(self) -> None:
         self.delete.emit(self.idx)
@@ -288,6 +295,7 @@ class ChargePlanInterface(VerticalScrollInterface):
                 card.changed.connect(self._on_plan_item_changed)
                 card.delete.connect(self._on_plan_item_deleted)
                 card.move_up.connect(self._on_plan_item_move_up)
+                card.move_top.connect(self._on_plan_item_move_top)
 
                 self.card_list.append(card)
                 self.content_widget.add_widget(card)
@@ -317,6 +325,10 @@ class ChargePlanInterface(VerticalScrollInterface):
 
     def _on_plan_item_move_up(self, idx: int) -> None:
         self.ctx.charge_plan_config.move_up(idx)
+        self.update_plan_list_display()
+
+    def _on_plan_item_move_top(self, idx: int) -> None:
+        self.ctx.charge_plan_config.move_top(idx)
         self.update_plan_list_display()
 
     def _on_loop_changed(self, new_value: bool) -> None:
