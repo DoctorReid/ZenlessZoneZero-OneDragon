@@ -5,6 +5,8 @@ from typing import Callable, List
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon.envs.git_service import GitLog
+from one_dragon.envs.env_config import GitBranchEnum
+from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon_qt.widgets.install_card.code_install_card import CodeInstallCard
@@ -63,6 +65,12 @@ class CodeInterface(VerticalScrollInterface):
         self.code_card.finished.connect(self.on_code_updated)
         v_layout.addWidget(self.code_card)
 
+        self.branch_opt = ComboBoxSettingCard(
+            icon=FluentIcon.SYNC, title='分支选择', content='选择代码分支',
+            options_enum=GitBranchEnum,
+        )
+        v_layout.addWidget(self.branch_opt)
+
         self.venv_card = VenvInstallCard(ctx)
         self.venv_card.install_btn.setDisabled(True)
         v_layout.addWidget(self.venv_card)
@@ -118,6 +126,7 @@ class CodeInterface(VerticalScrollInterface):
         """
         VerticalScrollInterface.on_interface_shown(self)
         self.force_update_opt.setValue(self.ctx.env_config.force_update)
+        self.branch_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('git_branch'))
         self.start_fetch_total()
         self.git_card.check_and_update_display()
         self.code_card.check_and_update_display()
