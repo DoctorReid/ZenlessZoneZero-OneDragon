@@ -154,7 +154,7 @@ class ModelDownloadSettingCard(MultiPushSettingCard):
 
     def _on_download_click(self) -> None:
         if self._runner.isRunning():
-            log.warn('我知道你很急 但你先别急 正在运行了')
+            log.warning('我知道你很急 但你先别急 正在运行了')
             return
         self.download_btn.setText(gt('下载中', 'ui'))
         self.download_btn.setDisabled(False)
