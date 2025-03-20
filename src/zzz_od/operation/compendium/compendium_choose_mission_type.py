@@ -32,7 +32,7 @@ class CompendiumChooseMissionType(ZOperation):
 
         self.mission_type: CompendiumMissionType = mission_type
 
-    @operation_node(name='选择副本', is_start_node=True, node_max_retry_times=10)
+    @operation_node(name='选择副本', is_start_node=True, node_max_retry_times=20)
     def choose_tab(self) -> OperationRoundResult:
         screen = self.screenshot()
         area = self.ctx.screen_loader.get_area('快捷手册', '副本列表')
