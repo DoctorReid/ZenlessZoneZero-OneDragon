@@ -66,7 +66,7 @@ class CodeInterface(VerticalScrollInterface):
         v_layout.addWidget(self.code_card)
 
         self.branch_opt = ComboBoxSettingCard(
-            icon=FluentIcon.SYNC, title='分支选择', content='选择代码分支',
+            icon=FluentIcon.SYNC, title='分支选择', content='选择代码分支，选择后请点击同步最新代码',
             options_enum=GitBranchEnum,
         )
         v_layout.addWidget(self.branch_opt)
