@@ -43,8 +43,8 @@ class PipSourceEnum(Enum):
 
 class GitBranchEnum(Enum):
 
-    MAIN = ConfigItem('主分支', 'main')
-    TEST = ConfigItem('测试分支', 'test')
+    MAIN = ConfigItem('主分支', 'main', desc='选择后请点击同步最新代码')
+    TEST = ConfigItem('测试分支', 'test', desc='选择后请点击同步最新代码')
 
 class EnvConfig(YamlConfig):
 
