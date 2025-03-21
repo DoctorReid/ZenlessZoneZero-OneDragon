@@ -43,6 +43,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
         self.help_url: str = help_url  # 使用说明的链接
         self.need_multiple_instance: bool = need_multiple_instance  # 是否需要多实例
         self.need_after_done_opt: bool = need_after_done_opt  # 结束后
+        self._context_event_signal.run_all_apps.connect(self.run_all_apps)
 
     def get_content_widget(self) -> QWidget:
         """
@@ -202,9 +203,12 @@ class OneDragonRunInterface(VerticalScrollInterface):
         if app.run_record is not None:
             app.run_record.check_and_update_status()
         self.app_runner.start()
+    
+    def run_all_apps(self) -> None:
+        self.run_app(self.get_one_dragon_app())
 
     def _on_start_clicked(self) -> None:
-        self.run_app(self.get_one_dragon_app())
+        self.run_all_apps()
 
     def _on_stop_clicked(self) -> None:
         self.ctx.stop_running()
@@ -215,7 +219,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
         """
         key: str = event.data
         if key == self.ctx.key_start_running and self.ctx.is_context_stop:
-            self.run_app(self.get_one_dragon_app())
+            self.run_all_apps()
 
     def on_context_state_changed(self) -> None:
         """

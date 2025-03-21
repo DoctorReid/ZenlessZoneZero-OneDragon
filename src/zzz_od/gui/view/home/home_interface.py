@@ -28,8 +28,8 @@ from one_dragon.utils import os_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from one_dragon_qt.services.styles_manager import OdQtStyleSheet
+from one_dragon_qt.view.context_event_signal import ContextEventSignal
 from one_dragon_qt.widgets.banner import Banner
-from one_dragon_qt.widgets.welcome_dialog import WelcomeDialog
 from one_dragon_qt.widgets.game_dialog import GameDialog
 from one_dragon_qt.widgets.icon_button import IconButton
 from one_dragon_qt.widgets.notice_card import NoticeCard
@@ -175,6 +175,7 @@ class HomeInterface(VerticalScrollInterface):
 
     def __init__(self, ctx: ZContext, parent=None):
         self.ctx: ZContext = ctx
+        self._context_event_signal = ContextEventSignal()
 
         # 创建垂直布局的主窗口部件
         # index.png 来自 C:\Users\YOUR_NAME\AppData\Roaming\miHoYo\HYP\1_1\fedata\Cache\Cache_Data
@@ -237,7 +238,7 @@ class HomeInterface(VerticalScrollInterface):
         gameButton = PrimaryPushButton(text="启动游戏🚀")
         gameButton.setFont(QFont("Microsoft YaHei", 16, QFont.Weight.Bold))
         gameButton.setFixedSize(160, 48)
-        gameButton.clicked.connect(self.start_game)
+        gameButton.clicked.connect(self._on_start_game)
 
         v1_layout = QVBoxLayout()
         v1_layout.addWidget(gameButton, alignment=Qt.AlignmentFlag.AlignBottom)
@@ -323,79 +324,13 @@ class HomeInterface(VerticalScrollInterface):
             from one_dragon.utils import app_utils
             app_utils.start_one_dragon(restart=True)
 
-    def start_game(self):
-        # 弹出窗口显示 "游戏启动中"
-        self.msg_box = GameDialog("少女祈祷中………", parent=self)
-        self.msg_box.show()
-
-        # 创建一个线程处理游戏启动
-        self.gameThread = GameStartThread(self.ctx)
-        self.gameThread.game_started.connect(self.on_game_started)
-        self.gameThread.game_failed.connect(self.on_game_failed)
-        self.gameThread.start()
-
-    def on_game_started(self):
-        self.msg_box.close_dialog()
-
-    def on_game_failed(self):
-        self.msg_box.close_dialog()
-        log.error("启动游戏失败")
-
-
-class GameStartThread(QThread):
-    # 自定义信号，用于更新主窗口 UI
-    game_started = Signal()
-    game_failed = Signal(str)
-
-    def __init__(self, ctx: ZContext):
-        super().__init__()
-        self.ctx = ctx
-
-    def run(self):
-        try:
-            ctx = ZContext()
-            ctx.init_by_config()
-            ctx.start_running()
-            ctx.ocr.init_model()
-            operation = LauncherGame(ctx)
-            result = operation.execute()
-            if result.success:
-                self.game_started.emit()
-            else:
-                self.game_failed.emit()
-        except Exception as e:
-            log.error("启动游戏失败: %s")
-            self.game_failed.emit(str(e))
-
-
-class LauncherGame(Operation):
-    def __init__(
-        self,
-        ctx: ZContext,
-        node_max_retry_times: int = 3,
-        op_name: str = gt("等待游戏打开", "ui"),
-        timeout_seconds: float = -1,
-        op_callback: Optional[Callable[[OperationResult], None]] = None,
-        need_check_game_win: bool = True,
-    ):
-        self.ctx: ZContext = ctx
-        op_to_enter_game = OpenGame(ctx)
-        Operation.__init__(
-            self,
-            ctx=ctx,
-            node_max_retry_times=node_max_retry_times,
-            op_name=op_name,
-            timeout_seconds=timeout_seconds,
-            op_callback=op_callback,
-            need_check_game_win=need_check_game_win,
-            op_to_enter_game=op_to_enter_game,
-        )
-
-    @operation_node(name="等待游戏打开", node_max_retry_times=60, is_start_node=True)
-    def wait_game(self) -> OperationRoundResult:
-        self.ctx.controller.game_win.init_win()
-        if self.ctx.controller.is_game_window_ready:
-            self.ctx.controller.active_window()
-            return self.round_success()
-        else:
-            return self.round_retry(wait=1)
+    def _on_start_game(self):
+        """启动游戏按钮点击事件处理"""
+        # 发送启动所有应用的信号
+        self._context_event_signal.run_all_apps.emit()
+        
+        # 可选：显示启动提示
+        self._show_info_bar("启动中", "正在启动游戏，请稍候...", 3000)
+        
+        # 如果需要，也可以直接调用特定的游戏启动方法
+        # self.ctx.run_game()
