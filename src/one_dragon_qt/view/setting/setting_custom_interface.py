@@ -9,8 +9,8 @@ from PySide6.QtWidgets import QWidget, QFileDialog
 from qfluentwidgets import FluentIcon, SettingCardGroup, setTheme, Theme, VBoxLayout, PrimaryPushButton, PasswordLineEdit, MessageBox, Dialog
 
 from one_dragon.base.config.config_item import get_config_item_from_enum
-from one_dragon.base.operation.one_dragon_custom_context import OneDragonCustomContext
-from one_dragon.custom.custom_config import ThemeEnum
+from one_dragon.base.config.custom_config import ThemeEnum
+from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
@@ -20,8 +20,8 @@ from one_dragon.utils.i18_utils import gt
 
 class SettingCustomInterface(VerticalScrollInterface):
 
-    def __init__(self, ctx: OneDragonCustomContext, parent=None):
-        self.ctx: OneDragonCustomContext = ctx
+    def __init__(self, ctx: OneDragonContext, parent=None):
+        self.ctx: OneDragonContext = ctx
 
         VerticalScrollInterface.__init__(
             self,
