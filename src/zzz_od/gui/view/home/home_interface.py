@@ -18,26 +18,19 @@ from qfluentwidgets import (
     SimpleCardWidget,
     PrimaryPushButton,
 )
-from typing import Callable, Optional
 
-from one_dragon.base.operation.operation import Operation
-from one_dragon.base.operation.operation_base import OperationResult
-from one_dragon.base.operation.operation_node import operation_node
-from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils import os_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from one_dragon_qt.services.styles_manager import OdQtStyleSheet
 from one_dragon_qt.view.context_event_signal import ContextEventSignal
 from one_dragon_qt.widgets.banner import Banner
-from one_dragon_qt.widgets.game_dialog import GameDialog
 from one_dragon_qt.widgets.icon_button import IconButton
 from one_dragon_qt.widgets.notice_card import NoticeCard
 from one_dragon_qt.widgets.vertical_scroll_interface import (
     VerticalScrollInterface,
 )
 from zzz_od.context.zzz_context import ZContext
-from zzz_od.operation.enter_game.open_game import OpenGame
 
 
 class ButtonGroup(SimpleCardWidget):
@@ -175,7 +168,8 @@ class HomeInterface(VerticalScrollInterface):
 
     def __init__(self, ctx: ZContext, parent=None):
         self.ctx: ZContext = ctx
-        self._context_event_signal = ContextEventSignal()
+        self._context_event_signal: ContextEventSignal = ContextEventSignal()
+        self.main_window = parent
 
         # 创建垂直布局的主窗口部件
         # index.png 来自 C:\Users\YOUR_NAME\AppData\Roaming\miHoYo\HYP\1_1\fedata\Cache\Cache_Data
@@ -235,7 +229,7 @@ class HomeInterface(VerticalScrollInterface):
         h2_layout.addStretch()
 
         # 启动游戏按钮布局
-        gameButton = PrimaryPushButton(text="启动游戏🚀")
+        gameButton = PrimaryPushButton(text="启动一条龙🚀")
         gameButton.setFont(QFont("Microsoft YaHei", 16, QFont.Weight.Bold))
         gameButton.setFixedSize(160, 48)
         gameButton.clicked.connect(self._on_start_game)
@@ -325,12 +319,9 @@ class HomeInterface(VerticalScrollInterface):
             app_utils.start_one_dragon(restart=True)
 
     def _on_start_game(self):
-        """启动游戏按钮点击事件处理"""
-        # 发送启动所有应用的信号
+        """启动一条龙按钮点击事件处理"""
+
+        # app.py中一条龙界面为第三个添加的
+        one_dragon_interface = self.main_window.stackedWidget.widget(2)
+        self.main_window.switchTo(one_dragon_interface)
         self._context_event_signal.run_all_apps.emit()
-        
-        # 可选：显示启动提示
-        self._show_info_bar("启动中", "正在启动游戏，请稍候...", 3000)
-        
-        # 如果需要，也可以直接调用特定的游戏启动方法
-        # self.ctx.run_game()
