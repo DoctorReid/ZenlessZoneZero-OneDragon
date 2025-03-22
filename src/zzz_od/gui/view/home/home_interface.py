@@ -23,7 +23,6 @@ from one_dragon.utils import os_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from one_dragon_qt.services.styles_manager import OdQtStyleSheet
-from one_dragon_qt.view.context_event_signal import ContextEventSignal
 from one_dragon_qt.widgets.banner import Banner
 from one_dragon_qt.widgets.icon_button import IconButton
 from one_dragon_qt.widgets.notice_card import NoticeCard
@@ -168,7 +167,6 @@ class HomeInterface(VerticalScrollInterface):
 
     def __init__(self, ctx: ZContext, parent=None):
         self.ctx: ZContext = ctx
-        self._context_event_signal: ContextEventSignal = ContextEventSignal()
         self.main_window = parent
 
         # 创建垂直布局的主窗口部件
