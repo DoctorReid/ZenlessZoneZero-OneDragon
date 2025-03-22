@@ -7,6 +7,6 @@ operations:
     post_delay: 0.1
     repeat: 16
   - op_name: "设置状态"
-    data: ["自定义-速切结束"]
+    state_list: ["自定义-速切结束", "自定义-扳机-强化追击"]
   - op_name: "等待秒数"
     seconds: 1

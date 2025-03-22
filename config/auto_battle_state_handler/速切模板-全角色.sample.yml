@@ -30,7 +30,7 @@ handlers:
   - state_template: "速切模板-耀嘉音"
   - state_template: "速切模板-伊芙琳"
   - state_template: "速切模板-零号安比"
-  # - state_template: "速切模板-扳机"
+  - state_template: "速切模板-扳机"
   - state_template: "速切模板-波可娜"
   # 下面是缺省值，如果有上面没有的角色会走下面，一般情况下最好不要有，否则可能会因为识别不到角色而进行错误的动作
 
