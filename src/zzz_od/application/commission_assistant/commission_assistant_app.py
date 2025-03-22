@@ -42,7 +42,7 @@ class CommissionAssistantApp(ZApplication):
         self._listen_btn()
 
     def _unlisten_btn(self) -> None:
-        self.ctx.unlisten_all_event(self)
+        self.ctx.unlisten_event(ContextKeyboardEventEnum.PRESS.value, self._on_key_press)
 
     def _listen_btn(self) -> None:
         self.ctx.listen_event(ContextKeyboardEventEnum.PRESS.value, self._on_key_press)
@@ -58,12 +58,16 @@ class CommissionAssistantApp(ZApplication):
                 self.run_mode = 1
             elif self.run_mode == 1:
                 self.run_mode = 0
+            else:  # 防止并发有问题导致值错乱 最后兜底成初始值
+                self.run_mode = 0
         elif key == self.ctx.commission_assistant_config.auto_battle_switch:
             if self.auto_op is not None and self.ctx.commission_assistant_config.auto_battle != self.auto_op.module_name:
                 self.auto_op = None  # 切换过选项
             if self.run_mode == 0:
                 self.run_mode = 2
             elif self.run_mode == 2:
+                self.run_mode = 0
+            else:  # 防止并发有问题导致值错乱 最后兜底成初始值
                 self.run_mode = 0
 
     @node_from(from_name='自动战斗模式')
@@ -310,7 +314,7 @@ class CommissionAssistantApp(ZApplication):
 
         target_word_list = [
             gt(i)
-            for i in ['等待', '自动', '跳过']
+            for i in ['菜单', '自动', '跳过']
         ]
 
         idx = -1
@@ -323,17 +327,25 @@ class CommissionAssistantApp(ZApplication):
             return None
 
         if self.ctx.commission_assistant_config.story_mode == StoryMode.CLICK.value.value:
-            self.round_by_click_area('菜单', '返回')
-            return self.round_wait('剧情自动点击中', wait=self.ctx.commission_assistant_config.dialog_click_interval)
+            return None  # 返回外层点击
         elif self.ctx.commission_assistant_config.story_mode == StoryMode.AUTO.value.value:
             if idx == 1:  # 自动
-                return self.round_wait('剧情自动播放中', wait=1)
+                return self.round_wait('剧情自动播放中 选项需手动点击', wait=1)
             else:  # 切换到自动
-                pass
+                if idx != 0:
+                    self.round_by_click_area('委托助手', '文本-剧情右上角', success_wait=1)  # 切换到菜单
+                self.round_by_click_area('委托助手', '文本-剧情右上角', success_wait=1)  # 点击菜单
+                self.round_by_click_area('委托助手', '按钮-自动', success_wait=1)  # 点击自动
+                return self.round_wait('尝试切换到自动模式')
         else:
-            # 点击跳过
-            pass
-
+            if idx != 0:
+                self.round_by_click_area('委托助手', '文本-剧情右上角', success_wait=1)  # 切换到菜单
+            self.round_by_click_area('委托助手', '文本-剧情右上角', success_wait=1)  # 点击菜单
+            self.round_by_click_area('委托助手', '文本-剧情右上角', success_wait=1)  # 点击跳过
+            screen2 = self.screenshot()
+            result = self.round_by_find_and_click_area(screen2, '委托助手', '对话框确认')
+            if result.is_success:
+                return self.round_wait('跳过剧情')
 
     @node_from(from_name='自动对话模式', status='钓鱼')
     @operation_node('钓鱼', node_max_retry_times=50)  # 约5s没识别到指令就退出
