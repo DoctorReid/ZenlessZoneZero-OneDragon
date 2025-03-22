@@ -177,3 +177,11 @@ class OneDragonConfig(YamlConfig):
     @after_done.setter
     def after_done(self, new_value: str):
         self.update('after_done', new_value)
+
+    @property
+    def run_all_apps(self) -> bool:
+        return self.get('run_all_apps', False)
+    
+    @run_all_apps.setter
+    def run_all_apps(self, new_value: bool) -> None:
+        self.update('run_all_apps', new_value)
