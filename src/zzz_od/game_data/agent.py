@@ -277,5 +277,13 @@ class AgentEnum(Enum):
     SOLDIER_0_ANBY = Agent('soldier_0_anby', '零号安比', RareTypeEnum.S, AgentTypeEnum.ATTACK, DmgTypeEnum.ELECTRIC)
   
     PULCHRA = Agent('pulchra', '波可娜', RareTypeEnum.A, AgentTypeEnum.STUN, DmgTypeEnum.PHYSICAL,
-                               state_list=[AgentStateDef('波可娜-猎步', AgentStateCheckWay.COLOR_RANGE_CONNECT,'pulchra_hunter',
-                                                     lower_color=(200, 120, 30), upper_color=(255, 255, 255), connect_cnt=1)])
+                    state_list=[
+                        AgentStateDef('波可娜-猎步', AgentStateCheckWay.COLOR_RANGE_CONNECT,'pulchra_hunter',
+                                      lower_color=(200, 120, 30), upper_color=(255, 255, 255), connect_cnt=1)
+                    ])
+
+    TRIGGER = Agent('trigger', '扳机', RareTypeEnum.S, AgentTypeEnum.STUN, DmgTypeEnum.ELECTRIC,
+                    state_list=[
+                        AgentStateDef('扳机-绝意', AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH, 'trigger',
+                                      lower_color=(0, 90, 200), upper_color=(70, 220, 255))
+                    ])

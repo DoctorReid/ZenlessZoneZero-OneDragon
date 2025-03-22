@@ -212,7 +212,10 @@ def check_length_by_foreground_color(
     fg_cnt = np.sum(mask == 255)
     total_cnt = mask.shape[1]
 
-    return int(fg_cnt * 100.0 / total_cnt)
+    length = round(fg_cnt * 1.0 * state_def.max_length / total_cnt)
+    if length > state_def.max_length:
+        length = state_def.max_length
+    return length
 
 
 def check_template_not_found(

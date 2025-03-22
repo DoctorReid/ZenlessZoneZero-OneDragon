@@ -12,7 +12,7 @@ from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult, OperationRoundResultEnum
 from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
-from zzz_od.application.commission_assistant.commission_assistant_config import DialogOptionEnum
+from zzz_od.application.commission_assistant.commission_assistant_config import DialogOptionEnum, StoryMode
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.auto_battle import auto_battle_utils
 from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
@@ -112,24 +112,24 @@ class CommissionAssistantApp(ZApplication):
         if result is not None:
             return result
 
-        result = self.round_by_find_area(screen, '委托助手', '右上角自动')
-        in_auto = result.is_success
-        if in_auto and not config.dialog_click_when_auto:
-            return self.round_wait(status='自动剧情播放中', wait=1)
-        else:
-            if self._click_dialog_options(screen, '右侧选项区域'):
-                return self.round_wait(status='点击右方选项',
-                                       wait=config.dialog_click_interval)
+        # 剧情模式
+        result = self.check_story_mode(screen)
+        if result is not None:
+            return result
 
-            if self._click_dialog_options(screen, '中间选项区域'):
-                return self.round_wait(status='点击中间选项',
-                                       wait=config.dialog_click_interval)
+        if self._click_dialog_options(screen, '右侧选项区域'):
+            return self.round_wait(status='点击右方选项',
+                                   wait=config.dialog_click_interval)
 
-            with_dialog = self._check_dialog(screen)
-            if with_dialog:
-                self.round_by_click_area('委托助手', '中间选项区域')
-                return self.round_wait(status='对话中点击空白',
-                                       wait=config.dialog_click_interval)
+        if self._click_dialog_options(screen, '中间选项区域'):
+            return self.round_wait(status='点击中间选项',
+                                   wait=config.dialog_click_interval)
+
+        with_dialog = self._check_dialog(screen)
+        if with_dialog:
+            self.round_by_click_area('委托助手', '中间选项区域')
+            return self.round_wait(status='对话中点击空白',
+                                   wait=config.dialog_click_interval)
 
         self.round_by_click_area('委托助手', '中间选项区域')
         return self.round_wait(status='未知画面点击空白', wait=1)
@@ -297,6 +297,43 @@ class CommissionAssistantApp(ZApplication):
         self.fishing_done = False
         self.ctx.controller.mouse_move(area.left_top)  # 移开鼠标 防止遮挡指令
         return self.round_success('钓鱼')
+
+    def check_story_mode(self, screen: MatLike) -> Optional[OperationRoundResult]:
+        """
+        判断是否进入了剧情模式 右上角有 等待/自动/跳过
+        @param screen:
+        @return:
+        """
+        area = self.ctx.screen_loader.get_area('委托助手', '文本-剧情右上角')
+        part = cv2_utils.crop_image_only(screen, area.rect)
+        ocr_result_map = self.ctx.ocr.run_ocr(part)
+
+        target_word_list = [
+            gt(i)
+            for i in ['等待', '自动', '跳过']
+        ]
+
+        idx = -1
+        for ocr_result in ocr_result_map.keys():
+            idx = str_utils.find_best_match_by_difflib(ocr_result, target_word_list, cutoff=1)
+            if idx is not None:
+                break
+
+        if idx == -1:  # 不在剧情模式
+            return None
+
+        if self.ctx.commission_assistant_config.story_mode == StoryMode.CLICK.value.value:
+            self.round_by_click_area('菜单', '返回')
+            return self.round_wait('剧情自动点击中', wait=self.ctx.commission_assistant_config.dialog_click_interval)
+        elif self.ctx.commission_assistant_config.story_mode == StoryMode.AUTO.value.value:
+            if idx == 1:  # 自动
+                return self.round_wait('剧情自动播放中', wait=1)
+            else:  # 切换到自动
+                pass
+        else:
+            # 点击跳过
+            pass
+
 
     @node_from(from_name='自动对话模式', status='钓鱼')
     @operation_node('钓鱼', node_max_retry_times=50)  # 约5s没识别到指令就退出
