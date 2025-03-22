@@ -130,6 +130,7 @@ class LostVoidRunLevel(ZOperation):
         if self.region_type == LostVoidRegionType.ENTRY:
             return self.round_success('非战斗区域')
         # 红色战斗识别不准 目前都从非战斗区域开始处理
+        # 游戏1.6版本更新后 战斗层可能出现代理人 导致直接跳过战斗 交互感叹号即可领取奖励 因此统一从非战斗区域开始处理
         if self.region_type == LostVoidRegionType.COMBAT_RESONIUM:
             return self.round_success('非战斗区域')
         if self.region_type == LostVoidRegionType.COMBAT_GEAR:
@@ -154,6 +155,10 @@ class LostVoidRunLevel(ZOperation):
         if self.region_type == LostVoidRegionType.BANGBOO_STORE:
             return self.round_success('非战斗区域')
         if self.region_type == LostVoidRegionType.FRIENDLY_TALK:
+            # 挚交会谈 刚开始时 先往右走一段距离 避开桌子
+            # 如果桌子旁有感叹号交互会走过去 交互之后往右后移动
+            # 如果桌子旁没有感叹号交互 可以直接走到后方的感叹号
+            self.ctx.controller.move_d(press=True, press_time=2, release=True)
             return self.round_success('非战斗区域')
         if self.region_type == LostVoidRegionType.ELITE:
             return self.round_success('战斗区域')
@@ -411,7 +416,8 @@ class LostVoidRunLevel(ZOperation):
 
         for ocr_result in ocr_result_map.keys():
             for special_talk in special_talk_list:
-                if not str_utils.find_by_lcs(gt(special_talk), ocr_result):
+                # 穷举比较麻烦 有超过10个字符的 就认为这里有对话吧
+                if len(ocr_result) <= 10 and not str_utils.find_by_lcs(gt(special_talk), ocr_result):
                     continue
 
                 # 判断是否有选项
@@ -510,7 +516,7 @@ class LostVoidRunLevel(ZOperation):
         elif self.region_type == LostVoidRegionType.FRIENDLY_TALK:
             # 挚友会谈 交互从左往右 每次交互之后 向右移动 可以避开中间桌子的障碍
             self.ctx.controller.move_s(press=True, press_time=1, release=True)
-            self.ctx.controller.move_d(press=True, press_time=1, release=True)
+            self.ctx.controller.move_d(press=True, press_time=1.5, release=True)
         elif self.target_interact_type == LostVoidDetector.CLASS_INTERACT:
             # 感叹号的情况 由于奸商布的位置和商店很靠近 因此固定交互后往后移动
             self.ctx.controller.move_s(press=True, press_time=1, release=True)
@@ -685,11 +691,7 @@ def __debug():
     ctx.start_running()
 
     op = LostVoidRunLevel(ctx, LostVoidRegionType.ENTRY)
-
-    from one_dragon.utils import debug_utils
-    screen = debug_utils.get_debug_image('_1736065936380')
-    area = op.ctx.screen_loader.get_area('迷失之地-大世界', '区域-文本提示')
-    print(screen_utils.find_by_ocr(op.ctx, screen, target_cn='前往下一个区域', area=area))
+    op.execute()
 
 
 if __name__ == '__main__':

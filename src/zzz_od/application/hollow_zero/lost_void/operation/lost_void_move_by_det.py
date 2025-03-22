@@ -118,6 +118,8 @@ class LostVoidMoveByDet(ZOperation):
 
         self.last_save_debug_image_time: float = 0  # 上一次保存debug图片的时间
 
+        self.lost_target_during_move_times: int = 0  # 移动过程中丢失目标次数
+
     def handle_not_in_world(self, screen: MatLike) -> OperationRoundResult:
         """
         处理不在大世界的情况
@@ -162,6 +164,12 @@ class LostVoidMoveByDet(ZOperation):
         pos = target_result.entire_rect.center
         turn = self.turn_to_target(pos)
         if turn:
+            # 如果出现多次转向 说明可能是识别不准 然后又恰巧被卡住无法前进
+            self.lost_target_during_move_times += 1
+            # https://github.com/DoctorReid/ZenlessZoneZero-OneDragon/issues/867
+            if self.lost_target_during_move_times % 5 == 0:  # 尝试脱困
+                self.stuck_times += 1
+                self.get_out_of_stuck()
             return self.round_wait('转动朝向目标', wait=0.5)
 
         return self.round_success('开始移动')
@@ -181,6 +189,14 @@ class LostVoidMoveByDet(ZOperation):
         target_result = self.get_move_target(frame_result)
 
         if target_result is None:
+            self.lost_target_during_move_times += 1
+            # 移动过程中多次丢失目标 通常是因为识别不准
+            # 游戏1.6版本出现了可以因为丢失目标转动镜头而一直无法进入脱困
+            # https://github.com/DoctorReid/ZenlessZoneZero-OneDragon/issues/867
+            if self.lost_target_during_move_times % 5 == 0:  # 尝试脱困
+                self.stuck_times += 1
+                self.get_out_of_stuck()
+
             return self.round_success(LostVoidMoveByDet.STATUS_NO_FOUND)
 
         is_stuck = self.check_stuck(target_result)
@@ -318,6 +334,9 @@ class LostVoidMoveByDet(ZOperation):
         """
         # 在大世界 先切换到耀佳音以外的角色 防止进入状态无法移动
         auto_battle_utils.check_astra_and_switch(self.ctx.lost_void.auto_op)
+
+        # 部分障碍物可以破坏 尝试攻击
+        self.ctx.controller.normal_attack(press=True, press_time=0.2, release=True)
 
         if self.stuck_times % 6 == 1:  # 向左走
             self.ctx.controller.move_a(press=True, press_time=1, release=True)
