@@ -23,6 +23,8 @@ from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_choos
 from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_choose_no_detail import \
     LostVoidChooseNoDetail
 from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_choose_no_num import LostVoidChooseNoNum
+from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_lottery import LostVoidLottery
+from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_route_change import LostVoidRouteChange
 from zzz_od.application.hollow_zero.lost_void.operation.lost_void_move_by_det import LostVoidMoveByDet
 from zzz_od.auto_battle import auto_battle_utils
 from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
@@ -143,7 +145,6 @@ class LostVoidRunLevel(ZOperation):
                 return self.round_success('战斗区域')
             else:
                 return self.round_success('非战斗区域')
-
         if self.region_type == LostVoidRegionType.ENCOUNTER:
             return self.round_success('非战斗区域')
         if self.region_type == LostVoidRegionType.PRICE_DIFFERENCE:
@@ -269,6 +270,19 @@ class LostVoidRunLevel(ZOperation):
         screen = self.screenshot()
         result = self.round_by_find_area(screen, '战斗画面', '按键-交互')
         if result.is_success:
+            # 尝试文本识别下层入口 这样会比使用图标更为准确
+            area = self.ctx.screen_loader.get_area('迷失之地-大世界', '区域-入口文本')
+            part = cv2_utils.crop_image_only(screen, area.rect)
+            ocr_result_map = self.ctx.ocr.run_ocr(part)
+            target_entry: list[LostVoidRegionType] = [i.value for i in LostVoidRegionType]
+            target_word_list: list[str] = [gt(i.value) for i in target_entry]
+            for ocr_result in ocr_result_map.keys():
+                idx = str_utils.find_best_match_by_difflib(ocr_result, target_word_list, cutoff=0.8)
+                if idx is not None:
+                    self.interact_entry_name = target_entry[idx].value
+                    log.info(f'识别下层入口为: {self.interact_entry_name}')
+                    break
+
             self.ctx.controller.interact(press=True, press_time=0.2, release=True)
             return self.round_wait('交互', wait=1)
 
@@ -314,6 +328,12 @@ class LostVoidRunLevel(ZOperation):
         elif screen_name == '迷失之地-邦布商店':
             interact_type = '邦布商店'
             interact_op = LostVoidBangbooStore(self.ctx)
+        elif screen_name == '迷失之地-路径迭换':
+            interact_type = '路径迭换'
+            interact_op = LostVoidRouteChange(self.ctx)
+        elif screen_name == '迷失之地-抽奖机':
+            interact_type = '抽奖机'
+            interact_op = LostVoidLottery(self.ctx)
         elif screen_name == '迷失之地-大世界':
             return self.round_success('迷失之地-大世界')
 
@@ -386,6 +406,7 @@ class LostVoidRunLevel(ZOperation):
         special_talk_list = [
             '似乎购买了充值卡就会得到齿轮硬币奖励，但是在离开之后身上的齿轮硬币都',  # 奸商布
             '（声音消失了，伸手从裂隙那头好像摸到了什么）',  # 零号业绩
+            '这位似曾相识的研究员为我们准备了一些「礼物」。', '但当正要选择的时候，她却拦住了我们。',  # 助理研究员
         ]
 
         for ocr_result in ocr_result_map.keys():
@@ -512,20 +533,22 @@ class LostVoidRunLevel(ZOperation):
                 or screenshot_time - self.last_det_time >= 1  # 1秒识别一次
                 or (self.no_in_battle_times > 0 and screenshot_time - self.last_check_finish_time >= 0.1)  # 之前也识别到脱离战斗 0.1秒识别一次
             ):
-                # 尝试识别目标
-                self.last_det_time = screenshot_time
                 no_in_battle = False
-                try:
-                    screen2 = self.screenshot()
-                    # 为了不随意打断战斗 这里的识别阈值要高一点
-                    frame_result: DetectFrameResult = self.detector.run(screen2, run_time=screenshot_time, conf=0.9)
-                    with_interact, with_distance, with_entry = self.detector.is_frame_with_all(frame_result)
-                    if with_interact or with_distance or with_entry:
-                        no_in_battle = True
-                except Exception as e:
-                    # 刚开始可能有一段时间识别报错 有可能是一张图同时在两个onnx里面跑 加入第二次截图观察
-                    log.error('战斗中识别交互出现异常', exc_info=e)
-                    return self.round_wait()
+                screen2 = self.screenshot()  # 因为跟自动战斗是异步同时识别 这里重新截图避免两边冲突
+
+                # 尝试识别下层入口 (道中危机 和 终结之役 不需要识别)
+                if self.region_type not in [LostVoidRegionType.ELITE, LostVoidRegionType.BOSS]:
+                    self.last_det_time = screenshot_time
+                    try:
+                        # 为了不随意打断战斗 这里的识别阈值要高一点
+                        frame_result: DetectFrameResult = self.detector.run(screen2, run_time=screenshot_time, conf=0.9)
+                        with_interact, with_distance, with_entry = self.detector.is_frame_with_all(frame_result)
+                        if with_interact or with_distance or with_entry:
+                            no_in_battle = True
+                    except Exception as e:
+                        # 刚开始可能有一段时间识别报错 有可能是一张图同时在两个onnx里面跑 加入第二次截图观察
+                        log.error('战斗中识别交互出现异常', exc_info=e)
+                        return self.round_wait()
 
                 if not no_in_battle:
                     area = self.ctx.screen_loader.get_area('迷失之地-大世界', '区域-文本提示')

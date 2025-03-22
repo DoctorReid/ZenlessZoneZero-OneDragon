@@ -22,7 +22,7 @@ area_list:
   - 862
   - 810
   - 1180
-  - 860
+  - 920
   text: 确定
   lcs_percent: 0.5
   template_sub_dir: ''
@@ -62,9 +62,9 @@ area_list:
   id_mark: false
   pc_rect:
   - 82
-  - 375
+  - 415
   - 1898
-  - 436
+  - 475
   text: ''
   lcs_percent: 0.5
   template_sub_dir: ''
@@ -166,9 +166,9 @@ area_list:
   id_mark: false
   pc_rect:
   - 80
-  - 690
+  - 730
   - 1910
-  - 780
+  - 830
   text: ''
   lcs_percent: 0.5
   template_sub_dir: lost_void
