@@ -63,6 +63,10 @@ class EnterGame(ZOperation):
         if result.is_success:
             return self.round_success(result.status, wait=1)
 
+        result = self.round_by_find_and_click_area(screen, '打开游戏', '按钮-登陆其他账号')
+        if result.is_success:
+            return self.round_wait(result.status, wait=1)
+
         result = self.round_by_find_and_click_area(screen, '打开游戏', 'B服-登陆')
         if result.is_success:
             return self.round_success(result.status, wait=1)
