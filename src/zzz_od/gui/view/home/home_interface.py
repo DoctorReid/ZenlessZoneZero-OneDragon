@@ -324,4 +324,4 @@ class HomeInterface(VerticalScrollInterface):
         # app.py中一条龙界面为第三个添加的
         one_dragon_interface = self.main_window.stackedWidget.widget(2)
         self.main_window.switchTo(one_dragon_interface)
-        self._context_event_signal.run_all_apps.emit()
+        self.ctx.one_dragon_config.run_all_apps = True
