@@ -515,7 +515,7 @@ class LostVoidRunLevel(ZOperation):
 
         if self.interact_target is not None and self.interact_target.is_entry:
             return self.round_success(LostVoidRunLevel.STATUS_NEXT_LEVEL,
-                                      data=self.interact_target.name)
+                                      data=self.interact_target.icon)
 
         return self.round_retry('等待画面返回', wait=1)
 
@@ -551,8 +551,8 @@ class LostVoidRunLevel(ZOperation):
                     self.ctx.controller.move_s(press=True, press_time=1, release=True)
             else:
                 self.ctx.controller.move_s(press=True, press_time=1, release=True)
-        elif self.interact_target.is_exclamation:  # 未定义的感叹号交互
-            # 感叹号的情况 统一往后走
+        else:
+            # 兜底的情况 统一往后走
             # 1. 由于奸商布的位置和商店很靠近 交互后往后移动可以避开奸商布
             self.ctx.controller.move_s(press=True, press_time=1, release=True)
 
@@ -725,7 +725,7 @@ def __debug():
     ctx.ocr.init_model()
     ctx.start_running()
 
-    op = LostVoidRunLevel(ctx, LostVoidRegionType.FRIENDLY_TALK)
+    op = LostVoidRunLevel(ctx, LostVoidRegionType.BOSS)
     op.execute()
 
 

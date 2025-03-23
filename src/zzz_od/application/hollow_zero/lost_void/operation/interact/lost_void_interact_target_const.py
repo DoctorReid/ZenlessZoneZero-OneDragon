@@ -20,6 +20,15 @@ class LostVoidInteractNPC(Enum):
     A_YUAN = '阿援'  # 挚交会谈 商店
 
 
+class LostVoidBoss(Enum):
+
+    """
+    最终入口交互的BOSS名称
+    """
+    SHENG_GUI = '终结之役·牲鬼'
+    JIE_PEI_TUO = '终结之役·杰佩托'
+
+
 class LostVoidInteractTarget:
 
     def __init__(self, name: str, icon: str,
@@ -51,20 +60,43 @@ def match_interact_target(ctx: ZContext, ocr_result: str,) -> Optional[LostVoidI
     # 删除一些交互时候可能识别到的特殊字符
     ocr_result = ocr_result.replace('<', '')
     ocr_result = ocr_result.replace('>', '')
+    if len(ocr_result) == 0:
+        return None
 
+    target_list: list[Union[str, Agent]] = (
+            [i.value.value for i in LostVoidRegionType]  # 入口
+            + [i.value for i in LostVoidInteractNPC]  # NPC
+            + [i.value for i in AgentEnum]  # 代理人
+            + [i.value for i in LostVoidBoss]  # BOSS
+    )
+    target_word_list: list[str] = (
+        [gt(i.value.value) for i in LostVoidRegionType]  # 入口
+        + [gt(i.value) for i in LostVoidInteractNPC]  # NPC
+        + [gt(i.value.agent_name) for i in AgentEnum]  # 代理人
+        + [gt(i.value) for i in LostVoidBoss]  # BOSS
+    )
 
-    target_entry: list[ConfigItem] = [i.value for i in LostVoidRegionType]
-    target_word_list: list[str] = [gt(i.value) for i in target_entry]
     idx = str_utils.find_best_match_by_difflib(ocr_result, target_word_list, cutoff=0.6)
-    if idx is not None:
-        return LostVoidInteractTarget(name=target_entry[idx].label, icon=target_entry[idx].label, is_entry=True)
+    if idx is None:
+        return None
 
-    # NPC和代理人一起识别 部分名字可能比较接近
-    target_people_list: list[Union[str, Agent]] = [i.value for i in LostVoidInteractNPC] + [i.value for i in AgentEnum]
-    target_word_list: list[str] = [gt(i.value) for i in LostVoidInteractNPC] + [gt(i.value.agent_name) for i in AgentEnum]
-    idx = str_utils.find_best_match_by_difflib(ocr_result, target_word_list, cutoff=0.6)
-    if idx is not None:
-        if idx < len(LostVoidInteractNPC):
-            return LostVoidInteractTarget(name=target_people_list[idx], icon='感叹号', is_npc=True)
-        else:
-            return LostVoidInteractTarget(name=target_people_list[idx].agent_name, icon='感叹号', is_agent=True)
+    start_idx: int = 0
+    end_idx: int = start_idx + len(LostVoidRegionType)
+
+    if start_idx <= idx < end_idx:
+        return LostVoidInteractTarget(name=target_list[idx], icon=target_list[idx], is_entry=True)
+
+    start_idx = end_idx
+    end_idx = start_idx + len(LostVoidInteractNPC)
+    if start_idx <= idx < end_idx:
+        return LostVoidInteractTarget(name=target_list[idx], icon='感叹号', is_npc=True)
+
+    start_idx = end_idx
+    end_idx = start_idx + len(AgentEnum)
+    if start_idx <= idx < end_idx:
+        return LostVoidInteractTarget(name=target_list[idx].agent_name, icon='感叹号', is_agent=True)
+
+    start_idx = end_idx
+    end_idx = start_idx + len(LostVoidBoss)
+    if start_idx <= idx < end_idx:
+        return LostVoidInteractTarget(name=target_list[idx], icon=LostVoidRegionType.BOSS.value.value, is_entry=True)
