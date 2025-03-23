@@ -23,6 +23,8 @@ from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_choos
 from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_choose_no_detail import \
     LostVoidChooseNoDetail
 from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_choose_no_num import LostVoidChooseNoNum
+from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_interact_target_const import \
+    match_interact_target, LostVoidInteractTarget, LostVoidInteractNPC
 from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_lottery import LostVoidLottery
 from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_route_change import LostVoidRouteChange
 from zzz_od.application.hollow_zero.lost_void.operation.lost_void_move_by_det import LostVoidMoveByDet
@@ -70,8 +72,7 @@ class LostVoidRunLevel(ZOperation):
         self.detector: LostVoidDetector = self.ctx.lost_void.detector
         self.auto_op: AutoBattleOperator = self.ctx.lost_void.auto_op
         self.nothing_times: int = 0  # 识别不到内容的次数
-        self.target_interact_type: str = ''  # 目标交互类型
-        self.interact_entry_name: str = ''  # 交互的下层入口名称
+        self.interact_target: Optional[LostVoidInteractTarget] = None  # 最终识别的交互目标 后续改动应该都是用这个判断
 
         self.last_frame_in_battle: bool = True  # 上一帧画面在战斗
         self.current_frame_in_battle: bool = True  # 当前帧画面在战斗
@@ -94,7 +95,7 @@ class LostVoidRunLevel(ZOperation):
         if self.ctx.lost_void.in_normal_world(screen):
             return self.round_success('大世界')
 
-        # 1. 在精英怪后 点击完挑战结果后 加载挚友会谈前 可能会弹出奖励
+        # 1. 在精英怪后 点击完挑战结果后 加载挚交会谈前 可能会弹出奖励
         # 2. 有战略可以导致进入新一层时获取战利品
         # 因此在加载这里判断是否有奖励需要选择
         possible_screen_name_list = [
@@ -102,7 +103,7 @@ class LostVoidRunLevel(ZOperation):
         ]
         screen_name = self.check_and_update_current_screen(screen, screen_name_list=possible_screen_name_list)
         if screen_name is not None:
-            self.target_interact_type = LostVoidDetector.CLASS_INTERACT
+            self.interact_target = LostVoidInteractTarget(name='未知', icon='感叹号', is_exclamation=True)
             return self.round_success('识别正在交互')
 
         # 挑战-限时 挑战-无伤都是这个 都是需要战斗
@@ -158,6 +159,7 @@ class LostVoidRunLevel(ZOperation):
             # 挚交会谈 刚开始时 先往右走一段距离 避开桌子
             # 如果桌子旁有感叹号交互会走过去 交互之后往右后移动
             # 如果桌子旁没有感叹号交互 可以直接走到后方的感叹号
+            self.ctx.controller.move_w(press=True, press_time=0.7, release=True)
             self.ctx.controller.move_d(press=True, press_time=2, release=True)
             return self.round_success('非战斗区域')
         if self.region_type == LostVoidRegionType.ELITE:
@@ -200,16 +202,18 @@ class LostVoidRunLevel(ZOperation):
         # 优先处理感叹号
         if with_interact:
             self.nothing_times = 0
-            self.target_interact_type = LostVoidDetector.CLASS_INTERACT
             op = LostVoidMoveByDet(self.ctx, self.region_type, LostVoidDetector.CLASS_INTERACT,
                                    stop_when_disappear=False)
             op_result = op.execute()
             if op_result.success:
                 if op_result.status == LostVoidMoveByDet.STATUS_IN_BATTLE:
+                    self.interact_target = LostVoidInteractTarget(name='战斗后', icon='战斗后', after_battle=True)
                     return self.round_success(LostVoidMoveByDet.STATUS_IN_BATTLE)
                 elif op_result.status == LostVoidMoveByDet.STATUS_INTERACT:
+                    self.interact_target = LostVoidInteractTarget(name='未知', icon='感叹号', is_exclamation=True)
                     return self.round_success('未在大世界')
                 else:
+                    self.interact_target = LostVoidInteractTarget(name='感叹号', icon='感叹号', is_exclamation=True)
                     return self.round_success(LostVoidDetector.CLASS_INTERACT, wait=1)
             else:
                 return self.round_retry('移动失败')
@@ -217,16 +221,20 @@ class LostVoidRunLevel(ZOperation):
         # 处理白点移动
         if with_distance:
             self.nothing_times = 0
-            self.target_interact_type = LostVoidDetector.CLASS_DISTANCE
             op = LostVoidMoveByDet(self.ctx, self.region_type, LostVoidDetector.CLASS_DISTANCE,
                                    stop_when_interact=False)
             op_result = op.execute()
             if op_result.success:
                 if op_result.status == LostVoidMoveByDet.STATUS_IN_BATTLE:
+                    self.interact_target = LostVoidInteractTarget(name='战斗后', icon='战斗后', after_battle=True)
                     return self.round_success(LostVoidMoveByDet.STATUS_IN_BATTLE)
                 elif op_result.status == LostVoidMoveByDet.STATUS_INTERACT:
+                    self.interact_target = LostVoidInteractTarget(name='未知', icon='感叹号', is_exclamation=True)
                     return self.round_success('未在大世界')
                 else:
+                    self.interact_target = LostVoidInteractTarget(name=LostVoidDetector.CLASS_DISTANCE,
+                                                                  icon=LostVoidDetector.CLASS_DISTANCE,
+                                                                  is_distance=True)
                     return self.round_success(LostVoidDetector.CLASS_DISTANCE)
             else:
                 return self.round_retry('移动失败')
@@ -234,22 +242,25 @@ class LostVoidRunLevel(ZOperation):
         # 处理下层入口
         if with_entry:
             self.nothing_times = 0
-            self.target_interact_type = LostVoidDetector.CLASS_ENTRY
             op = LostVoidMoveByDet(self.ctx, self.region_type, LostVoidDetector.CLASS_ENTRY,
                                    stop_when_disappear=False, ignore_entry_list=self.had_been_list)
             op_result = op.execute()
             if op_result.success:
                 if op_result.status == LostVoidMoveByDet.STATUS_IN_BATTLE:
+                    self.interact_target = LostVoidInteractTarget(name='战斗后', icon='战斗后', after_battle=True)
                     return self.round_success(LostVoidMoveByDet.STATUS_IN_BATTLE)
                 elif op_result.status == LostVoidMoveByDet.STATUS_INTERACT:
+                    self.interact_target = LostVoidInteractTarget(name='未知', icon='感叹号', is_exclamation=True)
                     return self.round_success('未在大世界')
                 else:
-                    self.interact_entry_name = op_result.data
+                    interact_type = op_result.data  # 根据显示图标 返回入口类型
+                    self.interact_target = LostVoidInteractTarget(name=interact_type, icon=interact_type, is_entry=True)
                     return self.round_success(LostVoidDetector.CLASS_ENTRY)
             else:
                 return self.round_retry('移动失败')
 
-        self.ctx.controller.turn_by_distance(-100)
+        # 没找到目标 转动
+        self.ctx.controller.turn_by_distance(-200)
         self.nothing_times += 1
 
         if self.nothing_times >= 50:
@@ -275,18 +286,19 @@ class LostVoidRunLevel(ZOperation):
         screen = self.screenshot()
         result = self.round_by_find_area(screen, '战斗画面', '按键-交互')
         if result.is_success:
-            # 尝试文本识别下层入口 这样会比使用图标更为准确
-            area = self.ctx.screen_loader.get_area('迷失之地-大世界', '区域-入口文本')
+            # 尝试文本识别准备交互的目标 这样会比使用图标更为准确
+            area = self.ctx.screen_loader.get_area('迷失之地-大世界', '区域-交互文本')
             part = cv2_utils.crop_image_only(screen, area.rect)
             ocr_result_map = self.ctx.ocr.run_ocr(part)
-            target_entry: list[LostVoidRegionType] = [i.value for i in LostVoidRegionType]
-            target_word_list: list[str] = [gt(i.value) for i in target_entry]
+            current_interact_target = None
             for ocr_result in ocr_result_map.keys():
-                idx = str_utils.find_best_match_by_difflib(ocr_result, target_word_list, cutoff=0.8)
-                if idx is not None:
-                    self.interact_entry_name = target_entry[idx].value
-                    log.info(f'识别下层入口为: {self.interact_entry_name}')
+                target = match_interact_target(self.ctx, ocr_result)
+                if target is not None:
+                    current_interact_target = target
                     break
+
+            if current_interact_target is not None:
+                self.interact_target = current_interact_target
 
             self.ctx.controller.interact(press=True, press_time=0.2, release=True)
             return self.round_wait('交互', wait=1)
@@ -345,8 +357,8 @@ class LostVoidRunLevel(ZOperation):
 
         if interact_op is not None:
             # 出现选择的情况 交互到的不是下层入口 而是中途交互到其他内容了
-            if self.target_interact_type == LostVoidDetector.CLASS_ENTRY:
-                self.target_interact_type = LostVoidDetector.CLASS_INTERACT
+            if self.interact_target is not None and self.interact_target.is_entry:
+                self.interact_target = LostVoidInteractTarget(name='未知', icon='感叹号', is_exclamation=True)
             op_result = interact_op.execute()
             if op_result.success:
                 if interact_type is not None:
@@ -359,8 +371,8 @@ class LostVoidRunLevel(ZOperation):
         talk_result = self.try_talk(screen)
         if talk_result is not None:
             # 对话的情况 说明交互到的不是下层入口 中途交互到其他内容了
-            if self.target_interact_type == LostVoidDetector.CLASS_ENTRY:
-                self.target_interact_type = None
+            if self.interact_target is not None and self.interact_target.is_entry:
+                self.interact_target = LostVoidInteractTarget(name='未知', icon='感叹号', is_exclamation=True)
 
             return talk_result
 
@@ -372,7 +384,7 @@ class LostVoidRunLevel(ZOperation):
             return self.round_success('迷失之地-挑战结果')
 
         # 不在大世界的话 说明交互入口成功了
-        if self.target_interact_type == LostVoidDetector.CLASS_ENTRY:
+        if self.interact_target is not None and self.interact_target.is_entry:
             return self.round_success(LostVoidRunLevel.STATUS_NEXT_LEVEL)
 
         # 交互后 可能出现了后续的交互
@@ -481,6 +493,9 @@ class LostVoidRunLevel(ZOperation):
         2. 不在大世界的 可能是战斗后结果画面 也可能是交互进入下层
         @return:
         """
+        if self.interact_target is not None:
+            log.info('交互后处理 上次交互对象为 %s %s', self.interact_target.icon, self.interact_target.name)
+
         screen = self.screenshot()
 
         if self.ctx.lost_void.in_normal_world(screen):
@@ -498,8 +513,9 @@ class LostVoidRunLevel(ZOperation):
             if r2.is_success:
                 return self.round_success('挑战结果-完成', wait=2)
 
-        if self.target_interact_type == LostVoidDetector.CLASS_ENTRY:
-            return self.round_success(LostVoidRunLevel.STATUS_NEXT_LEVEL, data=self.interact_entry_name)
+        if self.interact_target is not None and self.interact_target.is_entry:
+            return self.round_success(LostVoidRunLevel.STATUS_NEXT_LEVEL,
+                                      data=self.interact_target.name)
 
         return self.round_retry('等待画面返回', wait=1)
 
@@ -508,18 +524,36 @@ class LostVoidRunLevel(ZOperation):
         交互后 进行的特殊移动
         :return:
         """
-        if self.target_interact_type == LostVoidRunLevel.IT_BATTLE:  # 战斗后的交互 不需要往后走
+        if self.interact_target is None:
+            return
+
+        if self.interact_target.after_battle:  # 战斗后的交互 不需要移动
             return
 
         if self.region_type == LostVoidRegionType.ENTRY:
             # 第一层 两个武备选择后 往后走 可以方便走上楼梯
             self.ctx.controller.move_s(press=True, press_time=1, release=True)
         elif self.region_type == LostVoidRegionType.FRIENDLY_TALK:
-            # 挚友会谈 交互从左往右 每次交互之后 向右移动 可以避开中间桌子的障碍
-            self.ctx.controller.move_s(press=True, press_time=1, release=True)
-            self.ctx.controller.move_d(press=True, press_time=1.5, release=True)
-        elif self.target_interact_type == LostVoidDetector.CLASS_INTERACT:
-            # 感叹号的情况 由于奸商布的位置和商店很靠近 因此固定交互后往后移动
+            # 挚交会谈
+            if self.interact_target.is_agent: # 如果是代理人 向后右移动 可以避开中间桌子的障碍
+                self.ctx.controller.move_s(press=True, press_time=1, release=True)
+                self.ctx.controller.move_d(press=True, press_time=1.5, release=True)
+            elif self.interact_target.is_npc: # 如果是NPC
+                if self.interact_target.name in [LostVoidInteractNPC.A_YUAN.value, LostVoidInteractNPC.MA_LIN.value]:
+                    # 阿援和玛琳 在左边
+                    self.ctx.controller.move_s(press=True, press_time=1, release=True)
+                    self.ctx.controller.move_d(press=True, press_time=1.5, release=True)
+                elif self.interact_target.name == LostVoidInteractNPC.AO_FEI_LI_YA.value:
+                    # 奥菲莉亚 在有右边
+                    self.ctx.controller.move_s(press=True, press_time=1, release=True)
+                    self.ctx.controller.move_a(press=True, press_time=1, release=True)
+                else:
+                    self.ctx.controller.move_s(press=True, press_time=1, release=True)
+            else:
+                self.ctx.controller.move_s(press=True, press_time=1, release=True)
+        elif self.interact_target.is_exclamation:  # 未定义的感叹号交互
+            # 感叹号的情况 统一往后走
+            # 1. 由于奸商布的位置和商店很靠近 交互后往后移动可以避开奸商布
             self.ctx.controller.move_s(press=True, press_time=1, release=True)
 
     @node_from(from_name='非战斗画面识别', status='进入战斗')  # 非挑战类型的 识别开始战斗后
@@ -595,7 +629,7 @@ class LostVoidRunLevel(ZOperation):
                     if screen_name == '迷失之地-战斗失败':
                         return self.round_success(screen_name)
                     else:
-                        self.target_interact_type = LostVoidRunLevel.IT_BATTLE
+                        self.interact_target = LostVoidInteractTarget(name='战斗后', icon='战斗后', after_battle=True)
                         log.info('识别正在交互')
                         return self.round_success('识别正在交互')
 
@@ -691,7 +725,7 @@ def __debug():
     ctx.ocr.init_model()
     ctx.start_running()
 
-    op = LostVoidRunLevel(ctx, LostVoidRegionType.ENTRY)
+    op = LostVoidRunLevel(ctx, LostVoidRegionType.FRIENDLY_TALK)
     op.execute()
 
 
