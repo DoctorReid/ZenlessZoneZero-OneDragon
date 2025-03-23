@@ -36,7 +36,7 @@ class LostVoidChooseNoDetail(ZOperation):
             # 进入本指令之前 有可能识别错画面
             return self.round_retry(status=f'当前画面 {screen_name}', wait=1)
 
-        # TODO 目前这两个画面的判断重叠
+        # 目前这两个画面的判断重叠 需要返回外层重新处理
         result = self.round_by_find_area(screen, '迷失之地-通用选择', '文本-详情')
         if result.is_success:
             self.ctx.screen_loader.update_current_screen_name('迷失之地-通用选择')

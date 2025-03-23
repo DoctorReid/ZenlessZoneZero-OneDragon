@@ -307,7 +307,8 @@ class LostVoidRunLevel(ZOperation):
     @node_from(from_name='等待加载', status='识别正在交互')
     @node_from(from_name='尝试交互', status='交互成功')
     @node_from(from_name='战斗中', status='识别正在交互')
-    @node_from(from_name='交互后处理', status='迷失之地-通用选择')
+    @node_from(from_name='交互处理', status='迷失之地-通用选择')  # 可能判断错误画面 在LostVoidChooseNoDetail中返回正确画面重新进行判断 #869
+    @node_from(from_name='交互后处理', status='迷失之地-通用选择')  # 可能判断错误画面 在LostVoidChooseNoDetail中返回正确画面重新进行判断 #869
     @operation_node(name='交互处理')
     def handle_interact(self) -> OperationRoundResult:
         """
