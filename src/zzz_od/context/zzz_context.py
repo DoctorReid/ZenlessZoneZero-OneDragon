@@ -66,8 +66,8 @@ class ZContext(OneDragonContext):
         from zzz_od.application.commission_assistant.commission_assistant_config import CommissionAssistantConfig
         from zzz_od.config.team_config import TeamConfig
         self.team_config: TeamConfig = TeamConfig(self.current_instance_idx)
-        from zzz_od.config.emulator_config import EmulatorConfig
-        self.emulator_config: EmulatorConfig = EmulatorConfig(self.current_instance_idx)
+        # from zzz_od.config.emulator_config import EmulatorConfig
+        # self.emulator_config: EmulatorConfig = EmulatorConfig(self.current_instance_idx)
 
         # 应用配置
         self.screenshot_helper_config: ScreenshotHelperConfig = ScreenshotHelperConfig(self.current_instance_idx)
@@ -142,6 +142,11 @@ class ZContext(OneDragonContext):
         """
         OneDragonContext.init_by_config(self)
         i18_utils.update_default_lang(self.game_account_config.game_language)
+
+        from one_dragon.base.screen.screen_loader import ScreenContext
+        from one_dragon.base.screen.template_loader import TemplateLoader
+        from one_dragon.base.matcher.template_matcher import TemplateMatcher
+        from zzz_od.controller.zzz_emulator_controller import ZEmulatorController
 
         from zzz_od.controller.zzz_pc_controller import ZPcController
         from one_dragon.base.config.game_account_config import GamePlatformEnum

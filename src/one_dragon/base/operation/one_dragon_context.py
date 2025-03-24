@@ -3,6 +3,7 @@ from enum import Enum
 from pynput import keyboard, mouse
 from typing import Optional
 
+from one_dragon.base.config.emulator_config import EmulatorConfig
 from one_dragon.base.config.game_account_config import GameAccountConfig
 from one_dragon.base.config.one_dragon_app_config import OneDragonAppConfig
 from one_dragon.base.config.one_dragon_config import OneDragonConfig
@@ -204,6 +205,7 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext, OneDragonCustomCont
         log.info('开始加载实例配置 %d' % self.current_instance_idx)
         self.one_dragon_app_config: OneDragonAppConfig = OneDragonAppConfig(self.current_instance_idx)
         self.game_account_config: GameAccountConfig = GameAccountConfig(self.current_instance_idx)
+        self.emulator_config: EmulatorConfig = EmulatorConfig(self.current_instance_idx)
 
     def async_init_ocr(self) -> None:
         """

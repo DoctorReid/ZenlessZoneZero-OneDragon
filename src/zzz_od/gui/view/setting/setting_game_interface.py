@@ -11,7 +11,7 @@ from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSetting
 from one_dragon_qt.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon_qt.widgets.column import Column
-from zzz_od.config.game_config import GamepadTypeEnum, TypeInputWay, ScreenSizeEnum, FullScreenEnum, MonitorEnum, GamePlatformEnum
+from zzz_od.config.game_config import GamepadTypeEnum, TypeInputWay, ScreenSizeEnum, FullScreenEnum, MonitorEnum
 from zzz_od.context.zzz_context import ZContext
 
 
@@ -40,10 +40,9 @@ class SettingGameInterface(VerticalScrollInterface):
         return content_widget
 
     def _get_basic_group(self) -> QWidget:
-        basic_group = SettingCardGroup(gt('游戏基础', 'ui'))
 
-        self.game_platform_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='游戏平台', options_enum=GamePlatformEnum)
-        basic_group.addSettingCard(self.game_platform_opt)
+
+        basic_group = SettingCardGroup(gt('游戏基础', 'ui'))
 
         self.input_way_opt = ComboBoxSettingCard(icon=FluentIcon.CLIPPING_TOOL, title='输入方式',
                                                 options_enum=TypeInputWay)
@@ -252,7 +251,6 @@ class SettingGameInterface(VerticalScrollInterface):
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)
 
-        self.game_platform_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('platform'))
         self.input_way_opt.init_with_adapter(self.ctx.game_config.type_input_way_adapter)
 
         self.launch_argument_switch.init_with_adapter(self.ctx.game_config.get_prop_adapter('launch_argument'))
