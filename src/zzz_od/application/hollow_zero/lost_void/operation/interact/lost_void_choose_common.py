@@ -101,6 +101,7 @@ class LostVoidChooseCommon(ZOperation):
         target_result_list = [
             gt('请选择1项'),
             gt('请选择2项'),
+            gt('请选择1枚鸣徽'),
             gt('请选择1个武备'),
             gt('获得武备'),
             gt('武备已升级'),
@@ -119,15 +120,18 @@ class LostVoidChooseCommon(ZOperation):
                 is_artifact = True
                 self.to_choose_num = 2
             elif idx == 2:
-                is_gear = True
+                is_artifact = True
                 self.to_choose_num = 1
             elif idx == 3:
                 is_gear = True
-                self.to_choose_num = 0
+                self.to_choose_num = 1
             elif idx == 4:
                 is_gear = True
                 self.to_choose_num = 0
             elif idx == 5:
+                is_gear = True
+                self.to_choose_num = 0
+            elif idx == 6:
                 is_artifact = True
                 self.to_choose_num = 0
 
