@@ -10,27 +10,27 @@ class NotifyMethodEnum(Enum):
 
     DISABLED = ConfigItem(label='禁用',value='DISABLED')
     
-    BARK = ConfigItem('BARK')
+    BARK = ConfigItem('Bark')
     DD_BOT = ConfigItem(label='钉钉机器人',value='DD_BOT')
     FS =  ConfigItem(label='飞书机器人',value='FS')
-    GOBOT = ConfigItem('GoBot')
+    ONEBOT = ConfigItem('OneBot')
     GOTIFY = ConfigItem('GOTIFY')
-    IGOT = ConfigItem('IGOT')
-    ServerChan = ConfigItem(label='Server酱',value='PUSH_KEY')
+    IGOT = ConfigItem('iGot')
+    ServerChan = ConfigItem(label='Server 酱',value='PUSH_KEY')
     DEER = ConfigItem(label='PushDeer',value='DEER')
-    CHAT = ConfigItem(label='synology chat',value='CHAT')
+    CHAT = ConfigItem(label='Synology Chat',value='CHAT')
     PUSH_PLUS = ConfigItem(label='PushPlus',value='PUSH_PLUS')
     WE_PLUS_BOT = ConfigItem(label='微加机器人',value='WE_PLUS_BOT')
-    QMSG = ConfigItem(label='QMSG酱',value='QMSG')
+    QMSG = ConfigItem(label='Qmsg 酱',value='QMSG')
     QYWX = ConfigItem(label='企业微信',value='QYWX')
     Telegram = ConfigItem(label='Telegram',value='TG')
     AIBOTK = ConfigItem(label='智能微秘书',value='AIBOTK')
     SMTP = ConfigItem(label='邮件',value='SMTP')
-    PushMe = ConfigItem('PushMe')
-    CHRONOCAT = ConfigItem('CHRONOCAT')
+    PUSHME = ConfigItem('PushMe')
+    CHRONOCAT = ConfigItem('Chronocat')
     WEBHOOK = ConfigItem('WEBHOOK')
-    NTFY = ConfigItem('NTFY')
-    WXPUSHER = ConfigItem('WXPUSHER')
+    NTFY = ConfigItem('ntfy')
+    WXPUSHER = ConfigItem('WxPusher')
 
 
 
@@ -79,19 +79,19 @@ class NotifyConfig(YamlConfig):
 
 class NotifyCard():
     configs = {
-    # BARK 相关配置
+    # Bark 相关配置
     "BARK": [
         {
             "var_suffix": "PUSH", 
             "title": "设备码",
             "icon": FluentIcon.MESSAGE,
-            "placeholder": "请输入bark IP 或设备码"
+            "placeholder": "请输入Bark IP 或设备码"
         },
         {
             "var_suffix": "ARCHIVE",
             "title": "推送是否存档",
             "icon": FluentIcon.PEOPLE,
-            "placeholder": ""
+            "placeholder": "可选：true 或 false"
         },
         {
             "var_suffix": "GROUP",
@@ -128,15 +128,15 @@ class NotifyCard():
     "DD_BOT": [
         {
             "var_suffix": "SECRET'",
-            "title": "SECRET",
+            "title": "Secret",
             "icon": FluentIcon.CERTIFICATE,
-            "placeholder": "请输入钉钉机器人的SECRET密钥"
+            "placeholder": "请输入钉钉机器人的Secret密钥"
         },
         {
             "var_suffix": "TOKEN",
-            "title": "TOKEN",
-            "icon": FluentIcon.LINK,
-            "placeholder": "请输入钉钉机器人的TOKEN密钥"
+            "title": "Token",
+            "icon": FluentIcon.VPN,
+            "placeholder": "请输入钉钉机器人的Token密钥"
         }
     ],
     # 飞书机器人 相关配置
@@ -148,34 +148,61 @@ class NotifyCard():
             "placeholder": "请输入飞书机器人的密钥"
         }
     ],
-    # GOTIFY 相关配置
-    "GOTIFY": [
+    # OneBot 相关配置
+    "ONEBOT": [
         {
-            "var_suffix": "URL", 
-            "title": "gotify地址",
-            "icon": FluentIcon.CLOUD,
-            "placeholder": "请输入gotify地址,如https://push.example.de:8080"
+            "var_suffix": "URL",
+            "title": "请求地址",
+            "icon": FluentIcon.SEND,
+            "placeholder": "请输入请求地址"
+        },
+        {
+            "var_suffix": "USER",
+            "title": "QQ 号",
+            "icon": FluentIcon.PEOPLE,
+            "placeholder": "请输入目标 QQ 号"
+        },
+        {
+            "var_suffix": "GROUP",
+            "title": "群号",
+            "icon": FluentIcon.PEOPLE,
+            "placeholder": "请输入目标群号"
         },
         {
             "var_suffix": "TOKEN",
-            "title": "TOKEN",
-            "icon": FluentIcon.PEOPLE,
-            "placeholder": "gotify的消息应用token"
+            "title": "Token",
+            "icon": FluentIcon.VPN,
+            "placeholder": "请输入 OneBot 的 Token（可选）"
+        }
+    ],
+    # Gotify 相关配置
+    "GOTIFY": [
+        {
+            "var_suffix": "URL", 
+            "title": "Gotify 地址",
+            "icon": FluentIcon.SEND,
+            "placeholder": "例：https://push.example.de:8080"
+        },
+        {
+            "var_suffix": "TOKEN",
+            "title": "App Token",
+            "icon": FluentIcon.VPN,
+            "placeholder": "Gotify 的 App Token"
         },
         {
             "var_suffix": "PRIORITY",
             "title": "消息优先级",
             "icon": FluentIcon.CLOUD,
-            "placeholder": "默认为0"
+            "placeholder": "0"
         }
     ],
-    # IGOT 相关配置
+    # iGot 相关配置
     "IGOT": [
         {
             "var_suffix": "PUSH_KEY", 
-            "title": "PUSH_KEY",
-            "icon": FluentIcon.MESSAGE,
-            "placeholder": "请输入iGot 聚合推送的 IGOT_PUSH_KEY"
+            "title": "推送 Key",
+            "icon": FluentIcon.VPN,
+            "placeholder": "请输入 iGot 的 推送 Key"
         }
     ],
     # ServerChan 相关配置
@@ -184,7 +211,7 @@ class NotifyCard():
             "var_suffix": "KEY",
             "title": "PUSH_KEY",
             "icon": FluentIcon.MESSAGE,
-            "placeholder": "请输入ServerChan的PUSH_KEY"
+            "placeholder": "请输入 Server 酱的 PUSH_KEY"
         }
     ],
     # PushDeer 相关配置
@@ -193,28 +220,28 @@ class NotifyCard():
             "var_suffix": "KEY", 
             "title": "KEY",
             "icon": FluentIcon.MESSAGE,
-            "placeholder": "请输入PushDeer 的 PUSHDEER_KEY"
+            "placeholder": "请输入 PushDeer 的 PUSHDEER_KEY"
         },
         {
             "var_suffix": "URL",
             "title": "推送URL",
-            "icon": FluentIcon.CLOUD,
-            "placeholder": "请输入PushDeer 的 PUSHDEER_URL"
+            "icon": FluentIcon.SEND,
+            "placeholder": "请输入 PushDeer 的 PUSHDEER_URL"
         }
     ],
-    # synology chat 相关配置
+    # Synology Chat 相关配置
     "CHAT": [
         {
             "var_suffix": "URL", 
-            "title": "synology chat url",
-            "icon": FluentIcon.MESSAGE,
-            "placeholder": "请输入synology chat的url"
+            "title": "URL",
+            "icon": FluentIcon.SEND,
+            "placeholder": "请输入 Synology Chat 的 URL"
         },
         {
             "var_suffix": "TOKEN",
-            "title": "synology chat token",
-            "icon": FluentIcon.PEOPLE,
-            "placeholder": "请输入synology chat的token"
+            "title": "Token",
+            "icon": FluentIcon.VPN,
+            "placeholder": "请输入 Synology Chat 的 Token"
         }
     ],
     # PUSH_PLUS 相关配置
@@ -222,7 +249,7 @@ class NotifyCard():
         {
             "var_suffix": "TOKEN", 
             "title": "用户令牌",
-            "icon": FluentIcon.MESSAGE,
+            "icon": FluentIcon.VPN,
             "placeholder": "请输入用户令牌"
         },
         {
@@ -247,19 +274,19 @@ class NotifyCard():
             "var_suffix": "WEBHOOK",
             "title": "webhook编码",
             "icon": FluentIcon.CLOUD,
-            "placeholder": "可在pushplus公众号上扩展配置出更多渠道"
+            "placeholder": "可在公众号上扩展配置出更多渠道"
         },
         {
             "var_suffix": "CALLBACKURL",
             "title": "发送结果回调地址",
-            "icon": FluentIcon.CLOUD,
+            "icon": FluentIcon.SEND,
             "placeholder": "会把推送最终结果通知到这个地址上"
         },
         {
             "var_suffix": "TO",
-            "title": "好友令牌",
+            "title": "好友令牌或用户ID",
             "icon": FluentIcon.CLOUD,
-            "placeholder": "微信公众号渠道填写好友令牌，企业微信渠道填写企业微信用户id"
+            "placeholder": "微信公众号：好友令牌；企业微信：用户ID"
         }
     ],
     # 微加机器人 相关配置
@@ -267,7 +294,7 @@ class NotifyCard():
         {
             "var_suffix": "TOKEN", 
             "title": "用户令牌",
-            "icon": FluentIcon.MESSAGE,
+            "icon": FluentIcon.VPN,
             "placeholder": "请输入用户令牌"
         },
         {
@@ -289,13 +316,13 @@ class NotifyCard():
             "var_suffix": "KEY", 
             "title": "KEY",
             "icon": FluentIcon.MESSAGE,
-            "placeholder": "请输入qmsg 酱的 QMSG_KEY"
+            "placeholder": "请输入 Qmsg 酱的 QMSG_KEY"
         },
         {
             "var_suffix": "TYPE",
             "title": "TYPE",
             "icon": FluentIcon.PEOPLE,
-            "placeholder": "请输入qmsg 酱的 QMSG_TYPE"
+            "placeholder": "请输入 Qmsg 酱的 QMSG_TYPE"
         }
     ],
     # 企业微信 相关配置
@@ -324,8 +351,8 @@ class NotifyCard():
         {
             "var_suffix": "BOT_TOKEN", 
             "title": "BOT_TOKEN",
-            "icon": FluentIcon.MESSAGE,
-            "placeholder": "请输入tg 机器人的 TG_BOT_TOKEN，例：1407203283:AAG9rt-6RDaaX0HBLZQq0laNOh898iFYaRQ"
+            "icon": FluentIcon.VPN,
+            "placeholder": "请输入 Telegram 机器人的 TG_BOT_TOKEN，例：1407203283:AAG9rt-6RDaaX0HBLZQq0laNOh898iFYaRQ"
         },
         {
             "var_suffix": "USER_ID",
@@ -362,21 +389,21 @@ class NotifyCard():
     "AIBOTK": [
         {
             "var_suffix": "KEY", 
-            "title": "apikey",
+            "title": "APIKEY",
             "icon": FluentIcon.MESSAGE,
-            "placeholder": "请输入个人中心的apikey 文档地址：http://wechat.aibotk.com/docs/about"
+            "placeholder": "请输入个人中心的 APIKEY"
         },
         {
             "var_suffix": "TYPE",
             "title": "目标类型",
             "icon": FluentIcon.PEOPLE,
-            "placeholder": "请输入room 或 contact"
+            "placeholder": "请输入 room 或 contact"
         },
         {
             "var_suffix": "NAME",
             "title": "目标名称",
             "icon": FluentIcon.CLOUD,
-            "placeholder": "发送群名 或者好友昵称和type要对应好"
+            "placeholder": "发送群名或者好友昵称，和 type 要对应"
         }
     ],
     # SMTP 相关配置
@@ -385,34 +412,34 @@ class NotifyCard():
             "var_suffix": "SERVER", 
             "title": "邮件服务器",
             "icon": FluentIcon.MESSAGE,
-            "placeholder": "请输入SMTP 发送邮件服务器，形如 smtp.exmail.qq.com:465"
+            "placeholder": "例：smtp.exmail.qq.com:465"
         },
         {
             "var_suffix": "SSL",
             "title": "是否使用 SSL",
             "icon": FluentIcon.PEOPLE,
-            "placeholder": "填写 true 或 false"
+            "placeholder": "true 或 false"
         },
         {
             "var_suffix": "EMAIL",
-            "title": "邮箱",
+            "title": "收发件邮箱",
             "icon": FluentIcon.CLOUD,
-            "placeholder": "SMTP 收发件邮箱，通知将会由自己发给自己"
+            "placeholder": "将由自己发给自己"
         },
         {
             "var_suffix": "PASSWORD",
             "title": "登录密码",
             "icon": FluentIcon.CLOUD,
-            "placeholder": "SMTP 登录密码，也可能为特殊口令，视具体邮件服务商说明而定"
+            "placeholder": "SMTP 登录密码，也可能为特殊口令"
         },
         {
             "var_suffix": "NAME",
-            "title": "收发件人",
+            "title": "收发件人名称",
             "icon": FluentIcon.CLOUD,
-            "placeholder": "发件人名称，可随意填写"
+            "placeholder": "可随意填写"
         }
     ],
-    # PUSHME 相关配置
+    # PushMe 相关配置
     "PUSHME": [
         {
             "var_suffix": "KEY", 
@@ -423,28 +450,28 @@ class NotifyCard():
         {
             "var_suffix": "URL",
             "title": "URL",
-            "icon": FluentIcon.PEOPLE,
+            "icon": FluentIcon.SEND,
             "placeholder": ""
         }
     ],
-    # CHRONOCAT 相关配置
+    # Chronocat 相关配置
     "CHRONOCAT": [
         {
             "var_suffix": "QQ", 
             "title": "QQ",
             "icon": FluentIcon.MESSAGE,
-            "placeholder": "请输入接受消息的QQ号"
+            "placeholder": "请输入接收消息的 QQ 号"
         },
         {
             "var_suffix": "TOKEN",
             "title": "TOKEN",
-            "icon": FluentIcon.PEOPLE,
+            "icon": FluentIcon.VPN,
             "placeholder": ""
         },
         {
             "var_suffix": "URL",
             "title": "URL",
-            "icon": FluentIcon.CLOUD,
+            "icon": FluentIcon.SEND,
             "placeholder": ""
         }
     ],
@@ -453,7 +480,7 @@ class NotifyCard():
         {
             "var_suffix": "URL", 
             "title": "URL",
-            "icon": FluentIcon.MESSAGE,
+            "icon": FluentIcon.SEND,
             "placeholder": "自定义通知 请求地址"
         },
         {
@@ -481,46 +508,46 @@ class NotifyCard():
             "placeholder": "自定义通知 content-type"
         }
     ],
-    # NTFY 相关配置
+    # ntfy 相关配置
     "NTFY": [
         {
             "var_suffix": "URL", 
             "title": "URL",
-            "icon": FluentIcon.MESSAGE,
-            "placeholder": "请输入ntfy地址,如https://ntfy.sh"
+            "icon": FluentIcon.SEND,
+            "placeholder": "例：https://ntfy.sh"
         },
         {
             "var_suffix": "TOPIC",
             "title": "TOPIC",
             "icon": FluentIcon.PEOPLE,
-            "placeholder": "ntfy的消息应用topic"
+            "placeholder": "ntfy 的 Topic"
         },
         {
             "var_suffix": "PRIORITY",
-            "title": "PRIORITY",
+            "title": "消息优先级",
             "icon": FluentIcon.CLOUD,
-            "placeholder": "推送消息优先级,默认为3"
+            "placeholder": "3"
         }
     ],
-    # WXPUSHER 相关配置
+    # WxPusher 相关配置
     "WXPUSHER": [
         {
             "var_suffix": "APP_TOKEN", 
-            "title": "APP_TOKEN",
-            "icon": FluentIcon.MESSAGE,
-            "placeholder": "请输入appToken，官方文档: https://wxpusher.zjiecode.com/docs/ 管理后台: https://wxpusher.zjiecode.com/admin/"
+            "title": "appToken",
+            "icon": FluentIcon.VPN,
+            "placeholder": "请输入 appToken"
         },
         {
             "var_suffix": "TOPIC_IDS",
-            "title": "TOPIC_IDS",
+            "title": "TOPIC_IDs",
             "icon": FluentIcon.PEOPLE,
-            "placeholder": "请输入主题ID，多个用英文分号;分隔 topic_ids 与 uids 至少配置一个才行"
+            "placeholder": "多个用英文分号;分隔"
         },
         {
             "var_suffix": "UIDS",
-            "title": "UIDS",
+            "title": "UIDs",
             "icon": FluentIcon.CLOUD,
-            "placeholder": "用户ID，多个用英文分号;分隔 topic_ids 与 uids 至少配置一个才行"
+            "placeholder": "二者至少配置其中之一"
         }
     ],
 }
