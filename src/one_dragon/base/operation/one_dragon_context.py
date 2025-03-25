@@ -76,6 +76,8 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
         self.btn_listener = PcButtonListener(on_button_tap=self._on_key_press, listen_keyboard=True, listen_mouse=True)
         self.btn_listener.start()
 
+        self.home_start_button_pressed : bool = False
+
     def init_by_config(self) -> None:
         """
         根据配置进行初始化
