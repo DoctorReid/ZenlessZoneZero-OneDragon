@@ -52,6 +52,7 @@ class ScreenContext:
         self.load_all()
         self.last_screen_name: Optional[str] = None  # 上一个画面名字
         self.current_screen_name: Optional[str] = None  # 当前的画面名字
+        self.swap_from_choose_no_detail: Optional[bool] = False # 上次是无详情选择
 
     def load_all(self) -> None:
         """

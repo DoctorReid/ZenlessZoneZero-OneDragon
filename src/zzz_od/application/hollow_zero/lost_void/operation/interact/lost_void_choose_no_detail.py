@@ -41,6 +41,7 @@ class LostVoidChooseNoDetail(ZOperation):
         # 目前这两个画面的判断重叠 需要返回外层重新处理
         result = self.round_by_find_area(screen, '迷失之地-通用选择', '文本-详情')
         if result.is_success:
+            self.ctx.screen_loader.swap_from_choose_no_detail = True
             self.ctx.screen_loader.update_current_screen_name('迷失之地-通用选择')
             return self.round_success('迷失之地-通用选择')
 

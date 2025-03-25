@@ -337,7 +337,8 @@ class LostVoidRunLevel(ZOperation):
         interact_type: Optional[str] = None
         if screen_name == '迷失之地-武备选择':
             interact_op = LostVoidChooseGear(self.ctx)
-        elif screen_name == '迷失之地-通用选择':
+        elif screen_name == '迷失之地-通用选择' or self.ctx.screen_loader.swap_from_choose_no_detail:
+            self.ctx.screen_loader.swap_from_choose_no_detail = False
             interact_op = LostVoidChooseCommon(self.ctx)
         elif screen_name == '迷失之地-无详情选择':
             interact_op = LostVoidChooseNoDetail(self.ctx)
