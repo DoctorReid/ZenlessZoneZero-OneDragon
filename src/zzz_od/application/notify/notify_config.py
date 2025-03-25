@@ -8,29 +8,29 @@ from qfluentwidgets import FluentIcon
 
 class NotifyMethodEnum(Enum):
 
-    DISABLED = ConfigItem(label='禁用',value='DISABLED')
+    DISABLED = ConfigItem('禁用', 'DISABLED')
     
-    BARK = ConfigItem('Bark')
-    DD_BOT = ConfigItem(label='钉钉机器人',value='DD_BOT')
-    FS =  ConfigItem(label='飞书机器人',value='FS')
-    ONEBOT = ConfigItem('OneBot')
-    GOTIFY = ConfigItem('GOTIFY')
-    IGOT = ConfigItem('iGot')
-    ServerChan = ConfigItem(label='Server 酱',value='PUSH_KEY')
-    DEER = ConfigItem(label='PushDeer',value='DEER')
-    CHAT = ConfigItem(label='Synology Chat',value='CHAT')
-    PUSH_PLUS = ConfigItem(label='PushPlus',value='PUSH_PLUS')
-    WE_PLUS_BOT = ConfigItem(label='微加机器人',value='WE_PLUS_BOT')
-    QMSG = ConfigItem(label='Qmsg 酱',value='QMSG')
-    QYWX = ConfigItem(label='企业微信',value='QYWX')
-    Telegram = ConfigItem(label='Telegram',value='TG')
-    AIBOTK = ConfigItem(label='智能微秘书',value='AIBOTK')
-    SMTP = ConfigItem(label='邮件',value='SMTP')
-    PUSHME = ConfigItem('PushMe')
-    CHRONOCAT = ConfigItem('Chronocat')
-    WEBHOOK = ConfigItem('WEBHOOK')
-    NTFY = ConfigItem('ntfy')
-    WXPUSHER = ConfigItem('WxPusher')
+    BARK = ConfigItem('Bark', 'BARK')
+    DD_BOT = ConfigItem('钉钉机器人', 'DD_BOT')
+    FS =  ConfigItem('飞书机器人', 'FS')
+    ONEBOT = ConfigItem('OneBot', 'ONEBOT')
+    GOTIFY = ConfigItem('GOTIFY', 'GOTIFY')
+    IGOT = ConfigItem('iGot', 'IGOT')
+    SERVERCHAN = ConfigItem('Server 酱', 'PUSH_KEY')
+    DEER = ConfigItem('PushDeer', 'DEER')
+    CHAT = ConfigItem('Synology Chat', 'CHAT')
+    PUSH_PLUS = ConfigItem('PushPlus', 'PUSH_PLUS')
+    WE_PLUS_BOT = ConfigItem('微加机器人', 'WE_PLUS_BOT')
+    QMSG = ConfigItem('Qmsg 酱', 'QMSG')
+    QYWX = ConfigItem('企业微信', 'QYWX')
+    Telegram = ConfigItem('Telegram', 'TG')
+    AIBOTK = ConfigItem('智能微秘书', 'AIBOTK')
+    SMTP = ConfigItem('邮件', 'SMTP')
+    PUSHME = ConfigItem('PushMe', 'PUSHME')
+    CHRONOCAT = ConfigItem('Chronocat', 'CHRONOCAT')
+    WEBHOOK = ConfigItem('Webhook', 'WEBHOOK')
+    NTFY = ConfigItem('ntfy', 'NTFY')
+    WXPUSHER = ConfigItem('WxPusher', 'WXPUSHER')
 
 
 
@@ -43,7 +43,7 @@ class NotifyConfig(YamlConfig):
     
     @property
     def notify_method(self) -> str:
-        return self.get('notify_method', NotifyMethodEnum.DISABLED)
+        return self.get('notify_method', NotifyMethodEnum.DISABLED.value.value)
 
     @notify_method.setter
     def notify_method(self, new_value: str) -> None:
