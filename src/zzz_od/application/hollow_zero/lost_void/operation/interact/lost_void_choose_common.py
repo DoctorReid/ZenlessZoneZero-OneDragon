@@ -93,6 +93,7 @@ class LostVoidChooseCommon(ZOperation):
         """
         is_gear: bool = False  # 区域-武备名称
         is_artifact: bool = False # 区域-藏品名称
+        self.to_choose_num = 0
 
         area = self.ctx.screen_loader.get_area('迷失之地-通用选择', '区域-标题')
         part = cv2_utils.crop_image_only(screen, area.rect)
@@ -110,9 +111,8 @@ class LostVoidChooseCommon(ZOperation):
         for ocr_word in ocr_result.keys():
             idx = str_utils.find_best_match_by_difflib(ocr_word, target_result_list)
             if idx is None:
-                continue
-
-            if idx == 0:
+                self.to_choose_num = 0
+            elif idx == 0:
                 # 1.5 更新后 武备和普通鸣徽都是这个标题
                 self.to_choose_num = 1
             elif idx == 1:

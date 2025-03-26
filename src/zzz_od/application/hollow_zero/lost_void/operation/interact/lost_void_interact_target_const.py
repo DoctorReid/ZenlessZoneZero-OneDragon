@@ -18,6 +18,7 @@ class LostVoidInteractNPC(Enum):
     MA_LIN = '玛琳'  # 挚交会谈 左边重置路线的
     AO_FEI_LI_YA = '奥菲莉亚'  # 武备
     A_YUAN = '阿援'  # 挚交会谈 商店
+    GUAI_ZAI = '乖仔'  # 抽奖机
 
 
 class LostVoidBoss(Enum):

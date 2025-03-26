@@ -350,7 +350,7 @@ class LostVoidRunLevel(ZOperation):
             interact_type = '路径迭换'
             interact_op = LostVoidRouteChange(self.ctx)
         elif screen_name == '迷失之地-抽奖机':
-            interact_type = '抽奖机'
+            interact_type = '邦布商店'  # TODO 1.6新增的抽奖机图标 会被误判成商店 等待后续模型更新
             interact_op = LostVoidLottery(self.ctx)
         elif screen_name == '迷失之地-大世界':
             return self.round_success('迷失之地-大世界')
