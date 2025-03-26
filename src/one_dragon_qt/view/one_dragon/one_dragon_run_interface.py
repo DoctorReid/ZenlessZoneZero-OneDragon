@@ -184,8 +184,8 @@ class OneDragonRunInterface(VerticalScrollInterface):
         self._context_event_signal.instance_changed.connect(self._on_instance_changed)
         self.run_all_apps_signal.connect(self.run_all_apps)
 
-        if self.ctx.one_dragon_config.run_all_apps:
-            self.ctx.one_dragon_config.run_all_apps = False
+        if self.ctx.home_start_button_pressed:
+            self.ctx.home_start_button_pressed = False
             self.run_all_apps_signal.emit()
 
     def on_interface_hidden(self) -> None:

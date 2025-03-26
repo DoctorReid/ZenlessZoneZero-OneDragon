@@ -320,6 +320,6 @@ class HomeInterface(VerticalScrollInterface):
         """启动一条龙按钮点击事件处理"""
 
         # app.py中一条龙界面为第三个添加的
+        self.ctx.home_start_button_pressed = True
         one_dragon_interface = self.main_window.stackedWidget.widget(2)
         self.main_window.switchTo(one_dragon_interface)
-        self.ctx.one_dragon_config.run_all_apps = True
