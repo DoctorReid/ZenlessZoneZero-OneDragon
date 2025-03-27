@@ -1,5 +1,5 @@
 from typing import Optional
-
+from one_dragon.utils.log_utils import log
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils import i18_utils
 from zzz_od.game_data.agent import AgentEnum
@@ -150,9 +150,14 @@ class ZContext(OneDragonContext):
 
         from zzz_od.controller.zzz_pc_controller import ZPcController
         from one_dragon.base.config.game_account_config import GamePlatformEnum
+        log.info(f'{self.game_account_config.platform}')
+        log.info(f'{GamePlatformEnum.PC.value.value}')
+        log.info(f'{GamePlatformEnum.Emulator.value.value}')
         if self.game_account_config.platform == GamePlatformEnum.PC.value.value:
+            log.info('电脑init')
             from one_dragon.base.config.game_account_config import GameRegionEnum
             win_title = '绝区零' if self.game_account_config.game_region == GameRegionEnum.CN.value.value else 'ZenlessZoneZero'
+            log
             self.controller = ZPcController(
                 game_config=self.game_config,
                 win_title=win_title,
@@ -162,10 +167,14 @@ class ZContext(OneDragonContext):
             self.screen_loader: ScreenContext = ScreenContext(platform='PC')
             self.template_finder: TemplateLoader = TemplateLoader(platform='PC')
             self.tm: TemplateMatcher = TemplateMatcher(self.template_loader)
-        if self.game_config.platform == GamePlatformEnum.Emulator.value.value:
+        if self.game_account_config.platform == GamePlatformEnum.Emulator.value.value:
+            log.info('模拟器init')
+            from one_dragon.base.config.game_account_config import GameRegionEnum
+            win_title = '绝区零' if self.game_account_config.game_region == GameRegionEnum.CN.value.value else 'ZenlessZoneZero'
             self.controller = ZEmulatorController(
                 game_config=self.game_config,
-                win_title=self.game_config.win_title,
+                instance_idx=self.current_instance_idx,
+                win_title=win_title,
                 standard_width=self.project_config.screen_standard_width,
                 standard_height=self.project_config.screen_standard_height
             )

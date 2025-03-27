@@ -11,12 +11,12 @@ from zzz_od.screen_area.screen_normal_world import ScreenNormalWorldEnum_Emulato
 from one_dragon.base.geometry.point import Point
 class ZEmulatorController(EmulatorControllerBase):
 
-    def __init__(self, game_config: GameConfig,
+    def __init__(self, game_config: GameConfig,instance_idx,
                  win_title: str,
                  standard_width: int = 1920,
                  standard_height: int = 1080):
         EmulatorControllerBase.__init__(self,
-                                  win_title=win_title,
+                                  win_title=win_title,instance_idx=instance_idx,
                                   standard_width=standard_width,
                                   standard_height=standard_height)
 

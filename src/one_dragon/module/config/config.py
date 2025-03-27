@@ -74,10 +74,11 @@ class AzurLaneConfig(ConfigUpdater, ManualConfig, GeneratedConfig, ConfigWatcher
         else:
             super().__setattr__(key, value)
 
-    def __init__(self, config_name, task=None):
+    def __init__(self, config_name, instance_idx, task=None):
         logger.attr("Lang", self.LANG)
         # This will read ./config/<config_name>.json
         self.config_name = config_name
+        self.instance_idx=instance_idx
         # Raw json data in yaml file.
         self.data = {}
         # Modified arguments. Key: Argument path in yaml file. Value: Modified value.
@@ -100,6 +101,7 @@ class AzurLaneConfig(ConfigUpdater, ManualConfig, GeneratedConfig, ConfigWatcher
         self.task: Function
         # Template config is used for dev tools
         self.is_template_config = config_name.startswith("template")
+        logger.info(f'instance_idx:{self.instance_idx}')
 
         if self.is_template_config:
             # For dev tools
@@ -124,7 +126,7 @@ class AzurLaneConfig(ConfigUpdater, ManualConfig, GeneratedConfig, ConfigWatcher
         self.save()
 
     def load(self):
-        self.data = self.read_file(self.config_name)
+        self.data = self.read_file(self.config_name, self.instance_idx)
         self.config_override()
 
         for path, value in self.modified.items():
@@ -274,7 +276,7 @@ class AzurLaneConfig(ConfigUpdater, ManualConfig, GeneratedConfig, ConfigWatcher
         # Don't use self.modified = {}, that will create a new object.
         self.modified.clear()
         del_cached_property(self, 'stored')
-        self.write_file(self.config_name, data=self.data)
+        self.write_file(self.config_name, self.instance_idx, data=self.data)
 
     def update(self):
         self.load()

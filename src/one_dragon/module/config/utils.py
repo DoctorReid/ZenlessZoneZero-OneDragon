@@ -46,9 +46,9 @@ def filepath_i18n(lang, mod_name='alas'):
     return os.path.join('./module/config/i18n', f'{lang}.json')
 
 
-def filepath_config(filename, mod_name='alas'):
+def filepath_config(filename, instance_idx, mod_name='alas'):
     if mod_name == 'alas':
-        return os.path.join('../config/01', f'{filename}.yml')#TODO 配置文件位置 多实例适配
+        return os.path.join('../../config', f"{int(instance_idx):02d}", f'{filename}.json')#TODO 配置文件位置 多实例适配
     else:
         return os.path.join('./config', f'{filename}.{mod_name}.json')
 

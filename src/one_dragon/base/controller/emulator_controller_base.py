@@ -7,7 +7,7 @@ from one_dragon.base.controller.controller_base import ControllerBase
 from one_dragon.base.geometry.point import Point
 class EmulatorControllerBase(ControllerBase):
 
-    def __init__(self, win_title: str,
+    def __init__(self, win_title: str,instance_idx,
                  standard_width: int = 1920,
                  standard_height: int = 1080):
         ControllerBase.__init__(self)
@@ -15,7 +15,7 @@ class EmulatorControllerBase(ControllerBase):
         self.standard_height: int = standard_height
         self.emulator_width: int
         self.emulator_height: int
-        config = AzurLaneConfig(config_name='alas')
+        config = AzurLaneConfig(config_name='alas',instance_idx=instance_idx)
         self.device = Device(config=config)
 
         self.sct = None

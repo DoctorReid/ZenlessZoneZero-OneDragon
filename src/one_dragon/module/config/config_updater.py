@@ -865,7 +865,7 @@ class ConfigUpdater:
         out = list(self.iter_hidden_args(data))
         return set(out)
 
-    def read_file(self, config_name, is_template=False):
+    def read_file(self, config_name, instance_idx, is_template=False):
         """
         Read and update config file.
 
@@ -876,7 +876,11 @@ class ConfigUpdater:
         Returns:
             dict:
         """
-        old = read_file(filepath_config(config_name))
+        from one_dragon.module.logger import logger
+        import os
+        print(f"Current working directory: {os.getcwd()}")#DEBUG输出 要删掉
+        logger.info(f'config_file:{filepath_config(config_name, instance_idx)}')
+        old = read_file(filepath_config(config_name, instance_idx))
         new = self.config_update(old, is_template=is_template)
         # The updated config did not write into file, although it doesn't matters.
         # Commented for performance issue
@@ -884,7 +888,7 @@ class ConfigUpdater:
         return new
 
     @staticmethod
-    def write_file(config_name, data, mod_name='alas'):
+    def write_file(config_name, instance_idx, data, mod_name='alas'):
         """
         Write config file.
 
@@ -893,10 +897,10 @@ class ConfigUpdater:
             data (dict):
             mod_name (str):
         """
-        write_file(filepath_config(config_name, mod_name), data)
+        write_file(filepath_config(config_name, instance_idx, mod_name), data)
 
     @timer
-    def update_file(self, config_name, is_template=False):
+    def update_file(self, config_name, instance_idx, is_template=False):
         """
         Read, update and write config file.
 
@@ -907,8 +911,8 @@ class ConfigUpdater:
         Returns:
             dict:
         """
-        data = self.read_file(config_name, is_template=is_template)
-        self.write_file(config_name, data)
+        data = self.read_file(config_name, instance_idx,is_template=is_template)
+        self.write_file(config_name, instance_idx, data)
         return data
 
 
