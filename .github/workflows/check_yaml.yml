@@ -7,14 +7,14 @@ on:
       - YAML_Check
       - dev
     paths:
-      - 'config/**'  # 仅当 config 目录下的文件发生变化时触发
+      - '**'  # 仅当 config 目录下的文件发生变化时触发
   pull_request:
     branches:
       - main
       - YAML_Check
       - dev
     paths:
-      - 'config/**'  # 仅当 config 目录下的文件发生变化时触发
+      - '**'  # 仅当 config 目录下的文件发生变化时触发
 
 jobs:
   lint-yaml:
