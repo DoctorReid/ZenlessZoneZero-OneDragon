@@ -1,7 +1,7 @@
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import PrimaryPushButton, FluentIcon, CaptionLabel, LineEdit, ToolButton
-from typing import List
+from typing import Optional, List
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon_qt.widgets.column import Column
@@ -23,7 +23,7 @@ class ChargePlanCard(MultiLineSettingCard):
     move_top = Signal(int)
 
     def __init__(self, ctx: ZContext,
-                 idx: int, plan: ChargePlanItem):
+                 idx: Optional[int], plan: ChargePlanItem):
         self.ctx: ZContext = ctx
         self.idx: int = idx
         self.plan: ChargePlanItem = plan
@@ -313,7 +313,12 @@ class ChargePlanInterface(VerticalScrollInterface):
             self.card_list.pop(-1)
 
     def _on_add_clicked(self) -> None:
-        self.ctx.charge_plan_config.add_plan()
+        from zzz_od.gui.view.one_dragon.charge_plan_dialog import ChargePlanDialog
+        dialog = ChargePlanDialog(self.ctx, parent=self)
+        result = dialog.exec()
+        if result:
+            card_properties = dialog.get_card_properties()
+            self.ctx.charge_plan_config.add_plan(card_properties)
         self.update_plan_list_display()
 
     def _on_plan_item_changed(self, idx: int, plan: ChargePlanItem) -> None:
