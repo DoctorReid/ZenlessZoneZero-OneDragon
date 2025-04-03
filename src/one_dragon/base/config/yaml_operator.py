@@ -15,7 +15,7 @@ def read_cache_or_load(file_path: str):
         return cached[1]
 
     with open(file_path, 'r', encoding='utf-8') as file:
-        log.debug(f"Loaded yaml: {file_path}")
+        log.debug(f"加载yaml: {file_path}")
         data = yaml.safe_load(file)
         cached_yaml_data[file_path] = (last_modify, data)
         return data
