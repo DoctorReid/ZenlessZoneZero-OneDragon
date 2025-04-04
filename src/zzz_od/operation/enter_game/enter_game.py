@@ -74,6 +74,10 @@ class EnterGame(ZOperation):
         if result.is_success:
             return self.round_success(result.status, wait=1)
 
+        result = self.round_by_find_and_click_area(screen, '打开游戏', '重试')
+        if result.is_success:
+            return self.round_wait(result.status, wait=5)
+
         if self.ctx.game_account_config.game_region != GameRegionEnum.CN.value.value:
             return self.check_screen_intl()
 
