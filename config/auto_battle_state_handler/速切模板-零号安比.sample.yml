@@ -8,14 +8,10 @@ handlers:
 
       - states: "[自定义-红光闪避, 0, 0.5]"
         operations:
-          - operation_template: "零号安比-闪A"
-
-      # 连携
+          - operation_template: "零号安比-闪A" # 连携
       - states: "[按键可用-连携技, 0, 0.5]"
         operations:
-          - operation_template: "零号安比-连携攻击"
-
-      # 防呆
+          - operation_template: "零号安比-连携攻击" # 防呆
       - states: "([按键-切换角色-下一个, 0, 0.3]|[按键-切换角色-上一个, 0, 0.3])"
         debug_name: "切人后等待"
         sub_handlers:
@@ -29,6 +25,8 @@ handlers:
 
       - states: "[自定义-零号安比-白雷, 0, 99]{300, 999}"
         operations:
+          - op_name: "清除状态"
+            data: ["自定义-速切结束"]
           - operation_template: "零号安比-特殊技突进"
           - operation_template: "零号安比-特殊技突进"
           - operation_template: "零号安比-特殊技突进"
@@ -43,8 +41,18 @@ handlers:
 
           - states: "[零号安比-特殊技可用]"
             operations:
+              - op_name: "清除状态"
+                data: ["自定义-速切结束"]
               - operation_template: "零号安比-强化特殊技"
+
+      - states: "[自定义-零号安比-白雷, 0, 99]{150, 999}"
+        operations:
+          - op_name: "清除状态"
+            data: ["自定义-速切结束"]
+          - operation_template: "零号安比-普通攻击合轴"
 
       - states: ""
         operations:
+          - op_name: "清除状态"
+            data: ["自定义-速切结束"]
           - operation_template: "零号安比-普通攻击"

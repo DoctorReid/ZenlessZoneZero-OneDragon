@@ -302,6 +302,7 @@ class AutoBattleAgentContext:
 
         # 上一次识别的时间
         self._last_check_agent_time: float = 0
+        self._last_switch_agent_time: float = 0
 
         # 初始化需要检测的状态
         for agent_enum in AgentEnum:
@@ -748,6 +749,8 @@ class AutoBattleAgentContext:
             prefix = '前台-' if i == 0 else ('后台-%d-' % i)
             agent_info = self.team_info.agent_list[i]
 
+
+
             # 需要识别到角色的状态
             agent = agent_info.agent
             if agent is not None:
@@ -759,10 +762,14 @@ class AutoBattleAgentContext:
                 if i == 0 and switch:
                     state_records.append(StateRecord(f'切换角色-{agent.agent_name}', update_time))
                     state_records.append(StateRecord(f'切换角色-{agent.agent_type.value}', update_time))
+                    self._last_switch_agent_time = update_time
 
                 state_records.append(StateRecord(f'{agent.agent_name}-能量', update_time, agent_info.energy))
                 state_records.append(StateRecord(f'{agent.agent_name}-特殊技可用', update_time, is_clear=not agent_info.special_ready))
-                state_records.append(StateRecord(f'{agent.agent_name}-终结技可用', update_time, is_clear=not agent_info.ultimate_ready))
+                
+                # 只有距离上次切换超过1秒才更新终结技状态
+                if update_time - self._last_switch_agent_time >= 1.0:
+                    state_records.append(StateRecord(f'{agent.agent_name}-终结技可用', update_time, is_clear=not agent_info.ultimate_ready))
 
             # 特殊技和终结技的按钮
             if i == 0:
