@@ -68,6 +68,7 @@ class ZOneDragonNotifySettingInterface(VerticalScrollInterface):
         content_widget.add_stretch(1)
 
         return content_widget
+
     def _update_notification_ui(self):
         """根据选择的通知方式更新界面"""
         method = self.notification_method_opt.combo_box.currentData()
