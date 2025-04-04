@@ -1,6 +1,6 @@
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QWidget
-from qfluentwidgets import PrimaryPushButton, FluentIcon, CaptionLabel, LineEdit, ToolButton
+from qfluentwidgets import PrimaryPushButton, FluentIcon, CaptionLabel, LineEdit, ToolButton, Dialog
 from typing import Optional, List
 
 from one_dragon.base.config.config_item import ConfigItem
@@ -8,6 +8,7 @@ from one_dragon_qt.widgets.column import Column
 from one_dragon_qt.widgets.combo_box import ComboBox
 from one_dragon_qt.widgets.setting_card.multi_push_setting_card import MultiLineSettingCard
 from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon_qt.widgets.setting_card.push_setting_card import PushSettingCard
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from zzz_od.application.battle_assistant.auto_battle_config import get_auto_battle_op_config_list
 from zzz_od.application.charge_plan.charge_plan_config import ChargePlanItem, CardNumEnum
@@ -268,6 +269,13 @@ class ChargePlanInterface(VerticalScrollInterface):
         self.loop_opt.value_changed.connect(self._on_loop_changed)
         self.content_widget.add_widget(self.loop_opt)
 
+        self.remove_all_completed_btn = PushSettingCard(
+            icon=FluentIcon.DELETE, title='删除已完成计划',
+            text='删除所有已完成的体力计划'
+        )
+        self.remove_all_completed_btn.clicked.connect(self._on_remove_all_completed_clicked)
+        self.content_widget.add_widget(self.remove_all_completed_btn)
+
         self.card_list: List[ChargePlanCard] = []
 
         self.plus_btn = PrimaryPushButton(text='新增')
@@ -338,3 +346,14 @@ class ChargePlanInterface(VerticalScrollInterface):
 
     def _on_loop_changed(self, new_value: bool) -> None:
         self.ctx.charge_plan_config.loop = new_value
+    
+    def _on_remove_all_completed_clicked(self) -> None:
+        dialog = Dialog('警告', '是否删除所有已完成的体力计划？', self)
+        dialog.setTitleBarVisible(False)
+        dialog.yesButton.setText('确定')
+        dialog.cancelButton.setText('取消')
+        if dialog.exec():
+            for plan in self.ctx.charge_plan_config.plan_list:
+                if plan.run_times >= plan.plan_times:
+                    self.ctx.charge_plan_config.delete_plan(self.ctx.charge_plan_config.plan_list.index(plan))
+        self.update_plan_list_display()
