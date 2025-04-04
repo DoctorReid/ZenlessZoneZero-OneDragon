@@ -285,5 +285,5 @@ class AgentEnum(Enum):
     TRIGGER = Agent('trigger', '扳机', RareTypeEnum.S, AgentTypeEnum.STUN, DmgTypeEnum.ELECTRIC,
                     state_list=[
                         AgentStateDef('扳机-绝意', AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH, 'trigger',
-                                      lower_color=(0, 90, 200), upper_color=(70, 220, 255))
+                                      lower_color=(0, 50, 0), upper_color=(255, 255, 255))
                     ])
