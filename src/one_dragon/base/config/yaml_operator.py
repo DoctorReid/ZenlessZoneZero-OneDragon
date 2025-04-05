@@ -11,7 +11,7 @@ cached_yaml_data: dict[str, tuple[float, dict]] = {}
 def read_cache_or_load(file_path: str):
     cached = cached_yaml_data.get(file_path)
     last_modify = os.path.getmtime(file_path)
-    if cached and cached[0] == last_modify:
+    if cached is not None and cached[0] == last_modify:
         return cached[1]
 
     with open(file_path, 'r', encoding='utf-8') as file:
