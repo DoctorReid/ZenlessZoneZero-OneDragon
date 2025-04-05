@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from cv2.typing import MatLike
-from typing import Optional
+from typing import Optional, Tuple, List
 
 from one_dragon.utils import cv2_utils
 from zzz_od.context.zzz_context import ZContext
@@ -50,7 +50,7 @@ def check_cnt_by_color_range(
         return 0
     part = cv2_utils.crop_image_only(screen, template.get_template_rect_by_point())
     to_check = cv2.bitwise_and(part, part, mask=template.mask)
-
+    
     mask = cv2.inRange(to_check, state_def.lower_color, state_def.upper_color)
     mask = cv2_utils.dilate(mask, 2)
     # cv2_utils.show_image(mask, wait=0)
@@ -340,6 +340,7 @@ def check_cnt_by_color_channel_equal_range(
     template = get_template(ctx, state_def, total, pos)
     if template is None:
         return 0
+
     part = cv2_utils.crop_image_only(screen, template.get_template_rect_by_point())
     to_check = cv2.bitwise_and(part, part, mask=template.mask)
 
@@ -376,23 +377,117 @@ def check_cnt_by_color_channel_equal_range(
     # 5. 返回结果
     return 1 if equal_points_count >= state_def.connect_cnt else 0
 
-
-def check_exist_by_color_channel_equal_range(
-        ctx: ZContext,
-        screen: MatLike,
-        state_def: AgentStateDef,
-        total: Optional[int] = None,
-        pos: Optional[int] = None
+def check_circles(
+    ctx: ZContext,
+    screen: MatLike,
+    state_def: AgentStateDef,
+    total: Optional[int] = None,
+    pos: Optional[int] = None
 ) -> int:
     """
-    在指定区域内，按颜色通道相等性判断是否有出现
+    在指定区域内查找指定颜色的圆形
     :param ctx: 上下文
     :param screen: 游戏画面
     :param state_def: 角色状态定义
     :param total: 总角色数量
     :param pos: 角色位置 从1开始
-    :return: 存在返回1 不存在返回0
+    :return: 找到的圆形数量
     """
-    # 直接返回check_cnt_by_color_channel_equal_range的结果
-    # 因为它已经返回了1或0（当点数量大于等于阈值时返回1，否则返回0）
-    return check_cnt_by_color_channel_equal_range(ctx, screen, state_def, total, pos)
+
+    template = get_template(ctx, state_def, total, pos)
+    if template is None:
+        log.debug(f'准心模板获取失败')
+        return 0
+
+    # 直接从state_def.params获取参数
+    params = {
+        'target_color_hsv': np.array(state_def.params['color']['target_hsv']),
+        'color_tolerance_hsv': np.array(state_def.params['color']['tolerance_hsv']),
+        'hough_params': {
+            'dp_range': state_def.params['hough'].get('dp_range', [1.0]),
+            'param1_range': state_def.params['hough']['param1_range'],
+            'param2_range': state_def.params['hough']['param2_range'],
+            'minRadius_range': state_def.params['hough']['min_radius_range'],
+            'maxRadius_range': state_def.params['hough']['max_radius_range'],
+            'minDist_range': [lambda shape: shape[0]/state_def.params['hough'].get('min_dist_divisor', 8)]  # 使用配置的除数
+        }
+    }
+
+    # 获取检测区域
+    part = cv2_utils.crop_image_only(screen, template.get_template_rect_by_point())
+    to_check = cv2.bitwise_and(part, part, mask=template.mask)
+
+    # **立即对调颜色通道 (假设 to_check 是 RGB)**
+    try:
+        to_check_bgr = cv2.cvtColor(to_check, cv2.COLOR_RGB2BGR)
+    except:
+        to_check_bgr = to_check # 如果转换失败，则使用原始图像
+
+    # 调用核心检测函数，传递颜色转换后的图像
+    circles = _find_circles(
+        roi_image=to_check_bgr,  # 传递颜色转换后的图像
+        params=params,
+        target_count=state_def.connect_cnt if hasattr(state_def, 'connect_cnt') else None
+    )
+
+    circle_count = len(circles)
+    return 1 if circle_count > 2 else 0
+
+# _find_circles 函数保持不变
+def _find_circles(
+    roi_image: np.ndarray,
+    params: dict,
+    target_count: Optional[int] = None
+) -> List[Tuple[int, int, int]]:
+
+    roi = roi_image
+    found_circles = []
+
+    if roi.size == 0:
+        return found_circles
+
+    hsv_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
+    lower_bound = np.clip(params['target_color_hsv'] - params['color_tolerance_hsv'], 0, 255)
+    upper_bound = np.clip(params['target_color_hsv'] + params['color_tolerance_hsv'], 0, 255)
+    mask_color = cv2.inRange(hsv_roi, lower_bound, upper_bound)
+    masked_roi = cv2.bitwise_and(roi, roi, mask=mask_color)
+    gray_roi = cv2.cvtColor(masked_roi, cv2.COLOR_BGR2GRAY)
+    blurred_roi = cv2.GaussianBlur(gray_roi, (5, 5), 0)
+
+    hough_params = params['hough_params']
+    dp_range = hough_params['dp_range']
+    param1_range = hough_params['param1_range']
+    param2_range = hough_params['param2_range']
+    min_radius_range = hough_params['minRadius_range']
+    max_radius_range = hough_params['maxRadius_range']
+    min_dist_func = hough_params['minDist_range'][0] # 获取 minDist 的函数
+
+    for dp in dp_range:
+        if target_count is not None and len(found_circles) >= target_count:
+            break
+        for minDist in [min_dist_func(roi.shape)]: # 调用函数获取 minDist
+            if target_count is not None and len(found_circles) >= target_count:
+                break
+            for param1 in param1_range:
+                if target_count is not None and len(found_circles) >= target_count:
+                    break
+                for param2 in param2_range:
+                    if target_count is not None and len(found_circles) >= target_count:
+                        break
+                    circles = cv2.HoughCircles(blurred_roi, cv2.HOUGH_GRADIENT, dp=dp, minDist=minDist,
+                                                param1=param1, param2=param2,
+                                                minRadius=min(min_radius_range), maxRadius=max(max_radius_range))
+                    if circles is not None:
+                        circles = np.round(circles[0, :]).astype("int")
+                        for x, y, r in circles:
+                            center_hsv = hsv_roi[y, x]
+                            if cv2.inRange(np.array([[center_hsv]]), lower_bound, upper_bound)[0][0] == 255:
+                                found_circles.append((x, y, r)) # 直接使用相对于 ROI 的坐标
+                                if target_count is not None and len(found_circles) >= target_count:
+                                    break # 达到目标数量，跳出内层循环
+            if target_count is not None and len(found_circles) >= target_count:
+                break # 达到目标数量，跳出中间层循环
+        if target_count is not None and len(found_circles) >= target_count:
+            break # 达到目标数量，跳出外层循环
+
+    return found_circles
