@@ -308,7 +308,7 @@ class HomeInterface(VerticalScrollInterface):
 
     def _show_dialog_after_code_updated(self):
         """显示代码更新后的对话框"""
-        dialog = Dialog("更新提醒", "代码已自动更新，是否重启?", self)
+        dialog = Dialog("更新提醒", "如果你仍然能看到此弹窗，请前往 GitHub Release 更新启动器", self)
         dialog.setTitleBarVisible(False)
         dialog.yesButton.setText("重启")
         dialog.cancelButton.setText("取消")
