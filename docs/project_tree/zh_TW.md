@@ -1,3 +1,4 @@
+```
 ZENLESSZONEZERO-ONEDRAGON
 ├── requirements-dev-ext.txt    這個文件 `requirements-dev-ext.txt` 是一個 Python 項目額外的依賴需求文件，主要用於開發或部署環境。 |  | *   **主要功能:** 列出額外的 Python 庫依賴，用於開發和部署。 | *   **核心依賴:** |     *   `polib==1.2.0`: 用於處理 `.po` 文件，例如將 `.mo` 文件編譯成 `.po` 文件。 |     *   `pyinstaller==6.7.0`: 用於將 Python 項目打包成可執行文件 (`.exe`)。 |     *   `pip-tools==7.4.1`: 用於管理和編譯依賴關係，通常與 `pip-compile` 命令一起使用。 |     *   `colorama==0.4.6`: 用於在終端中顯示彩色文本。 | *   **重要功能點:** 這些依賴項擴展了基本項目的功能，包括國際化支持、打包成可執行文件、依賴管理和終端美化。
 ├── requirements-dev.txt    這個文件 `requirements-dev.txt` 是一個 Python 項目開發依賴文件，列出了項目所需的 Python 庫及其版本。 |  | *   **主要功能:** 聲明項目開發所需的 Python 庫及其版本，用於環境構建和依賴管理。 | *   **核心類和函數:**  無，此文件僅為依賴聲明。 | *   **重要功能點:** |     *   列出項目所需的 Python 庫，例如 `pyside6`, `opencv-python`, `pyautogui` 等。 |     *   指定了每個庫的具體版本號，確保依賴的一致性。
@@ -845,3 +846,4 @@ ZENLESSZONEZERO-ONEDRAGON
         └── yolo/
             ├── flash_classifier.py    這個 Python 文件的摘要如下： |  | **主要功能：** |  | `FlashClassifier` 類別實現了一個基於 YOLOv8 的分類器，用於快速分類圖像。它繼承自 `Yolov8Classifier`，並通過下載和加載預訓練模型來執行分類任務。 |  | **核心類和函數：** |  | *   `FlashClassifier`: 繼承自 `Yolov8Classifier`，初始化時會下載並加載 YOLOv8 模型。 | *   `__init__`:  `FlashClassifier` 的構造函數，初始化分類器的各種參數，例如模型名稱、GPU 使用情況和結果保留時間。 |  | **重要功能點：** |  | *   **模型加載和管理：**  從指定的 URL 下載 YOLOv8 模型，並在本地管理模型文件。 | *   **GPU 加速：** 支援使用 GPU 進行加速，以提高分類速度。 | *   **結果保留：**  可以配置結果保留時間，控制分類結果的生命週期。 | *   **代理設置：** 支援通過 GitHub 代理或個人代理下載模型。
             └── hollow_event_detector.py    這個 Python 文件的摘要如下： |  | **主要功能：** |  | *   `HollowEventDetector` 類別實現了一個基於 YOLOv8 的空洞事件檢測器，專為崩鐵遊戲設計。它繼承自 `Yolov8Detector`，並利用 YOLOv8 模型進行物件偵測。 |  | **核心類和函數：** |  | *   `HollowEventDetector`: 繼承自 `Yolov8Detector`，初始化 YOLOv8 模型，並設定模型名稱、GPU 使用情況和結果保留時間等參數。 | *   `__init__`: 類別的建構子，用於初始化檢測器，並設定模型下載路徑、代理設定等。 |  | **重要功能點：** |  | *   初始化 YOLOv8 模型，並從指定 URL 下載模型。 | *   支援 GPU 加速。 | *   設定結果保留時間，用於管理檢測結果的生命週期。 | *   使用 `yolo_config_utils.get_model_category_dir` 獲取模型存放路徑。 | *   使用 `ZZZ_MODEL_DOWNLOAD_URL` 下載模型。
+```
