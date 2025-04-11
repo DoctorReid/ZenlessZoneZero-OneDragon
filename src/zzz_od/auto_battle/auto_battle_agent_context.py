@@ -25,6 +25,7 @@ _agent_state_check_method: dict[AgentStateCheckWay, Callable] = {
     AgentStateCheckWay.TEMPLATE_FOUND: agent_state_checker.check_template_found,
     AgentStateCheckWay.COLOR_CHANNEL_MAX_RANGE_EXIST: agent_state_checker.check_exist_by_color_channel_max_range,
     AgentStateCheckWay.COLOR_CHANNEL_EQUAL_RANGE_CONNECT: agent_state_checker.check_cnt_by_color_channel_equal_range,
+    AgentStateCheckWay.CHECK_CIRCLES: agent_state_checker.check_circles,
 }
 
 
@@ -565,6 +566,11 @@ class AutoBattleAgentContext:
 
         # 格挡破碎
         to_check_list.append(CheckAgentState(CommonAgentStateEnum.GUARD_BREAK.value))
+
+        # 靶心
+
+        to_check_list.append(CheckAgentState(CommonAgentStateEnum.TARGET_LOCK_CLOSE.value))
+        to_check_list.append(CheckAgentState(CommonAgentStateEnum.TARGET_LOCK_FAR.value))
 
         # 血量扣减
         if len(screen_agent_list) == 3:

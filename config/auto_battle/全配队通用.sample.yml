@@ -34,17 +34,16 @@ introduction: "支持全角色 任意三人/单人/双人作战，通杀所有�
 # 一般情况下，闪避＞连携＞快速支援＞扣血＞合轴＞主线程
 # 因为同一个触发器内不管触发多少次都不会打断本触发器，所以所有角色的默认动作都放在同一个触发器内，就不用怕打断动作导致错位了
 
-check_dodge_interval: 0.02  # 闪避识别间隔
-check_agent_interval: 0.1  # 代理人识别间隔
-check_chain_interval: 0.1  # 连携识别间隔
-check_quick_interval: 0.2  # 快速支援识别间隔
-auto_lock_interval: 0.5  # 锁定间隔
-auto_turn_interval: 2  # 镜头转向间隔
+check_dodge_interval: 0.02 # 闪避识别间隔
+check_agent_interval: 0.1 # 代理人识别间隔
+check_chain_interval: 0.1 # 连携识别间隔
+check_quick_interval: 0.2 # 快速支援识别间隔
+auto_lock_interval: 0 # 锁定间隔，不锁定
+auto_turn_interval: 0 # 镜头转向间隔
 
 scenes:
-
   # 新增得格挡破碎检测
-  - triggers: ["格挡破碎"]
+  - triggers: ["格挡-破碎"]
     priority: 99
     interval: 0.1
     handlers:
@@ -55,43 +54,26 @@ scenes:
           - op_name: "清除状态"
             state_list: ["自定义-动作不打断", "自定义-黄光切人"]
           - op_name: "等待秒数"
-            seconds: 0.5
+            seconds: 1
 
   # 这部分是用来识别闪光闪避的，这里不需要更改，哪怕角色更新也不需要动
   - triggers: ["闪避识别-黄光", "闪避识别-红光", "闪避识别-声音"]
     priority: 99
     handlers:
       # 这里的动作不打断，代表了动作的无敌时间，一般无敌动作期间，动作是无法打断的，0.3是因为闪光会比伤害先出现0.3秒
-      - states: "![自定义-动作不打断, -10, -0.1]"
-        debug_name: "非无敌时间"
+      # 正常情况下，黄光进入的判定，一般情况下，按顺序触发
+      - states: "[闪避识别-黄光]"
         sub_handlers:
-          # 连携期间，如果有闪光，说明连携的是小怪，放弃连携模式，不然主C可能被打死
-          - states: "[自定义-连携换人, 0, 10]"
-            debug_name: "连携期间闪避后继续输出"
-            operations:
-              - op_name: "清除状态"
-                state_list: ["自定义-连携换人"]
-              - op_name: "设置状态"
-                state: "自定义-动作不打断"
-                seconds: 1
-              - operation_template: "通用-闪避-左"
-              - op_name: "按键-普通攻击"
-                post_delay: 0.1
-                repeat: 10
-
-          # 正常情况下，黄光进入的判定，一般情况下，按顺序触发
-          - states: "[闪避识别-黄光]"
-            sub_handlers:
-              - state_template: "支援攻击模板-特殊情况"  # 特殊情况
-              - state_template: "支援攻击模板-击破"  # 格挡攻击优先击破可以快速打进失衡
-              - state_template: "支援攻击模板-防护"  # 防护一般格挡性能优越
-              - state_template: "支援攻击模板-异常"  # 异常一般格挡上异常效率也不错
-              - state_template: "支援攻击模板-下一个"  # 剩下的都不优秀了
-          # 除了看到黄色闪光都进入闪A模式
-          - states: ""
-            sub_handlers:
-              # 一般情况下里面都是直接设置红光闪避状态，不要在里面写闪A动作，因为同一个触发器无法打断本触发器，可能导致闪A中无法闪A
-              - state_template: "闪A模板-全角色"
+          - state_template: "支援攻击模板-特殊情况" # 特殊情况
+          - state_template: "支援攻击模板-击破" # 格挡攻击优先击破可以快速打进失衡
+          - state_template: "支援攻击模板-防护" # 防护一般格挡性能优越
+          - state_template: "支援攻击模板-异常" # 异常一般格挡上异常效率也不错
+          - state_template: "支援攻击模板-下一个" # 剩下的都不优秀了
+      # 除了看到黄色闪光都进入闪A模式
+      - states: "![自定义-动作不打断, -10, -0.1]"
+        sub_handlers:
+          # 一般情况下里面都是直接设置红光闪避状态，不要在里面写闪A动作，因为同一个触发器无法打断本触发器，可能导致闪A中无法闪A
+          - state_template: "闪A模板-全角色"
 
   - triggers: ["按键可用-连携技"]
     priority: 98
@@ -162,5 +144,6 @@ scenes:
         sub_handlers:
           # 这个代表，每个角色的动作做完之后，不进行合轴，也根据特殊情况进行切人，防止循环打乱
           - state_template: "特殊情况-紧急切人"
+          - state_template: "锁定追击模板-通用"
           # 这里是全角色的状态模板，需要新增新角色模板打开这个文件添加，每个角色请封装在一个状态模板【state_template】内，增加稳定性
           - state_template: "速切模板-全角色"

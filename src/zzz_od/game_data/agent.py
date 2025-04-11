@@ -73,6 +73,7 @@ class AgentStateCheckWay(Enum):
     TEMPLATE_NOT_FOUND: int = 7  # 根据模板识别不存在
     COLOR_CHANNEL_MAX_RANGE_EXIST: int = 8  # 根据颜色通道的最大值 在特定范围里匹配是否出现
     COLOR_CHANNEL_EQUAL_RANGE_CONNECT: int = 9  # 在特定范围里匹配找三色相等的像素点数量
+    CHECK_CIRCLES: int = 10  # 使用霍夫圆变换在指定区域内检测圆形，需满足：1.指定数量 2.圆心HSV颜色匹配 3.半径范围限制
 
 
 class AgentStateDef:
@@ -87,6 +88,7 @@ class AgentStateDef:
                  max_length: int = 100,
                  min_value_trigger_state: Optional[int] = None,
                  template_threshold: Optional[float] = None,
+                 params: Optional[dict] = None  # 增加 params 参数
                  ):
         self.state_name: str = state_name
         self.template_id: str = template_id
@@ -115,6 +117,9 @@ class AgentStateDef:
 
         # 模板匹配
         self.template_threshold: float = template_threshold
+
+        # 新增 params 属性
+        self.params: Optional[dict] = params
 
 
 class CommonAgentStateEnum(Enum):
@@ -170,11 +175,47 @@ class CommonAgentStateEnum(Enum):
                                    lower_color=(140, 30, 30), upper_color=(160, 50, 50), template_id='life_deduction_2_1',
                                    min_value_trigger_state=1)
 
-    GUARD_BREAK = AgentStateDef('格挡破碎', AgentStateCheckWay.COLOR_CHANNEL_EQUAL_RANGE_CONNECT,
+    GUARD_BREAK = AgentStateDef('格挡-破碎', AgentStateCheckWay.COLOR_CHANNEL_EQUAL_RANGE_CONNECT,
                               template_id='guard_break', min_value_trigger_state=1,  # 只在检测到时触发
                               lower_color=0, upper_color=255, connect_cnt=10000)  # 需要足够多的面积保证不会误判
 
+    # 近距离橙色靶心检测
+    TARGET_LOCK_CLOSE = AgentStateDef('锁定靶心-近距离', AgentStateCheckWay.CHECK_CIRCLES,
+                                     template_id='target_circle',
+                                     min_value_trigger_state=1,  # 只在检测到时触发
+                                     params={
+                                         'color': {
+                                             'target_hsv': [15, 200, 200],
+                                             'tolerance_hsv': [10, 55, 55]
+                                         },
+                                         'hough': {
+                                             'dp_range': [1],
+                                             'param1_range': [40, 60],
+                                             'param2_range': [25, 35],
+                                             'min_radius_range': [9, 11],
+                                             'max_radius_range': [18, 25],
+                                             'min_dist_divisor': 4  # 新增参数
+                                         }
+                                     })
 
+    # 远距离透明靶心检测
+    TARGET_LOCK_FAR = AgentStateDef('锁定靶心-远距离', AgentStateCheckWay.CHECK_CIRCLES,
+                                     template_id='target_circle',
+                                     min_value_trigger_state=1,  # 只在检测到时触发
+                                     params={
+                                         'color': {
+                                             'target_hsv': [15, 150, 200],
+                                             'tolerance_hsv': [5, 80, 55]
+                                         },
+                                         'hough': {
+                                             'dp_range': [1],
+                                             'param1_range': [50, 70],
+                                             'param2_range': [20, 30],
+                                             'min_radius_range': [8, 10],
+                                             'max_radius_range': [13, 18],
+                                             'min_dist_divisor': 16  # 新增参数
+                                         }
+                                     })
 
 class Agent:
 
