@@ -483,9 +483,10 @@ class AutoBattleContext:
         :return:
         """
         for agent in possible_agents:
-            mrl = self.ctx.tm.match_template(img, 'battle', 'avatar_chain_' + agent.template_id, threshold=0.8)
-            if mrl.max is not None:
-                return agent
+            for template_id in agent.template_id_list:
+                mrl = self.ctx.tm.match_template(img, 'battle', 'avatar_chain_' + template_id, threshold=0.8)
+                if mrl.max is not None:
+                    return agent
 
         return None
 
@@ -526,9 +527,10 @@ class AutoBattleContext:
         :return:
         """
         for agent in possible_agents:
-            mrl = self.ctx.tm.match_template(img, 'battle', 'avatar_quick_' + agent.template_id, threshold=0.9)
-            if mrl.max is not None:
-                return agent
+            for template_id in agent.template_id_list:
+                mrl = self.ctx.tm.match_template(img, 'battle', 'avatar_quick_' + template_id, threshold=0.9)
+                if mrl.max is not None:
+                    return agent
 
         return None
 
