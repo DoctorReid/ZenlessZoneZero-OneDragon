@@ -102,14 +102,15 @@ class PredefinedTeamChecker(ZApplication):
 
             for agent_enum in AgentEnum:
                 agent: Agent = agent_enum.value
-                mrl = self.ctx.tm.match_template(part, 'predefined_team', f'avatar_{agent.template_id}',
+                for template_id in agent.template_id_list:
+                    mrl = self.ctx.tm.match_template(part, 'predefined_team', f'avatar_{template_id}',
                                                  threshold=0.9)
-                if mrl.max is None:
-                    continue
+                    if mrl.max is None:
+                        continue
 
-                agent_mr = mrl.max
-                agent_mr.data = agent
-                agent_mr_list.append(agent_mr)
+                    agent_mr = mrl.max
+                    agent_mr.data = agent
+                    agent_mr_list.append(agent_mr)
 
             if len(agent_mr_list) == 0:
                 continue

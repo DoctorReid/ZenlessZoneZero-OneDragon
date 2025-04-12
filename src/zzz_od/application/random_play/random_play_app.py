@@ -183,12 +183,13 @@ class RandomPlayApp(ZApplication):
         if agent is None:
             return None
 
-        mr = self.ctx.tm.match_one_by_feature(part, 'predefined_team', f'avatar_{agent.template_id}')
-        if mr is None:
-            return None
+        for template_id in agent.template_id_list:
+            mr = self.ctx.tm.match_one_by_feature(part, 'predefined_team', f'avatar_{template_id}')
+            if mr is None:
+                return None
 
-        mr.add_offset(area.left_top)
-        return mr
+            mr.add_offset(area.left_top)
+            return mr
 
 
     @node_from(from_name='选择宣传员')
