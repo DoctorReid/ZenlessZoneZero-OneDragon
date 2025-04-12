@@ -1,6 +1,6 @@
 import subprocess
 from PySide6.QtWidgets import QWidget
-from qfluentwidgets import FluentIcon, SettingCardGroup, HyperlinkCard
+from qfluentwidgets import FluentIcon, SettingCardGroup, HyperlinkCard, Dialog
 
 from one_dragon.base.config.basic_game_config import TypeInputWay, ScreenSizeEnum, FullScreenEnum, MonitorEnum
 from one_dragon.base.controller.pc_button.ds4_button_controller import Ds4ButtonEnum
@@ -47,16 +47,22 @@ class SettingGameInterface(VerticalScrollInterface):
 
         self.help_opt = HyperlinkCard(icon=FluentIcon.PIN, title='！设置皮肤以正常使用自动战斗功能  ！', url='', text='')
         self.help_opt.linkButton.hide()
+        agent_outfit_group.addSettingCard(self.help_opt)
+
+        self.match_all_outfits_switch = SwitchSettingCard(icon=FluentIcon.INFO, title='匹配所有可能的皮肤')
+        self.match_all_outfits_switch.value_changed.connect(self._on_match_all_outfits_changed)
+        agent_outfit_group.addSettingCard(self.match_all_outfits_switch)
+
         self.outfit_nicole_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='妮可', options_enum=AgentOutfitNicole)
         self.outfit_nicole_opt.value_changed.connect(self._on_agent_outfit_changed)
+        agent_outfit_group.addSettingCard(self.outfit_nicole_opt)
+
         self.outfit_ellen_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='艾莲', options_enum=AgentOutfitEllen)
         self.outfit_ellen_opt.value_changed.connect(self._on_agent_outfit_changed)
+        agent_outfit_group.addSettingCard(self.outfit_ellen_opt)
+
         self.outfit_astra_yao_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='耀嘉音', options_enum=AgentOutfitAstraYao)
         self.outfit_astra_yao_opt.value_changed.connect(self._on_agent_outfit_changed)
-
-        agent_outfit_group.addSettingCard(self.help_opt)
-        agent_outfit_group.addSettingCard(self.outfit_nicole_opt)
-        agent_outfit_group.addSettingCard(self.outfit_ellen_opt)
         agent_outfit_group.addSettingCard(self.outfit_astra_yao_opt)
 
         return agent_outfit_group
@@ -276,9 +282,11 @@ class SettingGameInterface(VerticalScrollInterface):
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)
 
+        self.match_all_outfits_switch.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('match_all_outfits'))
         self.outfit_nicole_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('nicole'))
         self.outfit_ellen_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('ellen'))
         self.outfit_astra_yao_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('astra_yao'))
+        self._update_agent_outfit_options(self.ctx.agent_outfit_config.match_all_outfits)
 
         self.input_way_opt.init_with_adapter(self.ctx.game_config.type_input_way_adapter)
         self.hdr_switch.init_with_adapter(self.ctx.game_config.get_prop_adapter('hdr'))
@@ -392,8 +400,29 @@ class SettingGameInterface(VerticalScrollInterface):
     def _on_gamepad_type_changed(self, idx: int, value: str) -> None:
         self._update_gamepad_part()
 
+    def _on_match_all_outfits_changed(self, value: bool) -> None:
+        if value:
+            dialog = Dialog('警告', '此功能可能会严重影响自动战斗的识别效率，如果自动战斗功能不正常，请关闭此功能！', self)
+            dialog.setTitleBarVisible(False)
+            dialog.yesButton.setText('确定')
+            dialog.cancelButton.hide()
+            if dialog.exec():
+                self.ctx.agent_outfit_config.match_all_outfits = value
+                self.ctx.init_agent_template_id_list()
+        else:
+            self.ctx.agent_outfit_config.match_all_outfits = value
+            self.ctx.init_agent_template_id()
+        self._update_agent_outfit_options(value)
+    
+    def _update_agent_outfit_options(self, value: bool) -> None:
+        self.outfit_nicole_opt.setVisible(not value)
+        self.outfit_ellen_opt.setVisible(not value)
+        self.outfit_astra_yao_opt.setVisible(not value)
+
+
     def _on_agent_outfit_changed(self) -> None:
-        self.ctx.init_agent_template_id()
+        if not self.ctx.agent_outfit_config.match_all_outfits:
+            self.ctx.init_agent_template_id()
     
     def _on_hdr_switch_changed(self, value: bool) -> None:
         hdr_command_enable = f'cmd /c "reg add "HKCU\\Software\\Microsoft\\DirectX\\UserGpuPreferences" /v "{self.ctx.game_account_config.game_path}" /d "AutoHDREnable=2097;" /f"'
@@ -404,15 +433,8 @@ class SettingGameInterface(VerticalScrollInterface):
             subprocess.Popen(hdr_command_disable)
     
     def _on_launch_argument_switch_changed(self, value: bool) -> None:
-        if value:
-            self.screen_size_opt.setVisible(True)
-            self.full_screen_opt.setVisible(True)
-            self.popup_window_switch.setVisible(True)
-            self.monitor_opt.setVisible(True)
-            self.launch_argument_advance.setVisible(True)
-        else:
-            self.screen_size_opt.setVisible(False)
-            self.full_screen_opt.setVisible(False)
-            self.popup_window_switch.setVisible(False)
-            self.monitor_opt.setVisible(False)
-            self.launch_argument_advance.setVisible(False)
+        self.screen_size_opt.setVisible(value)
+        self.full_screen_opt.setVisible(value)
+        self.popup_window_switch.setVisible(value)
+        self.monitor_opt.setVisible(value)
+        self.launch_argument_advance.setVisible(value)

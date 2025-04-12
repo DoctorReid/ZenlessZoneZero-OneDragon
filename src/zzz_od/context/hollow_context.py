@@ -50,9 +50,10 @@ class HollowContext:
         for agent in possible_agents:
             if agent is None:
                 continue
-            mrl = self.ctx.tm.match_template(img, 'hollow', prefix + agent.template_id, threshold=0.8)
-            if mrl.max is not None:
-                return agent
+            for template_id in agent.template_id_list:
+                mrl = self.ctx.tm.match_template(img, 'hollow', prefix + template_id, threshold=0.8)
+                if mrl.max is not None:
+                    return agent
 
         return None
 

@@ -442,9 +442,10 @@ class AutoBattleAgentContext:
         """
         prefix = 'avatar_1_' if is_front else 'avatar_2_'
         for agent in possible_agents:
-            mrl = self.ctx.tm.match_template(img, 'battle', prefix + agent.template_id, threshold=0.8)
-            if mrl.max is not None:
-                return agent
+            for template_id in agent.template_id_list:
+                mrl = self.ctx.tm.match_template(img, 'battle', prefix + template_id, threshold=0.8)
+                if mrl.max is not None:
+                    return agent
 
         return None
 
