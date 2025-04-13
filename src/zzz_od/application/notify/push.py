@@ -14,6 +14,8 @@ from email.mime.text import MIMEText
 from email.header import Header
 from email.utils import formataddr
 
+from one_dragon.utils.log_utils import log
+
 import requests
 
 # 原先的 print 函数和主线程的锁
@@ -33,7 +35,7 @@ def print(text, *args, **kw):
 # 通知服务
 # fmt: off
 push_config = {
-    'HITOKOTO': True,                   # 启用一言（随机句子）
+    'HITOKOTO': False,                   # 启用一言（随机句子）
 
     'BARK_PUSH': '',                    # bark IP 或设备码，例：https://api.day.app/DxHcxxxxxRxxxxxxcm/
     'BARK_ARCHIVE': '',                 # bark 推送是否存档
@@ -175,9 +177,9 @@ def bark(title: str, content: str) -> None:
     ).json()
 
     if response["code"] == 200:
-        print("bark 推送成功！")
+        log.info("bark 推送成功！")
     else:
-        print("bark 推送失败！")
+        log.error("bark 推送失败！")
 
 
 def console(title: str, content: str) -> None:
@@ -211,9 +213,9 @@ def dingding_bot(title: str, content: str) -> None:
     ).json()
 
     if not response["errcode"]:
-        print("钉钉机器人 推送成功！")
+        log.info("钉钉机器人 推送成功！")
     else:
-        print("钉钉机器人 推送失败！")
+        log.error("钉钉机器人 推送失败！")
 
 
 def feishu_bot(title: str, content: str) -> None:
@@ -229,9 +231,9 @@ def feishu_bot(title: str, content: str) -> None:
     response = requests.post(url, data=json.dumps(data)).json()
 
     if response.get("StatusCode") == 0 or response.get("code") == 0:
-        print("飞书 推送成功！")
+        log.info("飞书 推送成功！")
     else:
-        print("飞书 推送失败！错误信息如下：\n", response)
+        log.error(f"飞书 推送失败！错误信息如下：\n{response}")
 
 
 def one_bot(title: str, content: str) -> None:
@@ -266,9 +268,9 @@ def one_bot(title: str, content: str) -> None:
         response_private = requests.post(url, data=json.dumps(data_private), headers=headers).json()
 
         if response_private["status"] == "ok":
-            print("OneBot 私聊推送成功！")
+            log.info("OneBot 私聊推送成功！")
         else:
-            print("OneBot 私聊推送失败！")
+            log.error("OneBot 私聊推送失败！")
     
     if group_id is not None:
         data_group["message_type"] = "group"
@@ -276,9 +278,9 @@ def one_bot(title: str, content: str) -> None:
         response_group = requests.post(url, data=json.dumps(data_group), headers=headers).json()
 
         if response_group["status"] == "ok":
-            print("OneBot 群聊推送成功！")
+            log.info("OneBot 群聊推送成功！")
         else:
-            print("OneBot 群聊推送失败！")
+            log.error("OneBot 群聊推送失败！")
 
 
 def gotify(title: str, content: str) -> None:
@@ -298,9 +300,9 @@ def gotify(title: str, content: str) -> None:
     response = requests.post(url, data=data).json()
 
     if response.get("id"):
-        print("gotify 推送成功！")
+        log.info("gotify 推送成功！")
     else:
-        print("gotify 推送失败！")
+        log.error("gotify 推送失败！")
 
 
 def iGot(title: str, content: str) -> None:
@@ -317,9 +319,9 @@ def iGot(title: str, content: str) -> None:
     response = requests.post(url, data=data, headers=headers).json()
 
     if response["ret"] == 0:
-        print("iGot 推送成功！")
+        log.info("iGot 推送成功！")
     else:
-        print(f'iGot 推送失败！{response["errMsg"]}')
+        log.error(f'iGot 推送失败！{response["errMsg"]}')
 
 
 def serverJ(title: str, content: str) -> None:
@@ -342,9 +344,9 @@ def serverJ(title: str, content: str) -> None:
     response = requests.post(url, data=data).json()
 
     if response.get("errno") == 0 or response.get("code") == 0:
-        print("serverJ 推送成功！")
+        log.info("serverJ 推送成功！")
     else:
-        print(f'serverJ 推送失败！错误码：{response["message"]}')
+        log.error(f'serverJ 推送失败！错误码：{response["message"]}')
 
 
 def pushdeer(title: str, content: str) -> None:
@@ -367,9 +369,9 @@ def pushdeer(title: str, content: str) -> None:
     response = requests.post(url, data=data).json()
 
     if len(response.get("content").get("result")) > 0:
-        print("PushDeer 推送成功！")
+        log.info("PushDeer 推送成功！")
     else:
-        print("PushDeer 推送失败！错误信息：", response)
+        log.error(f"PushDeer 推送失败！错误信息：{response}")
 
 
 def chat(title: str, content: str) -> None:
@@ -384,9 +386,9 @@ def chat(title: str, content: str) -> None:
     response = requests.post(url, data=data)
 
     if response.status_code == 200:
-        print("Chat 推送成功！")
+        log.info("Chat 推送成功！")
     else:
-        print("Chat 推送失败！错误信息：", response)
+        log.error(f"Chat 推送失败！错误信息：{response}")
 
 
 def pushplus_bot(title: str, content: str) -> None:
@@ -415,7 +417,7 @@ def pushplus_bot(title: str, content: str) -> None:
 
     code = response["code"]
     if code == 200:
-        print("PUSHPLUS 推送请求成功，可根据流水号查询推送结果:" + response["data"])
+        log.info("PUSHPLUS 推送请求成功，可根据流水号查询推送结果:" + response["data"])
         print(
             "注意：请求成功并不代表推送成功，如未收到消息，请到pushplus官网使用流水号查询推送最终结果"
         )
@@ -428,10 +430,10 @@ def pushplus_bot(title: str, content: str) -> None:
         response = requests.post(url=url_old, data=body, headers=headers).json()
 
         if response["code"] == 200:
-            print("PUSHPLUS(hxtrip) 推送成功！")
+            log.info("PUSHPLUS(hxtrip) 推送成功！")
 
         else:
-            print("PUSHPLUS 推送失败！")
+            log.error("PUSHPLUS 推送失败！")
 
 
 def weplus_bot(title: str, content: str) -> None:
@@ -460,9 +462,9 @@ def weplus_bot(title: str, content: str) -> None:
     response = requests.post(url=url, data=body, headers=headers).json()
 
     if response["code"] == 200:
-        print("微加机器人 推送成功！")
+        log.info("微加机器人 推送成功！")
     else:
-        print("微加机器人 推送失败！")
+        log.error("微加机器人 推送失败！")
 
 
 def qmsg_bot(title: str, content: str) -> None:
@@ -478,9 +480,9 @@ def qmsg_bot(title: str, content: str) -> None:
     response = requests.post(url=url, params=payload).json()
 
     if response["code"] == 0:
-        print("qmsg 推送成功！")
+        log.info("qmsg 推送成功！")
     else:
-        print(f'qmsg 推送失败！{response["reason"]}')
+        log.error(f'qmsg 推送失败！{response["reason"]}')
 
 
 def wecom_app(title: str, content: str) -> None:
@@ -512,9 +514,9 @@ def wecom_app(title: str, content: str) -> None:
         response = wx.send_mpnews(title, content, media_id, touser)
 
     if response == "ok":
-        print("企业微信推送成功！")
+        log.info("企业微信推送成功！")
     else:
-        print("企业微信推送失败！错误信息如下：\n", response)
+        log.error(f"企业微信推送失败！错误信息如下：\n{response}")
 
 
 class WeCom:
@@ -599,9 +601,9 @@ def wecom_bot(title: str, content: str) -> None:
     ).json()
 
     if response["errcode"] == 0:
-        print("企业微信机器人推送成功！")
+        log.info("企业微信机器人推送成功！")
     else:
-        print("企业微信机器人推送失败！")
+        log.error("企业微信机器人推送失败！")
 
 
 def telegram_bot(title: str, content: str) -> None:
@@ -643,9 +645,9 @@ def telegram_bot(title: str, content: str) -> None:
     ).json()
 
     if response["ok"]:
-        print("tg 推送成功！")
+        log.info("tg 推送成功！")
     else:
-        print("tg 推送失败！")
+        log.error("tg 推送失败！")
 
 
 def aibotk(title: str, content: str) -> None:
@@ -679,9 +681,9 @@ def aibotk(title: str, content: str) -> None:
     response = requests.post(url=url, data=body, headers=headers).json()
     print(response)
     if response["code"] == 0:
-        print("智能微秘书 推送成功！")
+        log.info("智能微秘书 推送成功！")
     else:
-        print(f'智能微秘书 推送失败！{response["error"]}')
+        log.error(f'智能微秘书 推送失败！{response["error"]}')
 
 
 def smtp(title: str, content: str) -> None:
@@ -728,9 +730,9 @@ def smtp(title: str, content: str) -> None:
             message.as_bytes(),
         )
         smtp_server.close()
-        print("SMTP 邮件 推送成功！")
+        log.info("SMTP 邮件 推送成功！")
     except Exception as e:
-        print(f"SMTP 邮件 推送失败！{e}")
+        log.error(f"SMTP 邮件 推送失败！{e}")
 
 
 def pushme(title: str, content: str) -> None:
@@ -756,9 +758,9 @@ def pushme(title: str, content: str) -> None:
     response = requests.post(url, data=data)
 
     if response.status_code == 200 and response.text == "success":
-        print("PushMe 推送成功！")
+        log.info("PushMe 推送成功！")
     else:
-        print(f"PushMe 推送失败！{response.status_code} {response.text}")
+        log.error(f"PushMe 推送失败！{response.status_code} {response.text}")
 
 
 def chronocat(title: str, content: str) -> None:
@@ -799,14 +801,14 @@ def chronocat(title: str, content: str) -> None:
             response = requests.post(url, headers=headers, data=json.dumps(data))
             if response.status_code == 200:
                 if chat_type == 1:
-                    print(f"QQ个人消息:{ids}推送成功！")
+                    log.info(f"QQ个人消息:{ids}推送成功！")
                 else:
-                    print(f"QQ群消息:{ids}推送成功！")
+                    log.info(f"QQ群消息:{ids}推送成功！")
             else:
                 if chat_type == 1:
-                    print(f"QQ个人消息:{ids}推送失败！")
+                    log.error(f"QQ个人消息:{ids}推送失败！")
                 else:
-                    print(f"QQ群消息:{ids}推送失败！")
+                    log.error(f"QQ群消息:{ids}推送失败！")
 
 
 def ntfy(title: str, content: str) -> None:
@@ -838,9 +840,9 @@ def ntfy(title: str, content: str) -> None:
     url = push_config.get("NTFY_URL") + "/" + push_config.get("NTFY_TOPIC")
     response = requests.post(url, data=data, headers=headers)
     if response.status_code == 200:  # 使用 response.status_code 进行检查
-        print("Ntfy 推送成功！")
+        log.info("Ntfy 推送成功！")
     else:
-        print("Ntfy 推送失败！错误信息：", response.text)
+        log.error(f"Ntfy 推送失败！错误信息：{response.text}")
 
 
 def wxpusher_bot(title: str, content: str) -> None:
@@ -894,9 +896,9 @@ def wxpusher_bot(title: str, content: str) -> None:
     response = requests.post(url=url, json=data, headers=headers).json()
 
     if response.get("code") == 1000:
-        print("wxpusher 推送成功！")
+        log.info("wxpusher 推送成功！")
     else:
-        print(f"wxpusher 推送失败！错误信息：{response.get('msg')}")
+        log.error(f"wxpusher 推送失败！错误信息：{response.get('msg')}")
 
 
 def parse_headers(headers):
@@ -985,9 +987,9 @@ def custom_notify(title: str, content: str) -> None:
     )
 
     if response.status_code == 200:
-        print("自定义通知推送成功！")
+        log.info("自定义通知推送成功！")
     else:
-        print(f"自定义通知推送失败！{response.status_code} {response.text}")
+        log.error(f"自定义通知推送失败！{response.status_code} {response.text}")
 
 
 def one() -> str:
