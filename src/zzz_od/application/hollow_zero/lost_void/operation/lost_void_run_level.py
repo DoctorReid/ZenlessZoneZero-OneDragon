@@ -93,7 +93,12 @@ class LostVoidRunLevel(ZOperation):
         screen = self.screenshot()
 
         if self.ctx.lost_void.in_normal_world(screen):
-            return self.round_success('大世界')
+            # 有一个战略会在挚交会谈时奖励一个鸣徽 这个画面会在进入大世界一秒内触发
+            if self.region_type == LostVoidRegionType.FRIENDLY_TALK:
+                wait = 1
+            else:
+                wait = 0
+            return self.round_success('大世界', wait=wait)
 
         # 1. 在精英怪后 点击完挑战结果后 加载挚交会谈前 可能会弹出奖励
         # 2. 有战略可以导致进入新一层时获取战利品

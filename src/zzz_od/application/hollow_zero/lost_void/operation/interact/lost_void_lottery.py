@@ -65,7 +65,7 @@ class LostVoidLottery(ZOperation):
         if interact_op is not None:
             op_result = interact_op.execute()
             if op_result.success:
-                return self.round_success(LostVoidLottery.STATUS_CONTINUE)
+                return self.round_wait(op_result.status, wait=1)
             else:
                 return self.round_fail(op_result.status)
 

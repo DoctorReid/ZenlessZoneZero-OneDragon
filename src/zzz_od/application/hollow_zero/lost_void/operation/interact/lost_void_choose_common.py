@@ -105,31 +105,35 @@ class LostVoidChooseCommon(ZOperation):
             gt('请选择1个武备'),
             gt('获得武备'),
             gt('武备已升级'),
-            gt('获得战利品')
+            gt('获得战利品'),
+            gt('请选择1张卡牌'),
         ]
 
         for ocr_word in ocr_result.keys():
             idx = str_utils.find_best_match_by_difflib(ocr_word, target_result_list)
             if idx is None:
                 self.to_choose_num = 0
-            elif idx == 0:
+            elif idx == 0:  # 请选择1项
                 # 1.5 更新后 武备和普通鸣徽都是这个标题
                 self.to_choose_num = 1
-            elif idx == 1:
+            elif idx == 1:  # 请选择2项
                 is_artifact = True
                 self.to_choose_num = 2
-            elif idx == 2:
+            elif idx == 2:  # 请选择1个武备
                 is_gear = True
                 self.to_choose_num = 1
-            elif idx == 3:
+            elif idx == 3:  # 获得武备
                 is_gear = True
                 self.to_choose_num = 0
-            elif idx == 4:
+            elif idx == 4:  # 武备已升级
                 is_gear = True
                 self.to_choose_num = 0
-            elif idx == 5:
+            elif idx == 5:  # 获得战利品
                 is_artifact = True
                 self.to_choose_num = 0
+            elif idx == 6:  # 请选择1张卡牌
+                is_artifact = True
+                self.to_choose_num = 1
 
         if self.to_choose_num == 0:  # 不需要选择的
             return [], []

@@ -78,6 +78,7 @@ class LostVoidBangbooStore(ZOperation):
         return self.round_retry(status='未识别商店类型', wait=1)
 
     @node_from(from_name='识别商店类型')
+    @node_from(from_name='识别商店类型', success=False)
     @node_from(from_name='确认后处理')
     @operation_node(name='购买藏品')
     def buy_artifact_gold(self) -> OperationRoundResult:
@@ -248,7 +249,6 @@ class LostVoidBangbooStore(ZOperation):
         else:
             return self.round_retry(status=f'未知画面 {screen_name}', wait=1)
 
-    @node_from(from_name='识别商店类型', success=False)
     @node_from(from_name='购买藏品', success=False)
     @operation_node(name='购买结束')
     def finish(self) -> OperationRoundResult:
