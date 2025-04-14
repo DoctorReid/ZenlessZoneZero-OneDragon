@@ -382,6 +382,7 @@ class CoffeeApp(ZApplication):
     @node_from(from_name='专业挑战室')
     @operation_node(name='返回大世界')
     def back_to_world(self) -> OperationRoundResult:
+        self.notify()  # 发送通知
         op = BackToNormalWorld(self.ctx)
         return self.round_by_op_result(op.execute())
 
