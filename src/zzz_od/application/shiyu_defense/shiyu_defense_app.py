@@ -221,6 +221,7 @@ class ShiyuDefenseApp(ZApplication):
     @operation_node(name='结束后返回')
     def back_after_all(self) -> OperationRoundResult:
         log.info('新一期刷新后 可到「式舆防卫战」重置运行记录')
+        self.notify()  # 发送通知
         op = BackToNormalWorld(self.ctx)
         return self.round_by_op_result(op.execute())
 
