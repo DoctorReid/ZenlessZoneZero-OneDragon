@@ -21,7 +21,8 @@ class ScratchCardApp(ZApplication):
             ctx=ctx, app_id='scratch_card',
             op_name=gt('刮刮卡', 'ui'),
             run_record=ctx.scratch_card_run_record,
-            retry_in_od=True,  # 传送落地有可能会歪 重试
+            retry_in_od=True,  # 传送落地有可能会歪 重试,
+            need_notify=True,
         )
 
     def handle_init(self) -> None:
@@ -127,6 +128,7 @@ class ScratchCardApp(ZApplication):
     @node_from(from_name='刮刮')
     @operation_node(name='返回大世界')
     def back_to_world(self) -> OperationRoundResult:
+        self.notify_screenshot = self.save_screenshot_bytes()  # 结束后通知的截图
         op = BackToNormalWorld(self.ctx)
         return self.round_by_op_result(op.execute())
 

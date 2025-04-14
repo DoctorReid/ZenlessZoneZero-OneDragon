@@ -17,7 +17,8 @@ class EmailApp(ZApplication):
             self,
             ctx=ctx, app_id='email',
             op_name=gt('邮件', 'ui'),
-            run_record=ctx.email_run_record
+            run_record=ctx.email_run_record,
+            need_notify=True,
         )
 
     def handle_init(self) -> None:
@@ -62,5 +63,6 @@ class EmailApp(ZApplication):
         领取后的确认按钮可以不按 直接点击外层也可以返回
         :return:
         """
+        self.notify_screenshot = self.save_screenshot_bytes()  # 结束后通知的截图
         screen = self.screenshot()
         return self.round_by_find_and_click_area(screen, '菜单', '返回', success_wait=1, retry_wait=1)

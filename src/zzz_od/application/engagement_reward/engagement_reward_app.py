@@ -24,7 +24,8 @@ class EngagementRewardApp(ZApplication):
             self,
             ctx=ctx, app_id='engagement_reward',
             op_name=gt('活跃度奖励', 'ui'),
-            run_record=ctx.engagement_reward_run_record
+            run_record=ctx.engagement_reward_run_record,
+            need_notify=True,
         )
 
     def handle_init(self) -> None:
@@ -73,6 +74,7 @@ class EngagementRewardApp(ZApplication):
     @node_from(from_name='识别活跃度', status=STATUS_NO_REWARD)
     @operation_node(name='完成后返回大世界')
     def back_afterwards(self) -> OperationRoundResult:
+        self.notify_screenshot = self.save_screenshot_bytes()  # 结束后通知的截图
         op = BackToNormalWorld(self.ctx)
         return self.round_by_op_result(op.execute())
 

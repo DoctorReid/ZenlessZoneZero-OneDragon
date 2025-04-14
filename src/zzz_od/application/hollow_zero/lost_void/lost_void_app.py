@@ -26,7 +26,8 @@ class LostVoidApp(ZApplication):
             self,
             ctx=ctx, app_id='lost_void',
             op_name='迷失之地',
-            run_record=ctx.lost_void_record
+            run_record=ctx.lost_void_record,
+            need_notify=True,
         )
 
         self.next_region_type: LostVoidRegionType = LostVoidRegionType.ENTRY  # 下一个区域的类型
@@ -171,6 +172,7 @@ class LostVoidApp(ZApplication):
     @node_from(from_name='全部领取')
     @operation_node(name='完成后返回')
     def back_at_last(self) -> OperationRoundResult:
+        self.notify_screenshot = self.save_screenshot_bytes()  # 结束后通知的截图
         op = BackToNormalWorld(self.ctx)
         return self.round_by_op_result(op.execute())
 

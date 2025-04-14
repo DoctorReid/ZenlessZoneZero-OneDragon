@@ -29,7 +29,8 @@ class LifeOnLineApp(ZApplication):
             self,
             ctx=ctx, app_id='life_on_line',
             op_name=gt('真拿命验收', 'ui'),
-            run_record=ctx.life_on_line_record
+            run_record=ctx.life_on_line_record,
+            need_notify=True,
         )
         self.run_record: LifeOnLineRunRecord = ctx.life_on_line_record
         self.is_over_night: bool = False  # 本次结束是否过夜了
@@ -164,6 +165,7 @@ class LifeOnLineApp(ZApplication):
     @node_from(from_name='检查运行次数', status=STATUS_TIMES_FINISHED)
     @operation_node(name='返回大世界')
     def back_to_world(self) -> OperationRoundResult:
+        self.notify_screenshot = self.save_screenshot_bytes()  # 结束后通知的截图
         op = BackToNormalWorld(self.ctx)
         return self.round_by_op_result(op.execute())
 
