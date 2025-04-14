@@ -89,5 +89,6 @@ class NotoriousHuntApp(ZApplication):
     @node_from(from_name='全部领取')
     @operation_node(name='返回大世界')
     def back_to_world(self) -> OperationRoundResult:
+        self.notify()  # 发送通知
         op = BackToNormalWorld(self.ctx)
         return self.round_by_op_result(op.execute())

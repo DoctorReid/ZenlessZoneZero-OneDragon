@@ -127,6 +127,7 @@ class ScratchCardApp(ZApplication):
     @node_from(from_name='刮刮')
     @operation_node(name='返回大世界')
     def back_to_world(self) -> OperationRoundResult:
+        self.notify()  # 发送通知
         op = BackToNormalWorld(self.ctx)
         return self.round_by_op_result(op.execute())
 
