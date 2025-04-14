@@ -500,7 +500,7 @@ class Operation(OperationBase):
         """
         if self.last_screenshot is None:
             return ''
-        retval, buffer = cv2.imencode('.png', self.last_screenshot)
+        retval, buffer = cv2.imencode('.png', cv2.cvtColor(self.last_screenshot, cv2.COLOR_BGR2RGB))
         if retval:
             base64_bytes = base64.b64encode(buffer)
         return base64_bytes.decode('utf-8')
