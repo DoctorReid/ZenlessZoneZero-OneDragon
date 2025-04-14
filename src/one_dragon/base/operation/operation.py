@@ -1,5 +1,6 @@
 import time
 
+import base64
 import cv2
 import difflib
 import inspect
@@ -491,6 +492,18 @@ class Operation(OperationBase):
         if prefix is None:
             prefix = self.__class__.__name__
         return debug_utils.save_debug_image(self.last_screenshot, prefix=prefix)
+    
+    def save_screenshot_base64(self) -> str:
+        """
+        把上一次的截图保存为base64字符串
+        :return: base64字符串
+        """
+        if self.last_screenshot is None:
+            return ''
+        retval, buffer = cv2.imencode('.png', cv2.cvtColor(self.last_screenshot, cv2.COLOR_BGR2RGB))
+        if retval:
+            base64_bytes = base64.b64encode(buffer)
+        return base64_bytes.decode('utf-8')
 
     @property
     def display_name(self) -> str:

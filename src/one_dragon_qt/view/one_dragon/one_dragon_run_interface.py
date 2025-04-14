@@ -13,8 +13,10 @@ from one_dragon.base.operation.one_dragon_context import OneDragonContext, Conte
 from one_dragon_qt.view.app_run_interface import AppRunner
 from one_dragon_qt.view.context_event_signal import ContextEventSignal
 from one_dragon_qt.widgets.log_display_card import LogDisplayCard
+from one_dragon_qt.widgets.combo_box import ComboBox
 from one_dragon_qt.widgets.setting_card.app_run_card import AppRunCard
 from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.utils import cmd_utils
 from one_dragon.utils.i18_utils import gt
@@ -100,6 +102,13 @@ class OneDragonRunInterface(VerticalScrollInterface):
             self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='使用说明', text='前往', url=self.help_url)
             self.help_opt.setContent('先看说明 再使用与提问')
             run_group.addSettingCard(self.help_opt)
+
+        self.notify_switch = SwitchSettingCard(icon=FluentIcon.INFO, title='单应用通知')
+        self.notify_btn = PushButton(text='设置', icon=FluentIcon.SETTING)
+        self.notify_btn.clicked.connect(self._on_notify_setting_clicked)
+        self.notify_switch.hBoxLayout.addWidget(self.notify_btn, 0, Qt.AlignmentFlag.AlignRight)
+        self.notify_switch.hBoxLayout.addSpacing(16)
+        run_group.addSettingCard(self.notify_switch)
 
         self.instance_run_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='运行实例',
                                                     options_enum=InstanceRun)
@@ -323,3 +332,6 @@ class OneDragonRunInterface(VerticalScrollInterface):
 
     def get_one_dragon_app_config(self) -> OneDragonAppConfig:
         return self.ctx.one_dragon_app_config
+
+    def _on_notify_setting_clicked(self) -> None:
+        return  # 由子类实现

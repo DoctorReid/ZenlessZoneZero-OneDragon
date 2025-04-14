@@ -99,8 +99,9 @@ class RedemptionCodeApp(ZApplication):
         return self.round_retry(result.status, wait=1)
 
     @node_from(from_name='输入兑换码', status='全部兑换完毕')
-    @operation_node(name='返回')
+    @operation_node(name='返回大世界')
     def back(self) -> OperationRoundResult:
+        self.notify()  # 发送通知
         op = BackToNormalWorld(self.ctx)
         return self.round_by_op_result(op.execute())
 

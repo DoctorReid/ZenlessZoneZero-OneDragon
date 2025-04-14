@@ -147,5 +147,6 @@ class ChargePlanApp(ZApplication):
     @node_from(from_name='恶名狩猎', status=ExpertChallenge.STATUS_CHARGE_NOT_ENOUGH)
     @operation_node(name='返回大世界', is_start_node=True)
     def back_to_world(self) -> OperationRoundResult:
+        self.notify()  # 发送通知
         op = BackToNormalWorld(self.ctx)
         return self.round_by_op_result(op.execute())
