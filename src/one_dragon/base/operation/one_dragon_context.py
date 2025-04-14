@@ -7,6 +7,7 @@ from one_dragon.base.config.custom_config import CustomConfig
 from one_dragon.base.config.game_account_config import GameAccountConfig
 from one_dragon.base.config.one_dragon_app_config import OneDragonAppConfig
 from one_dragon.base.config.one_dragon_config import OneDragonConfig
+from one_dragon.base.config.push_config import PushConfig
 from one_dragon.base.controller.controller_base import ControllerBase
 from one_dragon.base.controller.pc_button.pc_button_listener import PcButtonListener
 from one_dragon.base.matcher.ocr.ocr_matcher import OcrMatcher
@@ -206,6 +207,7 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
         log.info('开始加载实例配置 %d' % self.current_instance_idx)
         self.one_dragon_app_config: OneDragonAppConfig = OneDragonAppConfig(self.current_instance_idx)
         self.game_account_config: GameAccountConfig = GameAccountConfig(self.current_instance_idx)
+        self.push_config: PushConfig = PushConfig(self.current_instance_idx)
 
     def async_init_ocr(self) -> None:
         """

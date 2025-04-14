@@ -27,7 +27,8 @@ class ShiyuDefenseApp(ZApplication):
             self,
             ctx=ctx, app_id='shiyu_defense',
             op_name=gt('式舆防卫战', 'ui'),
-            run_record=ctx.shiyu_defense_record
+            run_record=ctx.shiyu_defense_record,
+            need_notify=True,
         )
 
         self.current_node_idx: int = 0  # 当前挑战的节点下标 跟着游戏的1开始
@@ -221,6 +222,7 @@ class ShiyuDefenseApp(ZApplication):
     @operation_node(name='结束后返回')
     def back_after_all(self) -> OperationRoundResult:
         log.info('新一期刷新后 可到「式舆防卫战」重置运行记录')
+        self.notify_screenshot = self.save_screenshot_bytes()  # 结束后通知的截图
         op = BackToNormalWorld(self.ctx)
         return self.round_by_op_result(op.execute())
 

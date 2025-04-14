@@ -30,7 +30,8 @@ class HollowZeroApp(ZApplication):
             self,
             ctx=ctx, app_id='hollow_zero',
             op_name=gt('枯萎之都', 'ui'),
-            run_record=ctx.hollow_zero_record
+            run_record=ctx.hollow_zero_record,
+            need_notify=True,
         )
 
         self.mission_name: str = '内部'
@@ -167,6 +168,7 @@ class HollowZeroApp(ZApplication):
     @node_from(from_name='完成后等待加载')
     @operation_node(name='完成')
     def finish(self) -> OperationRoundResult:
+        self.notify_screenshot = self.save_screenshot_bytes()  # 结束后通知的截图
         op = BackToNormalWorld(self.ctx)
         return self.round_by_op_result(op.execute())
 
