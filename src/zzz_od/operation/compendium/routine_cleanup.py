@@ -25,6 +25,8 @@ from zzz_od.screen_area.screen_normal_world import ScreenNormalWorldEnum
 
 class RoutineCleanup(ZOperation):
 
+    STATUS_COUPON_AVAILABLE: ClassVar[str] = '可以使用家政券'
+    STATUS_CONTINUE_RUN_WITH_CHARGE: ClassVar[str] = '继续使用电量'
     STATUS_CHARGE_NOT_ENOUGH: ClassVar[str] = '电量不足'
     STATUS_CHARGE_ENOUGH: ClassVar[str] = '电量充足'
 
@@ -88,6 +90,75 @@ class RoutineCleanup(ZOperation):
         return self.round_success(wait=1)
 
     @node_from(from_name='等待入口加载')
+    @operation_node(name='识别家政券数量')
+    def check_coupon_num(self) -> OperationRoundResult:
+
+        screen = self.screenshot()
+
+        area = self.ctx.screen_loader.get_area('家政券', '数量')
+        part = cv2_utils.crop_image_only(screen, area.rect)
+        ocr_result = self.ctx.ocr.run_ocr_single_line(part)
+        self.coupon_num = str_utils.get_positive_digits(ocr_result, None)
+        if self.coupon_num is None:
+            return self.round_retry(status='识别 %s 失败' % '家政券数量', wait=1)
+        if self.coupon_num == 0:
+            return self.round_success(RoutineCleanup.STATUS_CONTINUE_RUN_WITH_CHARGE)
+
+        log.info('家政券数量 %d', self.coupon_num)
+
+        max_need_use_times = self.plan.plan_times - self.plan.run_times
+
+        if self.coupon_num > max_need_use_times:
+            self.coupon_num = max_need_use_times
+        
+        self.can_use_times = self.coupon_num
+
+        return self.round_success(RoutineCleanup.STATUS_COUPON_AVAILABLE)
+    
+    @node_from(from_name='识别家政券数量', status=STATUS_COUPON_AVAILABLE)
+    @node_from(from_name='关闭弹窗', status=STATUS_COUPON_AVAILABLE)
+    @operation_node(name='使用')
+    def use_coupon(self) -> OperationRoundResult:
+        screen = self.screenshot()
+
+        result = self.round_by_find_and_click_area(screen, '家政券', '使用')
+        if result.is_success:
+            self.can_use_times -= 1
+            self.ctx.charge_plan_config.add_plan_run_times(self.plan)
+            return self.round_success(result.status, wait=0.5)
+        
+        return self.round_retry(result.status, wait=1)
+    
+    @node_from(from_name='使用')
+    @operation_node(name='确认')
+    def confirm_use_coupon(self) -> OperationRoundResult:
+        screen = self.screenshot()
+
+        result = self.round_by_find_and_click_area(screen, '家政券', '确认')
+        if result.is_success:
+            return self.round_success(result.status, wait=0.5)
+
+        return self.round_retry(result.status, wait=1)
+    
+    @node_from(from_name='确认')
+    @operation_node(name='关闭弹窗')
+    def close_coupon_window(self) -> OperationRoundResult:
+        screen = self.screenshot()
+
+        result = self.round_by_find_area(screen, '家政券', '绳网信用')
+        if result.is_success:
+            self.ctx.controller.click(Point(1500,200))
+            if self.can_use_times == 0:
+                if self.plan.run_times < self.plan.plan_times:
+                    return self.round_success(RoutineCleanup.STATUS_CONTINUE_RUN_WITH_CHARGE)
+                else:
+                    return self.round_success()
+            return self.round_success(RoutineCleanup.STATUS_COUPON_AVAILABLE, wait=0.5)
+
+        return self.round_retry(result.status, wait=1)
+
+    @node_from(from_name='识别家政券数量', status=STATUS_CONTINUE_RUN_WITH_CHARGE)
+    @node_from(from_name='关闭弹窗', status=STATUS_CONTINUE_RUN_WITH_CHARGE)
     @operation_node(name='识别电量')
     def check_charge(self) -> OperationRoundResult:
         if not self.need_check_power:
