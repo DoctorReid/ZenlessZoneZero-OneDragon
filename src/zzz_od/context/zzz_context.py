@@ -161,7 +161,10 @@ class ZContext(OneDragonContext):
 
         self.hollow.data_service.reload()
         self.init_hollow_config()
-        self.init_agent_template_id()
+        if self.agent_outfit_config.match_all_outfits:
+            self.init_agent_template_id_list()
+        else:
+            self.init_agent_template_id()
 
     def init_hollow_config(self) -> None:
         """
@@ -180,9 +183,18 @@ class ZContext(OneDragonContext):
         代理人头像模板ID的初始化
         :return:
         """
-        AgentEnum.NICOLE.value.template_id = self.agent_outfit_config.nicole
-        AgentEnum.ELLEN.value.template_id = self.agent_outfit_config.ellen
-        AgentEnum.ASTRA_YAO.value.template_id = self.agent_outfit_config.astra_yao
+        AgentEnum.NICOLE.value.template_id_list = [self.agent_outfit_config.nicole]
+        AgentEnum.ELLEN.value.template_id_list = [self.agent_outfit_config.ellen]
+        AgentEnum.ASTRA_YAO.value.template_id_list = [self.agent_outfit_config.astra_yao]
+
+    def init_agent_template_id_list(self) -> None:
+        """
+        代理人头像模板ID的初始化
+        :return:
+        """
+        AgentEnum.NICOLE.value.template_id_list = self.agent_outfit_config.nicole_outfit_list
+        AgentEnum.ELLEN.value.template_id_list = self.agent_outfit_config.ellen_outfit_list
+        AgentEnum.ASTRA_YAO.value.template_id_list = self.agent_outfit_config.astra_yao_outfit_list
 
     def after_app_shutdown(self) -> None:
         """
