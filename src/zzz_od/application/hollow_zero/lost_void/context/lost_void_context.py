@@ -361,6 +361,9 @@ class LostVoidContext:
         if consider_not_in_priority:
             for level in ['S', 'A', 'B']:
                 for idx in range(len(artifact_list)):
+                    if ignore_idx_list is not None and idx in ignore_idx_list:  # 需要忽略的下标
+                        continue
+
                     if idx in priority_idx_list:  # 已经加入过了
                         continue
 

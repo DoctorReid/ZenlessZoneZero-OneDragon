@@ -48,6 +48,10 @@ class LostVoidChooseNoDetail(ZOperation):
         if len(art_list) == 0:
             return self.round_retry(status='无法识别藏品', wait=1)
 
+        not_enough_coin = self.round_by_find_area(screen, '迷失之地-无详情选择', '提示-齿轮硬币不足(1/2)')
+        if not_enough_coin.is_success:
+            self.chosen_idx_list.append(0)
+
         # 可能出现无法选择的选项 需要将之前选择过的进行排除
         priority_list = self.ctx.lost_void.get_artifact_by_priority(art_list, 1,
                                                                     ignore_idx_list=self.chosen_idx_list)
