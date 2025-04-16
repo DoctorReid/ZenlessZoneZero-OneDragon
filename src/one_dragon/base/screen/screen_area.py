@@ -29,7 +29,7 @@ class ScreenArea:
         self.template_match_threshold: float = template_match_threshold
         self.pc_alt: bool = pc_alt  # PC端需要使用ALT后才能点击
         self.id_mark: bool = id_mark  # 是否用于画面的唯一标识
-        self.goto_list: List[str] = [] if goto_list is None else goto_list # 交互后 可能会跳转的画面名称列表
+        self.goto_list: List[str] = [] if goto_list is None else goto_list  # 交互后 可能会跳转的画面名称列表
         self.color_range: List[List[int]] = color_range  # 识别时候的筛选的颜色范围 文本时候有效
 
     @property

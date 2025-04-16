@@ -540,10 +540,10 @@ class LostVoidRunLevel(ZOperation):
             self.ctx.controller.move_s(press=True, press_time=1, release=True)
         elif self.region_type == LostVoidRegionType.FRIENDLY_TALK:
             # 挚交会谈
-            if self.interact_target.is_agent: # 如果是代理人 向后右移动 可以避开中间桌子的障碍
+            if self.interact_target.is_agent:  # 如果是代理人 向后右移动 可以避开中间桌子的障碍
                 self.ctx.controller.move_s(press=True, press_time=1, release=True)
                 self.ctx.controller.move_d(press=True, press_time=1.5, release=True)
-            elif self.interact_target.is_npc: # 如果是NPC
+            elif self.interact_target.is_npc:  # 如果是NPC
                 if self.interact_target.name in [LostVoidInteractNPC.A_YUAN.value, LostVoidInteractNPC.MA_LIN.value]:
                     # 阿援和玛琳 在左边
                     self.ctx.controller.move_s(press=True, press_time=1, release=True)
@@ -613,7 +613,7 @@ class LostVoidRunLevel(ZOperation):
                 return self.round_wait(wait_round_time=self.ctx.battle_assistant_config.screenshot_interval)
         else:  # 当前不在战斗画面
             if (screenshot_time - self.last_check_finish_time >= 1  # 1秒识别一次
-                or (self.no_in_battle_times > 0 and screenshot_time - self.last_check_finish_time >= 0.1) # 之前也识别到脱离战斗 0.1秒识别一次
+                or (self.no_in_battle_times > 0 and screenshot_time - self.last_check_finish_time >= 0.1)  # 之前也识别到脱离战斗 0.1秒识别一次
             ):
                 self.last_check_finish_time = screenshot_time
                 possible_screen_name_list = [

@@ -237,7 +237,7 @@ class CommissionAssistantApp(ZApplication):
         area = self.ctx.screen_loader.get_area('委托助手', '区域-短信-文本框')
         part = cv2_utils.crop_image_only(screen, area.rect)
         ocr_result_map = self.ctx.ocr.run_ocr(part)
-        bottom_text = None # 最下方的文本
+        bottom_text = None  # 最下方的文本
         bottom_mr = None  # 找到最下方的文本进行点击
         for ocr_result, mrl in ocr_result_map.items():
             if bottom_mr is None or mrl.max.center.y > bottom_mr.center.y:
