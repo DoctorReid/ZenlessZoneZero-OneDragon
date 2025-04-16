@@ -38,8 +38,8 @@ check_dodge_interval: 0.02 # 闪避识别间隔
 check_agent_interval: 0.1 # 代理人识别间隔
 check_chain_interval: 0.1 # 连携识别间隔
 check_quick_interval: 0.2 # 快速支援识别间隔
-auto_lock_interval: 0 # 锁定间隔，不锁定
-auto_turn_interval: 0 # 镜头转向间隔
+auto_lock_interval: 0.5 # 锁定间隔，不锁定
+auto_turn_interval: 2 # 镜头转向间隔
 
 scenes:
   # 新增得格挡破碎检测
@@ -144,6 +144,4 @@ scenes:
         sub_handlers:
           # 这个代表，每个角色的动作做完之后，不进行合轴，也根据特殊情况进行切人，防止循环打乱
           - state_template: "特殊情况-紧急切人"
-          - state_template: "锁定追击模板-通用"
-          # 这里是全角色的状态模板，需要新增新角色模板打开这个文件添加，每个角色请封装在一个状态模板【state_template】内，增加稳定性
           - state_template: "速切模板-全角色"
