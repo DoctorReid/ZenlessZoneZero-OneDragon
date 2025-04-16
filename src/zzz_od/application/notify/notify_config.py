@@ -170,7 +170,7 @@ class NotifyCard():
     # 钉钉机器人相关配置
     "DD_BOT": [
         {
-            "var_suffix": "SECRET'",
+            "var_suffix": "SECRET",
             "title": "Secret",
             "icon": FluentIcon.CERTIFICATE,
             "placeholder": "请输入钉钉机器人的Secret密钥"
