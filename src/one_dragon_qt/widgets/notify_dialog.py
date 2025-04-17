@@ -1,13 +1,15 @@
 from PySide6.QtWidgets import QWidget, QGridLayout
 from qfluentwidgets import MessageBoxBase, SubtitleLabel, CheckBox
 
-from zzz_od.application.notify.notify_config import NotifyAppList
+from one_dragon.base.operation.one_dragon_context import OneDragonContext
+
 
 class NotifyDialog(MessageBoxBase):
     """通知配置对话框"""
 
-    def __init__(self, parent=None, ctx=None):
+    def __init__(self, parent=None, ctx=OneDragonContext):
         super().__init__(parent)
+        self.ctx: OneDragonContext = ctx
 
         self.yesButton.setText("确定")
         self.cancelButton.setText("取消")
@@ -24,18 +26,19 @@ class NotifyDialog(MessageBoxBase):
         grid_layout.setContentsMargins(0, 10, 0, 10)
         grid_layout.setSpacing(10)
 
-        app_list_dict = NotifyAppList.app_list
+        app_list = self.ctx.notify_config.app_list
         
         # 每行放置3个复选框
         column_count = 3
         # 使用 enumerate 和 items() 遍历字典获取索引、键和值
-        for i, (app_id, app_name) in enumerate(app_list_dict.items()):
+        for i, (app_id, app_name) in enumerate(app_list.items()):
             row = i // column_count
             col = i % column_count
             
             # 使用 app_name 作为 CheckBox 的文本
             checkbox = CheckBox(app_name, self)
-            checkbox.setChecked(getattr(ctx.notify_config, f'enable_{app_id}'))
+            initial_checked = getattr(self.ctx.notify_config, app_id, False)
+            checkbox.setChecked(initial_checked)
             
             # 保存复选框引用，使用 app_id 作为键
             self.app_checkboxes[app_id] = checkbox
@@ -43,7 +46,9 @@ class NotifyDialog(MessageBoxBase):
             grid_layout.addWidget(checkbox, row, col)
         
         self.viewLayout.addWidget(checkbox_container)
-    
-    def get_selected_apps(self):
-        """获取所有应用的 app_id 及其选中状态的字典"""
-        return {app_id: checkbox.isChecked() for app_id, checkbox in self.app_checkboxes.items()}
+
+    def accept(self):
+        """点击确定时，更新配置"""
+        for app_id, checkbox in self.app_checkboxes.items():
+            setattr(self.ctx.notify_config, app_id, checkbox.isChecked())
+        super().accept()

@@ -1,77 +1,57 @@
 from enum import Enum
 from typing import Optional
+from qfluentwidgets import FluentIcon
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
-from qfluentwidgets import FluentIcon
 
 
 class NotifyMethodEnum(Enum):
 
-    DISABLED = ConfigItem('禁用', 'DISABLED')
-    
-    BARK = ConfigItem('Bark', 'BARK')
+    SMTP = ConfigItem('邮件', 'SMTP')
+    WEBHOOK = ConfigItem('Webhook', 'WEBHOOK')
+    ONEBOT = ConfigItem('OneBot', 'ONEBOT')
+    CHRONOCAT = ConfigItem('Chronocat', 'CHRONOCAT')
+    QYWX = ConfigItem('企业微信', 'QYWX')
     DD_BOT = ConfigItem('钉钉机器人', 'DD_BOT')
     FS =  ConfigItem('飞书机器人', 'FS')
-    ONEBOT = ConfigItem('OneBot', 'ONEBOT')
+    DISCORD = ConfigItem('Discord', 'DISCORD')
+    TELEGRAM = ConfigItem('Telegram', 'TG')
+    BARK = ConfigItem('Bark', 'BARK')
+    SERVERCHAN = ConfigItem('Server 酱', 'SERVERCHAN')
+    NTFY = ConfigItem('ntfy', 'NTFY')
+    DEER = ConfigItem('PushDeer', 'DEER')
     GOTIFY = ConfigItem('GOTIFY', 'GOTIFY')
     IGOT = ConfigItem('iGot', 'IGOT')
-    SERVERCHAN = ConfigItem('Server 酱', 'PUSH_KEY')
-    DEER = ConfigItem('PushDeer', 'DEER')
     CHAT = ConfigItem('Synology Chat', 'CHAT')
     PUSH_PLUS = ConfigItem('PushPlus', 'PUSH_PLUS')
     WE_PLUS_BOT = ConfigItem('微加机器人', 'WE_PLUS_BOT')
     QMSG = ConfigItem('Qmsg 酱', 'QMSG')
-    QYWX = ConfigItem('企业微信', 'QYWX')
-    TELEGRAM = ConfigItem('Telegram', 'TG')
     AIBOTK = ConfigItem('智能微秘书', 'AIBOTK')
-    SMTP = ConfigItem('邮件', 'SMTP')
     PUSHME = ConfigItem('PushMe', 'PUSHME')
-    CHRONOCAT = ConfigItem('Chronocat', 'CHRONOCAT')
-    WEBHOOK = ConfigItem('Webhook', 'WEBHOOK')
-    NTFY = ConfigItem('ntfy', 'NTFY')
     WXPUSHER = ConfigItem('WxPusher', 'WXPUSHER')
 
-class NotifyAppList():
-    app_list = {
-        'redemption_code': '兑换码',
-        'random_play': '影像店营业',
-        'scratch_card': '刮刮卡',
-        'charge_plan': '体力刷本',
-        'coffee': '咖啡店',
-        'notorious_hunt': '恶名狩猎',
-        'engagement_reward': '活跃度奖励',
-        'hollow_zero': '枯萎之都',
-        'lost_void': '迷失之地',
-        'shiyu_defense': '式舆防卫战',
-        'city_fund': '丽都城募',
-        'ridu_weekly': '丽都周纪(领奖励)',
-        'email': '邮件',
-        'drive_disc_dismantle': '驱动盘分解',
-        'life_on_line': '真拿命验收'
-    }
-
-class NotifyConfig(YamlConfig):
+class PushConfig(YamlConfig):
 
     def __init__(self, instance_idx: Optional[int] = None):
-        YamlConfig.__init__(self, 'notify', instance_idx=instance_idx)
+        YamlConfig.__init__(self, 'push', instance_idx=instance_idx)
         self._generate_dynamic_properties()
-    
-    @property
-    def enable_notify(self) -> bool:
-        return self.get('enable_notify', True)
-    
-    @enable_notify.setter
-    def enable_notify(self, new_value: bool) -> None:
-        self.update('enable_notify', new_value)
-    
-    @property
-    def notify_method(self) -> str:
-        return self.get('notify_method', NotifyMethodEnum.DISABLED.value.value)
 
-    @notify_method.setter
-    def notify_method(self, new_value: str) -> None:
-        self.update('notify_method', new_value)
+    @property
+    def custom_push_title(self) -> str:
+        return self.get('custom_push_title', '一条龙运行通知')
+    
+    @custom_push_title.setter
+    def custom_push_title(self, new_value: str) -> None:
+        self.update('custom_push_title', new_value)
+
+    @property
+    def send_image(self) -> bool:
+        return self.get('send_image', True)
+    
+    @send_image.setter
+    def send_image(self, new_value: bool) -> None:
+        self.update('send_image', new_value)
 
     def _generate_dynamic_properties(self):
         # 遍历所有配置组
@@ -99,26 +79,7 @@ class NotifyConfig(YamlConfig):
                     create_getter(prop_name),
                     create_setter(prop_name)
                 )
-                setattr(NotifyConfig, prop_name, prop)
-        
-        for app in NotifyAppList.app_list.items():
-            prop_name = f"enable_{app[0]}"
-            def create_getter(name: str):
-                def getter(self) -> bool:
-                    return self.get(name, True)
-                return getter
-            
-            def create_setter(name: str):
-                def setter(self, new_value: bool) -> None:
-                    self.update(name, new_value)
-                return setter
-            
-            # 创建property并添加到类
-            prop = property(
-                create_getter(prop_name),
-                create_setter(prop_name)
-            )
-            setattr(NotifyConfig, prop_name, prop)
+                setattr(PushConfig, prop_name, prop)
 
 class NotifyCard():
     configs = {
@@ -126,45 +87,51 @@ class NotifyCard():
     "BARK": [
         {
             "var_suffix": "PUSH", 
+            "title": "推送地址或 Key",
+            "icon": FluentIcon.SEND,
+            "placeholder": "请输入 Bark 推送地址或 Key"
+        },
+        {
+            "var_suffix": "DEVICE_KEY",
             "title": "设备码",
-            "icon": FluentIcon.MESSAGE,
-            "placeholder": "请输入Bark IP 或设备码"
+            "icon": FluentIcon.PHONE,
+            "placeholder": "请填写设备码（可选）"
         },
         {
             "var_suffix": "ARCHIVE",
             "title": "推送是否存档",
-            "icon": FluentIcon.PEOPLE,
-            "placeholder": "可选：true 或 false"
+            "icon": FluentIcon.FOLDER,
+            "placeholder": "填写1为存档，0为不存档"
         },
         {
             "var_suffix": "GROUP",
             "title": "推送分组",
-            "icon": FluentIcon.CLOUD,
-            "placeholder": ""
+            "icon": FluentIcon.PEOPLE,
+            "placeholder": "请填写推送分组（可选）"
         },
         {
             "var_suffix": "SOUND",
-            "title": "推送声音",
-            "icon": FluentIcon.CLOUD,
-            "placeholder": ""
+            "title": "推送铃声",
+            "icon": FluentIcon.HEADPHONE,
+            "placeholder": "请填写铃声名称（可选）"
         },
         {
             "var_suffix": "ICON",
             "title": "推送图标",
-            "icon": FluentIcon.CLOUD,
-            "placeholder": ""
+            "icon": FluentIcon.PHOTO,
+            "placeholder": "请填写图标的URL（可选）"
         },
         {
             "var_suffix": "LEVEL",
-            "title": "推送时效性",
-            "icon": FluentIcon.CLOUD,
-            "placeholder": ""
+            "title": "推送中断级别",
+            "icon": FluentIcon.DATE_TIME,
+            "placeholder": "critical, active, timeSensitive, passive"
         },
         {
             "var_suffix": "URL",
             "title": "推送跳转URL",
-            "icon": FluentIcon.CLOUD,
-            "placeholder": ""
+            "icon": FluentIcon.LINK,
+            "placeholder": "请填写推送跳转URL（可选）"
         }
     ],
     # 钉钉机器人相关配置
@@ -249,9 +216,9 @@ class NotifyCard():
         }
     ],
     # ServerChan 相关配置
-    "PUSH": [
+    "SERVERCHAN": [
         {
-            "var_suffix": "KEY",
+            "var_suffix": "PUSH_KEY",
             "title": "PUSH_KEY",
             "icon": FluentIcon.MESSAGE,
             "placeholder": "请输入 Server 酱的 PUSH_KEY"
@@ -315,7 +282,7 @@ class NotifyCard():
         },
         {
             "var_suffix": "WEBHOOK",
-            "title": "webhook编码",
+            "title": "Webhook编码",
             "icon": FluentIcon.CLOUD,
             "placeholder": "可在公众号上扩展配置出更多渠道"
         },
@@ -373,20 +340,35 @@ class NotifyCard():
         {
             "var_suffix": "ORIGIN", 
             "title": "企业微信代理地址",
-            "icon": FluentIcon.MESSAGE,
-            "placeholder": "选一项填即可"
+            "icon": FluentIcon.SEND,
+            "placeholder": "可选"
         },
         {
             "var_suffix": "AM",
             "title": "企业微信应用",
-            "icon": FluentIcon.PEOPLE,
-            "placeholder": "选一项填即可"
+            "icon": FluentIcon.APPLICATION,
+            "placeholder": "http://note.youdao.com/s/HMiudGkb"
         },
         {
             "var_suffix": "KEY",
-            "title": "企业微信机器人",
-            "icon": FluentIcon.CLOUD,
-            "placeholder": "选一项填即可"
+            "title": "企业微信机器人 Key",
+            "icon": FluentIcon.VPN,
+            "placeholder": "只填 Key"
+        }
+    ],
+    # DISCORD 相关配置
+    "DISCORD": [
+        {
+            "var_suffix": "BOT_TOKEN",
+            "title": "机器人 Token",
+            "icon": FluentIcon.VPN,
+            "placeholder": "请输入 Discord 机器人的 Token"
+        },
+        {
+            "var_suffix": "USER_ID",
+            "title": "用户 ID",
+            "icon": FluentIcon.PEOPLE,
+            "placeholder": "请输入要接收私信的用户 ID"
         }
     ],
     # TG_BOT 相关配置
@@ -395,7 +377,7 @@ class NotifyCard():
             "var_suffix": "BOT_TOKEN", 
             "title": "BOT_TOKEN",
             "icon": FluentIcon.VPN,
-            "placeholder": "请输入 Telegram 机器人的 TG_BOT_TOKEN，例：1407203283:AAG9rt-6RDaaX0HBLZQq0laNOh898iFYaRQ"
+            "placeholder": "请输入 BOT_TOKEN，例：1407203283:AAG9rt-6RDaaX0HBLZQq0laNOh898iFYaRQ"
         },
         {
             "var_suffix": "USER_ID",
@@ -503,19 +485,19 @@ class NotifyCard():
             "var_suffix": "QQ", 
             "title": "QQ",
             "icon": FluentIcon.MESSAGE,
-            "placeholder": "请输入接收消息的 QQ 号"
+            "placeholder": "user_id=xxx;group_id=yyy;group_id=zzz"
         },
         {
             "var_suffix": "TOKEN",
             "title": "TOKEN",
             "icon": FluentIcon.VPN,
-            "placeholder": ""
+            "placeholder": "填写在CHRONOCAT文件生成的访问密钥"
         },
         {
             "var_suffix": "URL",
             "title": "URL",
             "icon": FluentIcon.SEND,
-            "placeholder": ""
+            "placeholder": "http://127.0.0.1:16530"
         }
     ],
     # WEBHOOK 相关配置

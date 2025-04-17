@@ -127,7 +127,7 @@ class ZContext(OneDragonContext):
         from zzz_od.application.drive_disc_dismantle.drive_disc_dismantle_run_record import DriveDiscDismantleRunRecord
         self.drive_disc_dismantle_record: DriveDiscDismantleRunRecord = DriveDiscDismantleRunRecord(self.current_instance_idx, game_refresh_hour_offset)
 
-        from zzz_od.application.notify.notify_config import NotifyConfig
+        from zzz_od.config.notify_config import NotifyConfig
         self.notify_config: NotifyConfig = NotifyConfig(self.current_instance_idx)
         from zzz_od.application.notify.notify_run_record import NotifyRunRecord
         self.notify_record: NotifyRunRecord = NotifyRunRecord(self.current_instance_idx, game_refresh_hour_offset)

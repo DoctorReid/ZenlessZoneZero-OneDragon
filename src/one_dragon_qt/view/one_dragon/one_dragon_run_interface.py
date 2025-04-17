@@ -13,11 +13,11 @@ from one_dragon.base.operation.one_dragon_context import OneDragonContext, Conte
 from one_dragon_qt.view.app_run_interface import AppRunner
 from one_dragon_qt.view.context_event_signal import ContextEventSignal
 from one_dragon_qt.widgets.log_display_card import LogDisplayCard
-from one_dragon_qt.widgets.combo_box import ComboBox
 from one_dragon_qt.widgets.setting_card.app_run_card import AppRunCard
 from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon_qt.widgets.notify_dialog import NotifyDialog
 from one_dragon.utils import cmd_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
@@ -176,6 +176,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)
         self._init_app_list()
+        self._init_notify_switch()
 
         self.ctx.listen_event(ContextKeyboardEventEnum.PRESS.value, self._on_key_press)
         self.ctx.listen_event(ApplicationEventId.APPLICATION_START.value, self._on_app_state_changed)
@@ -333,5 +334,15 @@ class OneDragonRunInterface(VerticalScrollInterface):
     def get_one_dragon_app_config(self) -> OneDragonAppConfig:
         return self.ctx.one_dragon_app_config
 
+    def _init_notify_switch(self) -> None:
+        pass
+
     def _on_notify_setting_clicked(self) -> None:
-        return  # 由子类实现
+        self.show_notify_dialog()
+
+    def show_notify_dialog(self) -> None:
+        """
+        显示通知设置对话框。配置更新由对话框内部处理。
+        """
+        dialog = NotifyDialog(self, self.ctx)
+        dialog.exec()

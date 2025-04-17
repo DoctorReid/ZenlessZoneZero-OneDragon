@@ -1,13 +1,16 @@
+from typing import List
+from datetime import datetime, timedelta
+
+from one_dragon.base.notify.push import Push
+from one_dragon.base.operation.application_run_record import AppRunRecord
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils.i18_utils import gt
+
 from zzz_od.application.zzz_application import ZApplication
+from zzz_od.application.zzz_one_dragon_app import ZOneDragonApp
 from zzz_od.context.zzz_context import ZContext
-import one_dragon.notify.push as Push
-from typing import List
-from datetime import datetime, timedelta
-import zzz_od.application.zzz_one_dragon_app as app
-from one_dragon.base.operation.application_run_record import AppRunRecord
+
 
 class NotifyApp(ZApplication):
 
@@ -23,10 +26,9 @@ class NotifyApp(ZApplication):
         发送通知
         :return:
         """
-        if self.ctx.notify_config.notify_method == 'DISABLED':
-            return self.round_fail('未启用通知')
+        self.exist_failure = False
 
-        def is_within_time(time_str):
+        def is_within_time(time_str) -> bool:
             end_time = datetime.now()
             try:
                 # 解析输入的时间字符串，格式为月-日 时:分
@@ -63,30 +65,36 @@ class NotifyApp(ZApplication):
                         success.append(item.op_name)
                     if item.run_record.run_status_under_now == AppRunRecord.STATUS_FAIL:
                         failure.append(item.op_name)
+                        self.exist_failure = True
 
-            parts = [f"OneDragon执行完成："]
-            if failure:
+            parts = [f"一条龙运行完成："]
+            has_failure = bool(failure)
+            has_success = bool(success)
+
+            if has_failure:
                 parts.append(f"❌ 失败指令：{', '.join(failure)}")
-            else:
+            elif has_success:
                 parts.append(f"全部成功✅")
-            if success:
-                parts.append(f"成功指令：{', '.join(success)}")
-            else:
-                parts.remove(f"全部成功✅")
-                parts.append(f"全部失败❌")
-            return "\n".join(parts) if parts else "⚠️ 未检测到有效指令状态"  
-        
-        message = format_message(app.ZOneDragonApp.get_app_list(self))
-        image = self.save_screenshot_base64()
 
-        origin_push_config = Push.push_config.copy()
-        for k in Push.push_config:
-            if self.ctx.notify_config.get(k.lower()) and k.lower().startswith(self.ctx.notify_config.notify_method.lower()):
-                Push.push_config[k] = self.ctx.notify_config.get(k.lower())
-        Push.send("绝区零一条龙运行通知", message, image)
-        Push.push_config = origin_push_config
+            if has_success:
+                parts.append(f"✅ 成功指令：{', '.join(success)}")
+            elif not has_failure:
+                parts.append(f"全部失败❌")
+
+            return "\n".join(parts)
         
-        return self.round_success(wait=5)
+        message = format_message(ZOneDragonApp.get_app_list(self))
+        image = None
+        if self.ctx.push_config.send_image:
+            image = self.save_screenshot_bytes()
+
+        pusher = Push(self.ctx)
+        pusher.send(message, image)
+
+        if self.exist_failure:
+            return self.round_fail(wait=5)
+        else:
+            return self.round_success(wait=5)
 
 
 def __debug():
