@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QWidget, QGridLayout
 from qfluentwidgets import MessageBoxBase, SubtitleLabel, CheckBox
 
-from zzz_od.application.notify.notify_config import NotifyAppList
+from zzz_od.config.notify_config import NotifyAppList
 
 class NotifyDialog(MessageBoxBase):
     """通知配置对话框"""
@@ -35,7 +35,7 @@ class NotifyDialog(MessageBoxBase):
             
             # 使用 app_name 作为 CheckBox 的文本
             checkbox = CheckBox(app_name, self)
-            checkbox.setChecked(getattr(ctx.notify_config, f'enable_{app_id}'))
+            checkbox.setChecked(getattr(ctx.notify_config, app_id))
             
             # 保存复选框引用，使用 app_id 作为键
             self.app_checkboxes[app_id] = checkbox

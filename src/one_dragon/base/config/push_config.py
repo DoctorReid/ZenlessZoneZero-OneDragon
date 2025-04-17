@@ -8,8 +8,6 @@ from qfluentwidgets import FluentIcon
 
 class NotifyMethodEnum(Enum):
 
-    DISABLED = ConfigItem('禁用', 'DISABLED')
-    
     BARK = ConfigItem('Bark', 'BARK')
     DD_BOT = ConfigItem('钉钉机器人', 'DD_BOT')
     FS =  ConfigItem('飞书机器人', 'FS')
@@ -32,46 +30,27 @@ class NotifyMethodEnum(Enum):
     NTFY = ConfigItem('ntfy', 'NTFY')
     WXPUSHER = ConfigItem('WxPusher', 'WXPUSHER')
 
-class NotifyAppList():
-    app_list = {
-        'redemption_code': '兑换码',
-        'random_play': '影像店营业',
-        'scratch_card': '刮刮卡',
-        'charge_plan': '体力刷本',
-        'coffee': '咖啡店',
-        'notorious_hunt': '恶名狩猎',
-        'engagement_reward': '活跃度奖励',
-        'hollow_zero': '枯萎之都',
-        'lost_void': '迷失之地',
-        'shiyu_defense': '式舆防卫战',
-        'city_fund': '丽都城募',
-        'ridu_weekly': '丽都周纪(领奖励)',
-        'email': '邮件',
-        'drive_disc_dismantle': '驱动盘分解',
-        'life_on_line': '真拿命验收'
-    }
-
-class NotifyConfig(YamlConfig):
+class PushConfig(YamlConfig):
 
     def __init__(self, instance_idx: Optional[int] = None):
-        YamlConfig.__init__(self, 'notify', instance_idx=instance_idx)
+        YamlConfig.__init__(self, 'push', instance_idx=instance_idx)
         self._generate_dynamic_properties()
-    
-    @property
-    def enable_notify(self) -> bool:
-        return self.get('enable_notify', True)
-    
-    @enable_notify.setter
-    def enable_notify(self, new_value: bool) -> None:
-        self.update('enable_notify', new_value)
-    
-    @property
-    def notify_method(self) -> str:
-        return self.get('notify_method', NotifyMethodEnum.DISABLED.value.value)
 
-    @notify_method.setter
-    def notify_method(self, new_value: str) -> None:
-        self.update('notify_method', new_value)
+    @property
+    def custom_push_title(self) -> str:
+        return self.get('custom_push_title', '一条龙运行通知')
+    
+    @custom_push_title.setter
+    def custom_push_title(self, new_value: str) -> None:
+        self.update('custom_push_title', new_value)
+
+    @property
+    def send_image(self) -> bool:
+        return self.get('send_image', True)
+    
+    @send_image.setter
+    def send_image(self, new_value: bool) -> None:
+        self.update('send_image', new_value)
 
     def _generate_dynamic_properties(self):
         # 遍历所有配置组
@@ -99,26 +78,7 @@ class NotifyConfig(YamlConfig):
                     create_getter(prop_name),
                     create_setter(prop_name)
                 )
-                setattr(NotifyConfig, prop_name, prop)
-        
-        for app in NotifyAppList.app_list.items():
-            prop_name = f"enable_{app[0]}"
-            def create_getter(name: str):
-                def getter(self) -> bool:
-                    return self.get(name, True)
-                return getter
-            
-            def create_setter(name: str):
-                def setter(self, new_value: bool) -> None:
-                    self.update(name, new_value)
-                return setter
-            
-            # 创建property并添加到类
-            prop = property(
-                create_getter(prop_name),
-                create_setter(prop_name)
-            )
-            setattr(NotifyConfig, prop_name, prop)
+                setattr(PushConfig, prop_name, prop)
 
 class NotifyCard():
     configs = {

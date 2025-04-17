@@ -1,5 +1,5 @@
 from one_dragon.base.operation.one_dragon_app import OneDragonApp
-from one_dragon.notify.notify_dialog import NotifyDialog
+from one_dragon_qt.widgets.notify_dialog import NotifyDialog
 from one_dragon_qt.view.one_dragon.one_dragon_run_interface import OneDragonRunInterface
 from zzz_od.application.zzz_one_dragon_app import ZOneDragonApp
 from zzz_od.context.zzz_context import ZContext
@@ -28,4 +28,4 @@ class ZOneDragonRunInterface(OneDragonRunInterface):
         if dialog.exec():
             selected_apps = dialog.get_selected_apps()
             for app_id, is_checked in selected_apps.items():
-                setattr(self.ctx.notify_config, f'enable_{app_id}', is_checked)
+                setattr(self.ctx.notify_config, app_id, is_checked)
