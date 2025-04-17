@@ -24,7 +24,7 @@ class ZOneDragonRunInterface(OneDragonRunInterface):
         return ZOneDragonApp(self.ctx)
 
     def _on_notify_setting_clicked(self) -> None:
-        dialog = NotifyDialog(self, ctx=self.ctx)
+        dialog = NotifyDialog(self, self.ctx)
         if dialog.exec():
             selected_apps = dialog.get_selected_apps()
             for app_id, is_checked in selected_apps.items():

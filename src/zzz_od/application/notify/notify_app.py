@@ -1,13 +1,16 @@
+from typing import List
+from datetime import datetime, timedelta
+
+from one_dragon.base.notify.push import Push
+from one_dragon.base.operation.application_run_record import AppRunRecord
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils.i18_utils import gt
+
 from zzz_od.application.zzz_application import ZApplication
+from zzz_od.application.zzz_one_dragon_app import ZOneDragonApp
 from zzz_od.context.zzz_context import ZContext
-from one_dragon.base.notify.push import Push
-from typing import List
-from datetime import datetime, timedelta
-import zzz_od.application.zzz_one_dragon_app as app
-from one_dragon.base.operation.application_run_record import AppRunRecord
+
 
 class NotifyApp(ZApplication):
 
@@ -80,7 +83,7 @@ class NotifyApp(ZApplication):
 
             return "\n".join(parts)
         
-        message = format_message(app.ZOneDragonApp.get_app_list(self))
+        message = format_message(ZOneDragonApp.get_app_list(self))
         image = None
         if self.ctx.push_config.send_image:
             image = self.save_screenshot_bytes()

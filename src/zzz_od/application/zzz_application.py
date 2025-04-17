@@ -49,7 +49,7 @@ class ZApplication(Application):
 
     def notify(self) -> None:
         """
-        发送通知
+        发送通知，在应用内部调用
         :return:
         """
         if not self.ctx.notify_config.enable_notify:

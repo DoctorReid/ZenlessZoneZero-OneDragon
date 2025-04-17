@@ -1,7 +1,6 @@
 from PySide6.QtWidgets import QWidget, QGridLayout
 from qfluentwidgets import MessageBoxBase, SubtitleLabel, CheckBox
 
-from zzz_od.config.notify_config import NotifyAppList
 
 class NotifyDialog(MessageBoxBase):
     """通知配置对话框"""
@@ -24,12 +23,12 @@ class NotifyDialog(MessageBoxBase):
         grid_layout.setContentsMargins(0, 10, 0, 10)
         grid_layout.setSpacing(10)
 
-        app_list_dict = NotifyAppList.app_list
+        app_list = ctx.notify_config.app_list
         
         # 每行放置3个复选框
         column_count = 3
         # 使用 enumerate 和 items() 遍历字典获取索引、键和值
-        for i, (app_id, app_name) in enumerate(app_list_dict.items()):
+        for i, (app_id, app_name) in enumerate(app_list.items()):
             row = i // column_count
             col = i % column_count
             
