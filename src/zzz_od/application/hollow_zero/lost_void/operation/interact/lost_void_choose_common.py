@@ -35,7 +35,11 @@ class LostVoidChooseCommon(ZOperation):
         screen_name = self.check_and_update_current_screen()
         if screen_name != '迷失之地-通用选择':
             # 进入本指令之前 有可能识别错画面
-            return self.round_retry(status=f'当前画面 {screen_name}', wait=1)
+            result = self.round_by_find_area(screen, '迷失之地-通用选择', '文本-详情')
+            if result.is_success and screen_name == '迷失之地-无详情选择':
+                self.ctx.screen_loader.update_current_screen_name('迷失之地-通用选择')
+            else:
+                return self.round_retry(status=f'当前画面 {screen_name}', wait=1)
 
         result = self.round_by_find_area(screen, '迷失之地-通用选择', '按钮-刷新')
         can_refresh = result.is_success
