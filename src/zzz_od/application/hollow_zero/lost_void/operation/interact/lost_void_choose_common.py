@@ -92,7 +92,7 @@ class LostVoidChooseCommon(ZOperation):
         @return: Tuple[识别到的武备的位置, 已经选择的位置]
         """
         is_gear: bool = False  # 区域-武备名称
-        is_artifact: bool = False # 区域-藏品名称
+        is_artifact: bool = False  # 区域-藏品名称
         self.to_choose_num = 0
 
         area = self.ctx.screen_loader.get_area('迷失之地-通用选择', '区域-标题')

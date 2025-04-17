@@ -237,11 +237,11 @@ class CallForSupport(ZOperation):
             RejectOption('下一次一起玩'),  # 猫又
             RejectOption('谢谢露西但我能搞定'),  # 露西
             RejectOption('之后有机会再一起玩吧'),  # 柏妮思
-            RejectOption('不打扰你工作了'), # 月城柳
-            RejectOption('还不到常胜冠军出马的时候'), # 莱特
-            RejectOption('等遇到大问题再找你帮忙！'), # 雅
-            RejectOption('怎么能让你加班呢'), # 悠真
-            RejectOption('放心去照顾嘉音吧，我没问题的'), # 伊芙琳
+            RejectOption('不打扰你工作了'),  # 月城柳
+            RejectOption('还不到常胜冠军出马的时候'),  # 莱特
+            RejectOption('等遇到大问题再找你帮忙！'),  # 雅
+            RejectOption('怎么能让你加班呢'),  # 悠真
+            RejectOption('放心去照顾嘉音吧，我没问题的'),  # 伊芙琳
         ]
 
         part = cv2_utils.crop_image_only(screen, area.rect)

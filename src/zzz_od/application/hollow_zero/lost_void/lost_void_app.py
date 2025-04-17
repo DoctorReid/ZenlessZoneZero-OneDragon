@@ -29,7 +29,7 @@ class LostVoidApp(ZApplication):
             run_record=ctx.lost_void_record
         )
 
-        self.next_region_type: LostVoidRegionType = LostVoidRegionType.ENTRY # 下一个区域的类型
+        self.next_region_type: LostVoidRegionType = LostVoidRegionType.ENTRY  # 下一个区域的类型
 
     @operation_node(name='初始化加载', is_start_node=True)
     def init_for_lost_void(self) -> OperationRoundResult:

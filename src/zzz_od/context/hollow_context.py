@@ -434,7 +434,7 @@ class HollowContext:
         check: bool = False
         if self.agent_list is not None:
             check = self._check_agent_list_in_parallel(screen, self.agent_list)
-        if not check: # 靠原来的识别不到 尝试全部识别
+        if not check:  # 靠原来的识别不到 尝试全部识别
             self._check_agent_list_in_parallel(screen, None)
 
         return self.agent_list

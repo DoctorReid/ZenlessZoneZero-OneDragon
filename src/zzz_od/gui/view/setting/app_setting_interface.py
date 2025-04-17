@@ -13,7 +13,7 @@ class AppSettingInterface(PivotNavigatorInterface):
     def __init__(self, ctx: ZContext, parent=None):
         self.ctx: ZContext = ctx
         PivotNavigatorInterface.__init__(self, object_name='app_setting_interface', parent=parent,
-                                         nav_text_cn='设置', nav_icon=FluentIcon.SETTING) # 增加一个空格以避免被强制本地化渲染
+                                         nav_text_cn='设置', nav_icon=FluentIcon.SETTING)
 
     def create_sub_interface(self):
         """

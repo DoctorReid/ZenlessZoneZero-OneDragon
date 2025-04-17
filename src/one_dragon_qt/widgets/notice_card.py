@@ -31,7 +31,7 @@ class DataFetcher(QThread):
     CACHE_DIR = "notice_cache"
     CACHE_FILE = os.path.join(CACHE_DIR, "notice_cache.json")
     CACHE_DURATION = 259200  # 缓存时间为3天
-    TIMEOUTNUM = 3 # 超时时间
+    TIMEOUTNUM = 3  # 超时时间
 
     def run(self):
         try:

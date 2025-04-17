@@ -88,7 +88,7 @@ class EnterGame(ZOperation):
 
         result = self.round_by_find_area(screen, '打开游戏', '国际服-点击登录')
         if result.is_success:
-            time.sleep(2) # 已登录的状态也可能出现几秒“点击登录”
+            time.sleep(2)  # 已登录的状态也可能出现几秒“点击登录”
             result = self.round_by_find_and_click_area(screen, '打开游戏', '国际服-点击登录')
             if result.is_success:
                 return self.round_wait(result.status, wait=1)
