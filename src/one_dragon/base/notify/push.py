@@ -128,8 +128,7 @@ class Push():
         """
         使用 bark 推送消息。
         """
-        if not self.push_config.get("BARK_PUSH"):
-            return
+        
         log.info("bark 服务启动")
 
         if self.push_config.get("BARK_PUSH").startswith("http"):
@@ -180,8 +179,7 @@ class Push():
         """
         使用 钉钉机器人 推送消息。
         """
-        if not self.push_config.get("DD_BOT_SECRET") or not self.push_config.get("DD_BOT_TOKEN"):
-            return
+        
         log.info("钉钉机器人 服务启动")
 
         timestamp = str(round(time.time() * 1000))
@@ -209,8 +207,7 @@ class Push():
         """
         使用 飞书机器人 推送消息。
         """
-        if not self.push_config.get("FSKEY"):
-            return
+        
         log.info("飞书 服务启动")
 
         url = f'https://open.feishu.cn/open-apis/bot/v2/hook/{self.push_config.get("FSKEY")}'
@@ -225,12 +222,9 @@ class Push():
 
     def one_bot(self, title: str, content: str, image: Optional[BytesIO]) -> None:
         """
-        使用 one_bot 推送消息。
+        使用 OneBot 推送消息。
         """
-        if not self.push_config.get("ONEBOT_USER") and not self.push_config.get("ONEBOT_GROUP"):
-            return
-        if not self.push_config.get("ONEBOT_URL"):
-            return
+        
         log.info("OneBot 服务启动")
 
         url = self.push_config.get("ONEBOT_URL").rstrip("/")
@@ -277,8 +271,7 @@ class Push():
         """
         使用 gotify 推送消息。
         """
-        if not self.push_config.get("GOTIFY_URL") or not self.push_config.get("GOTIFY_TOKEN"):
-            return
+        
         log.info("gotify 服务启动")
 
         url = f'{self.push_config.get("GOTIFY_URL")}/message?token={self.push_config.get("GOTIFY_TOKEN")}'
@@ -299,8 +292,7 @@ class Push():
         """
         使用 iGot 推送消息。
         """
-        if not self.push_config.get("IGOT_PUSH_KEY"):
-            return
+        
         log.info("iGot 服务启动")
 
         url = f'https://push.hellyw.com/{self.push_config.get("IGOT_PUSH_KEY")}'
@@ -318,8 +310,7 @@ class Push():
         """
         通过 serverJ 推送消息。
         """
-        if not self.push_config.get("PUSH_KEY"):
-            return
+        
         log.info("serverJ 服务启动")
 
         data = {"text": title, "desp": content.replace("\n", "\n\n")}
@@ -343,8 +334,7 @@ class Push():
         """
         通过PushDeer 推送消息
         """
-        if not self.push_config.get("DEER_KEY"):
-            return
+        
         log.info("PushDeer 服务启动")
         data = {
             "text": title,
@@ -368,8 +358,7 @@ class Push():
         """
         通过Chat 推送消息
         """
-        if not self.push_config.get("CHAT_URL") or not self.push_config.get("CHAT_TOKEN"):
-            return
+        
         log.info("chat 服务启动")
         data = "payload=" + json.dumps({"text": title + "\n" + content})
         url = self.push_config.get("CHAT_URL") + self.push_config.get("CHAT_TOKEN")
@@ -385,8 +374,7 @@ class Push():
         """
         通过 pushplus 推送消息。
         """
-        if not self.push_config.get("PUSH_PLUS_TOKEN"):
-            return
+        
         log.info("PUSHPLUS 服务启动")
 
         url = "https://www.pushplus.plus/send"
@@ -430,8 +418,7 @@ class Push():
         """
         通过 微加机器人 推送消息。
         """
-        if not self.push_config.get("WE_PLUS_BOT_TOKEN"):
-            return
+        
         log.info("微加机器人 服务启动")
 
         template = "txt"
@@ -461,8 +448,7 @@ class Push():
         """
         使用 qmsg 推送消息。
         """
-        if not self.push_config.get("QMSG_KEY") or not self.push_config.get("QMSG_TYPE"):
-            return
+        
         log.info("qmsg 服务启动")
 
         url = f'https://qmsg.zendee.cn/{self.push_config.get("QMSG_TYPE")}/{self.push_config.get("QMSG_KEY")}'
@@ -479,8 +465,6 @@ class Push():
         """
         通过 企业微信 APP 推送消息。
         """
-        if not self.push_config.get("QYWX_AM"):
-            return
         QYWX_AM_AY = re.split(",", self.push_config.get("QYWX_AM"))
         if 4 < len(QYWX_AM_AY) > 5:
             log.info("QYWX_AM 设置错误!!")
@@ -577,8 +561,7 @@ class Push():
         """
         通过 企业微信机器人 推送消息。
         """
-        if not self.push_config.get("QYWX_KEY"):
-            return
+        
         log.info("企业微信机器人服务启动")
 
         origin = "https://qyapi.weixin.qq.com"
@@ -602,23 +585,18 @@ class Push():
         """
         使用 Discord Bot 推送消息。
         """
-        bot_token = self.push_config.get("DISCORD_BOT_TOKEN")
-        user_id = self.push_config.get("DISCORD_USER_ID")
-
-        if not bot_token or not user_id:
-            return
+        
         log.info("Discord Bot 服务启动")
 
         base_url = "https://discord.com/api/v9"
         headers = {
-            "Authorization": f"Bot {bot_token}",
+            "Authorization": f"Bot {self.push_config.get("DISCORD_BOT_TOKEN")}",
             "User-Agent": "OneDragon",
             "Content-Type": "application/json"
         }
 
         create_dm_url = f"{base_url}/users/@me/channels"
-        dm_payload = json.dumps({"recipient_id": user_id})
-        channel_id = None
+        dm_payload = json.dumps({"recipient_id": self.push_config.get("DISCORD_USER_ID")})
         response = requests.post(create_dm_url, headers=headers, data=dm_payload, timeout=15)
         response.raise_for_status()
         channel_id = response.json().get("id")
@@ -637,9 +615,8 @@ class Push():
         """
         使用 telegram 机器人 推送消息。
         """
-        if not self.push_config.get("TG_BOT_TOKEN") or not self.push_config.get("TG_USER_ID"):
-            return
-        log.info("tg 服务启动")
+        
+        log.info("Telegram 服务启动")
 
         if self.push_config.get("TG_API_HOST"):
             url = f"{self.push_config.get('TG_API_HOST')}/bot{self.push_config.get('TG_BOT_TOKEN')}/sendMessage"
@@ -681,12 +658,7 @@ class Push():
         """
         使用 智能微秘书 推送消息。
         """
-        if (
-            not self.push_config.get("AIBOTK_KEY")
-            or not self.push_config.get("AIBOTK_TYPE")
-            or not self.push_config.get("AIBOTK_NAME")
-        ):
-            return
+        
         log.info("智能微秘书 服务启动")
 
         if self.push_config.get("AIBOTK_TYPE") == "room":
@@ -716,14 +688,7 @@ class Push():
         """
         使用 SMTP 邮件 推送消息。
         """
-        if (
-            not self.push_config.get("SMTP_SERVER")
-            or not self.push_config.get("SMTP_SSL")
-            or not self.push_config.get("SMTP_EMAIL")
-            or not self.push_config.get("SMTP_PASSWORD")
-            or not self.push_config.get("SMTP_NAME")
-        ):
-            return
+        
         log.info("SMTP 邮件 服务启动")
 
         message = MIMEText(content, "plain", "utf-8")
@@ -765,8 +730,7 @@ class Push():
         """
         使用 PushMe 推送消息。
         """
-        if not self.push_config.get("PUSHME_KEY"):
-            return
+        
         log.info("PushMe 服务启动")
 
         url = (
@@ -848,8 +812,6 @@ class Push():
             encoded_str = encoded_bytes.decode("utf-8")
             return f"=?utf-8?B?{encoded_str}?="
 
-        if not self.push_config.get("NTFY_TOPIC"):
-            return
         log.info("ntfy 服务启动")
         priority = "3"
         if not self.push_config.get("NTFY_PRIORITY"):
@@ -879,8 +841,6 @@ class Push():
         - WXPUSHER_TOPIC_IDS: 主题ID, 多个用英文分号;分隔
         - WXPUSHER_UIDS: 用户ID, 多个用英文分号;分隔
         """
-        if not self.push_config.get("WXPUSHER_APP_TOKEN"):
-            return
 
         url = "https://wxpusher.zjiecode.com/api/send/message"
 
@@ -982,9 +942,7 @@ class Push():
         """
         通过 自定义通知 推送消息。
         """
-        if not self.push_config.get("WEBHOOK_URL") or not self.push_config.get("WEBHOOK_METHOD"):
-            return
-
+        
         log.info("自定义通知服务启动")
 
         url = self.push_config.get("WEBHOOK_URL")
