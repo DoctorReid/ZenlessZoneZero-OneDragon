@@ -591,13 +591,14 @@ class Push():
         base_url = "https://discord.com/api/v9"
         headers = {
             "Authorization": f"Bot {self.push_config.get('DISCORD_BOT_TOKEN')}",
-            "User-Agent": "OneDragon",
-            "Content-Type": "application/json"
+            "User-Agent": "OneDragon"
         }
 
         create_dm_url = f"{base_url}/users/@me/channels"
+        dm_headers = headers.copy()
+        dm_headers["Content-Type"] = "application/json"
         dm_payload = json.dumps({"recipient_id": self.push_config.get('DISCORD_USER_ID')})
-        response = requests.post(create_dm_url, headers=headers, data=dm_payload, timeout=15)
+        response = requests.post(create_dm_url, headers=dm_headers, data=dm_payload, timeout=15)
         response.raise_for_status()
         channel_id = response.json().get("id")
         if not channel_id or channel_id == "":
@@ -605,8 +606,21 @@ class Push():
             return
 
         message_url = f"{base_url}/channels/{channel_id}/messages"
-        message_payload = json.dumps({"content": f"{title}\n\n{content}"})
-        response = requests.post(message_url, headers=headers, data=message_payload, timeout=15)
+        message_payload_dict = {"content": f"{title}\n\n{content}"}
+
+        files = None
+        data = None
+        if image:
+            image.seek(0)
+            files = {'file': ('image.png', image, 'image/png')}
+            data = {'payload_json': json.dumps(message_payload_dict)}
+            if "Content-Type" in headers:
+                del headers["Content-Type"]
+        else:
+            headers["Content-Type"] = "application/json"
+            data = json.dumps(message_payload_dict)
+
+        response = requests.post(message_url, headers=headers, data=data, files=files, timeout=30) # Increased timeout for potential uploads
         response.raise_for_status()
         log.info("Discord Bot 推送成功！")
 
@@ -1008,6 +1022,8 @@ class Push():
             notify_function.append(self.wecom_app)
         if self.push_config.get("QYWX_KEY"):
             notify_function.append(self.wecom_bot)
+        if self.push_config.get("DISCORD_BOT_TOKEN") and self.push_config.get("DISCORD_USER_ID"):
+            notify_function.append(self.discord_bot)
         if self.push_config.get("TG_BOT_TOKEN") and self.push_config.get("TG_USER_ID"):
             notify_function.append(self.telegram_bot)
         if (
