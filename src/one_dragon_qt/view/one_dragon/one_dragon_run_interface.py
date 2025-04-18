@@ -18,6 +18,7 @@ from one_dragon_qt.widgets.setting_card.app_run_card import AppRunCard
 from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon_qt.widgets.notify_dialog import NotifyDialog
 from one_dragon.utils import cmd_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
@@ -341,4 +342,8 @@ class OneDragonRunInterface(VerticalScrollInterface):
         self.show_notify_dialog()
 
     def show_notify_dialog(self) -> None:
-        pass
+        """
+        显示通知设置对话框。配置更新由对话框内部处理。
+        """
+        dialog = NotifyDialog(self, self.ctx)
+        dialog.exec()

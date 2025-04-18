@@ -7,6 +7,7 @@ class NotifyDialog(MessageBoxBase):
 
     def __init__(self, parent=None, ctx=None):
         super().__init__(parent)
+        self.ctx = ctx
 
         self.yesButton.setText("确定")
         self.cancelButton.setText("取消")
@@ -23,7 +24,7 @@ class NotifyDialog(MessageBoxBase):
         grid_layout.setContentsMargins(0, 10, 0, 10)
         grid_layout.setSpacing(10)
 
-        app_list = ctx.notify_config.app_list
+        app_list = self.ctx.notify_config.app_list
         
         # 每行放置3个复选框
         column_count = 3
@@ -34,7 +35,8 @@ class NotifyDialog(MessageBoxBase):
             
             # 使用 app_name 作为 CheckBox 的文本
             checkbox = CheckBox(app_name, self)
-            checkbox.setChecked(getattr(ctx.notify_config, app_id))
+            initial_checked = getattr(self.ctx.notify_config, app_id, False)
+            checkbox.setChecked(initial_checked)
             
             # 保存复选框引用，使用 app_id 作为键
             self.app_checkboxes[app_id] = checkbox
@@ -42,7 +44,9 @@ class NotifyDialog(MessageBoxBase):
             grid_layout.addWidget(checkbox, row, col)
         
         self.viewLayout.addWidget(checkbox_container)
-    
-    def get_selected_apps(self):
-        """获取所有应用的 app_id 及其选中状态的字典"""
-        return {app_id: checkbox.isChecked() for app_id, checkbox in self.app_checkboxes.items()}
+
+    def accept(self):
+        """点击确定时，更新配置"""
+        super().accept()
+        for app_id, checkbox in self.app_checkboxes.items():
+            setattr(self.ctx.notify_config, app_id, checkbox.isChecked())
