@@ -16,14 +16,13 @@ class ZOneDragonRunInterface(OneDragonRunInterface):
             help_url='https://onedragon-anything.github.io/zzz/zh/docs/feat_one_dragon.html'
         )
 
-    def on_interface_shown(self):
-        super().on_interface_shown()
-        self.notify_switch.init_with_adapter(self.ctx.notify_config.get_prop_adapter('enable_notify'))
-
     def get_one_dragon_app(self) -> OneDragonApp:
         return ZOneDragonApp(self.ctx)
 
-    def _on_notify_setting_clicked(self) -> None:
+    def _init_notify_switch(self) -> None:
+        self.notify_switch.init_with_adapter(self.ctx.notify_config.get_prop_adapter('enable_notify'))
+
+    def show_notify_dialog(self) -> None:
         dialog = NotifyDialog(self, self.ctx)
         if dialog.exec():
             selected_apps = dialog.get_selected_apps()
