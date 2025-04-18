@@ -8,26 +8,27 @@ from one_dragon.base.config.yaml_config import YamlConfig
 
 class NotifyMethodEnum(Enum):
 
-    BARK = ConfigItem('Bark', 'BARK')
+    SMTP = ConfigItem('邮件', 'SMTP')
+    WEBHOOK = ConfigItem('Webhook', 'WEBHOOK')
+    ONEBOT = ConfigItem('OneBot', 'ONEBOT')
+    CHRONOCAT = ConfigItem('Chronocat', 'CHRONOCAT')
+    QYWX = ConfigItem('企业微信', 'QYWX')
     DD_BOT = ConfigItem('钉钉机器人', 'DD_BOT')
     FS =  ConfigItem('飞书机器人', 'FS')
-    ONEBOT = ConfigItem('OneBot', 'ONEBOT')
+    DISCORD = ConfigItem('Discord', 'DISCORD')
+    TELEGRAM = ConfigItem('Telegram', 'TG')
+    BARK = ConfigItem('Bark', 'BARK')
+    NTFY = ConfigItem('ntfy', 'NTFY')
+    SERVERCHAN = ConfigItem('Server 酱', 'SERVERCHAN')
     GOTIFY = ConfigItem('GOTIFY', 'GOTIFY')
     IGOT = ConfigItem('iGot', 'IGOT')
-    SERVERCHAN = ConfigItem('Server 酱', 'SERVERCHAN')
     DEER = ConfigItem('PushDeer', 'DEER')
     CHAT = ConfigItem('Synology Chat', 'CHAT')
     PUSH_PLUS = ConfigItem('PushPlus', 'PUSH_PLUS')
     WE_PLUS_BOT = ConfigItem('微加机器人', 'WE_PLUS_BOT')
     QMSG = ConfigItem('Qmsg 酱', 'QMSG')
-    QYWX = ConfigItem('企业微信', 'QYWX')
-    TELEGRAM = ConfigItem('Telegram', 'TG')
     AIBOTK = ConfigItem('智能微秘书', 'AIBOTK')
-    SMTP = ConfigItem('邮件', 'SMTP')
     PUSHME = ConfigItem('PushMe', 'PUSHME')
-    CHRONOCAT = ConfigItem('Chronocat', 'CHRONOCAT')
-    WEBHOOK = ConfigItem('Webhook', 'WEBHOOK')
-    NTFY = ConfigItem('ntfy', 'NTFY')
     WXPUSHER = ConfigItem('WxPusher', 'WXPUSHER')
 
 class PushConfig(YamlConfig):
@@ -353,6 +354,21 @@ class NotifyCard():
             "title": "企业微信机器人",
             "icon": FluentIcon.CLOUD,
             "placeholder": "选一项填即可"
+        }
+    ],
+    # DISCORD 相关配置
+    "DISCORD": [
+        {
+            "var_suffix": "BOT_TOKEN",
+            "title": "机器人 Token",
+            "icon": FluentIcon.VPN,
+            "placeholder": "请输入 Discord 机器人的 Token"
+        },
+        {
+            "var_suffix": "USER_ID",
+            "title": "用户 ID",
+            "icon": FluentIcon.PEOPLE,
+            "placeholder": "请输入要接收私信的用户 ID"
         }
     ],
     # TG_BOT 相关配置

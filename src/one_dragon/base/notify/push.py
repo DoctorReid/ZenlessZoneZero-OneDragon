@@ -22,7 +22,7 @@ import requests
 
 class Push():
 
-    def __init__(self, ctx: OneDragonContext, parent=None):
+    def __init__(self, ctx: OneDragonContext):
         self.ctx: OneDragonContext = ctx
 
     push_config = {
@@ -80,6 +80,9 @@ class Push():
         'QYWX_AM': '',                      # 企业微信应用
 
         'QYWX_KEY': '',                     # 企业微信机器人
+
+        'DISCORD_BOT_TOKEN': '',            # Discord 机器人的 Token
+        'DISCORD_USER_ID': '',              # Discord 接收消息的用户ID
 
         'TG_BOT_TOKEN': '',                 # tg 机器人的 TG_BOT_TOKEN，例：1407203283:AAG9rt-6RDaaX0HBLZQq0laNOh898iFYaRQ
         'TG_USER_ID': '',                   # tg 机器人的 TG_USER_ID，例：1434078534
@@ -593,6 +596,41 @@ class Push():
             log.info("企业微信机器人推送成功！")
         else:
             log.error("企业微信机器人推送失败！")
+
+
+    def discord_bot(self, title: str, content: str, image: Optional[BytesIO]) -> None:
+        """
+        使用 Discord Bot 推送消息。
+        """
+        bot_token = self.push_config.get("DISCORD_BOT_TOKEN")
+        user_id = self.push_config.get("DISCORD_USER_ID")
+
+        if not bot_token or not user_id:
+            return
+        log.info("Discord Bot 服务启动")
+
+        base_url = "https://discord.com/api/v9"
+        headers = {
+            "Authorization": f"Bot {bot_token}",
+            "User-Agent": "OneDragon",
+            "Content-Type": "application/json"
+        }
+
+        create_dm_url = f"{base_url}/users/@me/channels"
+        dm_payload = json.dumps({"recipient_id": user_id})
+        channel_id = None
+        response = requests.post(create_dm_url, headers=headers, data=dm_payload, timeout=15)
+        response.raise_for_status()
+        channel_id = response.json().get("id")
+        if not channel_id or channel_id == "":
+            log.error(f"Discord 私聊频道建立失败")
+            return
+
+        message_url = f"{base_url}/channels/{channel_id}/messages"
+        message_payload = json.dumps({"content": f"{title}\n\n{content}"})
+        response = requests.post(message_url, headers=headers, data=message_payload, timeout=15)
+        response.raise_for_status()
+        log.info("Discord Bot 推送成功！")
 
 
     def telegram_bot(self, title: str, content: str, image: Optional[BytesIO]) -> None:
