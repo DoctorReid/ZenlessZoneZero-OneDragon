@@ -590,13 +590,13 @@ class Push():
 
         base_url = "https://discord.com/api/v9"
         headers = {
-            "Authorization": f"Bot {self.push_config.get("DISCORD_BOT_TOKEN")}",
+            "Authorization": f"Bot {self.push_config.get('DISCORD_BOT_TOKEN')}",
             "User-Agent": "OneDragon",
             "Content-Type": "application/json"
         }
 
         create_dm_url = f"{base_url}/users/@me/channels"
-        dm_payload = json.dumps({"recipient_id": self.push_config.get("DISCORD_USER_ID")})
+        dm_payload = json.dumps({"recipient_id": self.push_config.get('DISCORD_USER_ID')})
         response = requests.post(create_dm_url, headers=headers, data=dm_payload, timeout=15)
         response.raise_for_status()
         channel_id = response.json().get("id")
