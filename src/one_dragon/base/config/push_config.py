@@ -14,7 +14,7 @@ class NotifyMethodEnum(Enum):
     ONEBOT = ConfigItem('OneBot', 'ONEBOT')
     GOTIFY = ConfigItem('GOTIFY', 'GOTIFY')
     IGOT = ConfigItem('iGot', 'IGOT')
-    SERVERCHAN = ConfigItem('Server 酱', 'PUSH_KEY')
+    SERVERCHAN = ConfigItem('Server 酱', 'SERVERCHAN')
     DEER = ConfigItem('PushDeer', 'DEER')
     CHAT = ConfigItem('Synology Chat', 'CHAT')
     PUSH_PLUS = ConfigItem('PushPlus', 'PUSH_PLUS')
@@ -86,45 +86,51 @@ class NotifyCard():
     "BARK": [
         {
             "var_suffix": "PUSH", 
+            "title": "推送地址或 Key",
+            "icon": FluentIcon.SEND,
+            "placeholder": "请输入 Bark 推送地址或 Key"
+        },
+        {
+            "var_suffix": "DEVICE_KEY",
             "title": "设备码",
-            "icon": FluentIcon.MESSAGE,
-            "placeholder": "请输入Bark IP 或设备码"
+            "icon": FluentIcon.PHONE,
+            "placeholder": "请填写设备码（可选）"
         },
         {
             "var_suffix": "ARCHIVE",
             "title": "推送是否存档",
-            "icon": FluentIcon.PEOPLE,
-            "placeholder": "可选：true 或 false"
+            "icon": FluentIcon.FOLDER,
+            "placeholder": "填写1为存档，0为不存档"
         },
         {
             "var_suffix": "GROUP",
             "title": "推送分组",
-            "icon": FluentIcon.CLOUD,
-            "placeholder": ""
+            "icon": FluentIcon.PEOPLE,
+            "placeholder": "请填写推送分组（可选）"
         },
         {
             "var_suffix": "SOUND",
-            "title": "推送声音",
-            "icon": FluentIcon.CLOUD,
-            "placeholder": ""
+            "title": "推送铃声",
+            "icon": FluentIcon.HEADPHONE,
+            "placeholder": "请填写铃声名称（可选）"
         },
         {
             "var_suffix": "ICON",
             "title": "推送图标",
-            "icon": FluentIcon.CLOUD,
-            "placeholder": ""
+            "icon": FluentIcon.PHOTO,
+            "placeholder": "请填写图标的URL（可选）"
         },
         {
             "var_suffix": "LEVEL",
-            "title": "推送时效性",
-            "icon": FluentIcon.CLOUD,
-            "placeholder": ""
+            "title": "推送中断级别",
+            "icon": FluentIcon.DATE_TIME,
+            "placeholder": "critical, active, timeSensitive, passive"
         },
         {
             "var_suffix": "URL",
             "title": "推送跳转URL",
-            "icon": FluentIcon.CLOUD,
-            "placeholder": ""
+            "icon": FluentIcon.LINK,
+            "placeholder": "请填写推送跳转URL（可选）"
         }
     ],
     # 钉钉机器人相关配置
@@ -209,9 +215,9 @@ class NotifyCard():
         }
     ],
     # ServerChan 相关配置
-    "PUSH": [
+    "SERVERCHAN": [
         {
-            "var_suffix": "KEY",
+            "var_suffix": "PUSH_KEY",
             "title": "PUSH_KEY",
             "icon": FluentIcon.MESSAGE,
             "placeholder": "请输入 Server 酱的 PUSH_KEY"

@@ -52,7 +52,7 @@ class Push():
 
         'IGOT_PUSH_KEY': '',                # iGot 聚合推送的 IGOT_PUSH_KEY
 
-        'PUSH_KEY': '',                     # server 酱的 PUSH_KEY，兼容旧版与 Turbo 版
+        'SERVERCHAN_PUSH_KEY': '',                     # server 酱的 PUSH_KEY，兼容旧版与 Turbo 版
 
         'DEER_KEY': '',                     # PushDeer 的 PUSHDEER_KEY
         'DEER_URL': '',                     # PushDeer 的 PUSHDEER_URL
@@ -135,6 +135,7 @@ class Push():
             url = f'https://api.day.app/{self.push_config.get("BARK_PUSH")}'
 
         bark_params = {
+            "BARK_DEVICE_KEY": "device_key",
             "BARK_ARCHIVE": "isArchive",
             "BARK_GROUP": "group",
             "BARK_SOUND": "sound",
