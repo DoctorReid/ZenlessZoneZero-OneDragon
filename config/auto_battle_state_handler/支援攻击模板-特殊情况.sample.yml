@@ -6,8 +6,8 @@ handlers:  # 青衣特殊技不可用的情况下没必要切人，直接闪A
         sub_handlers:
           - state_template: "闪A模板-青衣"
       - states: "[前台-零号安比]"
-        operations:
-          - operation_template: "零号安比-闪A" # 异常角色至少输出6秒才进行格挡，这是基本游戏理解
+        sub_handlers:
+          - state_template: "双反模板-下一个"
   - states: "[前台-异常]"
     sub_handlers:
       - states: "([按键-切换角色-下一个, 0, 6]|[按键-切换角色-上一个, 0, 6])"  # 异常角色至少输出6秒
