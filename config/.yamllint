@@ -11,4 +11,3 @@ rules:
   new-line-at-end-of-file: false  # 禁用文件末尾换行符检查
   comments:
     min-spaces-from-content: 1  # 注释与内容最小间距改为1空格
-    require-starting-space: false  # 允许#后不跟空格

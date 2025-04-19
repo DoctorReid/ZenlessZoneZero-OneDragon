@@ -34,12 +34,12 @@ introduction: "支持全角色 任意三人/单人/双人作战，通杀所有�
 # 一般情况下，闪避＞连携＞快速支援＞扣血＞合轴＞主线程
 # 因为同一个触发器内不管触发多少次都不会打断本触发器，所以所有角色的默认动作都放在同一个触发器内，就不用怕打断动作导致错位了
 
-check_dodge_interval: 0.02 # 闪避识别间隔
-check_agent_interval: 0.1 # 代理人识别间隔
-check_chain_interval: 0.1 # 连携识别间隔
-check_quick_interval: 0.2 # 快速支援识别间隔
-auto_lock_interval: 0.5 # 锁定间隔，不锁定
-auto_turn_interval: 2 # 镜头转向间隔
+check_dodge_interval: 0.02  # 闪避识别间隔
+check_agent_interval: 0.1  # 代理人识别间隔
+check_chain_interval: 0.1  # 连携识别间隔
+check_quick_interval: 0.2  # 快速支援识别间隔
+auto_lock_interval: 0.5  # 锁定间隔，不锁定
+auto_turn_interval: 2  # 镜头转向间隔
 
 scenes:
   # 新增得格挡破碎检测
@@ -64,11 +64,11 @@ scenes:
       # 正常情况下，黄光进入的判定，一般情况下，按顺序触发
       - states: "[闪避识别-黄光]"
         sub_handlers:
-          - state_template: "支援攻击模板-特殊情况" # 特殊情况
-          - state_template: "支援攻击模板-击破" # 格挡攻击优先击破可以快速打进失衡
-          - state_template: "支援攻击模板-防护" # 防护一般格挡性能优越
-          - state_template: "支援攻击模板-异常" # 异常一般格挡上异常效率也不错
-          - state_template: "支援攻击模板-下一个" # 剩下的都不优秀了
+          - state_template: "支援攻击模板-特殊情况"  # 特殊情况
+          - state_template: "支援攻击模板-击破"  # 格挡攻击优先击破可以快速打进失衡
+          - state_template: "支援攻击模板-防护"  # 防护一般格挡性能优越
+          - state_template: "支援攻击模板-异常"  # 异常一般格挡上异常效率也不错
+          - state_template: "支援攻击模板-下一个"  # 剩下的都不优秀了
       # 除了看到黄色闪光都进入闪A模式
       - states: "![自定义-动作不打断, -10, -0.1]"
         sub_handlers:

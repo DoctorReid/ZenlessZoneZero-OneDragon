@@ -2,7 +2,7 @@ template_name: "锁定追击模板-通用"
 handlers:
   - states: "![锁定靶心-近距离,0,5]"
     sub_handlers:
-      #因为有些角色距离远了也无所谓，所以这里不做处理
+      # 因为有些角色距离远了也无所谓，所以这里不做处理
       - states: "![锁定靶心-远距离,0,5]"
         debug_name: "丢失锁定"
         operations:
