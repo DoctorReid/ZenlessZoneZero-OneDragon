@@ -1,13 +1,15 @@
 from PySide6.QtWidgets import QWidget, QGridLayout
 from qfluentwidgets import MessageBoxBase, SubtitleLabel, CheckBox
 
+from one_dragon.base.operation.one_dragon_context import OneDragonContext
+
 
 class NotifyDialog(MessageBoxBase):
     """通知配置对话框"""
 
-    def __init__(self, parent=None, ctx=None):
+    def __init__(self, parent=None, ctx=OneDragonContext):
         super().__init__(parent)
-        self.ctx = ctx
+        self.ctx: OneDragonContext = ctx
 
         self.yesButton.setText("确定")
         self.cancelButton.setText("取消")
@@ -47,6 +49,6 @@ class NotifyDialog(MessageBoxBase):
 
     def accept(self):
         """点击确定时，更新配置"""
-        super().accept()
         for app_id, checkbox in self.app_checkboxes.items():
             setattr(self.ctx.notify_config, app_id, checkbox.isChecked())
+        super().accept()

@@ -1,13 +1,14 @@
 # 代码来自whyour/qinglong/develop/sample/notify.py, 感谢原作者的贡献
 import base64
+import copy
 import hashlib
 import hmac
 import json
 import re
+import smtplib
 import threading
 import time
 import urllib.parse
-import smtplib
 
 from io import BytesIO
 from email.mime.text import MIMEText
@@ -22,10 +23,7 @@ import requests
 
 class Push():
 
-    def __init__(self, ctx: OneDragonContext):
-        self.ctx: OneDragonContext = ctx
-
-    push_config = {
+    _default_push_config = {
         'BARK_PUSH': '',                    # bark IP 或设备码，例：https://api.day.app/DxHcxxxxxRxxxxxxcm/
         'BARK_ARCHIVE': '',                 # bark 推送是否存档
         'BARK_GROUP': '',                   # bark 推送分组
@@ -52,7 +50,7 @@ class Push():
 
         'IGOT_PUSH_KEY': '',                # iGot 聚合推送的 IGOT_PUSH_KEY
 
-        'SERVERCHAN_PUSH_KEY': '',                     # server 酱的 PUSH_KEY，兼容旧版与 Turbo 版
+        'SERVERCHAN_PUSH_KEY': '',          # server 酱的 PUSH_KEY，兼容旧版与 Turbo 版
 
         'DEER_KEY': '',                     # PushDeer 的 PUSHDEER_KEY
         'DEER_URL': '',                     # PushDeer 的 PUSHDEER_URL
@@ -124,12 +122,17 @@ class Push():
     }
 
 
+    def __init__(self, ctx: OneDragonContext):
+        self.ctx: OneDragonContext = ctx
+        self.push_config = copy.deepcopy(Push._default_push_config)
+
+
     def bark(self, title: str, content: str, image: Optional[BytesIO]) -> None:
         """
-        使用 bark 推送消息。
+        使用 Bark 推送消息。
         """
         
-        log.info("bark 服务启动")
+        log.info("Bark 服务启动")
 
         if self.push_config.get("BARK_PUSH").startswith("http"):
             url = f'{self.push_config.get("BARK_PUSH")}'
@@ -163,9 +166,9 @@ class Push():
         ).json()
 
         if response["code"] == 200:
-            log.info("bark 推送成功！")
+            log.info("Bark 推送成功！")
         else:
-            log.error("bark 推送失败！")
+            log.error("Bark 推送失败！")
 
 
     def console(self, title: str, content: str, image: Optional[BytesIO]) -> None:
@@ -238,6 +241,7 @@ class Push():
         headers = {'Content-Type': "application/json"}
         message = [{"type": "text", "data": {"text": f"{title}\n\n{content}"}}]
         if image:
+            image.seek(0)
             image_base64 = base64.b64encode(image.getvalue()).decode('utf-8')
             message.append({"type": "image", "data": {"file": f'base64://{image_base64}'}})
         data_private = {"message": message}
@@ -306,28 +310,28 @@ class Push():
             log.error(f'iGot 推送失败！{response["errMsg"]}')
 
 
-    def serverJ(self, title: str, content: str, image: Optional[BytesIO]) -> None:
+    def serverchan(self, title: str, content: str, image: Optional[BytesIO]) -> None:
         """
-        通过 serverJ 推送消息。
+        通过 ServerChan 推送消息。
         """
         
-        log.info("serverJ 服务启动")
+        log.info("Server 酱 服务启动")
 
         data = {"text": title, "desp": content.replace("\n", "\n\n")}
 
-        match = re.match(r"sctp(\d+)t", self.push_config.get("PUSH_KEY"))
+        match = re.match(r"sctp(\d+)t", self.push_config.get("SERVERCHAN_PUSH_KEY"))
         if match:
             num = match.group(1)
-            url = f'https://{num}.push.ft07.com/send/{self.push_config.get("PUSH_KEY")}.send'
+            url = f'https://{num}.push.ft07.com/send/{self.push_config.get("SERVERCHAN_PUSH_KEY")}.send'
         else:
-            url = f'https://sctapi.ftqq.com/{self.push_config.get("PUSH_KEY")}.send'
+            url = f'https://sctapi.ftqq.com/{self.push_config.get("SERVERCHAN_PUSH_KEY")}.send'
 
         response = requests.post(url, data=data).json()
 
         if response.get("errno") == 0 or response.get("code") == 0:
-            log.info("serverJ 推送成功！")
+            log.info("Server 酱 推送成功！")
         else:
-            log.error(f'serverJ 推送失败！错误码：{response["message"]}')
+            log.error(f'Server 酱 推送失败！错误码：{response["message"]}')
 
 
     def pushdeer(self, title: str, content: str, image: Optional[BytesIO]) -> None:
@@ -609,7 +613,6 @@ class Push():
         message_payload_dict = {"content": f"{title}\n\n{content}"}
 
         files = None
-        data = None
         if image:
             image.seek(0)
             files = {'file': ('image.png', image, 'image/png')}
@@ -620,7 +623,7 @@ class Push():
             headers["Content-Type"] = "application/json"
             data = json.dumps(message_payload_dict)
 
-        response = requests.post(message_url, headers=headers, data=data, files=files, timeout=30) # Increased timeout for potential uploads
+        response = requests.post(message_url, headers=headers, data=data, files=files, timeout=30)
         response.raise_for_status()
         log.info("Discord Bot 推送成功！")
 
@@ -663,9 +666,9 @@ class Push():
         ).json()
 
         if response["ok"]:
-            log.info("tg 推送成功！")
+            log.info("Telegram 推送成功！")
         else:
-            log.error("tg 推送失败！")
+            log.error("Telegram 推送失败！")
 
 
     def aibotk(self, title: str, content: str, image: Optional[BytesIO]) -> None:
@@ -680,14 +683,14 @@ class Push():
             data = {
                 "apiKey": self.push_config.get("AIBOTK_KEY"),
                 "roomName": self.push_config.get("AIBOTK_NAME"),
-                "message": {"type": 1, "content": f"【青龙快讯】\n\n{title}\n{content}"},
+                "message": {"type": 1, "content": f"{title}\n{content}"},
             }
         else:
             url = "https://api-bot.aibotk.com/openapi/v1/chat/contact"
             data = {
                 "apiKey": self.push_config.get("AIBOTK_KEY"),
                 "name": self.push_config.get("AIBOTK_NAME"),
-                "message": {"type": 1, "content": f"【青龙快讯】\n\n{title}\n{content}"},
+                "message": {"type": 1, "content": f"{title}\n{content}"},
             }
         body = json.dumps(data).encode(encoding="utf-8")
         headers = {"Content-Type": "application/json"}
@@ -771,12 +774,6 @@ class Push():
         """
         使用 CHRONOCAT 推送消息。
         """
-        if (
-            not self.push_config.get("CHRONOCAT_URL")
-            or not self.push_config.get("CHRONOCAT_QQ")
-            or not self.push_config.get("CHRONOCAT_TOKEN")
-        ):
-            return
 
         log.info("CHRONOCAT 服务启动")
 
@@ -1006,8 +1003,8 @@ class Push():
             notify_function.append(self.gotify)
         if self.push_config.get("IGOT_PUSH_KEY"):
             notify_function.append(self.iGot)
-        if self.push_config.get("PUSH_KEY"):
-            notify_function.append(self.serverJ)
+        if self.push_config.get("SERVERCHAN_PUSH_KEY"):
+            notify_function.append(self.serverchan)
         if self.push_config.get("DEER_KEY"):
             notify_function.append(self.pushdeer)
         if self.push_config.get("CHAT_URL") and self.push_config.get("CHAT_TOKEN"):
@@ -1057,12 +1054,12 @@ class Push():
         ):
             notify_function.append(self.wxpusher_bot)
         if not notify_function:
-            log.info(f"无推送渠道，请检查通知变量是否正确")
+            log.info(f"无推送渠道，请检查通知设置是否正确")
         return notify_function
 
 
     def send(self, content: str, image: Optional[BytesIO]) -> None:
-        
+
         for config_key in self.push_config:
             config_value = getattr(self.ctx.push_config, config_key.lower(), None)
             if config_value is not None:
