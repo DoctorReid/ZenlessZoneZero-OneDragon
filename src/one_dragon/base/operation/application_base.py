@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from enum import Enum
 from typing import Optional, Callable
 
+from one_dragon.base.notify.push import Push
 from one_dragon.base.operation.application_run_record import AppRunRecord
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.base.operation.operation import Operation
@@ -109,6 +110,30 @@ class Application(Operation):
         :return:
         """
         return ''
+
+    def notify(self) -> None:
+        """
+        发送通知 在应用内部调用 会在调用的时候截图
+        :return:
+        """
+        if not hasattr(self.ctx, 'notify_config'):
+            return
+        if not getattr(self.ctx.notify_config, 'enable_notify', False):
+            return
+
+        app_id = getattr(self, 'app_id', None)
+        app_name = getattr(self, 'op_name', None)
+
+        if not getattr(self.ctx.notify_config, app_id, False):
+            return
+
+        message = f"任务「{app_name}」运行成功\n"
+        image = None
+        if self.ctx.push_config.send_image:
+            image = self.save_screenshot_bytes()
+
+        pusher = Push(self.ctx)
+        pusher.send(message, image)
 
     @staticmethod
     def get_preheat_executor() -> ThreadPoolExecutor:

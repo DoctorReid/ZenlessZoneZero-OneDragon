@@ -496,12 +496,11 @@ class Operation(OperationBase):
 
     def save_screenshot_bytes(self) -> Optional[BytesIO]:
         """
-        把上一次的截图保存为字节流
+        截图并保存为字节流
         :return: 字节流对象，如果截图不存在则返回 None
         """
-        if self.last_screenshot is None:
-            return None
-        retval, buffer = cv2.imencode('.png', cv2.cvtColor(self.last_screenshot, cv2.COLOR_BGR2RGB))
+        screen = self.screenshot()
+        retval, buffer = cv2.imencode('.png', cv2.cvtColor(screen, cv2.COLOR_BGR2RGB))
         if retval:
             return BytesIO(buffer.tobytes())
         else:
