@@ -2,8 +2,10 @@ from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon
 
 from one_dragon.base.config.push_config import NotifyMethodEnum, NotifyCard
+from one_dragon.base.notify.push import Push
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon_qt.widgets.setting_card.push_setting_card import PushSettingCard
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon_qt.widgets.column import Column
 from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
@@ -35,6 +37,10 @@ class SettingPushInterface(VerticalScrollInterface):
         self.send_image_opt = SwitchSettingCard(icon=FluentIcon.PHOTO, title='通知中附带图片')
         content_widget.add_widget(self.send_image_opt)
 
+        self.test_btn = PushSettingCard(icon=FluentIcon.SEND, title='测试通知', text='发送测试消息')
+        self.test_btn.clicked.connect(self._send_test_message)
+        content_widget.add_widget(self.test_btn)
+
         # 通知方式选择
         self.notification_method_opt = ComboBoxSettingCard(
             icon=FluentIcon.MESSAGE,
@@ -62,7 +68,7 @@ class SettingPushInterface(VerticalScrollInterface):
                 
                 # 设置关键属性
                 card.setObjectName(var_name.lower())  # 设置唯一标识
-                card.setVisible(False)        # 初始状态隐藏
+                card.setVisible(False)
                 
                 # 将卡片存入实例变量
                 setattr(self, var_name, card)
@@ -80,9 +86,14 @@ class SettingPushInterface(VerticalScrollInterface):
 
         return content_widget
 
+    def _send_test_message(self):
+        """发送测试消息"""
+        pusher = Push(self.ctx)
+        pusher.send("这是一条测试消息", None, self.notification_method_opt.getValue())
+
     def _update_notification_ui(self):
         """根据选择的通知方式更新界面"""
-        method = self.notification_method_opt.combo_box.currentData()
+        method = self.notification_method_opt.getValue()
         # 隐藏所有配置项
         for widget in self.findChildren(TextSettingCard):
             if widget.objectName().endswith("_notify_card"):

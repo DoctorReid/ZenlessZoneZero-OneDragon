@@ -17,7 +17,7 @@ class NotifyApp(ZApplication):
     def __init__(self, ctx: ZContext):
         ZApplication.__init__(self, ctx, 'notify',
                               op_name=gt('通知', 'ui'),
-                              need_check_game_win=False,
+                              need_check_game_win=True,
                               run_record=ctx.notify_record)
 
     @operation_node(name='发送通知', is_start_node=True)

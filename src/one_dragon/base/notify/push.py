@@ -175,7 +175,7 @@ class Push():
         """
         使用 控制台 推送消息。
         """
-        print(f"{title}\n\n{content}")
+        print(f"{title}\n{content}")
 
 
     def dingding_bot(self, title: str, content: str, image: Optional[BytesIO]) -> None:
@@ -195,7 +195,7 @@ class Push():
         sign = urllib.parse.quote_plus(base64.b64encode(hmac_code))
         url = f'https://oapi.dingtalk.com/robot/send?access_token={self.push_config.get("DD_BOT_TOKEN")}&timestamp={timestamp}&sign={sign}'
         headers = {"Content-Type": "application/json;charset=utf-8"}
-        data = {"msgtype": "text", "text": {"content": f"{title}\n\n{content}"}}
+        data = {"msgtype": "text", "text": {"content": f"{title}\n{content}"}}
         response = requests.post(
             url=url, data=json.dumps(data), headers=headers, timeout=15
         ).json()
@@ -214,7 +214,7 @@ class Push():
         log.info("飞书 服务启动")
 
         url = f'https://open.feishu.cn/open-apis/bot/v2/hook/{self.push_config.get("FSKEY")}'
-        data = {"msg_type": "text", "content": {"text": f"{title}\n\n{content}"}}
+        data = {"msg_type": "text", "content": {"text": f"{title}\n{content}"}}
         response = requests.post(url, data=json.dumps(data)).json()
 
         if response.get("StatusCode") == 0 or response.get("code") == 0:
@@ -239,7 +239,7 @@ class Push():
                 url += "/send_msg"
 
         headers = {'Content-Type': "application/json"}
-        message = [{"type": "text", "data": {"text": f"{title}\n\n{content}"}}]
+        message = [{"type": "text", "data": {"text": f"{title}\n{content}"}}]
         if image:
             image.seek(0)
             image_base64 = base64.b64encode(image.getvalue()).decode('utf-8')
@@ -456,7 +456,7 @@ class Push():
         log.info("qmsg 服务启动")
 
         url = f'https://qmsg.zendee.cn/{self.push_config.get("QMSG_TYPE")}/{self.push_config.get("QMSG_KEY")}'
-        payload = {"msg": f'{title}\n\n{content.replace("----", "-")}'.encode("utf-8")}
+        payload = {"msg": f'{title}\n{content.replace("----", "-")}'.encode("utf-8")}
         response = requests.post(url=url, params=payload).json()
 
         if response["code"] == 0:
@@ -574,7 +574,7 @@ class Push():
 
         url = f"{origin}/cgi-bin/webhook/send?key={self.push_config.get('QYWX_KEY')}"
         headers = {"Content-Type": "application/json;charset=utf-8"}
-        data = {"msgtype": "text", "text": {"content": f"{title}\n\n{content}"}}
+        data = {"msgtype": "text", "text": {"content": f"{title}\n{content}"}}
         response = requests.post(
             url=url, data=json.dumps(data), headers=headers, timeout=15
         ).json()
@@ -610,7 +610,7 @@ class Push():
             return
 
         message_url = f"{base_url}/channels/{channel_id}/messages"
-        message_payload_dict = {"content": f"{title}\n\n{content}"}
+        message_payload_dict = {"content": f"{title}\n{content}"}
 
         files = None
         if image:
@@ -644,7 +644,7 @@ class Push():
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
         payload = {
             "chat_id": str(self.push_config.get("TG_USER_ID")),
-            "text": f"{title}\n\n{content}",
+            "text": f"{title}\n{content}",
             "disable_web_page_preview": "true",
         }
         proxies = None
@@ -795,7 +795,7 @@ class Push():
                     "elements": [
                         {
                             "elementType": 1,
-                            "textElement": {"content": f"{title}\n\n{content}"},
+                            "textElement": {"content": f"{title}\n{content}"},
                         }
                     ],
                 }
@@ -1058,12 +1058,15 @@ class Push():
         return notify_function
 
 
-    def send(self, content: str, image: Optional[BytesIO]) -> None:
+    def send(self, content: str, image: Optional[BytesIO] = None, test_method: Optional[str] = None) -> None:
 
         for config_key in self.push_config:
             config_value = getattr(self.ctx.push_config, config_key.lower(), None)
-            if config_value is not None:
-                self.push_config[config_key] = config_value
+            if config_value is None:
+                continue
+            if test_method and test_method not in config_key:
+                continue
+            self.push_config[config_key] = config_value
 
         title = self.ctx.push_config.custom_push_title
 
