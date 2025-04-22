@@ -18,7 +18,7 @@ from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.challenge_mission.check_next_after_battle import ChooseNextOrFinishAfterBattle
 from zzz_od.operation.challenge_mission.exit_in_battle import ExitInBattle
 from zzz_od.operation.choose_predefined_team import ChoosePredefinedTeam
-from zzz_od.operation.compendium.coupon_handler import CouponHandler
+from zzz_od.operation.compendium.coupon import Coupon
 from zzz_od.operation.deploy import Deploy
 from zzz_od.operation.zzz_operation import ZOperation
 from zzz_od.screen_area.screen_normal_world import ScreenNormalWorldEnum
@@ -91,7 +91,7 @@ class RoutineCleanup(ZOperation):
     @node_from(from_name='等待入口加载')
     @operation_node(name='处理家政券')
     def handle_coupon(self) -> OperationRoundResult:
-        op = CouponHandler(self.ctx, self.plan)
+        op = Coupon(self.ctx, self.plan)
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='处理家政券', status='继续使用电量')
