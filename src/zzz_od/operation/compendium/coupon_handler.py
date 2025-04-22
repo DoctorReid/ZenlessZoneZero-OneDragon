@@ -34,7 +34,11 @@ class CouponHandler(ZOperation):
         part = cv2_utils.crop_image_only(screen, area.rect)
         ocr_result = self.ctx.ocr.run_ocr_single_line(part)
         self.coupon_num = str_utils.get_positive_digits(ocr_result, None)
-        if self.coupon_num is None or self.coupon_num == 0:
+        if self.coupon_num is None:
+            log.error('未识别到家政券数量')
+            return self.round_success(CouponHandler.STATUS_CONTINUE_RUN_WITH_CHARGE)
+        if self.coupon_num == 0:
+            log.info('家政券数量为 0')
             return self.round_success(CouponHandler.STATUS_CONTINUE_RUN_WITH_CHARGE)
 
         log.info('家政券数量 %d', self.coupon_num)
