@@ -182,7 +182,7 @@ class Agent:
                  rare_type: RareTypeEnum,
                  agent_type: AgentTypeEnum,
                  dmg_type: DmgTypeEnum,
-                 template_id_list: Optional[list[str]] = None,
+                 template_id_list: list[str],
                  state_list: Optional[List[AgentStateDef]] = None,
                  ):
         """

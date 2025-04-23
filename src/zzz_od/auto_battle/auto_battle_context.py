@@ -3,7 +3,7 @@ from concurrent.futures import ThreadPoolExecutor, Future
 
 import threading
 from cv2.typing import MatLike
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Tuple
 
 from one_dragon.base.conditional_operation.conditional_operator import ConditionalOperator
 from one_dragon.base.conditional_operation.state_recorder import StateRecord
@@ -477,16 +477,26 @@ class AutoBattleContext:
             state_records.append(StateRecord(BattleStateEnum.STATUS_CHAIN_READY.value, screenshot_time))
             self.auto_op.batch_update_states(state_records)
 
-    def _match_chain_agent_in(self, img: MatLike, possible_agents: Optional[List[Agent]] = None) -> Optional[Agent]:
+    def _match_chain_agent_in(self, img: MatLike, possible_agents: Optional[List[Tuple[Agent, Optional[str]]]]) -> Optional[Agent]:
         """
         在候选列表重匹配角色
         :return:
         """
-        for agent in possible_agents:
-            for template_id in agent.template_id_list:
-                mrl = self.ctx.tm.match_template(img, 'battle', 'avatar_chain_' + template_id, threshold=0.8)
+        prefix = 'avatar_chain_'
+        for agent, specific_template_id in possible_agents:
+            # 上次识别过的模板 ID，接着用
+            if specific_template_id:
+                template_to_check = prefix + specific_template_id
+                mrl = self.ctx.tm.match_template(img, 'battle', template_to_check, threshold=0.8)
                 if mrl.max is not None:
                     return agent
+            # 没有上次识别过的模板 ID，匹配所有可能的模板 ID
+            else:
+                for template_id in agent.template_id_list:
+                    template_to_check = prefix + template_id
+                    mrl = self.ctx.tm.match_template(img, 'battle', template_to_check, threshold=0.8)
+                    if mrl.max is not None:
+                        return agent
 
         return None
 
@@ -521,16 +531,26 @@ class AutoBattleContext:
         finally:
             self._check_quick_lock.release()
 
-    def _match_quick_assist_agent_in(self, img: MatLike, possible_agents: Optional[List[Agent]] = None) -> Optional[Agent]:
+    def _match_quick_assist_agent_in(self, img: MatLike, possible_agents: Optional[List[Tuple[Agent, Optional[str]]]]) -> Optional[Agent]:
         """
         在候选列表重匹配角色
         :return:
         """
-        for agent in possible_agents:
-            for template_id in agent.template_id_list:
-                mrl = self.ctx.tm.match_template(img, 'battle', 'avatar_quick_' + template_id, threshold=0.9)
+        prefix = 'avatar_quick_'
+        for agent, specific_template_id in possible_agents:
+            # 上次识别过的模板 ID，接着用
+            if specific_template_id:
+                template_to_check = prefix + specific_template_id
+                mrl = self.ctx.tm.match_template(img, 'battle', template_to_check, threshold=0.8)
                 if mrl.max is not None:
                     return agent
+            # 没有上次识别过的模板 ID，匹配所有可能的模板 ID
+            else:
+                for template_id in agent.template_id_list:
+                    template_to_check = prefix + template_id
+                    mrl = self.ctx.tm.match_template(img, 'battle', template_to_check, threshold=0.8)
+                    if mrl.max is not None:
+                        return agent
 
         return None
 
