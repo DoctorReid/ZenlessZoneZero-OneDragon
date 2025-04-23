@@ -394,8 +394,11 @@ class GitService:
         部分场景会没有权限clone代码 需要先授权
         :return:
         """
-        cmd_utils.run_command([self.env_config.git_path, 'config', '--global', '--add', 'safe.directory',
-                               os.path.normpath(os_utils.get_work_dir()).replace(os.path.sep, '/')])
+        work_dir = os.path.normpath(os_utils.get_work_dir()).replace(os.path.sep, '/')
+        existing_safe_dirs = cmd_utils.run_command([self.env_config.git_path, 'config', '--global', '--get-all', 'safe.directory'])
+        if existing_safe_dirs is None or work_dir not in existing_safe_dirs.splitlines():
+            cmd_utils.run_command([self.env_config.git_path, 'config', '--global', '--add', 'safe.directory',
+                                   work_dir])
 
     def reset_to_commit(self, commit_id: str) -> bool:
         """
