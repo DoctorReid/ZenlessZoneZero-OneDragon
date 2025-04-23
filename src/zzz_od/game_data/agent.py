@@ -288,12 +288,12 @@ class AgentEnum(Enum):
                                       lower_color=(0, 50, 0), upper_color=(255, 255, 255))
                     ])
 
-    VIVIAN = Agent('vivian', '薇薇安', RareTypeEnum.S, AgentTypeEnum.ANOMALY, DmgTypeEnum.ETHER
-                             state_list=[
-                                 AgentStateDef('薇薇安-飞羽', AgentStateCheckWay.COLOR_RANGE_CONNECT,
-                                               'vivian_master_1', lower_color=(150, 110, 170), upper_color=(255, 255, 255),
-                                               connect_cnt=5),
-                                 AgentStateDef('薇薇安-护羽', AgentStateCheckWay.COLOR_RANGE_CONNECT,
-                                               'vivian_master_2', lower_color=(170, 170, 200), upper_color=(255, 255, 255),
-                                               connect_cnt=5)
-                             ])
+    VIVIAN = Agent('vivian', '薇薇安', RareTypeEnum.S, AgentTypeEnum.ANOMALY, DmgTypeEnum.ETHER,
+                    state_list=[
+                        AgentStateDef('薇薇安-飞羽', AgentStateCheckWay.COLOR_RANGE_CONNECT,
+                                    'vivian_master_1', lower_color=(150, 110, 170), upper_color=(255, 255, 255),
+                                    connect_cnt=5),
+                        AgentStateDef('薇薇安-护羽', AgentStateCheckWay.COLOR_RANGE_CONNECT,
+                                    'vivian_master_2', lower_color=(170, 170, 200), upper_color=(255, 255, 255),
+                                    connect_cnt=5)
+                    ])
