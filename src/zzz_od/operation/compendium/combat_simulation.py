@@ -1,6 +1,6 @@
 from concurrent.futures import Future
 import time
-
+import cv2
 import difflib
 from typing import Optional, ClassVar, Tuple
 
@@ -23,7 +23,7 @@ from zzz_od.operation.choose_predefined_team import ChoosePredefinedTeam
 from zzz_od.operation.deploy import Deploy
 from zzz_od.operation.zzz_operation import ZOperation
 from zzz_od.screen_area.screen_normal_world import ScreenNormalWorldEnum
-
+from one_dragon.utils.log_utils import log
 
 class CombatSimulation(ZOperation):
 
@@ -112,24 +112,62 @@ class CombatSimulation(ZOperation):
     @node_from(from_name='选择类型')
     @operation_node(name='选择副本')
     def choose_mission(self) -> OperationRoundResult:
+        """
+        选择指定名称的副本
+        流程:
+        1. 截取当前屏幕
+        2. 定位副本名称列表区域
+        3. 使用OCR识别副本名称
+        4. 通过模糊匹配找到目标副本
+        5. 计算点击位置并执行点击
+        """
         screen = self.screenshot()
-        area = self.ctx.screen_loader.get_area('实战模拟室', '副本名称列表')
-        part = cv2_utils.crop_image_only(screen, area.rect)
+        
+        if gt(self.plan.mission_name) == '代理人方案培养':
+            area = self.ctx.screen_loader.get_area('实战模拟室', '副本名称列表顶部')
+            part = cv2_utils.crop_image_only(screen, area.rect)
+            target_point: Optional[Point] = None  # 初始化目标点击位置
 
-        target_point: Optional[Point] = None
-        ocr_result_map = self.ctx.ocr.run_ocr(part)
-        target_list = []
-        mrl_list = []
-        for ocr_result, mrl in ocr_result_map.items():
-            target_list.append(ocr_result)
-            mrl_list.append(mrl)
+            # 转换到HSV色彩空间并过滤低饱和度和色调值
+            hsv = cv2.cvtColor(part, cv2.COLOR_BGR2HSV)
+            mask = cv2.inRange(hsv, (0, 0, 0), (10, 10, 255))
+            binary = cv2.bitwise_not(mask)
 
-        results = difflib.get_close_matches(gt(self.plan.mission_name), target_list, n=1)
+            contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            min_area = 800  # 最小有效区域面积
+            contours = [cnt for cnt in contours if cv2.contourArea(cnt) >= min_area]
 
-        if results is not None and len(results) > 0:
-            idx = target_list.index(results[0])
-            mrl = mrl_list[idx]
-            target_point = area.left_top + mrl.max + Point(0, 50)
+            for i, cnt in enumerate(contours):
+                x, y, w, h = cv2.boundingRect(cnt)
+                log.debug(f'目标代理人头像{i}: x={x}, y={y}, 宽={w}, 高={h}, 面积={cv2.contourArea(cnt)}')
+
+            target_point = None
+            if contours and len(contours) > 0:
+                x, y, w, h = cv2.boundingRect(contours[0])
+                target_point = area.left_top + Point(x + w//2, y + h//2)
+
+        else:
+            area = self.ctx.screen_loader.get_area('实战模拟室', '副本名称列表')
+            part = cv2_utils.crop_image_only(screen, area.rect)
+            target_point: Optional[Point] = None  # 初始化目标点击位置
+            ocr_result_map = self.ctx.ocr.run_ocr(part)
+
+            target_list = []  # 存储识别到的副本名称
+            mrl_list = []     # 存储匹配结果位置信息
+            
+            for ocr_result, mrl in ocr_result_map.items():
+                target_list.append(ocr_result)
+                mrl_list.append(mrl)
+
+            # 模糊匹配目标副本名称
+            results = difflib.get_close_matches(gt(self.plan.mission_name), target_list, n=1)
+
+            if results is not None and len(results) > 0:
+                idx = target_list.index(results[0])
+                mrl = mrl_list[idx]
+                
+                # 计算点击位置(在文本下方50像素处)
+                target_point = area.left_top + mrl.max + Point(0, 50)
 
         if target_point is None:
             return self.round_retry(status='找不到 %s' % self.plan.mission_name, wait=1)
