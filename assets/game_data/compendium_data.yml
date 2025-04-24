@@ -57,6 +57,9 @@
             - mission_name: "自定义卡组3"
             - mission_name: "自定义卡组4"
             - mission_name: "自定义卡组5"
+        - mission_type_name: "代理人方案培养"
+          mission_list:
+            - mission_name: "代理人方案培养"
 
     - category_name: "定期清剿"
       mission_type_list:
@@ -78,6 +81,7 @@
           mission_type_name_display: "折枝剑歌 静听嘉音"
         - mission_type_name: "游侠与守卫"
           mission_type_name_display: "如影相随 法厄同之歌"
+        - mission_type_name: "代理人方案培养"
 
     - category_name: "专业挑战室"
       mission_type_list:
@@ -90,6 +94,7 @@
         - mission_type_name: "多佩冈亚·简"
         - mission_type_name: "色雷斯人"
         - mission_type_name: "伐木机"
+        - mission_type_name: "代理人方案培养"
 
 - tab_name: "作战"
   category_list:
@@ -100,6 +105,7 @@
         - mission_type_name: "冥宁芙·双子"
         - mission_type_name: "「霸主侵蚀体·庞培」"
         - mission_type_name: "牲鬼·布林格"
+        - mission_type_name: "代理人方案培养"
     - category_name: "零号空洞"
       mission_type_list:
         - mission_type_name: "迷失之地"
