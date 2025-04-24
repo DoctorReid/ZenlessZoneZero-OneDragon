@@ -29,7 +29,8 @@ class LifeOnLineApp(ZApplication):
             self,
             ctx=ctx, app_id='life_on_line',
             op_name=gt('真拿命验收', 'ui'),
-            run_record=ctx.life_on_line_record
+            run_record=ctx.life_on_line_record,
+            need_notify=True,
         )
         self.run_record: LifeOnLineRunRecord = ctx.life_on_line_record
         self.is_over_night: bool = False  # 本次结束是否过夜了

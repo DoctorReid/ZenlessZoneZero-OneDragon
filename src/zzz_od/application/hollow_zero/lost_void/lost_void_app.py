@@ -26,7 +26,8 @@ class LostVoidApp(ZApplication):
             self,
             ctx=ctx, app_id='lost_void',
             op_name='迷失之地',
-            run_record=ctx.lost_void_record
+            run_record=ctx.lost_void_record,
+            need_notify=True,
         )
 
         self.next_region_type: LostVoidRegionType = LostVoidRegionType.ENTRY  # 下一个区域的类型

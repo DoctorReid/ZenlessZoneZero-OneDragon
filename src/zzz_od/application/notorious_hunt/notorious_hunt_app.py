@@ -28,7 +28,8 @@ class NotoriousHuntApp(ZApplication):
             self,
             ctx=ctx, app_id='notorious_hunt',
             op_name=gt('恶名狩猎', 'ui'),
-            run_record=ctx.notorious_hunt_record
+            run_record=ctx.notorious_hunt_record,
+            need_notify=True,
         )
 
     def handle_init(self) -> None:

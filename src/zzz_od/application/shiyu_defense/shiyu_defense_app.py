@@ -27,7 +27,8 @@ class ShiyuDefenseApp(ZApplication):
             self,
             ctx=ctx, app_id='shiyu_defense',
             op_name=gt('式舆防卫战', 'ui'),
-            run_record=ctx.shiyu_defense_record
+            run_record=ctx.shiyu_defense_record,
+            need_notify=True,
         )
 
         self.current_node_idx: int = 0  # 当前挑战的节点下标 跟着游戏的1开始

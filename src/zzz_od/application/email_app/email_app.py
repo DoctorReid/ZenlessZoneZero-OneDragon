@@ -17,7 +17,8 @@ class EmailApp(ZApplication):
             self,
             ctx=ctx, app_id='email',
             op_name=gt('邮件', 'ui'),
-            run_record=ctx.email_run_record
+            run_record=ctx.email_run_record,
+            need_notify=True,
         )
 
     def handle_init(self) -> None:

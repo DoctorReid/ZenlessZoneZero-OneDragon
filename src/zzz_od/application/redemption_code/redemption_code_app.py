@@ -22,7 +22,8 @@ class RedemptionCodeApp(ZApplication):
             self,
             ctx=ctx, app_id='redemption_code',
             op_name=gt('兑换码', 'ui'),
-            run_record=ctx.redemption_code_record
+            run_record=ctx.redemption_code_record,
+            need_notify=True,
         )
 
         self.unused_code_list: List[str] = []

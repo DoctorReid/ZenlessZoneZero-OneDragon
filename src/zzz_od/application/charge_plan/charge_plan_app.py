@@ -27,7 +27,8 @@ class ChargePlanApp(ZApplication):
             self,
             ctx=ctx, app_id='charge_plan',
             op_name=gt('体力刷本', 'ui'),
-            run_record=ctx.charge_plan_run_record
+            run_record=ctx.charge_plan_run_record,
+            need_notify=True,
         )
         self.charge_power: int = 0  # 剩余电量
         self.need_to_check_power_in_mission: bool = False

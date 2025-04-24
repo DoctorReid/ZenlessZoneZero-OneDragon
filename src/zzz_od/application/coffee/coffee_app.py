@@ -40,6 +40,7 @@ class CoffeeApp(ZApplication):
             op_name=gt('咖啡店', 'ui'),
             run_record=ctx.coffee_record,
             retry_in_od=True,  # 传送落地有可能会歪 重试
+            need_notify=True,
         )
 
         self.chosen_coffee: Optional[Coffee] = None  # 选择的咖啡

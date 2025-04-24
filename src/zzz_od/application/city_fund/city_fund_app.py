@@ -15,7 +15,8 @@ class CityFundApp(ZApplication):
             self,
             ctx=ctx, app_id='city_fund',
             op_name=gt('丽都城募', 'ui'),
-            run_record=ctx.city_fund_record
+            run_record=ctx.city_fund_record,
+            need_notify=True,
         )
 
     @operation_node(name='打开菜单', is_start_node=True)

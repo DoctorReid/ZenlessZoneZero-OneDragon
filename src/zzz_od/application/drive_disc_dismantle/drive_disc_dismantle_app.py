@@ -10,9 +10,13 @@ from zzz_od.operation.back_to_normal_world import BackToNormalWorld
 class DriveDiscDismantleApp(ZApplication):
 
     def __init__(self, ctx: ZContext):
-        ZApplication.__init__(self, ctx, 'drive_disc_dismantle',
-                              op_name=gt('驱动盘分解', 'ui'),
-                               run_record=ctx.drive_disc_dismantle_record)
+        ZApplication.__init__(
+            self,
+            ctx=ctx, app_id='drive_disc_dismantle',
+            op_name=gt('驱动盘分解', 'ui'),
+            run_record=ctx.drive_disc_dismantle_record,
+            need_notify=True,
+        )
 
     @operation_node(name='开始前返回', is_start_node=True)
     def back_at_first(self) -> OperationRoundResult:
