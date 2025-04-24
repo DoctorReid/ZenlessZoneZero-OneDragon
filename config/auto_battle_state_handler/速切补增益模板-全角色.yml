@@ -182,6 +182,15 @@ handlers:
                       - op_name: "清除状态"
                         state_list: ["自定义-速切结束", "自定义-动作不打断"]
 
+              - states: "![前台-薇薇安]"  # 柳有能量可以上了
+                sub_handlers:
+                  - states: "[薇薇安-护羽]{0,1}"
+                    operations:
+                      - op_name: "按键-切换角色"
+                        agent_name: "薇薇安"
+                      - op_name: "清除状态"
+                        state_list: ["自定义-速切结束", "自定义-动作不打断"]
+
               # 辅助能量要溢出了兄弟
               - states: "![后台-1-异常] & ![后台-1-强攻] & [后台-1-能量]{110, 120}"
                 operations:
