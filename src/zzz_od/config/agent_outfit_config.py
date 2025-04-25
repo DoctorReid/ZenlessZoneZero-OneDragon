@@ -10,6 +10,19 @@ class AgentOutfitConfig(YamlConfig):
         YamlConfig.__init__(self, 'agent_outfit', instance_idx=instance_idx)
 
     @property
+    def match_all_outfits(self) -> bool:
+        return self.get('match_all_outfits', False)
+        
+    @match_all_outfits.setter
+    def match_all_outfits(self, value: bool) -> None:
+        self.update('match_all_outfits', value)
+
+    @property
+    def nicole_outfit_list(self) -> str:
+        return self.get('nicole_outfit_list', [AgentOutfitNicole.DEFAULT.value.value,
+                                               AgentOutfitNicole.CUNNING_CUTIE.value.value])
+
+    @property
     def nicole(self) -> str:
         return self.get('nicole', AgentOutfitNicole.DEFAULT.value.value)
 
@@ -18,12 +31,22 @@ class AgentOutfitConfig(YamlConfig):
         self.update('nicole', value)
 
     @property
+    def ellen_outfit_list(self) -> str:
+        return self.get('ellen_outfit_list', [AgentOutfitEllen.DEFAULT.value.value,
+                                              AgentOutfitEllen.ON_CAMPUS.value.value])
+
+    @property
     def ellen(self) -> str:
         return self.get('ellen', AgentOutfitEllen.DEFAULT.value.value)
 
     @ellen.setter
     def ellen(self, value: str) -> None:
         self.update('ellen', value)
+
+    @property
+    def astra_yao_outfit_list(self) -> str:
+        return self.get('astra_yao_outfit_list', [AgentOutfitAstraYao.DEFAULT.value.value,
+                                                  AgentOutfitAstraYao.CHANDELIER.value.value])
 
     @property
     def astra_yao(self) -> str:
