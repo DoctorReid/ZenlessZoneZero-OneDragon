@@ -42,7 +42,7 @@ class DisableAutoHDR(Operation):
                 winreg.SetValueEx(key, game_path, 0, winreg.REG_SZ, "AutoHDREnable=2096;")
                 log.info('已设置注册表键值: %s -> AutoHDREnable=2096', game_path)
                 
-            return self.round_success('已禁用HDR', wait=5)
+            return self.round_success('已禁用HDR', wait=0.5)
         except WindowsError as e:
             log.error('设置注册表失败: %s', str(e))
             return self.round_fail('设置注册表失败')
@@ -76,7 +76,7 @@ class EnableAutoHDR(Operation):
                     winreg.DeleteValue(key, game_path)
                     log.info('已删除HDR设置键值')
                 
-            return self.round_success('已启用HDR', wait=5)
+            return self.round_success('已启用HDR', wait=0.5)
         except WindowsError as e:
             log.error('修改注册表失败: %s', str(e))
             return self.round_fail('修改注册表失败')
