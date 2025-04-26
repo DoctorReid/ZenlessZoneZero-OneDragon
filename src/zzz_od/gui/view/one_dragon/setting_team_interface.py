@@ -35,15 +35,15 @@ class TeamSettingCard(MultiPushSettingCard):
 
         self.agent_1_btn = EditableComboBox()
         self.agent_1_btn.currentIndexChanged.connect(self.on_agent_1_changed)
-        self.agent_1_btn.setFixedWidth(100)
+        self.agent_1_btn.setFixedWidth(110)
 
         self.agent_2_btn = EditableComboBox()
         self.agent_2_btn.currentIndexChanged.connect(self.on_agent_2_changed)
-        self.agent_2_btn.setFixedWidth(100)
+        self.agent_2_btn.setFixedWidth(110)
 
         self.agent_3_btn = EditableComboBox()
         self.agent_3_btn.currentIndexChanged.connect(self.on_agent_3_changed)
-        self.agent_3_btn.setFixedWidth(100)
+        self.agent_3_btn.setFixedWidth(110)
 
         self.hBoxLayout.insertWidget(4, self.agent_1_btn, 0, Qt.AlignmentFlag.AlignLeft)
         self.hBoxLayout.insertSpacing(5, 8)

@@ -47,14 +47,14 @@ class ZOneDragonSettingInterface(VerticalScrollInterface):
             icon=FluentIcon.PEOPLE, title=gt('影像店代理人-1'),
             options_list=agents_list,
         )
-        self.random_play_agent_1.combo_box.setFixedWidth(100)
+        self.random_play_agent_1.combo_box.setFixedWidth(110)
         group.addSettingCard(self.random_play_agent_1)
 
         self.random_play_agent_2 = EditableComboBoxSettingCard(
             icon=FluentIcon.PEOPLE, title=gt('影像店代理人-2'),
             options_list=agents_list,
         )
-        self.random_play_agent_2.combo_box.setFixedWidth(100)
+        self.random_play_agent_2.combo_box.setFixedWidth(110)
         group.addSettingCard(self.random_play_agent_2)
 
         return group
