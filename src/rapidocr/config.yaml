@@ -20,7 +20,7 @@ Det:
     use_cuda: false
     use_dml: false
 
-    model_path: assets/models/rapid_ocr/det.onnx
+    model_path: models/det.onnx
 
     limit_side_len: 736
     limit_type: min
@@ -41,7 +41,7 @@ Cls:
     use_cuda: false
     use_dml: false
 
-    model_path: assets/models/rapid_ocr/cls.onnx
+    model_path: models/cls.onnx
 
     cls_image_shape: [3, 48, 192]
     cls_batch_num: 6
@@ -55,7 +55,7 @@ Rec:
     use_cuda: false
     use_dml: false
 
-    model_path: assets/models/rapid_ocr/rec.onnx
+    model_path: models/rec.onnx
 
     rec_img_shape: [3, 48, 320]
     rec_batch_num: 6

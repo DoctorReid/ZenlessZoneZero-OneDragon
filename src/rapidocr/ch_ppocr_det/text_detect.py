@@ -19,7 +19,7 @@ from typing import Any, Dict, Optional, Tuple
 
 import numpy as np
 
-from rapidocr_onnxruntime.utils import OrtInferSession
+from rapidocr.utils import OrtInferSession
 
 from .utils import DBPostProcess, DetPreProcess
 

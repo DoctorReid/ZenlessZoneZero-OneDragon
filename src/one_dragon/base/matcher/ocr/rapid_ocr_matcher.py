@@ -33,9 +33,15 @@ class RapidOcrMatcher(OcrMatcher):
 
         if self._model is None:
             from rapidocr import RapidOCR
+            models_dir = os_utils.get_path_under_work_dir('assets', 'models', 'rapid_ocr')
 
             try:
-                self._model = RapidOCR()
+                self._model = RapidOCR(
+                    det_model_path=os.path.join(models_dir, 'det.onnx'),
+                    rec_model_path=os.path.join(models_dir, 'rec.onnx'),
+                    cls_model_path=os.path.join(models_dir, 'cls.onnx'),
+                    rec_keys_path=os.path.join(models_dir, 'ppocr_keys_v1.txt'),
+                )
                 self._loading = False
                 log.info('加载OCR模型完毕')
                 return True
@@ -75,25 +81,33 @@ class RapidOcrMatcher(OcrMatcher):
         """
         start_time = time.time()
         result_map: dict = {}
-        scan_result_list: list = self._model.ocr(image, cls=False)
-        if len(scan_result_list) == 0:
-            log.debug('OCR结果 %s 耗时 %.2f', result_map.keys(), time.time() - start_time)
+        # RapidOCR.__call__ 返回 (ocr_res, elapse_list) 或 (None, None)
+        ocr_result_tuple = self._model(image, use_det=True, use_cls=False, use_rec=True)
+        if ocr_result_tuple is None or ocr_result_tuple[0] is None:
+            log.debug('OCR 未识别到结果 耗时 %.2f', time.time() - start_time)
             return result_map
 
-        scan_result = scan_result_list[0]
+        scan_result, elapse_list = ocr_result_tuple
+        # scan_result 结构: [[box.tolist(), text, score], ...]
         for anchor in scan_result:
-            anchor_position = anchor[0]
-            anchor_text = anchor[1][0]
-            anchor_score = anchor[1][1]
+            anchor_position_list = anchor[0]  # box.tolist()
+            anchor_text = anchor[1]  # text
+            anchor_score = anchor[2]  # score
             if threshold is not None and anchor_score < threshold:
                 continue
+
+            # 从 box.tolist() 提取坐标和尺寸
+            # box 格式: [[x1, y1], [x2, y2], [x3, y3], [x4, y4]]
+            # 近似取左上角和右下角计算 x, y, w, h
+            x = min(p[0] for p in anchor_position_list)
+            y = min(p[1] for p in anchor_position_list)
+            w = max(p[0] for p in anchor_position_list) - x
+            h = max(p[1] for p in anchor_position_list) - y
+
             if anchor_text not in result_map:
                 result_map[anchor_text] = MatchResultList(only_best=False)
             result_map[anchor_text].append(MatchResult(anchor_score,
-                                                       anchor_position[0][0],
-                                                       anchor_position[0][1],
-                                                       anchor_position[1][0] - anchor_position[0][0],
-                                                       anchor_position[3][1] - anchor_position[0][1],
+                                                       x, y, w, h,
                                                        data=anchor_text))
 
         if merge_line_distance != -1:
@@ -108,19 +122,33 @@ class RapidOcrMatcher(OcrMatcher):
         默认传入的图片仅有文字信息
         :param image: 图片
         :param threshold: 匹配阈值
-        :return: [[("text", "score"),]] 由于禁用了空格，可以直接取第一个元素
+        :return: 识别到的文本
         """
         start_time = time.time()
-        scan_result: list = self._model.ocr(image, det=False, cls=False)
-        img_result = scan_result[0]  # 取第一张图片
-        if len(img_result) > 1:
-            log.debug("禁检测的OCR模型返回多个识别结果")  # 目前没有出现这种情况
+        # RapidOCR.__call__ 返回 (ocr_res, elapse_list) 或 (None, None)
+        ocr_result_tuple = self._model(image, use_det=False, use_cls=False, use_rec=True)
 
-        if threshold is not None and scan_result[0][1] < threshold:
-            log.debug("OCR模型返回的识别结果置信度低于阈值")
+        if ocr_result_tuple is None or ocr_result_tuple[0] is None:
+            log.debug("OCR (无检测) 未识别到结果 耗时 %.2f", time.time() - start_time)
             return ""
-        log.debug('OCR结果 %s 耗时 %.2f', scan_result, time.time() - start_time)
-        return img_result[0][0]
+
+        scan_result, elapse_list = ocr_result_tuple
+        # scan_result 结构: [[text, score], ...]
+        if not scan_result:
+            log.debug("OCR (无检测) 结果列表为空 耗时 %.2f", time.time() - start_time)
+            return ""
+
+        # 通常只有一个结果，取第一个
+        first_res = scan_result[0]
+        text = first_res[0]
+        score = first_res[1]
+
+        if threshold is not None and score < threshold:
+            log.debug("OCR (无检测) 模型返回的识别结果置信度 %.2f 低于阈值 %.2f", score, threshold)
+            return ""
+
+        log.debug('OCR (无检测) 结果 %s (%.2f) 耗时 %.2f', text, score, time.time() - start_time)
+        return text
 
     def match_words(self, image: MatLike, words: List[str], threshold: float = None,
                     same_word: bool = False,

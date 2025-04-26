@@ -19,7 +19,7 @@ from typing import Any, Dict, List, Tuple, Union
 
 import cv2
 import numpy as np
-from rapidocr_onnxruntime.utils import OrtInferSession, read_yaml
+from rapidocr.utils import OrtInferSession, read_yaml
 
 from .utils import ClsPostProcess
 
