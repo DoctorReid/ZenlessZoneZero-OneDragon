@@ -11,6 +11,7 @@ from one_dragon.base.controller.controller_base import ControllerBase
 from one_dragon.base.controller.pc_button.pc_button_listener import PcButtonListener
 from one_dragon.base.matcher.ocr.ocr_matcher import OcrMatcher
 from one_dragon.base.matcher.ocr.onnx_ocr_matcher import OnnxOcrMatcher
+from one_dragon.base.matcher.ocr.rapid_ocr_matcher import RapidOcrMatcher
 from one_dragon.base.matcher.template_matcher import TemplateMatcher
 from one_dragon.base.operation.context_event_bus import ContextEventBus
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext, ONE_DRAGON_CONTEXT_EXECUTOR
@@ -68,7 +69,8 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
         self.screen_loader: ScreenContext = ScreenContext()
         self.template_loader: TemplateLoader = TemplateLoader()
         self.tm: TemplateMatcher = TemplateMatcher(self.template_loader)
-        self.ocr: OcrMatcher = OnnxOcrMatcher()
+        # self.ocr: OcrMatcher = OnnxOcrMatcher()
+        self.ocr: OcrMatcher = RapidOcrMatcher()
         self.controller: ControllerBase = controller
 
         self.keyboard_controller = keyboard.Controller()
