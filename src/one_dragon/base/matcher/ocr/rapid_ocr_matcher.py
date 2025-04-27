@@ -38,8 +38,11 @@ class RapidOcrMatcher(OcrMatcher):
             try:
                 self._model = RapidOCR(
                     det_model_path=os.path.join(models_dir, 'det.onnx'),
+                    det_use_dml=True,
                     rec_model_path=os.path.join(models_dir, 'rec.onnx'),
+                    rec_use_dml=True,
                     cls_model_path=os.path.join(models_dir, 'cls.onnx'),
+                    cls_use_dml=True,
                     rec_keys_path=os.path.join(models_dir, 'ppocr_keys_v1.txt'),
                 )
                 self._loading = False
