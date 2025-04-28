@@ -136,7 +136,7 @@ class CombatSimulation(ZOperation):
             target_point = None
             if contours and len(contours) > 0:
                 x, y, w, h = cv2.boundingRect(contours[0])
-                target_point = area.left_top + Point(x + w//2, y + h//2)
+                target_point = area.left_top + Point(x + w//2, y + h//2 + 80)
 
         else:
             area = self.ctx.screen_loader.get_area('实战模拟室', '副本名称列表')
