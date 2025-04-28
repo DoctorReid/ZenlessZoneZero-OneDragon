@@ -1,6 +1,5 @@
 import time
 
-import base64
 import cv2
 import difflib
 import inspect

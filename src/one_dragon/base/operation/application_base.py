@@ -2,6 +2,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from enum import Enum
 from typing import Optional, Callable
+from io import BytesIO
 
 from one_dragon.base.notify.push import Push
 from one_dragon.base.operation.application_run_record import AppRunRecord
@@ -10,7 +11,7 @@ from one_dragon.base.operation.operation import Operation
 from one_dragon.base.operation.operation_base import OperationResult
 
 _app_preheat_executor = ThreadPoolExecutor(thread_name_prefix='od_app_preheat', max_workers=1)
-_notify_executor = ThreadPoolExecutor(thread_name_prefix='od_app_notify', max_workers=2)
+_notify_executor = ThreadPoolExecutor(thread_name_prefix='od_app_notify', max_workers=1)
 
 
 class ApplicationEventId(Enum):
@@ -60,6 +61,8 @@ class Application(Operation):
 
         self.need_notify: bool = need_notify  # 节点运行结束后发送通知
 
+        self.notify_screenshot: Optional[BytesIO] = None  # 发送通知的截图
+
     def _init_before_execute(self) -> None:
         Operation._init_before_execute(self)
         if self.run_record is not None:
@@ -88,7 +91,7 @@ class Application(Operation):
         if self.stop_context_after_stop:
             self.ctx.stop_running()
         self.ctx.dispatch_event(ApplicationEventId.APPLICATION_STOP.value, self.app_id)
-        if self.need_notify and not result.success:
+        if self.need_notify:
             self.notify(result.success)
 
     def _update_record_after_stop(self, result: OperationResult):
@@ -105,7 +108,7 @@ class Application(Operation):
 
     def notify(self, is_success: Optional[bool] = True) -> None:
         """
-        发送通知 在应用内部调用 会在调用的时候截图
+        发送通知 应用开始或停止时调用 会在调用的时候截图
         :return:
         """
         if not hasattr(self.ctx, 'notify_config'):
@@ -121,17 +124,20 @@ class Application(Operation):
         if not getattr(self.ctx.notify_config, app_id, False):
             return
 
-        if is_success:
+        if is_success is True:
             status = '成功'
-        elif not is_success:
+            image_source = self.notify_screenshot
+        elif is_success is False:
             status = '失败'
+            image_source = self.save_screenshot_bytes()
         elif is_success is None:
             status = '开始'
+            image_source = None
+
+        send_image = getattr(self.ctx.push_config, 'send_image', False)
+        image = image_source if send_image else None
 
         message = f"任务「{app_name}」运行{status}\n"
-        image = None
-        if self.ctx.push_config.send_image:
-            image = self.save_screenshot_bytes()
 
         pusher = Push(self.ctx)
         _notify_executor.submit(pusher.send, message, image)
