@@ -33,9 +33,9 @@ area_list:
 - area_name: 使用
   id_mark: false
   pc_rect:
-  - 1094
-  - 1006
-  - 1178
+  - 1040
+  - 1005
+  - 1200
   - 1050
   text: 使用
   lcs_percent: 0.5
