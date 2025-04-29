@@ -131,7 +131,7 @@ class CompendiumChooseMissionType(ZOperation):
         # 7. 如果没有找到有效区域，执行滑动操作
         if target_point is None:
             log.debug("未找到有效区域，执行滑动操作")
-            return self.handle_scroll(area)
+            return self.handle_scroll(area, 1)
 
         log.debug(f"最终目标点: {target_point}")
         return self.handle_go_button(screen, target_point)
