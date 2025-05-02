@@ -37,7 +37,7 @@ class Push():
         'DD_BOT_SECRET': '',                # 钉钉机器人的 DD_BOT_SECRET
         'DD_BOT_TOKEN': '',                 # 钉钉机器人的 DD_BOT_TOKEN
 
-        'FSKEY': '',                        # 飞书机器人的 FSKEY
+        'FS_KEY': '',                        # 飞书机器人的 KEY
 
         'ONEBOT_URL': '',                   # OneBot 的推送地址，以send_msg结尾
         'ONEBOT_USER': '',                  # OneBot 的推送对象，QQ号
@@ -213,7 +213,7 @@ class Push():
         
         log.info("飞书 服务启动")
 
-        url = f'https://open.feishu.cn/open-apis/bot/v2/hook/{self.push_config.get("FSKEY")}'
+        url = f'https://open.feishu.cn/open-apis/bot/v2/hook/{self.push_config.get("FS_KEY")}'
         data = {"msg_type": "text", "content": {"text": f"{title}\n{content}"}}
         response = requests.post(url, data=json.dumps(data)).json()
 
@@ -995,7 +995,7 @@ class Push():
             notify_function.append(self.console)
         if self.push_config.get("DD_BOT_TOKEN") and self.push_config.get("DD_BOT_SECRET"):
             notify_function.append(self.dingding_bot)
-        if self.push_config.get("FSKEY"):
+        if self.push_config.get("FS_KEY"):
             notify_function.append(self.feishu_bot)
         if self.push_config.get("ONEBOT_URL"):
             notify_function.append(self.one_bot)
