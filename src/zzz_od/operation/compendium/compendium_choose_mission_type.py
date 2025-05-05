@@ -36,6 +36,7 @@ class CompendiumChooseMissionType(ZOperation):
         )
 
         self.mission_type: CompendiumMissionType = mission_type
+        self.scroll_count: int = 0  # 滑动次数计数器
 
     @operation_node(name='选择副本', is_start_node=True, node_max_retry_times=20)
     def choose_tab(self) -> OperationRoundResult:
@@ -142,13 +143,18 @@ class CompendiumChooseMissionType(ZOperation):
         """
         处理滑动操作
         """
+        self.scroll_count += 1
+        if self.scroll_count > 5:
+            return self.round_fail('滑动超过5次仍未找到目标副本')
+            
         if before_target_cnt > 0:
             dy = -1
         else:
             dy = 1
 
         # 部分特殊类型的副本 外面的顺序和里面的顺序反转
-        if self.mission_type.category.category_name in ['定期清剿', '专业挑战室', '恶名狩猎']:
+        if self.mission_type.category.category_name in ['定期清剿', '专业挑战室', '恶名狩猎'] and \
+                self.mission_type.mission_type_name != '代理人方案培养':
                 dy = dy * -1
 
         # 滑动
