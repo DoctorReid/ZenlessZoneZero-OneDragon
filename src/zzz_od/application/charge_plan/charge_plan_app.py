@@ -27,7 +27,8 @@ class ChargePlanApp(ZApplication):
             self,
             ctx=ctx, app_id='charge_plan',
             op_name=gt('体力刷本', 'ui'),
-            run_record=ctx.charge_plan_run_record
+            run_record=ctx.charge_plan_run_record,
+            need_notify=True,
         )
         self.charge_power: int = 0  # 剩余电量
         self.need_to_check_power_in_mission: bool = False
@@ -147,5 +148,6 @@ class ChargePlanApp(ZApplication):
     @node_from(from_name='恶名狩猎', status=ExpertChallenge.STATUS_CHARGE_NOT_ENOUGH)
     @operation_node(name='返回大世界', is_start_node=True)
     def back_to_world(self) -> OperationRoundResult:
+        self.notify_screenshot = self.save_screenshot_bytes()  # 结束后通知的截图
         op = BackToNormalWorld(self.ctx)
         return self.round_by_op_result(op.execute())

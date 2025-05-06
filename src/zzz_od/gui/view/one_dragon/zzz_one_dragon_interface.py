@@ -11,7 +11,7 @@ from zzz_od.gui.view.one_dragon.setting_team_interface import SettingTeamInterfa
 from zzz_od.gui.view.one_dragon.shiyu_defense_interface import ShiyuDefenseInterface
 from zzz_od.gui.view.one_dragon.zzz_one_dragon_run_interface import ZOneDragonRunInterface
 from zzz_od.gui.view.one_dragon.zzz_one_dragon_setting_interface import ZOneDragonSettingInterface
-from zzz_od.gui.view.one_dragon.zzz_one_dragon_notify_setting_interface import ZOneDragonNotifySettingInterface
+from zzz_od.gui.view.one_dragon.zzz_setting_push_interface import ZSettingPushInterface
 
 
 class ZOneDragonInterface(PivotNavigatorInterface):
@@ -37,7 +37,7 @@ class ZOneDragonInterface(PivotNavigatorInterface):
         self.add_sub_interface(ShiyuDefenseInterface(self.ctx))
         # self.add_sub_interface(MiscellanyRunInterface(self.ctx))
         self.add_sub_interface(ZOneDragonSettingInterface(self.ctx))
-        self.add_sub_interface(ZOneDragonNotifySettingInterface(self.ctx))
+        self.add_sub_interface(ZSettingPushInterface(self.ctx))
     
     def on_interface_shown(self):
         super().on_interface_shown()
