@@ -115,7 +115,7 @@ class CombatSimulation(ZOperation):
     def choose_mission(self) -> OperationRoundResult:
         screen = self.screenshot()
 
-        if gt(self.plan.mission_name) == '代理人方案培养':
+        if self.plan.mission_name == '代理人方案培养':
             area = self.ctx.screen_loader.get_area('实战模拟室', '副本名称列表顶部')
             part = cv2_utils.crop_image_only(screen, area.rect)
             target_point: Optional[Point] = None  # 初始化目标点击位置
@@ -150,7 +150,7 @@ class CombatSimulation(ZOperation):
                 target_list.append(ocr_result)
                 mrl_list.append(mrl)
 
-            results = difflib.get_close_matches(gt(self.plan.mission_name), target_list, n=1)
+            results = difflib.get_close_matches(self.plan.mission_name, target_list, n=1)
 
             if results is not None and len(results) > 0:
                 idx = target_list.index(results[0])
