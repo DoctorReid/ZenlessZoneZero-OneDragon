@@ -280,27 +280,69 @@ class PythonService:
             source_url = source.value
             parsed_url = urllib.parse.urlparse(source_url)
             domain = parsed_url.netloc
+            ms = -1 # 初始化一个无效值，用于标识是否成功获取延迟
+            # 记录开始时间，用于计算超时时的耗时
             start_time = time.time()
-            result = cmd_utils.run_command(['ping', '-n', '1', '-w', '1000', domain])
-            end_time = time.time()
-            ms_match = re.search(r'(\d+)ms', result)
-            if ms_match:
-                ms = int(ms_match.group(1))
-            else:
-                ms = int(1000 * (end_time - start_time))
+
+            try:
+                # 尝试运行ping命令，这里是可能抛出异常的地方
+                # 假设 cmd_utils.run_command 在命令返回非零退出码时抛出异常
+                result = cmd_utils.run_command(['ping', '-n', '1', '-w', '1000', domain])
+
+                # 如果ping命令成功执行（没有抛出异常），捕获结束时间
+                end_time = time.time()
+                elapsed_time_sec = end_time - start_time
+
+                # 尝试从成功的ping输出中解析延迟
+                ms_match = re.search(r'(\d+)ms', result, re.IGNORECASE) # 忽略大小写匹配ms
+                if ms_match:
+                    ms = int(ms_match.group(1))
+                else:
+                    # ping命令成功执行但输出格式非预期（极少见），
+                    # 此时使用命令执行的总时长作为延迟
+                    ms = int(elapsed_time_sec * 1000)
+                    log.warning(f"Ping to {domain} succeeded but output format unexpected, using elapsed time: {ms}ms. Output: {result.strip()}")
+
+            except Exception as e:
+                # 捕获ping命令执行失败或超时抛出的异常
+                # 捕获结束时间，此时命令因异常而结束
+                end_time = time.time()
+                elapsed_time_sec = end_time - start_time
+                # 将耗时设置为命令执行的总时长（通常接近或大于超时时间 1000ms）
+                # 作为该源的“延迟”值，以便在排序时体现超时
+                ms = int(elapsed_time_sec * 1000)
+                log.warning(f"Ping to {domain} failed or timed out, using elapsed time: {ms}ms. Error: {e}")
+
+            # 将结果添加到列表中，无论成功还是失败
+            # ms 在失败时被设置为较大的值（耗时），排序时会排在后面
+            ping_result_list.append((source, ms))
 
             display_log = f'{source.label} 耗时 {ms}ms'
             log.info(display_log)
             if progress_callback is not None:
                 progress_callback(-1, display_log)
 
-            ping_result_list.append((source, ms))
-
+        # 正常排序，失败（耗时较大）的源会排在后面
         ping_result_list.sort(key=lambda x: x[1])
 
-        best_source = ping_result_list[0][0]
+        # 检查列表是否为空，防止所有ping都失败导致错误
+        if not ping_result_list:
+             log.error("No ping results collected.")
+             if progress_callback is not None:
+                 progress_callback(-1, "PIP源测速失败：未能收集任何结果。")
+             # 您可以在这里选择一个默认源或者抛出异常，取决于您的需求
+             return
+
+        best_source_tuple = ping_result_list[0]
+        best_source = best_source_tuple[0] # 获取源对象
+        best_ms = best_source_tuple[1] # 获取最优源的耗时
+
+        # 可选：如果最优源的耗时都大于等于超时时间 (1000ms)，可能意味着所有源都不可达
+        if best_ms >= 1000:
+             log.warning(f"The best source '{best_source.label}' reported a latency of {best_ms}ms, which is >= the timeout. All tested sources might be unreachable or very slow.")
+             # 根据需要，可以在这里添加处理逻辑，比如使用备用策略
         display_log = f'选择最优pip源 {best_source.label}'
         log.info(display_log)
         if progress_callback is not None:
             progress_callback(-1, display_log)
-        self.env_config.pip_source = best_source.value
+        self.env_config.pip_source = best_source.value # 更新配置
