@@ -30,9 +30,10 @@ class ScreenshotHelperApp(ZApplication):
         self.to_save_screenshot: bool = False  # 去保存截图 由按键触发
         self.last_save_screenshot_time: float = 0  # 上次保存截图时间
         self.auto_op: Optional[AutoBattleOperator] = None
-        self.screenshot_cache = []  # 缓存所有截图
-        self.cache_start_time = None  # 缓存开始时间
-        self.cache_max_count = 0  # 最大缓存数量
+        self.screenshot_cache: list = []  # 缓存所有截图
+        self.cache_start_time: Optional[float] = None  # 缓存开始时间
+        self.cache_max_count: int = 0  # 最大缓存数量
+        self.is_saving_after_key: bool = False  # 是否正在保存按键后的截图
 
     def add_edges_and_nodes(self) -> None:
         """
@@ -89,6 +90,9 @@ class ScreenshotHelperApp(ZApplication):
                 debug_utils.save_debug_image(screen, prefix='dodge')
 
         if self.to_save_screenshot:
+            if not self.ctx.screenshot_helper_config.screenshot_before_key and self.is_saving_after_key:
+                # 在按键后截图模式下，保存当前截图
+                debug_utils.save_debug_image(screen, prefix='switch')
             return self.round_success()
         else:
             # 确保每次截图间隔正确
@@ -113,13 +117,22 @@ class ScreenshotHelperApp(ZApplication):
         """
         保存截图
         """
-        # 保存缓存的所有截图
-        for screen in self.screenshot_cache:
-            debug_utils.save_debug_image(screen, prefix='switch')
-        self.screenshot_cache = []
-        self.cache_start_time = time.time()
-        self.to_save_screenshot = False
-        self.last_save_screenshot_time = time.time()
+        if self.ctx.screenshot_helper_config.screenshot_before_key:
+            # 保存缓存中的截图
+            for screen in self.screenshot_cache:
+                debug_utils.save_debug_image(screen, prefix='switch')
+            self.screenshot_cache = []
+            self.cache_start_time = time.time()
+            self.to_save_screenshot = False
+            self.last_save_screenshot_time = time.time()
+        else:
+            # 清空缓存并开始保存按键后的截图
+            self.screenshot_cache = []
+            self.cache_start_time = time.time()
+            self.is_saving_after_key = True
+            # 等待一个截图周期后再关闭保存标志，以确保能够捕获按键后的截图
+            next_time = self.ctx.screenshot_helper_config.frequency_second
+            return self.round_wait(wait_round_time=next_time)
         return self.round_success()
 
     def after_operation_done(self, result: OperationResult):
