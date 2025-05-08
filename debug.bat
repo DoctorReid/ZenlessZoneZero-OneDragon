@@ -24,16 +24,18 @@ if "%path_check%" neq "%path_check: =%" echo [WARN] 路径中包含空格
 echo -------------------------------
 echo 正在以管理员权限运行...
 echo -------------------------------
-echo.&echo 1. 强制配置 Python 环境&echo 2. 添加 Git 安全目录&echo 3. 重新安装 Pyautogui 库&echo 4. 检查 PowerShell 路径&echo 5. 重新创建虚拟环境 &echo 6. 重新安装PIP及VIRTUALENV&echo 7. 安装onnxruntime&echo 8. 以DEBUG模式运行一条龙&echo 9. 退出
+echo.&echo 1. 强制配置 Python 环境&echo 2. 添加 Git 安全目录&echo 3. 重新安装 Pyautogui 库(清华源)&echo 3.1. 重新安装 Pyautogui 库(阿里源)&echo 4. 检查 PowerShell 路径&echo 5. 重新创建虚拟环境 &echo 6. 重新安装PIP及VIRTUALENV(清华源)&echo 6.1. 重新安装PIP及VIRTUALENV(阿里源)&echo 7. 安装onnxruntime&echo 8. 以DEBUG模式运行一条龙&echo 9. 退出
 echo.
 set /p choice=请输入选项数字并按 Enter：
 
 if "%choice%"=="1" goto :CONFIG_PYTHON_ENV
 if "%choice%"=="2" goto :ADD_GIT_SAFE_DIR
-if "%choice%"=="3" goto :REINSTALL_PY_LIBS
+if "%choice%"=="3" goto :REINSTALL_PY_LIBS_tsinghua
+if "%choice%"=="3.1" goto :REINSTALL_PY_LIBS_aliyun
 if "%choice%"=="4" goto :CHECK_PS_PATH
 if "%choice%"=="5" goto :VENV
-if "%choice%"=="6" goto :PIP
+if "%choice%"=="6" goto :PIP_tsinghua
+if "%choice%"=="6.1" goto :PIP_aliyun
 if "%choice%"=="7" goto :ONNX
 if "%choice%"=="8" goto :DEBUG
 if "%choice%"=="9" exit /b
@@ -83,7 +85,7 @@ echo [PASS] Git 安全目录添加成功
 
 goto :END
 
-:REINSTALL_PY_LIBS
+:REINSTALL_PY_LIBS_tsinghua
 echo -------------------------------
 echo 重新安装 Pyautogui 库...
 echo -------------------------------
@@ -104,6 +106,32 @@ if not exist "%APPPATH%" echo [WARN] PYTHONPATH 设置错误 无法找到 %APPPA
 %PYTHON% -m pip install -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple pyautogui
 %PYTHON% -m pip uninstall pygetwindow -y
 %PYTHON% -m pip install -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple pygetwindow
+
+echo 安装完成...
+
+goto :END
+
+:REINSTALL_PY_LIBS_aliyun
+echo -------------------------------
+echo 重新安装 Pyautogui 库...
+echo -------------------------------
+
+call "%~dp0env.bat"
+
+set "PYTHON=%~dp0.env\venv\scripts\python.exe"
+set "PYTHONPATH=%~dp0src"
+set "APPPATH=%PYTHONPATH%\%MAINPATH%"
+set "PYTHONUSERBASE=%~dp0.env"
+
+if not exist "%PYTHON%" echo [WARN] 未配置Python.exe & pause & exit /b 1
+if not exist "%PYTHONPATH%" echo [WARN] PYTHONPATH 未设置 & pause & exit /b 1
+if not exist "%PYTHONUSERBASE%" echo [WARN] PYTHONUSERBASE 未设置 & pause & exit /b 1
+if not exist "%APPPATH%" echo [WARN] PYTHONPATH 设置错误 无法找到 %APPPATH% & pause & exit /b 1
+
+%PYTHON% -m pip uninstall pyautogui -y
+%PYTHON% -m pip install -i https://mirrors.aliyun.com/pypi/simple pyautogui
+%PYTHON% -m pip uninstall pygetwindow -y
+%PYTHON% -m pip install -i https://mirrors.aliyun.com/pypi/simple pygetwindow
 
 echo 安装完成...
 
@@ -151,7 +179,7 @@ echo 创建虚拟环境完成...
 
 goto :END
 
-:PIP
+:PIP_tsinghua
 echo -------------------------------
 echo 重新安装 PIP 及 VIRTUALENV库...
 echo -------------------------------
@@ -164,6 +192,23 @@ if not exist "%PYTHON%" echo [WARN] 未配置Python.exe & pause & exit /b 1
 
 %PYTHON% %~dp0get-pip.py
 %PYTHON% -m pip install virtualenv --index-url https://pypi.tuna.tsinghua.edu.cn/simple
+echo 安装完成...
+
+goto :END
+
+:PIP_aliyun
+echo -------------------------------
+echo 重新安装 PIP 及 VIRTUALENV库...
+echo -------------------------------
+
+call "%~dp0env.bat"
+
+set "PYTHON=%~dp0.env\python\python.exe"
+
+if not exist "%PYTHON%" echo [WARN] 未配置Python.exe & pause & exit /b 1
+
+%PYTHON% %~dp0get-pip.py
+%PYTHON% -m pip install virtualenv --index-url http://mirrors.aliyun.com/pypi/simple --trusted-host mirrors.aliyun.com
 echo 安装完成...
 
 goto :END

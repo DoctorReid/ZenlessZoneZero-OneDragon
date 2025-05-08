@@ -283,6 +283,8 @@ class PythonService:
             start_time = time.time()
             result = cmd_utils.run_command(['ping', '-n', '1', '-w', '1000', domain])
             end_time = time.time()
+            if result is None:
+                result = ''
             ms_match = re.search(r'(\d+)ms', result)
             if ms_match:
                 ms = int(ms_match.group(1))
@@ -304,3 +306,7 @@ class PythonService:
         if progress_callback is not None:
             progress_callback(-1, display_log)
         self.env_config.pip_source = best_source.value
+
+if __name__ == '__main__':
+    python_service = PythonService(ProjectConfig, EnvConfig, GitService)
+    python_service.choose_best_pip_source()

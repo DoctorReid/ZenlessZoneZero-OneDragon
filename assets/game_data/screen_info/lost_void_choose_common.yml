@@ -20,9 +20,9 @@ area_list:
   id_mark: true
   pc_rect:
   - 864
-  - 804
-  - 1182
-  - 918
+  - 794
+  - 1116
+  - 908
   text: 确定
   lcs_percent: 0.5
   template_sub_dir: ''

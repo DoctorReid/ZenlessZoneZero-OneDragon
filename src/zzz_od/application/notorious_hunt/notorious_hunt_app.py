@@ -28,7 +28,8 @@ class NotoriousHuntApp(ZApplication):
             self,
             ctx=ctx, app_id='notorious_hunt',
             op_name=gt('恶名狩猎', 'ui'),
-            run_record=ctx.notorious_hunt_record
+            run_record=ctx.notorious_hunt_record,
+            need_notify=True,
         )
 
     def handle_init(self) -> None:
@@ -89,5 +90,6 @@ class NotoriousHuntApp(ZApplication):
     @node_from(from_name='全部领取')
     @operation_node(name='返回大世界')
     def back_to_world(self) -> OperationRoundResult:
+        self.notify_screenshot = self.save_screenshot_bytes()  # 结束后通知的截图
         op = BackToNormalWorld(self.ctx)
         return self.round_by_op_result(op.execute())

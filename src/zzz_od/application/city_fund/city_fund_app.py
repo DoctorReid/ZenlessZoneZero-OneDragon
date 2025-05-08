@@ -15,7 +15,8 @@ class CityFundApp(ZApplication):
             self,
             ctx=ctx, app_id='city_fund',
             op_name=gt('丽都城募', 'ui'),
-            run_record=ctx.city_fund_record
+            run_record=ctx.city_fund_record,
+            need_notify=True,
         )
 
     @operation_node(name='打开菜单', is_start_node=True)
@@ -73,6 +74,7 @@ class CityFundApp(ZApplication):
     @node_from(from_name='等级全部领取', success=False)
     @operation_node(name='返回大世界')
     def back_to_world(self) -> OperationRoundResult:
+        self.notify_screenshot = self.save_screenshot_bytes()  # 结束后通知的截图
         op = BackToNormalWorld(self.ctx)
         return self.round_by_op_result(op.execute())
 

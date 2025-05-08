@@ -40,6 +40,7 @@ class CoffeeApp(ZApplication):
             op_name=gt('咖啡店', 'ui'),
             run_record=ctx.coffee_record,
             retry_in_od=True,  # 传送落地有可能会歪 重试
+            need_notify=True,
         )
 
         self.chosen_coffee: Optional[Coffee] = None  # 选择的咖啡
@@ -382,6 +383,7 @@ class CoffeeApp(ZApplication):
     @node_from(from_name='专业挑战室')
     @operation_node(name='返回大世界')
     def back_to_world(self) -> OperationRoundResult:
+        self.notify_screenshot = self.save_screenshot_bytes()  # 结束后通知的截图
         op = BackToNormalWorld(self.ctx)
         return self.round_by_op_result(op.execute())
 

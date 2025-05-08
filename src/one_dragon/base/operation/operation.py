@@ -5,6 +5,7 @@ import difflib
 import inspect
 from cv2.typing import MatLike
 from typing import Optional, ClassVar, Callable, List, Any, Tuple
+from io import BytesIO
 
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.matcher.match_result import MatchResultList
@@ -491,6 +492,18 @@ class Operation(OperationBase):
         if prefix is None:
             prefix = self.__class__.__name__
         return debug_utils.save_debug_image(self.last_screenshot, prefix=prefix)
+
+    def save_screenshot_bytes(self) -> Optional[BytesIO]:
+        """
+        截图并保存为字节流
+        :return: 字节流对象，如果截图不存在则返回 None
+        """
+        screen = self.screenshot()
+        retval, buffer = cv2.imencode('.png', cv2.cvtColor(screen, cv2.COLOR_BGR2RGB))
+        if retval:
+            return BytesIO(buffer.tobytes())
+        else:
+            return None
 
     @property
     def display_name(self) -> str:

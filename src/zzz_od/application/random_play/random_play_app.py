@@ -32,6 +32,7 @@ class RandomPlayApp(ZApplication):
             op_name=gt('影像店营业', 'ui'),
             run_record=ctx.random_play_run_record,
             retry_in_od=True,  # 传送落地有可能会歪 重试
+            need_notify=True,
         )
 
     def handle_init(self) -> None:
@@ -183,12 +184,13 @@ class RandomPlayApp(ZApplication):
         if agent is None:
             return None
 
-        mr = self.ctx.tm.match_one_by_feature(part, 'predefined_team', f'avatar_{agent.template_id}')
-        if mr is None:
-            return None
+        for template_id in agent.template_id_list:
+            mr = self.ctx.tm.match_one_by_feature(part, 'predefined_team', f'avatar_{template_id}')
+            if mr is None:
+                return None
 
-        mr.add_offset(area.left_top)
-        return mr
+            mr.add_offset(area.left_top)
+            return mr
 
 
     @node_from(from_name='选择宣传员')
@@ -364,6 +366,7 @@ class RandomPlayApp(ZApplication):
     @node_from(from_name='识别营业状态', status=STATUS_ALREADY_RUNNING)
     @operation_node(name='返回大世界')
     def back_to_world(self) -> OperationRoundResult:
+        self.notify_screenshot = self.save_screenshot_bytes()  # 结束后通知的截图
         op = BackToNormalWorld(self.ctx)
         return self.round_by_op_result(op.execute())
 
