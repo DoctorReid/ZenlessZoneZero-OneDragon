@@ -185,7 +185,10 @@ class ChargePlanApp(ZApplication):
             
             # 检查电量是否足够
             if not self.need_to_check_power_in_mission and self.charge_power < need_charge_power:
-                # 电量不足，更新last_tried_plan并继续循环查找下一个任务
+                # 如果配置了first_unfinished_first且电量不足，直接返回大世界
+                if self.ctx.charge_plan_config.first_unfinished_first:
+                    return self.round_success(ChargePlanApp.STATUS_ROUND_FINISHED)
+                # 否则继续查找下一个任务
                 last_tried_plan = next_plan
                 continue
             
