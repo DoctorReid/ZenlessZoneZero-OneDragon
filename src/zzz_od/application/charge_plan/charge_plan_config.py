@@ -1,5 +1,6 @@
 from enum import Enum
 from typing import Optional, List
+import uuid
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
@@ -30,6 +31,7 @@ class ChargePlanItem:
             card_num: str = CardNumEnum.DEFAULT.value.value,
             predefined_team_idx: int = -1,
             notorious_hunt_buff_num: int = 1,
+            plan_id: Optional[str] = None,
     ):
         self.tab_name: str = tab_name
         self.category_name: str = category_name
@@ -43,6 +45,7 @@ class ChargePlanItem:
 
         self.predefined_team_idx: int = predefined_team_idx  # 预备配队下标 -1为使用当前配队
         self.notorious_hunt_buff_num: int = notorious_hunt_buff_num  # 恶名狩猎 选择的buff
+        self.plan_id: str = plan_id if plan_id else str(uuid.uuid4())  # 计划的唯一标识符
 
     @property
     def uid(self) -> str:
@@ -87,6 +90,7 @@ class ChargePlanConfig(YamlConfig):
                 'card_num': plan_item.card_num,
                 'predefined_team_idx': plan_item.predefined_team_idx,
                 'notorious_hunt_buff_num': plan_item.notorious_hunt_buff_num,
+                'plan_id': plan_item.plan_id,
             }
 
             new_history_list.append(plan_data.copy())
@@ -263,7 +267,12 @@ class ChargePlanConfig(YamlConfig):
     def _is_same_plan(self, x: ChargePlanItem, y: ChargePlanItem) -> bool:
         if x is None or y is None:
             return False
-
+        
+        # 如果两个计划都有ID，直接比较ID
+        if hasattr(x, 'plan_id') and hasattr(y, 'plan_id') and x.plan_id and y.plan_id:
+            return x.plan_id == y.plan_id
+            
+        # 向后兼容：如果没有ID，使用原有的比较方式
         return (x.tab_name == y.tab_name
                 and x.category_name == y.category_name
                 and x.mission_type_name == y.mission_type_name
