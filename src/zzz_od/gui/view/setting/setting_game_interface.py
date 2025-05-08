@@ -1,14 +1,15 @@
-import subprocess
 from PySide6.QtWidgets import QWidget
-from qfluentwidgets import FluentIcon, SettingCardGroup, HyperlinkCard, Dialog
+from qfluentwidgets import FluentIcon, SettingCardGroup, HyperlinkCard, Dialog, PushButton
 
 from one_dragon.base.config.basic_game_config import TypeInputWay, ScreenSizeEnum, FullScreenEnum, MonitorEnum
 from one_dragon.base.controller.pc_button.ds4_button_controller import Ds4ButtonEnum
 from one_dragon.base.controller.pc_button.xbox_button_controller import XboxButtonEnum
+from one_dragon.utils import cmd_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon_qt.widgets.column import Column
 from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon_qt.widgets.setting_card.key_setting_card import KeySettingCard
+from one_dragon_qt.widgets.setting_card.multi_push_setting_card import MultiPushSettingCard
 from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon_qt.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
@@ -71,13 +72,17 @@ class SettingGameInterface(VerticalScrollInterface):
         basic_group = SettingCardGroup(gt('游戏基础', 'ui'))
 
         self.input_way_opt = ComboBoxSettingCard(icon=FluentIcon.CLIPPING_TOOL, title='输入方式',
-                                                options_enum=TypeInputWay)
+                                                 options_enum=TypeInputWay)
         basic_group.addSettingCard(self.input_way_opt)
 
-        self.hdr_switch = SwitchSettingCard(icon=FluentIcon.SETTING, title='自动HDR',
-                                    content='手动启动游戏时「自动HDR」的状态')
-        self.hdr_switch.value_changed.connect(self._on_hdr_switch_changed)
-        basic_group.addSettingCard(self.hdr_switch)
+        self.hdr_btn_enable = PushButton(text='启用HDR', icon=FluentIcon.SETTING, parent=self)
+        self.hdr_btn_enable.clicked.connect(self._on_hdr_enable_clicked)
+        self.hdr_btn_disable = PushButton(text='禁用HDR', icon=FluentIcon.SETTING, parent=self)
+        self.hdr_btn_disable.clicked.connect(self._on_hdr_disable_clicked)
+        self.hdr_btn = MultiPushSettingCard(icon=FluentIcon.SETTING, title='切换HDR状态',
+                                            content='仅影响手动启动游戏，一条龙启动游戏会自动禁用HDR',
+                                            btn_list=[self.hdr_btn_disable, self.hdr_btn_enable])
+        basic_group.addSettingCard(self.hdr_btn)
 
         return basic_group
 
@@ -289,7 +294,6 @@ class SettingGameInterface(VerticalScrollInterface):
         self._update_agent_outfit_options(self.ctx.agent_outfit_config.match_all_outfits)
 
         self.input_way_opt.init_with_adapter(self.ctx.game_config.type_input_way_adapter)
-        self.hdr_switch.init_with_adapter(self.ctx.game_config.get_prop_adapter('hdr'))
 
         self.launch_argument_switch.init_with_adapter(self.ctx.game_config.get_prop_adapter('launch_argument'))
         self.screen_size_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('screen_size'))
@@ -297,8 +301,7 @@ class SettingGameInterface(VerticalScrollInterface):
         self.popup_window_switch.init_with_adapter(self.ctx.game_config.get_prop_adapter('popup_window'))
         self.monitor_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('monitor'))
         self.launch_argument_advance.init_with_adapter(self.ctx.game_config.get_prop_adapter('launch_argument_advance'))
-        if not self.ctx.game_config.launch_argument:
-            self._on_launch_argument_switch_changed(False)
+        self._update_launch_argument_part()
 
         self.key_normal_attack_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('key_normal_attack'))
         self.key_dodge_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('key_dodge'))
@@ -419,22 +422,33 @@ class SettingGameInterface(VerticalScrollInterface):
         self.outfit_ellen_opt.setVisible(not value)
         self.outfit_astra_yao_opt.setVisible(not value)
 
-
     def _on_agent_outfit_changed(self) -> None:
         if not self.ctx.agent_outfit_config.match_all_outfits:
             self.ctx.init_agent_template_id()
-    
-    def _on_hdr_switch_changed(self, value: bool) -> None:
-        hdr_command_enable = f'cmd /c "reg add "HKCU\\Software\\Microsoft\\DirectX\\UserGpuPreferences" /v "{self.ctx.game_account_config.game_path}" /d "AutoHDREnable=2097;" /f"'
-        hdr_command_disable = f'cmd /c "reg add "HKCU\\Software\\Microsoft\\DirectX\\UserGpuPreferences" /v "{self.ctx.game_account_config.game_path}" /d "AutoHDREnable=2096;" /f"'
-        if value:
-            subprocess.Popen(hdr_command_enable)
-        else:
-            subprocess.Popen(hdr_command_disable)
-    
-    def _on_launch_argument_switch_changed(self, value: bool) -> None:
+
+    def _on_hdr_enable_clicked(self) -> None:
+        self.hdr_btn_enable.setEnabled(False)
+        self.hdr_btn_disable.setEnabled(True)
+        cmd_utils.run_command(['reg', 'add', 'HKCU\\Software\\Microsoft\\DirectX\\UserGpuPreferences',
+                               '/v', self.ctx.game_account_config.game_path, '/d', 'AutoHDREnable=2097;', '/f'])
+
+    def _on_hdr_disable_clicked(self) -> None:
+        self.hdr_btn_disable.setEnabled(False)
+        self.hdr_btn_enable.setEnabled(True)
+        cmd_utils.run_command(['reg', 'add', 'HKCU\\Software\\Microsoft\\DirectX\\UserGpuPreferences',
+                               '/v', self.ctx.game_account_config.game_path, '/d', 'AutoHDREnable=2096;', '/f'])
+
+    def _update_launch_argument_part(self) -> None:
+        """
+        启动参数部分更新显示
+        :return:
+        """
+        value = self.ctx.game_config.launch_argument
         self.screen_size_opt.setVisible(value)
         self.full_screen_opt.setVisible(value)
         self.popup_window_switch.setVisible(value)
         self.monitor_opt.setVisible(value)
         self.launch_argument_advance.setVisible(value)
+
+    def _on_launch_argument_switch_changed(self) -> None:
+        self._update_launch_argument_part()
