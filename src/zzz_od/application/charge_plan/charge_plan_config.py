@@ -73,6 +73,7 @@ class ChargePlanConfig(YamlConfig):
             self.plan_list.append(ChargePlanItem(**plan_item))
         self.loop = self.get('loop', True)
         self.use_coupon = self.get('use_coupon', False)
+        self.first_unfinished_first = self.get('first_unfinished_first', False)
 
     def save(self):
         plan_list = []
@@ -112,6 +113,7 @@ class ChargePlanConfig(YamlConfig):
         self.data = {
             'loop': self.loop,
             'use_coupon': self.use_coupon,
+            'first_unfinished_first': self.first_unfinished_first,
             'plan_list': plan_list,
             'history_list': new_history_list
         }
