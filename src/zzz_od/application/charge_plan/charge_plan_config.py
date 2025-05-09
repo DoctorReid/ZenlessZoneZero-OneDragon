@@ -1,5 +1,6 @@
 from enum import Enum
 from typing import Optional, List
+import uuid
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
@@ -30,6 +31,7 @@ class ChargePlanItem:
             card_num: str = CardNumEnum.DEFAULT.value.value,
             predefined_team_idx: int = -1,
             notorious_hunt_buff_num: int = 1,
+            plan_id: Optional[str] = None,
     ):
         self.tab_name: str = tab_name
         self.category_name: str = category_name
@@ -43,6 +45,7 @@ class ChargePlanItem:
 
         self.predefined_team_idx: int = predefined_team_idx  # 预备配队下标 -1为使用当前配队
         self.notorious_hunt_buff_num: int = notorious_hunt_buff_num  # 恶名狩猎 选择的buff
+        self.plan_id: str = plan_id if plan_id else str(uuid.uuid4())  # 计划的唯一标识符
 
     @property
     def uid(self) -> str:
@@ -69,6 +72,7 @@ class ChargePlanConfig(YamlConfig):
         for plan_item in self.data.get('plan_list', []):
             self.plan_list.append(ChargePlanItem(**plan_item))
         self.loop = self.get('loop', True)
+        self.first_unfinished_first = self.get('first_unfinished_first', False)
 
     def save(self):
         plan_list = []
@@ -87,6 +91,7 @@ class ChargePlanConfig(YamlConfig):
                 'card_num': plan_item.card_num,
                 'predefined_team_idx': plan_item.predefined_team_idx,
                 'notorious_hunt_buff_num': plan_item.notorious_hunt_buff_num,
+                'plan_id': plan_item.plan_id,
             }
 
             new_history_list.append(plan_data.copy())
@@ -106,6 +111,7 @@ class ChargePlanConfig(YamlConfig):
 
         self.data = {
             'loop': self.loop,
+            'first_unfinished_first': self.first_unfinished_first,
             'plan_list': plan_list,
             'history_list': new_history_list
         }
@@ -183,16 +189,44 @@ class ChargePlanConfig(YamlConfig):
 
             self.save()
 
-    def get_next_plan(self) -> Optional[ChargePlanItem]:
+    def get_next_plan(self, last_tried_plan: Optional[ChargePlanItem] = None) -> Optional[ChargePlanItem]:
+        """
+        获取下一个未完成的计划任务。
+        如果提供了 last_tried_plan，则从该任务之后开始查找。
+        如果未提供，则从列表的开头查找第一个未完成任务。
+        不再在此方法内调用 reset_plans，重置逻辑由调用方（ChargePlanApp）管理。
+        """
         if len(self.plan_list) == 0:
             return None
 
-        self.reset_plans()
+        start_index = 0
+        if last_tried_plan is not None:
+            # 1. 从上次尝试的计划之后开始查找
+            try:
+                last_tried_index = -1
+                for i, plan in enumerate(self.plan_list):
+                    if self._is_same_plan(plan, last_tried_plan):
+                        last_tried_index = i
+                        break
 
-        for plan in self.plan_list:
+                if last_tried_index != -1:
+                     start_index = last_tried_index + 1
+                     if start_index >= len(self.plan_list):
+                         return None
+                else:
+                     # 2. 找不到上次计划则返回None
+                     return None
+
+            except Exception as e:
+                 return None
+
+        # 3. 从指定位置开始遍历查找符合条件的计划
+        for i in range(start_index, len(self.plan_list)):
+            plan = self.plan_list[i]
             if plan.run_times < plan.plan_times:
                 return plan
 
+        # 4. 找到则返回该计划，否则返回None
         return None
 
     def all_plan_finished(self) -> bool:
@@ -235,7 +269,12 @@ class ChargePlanConfig(YamlConfig):
     def _is_same_plan(self, x: ChargePlanItem, y: ChargePlanItem) -> bool:
         if x is None or y is None:
             return False
-
+        
+        # 如果两个计划都有ID，直接比较ID
+        if hasattr(x, 'plan_id') and hasattr(y, 'plan_id') and x.plan_id and y.plan_id:
+            return x.plan_id == y.plan_id
+            
+        # 向后兼容：如果没有ID，使用原有的比较方式
         return (x.tab_name == y.tab_name
                 and x.category_name == y.category_name
                 and x.mission_type_name == y.mission_type_name

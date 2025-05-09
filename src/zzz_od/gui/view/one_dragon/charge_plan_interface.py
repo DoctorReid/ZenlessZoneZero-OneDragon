@@ -1,5 +1,5 @@
 from PySide6.QtCore import Signal
-from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QWidget, QHBoxLayout
 from qfluentwidgets import PrimaryPushButton, FluentIcon, CaptionLabel, LineEdit, ToolButton, PushButton, Dialog
 from typing import Optional, List
 
@@ -264,10 +264,25 @@ class ChargePlanInterface(VerticalScrollInterface):
     def get_content_widget(self) -> QWidget:
         self.content_widget = Column()
 
+        # 创建水平布局容器
+        switch_container = QWidget()
+        switch_layout = QHBoxLayout(switch_container)
+        switch_layout.setContentsMargins(0, 0, 0, 0)
+
         self.loop_opt = SwitchSettingCard(icon=FluentIcon.SYNC, title='循环执行', content='开启时 会循环执行到体力用尽')
         self.loop_opt.setValue(self.ctx.charge_plan_config.loop)
         self.loop_opt.value_changed.connect(self._on_loop_changed)
-        self.content_widget.add_widget(self.loop_opt)
+
+        self.first_unfinished_first_opt = SwitchSettingCard(icon=FluentIcon.FLAG, title='不跳过任务', content='开启时 体力不足时不尝试下一个计划')
+        self.first_unfinished_first_opt.setValue(self.ctx.charge_plan_config.first_unfinished_first)
+        self.first_unfinished_first_opt.value_changed.connect(self._on_first_unfinished_first_changed)
+
+        # 将两个开关添加到水平布局中
+        switch_layout.addWidget(self.loop_opt)
+        switch_layout.addWidget(self.first_unfinished_first_opt)
+
+        # 将容器添加到主布局中
+        self.content_widget.add_widget(switch_container)
 
         self.cancel_btn = PushButton(icon=FluentIcon.CANCEL, text='撤销')
         self.cancel_btn.setEnabled(False)
@@ -360,6 +375,11 @@ class ChargePlanInterface(VerticalScrollInterface):
 
     def _on_loop_changed(self, new_value: bool) -> None:
         self.ctx.charge_plan_config.loop = new_value
+        self.ctx.charge_plan_config.save()
+
+    def _on_first_unfinished_first_changed(self, new_value: bool) -> None:
+        self.ctx.charge_plan_config.first_unfinished_first = new_value
+        self.ctx.charge_plan_config.save()
     
     def _on_remove_all_completed_clicked(self) -> None:
         dialog = Dialog('警告', '是否删除所有已完成的体力计划？', self)
