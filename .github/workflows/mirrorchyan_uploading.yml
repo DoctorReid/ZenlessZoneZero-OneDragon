@@ -1,0 +1,22 @@
+name: mirrorchyan_uploading
+
+on:
+  workflow_dispatch:
+  release:
+    types: [released]
+
+jobs:
+
+  mirrorchyan:
+    runs-on: macos-latest
+    steps:
+      - uses: MirrorChyan/uploading-action@v1
+        with:
+          filetype: latest-release
+          filename: "ZenlessZoneZero-OneDragon-*.zip"
+          mirrorchyan_rid: ZZZ-OneDragon
+
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          owner: DoctorReid
+          repo: ZenlessZoneZero-OneDragon
+          upload_token: ${{ secrets.MirrorChyanUploadToken }}
