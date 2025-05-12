@@ -131,8 +131,8 @@ area_list:
 - area_name: 目标列表
   id_mark: false
   pc_rect:
-  - 1248
-  - 340
+  - 1254
+  - 376
   - 1312
   - 894
   text: ''
