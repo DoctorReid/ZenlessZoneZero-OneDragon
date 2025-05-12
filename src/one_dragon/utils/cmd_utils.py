@@ -34,7 +34,7 @@ def run_command(commands: List[str], cwd: Optional[str] = None,
         process = subprocess.Popen(commands, cwd=cwd,
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1,
                                    text=True,
-                                   encoding='utf-8',  # 指定编码为 GBK
+                                   encoding='gbk',  # 指定编码为 GBK
                                    errors='ignore',  # 忽略解码错误
                                    startupinfo=startupinfo,
                                    creationflags=creationflags

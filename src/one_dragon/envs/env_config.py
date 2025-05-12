@@ -38,7 +38,7 @@ class PipSourceEnum(Enum):
 
     PYPI = ConfigItem('官方', 'https://pypi.org/simple')
     TSING_HUA = ConfigItem('清华大学', 'https://pypi.tuna.tsinghua.edu.cn/simple')
-    ALIBABA = ConfigItem('阿里云', 'https://mirrors.aliyun.com/pypi/simple')
+    ALIBABA = ConfigItem('阿里云', 'https://mirrors.aliyun.com/pypi/simple --trusted-host mirrors.aliyun.com')
 
 
 class GitBranchEnum(Enum):
