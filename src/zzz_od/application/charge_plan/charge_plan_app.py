@@ -75,11 +75,11 @@ class ChargePlanApp(ZApplication):
         need_charge_power = 1000
         if self.next_plan.category_name == '实战模拟室' and self.next_plan.card_num == CardNumEnum.DEFAULT.value.value:
             self.need_to_check_power_in_mission = True
+        elif self.next_plan.category_name == '定期清剿':  # 进去尝试使用家政券
+            self.need_to_check_power_in_mission = True
         else:
             if self.next_plan.category_name == '实战模拟室':
                 need_charge_power = int(self.next_plan.card_num) * 20
-            elif self.next_plan.category_name == '定期清剿':
-                need_charge_power = 60
             elif self.next_plan.category_name == '专业挑战室':
                 need_charge_power = 40
             elif self.next_plan.category_name == '恶名狩猎':
