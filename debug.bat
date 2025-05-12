@@ -30,12 +30,10 @@ set /p choice=请输入选项数字并按 Enter：
 
 if "%choice%"=="1" goto :CONFIG_PYTHON_ENV
 if "%choice%"=="2" goto :ADD_GIT_SAFE_DIR
-if "%choice%"=="3" goto :REINSTALL_PY_LIBS_tsinghua
-if "%choice%"=="3.1" goto :REINSTALL_PY_LIBS_aliyun
+if "%choice%"=="3" goto :REINSTALL_PY_LIBS_CHOOSE_SOURCE
 if "%choice%"=="4" goto :CHECK_PS_PATH
 if "%choice%"=="5" goto :VENV
-if "%choice%"=="6" goto :PIP_tsinghua
-if "%choice%"=="6.1" goto :PIP_aliyun
+if "%choice%"=="6" goto :PIP_CHOOSE_SOURCE
 if "%choice%"=="7" goto :ONNX
 if "%choice%"=="8" goto :DEBUG
 if "%choice%"=="9" exit /b
@@ -85,7 +83,30 @@ echo [PASS] Git 安全目录添加成功
 
 goto :END
 
-:REINSTALL_PY_LIBS_tsinghua
+:REINSTALL_PY_LIBS_CHOOSE_SOURCE
+echo.&echo 1. 清华源&echo 2. 阿里源&echo 3. 官方源&echo 4. 返回主菜单
+echo.
+set /p pip_choice=请选择PIP源并按 Enter：
+if /i "%pip_choice%"=="1" (
+set "PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple"
+    set "PIP_TRUSTED_HOST_CMD="
+    goto :REINSTALL_PY_LIBS
+)
+if /i "%pip_choice%"=="2" (
+    set "PIP_INDEX_URL=http://mirrors.aliyun.com/pypi/simple"
+    set "PIP_TRUSTED_HOST_CMD=--trusted-host mirrors.aliyun.com"
+    goto :REINSTALL_PY_LIBS
+)
+if /i "%pip_choice%"=="3" (
+    set "PIP_INDEX_URL=https://pypi.org/simple"
+    set "PIP_TRUSTED_HOST_CMD="
+goto :REINSTALL_PY_LIBS
+)
+if /i "%pip_choice%"=="4" goto :MENU
+echo [ERROR] 无效选项，请重新选择。
+goto :REINSTALL_PY_LIBS_CHOOSE_SOURCE
+
+:REINSTALL_PY_LIBS
 echo -------------------------------
 echo 重新安装 Pyautogui 库...
 echo -------------------------------
@@ -103,35 +124,9 @@ if not exist "%PYTHONUSERBASE%" echo [WARN] PYTHONUSERBASE 未设置 & pause & e
 if not exist "%APPPATH%" echo [WARN] PYTHONPATH 设置错误 无法找到 %APPPATH% & pause & exit /b 1
 
 %PYTHON% -m pip uninstall pyautogui -y
-%PYTHON% -m pip install -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple pyautogui
+%PYTHON% -m pip install -i %PIP_INDEX_URL% %PIP_TRUSTED_HOST_CMD% pyautogui
 %PYTHON% -m pip uninstall pygetwindow -y
-%PYTHON% -m pip install -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple pygetwindow
-
-echo 安装完成...
-
-goto :END
-
-:REINSTALL_PY_LIBS_aliyun
-echo -------------------------------
-echo 重新安装 Pyautogui 库...
-echo -------------------------------
-
-call "%~dp0env.bat"
-
-set "PYTHON=%~dp0.env\venv\scripts\python.exe"
-set "PYTHONPATH=%~dp0src"
-set "APPPATH=%PYTHONPATH%\%MAINPATH%"
-set "PYTHONUSERBASE=%~dp0.env"
-
-if not exist "%PYTHON%" echo [WARN] 未配置Python.exe & pause & exit /b 1
-if not exist "%PYTHONPATH%" echo [WARN] PYTHONPATH 未设置 & pause & exit /b 1
-if not exist "%PYTHONUSERBASE%" echo [WARN] PYTHONUSERBASE 未设置 & pause & exit /b 1
-if not exist "%APPPATH%" echo [WARN] PYTHONPATH 设置错误 无法找到 %APPPATH% & pause & exit /b 1
-
-%PYTHON% -m pip uninstall pyautogui -y
-%PYTHON% -m pip install -i https://mirrors.aliyun.com/pypi/simple pyautogui
-%PYTHON% -m pip uninstall pygetwindow -y
-%PYTHON% -m pip install -i https://mirrors.aliyun.com/pypi/simple pygetwindow
+%PYTHON% -m pip install -i %PIP_INDEX_URL% %PIP_TRUSTED_HOST_CMD% pygetwindow
 
 echo 安装完成...
 
@@ -179,7 +174,30 @@ echo 创建虚拟环境完成...
 
 goto :END
 
-:PIP_tsinghua
+:PIP_CHOOSE_SOURCE
+echo.&echo 1. 清华源&echo 2. 阿里源&echo 3. 官方源&echo 4. 返回主菜单
+echo.
+set /p pip_choice=请选择PIP源并按 Enter：
+if /i "%pip_choice%"=="1" (
+set "PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple"
+    set "PIP_TRUSTED_HOST_CMD="
+    goto :PIP
+)
+if /i "%pip_choice%"=="2" (
+    set "PIP_INDEX_URL=http://mirrors.aliyun.com/pypi/simple"
+    set "PIP_TRUSTED_HOST_CMD=--trusted-host mirrors.aliyun.com"
+    goto :PIP
+)
+if /i "%pip_choice%"=="3" (
+    set "PIP_INDEX_URL=https://pypi.org/simple"
+    set "PIP_TRUSTED_HOST_CMD="
+goto :PIP
+)
+if /i "%pip_choice%"=="4" goto :MENU
+echo [ERROR] 无效选项，请重新选择。
+goto :PIP_CHOOSE_SOURCE
+
+:PIP
 echo -------------------------------
 echo 重新安装 PIP 及 VIRTUALENV库...
 echo -------------------------------
@@ -191,24 +209,7 @@ set "PYTHON=%~dp0.env\python\python.exe"
 if not exist "%PYTHON%" echo [WARN] 未配置Python.exe & pause & exit /b 1
 
 %PYTHON% %~dp0get-pip.py
-%PYTHON% -m pip install virtualenv --index-url https://pypi.tuna.tsinghua.edu.cn/simple
-echo 安装完成...
-
-goto :END
-
-:PIP_aliyun
-echo -------------------------------
-echo 重新安装 PIP 及 VIRTUALENV库...
-echo -------------------------------
-
-call "%~dp0env.bat"
-
-set "PYTHON=%~dp0.env\python\python.exe"
-
-if not exist "%PYTHON%" echo [WARN] 未配置Python.exe & pause & exit /b 1
-
-%PYTHON% %~dp0get-pip.py
-%PYTHON% -m pip install virtualenv --index-url http://mirrors.aliyun.com/pypi/simple --trusted-host mirrors.aliyun.com
+%PYTHON% -m pip install virtualenv --index-url %PIP_INDEX_URL% %PIP_TRUSTED_HOST_CMD%
 echo 安装完成...
 
 goto :END
