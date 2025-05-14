@@ -69,6 +69,7 @@ class ChargePlanConfig(YamlConfig):
         for plan_item in self.data.get('plan_list', []):
             self.plan_list.append(ChargePlanItem(**plan_item))
         self.loop = self.get('loop', True)
+        self.use_coupon = self.get('use_coupon', False)
 
     def save(self):
         plan_list = []

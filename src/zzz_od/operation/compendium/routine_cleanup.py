@@ -92,7 +92,10 @@ class RoutineCleanup(ZOperation):
     @operation_node(name='处理家政券')
     def handle_coupon(self) -> OperationRoundResult:
         op = Coupon(self.ctx, self.plan)
-        return self.round_by_op_result(op.execute())
+        if self.ctx.charge_plan_config.use_coupon:
+            return self.round_by_op_result(op.execute())
+        else:
+            return self.round_success(Coupon.STATUS_CONTINUE_RUN_WITH_CHARGE)
 
     @node_from(from_name='处理家政券', success=False)
     @node_from(from_name='处理家政券', status=Coupon.STATUS_CONTINUE_RUN_WITH_CHARGE)
