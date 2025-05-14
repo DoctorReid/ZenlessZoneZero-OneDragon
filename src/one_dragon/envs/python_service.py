@@ -120,7 +120,7 @@ class PythonService:
         if progress_callback:
             progress_callback(-1, '正在安装virtualenv')
         python_path = self.env_config.python_path
-        result = cmd_utils.run_command([python_path, '-m', 'pip', 'install', 'virtualenv', '--index-url', self.env_config.pip_source])
+        result = cmd_utils.run_command([python_path, '-m', 'pip', 'install', 'virtualenv', '--index-url', self.env_config.pip_source, '--trusted-host', self.env_config.pip_trusted_host])
         success = result is not None
         msg = '安装virtualenv成功' if success else '安装virtualenv失败'
         log.info(msg)
@@ -237,7 +237,7 @@ class PythonService:
 
         # 部分人不升级pip会安装失败 不知道为什么
         result = cmd_utils.run_command([self.env_config.python_path, '-m', 'pip', 'install', '--upgrade', 'pip',
-                                        '--index-url', self.env_config.pip_source])
+                                        '--index-url', self.env_config.pip_source, '--trusted-host', self.env_config.pip_trusted_host])
         success = result is not None
         msg = '运行依赖安装成功' if success else '运行依赖安装失败'
         if not success:
@@ -245,7 +245,7 @@ class PythonService:
 
         result = cmd_utils.run_command([self.env_config.python_path, '-m', 'pip', 'install', '--upgrade',
                                         '-r', os.path.join(os_utils.get_work_dir(), self.project_config.requirements),
-                                        '--index-url', self.env_config.pip_source])
+                                        '--index-url', self.env_config.pip_source, '--trusted-host', self.env_config.pip_trusted_host])
         success = result is not None
         msg = '运行依赖安装成功' if success else '运行依赖安装失败'
         return success, msg

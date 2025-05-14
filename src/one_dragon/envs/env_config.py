@@ -1,4 +1,5 @@
 import os
+import urllib.parse
 from enum import Enum
 
 from one_dragon.base.config.config_item import ConfigItem
@@ -38,7 +39,7 @@ class PipSourceEnum(Enum):
 
     PYPI = ConfigItem('官方', 'https://pypi.org/simple')
     TSING_HUA = ConfigItem('清华大学', 'https://pypi.tuna.tsinghua.edu.cn/simple')
-    ALIBABA = ConfigItem('阿里云', 'https://mirrors.aliyun.com/pypi/simple --trusted-host mirrors.aliyun.com')
+    ALIBABA = ConfigItem('阿里云', 'https://mirrors.aliyun.com/pypi/simple')
 
 
 class GitBranchEnum(Enum):
@@ -218,6 +219,14 @@ class EnvConfig(YamlConfig):
         :return:
         """
         self.update('pip_source', new_value)
+
+    @property
+    def pip_trusted_host(self) -> str:
+        """
+        pip源的可信主机
+        :return:
+        """
+        return urllib.parse.urlparse(self.pip_source).netloc
 
     @property
     def git_branch(self) -> str:
