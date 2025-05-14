@@ -1,6 +1,8 @@
 from enum import Enum
 from typing import Optional
 from qfluentwidgets import FluentIcon
+import json
+import os
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
@@ -576,3 +578,35 @@ class NotifyCard():
         }
     ],
 }
+
+# 加载邮箱服务映射表
+EMAIL_SERVICES = None
+
+def load_email_services():
+    global EMAIL_SERVICES
+    if EMAIL_SERVICES is not None:
+        return EMAIL_SERVICES
+    path = os.path.join(os.path.dirname(__file__), "email_services.json")
+    with open(path, "r", encoding="utf-8") as f:
+        EMAIL_SERVICES = json.load(f)
+    return EMAIL_SERVICES
+
+def get_email_service_config(keyword: str):
+    """
+    根据关键词、别名、域名查找邮箱服务配置。
+    :param keyword: 用户输入的邮箱服务关键字（如 qq/gmail/163/域名等）
+    :return: 匹配到的邮箱服务配置 dict 或 None
+    """
+    services = load_email_services()
+    key = keyword.strip().lower()
+    for service_name, config in services.items():
+        # 关键词匹配
+        if key == service_name.lower():
+            return config
+        # 匹配别名
+        if "aliases" in config and key in [alias.lower() for alias in config["aliases"]]:
+            return config
+        # 匹配域名
+        if "domains" in config and key in [domain.lower() for domain in config["domains"]]:
+            return config
+    return None

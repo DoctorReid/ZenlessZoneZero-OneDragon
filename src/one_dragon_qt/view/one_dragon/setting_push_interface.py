@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon
 
-from one_dragon.base.config.push_config import NotifyMethodEnum, NotifyCard
+from one_dragon.base.config.push_config import NotifyMethodEnum, NotifyCard, get_email_service_config, load_email_services
 from one_dragon.base.notify.push import Push
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
@@ -50,6 +50,23 @@ class SettingPushInterface(VerticalScrollInterface):
         self.notification_method_opt.value_changed.connect(self._update_notification_ui)
         content_widget.add_widget(self.notification_method_opt)
 
+        # 新增：邮箱服务下拉栏（仅在SMTP方式下显示）
+        email_services = load_email_services()
+        class SimpleOption:
+            def __init__(self, text):
+                self.ui_text = text
+                self.value = text
+                self.desc = ""  # 必须有desc属性，哪怕为空字符串
+        service_options = [SimpleOption(name) for name in email_services.keys()]
+        self.email_service_combo = ComboBoxSettingCard(
+            icon=FluentIcon.MESSAGE,
+            title='邮箱服务类型',
+            options_list=service_options
+        )
+        self.email_service_combo.value_changed.connect(lambda idx, val: self._on_email_service_selected(val))
+        self.email_service_combo.setVisible(False)  # 默认隐藏，SMTP方式时显示
+        content_widget.add_widget(self.email_service_combo)
+
         self.cards = {} 
         for method, configs in NotifyCard.configs.items():
             method_cards = []
@@ -84,12 +101,31 @@ class SettingPushInterface(VerticalScrollInterface):
             
         content_widget.add_stretch(1)
 
+        # 设置默认选中项为'QQ'，并自动填充内容
+        default_service = 'QQ'
+        default_index = next((i for i, opt in enumerate(service_options) if opt.value.lower() == default_service.lower()), 0)
+        self.email_service_combo.combo_box.setCurrentIndex(default_index)
+        self._on_email_service_selected(default_service)
+
         return content_widget
 
     def _send_test_message(self):
         """发送测试消息"""
         pusher = Push(self.ctx)
         pusher.send("这是一条测试消息", None, self.notification_method_opt.getValue())
+
+    def _on_email_service_selected(self, text):
+        config = get_email_service_config(str(text))
+        if config:
+            # 自动填充SMTP相关卡片
+            smtp_server = config["host"]
+            smtp_port = config.get("port", 465)
+            smtp_ssl = str(config.get("secure", True)).lower() if "secure" in config else "true"
+            # 找到对应的TextSettingCard并赋值
+            if hasattr(self, "smtp_server_notify_card"):
+                self.smtp_server_notify_card.setValue(f"{smtp_server}:{smtp_port}")
+            if hasattr(self, "smtp_ssl_notify_card"):
+                self.smtp_ssl_notify_card.setValue(smtp_ssl)
 
     def _update_notification_ui(self):
         """根据选择的通知方式更新界面"""
@@ -98,6 +134,12 @@ class SettingPushInterface(VerticalScrollInterface):
         for widget in self.findChildren(TextSettingCard):
             if widget.objectName().endswith("_notify_card"):
                 widget.setVisible(False)
+
+        # 只在SMTP方式下显示邮箱服务下拉栏
+        if method == "SMTP":
+            self.email_service_combo.setVisible(True)
+        else:
+            self.email_service_combo.setVisible(False)
 
         prefix = f"{method.lower()}_"
         for widget in self.findChildren(TextSettingCard):
