@@ -266,7 +266,7 @@ class ChargePlanInterface(VerticalScrollInterface):
 
         self.loop_opt = SwitchSettingCard(icon=FluentIcon.SYNC, title='循环执行', content='开启时 会循环执行到体力用尽')
         self.loop_opt.setValue(self.ctx.charge_plan_config.loop)
-        self.loop_opt.value_changed.connect(self._on_loop_changed)
+        self.loop_opt.value_changed.connect(lambda value: self._on_config_changed(value, 'loop'))
         self.content_widget.add_widget(self.loop_opt)
 
         self.cancel_btn = PushButton(icon=FluentIcon.CANCEL, text='撤销')
@@ -289,6 +289,11 @@ class ChargePlanInterface(VerticalScrollInterface):
             self.remove_all_btn
         ], icon=FluentIcon.DELETE, title='删除体力计划')
         self.content_widget.add_widget(self.remove_setting_card)
+
+        self.coupon_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='使用家政券', content='运行定期清剿时使用家政券')
+        self.coupon_opt.setValue(self.ctx.charge_plan_config.use_coupon)
+        self.coupon_opt.value_changed.connect(lambda value: self._on_config_changed(value, 'use_coupon'))
+        self.content_widget.add_widget(self.coupon_opt)
 
         self.card_list: List[ChargePlanCard] = []
 
@@ -358,8 +363,8 @@ class ChargePlanInterface(VerticalScrollInterface):
         self.ctx.charge_plan_config.move_top(idx)
         self.update_plan_list_display()
 
-    def _on_loop_changed(self, new_value: bool) -> None:
-        self.ctx.charge_plan_config.loop = new_value
+    def _on_config_changed(self, new_value: bool, config_item: str) -> None:
+        setattr(self.ctx.charge_plan_config, config_item, new_value)
     
     def _on_remove_all_completed_clicked(self) -> None:
         dialog = Dialog('警告', '是否删除所有已完成的体力计划？', self)

@@ -30,22 +30,13 @@ class ZOneDragonSettingInterface(VerticalScrollInterface):
     def get_content_widget(self) -> QWidget:
         content_widget = Column()
 
-        content_widget.add_widget(self.get_routine_cleanup_group())
-        content_widget.add_widget(self.get_coffee_shop_group())
+        content_widget.add_widget(self.get_random_play_group())
         content_widget.add_widget(self.get_drive_disc_dismantle_group())
         content_widget.add_stretch(1)
 
         return content_widget
 
-    def get_routine_cleanup_group(self) -> QWidget:
-        group = SettingCardGroup(gt('定期清剿'))
-
-        self.coupon_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='使用家政券', content='运行体力计划时使用家政券')
-        group.addSettingCard(self.coupon_opt)
-
-        return group
-
-    def get_coffee_shop_group(self) -> QWidget:
+    def get_random_play_group(self) -> QWidget:
         group = SettingCardGroup(gt('影像店'))
 
         agents_list = [ConfigItem(self.ctx.random_play_config.random_agent_name())] + [
@@ -82,8 +73,6 @@ class ZOneDragonSettingInterface(VerticalScrollInterface):
 
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)
-
-        self.coupon_opt.init_with_adapter(self.ctx.charge_plan_config.get_prop_adapter('use_coupon'))
 
         self.random_play_agent_1.init_with_adapter(self.ctx.random_play_config.get_prop_adapter('agent_name_1'))
         self.random_play_agent_2.init_with_adapter(self.ctx.random_play_config.get_prop_adapter('agent_name_2'))
