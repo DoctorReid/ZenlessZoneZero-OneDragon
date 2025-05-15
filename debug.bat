@@ -24,7 +24,7 @@ if "%path_check%" neq "%path_check: =%" echo [WARN] 路径中包含空格
 echo -------------------------------
 echo 正在以管理员权限运行...
 echo -------------------------------
-echo.&echo 1. 强制配置 Python 环境&echo 2. 添加 Git 安全目录&echo 3. 重新安装 Pyautogui 库(清华源)&echo 3.1. 重新安装 Pyautogui 库(阿里源)&echo 4. 检查 PowerShell 路径&echo 5. 重新创建虚拟环境 &echo 6. 重新安装PIP及VIRTUALENV(清华源)&echo 6.1. 重新安装PIP及VIRTUALENV(阿里源)&echo 7. 安装onnxruntime&echo 8. 以DEBUG模式运行一条龙&echo 9. 退出
+echo.&echo 1. 强制配置 Python 环境&echo 2. 添加 Git 安全目录&echo 3. 重新安装 Pyautogui 库&echo 4. 检查 PowerShell 路径&echo 5. 重新创建虚拟环境 &echo 6. 重新安装PIP及VIRTUALENV&echo 7. 安装onnxruntime&echo 8. 以DEBUG模式运行一条龙&echo 9. 退出
 echo.
 set /p choice=请输入选项数字并按 Enter：
 
