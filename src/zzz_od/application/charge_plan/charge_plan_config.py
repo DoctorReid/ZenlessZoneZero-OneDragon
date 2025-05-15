@@ -107,6 +107,7 @@ class ChargePlanConfig(YamlConfig):
 
         self.data = {
             'loop': self.loop,
+            'use_coupon': self.use_coupon,
             'plan_list': plan_list,
             'history_list': new_history_list
         }
