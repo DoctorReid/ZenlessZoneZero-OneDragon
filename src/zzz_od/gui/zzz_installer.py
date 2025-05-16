@@ -11,6 +11,8 @@ from one_dragon_qt.view.installer_setting_interface import InstallerSettingInter
 from one_dragon_qt.widgets.welcome_dialog import WelcomeDialog
 from one_dragon.utils.i18_utils import gt
 from zzz_od.gui.view.installer.extend_install_interface import ExtendInstallInterface
+from zzz_od.gui.view.installer.new_install_interface import NewInstallInterface
+from zzz_od.gui.view.installer.uv_install_interface import UvInstallInterface
 
 
 class ZInstallerWindow(InstallerWindowBase):
@@ -28,6 +30,7 @@ class ZInstallerWindow(InstallerWindowBase):
 
     def create_sub_interface(self):
         self.add_sub_interface(InstallerInterface(self.ctx, parent=self))
+        self.add_sub_interface(UvInstallInterface(self.ctx, parent=self))
         self.add_sub_interface(ExtendInstallInterface(self.ctx, parent=self))
         self.add_sub_interface(CodeInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)
         self.add_sub_interface(InstallerSettingInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)
