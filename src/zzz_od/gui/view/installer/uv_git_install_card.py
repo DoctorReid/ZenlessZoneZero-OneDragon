@@ -35,9 +35,19 @@ class UvGitInstallCard(WithExistedInstallCard):
         git_path = shutil.which('git')
         print(f'[uv_install_git] 环境变量检测git: {git_path}')
         if git_path and os.path.exists(git_path):
-            self.ctx.env_config.git_path = git_path
-            print('[uv_install_git] 环境变量已存在git，直接return')
-            return True, gt('已检测到系统Git，无需安装', 'ui')
+            # 检测 Git 是否可用
+            try:
+                result = cmd_utils.run_command([git_path, '--version'])
+                print(f'[uv_install_git] git --version result: {result}')
+                if result:
+                    self.ctx.env_config.git_path = git_path
+                    print('[uv_install_git] 环境变量已存在git且可用，直接return')
+                    return True, gt('已检测到系统Git，无需安装', 'ui')
+                else:
+                    print('[uv_install_git] git --version 返回为空，可能不可用')
+            except Exception as e:
+                print(f'[uv_install_git] git --version 异常: {e}')
+            print('[uv_install_git] 环境变量git不可用，尝试其他安装方式')
         def has_winget():
             try:
                 result = cmd_utils.run_command(['winget', '--version'])
@@ -58,9 +68,19 @@ class UvGitInstallCard(WithExistedInstallCard):
                 git_path = shutil.which('git')
                 print(f'[uv_install_git] shutil.which git: {git_path}')
                 if git_path and os.path.exists(git_path):
-                    self.ctx.env_config.git_path = git_path
-                    print('[uv_install_git] winget安装Git后检测到git.exe，直接return')
-                    return True, gt('winget安装Git成功', 'ui')
+                    # 再次检测 Git 是否可用
+                    try:
+                        result = cmd_utils.run_command([git_path, '--version'])
+                        if result:
+                            self.ctx.env_config.git_path = git_path
+                            print('[uv_install_git] winget安装Git后检测到git.exe且可用，直接return')
+                            return True, gt('winget安装Git成功', 'ui')
+                        else:
+                            print('[uv_install_git] winget安装Git后git --version 返回为空，可能不可用')
+                    except Exception as e:
+                        print(f'[uv_install_git] winget安装Git后git --version 异常: {e}')
+                    print('[uv_install_git] winget安装Git后git不可用')
+                    return False, gt('winget安装Git后Git不可用', 'ui')
                 else:
                     print('[uv_install_git] winget安装Git后未检测到git.exe')
                     return False, gt('winget安装Git后未检测到git.exe', 'ui')
@@ -76,17 +96,32 @@ class UvGitInstallCard(WithExistedInstallCard):
         if result[0]:
             git_path = DEFAULT_GIT_PATH
             if git_path and os.path.exists(git_path):
-                self.ctx.env_config.git_path = git_path
+                # 再次检测 Git 是否可用
+                try:
+                    result = cmd_utils.run_command([git_path, '--version'])
+                    if result:
+                        self.ctx.env_config.git_path = git_path
+                        print('[uv_install_git] 绿色版安装Git后检测到git.exe且可用')
+                    else:
+                        print('[uv_install_git] 绿色版安装Git后git --version 返回为空，可能不可用')
+                        return False, gt('绿色版安装Git后Git不可用', 'ui')
+                except Exception as e:
+                    print(f'[uv_install_git] 绿色版安装Git后git --version 异常: {e}')
+                    return False, gt('绿色版安装Git后Git不可用', 'ui')
             else:
                 print('[uv_install_git] 绿色版安装Git后未检测到git.exe')
                 return False, gt('绿色版安装Git后未检测到git.exe', 'ui')
         return result
 
     def get_display_content(self):
-        git_path = shutil.which('git')
+        git_path = self.ctx.env_config.git_path
         if not git_path:
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
             msg = gt('未安装Git', 'ui')
+            return icon, msg
+        elif not os.path.exists(git_path):
+            icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
+            msg = gt('文件不存在', 'ui') + ' ' + git_path
             return icon, msg
         else:
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.DEFAULT_BLUE.value)
