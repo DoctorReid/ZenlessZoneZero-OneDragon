@@ -1,6 +1,6 @@
 from one_dragon_qt.widgets.install_card.wtih_existed_install_card import WithExistedInstallCard
 from qfluentwidgets import FluentIcon, FluentThemeColor
-import subprocess
+from one_dragon.utils import cmd_utils
 import os
 from one_dragon.utils.i18_utils import gt
 from PySide6.QtGui import QIcon
@@ -29,10 +29,8 @@ class UvPythonInstallCard(WithExistedInstallCard):
         # 用和原有逻辑一致的.env/venv目录
         venv_dir = os_utils.get_path_under_work_dir('.env', 'venv')
         try:
-            result = subprocess.run([
-                'uv', 'venv', venv_dir, '--python=3.11.9'
-            ], timeout=120)
-            if result.returncode != 0:
+            result = cmd_utils.run_command(['uv', 'venv', venv_dir, '--python=3.11.9'])
+            if result is None:
                 return False, gt('uv创建虚拟环境失败', 'ui')
         except Exception as e:
             return False, gt('uv创建虚拟环境异常', 'ui') + str(e)

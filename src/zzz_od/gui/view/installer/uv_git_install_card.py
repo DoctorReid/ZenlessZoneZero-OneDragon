@@ -1,6 +1,6 @@
 from one_dragon_qt.widgets.install_card.wtih_existed_install_card import WithExistedInstallCard
 from qfluentwidgets import FluentIcon, FluentThemeColor
-import subprocess
+from one_dragon.utils import cmd_utils
 import shutil
 import os
 from one_dragon.utils.i18_utils import gt
@@ -30,9 +30,9 @@ class UvGitInstallCard(WithExistedInstallCard):
             return True, gt('已检测到系统Git，无需安装', 'ui')
         def has_winget():
             try:
-                result = subprocess.run(['winget', '--version'], capture_output=True, timeout=5)
-                print(f'[uv_install_git] winget --version returncode: {result.returncode}')
-                return result.returncode == 0
+                result = cmd_utils.run_command(['winget', '--version'])
+                print(f'[uv_install_git] winget --version result: {result}')
+                return result is not None
             except Exception as e:
                 print(f'[uv_install_git] winget --version exception: {e}')
                 return False
@@ -41,13 +41,10 @@ class UvGitInstallCard(WithExistedInstallCard):
             if progress_callback:
                 progress_callback(-1, gt('正在尝试用winget安装Git', 'ui'))
             try:
-                result = subprocess.run(
-                    ['winget', 'install', '--id', 'Git.Git', '-e', '--source', 'winget', '-h'],
-                    timeout=120, capture_output=True, text=True
+                result = cmd_utils.run_command(
+                    ['winget', 'install', '--id', 'Git.Git', '-e', '--source', 'winget', '-h']
                 )
-                print(f'[uv_install_git] winget install returncode: {result.returncode}')
-                print(f'[uv_install_git] winget stdout: {result.stdout}')
-                print(f'[uv_install_git] winget stderr: {result.stderr}')
+                print(f'[uv_install_git] winget install result: {result}')
                 git_path = shutil.which('git')
                 print(f'[uv_install_git] shutil.which git: {git_path}')
                 if git_path and os.path.exists(git_path):

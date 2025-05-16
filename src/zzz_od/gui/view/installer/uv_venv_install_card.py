@@ -1,6 +1,6 @@
 from one_dragon_qt.widgets.install_card.base_install_card import BaseInstallCard
 from qfluentwidgets import FluentIcon, FluentThemeColor
-import subprocess
+from one_dragon.utils import cmd_utils
 import os
 from one_dragon.utils.i18_utils import gt
 from PySide6.QtGui import QIcon
@@ -51,19 +51,12 @@ class UvVenvInstallCard(BaseInstallCard):
                 '--trusted-host', self.ctx.env_config.pip_trusted_host
             ]
             log.info(f"Running command: {' '.join(upgrade_pip_cmd)}")
-            result = subprocess.run(
+            result = cmd_utils.run_command(
                 upgrade_pip_cmd,
-                cwd=venv_dir,
-                env=env,
-                timeout=300,
-                capture_output=True,
-                text=True,
-                check=False
+                cwd=venv_dir
             )
-            log.info(f"Upgrade pip stdout:\n{result.stdout}")
-            log.info(f"Upgrade pip stderr:\n{result.stderr}")
-            if result.returncode != 0:
-                log.error(f"Upgrade pip failed with return code: {result.returncode}")
+            if result is None:
+                log.error("Upgrade pip failed")
                 return False, gt('升级pip失败', 'ui')
             
             # 安装依赖
@@ -74,32 +67,22 @@ class UvVenvInstallCard(BaseInstallCard):
                 '--trusted-host', self.ctx.env_config.pip_trusted_host
             ]
             log.info(f"Running command: {' '.join(install_cmd)}")
-            result = subprocess.run(
+            result = cmd_utils.run_command(
                 install_cmd,
-                cwd=venv_dir,
-                env=env,
-                timeout=300,
-                capture_output=True,
-                text=True,
-                check=False
+                cwd=venv_dir
             )
-            log.info(f"Install requirements stdout:\n{result.stdout}")
-            log.info(f"Install requirements stderr:\n{result.stderr}")
-            if result.returncode != 0:
-                log.error(f"Install requirements failed with return code: {result.returncode}")
+            if result is None:
+                log.error("Install requirements failed")
                 return False, gt('uv安装依赖失败', 'ui')
                 
             # 验证安装结果
             verify_cmd = [python_path, '-m', 'pip', 'list']
-            verify_result = subprocess.run(
+            verify_result = cmd_utils.run_command(
                 verify_cmd,
-                cwd=venv_dir,
-                env=env,
-                capture_output=True,
-                text=True,
-                check=False
+                cwd=venv_dir
             )
-            log.info(f"Installed packages:\n{verify_result.stdout}")
+            if verify_result:
+                log.info(f"Installed packages:\n{verify_result}")
                 
             # 更新requirement_time
             self.ctx.env_config.requirement_time = self.ctx.git_service.get_requirement_time()
