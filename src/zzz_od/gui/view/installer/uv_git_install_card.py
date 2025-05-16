@@ -31,23 +31,7 @@ class UvGitInstallCard(WithExistedInstallCard):
 
     def uv_install_git(self, progress_callback):
         print('[uv_install_git] called')
-        import shutil
-        git_path = shutil.which('git')
-        print(f'[uv_install_git] 环境变量检测git: {git_path}')
-        if git_path and os.path.exists(git_path):
-            # 检测 Git 是否可用
-            try:
-                result = cmd_utils.run_command([git_path, '--version'])
-                print(f'[uv_install_git] git --version result: {result}')
-                if result:
-                    self.ctx.env_config.git_path = git_path
-                    print('[uv_install_git] 环境变量已存在git且可用，直接return')
-                    return True, gt('已检测到系统Git，无需安装', 'ui')
-                else:
-                    print('[uv_install_git] git --version 返回为空，可能不可用')
-            except Exception as e:
-                print(f'[uv_install_git] git --version 异常: {e}')
-            print('[uv_install_git] 环境变量git不可用，尝试其他安装方式')
+        # 移除自动查找功能，直接尝试安装
         def has_winget():
             try:
                 result = cmd_utils.run_command(['winget', '--version'])
@@ -56,6 +40,7 @@ class UvGitInstallCard(WithExistedInstallCard):
             except Exception as e:
                 print(f'[uv_install_git] winget --version exception: {e}')
                 return False
+                
         if has_winget():
             print('[uv_install_git] winget detected, try install')
             if progress_callback:
@@ -68,7 +53,7 @@ class UvGitInstallCard(WithExistedInstallCard):
                 git_path = shutil.which('git')
                 print(f'[uv_install_git] shutil.which git: {git_path}')
                 if git_path and os.path.exists(git_path):
-                    # 再次检测 Git 是否可用
+                    # 检测 Git 是否可用
                     try:
                         result = cmd_utils.run_command([git_path, '--version'])
                         if result:
@@ -88,6 +73,7 @@ class UvGitInstallCard(WithExistedInstallCard):
                 print(f'[uv_install_git] winget安装Git异常: {e}')
                 if progress_callback:
                     progress_callback(-1, gt('winget安装Git异常，尝试绿色版安装', 'ui') + str(e))
+                    
         print('[uv_install_git] fallback to 绿色版')
         if progress_callback:
             progress_callback(-1, gt('正在尝试绿色版安装Git', 'ui'))
@@ -96,7 +82,7 @@ class UvGitInstallCard(WithExistedInstallCard):
         if result[0]:
             git_path = DEFAULT_GIT_PATH
             if git_path and os.path.exists(git_path):
-                # 再次检测 Git 是否可用
+                # 检测 Git 是否可用
                 try:
                     result = cmd_utils.run_command([git_path, '--version'])
                     if result:
