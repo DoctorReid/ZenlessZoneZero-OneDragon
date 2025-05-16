@@ -1,0 +1,16 @@
+[[index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+
+verify-ssl = true
+
+index-url = "https://pypi.org/simple"
+
+resolution = "highest"
+
+index-strategy = "unsafe-best-match"
+
+cache-dir = "./.install/uv_cache"
+
+python-install-mirror = "https://mirror.nju.edu.cn/github-release/indygreg/python-build-standalone"
+
+package = false

@@ -6,12 +6,14 @@ from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
 from one_dragon.utils import os_utils
 
-DEFAULT_ENV_PATH = os_utils.get_path_under_work_dir('.env')
-DEFAULT_GIT_DIR_PATH = os.path.join(DEFAULT_ENV_PATH, 'PortableGit')  # 默认的git文件夹路径
+DEFAULT_ENV_PATH = os_utils.get_path_under_work_dir('.install')
+DEFAULT_GIT_DIR_PATH = os.path.join(DEFAULT_ENV_PATH, 'MinGit')  # 默认的git文件夹路径
 DEFAULT_GIT_PATH = os.path.join(DEFAULT_GIT_DIR_PATH, 'cmd', 'git.exe')  # 默认的git.exe文件路径
+DEFAULT_UV_DIR_PATH = os.path.join(DEFAULT_ENV_PATH, 'uv')  # 默认的uv文件夹路径
+DEFAULT_UV_PATH = os.path.join(DEFAULT_UV_DIR_PATH, 'uv.exe')  # 默认的uv.exe文件路径
 DEFAULT_PYTHON_DIR_PATH = os.path.join(DEFAULT_ENV_PATH, 'python')  # 默认的python文件夹路径
 DEFAULT_PYTHON_PATH = os.path.join(DEFAULT_PYTHON_DIR_PATH, 'python.exe')  # 默认安装的python路径
-DEFAULT_VENV_DIR_PATH = os.path.join(DEFAULT_ENV_PATH, 'venv')  # 默认的虚拟环境文件夹路径
+DEFAULT_VENV_DIR_PATH = os_utils.get_path_under_work_dir('.venv')  # 默认的虚拟环境文件夹路径
 DEFAULT_VENV_PYTHON_PATH = os.path.join(DEFAULT_VENV_DIR_PATH, 'scripts', 'python.exe')  # 默认的虚拟环境中python.exe的路径
 DEFAULT_PYTHON_PTH_PATH = os.path.join(DEFAULT_PYTHON_DIR_PATH, 'python311._pth')  # 默认安装的python配置文件路径
 
@@ -47,6 +49,12 @@ class GitBranchEnum(Enum):
     MAIN = ConfigItem('主分支', 'main', desc='选择后请点击同步最新代码')
     TEST = ConfigItem('测试分支', 'test', desc='选择后请点击同步最新代码')
 
+
+class CpythonSourceEnum(Enum):
+    GITHUB = ConfigItem('官方 (GitHub)', 'https://github.com/astral-sh/python-build-standalone/releases/download')
+    NJU = ConfigItem('南京大学', 'https://mirror.nju.edu.cn/github-release/indygreg/python-build-standalone')
+
+
 class EnvConfig(YamlConfig):
 
     def __init__(self):
@@ -67,6 +75,20 @@ class EnvConfig(YamlConfig):
         :return:
         """
         self.update('git_path', new_value)
+
+    @property
+    def uv_path(self) -> str:
+        """
+        uv的路径
+        """
+        return self.get('uv_path', '')
+
+    @uv_path.setter
+    def uv_path(self, new_value: str) -> None:
+        """
+        更新uv的路径
+        """
+        self.update('uv_path', new_value)
 
     @property
     def python_path(self) -> str:
@@ -203,6 +225,22 @@ class EnvConfig(YamlConfig):
     @auto_update.setter
     def auto_update(self, new_value: bool) -> None:
         self.update('auto_update', new_value)
+
+    @property
+    def cpython_source(self) -> str:
+        """
+        cpython-build-standalone 源
+        :return:
+        """
+        return self.get('cpython_source', CpythonSourceEnum.GITHUB.value.value)
+
+    @cpython_source.setter
+    def cpython_source(self, new_value: str) -> None:
+        """
+        cpython-build-standalone 源
+        :return:
+        """
+        self.update('cpython_source', new_value)
 
     @property
     def pip_source(self) -> str:

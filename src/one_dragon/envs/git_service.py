@@ -88,23 +88,23 @@ class GitService:
             log.info(msg)
             return True, msg
         for _ in range(2):
-            zip_file_name = 'PortableGit.zip'
+            zip_file_name = 'MinGit.zip'
             zip_file_path = os.path.join(DEFAULT_ENV_PATH, zip_file_name)
             if not os.path.exists(zip_file_path):
                 success = self.download_env_file(zip_file_name, zip_file_path,
                                                  progress_callback=progress_callback)
                 if not success:
-                    return False, '下载PortableGit.zip失败 请尝试到「脚本环境」更改网络代理'
+                    return False, '下载MinGit.zip失败 请尝试到「脚本环境」更改网络代理'
 
             msg = f'开始解压 {zip_file_name}'
             log.info(msg)
-            if progress_callback:
+            if progress_callback is not None:
                 progress_callback(0, msg)
 
             success = file_utils.unzip_file(zip_file_path, DEFAULT_GIT_DIR_PATH)
 
             msg = '解压成功' if success else '解压失败 准备重试'
-            if progress_callback:
+            if progress_callback is not None:
                 progress_callback(1 if success else 0, msg)
 
             if not success:  # 解压失败的话 可能是之前下的zip包坏了 尝试删除重来
@@ -414,3 +414,22 @@ class GitService:
         """
         log_list = self.fetch_page_commit(0, 1)
         return None if len(log_list) == 0 else log_list[0].commit_id
+    
+    def temp_download_uv_file(self, file_name: str, save_file_path: str,
+                          progress_callback: Optional[Callable[[float, str], None]] = None) -> bool:
+        """
+        临时下载UV文件
+        :param file_name: 要下载的文件名
+        :param save_file_path: 保存路径，包含文件名
+        :param progress_callback: 下载进度的回调，进度发生改变时，通过该方法通知调用方。
+        :return: 是否下载成功
+        """
+        download_url = f'https://github.com/astral-sh/uv/releases/latest/download/{file_name}'
+        proxy = None
+        if self.env_config.is_gh_proxy:
+            download_url = f'{self.env_config.gh_proxy_url}/{download_url}'
+        elif self.env_config.is_personal_proxy:
+            proxy = self.env_config.personal_proxy
+
+        return http_utils.download_file(download_url, save_file_path,
+                                        proxy=proxy, progress_callback=progress_callback)

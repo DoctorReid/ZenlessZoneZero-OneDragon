@@ -5,17 +5,20 @@ from qfluentwidgets import ProgressBar, IndeterminateProgressBar, SettingCardGro
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon_qt.widgets.log_display_card import LogDisplayCard
+from one_dragon_qt.widgets.install_card.all_install_card import AllInstallCard
+from one_dragon_qt.widgets.install_card.code_install_card import CodeInstallCard
+from one_dragon_qt.widgets.install_card.git_install_card import GitInstallCard
+from one_dragon_qt.widgets.install_card.python_install_card import PythonInstallCard
+from one_dragon_qt.widgets.install_card.venv_install_card import VenvInstallCard
 from one_dragon.utils.i18_utils import gt
-from zzz_od.gui.view.installer.gamepad_install_card import GamepadInstallCard
-from zzz_od.gui.view.installer.uv_gamepad_install_card import UVGamepadInstallCard
 
 
-class ExtendInstallInterface(VerticalScrollInterface):
+class InstallerInterface(VerticalScrollInterface):
 
     def __init__(self, ctx: OneDragonEnvContext, parent=None):
-        VerticalScrollInterface.__init__(self, object_name='extend_install_interface',
+        VerticalScrollInterface.__init__(self, object_name='install_interface',
                                          parent=parent, content_widget=None,
-                                         nav_text_cn='扩展安装', nav_icon=FluentIcon.DEVELOPER_TOOLS)
+                                         nav_text_cn='一键安装', nav_icon=FluentIcon.CLOUD_DOWNLOAD)
         self.ctx: OneDragonEnvContext = ctx
 
     def get_content_widget(self) -> QWidget:
@@ -31,19 +34,33 @@ class ExtendInstallInterface(VerticalScrollInterface):
         self.progress_bar_2.setVisible(False)
         v_layout.addWidget(self.progress_bar_2)
 
-        # self.gamepad_opt = GamepadInstallCard(self.ctx)
-        self.uv_gamepad_opt = UVGamepadInstallCard(self.ctx)
+        self.git_opt = GitInstallCard(self.ctx)
+        self.git_opt.progress_changed.connect(self.update_progress)
+
+        self.code_opt = CodeInstallCard(self.ctx)
+        self.code_opt.progress_changed.connect(self.update_progress)
+        self.code_opt.finished.connect(self._on_code_updated)
+
+        self.python_opt = PythonInstallCard(self.ctx)
+        self.python_opt.progress_changed.connect(self.update_progress)
+
+        self.venv_opt = VenvInstallCard(self.ctx)
+        self.venv_opt.progress_changed.connect(self.update_progress)
+
+        self.all_opt = AllInstallCard(self.ctx, [self.git_opt, self.code_opt, self.python_opt, self.venv_opt])
 
         update_group = SettingCardGroup(gt('运行环境', 'ui'))
-        # update_group.addSettingCard(self.gamepad_opt)
-        update_group.addSettingCard(self.uv_gamepad_opt)
+        update_group.addSettingCard(self.all_opt)
+        update_group.addSettingCard(self.git_opt)
+        update_group.addSettingCard(self.code_opt)
+        update_group.addSettingCard(self.python_opt)
+        update_group.addSettingCard(self.venv_opt)
 
         v_layout.addWidget(update_group)
-
         log_group = SettingCardGroup(gt('安装日志', 'ui'))
-        self.log_card = LogDisplayCard()
-        log_group.addSettingCard(self.log_card)
         v_layout.addWidget(log_group)
+        self.log_card = LogDisplayCard()
+        v_layout.addWidget(self.log_card, stretch=1)
 
         return content_widget
 
@@ -53,9 +70,11 @@ class ExtendInstallInterface(VerticalScrollInterface):
         :return:
         """
         VerticalScrollInterface.on_interface_shown(self)
-        # self.gamepad_opt.check_and_update_display()
-        self.uv_gamepad_opt.check_and_update_display()
-        self.log_card.start()
+        self.git_opt.check_and_update_display()
+        self.code_opt.check_and_update_display()
+        self.python_opt.check_and_update_display()
+        self.venv_opt.check_and_update_display()
+        self.log_card.start()  # 开始日志更新
 
     def on_interface_hidden(self) -> None:
         """
@@ -63,7 +82,7 @@ class ExtendInstallInterface(VerticalScrollInterface):
         :return:
         """
         VerticalScrollInterface.on_interface_hidden(self)
-        self.log_card.stop()
+        self.log_card.stop()  # 开始日志更新
 
     def update_progress(self, progress: float, message: str) -> None:
         """
@@ -81,3 +100,12 @@ class ExtendInstallInterface(VerticalScrollInterface):
             self.progress_bar.setVal(progress)
             self.progress_bar_2.setVisible(False)
             self.progress_bar_2.stop()
+
+    def _on_code_updated(self, success: bool) -> None:
+        """
+        代码更新后
+        :param success:
+        :return:
+        """
+        if success:
+            self.venv_opt.check_and_update_display()

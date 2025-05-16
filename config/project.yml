@@ -1,5 +1,6 @@
 project_name: "ZenlessZoneZero-OneDragon"
 python_version: "3.11.9"
+uv_python_version: "3.11.12"
 github_homepage: "https://github.com/DoctorReid/ZenlessZoneZero-OneDragon"
 github_https_repository: "https://github.com/DoctorReid/ZenlessZoneZero-OneDragon.git"
 github_ssh_repository: "git@github.com:DoctorReid/ZenlessZoneZero-OneDragon.git"
