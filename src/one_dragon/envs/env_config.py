@@ -47,6 +47,10 @@ class GitBranchEnum(Enum):
     MAIN = ConfigItem('主分支', 'main', desc='选择后请点击同步最新代码')
     TEST = ConfigItem('测试分支', 'test', desc='选择后请点击同步最新代码')
 
+class CpythonBuildSourceEnum(Enum):
+    OFFICIAL = ConfigItem('官方', 'https://github.com/astral-sh/python-build-standalone/releases/download')
+    NJU = ConfigItem('南京大学', 'https://mirror.nju.edu.cn/github-release/indygreg/python-build-standalone')
+
 class EnvConfig(YamlConfig):
 
     def __init__(self):
@@ -371,3 +375,33 @@ class EnvConfig(YamlConfig):
         是否第一次运行
         """
         self.update('is_first_run', new_value)
+
+    @property
+    def uv_path(self) -> str:
+        """
+        uv的路径
+        """
+        return self.get('uv_path', '')
+
+    @uv_path.setter
+    def uv_path(self, new_value: str) -> None:
+        """
+        更新uv的路径
+        """
+        self.update('uv_path', new_value)
+
+    @property
+    def cpython_build_source(self) -> str:
+        """
+        cpython-build-standalone 镜像源
+        :return:
+        """
+        return self.get('cpython_build_source', CpythonBuildSourceEnum.OFFICIAL.value.value)
+
+    @cpython_build_source.setter
+    def cpython_build_source(self, new_value: str) -> None:
+        """
+        cpython-build-standalone 镜像源
+        :return:
+        """
+        self.update('cpython_build_source', new_value)
