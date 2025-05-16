@@ -63,4 +63,14 @@ class UvPythonInstallCard(WithExistedInstallCard):
         else:
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.DEFAULT_BLUE.value)
             msg = gt('已安装', 'ui') + ' ' + python_path
-            return icon, msg 
+            return icon, msg
+
+    def on_existed_chosen(self, file_path: str) -> None:
+        """
+        选择了本地文件之后的回调
+        :param file_path: 本地文件的路径
+        :return:
+        """
+        self.ctx.env_config.python_path = file_path  # 这会通过 setter 自动保存配置
+        self.check_and_update_display()  # 更新卡片显示内容
+        self.finished.emit(True)  # 发射完成信号 
