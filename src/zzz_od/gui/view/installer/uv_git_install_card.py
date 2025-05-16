@@ -19,6 +19,16 @@ class UvGitInstallCard(WithExistedInstallCard):
         )
         self.ctx = ctx
 
+    def on_existed_chosen(self, file_path: str) -> None:
+        """
+        选择了本地文件之后的回调
+        :param file_path: 本地文件的路径
+        :return:
+        """
+        self.ctx.env_config.git_path = file_path  # 这会通过 setter 自动保存配置
+        self.check_and_update_display()  # 更新卡片显示内容
+        self.finished.emit(True)  # 发射完成信号
+
     def uv_install_git(self, progress_callback):
         print('[uv_install_git] called')
         import shutil
