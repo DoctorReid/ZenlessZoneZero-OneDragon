@@ -5,7 +5,7 @@ a = Analysis(
     ['..\\src\\zzz_od\\gui\\zzz_installer.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('../config/project.yml', 'config')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
