@@ -151,7 +151,7 @@ class PythonService:
         :return:
         """
         log.info('获取系统环境变量的python')
-        message = cmd_utils.run_command(['where', 'pyhon'])
+        message = cmd_utils.run_command(['where', 'python'])
         if message is not None and message.endswith('.exe'):
             return message
         else:

@@ -104,7 +104,7 @@ class BaseInstallCard(MultiPushSettingCard):
         :return:
         """
         if self.install_runner.isRunning():
-            log.warn('我知道你很急 但你先别急 正在运行了')
+            log.warning('我知道你很急 但你先别急 正在运行了')
             return
         self.install_runner.start()
 
@@ -145,7 +145,7 @@ class BaseInstallCard(MultiPushSettingCard):
         :return:
         """
         if self.display_checker.isRunning():
-            log.warn('我知道你很急 但你先别急 正在运行了')
+            log.warning('我知道你很急 但你先别急 正在运行了')
             return
         self.setContent(gt('检查中', 'ui'))
         self.display_checker.start()
