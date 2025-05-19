@@ -1,0 +1,197 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Create a release with current build'
+        required: true
+        default: false
+        type: boolean
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python 3.11.9
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11.9'
+        
+    - name: Install uv
+      shell: pwsh
+      run: |
+        Invoke-WebRequest -Uri https://astral.sh/uv/install.ps1 -OutFile install.ps1
+        .\install.ps1
+        
+    - name: Create and activate virtual environment
+      shell: pwsh
+      run: |
+        uv venv zzz-od --python=3.11.9
+
+    - name: Install dependencies
+      shell: pwsh
+      run: |
+        .\zzz-od\Scripts\Activate.ps1
+        uv pip install -r requirements-dev.txt
+        uv pip install -r requirements-dev-ext.txt
+        uv pip compile --annotation-style=line --output-file=requirements-prod.txt requirements-dev.txt
+        
+    - name: Install PyInstaller
+      shell: pwsh
+      run: |
+        .\zzz-od\Scripts\Activate.ps1
+        uv pip install pyinstaller
+        
+    - name: Download and extract UPX
+      shell: pwsh
+      run: |
+        Invoke-WebRequest -Uri "https://github.com/upx/upx/releases/download/v4.2.3/upx-4.2.3-win64.zip" -OutFile "upx.zip"
+        Expand-Archive -Path "upx.zip" -DestinationPath "upx" -Force
+
+    - name: Build executables
+      shell: pwsh
+      run: |
+        .\zzz-od\Scripts\Activate.ps1
+        cd deploy
+        $upxDir = "..\..\upx\upx-4.2.3-win64"
+        pyinstaller --onefile --windowed --uac-admin --icon="../assets/ui/installer_logo.ico" --add-data "../config/project.yml;config" --upx-dir="$upxDir" ../src/zzz_od/gui/zzz_installer.py -n "OneDragon Installer"
+        pyinstaller --onefile --uac-admin --icon="../assets/ui/zzz_logo.ico" --upx-dir="$upxDir" ../src/zzz_od/win_exe/full_launcher.py -n "OneDragon Launcher"
+        pyinstaller --onefile --uac-admin --icon="../assets/ui/scheduler_logo.ico" --upx-dir="$upxDir" ../src/zzz_od/win_exe/scheduler_launcher.py -n "OneDragon Scheduler"
+        
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: executables
+        path: |
+          deploy/dist/OneDragon Installer.exe
+          deploy/dist/OneDragon Launcher.exe
+          deploy/dist/OneDragon Scheduler.exe
+
+  release:
+    needs: build
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.create_release == true || startsWith(github.ref, 'refs/tags/v') }}
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Get version
+      id: get_version
+      shell: pwsh
+      run: |
+        if ($env:GITHUB_REF -like 'refs/tags/*') {
+          $version = $env:GITHUB_REF.Substring(10)
+          $tag = $version
+        } else {
+          $short = $env:GITHUB_SHA.Substring(0,7)
+          $date = Get-Date -Format 'yyyyMMdd-HHmmss'
+          $tag = "manual-$date-$short"
+          $version = $tag
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git tag $tag
+          git push origin $tag
+        }
+        echo "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        echo "tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+    
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: executables
+        path: deploy/dist
+        
+    - name: Prepare additional files and folders
+      shell: pwsh
+      run: |
+        # Create .env directory and download files
+        New-Item -ItemType Directory -Path "deploy/dist/.env" -Force
+        Invoke-WebRequest -Uri "https://bootstrap.pypa.io/get-pip.py" -OutFile "deploy/dist/.env/get-pip.py"
+        # MinGit
+        Invoke-WebRequest -Uri "https://github.com/git-for-windows/git/releases/download/v2.49.0.windows.1/MinGit-2.49.0-busybox-64-bit.zip" -OutFile "deploy/dist/.env/PortableGit.zip"
+        # Python
+        Invoke-WebRequest -Uri "https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip" -OutFile "deploy/dist/.env/python-3.11.9-embed-amd64.zip"
+
+        # Create config directory and copy project.yml
+        New-Item -ItemType Directory -Path "deploy/dist/config" -Force
+        Copy-Item "config/project.yml" -Destination "deploy/dist/config/"
+
+        # Create assets directory structure
+        New-Item -ItemType Directory -Path "deploy/dist/assets/ui" -Force
+        New-Item -ItemType Directory -Path "deploy/dist/assets/models/onnx_ocr" -Force
+        New-Item -ItemType Directory -Path "deploy/dist/assets/models/flash_classifier" -Force
+        New-Item -ItemType Directory -Path "deploy/dist/assets/models/hollow_zero_event" -Force
+        New-Item -ItemType Directory -Path "deploy/dist/assets/models/lost_void_det" -Force
+
+        # Copy UI files
+        Copy-Item "assets/ui/*" -Destination "deploy/dist/assets/ui/" -Recurse
+        Copy-Item "assets/models/onnx_ocr/*" -Destination "deploy/dist/assets/models/onnx_ocr/" -Recurse
+
+        # Download and extract model files
+        $tempDir = "temp_models"
+        New-Item -ItemType Directory -Path $tempDir -Force
+
+        # Download and extract flash classifier
+        Invoke-WebRequest -Uri "https://github.com/DoctorReid/OneDragon-YOLO/releases/download/zzz_model/yolov8n-640-flash-0127.zip" -OutFile "$tempDir/flash.zip"
+        Expand-Archive -Path "$tempDir/flash.zip" -DestinationPath "deploy/dist/assets/models/flash_classifier" -Force
+
+        # Download and extract hollow zero event
+        Invoke-WebRequest -Uri "https://github.com/DoctorReid/OneDragon-YOLO/releases/download/zzz_model/yolov8s-736-hollow-zero-event-0126.zip" -OutFile "$tempDir/hollow.zip"
+        Expand-Archive -Path "$tempDir/hollow.zip" -DestinationPath "deploy/dist/assets/models/hollow_zero_event" -Force
+
+        # Download and extract lost void detection
+        Invoke-WebRequest -Uri "https://github.com/DoctorReid/OneDragon-YOLO/releases/download/zzz_model/yolov8n-736-lost-void-det-0125.zip" -OutFile "$tempDir/lost.zip"
+        Expand-Archive -Path "$tempDir/lost.zip" -DestinationPath "deploy/dist/assets/models/lost_void_det" -Force
+
+        # Clean up temp directory
+        Remove-Item -Path $tempDir -Recurse -Force
+
+        # Get version
+        $version = "${{ steps.get_version.outputs.version }}"
+
+        # Temp
+        $rootDir = "deploy/dist/ZenlessZoneZero-OneDragon"
+        New-Item -ItemType Directory -Path $rootDir -Force
+
+        # Move previous build
+        Get-ChildItem -Path "deploy/dist" | Where-Object {
+            $_.Name -ne "ZenlessZoneZero-OneDragon" -and $_.Extension -ne ".zip"
+        } | ForEach-Object {
+            Copy-Item $_.FullName -Destination $rootDir -Recurse -Force
+        }
+
+        # Pack Full
+        Compress-Archive -Path "$rootDir/*" -DestinationPath "deploy/dist/ZenlessZoneZero-OneDragon-$version-Full.zip" -Force
+
+        # Pack Update
+        Compress-Archive -Path @(
+          "$rootDir/OneDragon Installer.exe",
+          "$rootDir/OneDragon Launcher.exe",
+          "$rootDir/OneDragon Scheduler.exe"
+        ) -DestinationPath "deploy/dist/ZenlessZoneZero-OneDragon-$version-Update.zip" -Force
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.get_version.outputs.tag }}
+        name: "Release ${{ steps.get_version.outputs.version }}"
+        files: |
+          deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Full.zip
+          deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Update.zip
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
