@@ -1,5 +1,5 @@
 from PySide6.QtCore import Signal
-from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QWidget, QHBoxLayout
 from qfluentwidgets import PrimaryPushButton, FluentIcon, CaptionLabel, LineEdit, ToolButton, PushButton, Dialog
 from typing import Optional, List
 
@@ -264,10 +264,25 @@ class ChargePlanInterface(VerticalScrollInterface):
     def get_content_widget(self) -> QWidget:
         self.content_widget = Column()
 
+        # 创建水平布局容器
+        switch_container = QWidget()
+        switch_layout = QHBoxLayout(switch_container)
+        switch_layout.setContentsMargins(0, 0, 0, 0)
+
         self.loop_opt = SwitchSettingCard(icon=FluentIcon.SYNC, title='循环执行', content='开启时 会循环执行到体力用尽')
         self.loop_opt.setValue(self.ctx.charge_plan_config.loop)
         self.loop_opt.value_changed.connect(lambda value: self._on_config_changed(value, 'loop'))
-        self.content_widget.add_widget(self.loop_opt)
+
+        self.skip_plan_opt = SwitchSettingCard(icon=FluentIcon.FLAG, title='跳过计划', content='开启时 自动跳过体力不足的计划')
+        self.skip_plan_opt.setValue(self.ctx.charge_plan_config.skip_plan)
+        self.skip_plan_opt.value_changed.connect(lambda value: self._on_config_changed(value, 'skip_plan'))
+
+        # 将两个开关添加到水平布局中
+        switch_layout.addWidget(self.loop_opt)
+        switch_layout.addWidget(self.skip_plan_opt)
+
+        # 将容器添加到主布局中
+        self.content_widget.add_widget(switch_container)
 
         self.cancel_btn = PushButton(icon=FluentIcon.CANCEL, text='撤销')
         self.cancel_btn.setEnabled(False)
