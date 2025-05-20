@@ -56,7 +56,7 @@ class SettingPushInterface(VerticalScrollInterface):
         service_options = [ConfigItem(label=name, value=name, desc="") for name in email_services.keys()]
         self.email_service_opt = EditableComboBoxSettingCard(
             icon=FluentIcon.MESSAGE,
-            title='邮箱服务类型',
+            title='邮箱服务选择',
             options_list=service_options,
             input_placeholder='选择后自动填充相关配置'
         )
