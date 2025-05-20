@@ -17,6 +17,10 @@ Aliyun:
   host: smtp.aliyun.com
   port: 465
   secure: true
+AliyunQiye:
+  host: smtp.qiye.aliyun.com
+  port: 465
+  secure: true
 AOL:
   domains:
     - aol.com

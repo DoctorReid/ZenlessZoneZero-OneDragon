@@ -1,16 +1,17 @@
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon
 
+from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.push_config import NotifyMethodEnum, PushCard, EmailServiceConfig
 from one_dragon.base.notify.push import Push
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
-from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon_qt.widgets.setting_card.push_setting_card import PushSettingCard
-from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon_qt.widgets.column import Column
+from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon_qt.widgets.setting_card.editable_combo_box_setting_card import EditableComboBoxSettingCard
+from one_dragon_qt.widgets.setting_card.push_setting_card import PushSettingCard
 from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon_qt.widgets.setting_card.text_setting_card import TextSettingCard
-from one_dragon_qt.widgets.setting_card.editable_combo_box_setting_card import EditableComboBoxSettingCard
+from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 
 
 class SettingPushInterface(VerticalScrollInterface):
@@ -51,42 +52,46 @@ class SettingPushInterface(VerticalScrollInterface):
         self.notification_method_opt.value_changed.connect(self._update_notification_ui)
         content_widget.add_widget(self.notification_method_opt)
 
-        # 新增：邮箱服务下拉栏（仅在SMTP方式下显示）
         email_services = EmailServiceConfig.load_services()
-        class SimpleOption:
-            def __init__(self, text):
-                self.ui_text = text
-                self.value = text
-                self.desc = ""  # 必须有desc属性，哪怕为空字符串
-        service_options = [SimpleOption(name) for name in email_services.keys()]
-        self.email_service_combo = EditableComboBoxSettingCard(
+        service_options = [ConfigItem(label=name, value=name, desc="") for name in email_services.keys()]
+        self.email_service_opt = EditableComboBoxSettingCard(
             icon=FluentIcon.MESSAGE,
             title='邮箱服务类型',
-            options_list=service_options
+            options_list=service_options,
+            input_placeholder='选择后自动填充相关配置'
         )
-        self.email_service_combo.combo_box.setFixedWidth(320)
-        self.email_service_combo.value_changed.connect(lambda idx, val: self._on_email_service_selected(val))
-        self.email_service_combo.setVisible(False)  # 默认隐藏，SMTP方式时显示
-        content_widget.add_widget(self.email_service_combo)
+        self.email_service_opt.value_changed.connect(lambda idx, val: self._on_email_service_selected(val))
+        self.email_service_opt.combo_box.setFixedWidth(320)
+        self.email_service_opt.combo_box.setCurrentIndex(-1)  # 设置为无选中状态
+        self.email_service_opt.setVisible(False)  # 默认隐藏，SMTP方式时显示
+        content_widget.add_widget(self.email_service_opt)
 
         self.cards = {} 
         for method, configs in PushCard.get_configs().items():
-            method_lower = method.lower()
             method_cards = []
+            
             for config in configs:
-                var_name = f"{method_lower}_{config['var_suffix'].lower()}_push_card"
+                # 动态生成变量名（如：tg_bot_token_card）
+                var_name = f"{method}_{config['var_suffix']}_push_card".lower()
                 title = config["title"]
+                # 创建卡片实例
                 card = TextSettingCard(
                     icon=config["icon"],
                     title=title,
                     input_max_width=320,
                     input_placeholder=config["placeholder"]
                 )
-                card.setObjectName(var_name)  # 统一小写
+                
+                # 设置关键属性
+                card.setObjectName(var_name.lower())  # 设置唯一标识
                 card.setVisible(False)
+                
+                # 将卡片存入实例变量
                 setattr(self, var_name, card)
                 method_cards.append(card)
-            self.cards[method_lower] = method_cards
+            
+            # 按方法分组存储
+            self.cards[method] = method_cards
         
         # 将卡片添加到界面布局（根据实际布局调整）
         for cards in self.cards.values():
@@ -125,9 +130,9 @@ class SettingPushInterface(VerticalScrollInterface):
 
         # 只在SMTP方式下显示邮箱服务下拉栏
         if method == "SMTP":
-            self.email_service_combo.setVisible(True)
+            self.email_service_opt.setVisible(True)
         else:
-            self.email_service_combo.setVisible(False)
+            self.email_service_opt.setVisible(False)
 
         prefix = f"{method.lower()}_"
         for widget in self.findChildren(TextSettingCard):
@@ -142,11 +147,10 @@ class SettingPushInterface(VerticalScrollInterface):
 
         # 动态初始化所有通知卡片
         for method_group, configs in PushCard.get_configs().items():
-            method_group_lower = method_group.lower()
             for config in configs:
-                var_suffix = config["var_suffix"].lower()
-                var_name = f"{method_group_lower}_{var_suffix}_push_card"
-                config_key = f"{method_group_lower}_{var_suffix}"
+                var_suffix = config["var_suffix"]
+                var_name = f"{method_group.lower()}_{var_suffix.lower()}_push_card"
+                config_key = f"{method_group.lower()}_{var_suffix.lower()}"
                 
                 card = getattr(self, var_name, None)
                 if card:
