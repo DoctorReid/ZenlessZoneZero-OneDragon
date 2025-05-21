@@ -50,10 +50,14 @@ jobs:
       run: |
         $venvScripts = ".\zzz-od\Scripts"
         $upxDir = Join-Path $venvScripts "upx"
+        $sourceUpxPath = Join-Path $upxDir "upx-4.2.3-win64" "upx.exe"
+        $destinationUpxPath = Join-Path $venvScripts "upx.exe"
         $zipPath = "upx.zip"
 
         Invoke-WebRequest -Uri "https://github.com/upx/upx/releases/download/v4.2.3/upx-4.2.3-win64.zip" -OutFile $zipPath
         Expand-Archive -Path $zipPath -DestinationPath $upxDir -Force
+        Move-Item -Path $sourceUpxPath -Destination $destinationUpxPath -Force
+        Remove-Item -Path $upxDir -Recurse -Force
 
     - name: Build executables
       shell: pwsh
@@ -135,9 +139,6 @@ jobs:
         Invoke-WebRequest -Uri "https://bootstrap.pypa.io/get-pip.py" -OutFile "$envDir/get-pip.py"
         Invoke-WebRequest -Uri "https://github.com/git-for-windows/git/releases/download/v2.49.0.windows.1/MinGit-2.49.0-busybox-64-bit.zip" -OutFile "$envDir/PortableGit.zip"
         Invoke-WebRequest -Uri "https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip" -OutFile "$envDir/python-3.11.9-embed-amd64.zip"
-
-        # config
-        Copy-Item "config" -Destination $rootDir -Recurse -Force
 
         # artifact
         Copy-Item "$distDir/OneDragon Installer.exe" -Destination $rootDir -Force
@@ -224,11 +225,13 @@ jobs:
         if ([string]::IsNullOrWhiteSpace($changelog_content)) {
           $changelog_content = "No new changes or unable to determine changelog."
         }
-        
-        # Escape for GITHUB_OUTPUT: % -> %25, newline -> %0A, carriage return -> %0D
-        $escaped_changelog = $changelog_content -replace '%', '%25' -replace "`n", '%0A' -replace "`r", '%0D'
-        
-        echo "clean_changelog=$escaped_changelog" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+        $output_name = "clean_changelog"
+        $delimiter = "CHANGELOG_DELIMITER_$(New-Guid)"
+
+        echo "$output_name<<$delimiter" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        echo $changelog_content | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        echo $delimiter | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
     - name: Create Release
       uses: softprops/action-gh-release@v1
