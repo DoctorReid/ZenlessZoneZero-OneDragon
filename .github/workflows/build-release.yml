@@ -2,7 +2,6 @@ name: Build and Release
 
 on:
   push:
-    branches: [ main ]
     tags:
       - '*'
   workflow_dispatch:
@@ -76,7 +75,7 @@ jobs:
 
   release:
     needs: build
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.create_release == true || startsWith(github.ref, 'refs/tags/v') }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && inputs.create_release == true) || startsWith(github.ref, 'refs/tags/') }}
     runs-on: windows-latest
 
     steps:
