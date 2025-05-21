@@ -4,9 +4,7 @@ on:
   push:
     branches: [ main ]
     tags:
-      - 'v*'
-  pull_request:
-    branches: [ main ]
+      - '*'
   workflow_dispatch:
     inputs:
       create_release:
@@ -18,23 +16,23 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    
+
     steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    
+
     - name: Set up Python 3.11.9
       uses: actions/setup-python@v5
       with:
         python-version: '3.11.9'
-        
+
     - name: Install uv
       shell: pwsh
       run: |
         Invoke-WebRequest -Uri https://astral.sh/uv/install.ps1 -OutFile install.ps1
         .\install.ps1
-        
+
     - name: Create and activate virtual environment
       shell: pwsh
       run: |
@@ -47,13 +45,7 @@ jobs:
         uv pip install -r requirements-dev.txt
         uv pip install -r requirements-dev-ext.txt
         uv pip compile --annotation-style=line --output-file=requirements-prod.txt requirements-dev.txt
-        
-    - name: Install PyInstaller
-      shell: pwsh
-      run: |
-        .\zzz-od\Scripts\Activate.ps1
-        uv pip install pyinstaller
-        
+
     - name: Download and extract UPX into venv Scripts
       shell: pwsh
       run: |
@@ -69,11 +61,10 @@ jobs:
       run: |
         .\zzz-od\Scripts\Activate.ps1
         cd deploy
-        $upxDir = "..\zzz-od\Scripts\upx\upx-4.2.3-win64"
-        pyinstaller --onefile --windowed --uac-admin --icon="../assets/ui/installer_logo.ico" --add-data "../config/project.yml;config" --upx-dir="$upxDir" ../src/zzz_od/gui/zzz_installer.py -n "OneDragon Installer"
-        pyinstaller --onefile --uac-admin --icon="../assets/ui/zzz_logo.ico" --upx-dir="$upxDir" ../src/zzz_od/win_exe/full_launcher.py -n "OneDragon Launcher"
-        pyinstaller --onefile --uac-admin --icon="../assets/ui/scheduler_logo.ico" --upx-dir="$upxDir" ../src/zzz_od/win_exe/scheduler_launcher.py -n "OneDragon Scheduler"
-        
+        pyinstaller "OneDragon Installer.spec"
+        pyinstaller "OneDragon Launcher.spec"
+        pyinstaller "OneDragon Scheduler.spec"
+
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -202,6 +193,43 @@ jobs:
           "$rootDir/OneDragon Launcher.exe",
           "$rootDir/OneDragon Scheduler.exe"
         ) -DestinationPath "$distDir/ZenlessZoneZero-OneDragon-$version-Update.zip" -Force
+
+    - name: Generate Changelog
+      id: changelog
+      shell: pwsh
+      run: |
+        $changelog_content = ""
+        $current_version_tag = "${{ steps.get_version.outputs.tag }}" # Tag from get_version step
+
+        if ($env:GITHUB_REF -like 'refs/tags/*') {
+          # This is a release triggered by a tag
+          # Attempt to find the latest tag on the parent of the current tag's commit
+          $previous_tag_candidate = $(git describe --tags --abbrev=0 "$current_version_tag^" 2>$null)
+          if ($previous_tag_candidate) {
+            Write-Host "Generating changelog from $previous_tag_candidate to $current_version_tag"
+            $changelog_content = git log --pretty=format:"- %s (%h)" "$previous_tag_candidate..$current_version_tag"
+          } else {
+            Write-Host "No previous tag found relative to $current_version_tag^. Listing last 10 commits for $current_version_tag."
+            # This could be the first tag. List commits leading to it.
+            $changelog_content = git log --pretty=format:"- %s (%h)" -n 10 "$current_version_tag"
+          }
+        } else {
+          # This is a manual workflow_dispatch or a push to a branch
+          Write-Host "Manual or branch build. Listing last 5 commits from HEAD."
+          $changelog_content = git log --pretty=format:"- %s (%h)" -n 5 HEAD
+        }
+
+        # Convert array from git log to a single string, trim whitespace
+        $changelog_content = ($changelog_content | Out-String).Trim()
+
+        if ([string]::IsNullOrWhiteSpace($changelog_content)) {
+          $changelog_content = "No new changes or unable to determine changelog."
+        }
+        
+        # Escape for GITHUB_OUTPUT: % -> %25, newline -> %0A, carriage return -> %0D
+        $escaped_changelog = $changelog_content -replace '%', '%25' -replace "`n", '%0A' -replace "`r", '%0D'
+        
+        echo "clean_changelog=$escaped_changelog" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
     - name: Create Release
       uses: softprops/action-gh-release@v1
