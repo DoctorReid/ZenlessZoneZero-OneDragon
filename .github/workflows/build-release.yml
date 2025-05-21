@@ -96,9 +96,8 @@ jobs:
           $version = $env:GITHUB_REF.Substring(10)
           $tag = $version
         } else {
-          $short = $env:GITHUB_SHA.Substring(0,7)
-          $date = Get-Date -Format 'yyyyMMdd-HHmmss'
-          $tag = "manual-$date-$short"
+          $date = (Get-Date).ToUniversalTime().AddHours(8).ToString('yyyy.MMdd.HHmm')
+          $tag = "$date"
           $version = $tag
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
@@ -258,5 +257,6 @@ jobs:
           deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Update.zip
           deploy/dist/directory-structure.txt
         generate_release_notes: false
+        prerelease: ${{ github.event_name == 'workflow_dispatch' }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
