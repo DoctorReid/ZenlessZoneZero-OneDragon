@@ -15,7 +15,7 @@ class ONNXPaddleOcr(TextSystem):
         for action in parser._actions:
             inference_args_dict[action.dest] = action.default
         params = argparse.Namespace(**inference_args_dict)
-        
+
 
         # params.rec_image_shape = "3, 32, 320"
         params.rec_image_shape = "3, 48, 320"

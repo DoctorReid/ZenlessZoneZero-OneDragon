@@ -41,7 +41,7 @@ class MultiPushSettingCard(SettingCardBase):
 
         # 将按钮布局添加到卡片的主布局中
         self.hBoxLayout.addLayout(btn_layout, 1)
-    
+
 
 class MultiLineSettingCard(SettingCardBase):
     """带多行按钮的设置卡片类"""

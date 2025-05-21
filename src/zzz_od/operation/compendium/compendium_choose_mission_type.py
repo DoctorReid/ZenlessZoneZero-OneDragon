@@ -146,7 +146,7 @@ class CompendiumChooseMissionType(ZOperation):
         self.scroll_count += 1
         if self.scroll_count > 5:
             return self.round_fail('滑动超过5次仍未找到目标副本')
-            
+
         if before_target_cnt > 0:
             dy = -1
         else:

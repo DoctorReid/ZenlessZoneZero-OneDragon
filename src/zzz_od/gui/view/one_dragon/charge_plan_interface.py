@@ -221,7 +221,7 @@ class ChargePlanCard(MultiLineSettingCard):
 
     def _on_move_up_clicked(self) -> None:
         self.move_up.emit(self.idx)
-    
+
     def _on_move_top_clicked(self) -> None:
         self.move_top.emit(self.idx)
 
@@ -380,7 +380,7 @@ class ChargePlanInterface(VerticalScrollInterface):
 
     def _on_config_changed(self, new_value: bool, config_item: str) -> None:
         setattr(self.ctx.charge_plan_config, config_item, new_value)
-    
+
     def _on_remove_all_completed_clicked(self) -> None:
         dialog = Dialog('警告', '是否删除所有已完成的体力计划？', self)
         dialog.setTitleBarVisible(False)
@@ -394,7 +394,7 @@ class ChargePlanInterface(VerticalScrollInterface):
             self.ctx.charge_plan_config.save()
             self.cancel_btn.setEnabled(True)
         self.update_plan_list_display()
-    
+
     def _on_remove_all_clicked(self) -> None:
         dialog = Dialog('警告', '是否删除所有体力计划？', self)
         dialog.setTitleBarVisible(False)
@@ -406,7 +406,7 @@ class ChargePlanInterface(VerticalScrollInterface):
             self.ctx.charge_plan_config.save()
             self.cancel_btn.setEnabled(True)
         self.update_plan_list_display()
-    
+
     def _on_cancel_clicked(self) -> None:
         self.ctx.charge_plan_config.plan_list = self.plan_list_backup.copy()
         self.cancel_btn.setEnabled(False)

@@ -28,7 +28,7 @@ class InstallerWindowBase(AppWindowBase):
         if app_icon is not None:
             app_icon_path = os.path.join(os_utils.get_path_under_work_dir('assets', 'ui'), app_icon)
             self.setWindowIcon(QIcon(app_icon_path))
-        
+
         # 初始化窗口
         self.init_window()
 

@@ -92,7 +92,7 @@ class SettingGameInterface(VerticalScrollInterface):
         self.launch_argument_switch = SwitchSettingCard(icon=FluentIcon.SETTING, title='启用')
         self.launch_argument_switch.value_changed.connect(self._on_launch_argument_switch_changed)
         launch_argument_group.addSettingCard(self.launch_argument_switch)
-        
+
         self.screen_size_opt = ComboBoxSettingCard(icon=FluentIcon.FIT_PAGE, title='窗口尺寸', options_enum=ScreenSizeEnum)
         launch_argument_group.addSettingCard(self.screen_size_opt)
 
@@ -416,7 +416,7 @@ class SettingGameInterface(VerticalScrollInterface):
             self.ctx.agent_outfit_config.match_all_outfits = value
             self.ctx.init_agent_template_id()
         self._update_agent_outfit_options(value)
-    
+
     def _update_agent_outfit_options(self, value: bool) -> None:
         self.outfit_nicole_opt.setVisible(not value)
         self.outfit_ellen_opt.setVisible(not value)

@@ -30,7 +30,7 @@ class OperationTask:
 
         self.expr_list: List[str] = []  # 用于界面显示
         self.debug_name_list: List[str] = []  # 用于调试显示，存储yml中的debug_name
-    
+
     def add_expr(self, expr: str, debug_name: Optional[str] = None) -> None:
         """
         添加一个表达式及其调试名称

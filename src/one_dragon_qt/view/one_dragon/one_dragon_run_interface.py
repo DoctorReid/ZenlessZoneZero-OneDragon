@@ -24,7 +24,7 @@ from one_dragon.utils.log_utils import log
 
 
 class OneDragonRunInterface(VerticalScrollInterface):
-    
+
     run_all_apps_signal = Signal()
 
     def __init__(self, ctx: OneDragonContext,
@@ -219,7 +219,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
         if app.run_record is not None:
             app.run_record.check_and_update_status()
         self.app_runner.start()
-    
+
     def run_all_apps(self) -> None:
         self.run_app(self.get_one_dragon_app())
 

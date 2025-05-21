@@ -43,7 +43,7 @@ class PushConfig(YamlConfig):
     @property
     def custom_push_title(self) -> str:
         return self.get('custom_push_title', '一条龙运行通知')
-    
+
     @custom_push_title.setter
     def custom_push_title(self, new_value: str) -> None:
         self.update('custom_push_title', new_value)
@@ -51,7 +51,7 @@ class PushConfig(YamlConfig):
     @property
     def send_image(self) -> bool:
         return self.get('send_image', True)
-    
+
     @send_image.setter
     def send_image(self, new_value: bool) -> None:
         self.update('send_image', new_value)
@@ -65,18 +65,18 @@ class PushConfig(YamlConfig):
                 var_suffix = item["var_suffix"]
                 var_suffix_lower = var_suffix.lower()
                 prop_name = f"{group_lower}_{var_suffix_lower}"
-                
+
                 # 定义getter和setter，使用闭包捕获当前的prop_name
                 def create_getter(name: str):
                     def getter(self) -> float:
                         return self.get(name, None)
                     return getter
-                
+
                 def create_setter(name: str):
                     def setter(self, new_value: float) -> None:
                         self.update(name, new_value)
                     return setter
-                
+
                 # 创建property并添加到类
                 prop = property(
                     create_getter(prop_name),

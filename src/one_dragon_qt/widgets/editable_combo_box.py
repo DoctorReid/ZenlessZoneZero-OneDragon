@@ -66,7 +66,7 @@ class EditableComboBox(qtEditableComboBox):
         self.blockSignals(True)
         self.setCurrentIndex(self.findData(target_value))
         self.blockSignals(False)
-    
+
     def set_completer_options(self, options_list: List[ConfigItem]) -> None:
         """初始化自动补全器"""
         completion_strings = [item.ui_text for item in options_list]

@@ -271,11 +271,11 @@ class ChargePlanConfig(YamlConfig):
     def _is_same_plan(self, x: ChargePlanItem, y: ChargePlanItem) -> bool:
         if x is None or y is None:
             return False
-        
+
         # 如果两个计划都有ID，直接比较ID
         if hasattr(x, 'plan_id') and hasattr(y, 'plan_id') and x.plan_id and y.plan_id:
             return x.plan_id == y.plan_id
-            
+
         # 向后兼容：如果没有ID，使用原有的比较方式
         return (x.tab_name == y.tab_name
                 and x.category_name == y.category_name

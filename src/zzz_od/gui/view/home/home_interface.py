@@ -108,7 +108,7 @@ class ButtonGroup(SimpleCardWidget):
         # )
         # sync_button.setIconSize(QSize(32, 32))
         # layout.addWidget(sync_button)
-        
+
     def _normalBackgroundColor(self):
         return QColor(0, 0, 0, 96)
 
@@ -129,7 +129,7 @@ class ButtonGroup(SimpleCardWidget):
     def open_doc(self):
         """打开 巡夜的金山文档 链接"""
         QDesktopServices.openUrl(QUrl("https://kdocs.cn/l/cbSJUUNotJ3Z"))
-    
+
     def open_sales(self):
         """其实还是打开 Q群 链接"""
         QDesktopServices.openUrl(QUrl("https://qm.qq.com/q/N5iEy8sTu0"))

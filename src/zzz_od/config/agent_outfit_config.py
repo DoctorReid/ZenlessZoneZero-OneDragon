@@ -12,7 +12,7 @@ class AgentOutfitConfig(YamlConfig):
     @property
     def match_all_outfits(self) -> bool:
         return self.get('match_all_outfits', False)
-        
+
     @match_all_outfits.setter
     def match_all_outfits(self, value: bool) -> None:
         self.update('match_all_outfits', value)

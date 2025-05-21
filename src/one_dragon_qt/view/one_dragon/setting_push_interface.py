@@ -69,7 +69,7 @@ class SettingPushInterface(VerticalScrollInterface):
         self.cards = {} 
         for method, configs in PushCard.get_configs().items():
             method_cards = []
-            
+
             for config in configs:
                 # 动态生成变量名（如：tg_bot_token_card）
                 var_name = f"{method}_{config['var_suffix']}_push_card".lower()
@@ -81,23 +81,23 @@ class SettingPushInterface(VerticalScrollInterface):
                     input_max_width=320,
                     input_placeholder=config["placeholder"]
                 )
-                
+
                 # 设置关键属性
                 card.setObjectName(var_name.lower())  # 设置唯一标识
                 card.setVisible(False)
-                
+
                 # 将卡片存入实例变量
                 setattr(self, var_name, card)
                 method_cards.append(card)
-            
+
             # 按方法分组存储
             self.cards[method] = method_cards
-        
+
         # 将卡片添加到界面布局（根据实际布局调整）
         for cards in self.cards.values():
             for card in cards:
                 content_widget.add_widget(card)
-            
+
         content_widget.add_stretch(1)
 
         return content_widget
@@ -151,12 +151,12 @@ class SettingPushInterface(VerticalScrollInterface):
                 var_suffix = config["var_suffix"]
                 var_name = f"{method_group.lower()}_{var_suffix.lower()}_push_card"
                 config_key = f"{method_group.lower()}_{var_suffix.lower()}"
-                
+
                 card = getattr(self, var_name, None)
                 if card:
                     card.init_with_adapter(self.ctx.push_config.get_prop_adapter(config_key))
                 else:
                     print(f"未找到卡片: {var_name}")
-    
+
         # 初始更新界面状态
         self._update_notification_ui()

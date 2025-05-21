@@ -12,7 +12,7 @@ class WelcomeDialog(MessageBoxBase):
         self.cancelButton.hide()
         self.yesButton.setText("确定(5s)")
         self.yesButton.setEnabled(False)
-        
+
         self.titleLabel = SubtitleLabel("欢迎使用绝区零一条龙")
         self.viewLayout.addWidget(self.titleLabel)
 
@@ -22,7 +22,7 @@ class WelcomeDialog(MessageBoxBase):
         self.viewLayout.addWidget(content_label)
         self._setup_buttons()
         self._start_countdown()
-    
+
     def _setup_buttons(self):
         """设置对话框按钮"""
         quick_start_button = PushButton("快速开始", self)
@@ -51,7 +51,7 @@ class WelcomeDialog(MessageBoxBase):
         button_layout.addWidget(github_button)
         button_layout.addStretch(1)
         self.viewLayout.addLayout(button_layout)
-    
+
     def _start_countdown(self):
         """启动倒计时"""
         self.countdown_value = 5
@@ -59,7 +59,7 @@ class WelcomeDialog(MessageBoxBase):
         self.countdown_timer.setInterval(1000)  # 1秒
         self.countdown_timer.timeout.connect(self._update_countdown)
         self.countdown_timer.start()
-    
+
     def _update_countdown(self):
         """更新确认按钮上的倒计时"""
         self.countdown_value -= 1

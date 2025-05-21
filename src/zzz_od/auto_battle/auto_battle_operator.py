@@ -87,7 +87,7 @@ class AutoBattleOperator(ConditionalOperator):
         except Exception as e:
             log.error('自动战斗初始化失败 共享配队文件请在群内提醒对应作者修复', exc_info=True)
             return False, '初始化失败'
-        
+
     def init_before_running_async(self) -> Future[Tuple[bool, str]]:
         """
         异步初始化

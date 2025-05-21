@@ -38,7 +38,7 @@ class ZOneDragonInterface(PivotNavigatorInterface):
         # self.add_sub_interface(MiscellanyRunInterface(self.ctx))
         self.add_sub_interface(ZOneDragonSettingInterface(self.ctx))
         self.add_sub_interface(ZSettingPushInterface(self.ctx))
-    
+
     def on_interface_shown(self):
         super().on_interface_shown()
         if self.ctx.home_start_button_pressed:

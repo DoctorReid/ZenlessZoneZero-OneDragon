@@ -42,7 +42,7 @@ class LogReceiver(logging.Handler):
 class LogDisplayCard(PlainTextEdit):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        
+
         # 设置只读
         self.setReadOnly(True)
 
@@ -129,7 +129,7 @@ class LogDisplayCard(PlainTextEdit):
         """格式化日志"""
         formatted_logs = []
         formatted_log = ""
-        
+
         for log_item in log_list:
             # 给方括号内的内容着色
             if '[' in log_item and ']' in log_item:

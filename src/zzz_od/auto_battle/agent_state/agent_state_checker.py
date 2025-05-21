@@ -347,28 +347,28 @@ def check_cnt_by_color_channel_equal_range(
     r, g, b = cv2.split(to_check)
     # 检查每个像素点的三个通道是否完全相等
     channel_equal = (r == g) & (g == b)
-    
+
     # 3. 统计三通道相等的点的数量
     equal_points_count = np.sum(channel_equal)
-    
+
     # # 4. 只在点数量超过阈值时输出调试信息和保存图片
     # if equal_points_count >= state_def.connect_cnt:
     #     log.debug(f'检测到三通道相等的点数量: {equal_points_count}')
-        
+
     #     # 保存调试图片
     #     import os
     #     from datetime import datetime
     #     debug_dir = r'E:\github\ZenlessZoneZero-OneDragon\.debug\images'
     #     os.makedirs(debug_dir, exist_ok=True)
-        
+
     #     # 生成时间戳和文件名基础部分
     #     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
     #     base_filename = f'equal_range_{equal_points_count}pts_{timestamp}'
-        
+
     #     # 保存原始裁剪图片
     #     cv2.imwrite(os.path.join(debug_dir, f'{base_filename}_original.png'), 
     #                 cv2.cvtColor(to_check, cv2.COLOR_RGB2BGR))
-        
+
     #     # 保存相等点的掩码图片
     #     mask = channel_equal.astype(np.uint8) * 255
     #     cv2.imwrite(os.path.join(debug_dir, f'{base_filename}_mask.png'), mask)

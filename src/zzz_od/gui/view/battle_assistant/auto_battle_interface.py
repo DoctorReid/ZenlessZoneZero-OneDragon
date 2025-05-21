@@ -167,7 +167,7 @@ class AutoBattleInterface(AppRunInterface):
             self._refresh_interface()
         else:
             self._refresh_interface()
-        
+
 
     def _on_del_clicked(self) -> None:
         """
@@ -230,7 +230,7 @@ class AutoBattleInterface(AppRunInterface):
             return
         self.battle_state_display.set_update_display(True)
         self.task_display.set_update_display(True)
-        
+
     def _refresh_interface(self):
         """
         刷新界面

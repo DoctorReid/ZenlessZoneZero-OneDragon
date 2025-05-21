@@ -13,7 +13,7 @@ class CustomConfig(YamlConfig):
 
     def __init__(self):
         super().__init__(module_name='custom')
-    
+
 
     @property
     def theme(self) -> str:
@@ -38,7 +38,7 @@ class CustomConfig(YamlConfig):
         :return:
         """
         return self.get('banner', False)
-    
+
     @banner.setter
     def banner(self, new_value: bool) -> None:
         """

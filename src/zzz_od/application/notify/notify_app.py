@@ -36,7 +36,7 @@ class NotifyApp(ZApplication):
             except ValueError:
                 # 时间格式不正确
                 return False
-            
+
             candidates = []
             # 生成当前年份和前一年的候选时间
             for year in [end_time.year, end_time.year - 1]:
@@ -46,7 +46,7 @@ class NotifyApp(ZApplication):
                 except ValueError:
                     # 处理无效日期（如闰年的2月29日）
                     continue
-            
+
             start_time = end_time - timedelta(hours=3)
             for candidate in candidates:
                 # 检查候选时间是否在最近三小时内且不超过当前时间
@@ -82,7 +82,7 @@ class NotifyApp(ZApplication):
                 parts.append(f"全部失败❌")
 
             return "\n".join(parts)
-        
+
         message = format_message(ZOneDragonApp.get_app_list(self))
         image = None
         if self.ctx.push_config.send_image:

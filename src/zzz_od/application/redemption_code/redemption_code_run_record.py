@@ -72,11 +72,11 @@ class RedemptionCodeRunRecord(AppRunRecord):
             for i in self.valid_code_list
             if i.end_dt >= dt
         ]
-        
+
         for used in self.used_code_list:
             if used in valid_code_list:  # 先检查是否存在
                 valid_code_list.remove(used)
-        
+
         return valid_code_list
 
     def add_used_code(self, code: str) -> None:

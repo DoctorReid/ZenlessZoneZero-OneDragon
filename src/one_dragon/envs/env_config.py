@@ -235,7 +235,7 @@ class EnvConfig(YamlConfig):
         :return:
         """
         return self.get('git_branch', GitBranchEnum.MAIN.value.value)
-    
+
     @git_branch.setter
     def git_branch(self, new_value: str) -> None:
         """
@@ -364,7 +364,7 @@ class EnvConfig(YamlConfig):
         是否第一次运行
         """
         return self.get('is_first_run', True)
-    
+
     @is_first_run.setter
     def is_first_run(self, new_value: bool) -> None:
         """
