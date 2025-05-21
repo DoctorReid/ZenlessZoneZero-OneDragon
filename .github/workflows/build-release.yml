@@ -44,6 +44,7 @@ jobs:
         uv pip install -r requirements-dev.txt
         uv pip install -r requirements-dev-ext.txt
         uv pip compile --annotation-style=line --output-file=requirements-prod.txt requirements-dev.txt
+        uv pip install -r requirements-prod.txt
 
     - name: Download and extract UPX into venv Scripts
       shell: pwsh
