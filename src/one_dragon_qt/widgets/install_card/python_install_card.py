@@ -67,7 +67,7 @@ class PythonInstallCard(WithExistedInstallCard):
             if python_version is None:
                 icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
                 msg = gt('无法获取Python版本', 'ui') + ' ' + python_path
-            elif python_version != self.ctx.project_config.python_version:
+            elif python_version != self.ctx.project_config.python_version and python_version != self.ctx.project_config.uv_python_version:
                 icon = FluentIcon.INFO.icon(color=FluentThemeColor.GOLD.value)
                 msg = (f"{gt('当前版本', 'ui')}: {python_version}; {gt('建议版本', 'ui')}: {self.ctx.project_config.python_version}"
                        + ' ' + python_path)
