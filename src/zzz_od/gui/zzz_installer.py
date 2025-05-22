@@ -6,13 +6,12 @@ from qfluentwidgets import NavigationItemPosition, Theme, setTheme
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon_qt.app.installer import InstallerWindowBase
 from one_dragon_qt.view.code_interface import CodeInterface
-from one_dragon_qt.view.install_interface import InstallerInterface
+from one_dragon_qt.view.installer_interface import InstallerInterface
+from one_dragon_qt.view.uv_installer_interface import UVInstallerInterface
 from one_dragon_qt.view.installer_setting_interface import InstallerSettingInterface
 from one_dragon_qt.widgets.welcome_dialog import WelcomeDialog
 from one_dragon.utils.i18_utils import gt
 from zzz_od.gui.view.installer.extend_install_interface import ExtendInstallInterface
-from zzz_od.gui.view.installer.new_install_interface import NewInstallInterface
-from zzz_od.gui.view.installer.uv_install_interface import UvInstallInterface
 
 
 class ZInstallerWindow(InstallerWindowBase):
@@ -30,7 +29,7 @@ class ZInstallerWindow(InstallerWindowBase):
 
     def create_sub_interface(self):
         self.add_sub_interface(InstallerInterface(self.ctx, parent=self))
-        self.add_sub_interface(UvInstallInterface(self.ctx, parent=self))
+        self.add_sub_interface(UVInstallerInterface(self.ctx, parent=self))
         self.add_sub_interface(ExtendInstallInterface(self.ctx, parent=self))
         self.add_sub_interface(CodeInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)
         self.add_sub_interface(InstallerSettingInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)
