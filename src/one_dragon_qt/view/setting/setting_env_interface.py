@@ -189,6 +189,10 @@ class SettingEnvInterface(VerticalScrollInterface):
         self.gh_proxy_url_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('gh_proxy_url'))
         self.auto_fetch_gh_proxy_url_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('auto_fetch_gh_proxy_url'))
 
+        # 如果开启了自动获取代理地址，则异步更新
+        if self.ctx.env_config.auto_fetch_gh_proxy_url:
+            self.ctx.async_update_gh_proxy()
+
     def _on_debug_changed(self, value: bool):
         """
         调试模式改变
@@ -274,7 +278,12 @@ class SettingEnvInterface(VerticalScrollInterface):
         self.ctx.env_config.key_debug = value
 
     def on_fetch_gh_proxy_url_clicked(self) -> None:
-        self.ctx.gh_proxy_service.update_proxy_url()
+        """
+        点击获取按钮时，异步更新代理地址
+        :return:
+        """
+        self.ctx.async_update_gh_proxy()
+        # 更新UI显示
         self.gh_proxy_url_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('gh_proxy_url'))
 
     def on_pip_choose_best_clicked(self) -> None:

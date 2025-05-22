@@ -199,6 +199,16 @@ class GitService:
             log.info(msg)
             return True, msg
 
+    def async_fetch_remote_branch(self) -> None:
+        """
+        异步获取远程分支代码
+        """
+        from one_dragon.utils import thread_utils
+        from one_dragon.base.operation.one_dragon_env_context import ONE_DRAGON_CONTEXT_EXECUTOR
+
+        future = ONE_DRAGON_CONTEXT_EXECUTOR.submit(self.fetch_remote_branch)
+        future.add_done_callback(thread_utils.handle_future_result)
+
     def checkout_latest_project_branch(self, progress_callback: Optional[Callable[[float, str], None]] = None) -> Tuple[bool, str]:
         """
         切换到最新的目标分支
@@ -216,11 +226,14 @@ class GitService:
             log.info('更新远程仓库地址')
 
         log.info('获取远程代码')
-        fetch_result, msg = self.fetch_remote_branch()
-        if not fetch_result:
-            return False, msg
-        elif progress_callback is not None:
-            progress_callback(1/5, msg)
+        self.async_fetch_remote_branch()
+        if progress_callback is not None:
+            progress_callback(0.2, '开始获取远程代码')
+
+        log.info('检测当前代码是否有修改')
+        self.async_is_current_branch_clean()
+        if progress_callback is not None:
+            progress_callback(0.5, '开始检测代码修改')
 
         clean_result = self.is_current_branch_clean()
         if clean_result is None or not clean_result:
@@ -236,7 +249,7 @@ class GitService:
                 log.error(msg)
                 return False, msg
         elif progress_callback is not None:
-            progress_callback(2/5, '当前代码无修改')
+            progress_callback(0.6, '当前代码无修改')
 
         current_result = self.get_current_branch()
         if current_result is None:
@@ -244,7 +257,7 @@ class GitService:
             log.error(msg)
             return False, msg
         elif progress_callback is not None:
-            progress_callback(3/5, '获取当前分支成功')
+            progress_callback(0.7, '获取当前分支成功')
 
         if current_result != self.env_config.git_branch:
             checkout_result = cmd_utils.run_command([self.env_config.git_path, 'checkout', self.env_config.git_branch])
@@ -253,16 +266,16 @@ class GitService:
                 log.error(msg)
                 return False, msg
         if progress_callback is not None:
-            progress_callback(4/5, '切换到目标分支成功')
+            progress_callback(0.8, '切换到目标分支成功')
 
         rebase_result = cmd_utils.run_command([self.env_config.git_path, 'pull', '--rebase', 'origin', self.env_config.git_branch])
         if rebase_result is None or not rebase_result:
             msg = '更新本地代码失败'
             log.error(msg)
-            cmd_utils.run_command([self.env_config.git_path, 'rebase', '--strategy-option theirs'])  # 回滚回去
+            cmd_utils.run_command([self.env_config.git_path, 'rebase', '--strategy-option', 'theirs'])  # 回滚回去
             return False, msg
         elif progress_callback is not None:
-            progress_callback(5/5, '更新本地代码成功')
+            progress_callback(1.0, '更新本地代码成功')
 
         return True, ''
 
@@ -286,13 +299,21 @@ class GitService:
         else:
             return status_str.find('nothing to commit, working tree clean') != -1
 
+    def async_is_current_branch_clean(self) -> None:
+        """
+        异步检测当前分支是否没有任何修改内容
+        """
+        from one_dragon.utils import thread_utils
+        from one_dragon.base.operation.one_dragon_env_context import ONE_DRAGON_CONTEXT_EXECUTOR
+
+        future = ONE_DRAGON_CONTEXT_EXECUTOR.submit(self.is_current_branch_clean)
+        future.add_done_callback(thread_utils.handle_future_result)
+
     def is_current_branch_latest(self) -> Tuple[bool, str]:
         """
         当前分支是否已经最新 与远程分支一致
         """
-        fetch, msg = self.fetch_remote_branch()
-        if not fetch:
-            return fetch, msg
+        self.async_fetch_remote_branch()
         log.info('检测当前代码是否最新')
         diff_result = cmd_utils.run_command([self.env_config.git_path, 'diff', '--name-only', 'HEAD', f'origin/{self.env_config.git_branch}'])
         if len(diff_result.strip()) == 0:
