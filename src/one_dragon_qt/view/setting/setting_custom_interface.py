@@ -14,12 +14,13 @@ from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSe
 from one_dragon_qt.widgets.setting_card.password_switch_setting_card import PasswordSwitchSettingCard
 from one_dragon.utils import os_utils
 from one_dragon.utils.i18_utils import gt
-
+from one_dragon.utils.log_utils import log
 
 class SettingCustomInterface(VerticalScrollInterface):
 
     def __init__(self, ctx: OneDragonContext, parent=None):
         self.ctx: OneDragonContext = ctx
+        self.home_interface = None
 
         VerticalScrollInterface.__init__(
             self,
@@ -60,6 +61,11 @@ class SettingCustomInterface(VerticalScrollInterface):
         )
         basic_group.addSettingCard(self.banner_opt)
 
+        # 新增：远端主页背景开关
+        self.remote_banner_opt = SwitchSettingCard(icon=FluentIcon.CLOUD, title='启用官方动态主页背景', content='关闭后仅用本地图片')
+        self.remote_banner_opt.value_changed.connect(lambda value: self.home_interface.banner_settings_changed.emit() if self.home_interface else None)
+        basic_group.addSettingCard(self.remote_banner_opt)
+
         return basic_group
 
     def on_interface_shown(self) -> None:
@@ -68,8 +74,20 @@ class SettingCustomInterface(VerticalScrollInterface):
         :return:
         """
         VerticalScrollInterface.on_interface_shown(self)
+        
+        # 获取主页界面引用
+        main_window = self.parent()
+        while main_window and not hasattr(main_window, 'stackedWidget'):
+            main_window = main_window.parent()
+        if main_window and hasattr(main_window, 'stackedWidget'):
+            self.home_interface = main_window.stackedWidget.widget(0)
+        else:
+            self.home_interface = None
+
+        # 初始化设置项
         self.theme_opt.init_with_adapter(self.ctx.custom_config.get_prop_adapter('theme'))
         self.banner_opt.init_with_adapter(self.ctx.custom_config.get_prop_adapter('banner'))
+        self.remote_banner_opt.init_with_adapter(self.ctx.custom_config.get_prop_adapter('use_remote_banner'))
 
     def _on_theme_changed(self, index: int, value: str) -> None:
         """
@@ -93,14 +111,6 @@ class SettingCustomInterface(VerticalScrollInterface):
             os_utils.get_path_under_work_dir('custom', 'assets', 'ui'),
             'banner')
             shutil.copyfile(file_path, banner_path)
-            self._show_dialog_after_banner_updated()
-
-    def _show_dialog_after_banner_updated(self):
-        """显示设置主页背景后的对话框"""
-        dialog = Dialog("主页背景已更新", "是否立即重启以应用更改?", self)
-        dialog.setTitleBarVisible(False)
-        dialog.yesButton.setText("重启")
-        dialog.cancelButton.setText("稍后")
-        if dialog.exec():
-            from one_dragon.utils import app_utils
-            app_utils.start_one_dragon(restart=True)
+            # 发送信号通知主页更新背景
+            if self.home_interface:
+                self.home_interface.banner_settings_changed.emit()
