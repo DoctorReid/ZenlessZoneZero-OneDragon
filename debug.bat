@@ -72,7 +72,7 @@ echo -------------------------------
 echo 尝试添加 Git 安全目录...
 echo -------------------------------
 setlocal enabledelayedexpansion
-set "GIT_PATH=%~dp0.env\PortableGit\bin\git.exe"
+set "GIT_PATH=%~dp0.env\MinGit\bin\git.exe"
 set "DIR_PATH=%~dp0"
 set "DIR_PATH=%DIR_PATH:\=/%"
 set "DIR_PATH=%DIR_PATH:\\=/%"

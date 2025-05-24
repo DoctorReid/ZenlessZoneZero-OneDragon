@@ -6,14 +6,14 @@ from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
 from one_dragon.utils import os_utils
 
-DEFAULT_ENV_PATH = os_utils.get_path_under_work_dir('.env')
-DEFAULT_GIT_DIR_PATH = os.path.join(DEFAULT_ENV_PATH, 'PortableGit')  # 默认的git文件夹路径
+DEFAULT_ENV_PATH = os_utils.get_path_under_work_dir('.install')
+DEFAULT_GIT_DIR_PATH = os.path.join(DEFAULT_ENV_PATH, 'MinGit')  # 默认的git文件夹路径
 DEFAULT_GIT_PATH = os.path.join(DEFAULT_GIT_DIR_PATH, 'cmd', 'git.exe')  # 默认的git.exe文件路径
 DEFAULT_UV_DIR_PATH = os.path.join(DEFAULT_ENV_PATH, 'uv')  # 默认的uv文件夹路径
 DEFAULT_UV_PATH = os.path.join(DEFAULT_UV_DIR_PATH, 'uv.exe')  # 默认的uv.exe文件路径
 DEFAULT_PYTHON_DIR_PATH = os.path.join(DEFAULT_ENV_PATH, 'python')  # 默认的python文件夹路径
 DEFAULT_PYTHON_PATH = os.path.join(DEFAULT_PYTHON_DIR_PATH, 'python.exe')  # 默认安装的python路径
-DEFAULT_VENV_DIR_PATH = os.path.join(DEFAULT_ENV_PATH, 'venv')  # 默认的虚拟环境文件夹路径
+DEFAULT_VENV_DIR_PATH = os_utils.get_path_under_work_dir('.venv')  # 默认的虚拟环境文件夹路径
 DEFAULT_VENV_PYTHON_PATH = os.path.join(DEFAULT_VENV_DIR_PATH, 'scripts', 'python.exe')  # 默认的虚拟环境中python.exe的路径
 DEFAULT_PYTHON_PTH_PATH = os.path.join(DEFAULT_PYTHON_DIR_PATH, 'python311._pth')  # 默认安装的python配置文件路径
 
