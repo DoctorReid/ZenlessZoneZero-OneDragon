@@ -1,5 +1,7 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
-from qfluentwidgets import ProgressBar, IndeterminateProgressBar, SettingCardGroup, FluentIcon, PushButton
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
+from qfluentwidgets import ProgressBar, IndeterminateProgressBar, SettingCardGroup, FluentIcon, PushButton, PrimaryPushButton
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
@@ -10,7 +12,6 @@ from one_dragon_qt.widgets.install_card.git_install_card import GitInstallCard
 from one_dragon_qt.widgets.install_card.uv_install_card import UVInstallCard
 from one_dragon_qt.widgets.install_card.uv_python_install_card import UVPythonInstallCard
 from one_dragon_qt.widgets.install_card.uv_venv_install_card import UVVenvInstallCard
-from one_dragon.utils.i18_utils import gt
 
 class UVInstallerInterface(VerticalScrollInterface):
     def __init__(self, ctx: OneDragonEnvContext, parent=None):
@@ -22,6 +23,31 @@ class UVInstallerInterface(VerticalScrollInterface):
     def get_content_widget(self) -> QWidget:
         content_widget = QWidget()
         v_layout = QVBoxLayout(content_widget)
+
+        # 一键安装
+        self.quick_group = QWidget()
+        quick_layout = QVBoxLayout(self.quick_group)
+        quick_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        logo_label = QLabel()
+        logo_pixmap = QPixmap('assets/ui/installer_logo.ico')
+        logo_label.setPixmap(logo_pixmap.scaled(96, 96, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+        quick_layout.addWidget(logo_label, alignment=Qt.AlignmentFlag.AlignHCenter)
+        self.install_btn = PrimaryPushButton('一键安装')
+        self.install_btn.setFixedWidth(360)
+        self.install_btn.setFixedHeight(72)
+        font = self.install_btn.font()
+        font.setPointSize(20)
+        self.install_btn.setFont(font)
+        quick_layout.addWidget(self.install_btn, alignment=Qt.AlignmentFlag.AlignHCenter)
+        self.advanced_btn = PushButton('高级安装')
+        self.advanced_btn.setFixedWidth(200)
+        self.advanced_btn.setFixedHeight(40)
+        adv_font = self.advanced_btn.font()
+        adv_font.setPointSize(10)
+        self.advanced_btn.setFont(adv_font)
+        quick_layout.addWidget(self.advanced_btn, alignment=Qt.AlignmentFlag.AlignHCenter)
+        v_layout.addWidget(self.quick_group)
+        self.quick_group.setVisible(True)
 
         self.progress_bar = ProgressBar()
         self.progress_bar.setRange(0, 1)
@@ -50,21 +76,40 @@ class UVInstallerInterface(VerticalScrollInterface):
 
         self.all_opt = AllInstallCard(self.ctx, [self.git_opt, self.code_opt, self.uv_opt, self.python_opt, self.venv_opt])
 
-        update_group = SettingCardGroup(gt('运行环境', 'ui'))
-        update_group.addSettingCard(self.all_opt)
-        update_group.addSettingCard(self.git_opt)
-        update_group.addSettingCard(self.code_opt)
-        update_group.addSettingCard(self.uv_opt)
-        update_group.addSettingCard(self.python_opt)
-        update_group.addSettingCard(self.venv_opt)
+        self.update_group = SettingCardGroup('')
+        self.update_group.titleLabel.setVisible(False)
+        self.update_group.addSettingCard(self.all_opt)
+        self.update_group.addSettingCard(self.git_opt)
+        self.update_group.addSettingCard(self.code_opt)
+        self.update_group.addSettingCard(self.uv_opt)
+        self.update_group.addSettingCard(self.python_opt)
+        self.update_group.addSettingCard(self.venv_opt)
 
-        v_layout.addWidget(update_group)
-        log_group = SettingCardGroup(gt('安装日志', 'ui'))
-        v_layout.addWidget(log_group)
+        v_layout.addWidget(self.update_group)
+        self.update_group.setVisible(False)
+
         self.log_card = LogDisplayCard()
         v_layout.addWidget(self.log_card, stretch=1)
+        self.log_card.setVisible(False)
+
+        self.advanced_btn.clicked.connect(lambda: self.update_display(False))
+
+        self.back_btn = PushButton('返回一键安装')
+        self.back_btn.setFixedWidth(200)
+        self.back_btn.setFixedHeight(32)
+        v_layout.insertWidget(v_layout.indexOf(self.update_group), self.back_btn)
+        self.back_btn.setVisible(False)
+        self.back_btn.clicked.connect(lambda: self.update_display(True))
+
+        self.install_btn.clicked.connect(lambda: self.all_opt.install_all(self.update_progress))
 
         return content_widget
+
+    def update_display(self, value: bool) -> None:
+        self.quick_group.setVisible(value)
+        self.update_group.setVisible(not value)
+        self.log_card.setVisible(not value)
+        self.back_btn.setVisible(not value)
 
     def on_interface_shown(self) -> None:
         """
