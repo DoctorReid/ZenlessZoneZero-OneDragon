@@ -46,3 +46,14 @@ class CustomConfig(YamlConfig):
         :return:
         """
         self.update('banner', new_value)
+
+    @property
+    def use_remote_banner(self) -> bool:
+        """
+        是否启用远端主页背景
+        """
+        return self.get('use_remote_banner', True)
+
+    @use_remote_banner.setter
+    def use_remote_banner(self, new_value: bool) -> None:
+        self.update('use_remote_banner', new_value)
