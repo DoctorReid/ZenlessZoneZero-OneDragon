@@ -63,7 +63,7 @@ class SettingEnvInterface(VerticalScrollInterface):
         code_group = SettingCardGroup(gt('Git相关', 'ui'))
 
         self.repository_type_opt = ComboBoxSettingCard(
-            icon=FluentIcon.APPLICATION, title='代码源', content='国内无法访问Github则选择Gitee',
+            icon=FluentIcon.APPLICATION, title='代码源', content='国内无法访问GitHub则选择Gitee',
             options_enum=RepositoryTypeEnum
         )
         self.repository_type_opt.value_changed.connect(self._on_repo_type_changed)

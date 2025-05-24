@@ -53,5 +53,5 @@ def download_file(download_url: str, save_file_path: str,
         msg = f'下载失败 {e}'
         if progress_callback is not None:
             progress_callback(0, msg)
-        log.error(msg, exec=True)
+        log.error(msg, exc_info=True)
         return False

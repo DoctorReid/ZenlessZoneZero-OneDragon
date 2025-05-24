@@ -23,12 +23,17 @@ class ProxyTypeEnum(Enum):
 
     NONE = ConfigItem('无', 'None')
     PERSONAL = ConfigItem('个人代理', 'personal')
-    GHPROXY = ConfigItem('Github免费代理', 'ghproxy')
+    GHPROXY = ConfigItem('GitHub免费代理', 'ghproxy')
 
 class RepositoryTypeEnum(Enum):
 
-    GITHUB = ConfigItem('Github')
+    GITHUB = ConfigItem('GitHub')
     GITEE = ConfigItem('Gitee')
+
+class RegionEnum(Enum):
+
+    CHINA = ConfigItem('中国', 'china')
+    OVERSEA = ConfigItem('海外', 'oversea')
 
 
 class GitMethodEnum(Enum):
@@ -53,6 +58,11 @@ class GitBranchEnum(Enum):
 class CpythonSourceEnum(Enum):
     GITHUB = ConfigItem('官方 (GitHub)', 'https://github.com/astral-sh/python-build-standalone/releases/download')
     NJU = ConfigItem('南京大学', 'https://mirror.nju.edu.cn/github-release/indygreg/python-build-standalone')
+
+
+class EnvSourceEnum(Enum):
+    GITHUB = ConfigItem('GitHub', 'https://github.com/DoctorReid/OneDragon-Env/releases/download')
+    GITEE = ConfigItem('Gitee', 'https://gitee.com/OneDragon-Anything/OneDragon-Env/releases/download')
 
 
 class EnvConfig(YamlConfig):
@@ -173,7 +183,7 @@ class EnvConfig(YamlConfig):
     @property
     def repository_type(self) -> str:
         """
-        仓库类型 Github / Gitee
+        仓库类型 GitHub / Gitee
         :return:
         """
         return self.get('repository_type', RepositoryTypeEnum.GITEE.value.value)
@@ -181,7 +191,7 @@ class EnvConfig(YamlConfig):
     @repository_type.setter
     def repository_type(self, new_value: str) -> None:
         """
-        仓库类型 Github / Gitee
+        仓库类型 GitHub / Gitee
         :return:
         """
         self.update('repository_type', new_value)
@@ -232,7 +242,7 @@ class EnvConfig(YamlConfig):
         cpython-build-standalone 源
         :return:
         """
-        return self.get('cpython_source', CpythonSourceEnum.GITHUB.value.value)
+        return self.get('cpython_source', CpythonSourceEnum.NJU.value.value)
 
     @cpython_source.setter
     def cpython_source(self, new_value: str) -> None:
@@ -257,6 +267,22 @@ class EnvConfig(YamlConfig):
         :return:
         """
         self.update('pip_source', new_value)
+
+    @property
+    def env_source(self) -> str:
+        """
+        环境下载源
+        :return:
+        """
+        return self.get('env_source', EnvSourceEnum.GITEE.value.value)
+
+    @env_source.setter
+    def env_source(self, new_value: str) -> None:
+        """
+        环境下载源
+        :return:
+        """
+        self.update('env_source', new_value)
 
     @property
     def pip_trusted_host(self) -> str:

@@ -7,14 +7,14 @@ from one_dragon_qt.widgets.install_card.base_install_card import BaseInstallCard
 from one_dragon.utils.i18_utils import gt
 
 
-class VenvInstallCard(BaseInstallCard):
+class LauncherInstallCard(BaseInstallCard):
 
     def __init__(self, ctx: OneDragonEnvContext):
         BaseInstallCard.__init__(
             self,
             ctx=ctx,
-            title_cn='运行依赖',
-            install_method=ctx.python_service.uv_install_requirements
+            title_cn='安装启动器',
+            install_method=ctx.python_service.install_launcher
         )
 
     def after_progress_done(self, success: bool, msg: str) -> None:
@@ -25,7 +25,6 @@ class VenvInstallCard(BaseInstallCard):
         :return:
         """
         if success:
-            self.ctx.env_config.requirement_time = self.ctx.git_service.get_requirement_time()
             self.check_and_update_display()
         else:
             self.update_display(FluentIcon.INFO.icon(color=FluentThemeColor.RED.value), gt(msg, 'ui'))
@@ -35,13 +34,10 @@ class VenvInstallCard(BaseInstallCard):
         获取需要显示的状态，由子类自行实现
         :return: 显示的图标、文本
         """
-        last = self.ctx.env_config.requirement_time
-
-        if last != self.ctx.git_service.get_requirement_time():
-            icon = FluentIcon.INFO.icon(color=FluentThemeColor.GOLD.value)
-            msg = gt('需更新，请使用安装器更新', 'ui')
-        else:
+        if self.ctx.python_service.check_launcher_exist():
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.DEFAULT_BLUE.value)
-            msg = f"{gt('已安装', 'ui')}" + ' ' + last
-
+            msg = f"{gt('已安装', 'ui')}"
+        else:
+            icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
+            msg = gt('需下载', 'ui')
         return icon, msg
