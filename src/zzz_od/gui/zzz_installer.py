@@ -28,7 +28,7 @@ class ZInstallerWindow(InstallerWindowBase):
         self._check_first_run()
 
     def create_sub_interface(self):
-        self.add_sub_interface(InstallerInterface(self.ctx, parent=self))
+        # self.add_sub_interface(InstallerInterface(self.ctx, parent=self))
         self.add_sub_interface(UVInstallerInterface(self.ctx, parent=self))
         self.add_sub_interface(ExtendInstallInterface(self.ctx, parent=self))
         self.add_sub_interface(CodeInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)

@@ -31,11 +31,11 @@ class ExtendInstallInterface(VerticalScrollInterface):
         self.progress_bar_2.setVisible(False)
         v_layout.addWidget(self.progress_bar_2)
 
-        self.gamepad_opt = GamepadInstallCard(self.ctx)
+        # self.gamepad_opt = GamepadInstallCard(self.ctx)
         self.uv_gamepad_opt = UVGamepadInstallCard(self.ctx)
 
         update_group = SettingCardGroup(gt('运行环境', 'ui'))
-        update_group.addSettingCard(self.gamepad_opt)
+        # update_group.addSettingCard(self.gamepad_opt)
         update_group.addSettingCard(self.uv_gamepad_opt)
 
         v_layout.addWidget(update_group)
@@ -53,7 +53,7 @@ class ExtendInstallInterface(VerticalScrollInterface):
         :return:
         """
         VerticalScrollInterface.on_interface_shown(self)
-        self.gamepad_opt.check_and_update_display()
+        # self.gamepad_opt.check_and_update_display()
         self.uv_gamepad_opt.check_and_update_display()
         self.log_card.start()
 
@@ -81,4 +81,3 @@ class ExtendInstallInterface(VerticalScrollInterface):
             self.progress_bar.setVal(progress)
             self.progress_bar_2.setVisible(False)
             self.progress_bar_2.stop()
-

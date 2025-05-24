@@ -16,7 +16,7 @@ class UVInstallerInterface(VerticalScrollInterface):
     def __init__(self, ctx: OneDragonEnvContext, parent=None):
         VerticalScrollInterface.__init__(self, object_name='uv_install_interface',
                                          parent=parent, content_widget=None,
-                                         nav_text_cn='更快安装', nav_icon=FluentIcon.DOWNLOAD)
+                                         nav_text_cn='一键安装', nav_icon=FluentIcon.DOWNLOAD)
         self.ctx: OneDragonEnvContext = ctx
 
     def get_content_widget(self) -> QWidget:
