@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['..\\src\\zzz_od\\gui\\zzz_installer.py'],
+    ['..\\src\\zzz_od\\gui\\zzz_installer_app.py'],
     pathex=[],
     binaries=[],
     datas=[
