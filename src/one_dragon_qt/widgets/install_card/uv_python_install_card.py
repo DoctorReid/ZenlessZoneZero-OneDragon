@@ -9,6 +9,6 @@ class UVPythonInstallCard(PythonInstallCard):
         WithExistedInstallCard.__init__(
             self,
             ctx=ctx,
-            title_cn='Python虚拟环境 (UV)',
+            title_cn='Python运行环境 (UV)',
             install_method=ctx.python_service.uv_install_python_venv,
         )

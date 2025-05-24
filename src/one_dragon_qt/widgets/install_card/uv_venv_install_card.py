@@ -10,6 +10,6 @@ class UVVenvInstallCard(VenvInstallCard):
         BaseInstallCard.__init__(
             self,
             ctx=ctx,
-            title_cn='运行依赖 (UV)',
+            title_cn='手动安装依赖 (UV)',
             install_method=ctx.python_service.uv_install_requirements,
         )

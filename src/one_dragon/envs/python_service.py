@@ -224,6 +224,19 @@ class PythonService:
             progress_callback(1 if success else 0, msg)
             return True
 
+    def uv_sync(self, progress_callback: Optional[Callable[[float, str], None]] = None) -> Tuple[bool, str]:
+        """
+        使用 UV 安装环境和依赖
+        :return:
+        """
+        if progress_callback is not None:
+            progress_callback(-1, '正在安装...')
+        os.environ["UV_PYTHON_INSTALL_DIR"] = DEFAULT_PYTHON_DIR_PATH
+        result = cmd_utils.run_command([self.env_config.uv_path, 'sync'])
+        success = result is not None
+        msg = '运行依赖安装成功' if success else '运行依赖安装失败'
+        return success, msg
+
     def get_os_uv_path(self) -> Optional[str]:
         """
         获取当前系统环境变量中的uv路径
@@ -352,8 +365,8 @@ class PythonService:
         if not self.uv_install_python(progress_callback):
             return False, '安装Python失败 请尝试到「设置」更改Python下载源'
 
-        if not self.uv_create_venv(progress_callback):
-            return False, '创建虚拟环境失败'
+        if not self.uv_sync(progress_callback):
+            return False, 'uv sync失败'
         self.env_config.python_path = DEFAULT_VENV_PYTHON_PATH
 
         return True, ''
@@ -389,10 +402,10 @@ class PythonService:
         if progress_callback is not None:
             progress_callback(-1, '正在安装...')
 
-        os.environ["VIRTUAL_ENV"] = DEFAULT_VENV_DIR_PATH
-        result = cmd_utils.run_command([self.env_config.uv_path, 'pip', 'install', '--upgrade', '--link-mode=copy',
-                                        '-r', os.path.join(os_utils.get_work_dir(), self.project_config.requirements),
-                                        '--index-url', self.env_config.pip_source, '--trusted-host', self.env_config.pip_trusted_host])
+        # result = cmd_utils.run_command([self.env_config.uv_path, 'pip', 'install', '--upgrade', '--link-mode=copy',
+        #                                 '-r', os.path.join(os_utils.get_work_dir(), self.project_config.requirements),
+        #                                 '--index-url', self.env_config.pip_source, '--trusted-host', self.env_config.pip_trusted_host])
+        result = cmd_utils.run_command([self.env_config.uv_path, 'sync'])
         success = result is not None
         msg = '运行依赖安装成功' if success else '运行依赖安装失败'
         return success, msg
@@ -515,4 +528,4 @@ if __name__ == '__main__':
     env_config = EnvConfig()
     git_service = GitService(project_config, env_config)
     python_service = PythonService(project_config, env_config, git_service)
-    python_service.uv_install_python_venv(None)
+    python_service.uv_install_requirements(None)
