@@ -15,7 +15,7 @@ from zzz_od.operation.compendium.notorious_hunt import NotoriousHunt
 from zzz_od.operation.compendium.routine_cleanup import RoutineCleanup
 from zzz_od.operation.compendium.tp_by_compendium import TransportByCompendium
 from zzz_od.operation.goto.goto_menu import GotoMenu
-
+from one_dragon.utils.log_utils import log
 
 class ChargePlanApp(ZApplication):
 
@@ -82,44 +82,46 @@ class ChargePlanApp(ZApplication):
             self.ctx.charge_plan_config.reset_plans()
         elif not self.ctx.charge_plan_config.loop and self.ctx.charge_plan_config.all_plan_finished():
             return self.round_success(ChargePlanApp.STATUS_ROUND_FINISHED)
-
+        
         # 获取上一个尝试的计划（如果有）
         last_tried_plan = self.next_plan
-
+        
         # 使用循环而不是递归来查找下一个可执行的任务
         while True:
             # 查找下一个未完成的计划
             next_plan = self.ctx.charge_plan_config.get_next_plan(last_tried_plan)
             if next_plan is None:
                 return self.round_success(ChargePlanApp.STATUS_ROUND_FINISHED)
-
+            
             # 计算所需电量
-            need_charge_power = 1000  # 默认值，确保在未知情况下会检查
+            need_charge_power = 20  # 默认值，确保在未知情况下会检查
             self.need_to_check_power_in_mission = False
-
+            
             if next_plan.category_name == '实战模拟室' and next_plan.card_num == CardNumEnum.DEFAULT.value.value:
                 self.need_to_check_power_in_mission = True
-            elif next_plan.category_name == '定期清剿':  # 进去尝试使用家政券
+            elif next_plan.category_name == '定期清剿' and self.ctx.charge_plan_config.use_coupon:  # 进去尝试使用家政券
                 self.need_to_check_power_in_mission = True
-            else:
-                if next_plan.category_name == '实战模拟室':
-                    need_charge_power = int(next_plan.card_num) * 20
-                elif next_plan.category_name == '专业挑战室':
-                    need_charge_power = 40
-                elif next_plan.category_name == '恶名狩猎':
-                    need_charge_power = 60
-                else:
-                    self.need_to_check_power_in_mission = True
-
+            elif next_plan.category_name == '实战模拟室':
+                need_charge_power = int(next_plan.card_num) * 20
+            elif next_plan.category_name == '专业挑战室':
+                need_charge_power = 40
+            elif next_plan.category_name == '恶名狩猎':
+                need_charge_power = 60
+            elif next_plan.category_name == '定期清剿':
+                need_charge_power = 60
+            
             # 检查电量是否足够
+            log.info(f'当前计划类型: {next_plan.category_name}')
+            log.info(f'电量检测: 当前电量{self.charge_power}, 需要电量{need_charge_power}, 跳过计划状态: {self.ctx.charge_plan_config.skip_plan}')
             if not self.need_to_check_power_in_mission and self.charge_power < need_charge_power:
+                log.info(f'电量不足: 当前电量{self.charge_power}, 需要电量{need_charge_power}, 跳过计划状态: {self.ctx.charge_plan_config.skip_plan}')
                 # 如果跳过计划为否，直接返回大世界
                 if not self.ctx.charge_plan_config.skip_plan:
                     return self.round_success(ChargePlanApp.STATUS_ROUND_FINISHED)
                 # 否则继续查找下一个任务
                 last_tried_plan = next_plan
                 continue
-
+            
             # 计算可运行次数
             self.next_can_run_times = 0
             if not self.need_to_check_power_in_mission:
@@ -127,7 +129,7 @@ class ChargePlanApp(ZApplication):
                 max_need_run_times = next_plan.plan_times - next_plan.run_times
                 if self.next_can_run_times > max_need_run_times:
                     self.next_can_run_times = max_need_run_times
-
+            
             # 设置下一个计划并返回成功
             self.next_plan = next_plan
             return self.round_success()
