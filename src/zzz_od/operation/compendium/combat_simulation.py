@@ -1,7 +1,6 @@
 from concurrent.futures import Future
 import time
 
-import cv2
 import difflib
 from typing import Optional, ClassVar, Tuple
 
@@ -117,29 +116,26 @@ class CombatSimulation(ZOperation):
     @operation_node(name='选择副本')
     def choose_mission(self) -> OperationRoundResult:
         screen = self.screenshot()
-
         if self.plan.mission_name == '代理人方案培养':
+            target_point: Optional[Point] = None
+
             area = self.ctx.screen_loader.get_area('实战模拟室', '副本名称列表顶部')
             part = cv2_utils.crop_image_only(screen, area.rect)
-            target_point: Optional[Point] = None  # 初始化目标点击位置
 
-            # 转换到HSV色彩空间并过滤低饱和度和色调值
-            hsv = cv2.cvtColor(part, cv2.COLOR_BGR2HSV)
-            mask = cv2.inRange(hsv, (0, 0, 0), (10, 10, 255))
-            binary = cv2.bitwise_not(mask)
+            # 直接获取点击位置
+            click_pos = cv2_utils.find_character_avatar_center_with_offset(
+                part, 
+                area_offset=(area.left_top.x, area.left_top.y),
+                click_offset=(0, 80),  # 向下偏移80像素，用于点击头像下方的区域
+                min_area=800
+            )
+            
+            if click_pos:
+                target_point = Point(click_pos[0], click_pos[1])
+                log.info(f'找到代理人目标，点击位置: {target_point}')
 
-            contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            min_area = 800  # 最小有效区域面积
-            contours = [cnt for cnt in contours if cv2.contourArea(cnt) >= min_area]
-
-            for i, cnt in enumerate(contours):
-                x, y, w, h = cv2.boundingRect(cnt)
-                log.debug(f'目标代理人头像{i}: x={x}, y={y}, 宽={w}, 高={h}, 面积={cv2.contourArea(cnt)}')
-
-            target_point = None
-            if contours and len(contours) > 0:
-                x, y, w, h = cv2.boundingRect(contours[0])
-                target_point = area.left_top + Point(x + w//2, y + h//2 + 80)
+            if target_point is None:
+                return self.round_success(status=CombatSimulation.STATUS_CHOOSE_FAIL)
 
             if target_point is None:
                 return self.round_success(status=CombatSimulation.STATUS_CHOOSE_FAIL)

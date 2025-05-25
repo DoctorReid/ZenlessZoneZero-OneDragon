@@ -762,3 +762,66 @@ def color_in_range(img: MatLike, lower: List[int], upper: List[int],
         return part
     else:
         return connection_erase(part, noise_threshold)
+
+
+def find_character_avatars(img: MatLike, min_area: int = 800, 
+                          hsv_lower_bound: Tuple[int, int, int] = (0, 0, 0),
+                          hsv_upper_bound: Tuple[int, int, int] = (10, 10, 255)) -> List[Tuple[int, int, int, int]]:
+    """
+    在图像中查找角色头像的轮廓
+    使用HSV色彩空间过滤并通过连通区域检测找到头像位置
+    
+    :param img: 输入图像 (RGB格式)
+    :param min_area: 最小有效区域面积，过滤小的噪点
+    :param hsv_lower_bound: HSV下界 (H, S, V)
+    :param hsv_upper_bound: HSV上界 (H, S, V)
+    :return: 角色头像边界框列表，每个元素为 (x, y, w, h)
+    """
+    # 转换到HSV色彩空间并过滤低饱和度和色调值
+    hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+    mask = cv2.inRange(hsv, hsv_lower_bound, hsv_upper_bound)
+    binary = cv2.bitwise_not(mask)
+    
+    # 查找连通区域
+    contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
+    # 过滤小面积区域并返回边界框
+    valid_contours = [cnt for cnt in contours if cv2.contourArea(cnt) >= min_area]
+    
+    avatar_boxes = []
+    for cnt in valid_contours:
+        x, y, w, h = cv2.boundingRect(cnt)
+        avatar_boxes.append((x, y, w, h))
+    
+    return avatar_boxes
+
+
+def find_character_avatar_center_with_offset(img: MatLike, area_offset: Tuple[int, int] = (0, 0),
+                                           click_offset: Tuple[int, int] = (0, 80),
+                                           min_area: int = 800,
+                                           hsv_lower_bound: Tuple[int, int, int] = (0, 0, 0),
+                                           hsv_upper_bound: Tuple[int, int, int] = (10, 10, 255)) -> Optional[Tuple[int, int]]:
+    """
+    查找第一个角色头像并返回带偏移的点击位置
+    
+    :param img: 输入图像 (RGB格式)
+    :param area_offset: 区域偏移量 (x, y)，用于将相对坐标转换为绝对坐标
+    :param click_offset: 点击偏移量 (x, y)，相对于头像中心的偏移
+    :param min_area: 最小有效区域面积
+    :param hsv_lower_bound: HSV下界
+    :param hsv_upper_bound: HSV上界
+    :return: 点击位置 (x, y) 或 None
+    """
+    avatar_boxes = find_character_avatars(img, min_area, hsv_lower_bound, hsv_upper_bound)
+    
+    if not avatar_boxes:
+        return None
+    
+    # 选择第一个有效轮廓
+    x, y, w, h = avatar_boxes[0]
+    
+    # 计算点击位置：轮廓中心加上偏移量
+    center_x = x + w // 2 + area_offset[0] + click_offset[0]
+    center_y = y + h // 2 + area_offset[1] + click_offset[1]
+    
+    return (center_x, center_y)
