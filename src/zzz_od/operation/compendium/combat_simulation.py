@@ -29,8 +29,11 @@ from zzz_od.screen_area.screen_normal_world import ScreenNormalWorldEnum
 class CombatSimulation(ZOperation):
 
     STATUS_NEED_TYPE: ClassVar[str] = '需选择类型'
+    STATUS_CHOOSE_SUCCESS: ClassVar[str] = '选择成功'
+    STATUS_CHOOSE_FAIL: ClassVar[str] = '选择失败'
     STATUS_CHARGE_NOT_ENOUGH: ClassVar[str] = '电量不足'
     STATUS_CHARGE_ENOUGH: ClassVar[str] = '电量充足'
+    STATUS_FIGHT_TIMEOUT: ClassVar[str] = '战斗超时'
 
     def __init__(self, ctx: ZContext, plan: ChargePlanItem,
                  can_run_times: Optional[int] = None,
@@ -138,6 +141,9 @@ class CombatSimulation(ZOperation):
                 x, y, w, h = cv2.boundingRect(contours[0])
                 target_point = area.left_top + Point(x + w//2, y + h//2 + 80)
 
+            if target_point is None:
+                return self.round_success(status=CombatSimulation.STATUS_CHOOSE_FAIL)
+
         else:
             area = self.ctx.screen_loader.get_area('实战模拟室', '副本名称列表')
             part = cv2_utils.crop_image_only(screen, area.rect)
@@ -161,9 +167,9 @@ class CombatSimulation(ZOperation):
             return self.round_retry(status='找不到 %s' % self.plan.mission_name, wait=1)
 
         click = self.ctx.controller.click(target_point)
-        return self.round_success(wait=1)
+        return self.round_success(status=CombatSimulation.STATUS_CHOOSE_SUCCESS, wait=1)
 
-    @node_from(from_name='选择副本')
+    @node_from(from_name='选择副本', status=STATUS_CHOOSE_SUCCESS)
     @operation_node(name='进入选择数量')
     def click_card(self) -> OperationRoundResult:
         if self.plan.card_num == CardNumEnum.DEFAULT.value.value:
@@ -339,7 +345,9 @@ class CombatSimulation(ZOperation):
     def battle_timeout(self) -> OperationRoundResult:
         auto_battle_utils.stop_running(self.auto_op)
         op = ExitInBattle(self.ctx, '画面-通用', '左上角-街区')
-        return self.round_by_op_result(op.execute())
+        result = self.round_by_op_result(op.execute())
+        if result.is_success:
+            return self.round_fail(status=CombatSimulation.STATUS_FIGHT_TIMEOUT)
 
     def handle_pause(self):
         if self.auto_op is not None:

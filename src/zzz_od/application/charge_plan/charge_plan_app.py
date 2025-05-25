@@ -28,14 +28,24 @@ class ChargePlanApp(ZApplication):
             ctx=ctx, app_id='charge_plan',
             op_name=gt('体力刷本', 'ui'),
             run_record=ctx.charge_plan_run_record,
+            need_notify=True,
         )
         self.charge_power: int = 0  # 剩余电量
         self.need_to_check_power_in_mission: bool = False
         self.next_can_run_times: int = 0
+        self.last_tried_plan: Optional[ChargePlanItem] = None
         self.next_plan: Optional[ChargePlanItem] = None
         self.ctx.charge_plan_config.reset_plans()
 
-    @operation_node(name='打开菜单', is_start_node=True)
+    @operation_node(name='开始体力计划', is_start_node=True)
+    def start_charge_plan(self) -> OperationRoundResult:
+        self.last_tried_plan = None
+        return self.round_success()
+
+    @node_from(from_name='挑战成功')
+    @node_from(from_name='挑战失败')
+    @node_from(from_name='开始体力计划')
+    @operation_node(name='打开菜单')
     def goto_menu(self) -> OperationRoundResult:
         op = GotoMenu(self.ctx)
         return self.round_by_op_result(op.execute())
@@ -56,19 +66,6 @@ class ChargePlanApp(ZApplication):
         return self.round_success(f'剩余电量 {digit}')
 
     @node_from(from_name='识别电量')
-    @node_from(from_name='传送', success=False)
-    @node_from(from_name='实战模拟室', success=True)
-    @node_from(from_name='定期清剿', success=True)
-    @node_from(from_name='专业挑战室', success=True)
-    @node_from(from_name='恶名狩猎', success=True)
-    @node_from(from_name='实战模拟室', status=CombatSimulation.STATUS_CHARGE_NOT_ENOUGH)
-    @node_from(from_name='定期清剿', status=RoutineCleanup.STATUS_CHARGE_NOT_ENOUGH)
-    @node_from(from_name='专业挑战室', status=ExpertChallenge.STATUS_CHARGE_NOT_ENOUGH)
-    @node_from(from_name='恶名狩猎', status=NotoriousHunt.STATUS_CHARGE_NOT_ENOUGH)
-    @node_from(from_name='实战模拟室', success=False)
-    @node_from(from_name='定期清剿', success=False)
-    @node_from(from_name='专业挑战室', success=False)
-    @node_from(from_name='恶名狩猎', success=False)
     @operation_node(name='查找并选择下一个可执行任务')
     def find_and_select_next_plan(self) -> OperationRoundResult:
         """
@@ -77,36 +74,36 @@ class ChargePlanApp(ZApplication):
         如果找不到，返回计划完成状态。
         """
         # 检查是否所有计划都已完成
-        if self.ctx.charge_plan_config.loop and self.ctx.charge_plan_config.all_plan_finished():
+        if self.ctx.charge_plan_config.all_plan_finished():
             # 如果开启了循环模式且所有计划已完成，重置计划并继续
-            self.ctx.charge_plan_config.reset_plans()
-        elif not self.ctx.charge_plan_config.loop and self.ctx.charge_plan_config.all_plan_finished():
-            return self.round_success(ChargePlanApp.STATUS_ROUND_FINISHED)
-
-        # 获取上一个尝试的计划（如果有）
-        last_tried_plan = self.next_plan
+            if self.ctx.charge_plan_config.loop:
+                self.ctx.charge_plan_config.reset_plans()
+            else:
+                return self.round_success(ChargePlanApp.STATUS_ROUND_FINISHED)
 
         # 使用循环而不是递归来查找下一个可执行的任务
         while True:
             # 查找下一个未完成的计划
-            next_plan = self.ctx.charge_plan_config.get_next_plan(last_tried_plan)
-            if next_plan is None:
-                return self.round_success(ChargePlanApp.STATUS_ROUND_FINISHED)
+            candidate_plan = self.ctx.charge_plan_config.get_next_plan(self.last_tried_plan)
+            if candidate_plan is None:
+                return self.round_fail(ChargePlanApp.STATUS_NO_PLAN)
 
             # 计算所需电量
             need_charge_power = 1000  # 默认值，确保在未知情况下会检查
             self.need_to_check_power_in_mission = False
 
-            if next_plan.category_name == '实战模拟室' and next_plan.card_num == CardNumEnum.DEFAULT.value.value:
+            if candidate_plan.category_name == '实战模拟室' and candidate_plan.card_num == CardNumEnum.DEFAULT.value.value:
                 self.need_to_check_power_in_mission = True
-            elif next_plan.category_name == '定期清剿':  # 进去尝试使用家政券
+            elif candidate_plan.category_name == '定期清剿' and self.ctx.charge_plan_config.use_coupon:
                 self.need_to_check_power_in_mission = True
             else:
-                if next_plan.category_name == '实战模拟室':
-                    need_charge_power = int(next_plan.card_num) * 20
-                elif next_plan.category_name == '专业挑战室':
+                if candidate_plan.category_name == '实战模拟室':
+                    need_charge_power = int(candidate_plan.card_num) * 20
+                elif candidate_plan.category_name == '定期清剿':
+                    need_charge_power = 60
+                elif candidate_plan.category_name == '专业挑战室':
                     need_charge_power = 40
-                elif next_plan.category_name == '恶名狩猎':
+                elif candidate_plan.category_name == '恶名狩猎':
                     need_charge_power = 60
                 else:
                     self.need_to_check_power_in_mission = True
@@ -117,19 +114,19 @@ class ChargePlanApp(ZApplication):
                 if not self.ctx.charge_plan_config.skip_plan:
                     return self.round_success(ChargePlanApp.STATUS_ROUND_FINISHED)
                 # 否则继续查找下一个任务
-                last_tried_plan = next_plan
+                self.last_tried_plan = candidate_plan
                 continue
 
             # 计算可运行次数
             self.next_can_run_times = 0
             if not self.need_to_check_power_in_mission:
                 self.next_can_run_times = self.charge_power // need_charge_power
-                max_need_run_times = next_plan.plan_times - next_plan.run_times
+                max_need_run_times = candidate_plan.plan_times - candidate_plan.run_times
                 if self.next_can_run_times > max_need_run_times:
                     self.next_can_run_times = max_need_run_times
 
             # 设置下一个计划并返回成功
-            self.next_plan = next_plan
+            self.next_plan = candidate_plan
             return self.round_success()
 
     @node_from(from_name='查找并选择下一个可执行任务')
@@ -180,7 +177,31 @@ class ChargePlanApp(ZApplication):
                            can_run_times=None if self.need_to_check_power_in_mission else self.next_can_run_times)
         return self.round_by_op_result(op.execute())
 
+    @node_from(from_name='实战模拟室', success=True)
+    @node_from(from_name='定期清剿', success=True)
+    @node_from(from_name='专业挑战室', success=True)
+    @node_from(from_name='恶名狩猎', success=True)
+    @node_from(from_name='传送', status='选择失败')
+    @operation_node(name='挑战成功')
+    def challenge_success(self) -> OperationRoundResult:
+        if self.ctx.charge_plan_config.skip_plan or self.next_plan.mission_type_name == '代理人方案培养':
+            self.last_tried_plan = self.next_plan
+            return self.round_success()
+        else:
+            self.last_tried_plan = None
+            return self.round_success(status=ChargePlanApp.STATUS_ROUND_FINISHED)
+
+    @node_from(from_name='实战模拟室', success=False)
+    @node_from(from_name='定期清剿', success=False)
+    @node_from(from_name='专业挑战室', success=False)
+    @node_from(from_name='恶名狩猎', success=False)
+    @operation_node(name='挑战失败')
+    def challenge_failed(self) -> OperationRoundResult:
+        return self.round_success()
+
+    @node_from(from_name='挑战成功', status=STATUS_ROUND_FINISHED)
     @node_from(from_name='查找并选择下一个可执行任务', status=STATUS_ROUND_FINISHED)
+    @node_from(from_name='查找并选择下一个可执行任务', success=False)
     @operation_node(name='返回大世界')
     def back_to_world(self) -> OperationRoundResult:
         self.notify_screenshot = self.save_screenshot_bytes()  # 结束后通知的截图

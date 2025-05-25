@@ -1,6 +1,6 @@
 import cv2
 import difflib
-from typing import Optional, List
+from typing import Optional, ClassVar, List
 
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.geometry.rectangle import Rect
@@ -19,6 +19,8 @@ class CompendiumChooseMissionType(ZOperation):
     """
     快捷手册中选择特定副本类型的操作类
     """
+    STATUS_CHOOSE_SUCCESS: ClassVar[str] = '选择成功'
+    STATUS_CHOOSE_FAIL: ClassVar[str] = '选择失败'
 
     def __init__(self, ctx: ZContext, mission_type: CompendiumMissionType):
         """
@@ -145,6 +147,8 @@ class CompendiumChooseMissionType(ZOperation):
         """
         self.scroll_count += 1
         if self.scroll_count > 5:
+            if self.mission_type.mission_type_name == "代理人方案培养":
+                return self.round_success(status=CompendiumChooseMissionType.STATUS_CHOOSE_FAIL)
             return self.round_fail('滑动超过5次仍未找到目标副本')
 
         if before_target_cnt > 0:
@@ -193,9 +197,9 @@ class CompendiumChooseMissionType(ZOperation):
             return self.round_retry(status='找不到 %s' % '前往', wait=1)
 
         click = self.ctx.controller.click(target_go_point)
-        return self.round_success(wait=1)
+        return self.round_success(status=CompendiumChooseMissionType.STATUS_CHOOSE_SUCCESS, wait=1)
 
-    @node_from(from_name='选择副本')
+    @node_from(from_name='选择副本', status=STATUS_CHOOSE_SUCCESS)
     @operation_node(name='确认')
     def confirm(self) -> OperationRoundResult:
         screen = self.screenshot()

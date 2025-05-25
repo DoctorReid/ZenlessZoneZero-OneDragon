@@ -29,6 +29,7 @@ class NotoriousHunt(ZOperation):
     STATUS_WITH_LEFT_TIMES: ClassVar[str] = '有剩余次数'
     STATUS_CHARGE_NOT_ENOUGH: ClassVar[str] = '电量不足'
     STATUS_CHARGE_ENOUGH: ClassVar[str] = '电量充足'
+    STATUS_FIGHT_TIMEOUT: ClassVar[str] = '战斗超时'
 
     def __init__(self, ctx: ZContext, plan: ChargePlanItem,
                  use_charge_power: bool = False,
@@ -512,9 +513,11 @@ class NotoriousHunt(ZOperation):
     @node_from(from_name='退出战斗')
     @operation_node(name='点击挑战结果退出')
     def click_result_exit(self) -> OperationRoundResult:
-        return self.round_by_find_and_click_area(screen_name='战斗-挑战结果-失败', area_name='按钮-退出',
-                                                 until_not_find_all=[('战斗-挑战结果-失败', '按钮-退出')],
-                                                 success_wait=1, retry_wait=1)
+        result = self.round_by_find_and_click_area(screen_name='战斗-挑战结果-失败', area_name='按钮-退出',
+                                                   until_not_find_all=[('战斗-挑战结果-失败', '按钮-退出')],
+                                                   success_wait=1, retry_wait=1)
+        if result.is_success:
+            return self.round_fail(status=NotoriousHunt.STATUS_FIGHT_TIMEOUT)
 
     def _on_pause(self, e=None):
         ZOperation._on_pause(self, e)
