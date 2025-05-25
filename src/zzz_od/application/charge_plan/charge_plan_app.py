@@ -16,6 +16,7 @@ from zzz_od.operation.compendium.routine_cleanup import RoutineCleanup
 from zzz_od.operation.compendium.tp_by_compendium import TransportByCompendium
 from zzz_od.operation.goto.goto_menu import GotoMenu
 
+
 class ChargePlanApp(ZApplication):
 
     STATUS_NO_PLAN: ClassVar[str] = '未配置体力计划'
@@ -55,15 +56,12 @@ class ChargePlanApp(ZApplication):
         return self.round_success(f'剩余电量 {digit}')
 
     @node_from(from_name='识别电量')
+    @node_from(from_name='任务内检测体力不足', success=True)
     @node_from(from_name='传送', success=False)
     @node_from(from_name='实战模拟室', success=True)
     @node_from(from_name='定期清剿', success=True)
     @node_from(from_name='专业挑战室', success=True)
     @node_from(from_name='恶名狩猎', success=True)
-    @node_from(from_name='实战模拟室', status=CombatSimulation.STATUS_CHARGE_NOT_ENOUGH)
-    @node_from(from_name='定期清剿', status=RoutineCleanup.STATUS_CHARGE_NOT_ENOUGH)
-    @node_from(from_name='专业挑战室', status=ExpertChallenge.STATUS_CHARGE_NOT_ENOUGH)
-    @node_from(from_name='恶名狩猎', status=NotoriousHunt.STATUS_CHARGE_NOT_ENOUGH)
     @node_from(from_name='实战模拟室', success=False)
     @node_from(from_name='定期清剿', success=False)
     @node_from(from_name='专业挑战室', success=False)
@@ -75,6 +73,7 @@ class ChargePlanApp(ZApplication):
         如果找到，更新 self.next_plan 并返回成功状态。
         如果找不到，返回计划完成状态。
         """
+
         # 检查是否所有计划都已完成
         if self.ctx.charge_plan_config.loop and self.ctx.charge_plan_config.all_plan_finished():
             # 如果开启了循环模式且所有计划已完成，重置计划并继续
@@ -88,7 +87,8 @@ class ChargePlanApp(ZApplication):
         # 使用循环而不是递归来查找下一个可执行的任务
         while True:
             # 查找下一个未完成的计划
-            next_plan = self.ctx.charge_plan_config.get_next_plan(last_tried_plan)
+            next_plan = self.ctx.charge_plan_config.get_next_plan(
+                last_tried_plan)
             if next_plan is None:
                 return self.round_success(ChargePlanApp.STATUS_ROUND_FINISHED)
 
@@ -108,7 +108,7 @@ class ChargePlanApp(ZApplication):
                 need_charge_power = 60
             elif next_plan.category_name == '定期清剿':
                 need_charge_power = 60
-            
+
             # 检查电量是否足够
             if not self.need_to_check_power_in_mission and self.charge_power < need_charge_power:
                 # 如果跳过计划为否，直接返回大世界
@@ -178,7 +178,18 @@ class ChargePlanApp(ZApplication):
                            can_run_times=None if self.need_to_check_power_in_mission else self.next_can_run_times)
         return self.round_by_op_result(op.execute())
 
+    @node_from(from_name='实战模拟室', status=CombatSimulation.STATUS_CHARGE_NOT_ENOUGH)
+    @node_from(from_name='定期清剿', status=RoutineCleanup.STATUS_CHARGE_NOT_ENOUGH)
+    @node_from(from_name='专业挑战室', status=ExpertChallenge.STATUS_CHARGE_NOT_ENOUGH)
+    @node_from(from_name='恶名狩猎', status=NotoriousHunt.STATUS_CHARGE_NOT_ENOUGH)
+    @operation_node(name='任务内检测体力不足')
+    def check_charge_not_enough_in_mission(self) -> OperationRoundResult:
+        if not self.ctx.charge_plan_config.skip_plan:
+            return self.round_success(ChargePlanApp.STATUS_ROUND_FINISHED)
+        return self.round_success('继续检测下一个计划')
+
     @node_from(from_name='查找并选择下一个可执行任务', status=STATUS_ROUND_FINISHED)
+    @node_from(from_name='任务内检测体力不足', status=STATUS_ROUND_FINISHED)
     @operation_node(name='返回大世界')
     def back_to_world(self) -> OperationRoundResult:
         self.notify_screenshot = self.save_screenshot_bytes()  # 结束后通知的截图
