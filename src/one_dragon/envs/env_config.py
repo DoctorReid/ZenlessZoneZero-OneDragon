@@ -245,6 +245,22 @@ class EnvConfig(YamlConfig):
         self.update('git_branch', new_value)
 
     @property
+    def custom_git_branch(self) -> bool:
+        """
+        分支
+        :return:
+        """
+        return self.get('custom_git_branch', False)
+
+    @custom_git_branch.setter
+    def custom_git_branch(self, new_value: bool) -> None:
+        """
+        分支
+        :return:
+        """
+        self.update('custom_git_branch', new_value)
+
+    @property
     def gh_proxy_url(self) -> str:
         """
         免费代理的url
