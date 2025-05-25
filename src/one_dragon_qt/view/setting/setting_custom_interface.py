@@ -1,19 +1,17 @@
 import os
 import shutil
-import hashlib
 import ctypes
 from ctypes import wintypes
 
-from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QWidget, QFileDialog
-from qfluentwidgets import FluentIcon, SettingCardGroup, setTheme, Theme, PrimaryPushButton, PasswordLineEdit, Dialog
+from qfluentwidgets import FluentIcon, SettingCardGroup, setTheme, Theme, PrimaryPushButton, Dialog
 
 from one_dragon.base.config.custom_config import ThemeEnum
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon_qt.widgets.column import Column
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon_qt.widgets.setting_card.password_switch_setting_card import PasswordSwitchSettingCard
 from one_dragon.utils import os_utils
 from one_dragon.utils.i18_utils import gt
 
@@ -47,16 +45,19 @@ class SettingCustomInterface(VerticalScrollInterface):
         self.theme_opt.value_changed.connect(self._on_theme_changed)
         basic_group.addSettingCard(self.theme_opt)
 
-        self.banner_opt = SwitchSettingCard(icon=FluentIcon.PHOTO, title='自定义主页背景', content='设置后重启脚本生效')
-        self.banner_opt.value_changed.connect(self._on_banner_changed)
         self.banner_select_btn = PrimaryPushButton(FluentIcon.EDIT, '选择', self)
         self.banner_select_btn.clicked.connect(self._on_banner_select_clicked)
-        self.banner_opt.hBoxLayout.addWidget(self.banner_select_btn, 0, Qt.AlignmentFlag.AlignRight)
-        self.banner_password = PasswordLineEdit()
-        self.banner_password.setPlaceholderText('使用此功能需要密码哦~')
-        self.banner_password.setMinimumWidth(210)
-        self.banner_opt.hBoxLayout.insertWidget(4, self.banner_password, 0, Qt.AlignmentFlag.AlignRight)
-        self.banner_opt.hBoxLayout.addSpacing(16)
+        self.banner_opt = PasswordSwitchSettingCard(
+            icon=FluentIcon.PHOTO,
+            title='自定义主页背景',
+            content='设置后重启脚本生效',
+            extra_btn=self.banner_select_btn,
+            password_hint='使用此功能需要密码哦~',
+            password_hash='d7103a21d03b8b922c3af3d477a0adde1633053cde1a7574e8009293ca3b70f1',
+            dialog_title='嘻嘻~',
+            dialog_content='密码不对哦~',
+            dialog_button_text='再试试吧',
+        )
         basic_group.addSettingCard(self.banner_opt)
 
         return basic_group
@@ -78,25 +79,6 @@ class SettingCustomInterface(VerticalScrollInterface):
         :return:
         """
         setTheme(Theme[self.ctx.custom_config.theme.upper()],lazy=True)
-
-    def _on_banner_changed(self, value: bool) -> None:
-        if value:
-            correct_password_hash = 'd7103a21d03b8b922c3af3d477a0adde1633053cde1a7574e8009293ca3b70f1'
-            def _hash_password(password: str) -> str:
-                return hashlib.sha256(password.encode()).hexdigest()
-            if _hash_password(self.banner_password.text()) != correct_password_hash:
-                dialog = Dialog('嘻嘻~', '密码不对哦~', self)
-                dialog.setTitleBarVisible(False)
-                dialog.yesButton.setText("再试试吧")
-                dialog.cancelButton.hide()
-                dialog.exec()
-
-                self.banner_opt.setValue(False)
-                self.banner_select_btn.setDisabled(True)
-            else:
-                self.banner_select_btn.setEnabled(True)
-        else:
-            self.banner_select_btn.setDisabled(True)
 
     def _on_banner_select_clicked(self) -> None:
         """
