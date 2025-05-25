@@ -15,7 +15,6 @@ from zzz_od.operation.compendium.notorious_hunt import NotoriousHunt
 from zzz_od.operation.compendium.routine_cleanup import RoutineCleanup
 from zzz_od.operation.compendium.tp_by_compendium import TransportByCompendium
 from zzz_od.operation.goto.goto_menu import GotoMenu
-from one_dragon.utils.log_utils import log
 
 class ChargePlanApp(ZApplication):
 
@@ -111,10 +110,7 @@ class ChargePlanApp(ZApplication):
                 need_charge_power = 60
             
             # 检查电量是否足够
-            log.info(f'当前计划类型: {next_plan.category_name}')
-            log.info(f'电量检测: 当前电量{self.charge_power}, 需要电量{need_charge_power}, 跳过计划状态: {self.ctx.charge_plan_config.skip_plan}')
             if not self.need_to_check_power_in_mission and self.charge_power < need_charge_power:
-                log.info(f'电量不足: 当前电量{self.charge_power}, 需要电量{need_charge_power}, 跳过计划状态: {self.ctx.charge_plan_config.skip_plan}')
                 # 如果跳过计划为否，直接返回大世界
                 if not self.ctx.charge_plan_config.skip_plan:
                     return self.round_success(ChargePlanApp.STATUS_ROUND_FINISHED)
