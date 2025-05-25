@@ -72,8 +72,8 @@ class ChargePlanConfig(YamlConfig):
         for plan_item in self.data.get('plan_list', []):
             self.plan_list.append(ChargePlanItem(**plan_item))
         self.loop = self.get('loop', True)
-        self.use_coupon = self.get('use_coupon', False)
         self.skip_plan = self.get('skip_plan', False)
+        self.use_coupon = self.get('use_coupon', False)
 
     def save(self):
         plan_list = []
@@ -112,8 +112,8 @@ class ChargePlanConfig(YamlConfig):
 
         self.data = {
             'loop': self.loop,
-            'use_coupon': self.use_coupon,
             'skip_plan': self.skip_plan,
+            'use_coupon': self.use_coupon,
             'plan_list': plan_list,
             'history_list': new_history_list
         }
