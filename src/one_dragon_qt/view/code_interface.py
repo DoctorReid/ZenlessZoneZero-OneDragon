@@ -70,7 +70,6 @@ class CodeInterface(VerticalScrollInterface):
 
         self.custom_git_branch_lineedit = LineEdit()
         self.custom_git_branch_lineedit.setPlaceholderText('自定义分支')
-        self.custom_git_branch_lineedit.setFixedWidth(100)
         self.custom_git_branch_lineedit.textChanged.connect(self._on_custom_branch_changed)
         self.custom_git_branch_opt = PasswordSwitchSettingCard(
             icon=FluentIcon.EDIT,
@@ -138,6 +137,7 @@ class CodeInterface(VerticalScrollInterface):
         self.force_update_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('force_update'))
         self.git_branch_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('git_branch'))
         self.custom_git_branch_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('custom_git_branch'))
+        self.custom_git_branch_lineedit.setText(self.ctx.env_config.git_branch)
         self.start_fetch_total()
         self.git_card.check_and_update_display()
         self.code_card.check_and_update_display()

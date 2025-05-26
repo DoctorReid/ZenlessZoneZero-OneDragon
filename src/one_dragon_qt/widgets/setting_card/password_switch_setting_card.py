@@ -62,13 +62,13 @@ class PasswordSwitchSettingCard(SettingCardBase):
         self.dialog_button_text = dialog_button_text
 
         # 将按钮添加到布局
-        self.hBoxLayout.addWidget(self.btn, 0, Qt.AlignmentFlag.AlignRight)
-        self.hBoxLayout.addSpacing(16)
-        self.hBoxLayout.insertWidget(4, self.password, 0, Qt.AlignmentFlag.AlignRight)
         self.extra_btn = extra_btn
         if self.extra_btn is not None:
             self.hBoxLayout.addWidget(self.extra_btn, 0, Qt.AlignmentFlag.AlignRight)
             self.hBoxLayout.addSpacing(16)
+        self.hBoxLayout.addWidget(self.btn, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addSpacing(16)
+        self.hBoxLayout.insertWidget(4, self.password, 0, Qt.AlignmentFlag.AlignRight)
     
     def _set_extra_btn_value(self, value: bool):
         if self.extra_btn is not None:
