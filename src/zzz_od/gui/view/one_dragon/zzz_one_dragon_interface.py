@@ -41,5 +41,5 @@ class ZOneDragonInterface(PivotNavigatorInterface):
 
     def on_interface_shown(self):
         super().on_interface_shown()
-        if self.ctx.home_start_button_pressed:
+        if self.ctx.signal.start_onedragon:
             self.stacked_widget.setCurrentIndex(0)

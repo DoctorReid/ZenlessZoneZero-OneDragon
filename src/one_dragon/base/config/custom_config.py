@@ -14,7 +14,6 @@ class CustomConfig(YamlConfig):
     def __init__(self):
         super().__init__(module_name='custom')
 
-
     @property
     def theme(self) -> str:
         """
@@ -32,28 +31,28 @@ class CustomConfig(YamlConfig):
         self.update('theme', new_value)
 
     @property
-    def banner(self) -> bool:
+    def custom_banner(self) -> bool:
         """
         自定义主页背景
         :return:
         """
-        return self.get('banner', False)
+        return self.get('custom_banner', False)
 
-    @banner.setter
-    def banner(self, new_value: bool) -> None:
+    @custom_banner.setter
+    def custom_banner(self, new_value: bool) -> None:
         """
         自定义主页背景
         :return:
         """
-        self.update('banner', new_value)
+        self.update('custom_banner', new_value)
 
     @property
-    def use_remote_banner(self) -> bool:
+    def remote_banner(self) -> bool:
         """
         是否启用远端主页背景
         """
-        return self.get('use_remote_banner', True)
+        return self.get('remote_banner', True)
 
-    @use_remote_banner.setter
-    def use_remote_banner(self, new_value: bool) -> None:
-        self.update('use_remote_banner', new_value)
+    @remote_banner.setter
+    def remote_banner(self, new_value: bool) -> None:
+        self.update('remote_banner', new_value)

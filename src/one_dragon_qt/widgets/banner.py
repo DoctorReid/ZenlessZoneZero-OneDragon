@@ -2,8 +2,7 @@ import os
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap, QPainter, QPainterPath, QImage
 from PySide6.QtWidgets import QWidget
-from one_dragon.utils.log_utils import log
-import datetime
+
 
 class Banner(QWidget):
     """展示带有圆角的固定大小横幅小部件"""
@@ -34,7 +33,6 @@ class Banner(QWidget):
         """
         if self.banner_image.isNull():
             return
-        log.info(f"[Banner] update_scaled_image called, widget size: {self.size()}")
         scaled_image = self.banner_image.scaled(
             self.size(),
             Qt.AspectRatioMode.KeepAspectRatioByExpanding,
@@ -82,7 +80,5 @@ class Banner(QWidget):
         :param image_path: 图片路径
         :return:
         """
-        log.info(f"[Banner] set_banner_image called at {datetime.datetime.now()} with path: {image_path}")
         self.banner_image = QImage(image_path)
-        log.info(f"[Banner] banner_image isNull: {self.banner_image.isNull()}")
         self.update_scaled_image()
