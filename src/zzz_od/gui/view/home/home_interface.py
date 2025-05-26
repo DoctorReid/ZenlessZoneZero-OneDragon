@@ -1,6 +1,5 @@
 import os
 import requests
-import tempfile
 from PySide6.QtCore import Qt, QThread, Signal, QSize, QUrl
 from PySide6.QtGui import (
     QFont,
@@ -159,12 +158,14 @@ class CheckVenvRunner(CheckRunnerBase):
         if last != self.ctx.git_service.get_requirement_time():
             self.need_update.emit(True)
 
-
 class CheckModelRunner(CheckRunnerBase):
     def run(self):
         self.need_update.emit(self.ctx.yolo_config.using_old_model())
 
-from PySide6.QtCore import QObject, Signal
+class CheckBannerRunner(CheckRunnerBase):
+    def run(self):
+        if self.ctx.signal.reload_banner:
+            self.need_update.emit(True)
 
 class BannerDownloader(QThread):
     banner_downloaded = Signal(str)
@@ -195,16 +196,13 @@ class BannerDownloader(QThread):
 class HomeInterface(VerticalScrollInterface):
     """主页界面"""
 
-    # 添加信号
-    banner_settings_changed = Signal()
-
     def __init__(self, ctx: ZContext, parent=None):
         self.ctx: ZContext = ctx
         self.main_window = parent
 
         # 主页背景优先级：自定义 > 远端 > index.png
-        use_custom_banner = self.ctx.custom_config.banner  # 自定义主页背景开关
-        use_remote_banner = self.ctx.custom_config.use_remote_banner  # 远端主页背景开关
+        use_custom_banner = self.ctx.custom_config.custom_banner
+        use_remote_banner = self.ctx.custom_config.remote_banner
         custom_banner_path = os.path.join(os_utils.get_path_under_work_dir('custom', 'assets', 'ui'), 'banner')
         remote_banner_path = os.path.join(os_utils.get_path_under_work_dir('assets', 'ui'), 'remote_banner.webp')
         index_banner_path = os.path.join(os_utils.get_path_under_work_dir('assets', 'ui'), 'index.png')
@@ -295,8 +293,6 @@ class HomeInterface(VerticalScrollInterface):
             nav_icon=FluentIcon.HOME,
         )
 
-        # 连接信号
-        self.banner_settings_changed.connect(self._on_banner_settings_changed)
         # 应用样式
         OdQtStyleSheet.GAME_BUTTON.apply(gameButton)
         OdQtStyleSheet.NOTICE_CARD.apply(noticeCard)
@@ -318,13 +314,8 @@ class HomeInterface(VerticalScrollInterface):
         self._check_venv_runner.need_update.connect(self._need_to_update_venv)
         self._check_model_runner = CheckModelRunner(self.ctx)
         self._check_model_runner.need_update.connect(self._need_to_update_model)
-
-    def _on_banner_settings_changed(self) -> None:
-        """
-        当横幅设置改变时触发
-        """
-        log.info("[HomeInterface] _on_banner_settings_changed called")
-        self.refresh_banner(show_notification=True)
+        self._check_banner_runner = CheckBannerRunner(self.ctx)
+        self._check_banner_runner.need_update.connect(self.reload_banner)
 
     def on_interface_shown(self) -> None:
         """界面显示时启动检查更新的线程"""
@@ -332,9 +323,7 @@ class HomeInterface(VerticalScrollInterface):
         self._check_code_runner.start()
         self._check_venv_runner.start()
         self._check_model_runner.start()
-        
-        # 检查并更新背景，但不显示提示
-        self.refresh_banner(show_notification=False)
+        self._check_banner_runner.start()
 
     def _need_to_update_code(self, with_new: bool):
         if not with_new:
@@ -364,7 +353,7 @@ class HomeInterface(VerticalScrollInterface):
             isClosable=True,
             position=InfoBarPosition.TOP_RIGHT,
             duration=duration,
-            parent=self.main_window,  # 修改这里
+            parent=self,
         ).setCustomBackgroundColor("white", "#202020")
 
     def _show_dialog_after_code_updated(self):
@@ -381,17 +370,16 @@ class HomeInterface(VerticalScrollInterface):
         """启动一条龙按钮点击事件处理"""
 
         # app.py中一条龙界面为第三个添加的
-        self.ctx.home_start_button_pressed = True
+        self.ctx.signal.start_onedragon = True
         one_dragon_interface = self.main_window.stackedWidget.widget(2)
         self.main_window.switchTo(one_dragon_interface)
 
-    def refresh_banner(self, show_notification: bool = False) -> None:
+    def reload_banner(self, show_notification: bool = False) -> None:
         """
-        刷新横幅显示
+        刷新主页背景显示
         :param show_notification: 是否显示提示
         :return:
         """
-        log.info(f"[HomeInterface] refresh_banner called. use_remote_banner={self.ctx.custom_config.use_remote_banner}, use_custom_banner={self.ctx.custom_config.banner}")
         # 获取背景图片路径
         custom_banner_path = os.path.join(
             os_utils.get_path_under_work_dir('custom', 'assets', 'ui'),
@@ -402,21 +390,18 @@ class HomeInterface(VerticalScrollInterface):
         index_banner_path = os.path.join(
             os_utils.get_path_under_work_dir('assets', 'ui'),
             'index.png')
-        log.info(f"[HomeInterface] custom_banner_path={custom_banner_path}, exists={os.path.exists(custom_banner_path)}")
-        log.info(f"[HomeInterface] remote_banner_path={remote_banner_path}, exists={os.path.exists(remote_banner_path)}")
-        log.info(f"[HomeInterface] index_banner_path={index_banner_path}, exists={os.path.exists(index_banner_path)}")
 
         # 根据设置选择背景图片
-        if self.ctx.custom_config.use_remote_banner and os.path.exists(remote_banner_path):
+        if self.ctx.custom_config.remote_banner and os.path.exists(remote_banner_path):
             banner_path = remote_banner_path
-        elif self.ctx.custom_config.banner and os.path.exists(custom_banner_path):
+        elif self.ctx.custom_config.custom_banner and os.path.exists(custom_banner_path):
             banner_path = custom_banner_path
         else:
             banner_path = index_banner_path
-        log.info(f"[HomeInterface] set banner_path={banner_path}")
 
         # 更新背景图片
         self._banner_widget.set_banner_image(banner_path)
+        self.ctx.signal.reload_banner = False
 
         if show_notification:
-            self._show_info_bar(title=gt("背景已更新", "ui"), content=gt("新的背景已成功应用", "ui"), duration=3000)
+            self._show_info_bar("背景已更新", "新的背景已成功应用", 3000)

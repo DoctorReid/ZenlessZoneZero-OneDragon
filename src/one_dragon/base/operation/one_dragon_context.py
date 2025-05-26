@@ -8,6 +8,7 @@ from one_dragon.base.config.game_account_config import GameAccountConfig
 from one_dragon.base.config.one_dragon_app_config import OneDragonAppConfig
 from one_dragon.base.config.one_dragon_config import OneDragonConfig
 from one_dragon.base.config.push_config import PushConfig
+from one_dragon.base.operation.context_lazy_signal import ContextLazySignal
 from one_dragon.base.controller.controller_base import ControllerBase
 from one_dragon.base.controller.pc_button.pc_button_listener import PcButtonListener
 from one_dragon.base.matcher.ocr.ocr_matcher import OcrMatcher
@@ -59,6 +60,7 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
 
         self.one_dragon_config: OneDragonConfig = OneDragonConfig()
         self.custom_config: CustomConfig = CustomConfig()
+        self.signal: ContextLazySignal = ContextLazySignal()
 
         if self.one_dragon_config.current_active_instance is None:
             self.one_dragon_config.create_new_instance(True)
@@ -76,8 +78,6 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
         self.mouse_controller = mouse.Controller()
         self.btn_listener = PcButtonListener(on_button_tap=self._on_key_press, listen_keyboard=True, listen_mouse=True)
         self.btn_listener.start()
-
-        self.home_start_button_pressed : bool = False
 
     def init_by_config(self) -> None:
         """
