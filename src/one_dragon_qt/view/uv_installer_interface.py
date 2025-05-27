@@ -9,13 +9,11 @@ from qfluentwidgets import (ProgressRing, PrimaryPushButton, FluentIcon, Setting
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon_qt.widgets.log_display_card import LogDisplayCard
 from one_dragon_qt.widgets.install_card.all_install_card import AllInstallCard
 from one_dragon_qt.widgets.install_card.code_install_card import CodeInstallCard
 from one_dragon_qt.widgets.install_card.git_install_card import GitInstallCard
 from one_dragon_qt.widgets.install_card.uv_install_card import UVInstallCard
 from one_dragon_qt.widgets.install_card.uv_python_install_card import UVPythonInstallCard
-from one_dragon_qt.widgets.install_card.uv_venv_install_card import UVVenvInstallCard
 from one_dragon.utils.log_utils import log
 
 
@@ -167,17 +165,28 @@ class InstallStepWidget(QWidget):
     step_completed = Signal(bool)
     step_skipped = Signal()
     
-    def __init__(self, title: str, description: str, install_card, parent=None):
+    def __init__(self, title: str, description: str, install_cards=None, parent=None):
         super().__init__(parent)
         self.title = title
         self.description = description
-        self.install_card = install_card
+
+        # 支持单个安装卡或安装卡列表
+        if install_cards is None:
+            self.install_cards = []
+        elif isinstance(install_cards, list):
+            self.install_cards = install_cards
+        else:
+            self.install_cards = [install_cards]
+            
         self.is_completed = False
         self.is_skipped = False
+        self.completed_cards = 0
         self.setup_ui()
         
-        if self.install_card:
-            self.install_card.finished.connect(self.on_install_finished)
+        # 连接所有安装卡的完成信号
+        for card in self.install_cards:
+            if card:
+                card.finished.connect(self.on_install_finished)
     
     def setup_ui(self):
         layout = QVBoxLayout(self)
@@ -199,9 +208,17 @@ class InstallStepWidget(QWidget):
         desc_label.setWordWrap(True)
         layout.addWidget(desc_label)
         
-        # 安装卡片
-        if self.install_card:
-            layout.addWidget(self.install_card)
+        # 安装卡片容器
+        if self.install_cards:
+            cards_widget = QWidget()
+            cards_layout = QVBoxLayout(cards_widget)
+            cards_layout.setContentsMargins(0, 0, 0, 0)
+            
+            for card in self.install_cards:
+                if card:
+                    cards_layout.addWidget(card)
+            
+            layout.addWidget(cards_widget)
         
         # 状态标签
         self.status_label = BodyLabel("")
@@ -209,32 +226,58 @@ class InstallStepWidget(QWidget):
         layout.addWidget(self.status_label)
     
     def check_status(self):
-        if self.install_card:
-            self.install_card.check_and_update_display()
-            self.update_status_from_card()
+        if self.install_cards:
+            for card in self.install_cards:
+                if card:
+                    card.check_and_update_display()
+            self.update_status_from_cards()
     
-    def update_status_from_card(self):
-        if not self.install_card:
+    def update_status_from_cards(self):
+        if not self.install_cards:
             return
             
         try:
-            icon, message = self.install_card.get_display_content()
-            if any(keyword in message for keyword in ["已安装", "已同步", "已配置"]):
+            all_completed = True
+            has_pending = False
+            
+            for card in self.install_cards:
+                if not card:
+                    continue
+                    
+                icon, message = card.get_display_content()
+                if any(keyword in message for keyword in ["已安装", "已同步", "已配置"]):
+                    continue
+                elif any(keyword in message for keyword in ["未安装", "未同步", "未配置", "需更新"]):
+                    all_completed = False
+                    has_pending = True
+                else:
+                    all_completed = False
+            
+            if all_completed:
                 self.is_completed = True
-                self.status_label.setText("✓ 已满足条件")
+                self.status_label.setText("✓ 已满足所有条件")
                 self.status_label.setStyleSheet("color: #00a86b; font-weight: bold;")
-            elif any(keyword in message for keyword in ["未安装", "未同步", "未配置", "需更新"]):
+            elif has_pending:
                 self.is_completed = False
                 self.status_label.setText("需要安装或配置")
+                self.status_label.setStyleSheet("color: #666;")
+            else:
+                self.is_completed = False
+                self.status_label.setText("状态检查中...")
                 self.status_label.setStyleSheet("color: #666;")
         except:
             pass
     
     def start_install(self):
-        if self.install_card and not self.is_completed and not self.is_skipped:
+        if self.install_cards and not self.is_completed and not self.is_skipped:
             self.status_label.setText("正在安装...")
             self.status_label.setStyleSheet("color: #0078d4;")
-            self.install_card.start_progress()
+            self.completed_cards = 0
+            
+            # 启动所有安装卡的安装进程
+            for card in self.install_cards:
+                if card:
+                    card.start_progress()
     
     def skip_step(self):
         self.is_skipped = True
@@ -243,24 +286,44 @@ class InstallStepWidget(QWidget):
         self.step_skipped.emit()
     
     def on_install_finished(self, success: bool):
-        self.is_completed = success
+        self.completed_cards += 1
         
-        if success:
-            self.status_label.setText("✓ 安装完成")
-            self.status_label.setStyleSheet("color: #00a86b; font-weight: bold;")
-        else:
-            self.status_label.setText("✗ 安装失败")
-            self.status_label.setStyleSheet("color: #d13438; font-weight: bold;")
-        
-        self.step_completed.emit(success)
+        # 检查是否所有安装卡都完成了
+        total_cards = len([card for card in self.install_cards if card])
+        if self.completed_cards >= total_cards:
+            # 检查是否所有安装都成功
+            all_success = True
+            for card in self.install_cards:
+                if card:
+                    try:
+                        icon, message = card.get_display_content()
+                        if not any(keyword in message for keyword in ["已安装", "已同步", "已配置"]):
+                            all_success = False
+                            break
+                    except:
+                        all_success = False
+                        break
+            
+            self.is_completed = all_success
+            
+            if all_success:
+                self.status_label.setText("✓ 安装完成")
+                self.status_label.setStyleSheet("color: #00a86b; font-weight: bold;")
+            else:
+                self.status_label.setText("✗ 安装失败")
+                self.status_label.setStyleSheet("color: #d13438; font-weight: bold;")
+            
+            self.step_completed.emit(all_success)
 
 
 class UVInstallerInterface(VerticalScrollInterface):
-    def __init__(self, ctx: OneDragonEnvContext, parent=None):
+
+    def __init__(self, ctx: OneDragonEnvContext, extra_install_cards: list = [], parent=None):
         VerticalScrollInterface.__init__(self, object_name='uv_install_interface',
                                          parent=parent, content_widget=None,
                                          nav_text_cn='一键安装', nav_icon=FluentIcon.DOWNLOAD)
         self.ctx: OneDragonEnvContext = ctx
+        self.extra_install_cards = extra_install_cards
         self._progress_value = 0
         self._progress_message = ''
         self._installing = False
@@ -361,9 +424,13 @@ class UVInstallerInterface(VerticalScrollInterface):
         self.code_opt = CodeInstallCard(self.ctx)
         self.uv_opt = UVInstallCard(self.ctx)
         self.python_opt = UVPythonInstallCard(self.ctx)
-        self.venv_opt = UVVenvInstallCard(self.ctx)
 
-        self.all_opt = AllInstallCard(self.ctx, [self.git_opt, self.code_opt, self.uv_opt, self.python_opt, self.venv_opt])
+        # 合并所有安装卡到统一列表
+        self.all_install_cards = [self.git_opt, self.code_opt, self.uv_opt, self.python_opt]
+        if self.extra_install_cards:
+            self.all_install_cards.extend(self.extra_install_cards)
+
+        self.all_opt = AllInstallCard(self.ctx, self.all_install_cards)
 
         # 事件绑定
         self.install_btn.clicked.connect(self.on_install_clicked)
@@ -394,10 +461,10 @@ class UVInstallerInterface(VerticalScrollInterface):
         # 返回按钮
         self.back_btn = HyperlinkButton('', '返回')
         self.back_btn.clicked.connect(self.show_quick)
-        main_layout.addWidget(self.back_btn, alignment=Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
-
-        # 步骤指示器
-        step_names = ["Git环境", "代码同步", "UV工具", "Python环境", "依赖安装"]
+        main_layout.addWidget(self.back_btn, alignment=Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)        # 步骤指示器
+        step_names = ["Git环境", "代码同步", "环境配置"]
+        if self.extra_install_cards:
+            step_names.append("扩展安装")
         self.step_indicator = StepIndicator(step_names)
         self.step_indicator.step_clicked.connect(self.on_step_indicator_clicked)
         main_layout.addWidget(self.step_indicator)
@@ -406,30 +473,29 @@ class UVInstallerInterface(VerticalScrollInterface):
         self.install_steps = [
             InstallStepWidget(
                 "Git环境配置",
-                "Git是代码版本管理工具，用于下载和更新项目代码。\n如果您已安装Git，系统会自动检测；否则将为您安装。",
-                self.git_opt
+                "Git是代码版本管理工具，用于下载和更新项目代码。",
+                [self.git_opt]
             ),
             InstallStepWidget(
                 "代码同步",
                 "从远程仓库同步最新的项目代码。\n确保您使用的是最新版本的功能和修复。",
-                self.code_opt
+                [self.code_opt]
             ),
             InstallStepWidget(
-                "UV工具安装",
-                "UV是现代化的Python包管理工具，比pip更快更可靠。\n用于管理Python环境和依赖包。",
-                self.uv_opt
-            ),
-            InstallStepWidget(
-                "Python环境配置",
-                "配置Python虚拟环境，确保项目运行在独立的环境中。\n避免与系统Python环境冲突。",
-                self.python_opt
-            ),
-            InstallStepWidget(
-                "依赖安装",
-                "安装项目运行所需的所有Python依赖包。\n这可能需要几分钟时间，请耐心等待。",
-                self.venv_opt
+                "环境安装配置",
+                "安装UV工具并配置Python虚拟环境。\n这些工具用于管理项目依赖和运行环境。",
+                [self.uv_opt, self.python_opt]
             )
         ]
+
+        if self.extra_install_cards is not None:
+            self.install_steps.append(
+                InstallStepWidget(
+                    "扩展安装",
+                    "安装额外的依赖包或工具，用于某些特定项目功能。",
+                    self.extra_install_cards
+                )
+            )
 
         # 连接步骤完成信号
         for step in self.install_steps:
@@ -487,7 +553,7 @@ class UVInstallerInterface(VerticalScrollInterface):
         main_layout.addWidget(self.progress_bar_2)
 
         # 连接进度信号
-        for card in [self.git_opt, self.code_opt, self.uv_opt, self.python_opt, self.venv_opt]:
+        for card in self.all_install_cards:
             card.progress_changed.connect(self.update_progress)
 
         return content_widget
@@ -679,18 +745,13 @@ class UVInstallerInterface(VerticalScrollInterface):
             self.progress_bar_2.setVisible(False)
             self.progress_bar_2.stop()
 
-    def _on_code_updated(self, success: bool) -> None:
-        """代码更新后"""
-        if success:
-            self.venv_opt.check_and_update_display()
-
     def on_interface_shown(self) -> None:
         super().on_interface_shown()
-        self.git_opt.check_and_update_display()
-        self.code_opt.check_and_update_display()
-        self.uv_opt.check_and_update_display()
-        self.python_opt.check_and_update_display()
-        self.venv_opt.check_and_update_display()
+        
+        # 更新所有安装卡的状态
+        for card in self.all_install_cards:
+            if card:
+                card.check_and_update_display()
         
         # 如果是高级模式，检查所有步骤的状态
         if self.is_advanced_mode:
