@@ -3,7 +3,7 @@ import os
 from PySide6.QtCore import Qt, QPropertyAnimation
 from PySide6.QtGui import QPixmap, QCursor
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSizePolicy
-from qfluentwidgets import ProgressRing, PrimaryPushButton, FluentIcon, SettingCardGroup, PushButton
+from qfluentwidgets import ProgressRing, PrimaryPushButton, FluentIcon, SettingCardGroup, PushButton, HyperlinkButton
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon_qt.widgets.log_display_card import LogDisplayCard
@@ -17,9 +17,9 @@ from one_dragon.utils.log_utils import log
 
 class UVInstallerInterface(VerticalScrollInterface):
     def __init__(self, ctx: OneDragonEnvContext, parent=None):
-        super().__init__(object_name='uv_install_interface',
-                         parent=parent, content_widget=None,
-                         nav_text_cn='一键安装', nav_icon=FluentIcon.DOWNLOAD)
+        VerticalScrollInterface.__init__(self, object_name='uv_install_interface',
+                                         parent=parent, content_widget=None,
+                                         nav_text_cn='一键安装', nav_icon=FluentIcon.DOWNLOAD)
         self.ctx: OneDragonEnvContext = ctx
         self._progress_value = 0
         self._progress_message = ''
@@ -43,7 +43,7 @@ class UVInstallerInterface(VerticalScrollInterface):
         logo_vlayout.addStretch(1)
         self.card_logo_label = QLabel()
         # WARNING! logo路径是以当前脚本运行路径定位的
-        logo_path = os.path.abspath('../assets/ui/installer_logo.ico')
+        logo_path = os.path.abspath('assets/ui/installer_logo.ico')
         log.info(f'绝对路径: {logo_path}, 存在: {os.path.exists(logo_path)}')
         log.info(f'logo绝对路径: {logo_path}, 存在: {os.path.exists(logo_path)}')
         card_logo_pixmap = QPixmap(logo_path)
@@ -87,17 +87,18 @@ class UVInstallerInterface(VerticalScrollInterface):
         main_vlayout.addSpacing(40)
 
         # 高级安装
-        self.advanced_label = QLabel('<a href="#" style="color:#0078D4;text-decoration:none;">↓ 高级安装</a>')
-        self.advanced_label.setOpenExternalLinks(False)
-        self.advanced_label.setCursor(QCursor(Qt.PointingHandCursor))
-        self.advanced_label.setStyleSheet('font-size:14px; margin:8px;')
-        self.advanced_label.linkActivated.connect(self.show_advanced)
-        main_vlayout.addWidget(self.advanced_label, alignment=Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom)
+        self.advanced_btn = HyperlinkButton('', '自定义安装')
+        # self.advanced_btn = PushButton('自定义安装')
+        # self.advanced_btn.setFixedWidth(120)
+        # self.advanced_btn.setFixedHeight(32)
+        self.advanced_btn.clicked.connect(self.show_advanced)
+        main_vlayout.addWidget(self.advanced_btn, alignment=Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom)
 
         # 返回按钮（高级安装界面时显示）
-        self.back_btn = PushButton('返回一键安装')
-        self.back_btn.setFixedWidth(160)
-        self.back_btn.setFixedHeight(32)
+        self.back_btn = HyperlinkButton('', '返回')
+        # self.back_btn = PushButton('返回')
+        # self.back_btn.setFixedWidth(120)
+        # self.back_btn.setFixedHeight(32)
         self.back_btn.setVisible(False)
         self.back_btn.clicked.connect(self.show_quick)
         main_vlayout.addWidget(self.back_btn, alignment=Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom)
@@ -123,7 +124,7 @@ class UVInstallerInterface(VerticalScrollInterface):
 
         self.update_group = SettingCardGroup('')
         self.update_group.titleLabel.setVisible(False)
-        self.update_group.addSettingCard(self.all_opt)
+        # self.update_group.addSettingCard(self.all_opt)
         self.update_group.addSettingCard(self.git_opt)
         self.update_group.addSettingCard(self.code_opt)
         self.update_group.addSettingCard(self.uv_opt)
@@ -173,7 +174,7 @@ class UVInstallerInterface(VerticalScrollInterface):
         self.update_group.setVisible(True)
         self.log_card.setVisible(True)
         self.back_btn.setVisible(True)
-        self.advanced_label.setVisible(False)
+        self.advanced_btn.setVisible(False)
 
     def show_quick(self):
         self.card_logo_label.setVisible(True)
@@ -183,7 +184,7 @@ class UVInstallerInterface(VerticalScrollInterface):
         self.update_group.setVisible(False)
         self.log_card.setVisible(False)
         self.back_btn.setVisible(False)
-        self.advanced_label.setVisible(True)
+        self.advanced_btn.setVisible(True)
         if self._installing:
             self.progress_ring.setValue(self._progress_value)
             self.progress_label.setText(self._progress_message)
