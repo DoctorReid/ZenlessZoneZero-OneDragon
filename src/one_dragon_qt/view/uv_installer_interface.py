@@ -9,7 +9,6 @@ from qfluentwidgets import (ProgressRing, PrimaryPushButton, FluentIcon, Setting
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon.utils import app_utils
-from one_dragon.utils.log_utils import log
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon_qt.widgets.install_card.all_install_card import AllInstallCard
 from one_dragon_qt.widgets.install_card.code_install_card import CodeInstallCard
@@ -380,13 +379,7 @@ class UVInstallerInterface(VerticalScrollInterface):
         logo_vlayout.setSpacing(0)
         logo_vlayout.addStretch(1)
         self.card_logo_label = QLabel()
-        logo_path = os.path.abspath('assets/ui/installer_logo.ico')
-        log.info(f'绝对路径: {logo_path}, 存在: {os.path.exists(logo_path)}')
-        card_logo_pixmap = QPixmap(logo_path)
-        if card_logo_pixmap.isNull():
-            log.error(f'Logo图片加载失败: {logo_path}')
-        else:
-            log.info(f'Logo图片加载成功: {logo_path}, size={card_logo_pixmap.size()}')
+        card_logo_pixmap = QPixmap('assets/ui/installer_logo.ico')
         self.card_logo_label.setPixmap(card_logo_pixmap.scaled(160, 160, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
         self.card_logo_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         logo_vlayout.addWidget(self.card_logo_label, alignment=Qt.AlignmentFlag.AlignHCenter)
