@@ -23,9 +23,10 @@ class PythonService:
 
     def install_default_uv(self, progress_callback: Optional[Callable[[float, str], None]]) -> Tuple[bool, str]:
         if self.get_uv_version() is not None:
-            msg = '已经安装了uv'
+            msg = '已经安装了 UV'
             log.info(msg)
             return True, msg
+        log.info('开始安装 UV')
         for _ in range(2):
             zip_file_name = 'uv-x86_64-pc-windows-msvc.zip'
             zip_file_path = os.path.join(DEFAULT_ENV_PATH, zip_file_name)
@@ -45,6 +46,7 @@ class PythonService:
             success = file_utils.unzip_file(zip_file_path, DEFAULT_UV_DIR_PATH)
 
             msg = '解压成功' if success else '解压失败 准备重试'
+            log.info(msg)
             if progress_callback is not None:
                 progress_callback(1 if success else 0, msg)
 
@@ -103,24 +105,27 @@ class PythonService:
         """
         if not self.env_config.uv_path:
             if progress_callback is not None:
-                progress_callback(0, '未找到uv路径')
+                progress_callback(0, '未找到 UV 路径')
             return False
 
         if progress_callback is not None:
-            progress_callback(-1, '开始使用uv安装python')
+            progress_callback(-1, '开始使用 UV 安装 Python')
+        log.info('开始使用 UV 安装 Python')
         source = self.env_config.cpython_source
         if source == CpythonSourceEnum.GITHUB.value.value and self.env_config.is_gh_proxy:
             source = f'{self.env_config.gh_proxy_url}/{source}'
         result = cmd_utils.run_command([self.env_config.uv_path, 'python', 'install', self.project_config.uv_python_version,
                                         '--mirror', self.env_config.cpython_source,
                                         '--install-dir', DEFAULT_PYTHON_DIR_PATH])
+        msg = 'UV 安装 Python 成功' if result is not None else 'UV 安装 Python 失败'
+        log.info(msg)
         if result is None:
             if progress_callback is not None:
-                progress_callback(0, 'uv安装python失败')
+                progress_callback(0, msg)
             return False
         else:
             if progress_callback is not None:
-                progress_callback(1, 'uv安装python成功')
+                progress_callback(1, msg)
             return True
 
     def is_virtual_python(self) -> bool:
@@ -215,7 +220,8 @@ class PythonService:
         :return:
         """
         if progress_callback is not None:
-            progress_callback(-1, '开始uv创建虚拟环境')
+            progress_callback(-1, '开始使用 UV 创建虚拟环境')
+        log.info('开始使用 UV 创建虚拟环境')
         os.environ["UV_PYTHON_INSTALL_DIR"] = DEFAULT_PYTHON_DIR_PATH
         result = cmd_utils.run_command([self.env_config.uv_path, 'venv', DEFAULT_VENV_DIR_PATH, '--python=3.11.12', '--no-python-downloads'])
         success = result is not None
@@ -236,6 +242,7 @@ class PythonService:
         result = cmd_utils.run_command([self.env_config.uv_path, 'sync'])
         success = result is not None
         msg = '运行依赖安装成功' if success else '运行依赖安装失败'
+        log.info(msg)
         return success, msg
 
     def get_os_uv_path(self) -> Optional[str]:
@@ -243,7 +250,7 @@ class PythonService:
         获取当前系统环境变量中的uv路径
         :return:
         """
-        log.info('获取系统环境变量的uv')
+        log.info('获取系统环境变量的 UV')
         message = cmd_utils.run_command(['where', 'uv'])
         if message is not None and message.endswith('.exe'):
             return message
@@ -255,7 +262,7 @@ class PythonService:
         获取当前系统环境变量中的python路径
         :return:
         """
-        log.info('获取系统环境变量的python')
+        log.info('获取系统环境变量的 Python')
         message = cmd_utils.run_command(['where', 'python'])
         if message is not None and message.endswith('.exe'):
             return message
@@ -266,7 +273,7 @@ class PythonService:
         """
         :return: 当前使用的uv版本
         """
-        log.info('检测当前uv版本')
+        log.info('检测当前 UV 版本')
         uv_path = self.env_config.uv_path
         if uv_path == '' or not os.path.exists(uv_path):
             return None
@@ -281,7 +288,7 @@ class PythonService:
         """
         :return: 当前使用的python版本
         """
-        log.info('检测当前python版本')
+        log.info('检测当前 Python 版本')
         python_path = self.env_config.python_path
         if python_path == '' or not os.path.exists(python_path):
             return None
@@ -364,10 +371,10 @@ class PythonService:
             shutil.rmtree(DEFAULT_VENV_DIR_PATH)
 
         if not self.uv_install_python(progress_callback):
-            return False, '安装Python失败 请尝试到「设置」更改Python下载源'
+            return False, '安装 Python 失败 请尝试到「设置」更改 Python 下载源'
 
         if not self.uv_sync(progress_callback):
-            return False, 'uv sync失败'
+            return False, '创建环境失败'
         self.env_config.python_path = DEFAULT_VENV_PYTHON_PATH
 
         return True, ''
