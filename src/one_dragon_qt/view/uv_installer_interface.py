@@ -549,7 +549,7 @@ class UVInstallerInterface(VerticalScrollInterface):
         self.prev_btn = PushButton("上一步")
         self.prev_btn.setFixedSize(120, 40)
         self.prev_btn.clicked.connect(self.go_previous_step)
-        self.prev_btn.setEnabled(False)
+        self.prev_btn.setVisible(False)
 
         button_layout.addWidget(self.prev_btn)
 
@@ -615,19 +615,10 @@ class UVInstallerInterface(VerticalScrollInterface):
             self.log_update_timer.stop()
             self.log_receiver.update = False
             self.log_display_label.setVisible(False)
-            # 将一键安装按钮改为启动程序
-            self.install_btn.setText("启动程序")
-            self.install_btn.setVisible(True)
-            self.install_btn.clicked.disconnect()
-            self.install_btn.clicked.connect(self.launch_application)
-            # 隐藏进度环和自定义安装按钮
-            self.progress_ring.setVisible(False)
-            self.advanced_btn.setVisible(False)
             if self.extra_install_cards:
-                self.current_step = 3
-                self.is_advanced_mode = True
-                self.main_stack.setCurrentIndex(1)
-                self.update_step_display()
+                self.current_step = len(self.install_steps) - 1
+                self._from_one_click_install = True
+                self.show_advanced()
             else:
                 self.show_completion_message()
 
@@ -635,7 +626,6 @@ class UVInstallerInterface(VerticalScrollInterface):
         """切换到高级安装界面"""
         self.is_advanced_mode = True
         self.main_stack.setCurrentIndex(1)
-        # 初始化高级界面显示
         self.update_step_display()
 
     def show_quick(self):
@@ -652,8 +642,13 @@ class UVInstallerInterface(VerticalScrollInterface):
         self.step_stack.setCurrentIndex(self.current_step)
 
         # 更新按钮状态
-        self.prev_btn.setEnabled(self.current_step > 0)
-        self.back_btn.setVisible(self.current_step == 0)
+        if getattr(self, '_from_one_click_install', False):
+            self.prev_btn.setVisible(False)
+            self.back_btn.setVisible(False)
+            self.step_indicator.setVisible(False)
+        else:
+            self.prev_btn.setVisible(self.current_step > 0)
+            self.back_btn.setVisible(self.current_step == 0)
 
         # 获取当前步骤
         current_step_widget = self.install_steps[self.current_step]
@@ -688,10 +683,11 @@ class UVInstallerInterface(VerticalScrollInterface):
         else:
             self.install_step_btn.setVisible(True)
             if current_step_widget.is_optional:
-                self.skip_current_btn.setVisible(True)
+                self.skip_current_btn.setVisible(False)
                 self.next_btn.setVisible(True)
                 self.next_btn.setEnabled(True)
-                self.next_btn.setText("跳过此步骤")
+                if self.current_step == len(self.install_steps) - 1:
+                    self.next_btn.setText("完成")
             else:
                 self.skip_current_btn.setVisible(True)
                 self.next_btn.setVisible(False)
@@ -725,8 +721,7 @@ class UVInstallerInterface(VerticalScrollInterface):
         current_step_widget = self.install_steps[self.current_step]
 
         # 如果是可选步骤且未完成，可以直接跳过
-        if (current_step_widget.is_optional and not current_step_widget.is_completed 
-            and not current_step_widget.is_skipped):
+        if current_step_widget.is_optional and not current_step_widget.is_completed:
             current_step_widget.skip_step()
 
         if current_step_widget.is_completed or current_step_widget.is_skipped:
@@ -767,6 +762,14 @@ class UVInstallerInterface(VerticalScrollInterface):
         # 切换回一键安装界面
         self.is_advanced_mode = False
         self.main_stack.setCurrentIndex(0)
+        # 将一键安装按钮改为启动程序
+        self.install_btn.setText("启动程序")
+        self.install_btn.setVisible(True)
+        self.install_btn.clicked.disconnect()
+        self.install_btn.clicked.connect(self.launch_application)
+        # 隐藏进度环和自定义安装按钮
+        self.progress_ring.setVisible(False)
+        self.advanced_btn.setVisible(False)
 
     def launch_application(self):
         """启动应用程序"""
