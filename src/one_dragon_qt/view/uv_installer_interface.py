@@ -608,6 +608,14 @@ class UVInstallerInterface(VerticalScrollInterface):
             self.log_update_timer.stop()
             self.log_receiver.update = False
             self.log_display_label.setVisible(False)
+            # 将一键安装按钮改为启动程序
+            self.install_btn.setText("启动程序")
+            self.install_btn.setVisible(True)
+            self.install_btn.clicked.disconnect()
+            self.install_btn.clicked.connect(self.launch_application)
+            # 隐藏进度环和自定义安装按钮
+            self.progress_ring.setVisible(False)
+            self.advanced_btn.setVisible(False)
             if self.extra_install_cards:
                 self.current_step = 3
                 self.is_advanced_mode = True
@@ -752,14 +760,6 @@ class UVInstallerInterface(VerticalScrollInterface):
         # 切换回一键安装界面
         self.is_advanced_mode = False
         self.main_stack.setCurrentIndex(0)
-        # 将一键安装按钮改为启动程序
-        self.install_btn.setText("启动程序")
-        self.install_btn.setVisible(True)
-        self.install_btn.clicked.disconnect()
-        self.install_btn.clicked.connect(self.launch_application)
-        # 隐藏进度环和自定义安装按钮
-        self.progress_ring.setVisible(False)
-        self.advanced_btn.setVisible(False)
 
     def launch_application(self):
         """启动应用程序"""
