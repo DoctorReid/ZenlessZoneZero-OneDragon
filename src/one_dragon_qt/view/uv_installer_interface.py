@@ -9,12 +9,14 @@ from qfluentwidgets import (ProgressRing, PrimaryPushButton, FluentIcon, Setting
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon.utils import app_utils
+from one_dragon.utils.log_utils import log
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon_qt.widgets.install_card.all_install_card import AllInstallCard
 from one_dragon_qt.widgets.install_card.code_install_card import CodeInstallCard
 from one_dragon_qt.widgets.install_card.git_install_card import GitInstallCard
 from one_dragon_qt.widgets.install_card.uv_install_card import UVInstallCard
 from one_dragon_qt.widgets.install_card.uv_python_install_card import UVPythonInstallCard
+from one_dragon_qt.widgets.log_display_card import LogReceiver
 
 
 class ClickableStepCircle(QLabel):
@@ -412,6 +414,19 @@ class UVInstallerInterface(VerticalScrollInterface):
         self.progress_label = BodyLabel('')
         self.progress_label.setVisible(False)
         button_vlayout.addWidget(self.progress_label, alignment=Qt.AlignmentFlag.AlignHCenter)
+
+        # 日志显示组件
+        self.log_receiver = LogReceiver()
+        log.addHandler(self.log_receiver)
+        self.log_display_label = BodyLabel('')
+        self.log_display_label.setVisible(False)
+        button_vlayout.addWidget(self.log_display_label, alignment=Qt.AlignmentFlag.AlignHCenter)
+
+        # 日志更新定时器
+        self.log_update_timer = QTimer()
+        self.log_update_timer.timeout.connect(self.update_log_display)
+        self.log_update_timer.setInterval(500)  # 每500ms更新一次
+
         button_vlayout.addStretch(1)
         center_hlayout.addWidget(button_widget, stretch=2)
 
@@ -573,6 +588,9 @@ class UVInstallerInterface(VerticalScrollInterface):
         self.advanced_btn.setVisible(False)
         self.progress_ring.setVisible(True)
         self.progress_label.setVisible(True)
+        self.log_display_label.setVisible(True)
+        self.log_receiver.update = True
+        self.log_update_timer.start()
         self.progress_ring.setValue(self._progress_value)
         self.progress_label.setText('安装中')
         self.all_opt.install_all(self.update_progress_ring)
@@ -587,6 +605,9 @@ class UVInstallerInterface(VerticalScrollInterface):
         if progress >= 1.0:
             self.progress_label.setText('安装完成！')
             self._installing = False
+            self.log_update_timer.stop()
+            self.log_receiver.update = False
+            self.log_display_label.setVisible(False)
             if self.extra_install_cards:
                 self.current_step = 3
                 self.is_advanced_mode = True
@@ -797,3 +818,19 @@ class UVInstallerInterface(VerticalScrollInterface):
 
     def on_interface_hidden(self) -> None:
         super().on_interface_hidden()
+
+    def update_log_display(self):
+        """更新日志显示内容"""
+        if not hasattr(self, 'log_receiver') or not hasattr(self, 'log_display_label'):
+            return
+
+        new_logs = self.log_receiver.get_new_logs()
+        if new_logs:
+            # 找到最新一行包含中文字符的日志
+            latest_chinese_log = ''
+            for log_line in reversed(new_logs):
+                if any('\u4e00' <= char <= '\u9fff' for char in log_line):
+                    latest_chinese_log = log_line
+                    break
+            if latest_chinese_log:
+                self.log_display_label.setText(latest_chinese_log)
