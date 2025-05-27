@@ -1,6 +1,6 @@
 import os
 
-from PySide6.QtCore import Qt, Signal, QTimer
+from PySide6.QtCore import Qt, Signal, QTimer, QSize
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QStackedWidget, QFrame
 from qfluentwidgets import (ProgressRing, PrimaryPushButton, FluentIcon, SettingCardGroup, 
@@ -382,7 +382,14 @@ class UVInstallerInterface(VerticalScrollInterface):
         logo_vlayout.addStretch(1)
         self.card_logo_label = QLabel()
         card_logo_pixmap = QPixmap('assets/ui/installer_logo.ico')
-        self.card_logo_label.setPixmap(card_logo_pixmap.scaled(160, 160, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+        pixel_ratio = self.devicePixelRatio()
+        target_size = QSize(160, 160)
+        scaled_pixmap = card_logo_pixmap.scaled(target_size * pixel_ratio, 
+                                                Qt.AspectRatioMode.KeepAspectRatio, 
+                                                Qt.TransformationMode.SmoothTransformation)
+        scaled_pixmap.setDevicePixelRatio(pixel_ratio)
+        self.card_logo_label.setPixmap(scaled_pixmap)
+        self.card_logo_label.setFixedSize(target_size)
         self.card_logo_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         logo_vlayout.addWidget(self.card_logo_label, alignment=Qt.AlignmentFlag.AlignHCenter)
         logo_vlayout.addStretch(1)
