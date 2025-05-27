@@ -5,7 +5,7 @@ from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QStackedWidget, QFrame
 from qfluentwidgets import (ProgressRing, PrimaryPushButton, FluentIcon, SettingCardGroup, 
                             PushButton, HyperlinkButton, ProgressBar, IndeterminateProgressBar, 
-                            StrongBodyLabel, BodyLabel)
+                            TitleLabel, SubtitleLabel, StrongBodyLabel, BodyLabel)
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon.utils import app_utils
@@ -193,7 +193,7 @@ class InstallStepWidget(QWidget):
 
     def setup_ui(self):
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(40, 40, 40, 40)
+        layout.setContentsMargins(40, 0, 40, 40)
         layout.setSpacing(20)
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -201,11 +201,8 @@ class InstallStepWidget(QWidget):
         title_text = self.title
         if self.is_optional:
             title_text += "（可选）"
-        title_label = StrongBodyLabel(title_text)
+        title_label = SubtitleLabel(title_text)
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        font = title_label.font()
-        font.setPointSize(18)
-        title_label.setFont(font)
         layout.addWidget(title_label)
 
         # 描述
@@ -418,7 +415,7 @@ class UVInstallerInterface(VerticalScrollInterface):
         self.progress_ring.setFixedSize(64, 64)
         self.progress_ring.setVisible(False)
         button_vlayout.addWidget(self.progress_ring, alignment=Qt.AlignmentFlag.AlignHCenter)
-        self.progress_label = BodyLabel('')
+        self.progress_label = SubtitleLabel('')
         self.progress_label.setVisible(False)
         button_vlayout.addWidget(self.progress_label, alignment=Qt.AlignmentFlag.AlignHCenter)
 
@@ -464,23 +461,13 @@ class UVInstallerInterface(VerticalScrollInterface):
     def create_advanced_widget(self) -> QWidget:
         content_widget = QWidget()
         main_layout = QVBoxLayout(content_widget)
-        main_layout.setContentsMargins(20, 20, 20, 20)
-        main_layout.setSpacing(10)
-
-        # 顶部标题
-        header_widget = QWidget()
-        header_layout = QVBoxLayout(header_widget)
-        header_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-        header_layout.setSpacing(10)
+        main_layout.setContentsMargins(20, 20, 20, 0)
+        main_layout.setSpacing(20)
 
         # 主标题
-        title_label = StrongBodyLabel("一条龙安装向导")
-        title_font = title_label.font()
-        title_font.setPointSize(24)
-        title_label.setFont(title_font)
-        header_layout.addWidget(title_label, alignment=Qt.AlignmentFlag.AlignHCenter)
-
-        main_layout.addWidget(header_widget)
+        title_label = TitleLabel("一条龙安装向导")
+        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        main_layout.addWidget(title_label, stretch=1)
 
         # 步骤指示器
         step_names = ["Git环境", "代码同步", "环境配置"]
@@ -488,8 +475,8 @@ class UVInstallerInterface(VerticalScrollInterface):
             step_names.append("扩展安装")
         self.step_indicator = StepIndicator(step_names)
         self.step_indicator.step_clicked.connect(self.on_step_indicator_clicked)
-        main_layout.addWidget(self.step_indicator)
-        main_layout.addSpacing(-40)
+        main_layout.addWidget(self.step_indicator, stretch=1)
+        main_layout.addSpacing(-20)
 
         # 创建安装步骤
         self.install_steps = [
