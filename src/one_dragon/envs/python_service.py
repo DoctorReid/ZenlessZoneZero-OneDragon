@@ -156,7 +156,8 @@ class PythonService:
 
             if progress_callback is not None:
                 progress_callback(-1, '正在安装pip')
-            self.choose_best_pip_source(progress_callback)
+            # deprecated: 直接使用配置的pip源
+            # self.choose_best_pip_source(progress_callback)
             result = cmd_utils.run_command([python_path, py_file_path, '--index-url', self.env_config.pip_source])
             success = result is not None
             msg = '安装pip成功' if success else '安装pip失败 准备重试'
