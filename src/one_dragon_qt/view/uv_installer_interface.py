@@ -816,9 +816,6 @@ class UVInstallerInterface(VerticalScrollInterface):
             for step in self.install_steps:
                 step.check_status()
 
-    def on_interface_hidden(self) -> None:
-        super().on_interface_hidden()
-
     def update_log_display(self):
         """更新日志显示内容"""
         if not hasattr(self, 'log_receiver') or not hasattr(self, 'log_display_label'):
