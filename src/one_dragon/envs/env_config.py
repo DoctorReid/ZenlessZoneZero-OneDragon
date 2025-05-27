@@ -30,6 +30,11 @@ class RepositoryTypeEnum(Enum):
     GITHUB = ConfigItem('Github')
     GITEE = ConfigItem('Gitee')
 
+class RegionEnum(Enum):
+
+    CHINA = ConfigItem('中国', 'china')
+    OVERSEA = ConfigItem('海外', 'oversea')
+
 
 class GitMethodEnum(Enum):
 
