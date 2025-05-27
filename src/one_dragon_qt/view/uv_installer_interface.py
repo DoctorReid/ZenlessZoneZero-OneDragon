@@ -428,10 +428,11 @@ class UVInstallerInterface(VerticalScrollInterface):
 
         # 合并所有安装卡到统一列表
         self.all_install_cards = [self.git_opt, self.code_opt, self.uv_opt, self.python_opt]
-        self.all_opt = AllInstallCard(self.ctx, self.all_install_cards)
-
         if self.extra_install_cards:
             self.all_install_cards.extend(self.extra_install_cards)
+
+        # 一键安装 不安装可选卡片
+        self.all_opt = AllInstallCard(self.ctx, [self.git_opt, self.code_opt, self.uv_opt, self.python_opt])
 
         # 事件绑定
         self.install_btn.clicked.connect(self.on_install_clicked)
