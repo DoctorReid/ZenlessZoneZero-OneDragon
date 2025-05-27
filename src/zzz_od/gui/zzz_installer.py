@@ -1,14 +1,21 @@
 import os
 import sys
-from PySide6.QtWidgets import QApplication, QFileDialog, QMessageBox
+from PySide6.QtWidgets import QApplication
 from qfluentwidgets import Theme, setTheme
+from one_dragon_qt.app.directory_picker import DirectoryPickerWindow
 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+    setTheme(Theme['AUTO'])
 
-    # QMessageBox.information(None, '提示', '请选择安装路径')
-    work_dir = QFileDialog.getExistingDirectory(None, '请选择安装路径')
+    if hasattr(sys, '_MEIPASS'):
+        icon_path = os.path.join(sys._MEIPASS, 'resources', 'assets', 'ui', 'installer_logo.ico')
+    else:
+        icon_path = os.path.join(os.getcwd(), 'assets', 'ui', 'installer_logo.ico')
+    picker_window = DirectoryPickerWindow(win_title="", icon_path=icon_path)
+    picker_window.exec()
+    work_dir = picker_window.selected_directory if picker_window.selected_directory else None
     if not work_dir:
         sys.exit(0)
     os.chdir(work_dir)
@@ -21,7 +28,6 @@ if __name__ == '__main__':
     ZInstallerWindow._unpack_resources()
     _ctx = OneDragonEnvContext()
     _ctx.async_update_gh_proxy()
-    setTheme(Theme['AUTO'])
     w = ZInstallerWindow(_ctx, gt(f'{_ctx.project_config.project_name}-installer', 'ui'))
     w.show()
     app.exec()
