@@ -22,7 +22,7 @@ class Banner(QWidget):
 
     def _create_fallback_image(self) -> QImage:
         """创建渐变备用图片"""
-        fallback_image = QImage(2560, 1280, QImage.Format.Format_RGB32)  # 使用原始图片的大小
+        fallback_image = QImage(2560, 1280, QImage.Format.Format_RGB32)
         fallback_image.fill(Qt.GlobalColor.gray)
         return fallback_image
 
@@ -33,12 +33,18 @@ class Banner(QWidget):
         """
         if self.banner_image.isNull():
             return
+
+        # 获取设备像素比例用于高DPI适配
+        pixel_ratio = self.devicePixelRatio()
+        target_size = self.size()
+
         scaled_image = self.banner_image.scaled(
-            self.size(),
+            target_size * pixel_ratio,
             Qt.AspectRatioMode.KeepAspectRatioByExpanding,
             Qt.TransformationMode.SmoothTransformation
         )
         self.scaled_image = QPixmap.fromImage(scaled_image)
+        self.scaled_image.setDevicePixelRatio(pixel_ratio)
         self.update()
 
     def paintEvent(self, event):
@@ -54,8 +60,11 @@ class Banner(QWidget):
             painter.setClipPath(path)
 
             # 计算绘制位置，使图片居中
-            x = (self.width() - self.scaled_image.width()) // 2
-            y = (self.height() - self.scaled_image.height()) // 2
+            pixel_ratio = self.scaled_image.devicePixelRatio()
+            logical_width = self.scaled_image.width() // pixel_ratio
+            logical_height = self.scaled_image.height() // pixel_ratio
+            x = (self.width() - logical_width) // 2
+            y = (self.height() - logical_height) // 2
 
             # 绘制缩放后的图片
             painter.drawPixmap(x, y, self.scaled_image)
@@ -80,5 +89,6 @@ class Banner(QWidget):
         :param image_path: 图片路径
         :return:
         """
-        self.banner_image = QImage(image_path)
+        self.image_path = image_path
+        self.banner_image = self.load_banner_image(image_path)
         self.update_scaled_image()
