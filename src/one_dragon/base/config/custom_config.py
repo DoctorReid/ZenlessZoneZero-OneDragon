@@ -56,3 +56,14 @@ class CustomConfig(YamlConfig):
     @remote_banner.setter
     def remote_banner(self, new_value: bool) -> None:
         self.update('remote_banner', new_value)
+
+    @property
+    def last_remote_banner_fetch_time(self) -> str:
+        """
+        上次获取远端主页背景的时间
+        """
+        return self.get('last_remote_banner_fetch_time', '')
+
+    @last_remote_banner_fetch_time.setter
+    def last_remote_banner_fetch_time(self, new_value: str) -> None:
+        self.update('last_remote_banner_fetch_time', new_value)
