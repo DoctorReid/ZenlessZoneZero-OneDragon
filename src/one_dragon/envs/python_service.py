@@ -238,6 +238,7 @@ class PythonService:
         """
         if progress_callback is not None:
             progress_callback(-1, '正在安装...')
+        log.info('开始使用 UV 安装依赖')
         os.environ["UV_PYTHON_INSTALL_DIR"] = DEFAULT_PYTHON_DIR_PATH
         result = cmd_utils.run_command([self.env_config.uv_path, 'sync'])
         success = result is not None
@@ -250,7 +251,7 @@ class PythonService:
         获取当前系统环境变量中的uv路径
         :return:
         """
-        log.info('获取系统环境变量的 UV')
+        log.info('获取系统环境变量中的 UV')
         message = cmd_utils.run_command(['where', 'uv'])
         if message is not None and message.endswith('.exe'):
             return message
@@ -262,7 +263,7 @@ class PythonService:
         获取当前系统环境变量中的python路径
         :return:
         """
-        log.info('获取系统环境变量的 Python')
+        log.info('获取系统环境变量中的 Python')
         message = cmd_utils.run_command(['where', 'python'])
         if message is not None and message.endswith('.exe'):
             return message
