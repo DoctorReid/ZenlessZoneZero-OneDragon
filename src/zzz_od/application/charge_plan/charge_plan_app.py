@@ -77,6 +77,7 @@ class ChargePlanApp(ZApplication):
         if self.ctx.charge_plan_config.all_plan_finished():
             # 如果开启了循环模式且所有计划已完成，重置计划并继续
             if self.ctx.charge_plan_config.loop:
+                self.last_tried_plan = None
                 self.ctx.charge_plan_config.reset_plans()
             else:
                 return self.round_success(ChargePlanApp.STATUS_ROUND_FINISHED)
@@ -189,7 +190,7 @@ class ChargePlanApp(ZApplication):
             return self.round_success()
         else:
             self.last_tried_plan = None
-            return self.round_success(status=ChargePlanApp.STATUS_ROUND_FINISHED)
+            return self.round_success()
 
     @node_from(from_name='实战模拟室', success=False)
     @node_from(from_name='定期清剿', success=False)
@@ -199,7 +200,6 @@ class ChargePlanApp(ZApplication):
     def challenge_failed(self) -> OperationRoundResult:
         return self.round_success()
 
-    @node_from(from_name='挑战成功', status=STATUS_ROUND_FINISHED)
     @node_from(from_name='查找并选择下一个可执行任务', status=STATUS_ROUND_FINISHED)
     @node_from(from_name='查找并选择下一个可执行任务', success=False)
     @operation_node(name='返回大世界')
