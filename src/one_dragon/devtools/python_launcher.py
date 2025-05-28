@@ -4,7 +4,6 @@ import time
 import datetime
 import os
 import subprocess
-import yaml
 from colorama import init, Fore, Style
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
@@ -44,6 +43,10 @@ def configure_environment(ctx: OneDragonEnvContext):
     python_executable_path = ctx.env_config.python_path
     if not os.path.exists(python_executable_path):
         print_message("未找到 Python 可执行文件，请检查路径设置。", "ERROR")
+        sys.exit(1)
+    uv_executable_path = ctx.env_config.uv_path
+    if not os.path.exists(uv_executable_path):
+        print_message("未找到 UV 可执行文件，请检查路径设置。", "ERROR")
         sys.exit(1)
     os.environ.update({
         'PYTHON': python_executable_path,
@@ -95,7 +98,6 @@ def execute_python_script(ctx: OneDragonEnvContext, app_path, log_folder, no_win
     else:
         subprocess.Popen(["powershell", "-Command", powershell_command])
     print_message("一条龙 正在启动中，大约 3+ 秒...", "INFO")
-
 
 def fetch_latest_code(ctx: OneDragonEnvContext) -> None:
     """
