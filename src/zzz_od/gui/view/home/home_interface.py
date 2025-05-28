@@ -148,9 +148,9 @@ class CheckRunnerBase(QThread):
 class CheckCodeRunner(CheckRunnerBase):
     def run(self):
         is_latest, msg = self.ctx.git_service.is_current_branch_latest()
-        if msg in ["与远程分支不一致"]:
+        if msg == "与远程分支不一致":
             self.need_update.emit(True)
-        if msg not in ["获取远程代码失败"]:
+        elif msg != "获取远程代码失败":
             self.need_update.emit(not is_latest)
 
 class CheckVenvRunner(CheckRunnerBase):
@@ -179,19 +179,16 @@ class BannerDownloader(QThread):
 
     def run(self):
         if not os.path.exists(self.save_path):
-            log.info("远端主页背景图片不存在，开始下载")
             self.get()
         last_fetch_time_str = self.ctx.custom_config.last_remote_banner_fetch_time
         if last_fetch_time_str:
             try:
                 last_fetch_time = datetime.strptime(last_fetch_time_str, '%Y-%m-%d %H:%M:%S')
                 if datetime.now() - last_fetch_time >= timedelta(days=1):
-                    log.info("远端主页背景图片超过一天未更新，开始重新下载")
                     self.get()
             except ValueError:
                 pass
         else:
-            log.info("远端主页背景图片未记录上次获取时间，开始下载")
             self.get()
 
     def get(self):
@@ -337,12 +334,8 @@ class HomeInterface(VerticalScrollInterface):
         if not with_new:
             self._show_info_bar("代码已是最新版本", "Enjoy it & have fun!")
             return
-        else :
+        else:
             self._show_info_bar("有新版本啦", "稍安勿躁~")
-        if self.ctx.env_config.auto_update:
-            result, msg = self.ctx.git_service.fetch_latest_code()
-            if result:
-                self._show_dialog_after_code_updated()
 
     def _need_to_update_venv(self, with_new: bool):
         if with_new:
@@ -363,16 +356,6 @@ class HomeInterface(VerticalScrollInterface):
             duration=duration,
             parent=self,
         ).setCustomBackgroundColor("white", "#202020")
-
-    def _show_dialog_after_code_updated(self):
-        """显示代码更新后的对话框"""
-        dialog = Dialog("更新提醒", "如果你仍然能看到此弹窗，请前往 GitHub Release 更新启动器", self)
-        dialog.setTitleBarVisible(False)
-        dialog.yesButton.setText("重启")
-        dialog.cancelButton.setText("取消")
-        if dialog.exec():
-            from one_dragon.utils import app_utils
-            app_utils.start_one_dragon(restart=True)
 
     def _on_start_game(self):
         """启动一条龙按钮点击事件处理"""
