@@ -204,31 +204,33 @@ class ChargePlanConfig(YamlConfig):
         start_index = 0
         if last_tried_plan is not None:
             # 1. 从上次尝试的计划之后开始查找
-            try:
-                last_tried_index = -1
-                for i, plan in enumerate(self.plan_list):
-                    if self._is_same_plan(plan, last_tried_plan):
-                        last_tried_index = i
-                        break
+            last_tried_index = -1
+            for i, plan in enumerate(self.plan_list):
+                if self._is_same_plan(plan, last_tried_plan):
+                    last_tried_index = i
+                    break
 
-                if last_tried_index != -1:
-                     start_index = last_tried_index + 1
-                     if start_index >= len(self.plan_list):
-                         return None
-                else:
-                     # 2. 找不到上次计划则返回None
-                     return None
+            if last_tried_index != -1:
+                start_index = last_tried_index + 1
+                # 如果已到达列表末尾，从头开始查找未完成的任务
+                if start_index >= len(self.plan_list):
+                    start_index = 0
+            else:
+                # 2. 找不到上次计划则从头开始
+                start_index = 0
 
-            except Exception as e:
-                 return None
-
-        # 3. 从指定位置开始遍历查找符合条件的计划
-        for i in range(start_index, len(self.plan_list)):
-            plan = self.plan_list[i]
+        # 3. 从指定位置开始遍历查找符合条件的计划，需要检查完整一轮
+        checked_count = 0
+        current_index = start_index
+        while checked_count < len(self.plan_list):
+            plan = self.plan_list[current_index]
             if plan.run_times < plan.plan_times:
                 return plan
 
-        # 4. 找到则返回该计划，否则返回None
+            current_index = (current_index + 1) % len(self.plan_list)
+            checked_count += 1
+
+        # 4. 检查完一轮都没找到合适的计划
         return None
 
     def all_plan_finished(self) -> bool:
