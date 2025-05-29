@@ -11,6 +11,7 @@ from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon_qt.widgets.setting_card.multi_push_setting_card import MultiPushSettingCard
+from one_dragon_qt.widgets.setting_card.password_switch_setting_card import PasswordSwitchSettingCard
 from one_dragon_qt.widgets.setting_card.push_setting_card import PushSettingCard
 from one_dragon_qt.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
@@ -30,6 +31,7 @@ class InstanceSettingCard(MultiPushSettingCard):
 
         self.instance_name_input = LineEdit()
         self.instance_name_input.setText(self.instance.name)
+        self.instance_name_input.setFixedWidth(120)
         self.instance_name_input.textChanged.connect(self._on_name_changed)
 
         self.run_opt = ComboBox()
@@ -150,6 +152,8 @@ class SettingInstanceInterface(VerticalScrollInterface):
     def init_game_account_config(self) -> None:
         # 初始化账号和密码
         self.game_path_opt.setContent(self.ctx.game_account_config.game_path)
+        self.custom_win_title_opt.init_with_adapter(self.ctx.game_account_config.get_prop_adapter('use_custom_win_title'))
+        self.custom_win_title_input.setText(self.ctx.game_account_config.custom_win_title)
         self.game_region_opt.init_with_adapter(self.ctx.game_account_config.get_prop_adapter('game_region'))
         self.game_account_opt.init_with_adapter(self.ctx.game_account_config.get_prop_adapter('account'))
         self.game_password_opt.init_with_adapter(self.ctx.game_account_config.get_prop_adapter('password'))
@@ -179,6 +183,18 @@ class SettingInstanceInterface(VerticalScrollInterface):
         self.game_path_opt = PushSettingCard(icon=FluentIcon.FOLDER, title='游戏路径', text='选择')
         self.game_path_opt.clicked.connect(self._on_game_path_clicked)
         instance_settings_group.addSettingCard(self.game_path_opt)
+
+        self.custom_win_title_input = LineEdit()
+        self.custom_win_title_input.setFixedWidth(214)
+        self.custom_win_title_input.editingFinished.connect(self._update_custom_win_title)
+        self.custom_win_title_opt = PasswordSwitchSettingCard(
+            icon=FluentIcon.FIT_PAGE,
+            title='自定义窗口标题',
+            extra_btn=self.custom_win_title_input,
+            password_hash='56681010b753e1abe52c449d0aab291b28f1808a3a91b6baeaa726883baad4b0',
+        )
+        self.custom_win_title_opt.value_changed.connect(self._update_custom_win_title)
+        instance_settings_group.addSettingCard(self.custom_win_title_opt)
 
         self.game_region_opt = ComboBoxSettingCard(icon=FluentIcon.HOME, title='游戏区服', options_enum=GameRegionEnum)
         instance_settings_group.addSettingCard(self.game_region_opt)
@@ -244,3 +260,7 @@ class SettingInstanceInterface(VerticalScrollInterface):
     def _on_game_path_chosen(self, file_path) -> None:
         self.ctx.game_account_config.game_path = file_path
         self.game_path_opt.setContent(file_path)
+
+    def _update_custom_win_title(self) -> None:
+        self.ctx.game_account_config.custom_win_title =  self.custom_win_title_input.text()
+        self.ctx.init_by_config()

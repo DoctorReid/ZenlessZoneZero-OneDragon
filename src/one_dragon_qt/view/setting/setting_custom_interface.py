@@ -69,7 +69,6 @@ class SettingCustomInterface(VerticalScrollInterface):
         self.custom_banner_opt = PasswordSwitchSettingCard(
             icon=FluentIcon.PHOTO,
             title='自定义主页背景',
-            content='设置后重启脚本生效',
             extra_btn=self.banner_select_btn,
             password_hint='使用此功能需要密码哦~',
             password_hash='d7103a21d03b8b922c3af3d477a0adde1633053cde1a7574e8009293ca3b70f1',
