@@ -183,7 +183,6 @@ class ChargePlanApp(ZApplication):
     @node_from(from_name='定期清剿', success=True)
     @node_from(from_name='专业挑战室', success=True)
     @node_from(from_name='恶名狩猎', success=True)
-    @node_from(from_name='传送', status='选择失败')
     @operation_node(name='挑战成功')
     def challenge_success(self) -> OperationRoundResult:
         # 挑战成功后，重置last_tried_plan以继续查找下一个任务
@@ -194,9 +193,10 @@ class ChargePlanApp(ZApplication):
     @node_from(from_name='定期清剿', status=RoutineCleanup.STATUS_CHARGE_NOT_ENOUGH)
     @node_from(from_name='专业挑战室', status=ExpertChallenge.STATUS_CHARGE_NOT_ENOUGH)
     @node_from(from_name='恶名狩猎', status=NotoriousHunt.STATUS_CHARGE_NOT_ENOUGH)
+    @node_from(from_name='传送', status='选择失败')
     @operation_node(name='电量不足')
     def charge_not_enough(self) -> OperationRoundResult:
-        if self.ctx.charge_plan_config.skip_plan:
+        if self.ctx.charge_plan_config.skip_plan or self.next_plan.mission_type_name == '代理人方案培养':
             # 跳过当前计划，继续尝试下一个
             self.last_tried_plan = self.next_plan
             return self.round_success()
