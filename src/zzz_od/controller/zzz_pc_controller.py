@@ -3,19 +3,20 @@ from cv2.typing import MatLike
 from typing import Optional
 
 from one_dragon.base.controller.pc_controller_base import PcControllerBase
+from one_dragon.base.controller.screenshot_hybrid_controller import ScreenshotHybridController
 from one_dragon.utils import cv2_utils
 from zzz_od.config.game_config import GameConfig
 from zzz_od.const import game_const
 from zzz_od.screen_area.screen_normal_world import ScreenNormalWorldEnum
 
 
-class ZPcController(PcControllerBase):
+class ZPcController(ScreenshotHybridController):
 
     def __init__(self, game_config: GameConfig,
                  win_title: str,
                  standard_width: int = 1920,
                  standard_height: int = 1080):
-        PcControllerBase.__init__(self,
+        ScreenshotHybridController.__init__(self,
                                   win_title=win_title,
                                   standard_width=standard_width,
                                   standard_height=standard_height)
