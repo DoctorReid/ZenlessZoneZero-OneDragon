@@ -1,16 +1,26 @@
 from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QWidget
-from qfluentwidgets import FluentIcon, SettingCardGroup, VBoxLayout, PushButton, HyperlinkButton
+from PySide6.QtCore import QThread, Signal
+from qfluentwidgets import FluentIcon, SettingCardGroup, VBoxLayout, PushButton, HyperlinkButton, InfoBar, InfoBarPosition
 
 from one_dragon.base.config.config_item import get_config_item_from_enum
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
-from one_dragon.envs.env_config import RepositoryTypeEnum, GitMethodEnum, ProxyTypeEnum, PipSourceEnum
+from one_dragon.envs.env_config import RepositoryTypeEnum, GitMethodEnum, ProxyTypeEnum, PipSourceEnum, CpythonSourceEnum
 from one_dragon_qt.widgets.setting_card.key_setting_card import KeySettingCard
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon_qt.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils.i18_utils import gt
+
+
+class SpeedTestRunnerBase(QThread):
+    log_signal = Signal(str, int)
+    result_signal = Signal(str, int, str)
+
+    def __init__(self, ctx, parent=None):
+        super().__init__(parent)
+        self.ctx = ctx
 
 
 class SettingEnvInterface(VerticalScrollInterface):
@@ -32,6 +42,7 @@ class SettingEnvInterface(VerticalScrollInterface):
 
         content_layout.addWidget(self._init_basic_group())
         content_layout.addWidget(self._init_code_group())
+        content_layout.addWidget(self._init_python_group())
         content_layout.addWidget(self._init_web_group())
         content_layout.addWidget(self._init_key_group())
 
@@ -77,14 +88,26 @@ class SettingEnvInterface(VerticalScrollInterface):
         self.auto_update_opt.value_changed.connect(self._on_auto_update_changed)
         code_group.addSettingCard(self.auto_update_opt)
 
+        return code_group
+
+    def _init_python_group(self) -> SettingCardGroup:
+        python_group = SettingCardGroup(gt('Python相关', 'ui'))
+
+        self.cpython_source_opt = ComboBoxSettingCard(icon=FluentIcon.GLOBE, title='Python下载源', options_enum=CpythonSourceEnum)
+        self.cpython_build_choose_best_btn = PushButton('自动测速选择', self)
+        self.cpython_build_choose_best_btn.clicked.connect(self.on_cpython_build_choose_best_clicked)
+        self.cpython_source_opt.hBoxLayout.addWidget(self.cpython_build_choose_best_btn, 0, Qt.AlignmentFlag.AlignRight)
+        self.cpython_source_opt.hBoxLayout.addSpacing(16)
+        python_group.addSettingCard(self.cpython_source_opt)
+
         self.pip_source_opt = ComboBoxSettingCard(icon=FluentIcon.GLOBE, title='Pip源', options_enum=PipSourceEnum)
         self.pip_choose_best_btn = PushButton('自动测速选择', self)
         self.pip_choose_best_btn.clicked.connect(self.on_pip_choose_best_clicked)
         self.pip_source_opt.hBoxLayout.addWidget(self.pip_choose_best_btn, 0, Qt.AlignmentFlag.AlignRight)
         self.pip_source_opt.hBoxLayout.addSpacing(16)
-        code_group.addSettingCard(self.pip_source_opt)
+        python_group.addSettingCard(self.pip_source_opt)
 
-        return code_group
+        return python_group
 
     def _init_web_group(self) -> SettingCardGroup:
         web_group = SettingCardGroup(gt('网络相关', 'ui'))
@@ -178,6 +201,7 @@ class SettingEnvInterface(VerticalScrollInterface):
         self.force_update_opt.setValue(self.ctx.env_config.force_update)
         self.auto_update_opt.setValue(self.ctx.env_config.auto_update)
         self.pip_source_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('pip_source'))
+        self.cpython_source_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('cpython_source'))
 
         proxy_type = get_config_item_from_enum(ProxyTypeEnum, self.ctx.env_config.proxy_type)
         if proxy_type is not None:
@@ -277,9 +301,55 @@ class SettingEnvInterface(VerticalScrollInterface):
         self.ctx.gh_proxy_service.update_proxy_url()
         self.gh_proxy_url_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('gh_proxy_url'))
 
+    def _show_info_bar(self, title: str, content: str, duration: int = 20000):
+        """显示信息条"""
+        InfoBar.success(
+            title=title,
+            content=content,
+            orient=Qt.Orientation.Horizontal,
+            isClosable=True,
+            position=InfoBarPosition.TOP_RIGHT,
+            duration=duration,
+            parent=self,
+        ).setCustomBackgroundColor("white", "#202020")
+
     def on_pip_choose_best_clicked(self) -> None:
-        self.ctx.python_service.choose_best_pip_source()
-        self.pip_source_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('pip_source'))
+        # 异步测速pip源，toast显示日志和结果
+        self._pip_speed_thread = PipSourceSpeedTestThread(self.ctx)
+        self._pip_speed_thread.log_signal.connect(lambda label, ms: self._show_info_bar(
+            title=f"测速：{label}",
+            content=f"耗时 {ms}ms",
+            duration=2000
+        ))
+        def pip_result(label, ms, value):
+            self.ctx.env_config.pip_source = value
+            self.pip_source_opt.setValue(value)
+            self._show_info_bar(
+                title="测速结果",
+                content=f"已选择最快的Pip源：{label}（{ms}ms）",
+                duration=3000
+            )
+        self._pip_speed_thread.result_signal.connect(pip_result)
+        self._pip_speed_thread.start()
+
+    def on_cpython_build_choose_best_clicked(self) -> None:
+        # 异步测速python-build镜像源，toast显示日志和结果
+        self._python_speed_thread = PythonSourceSpeedTestThread(self.ctx)
+        self._python_speed_thread.log_signal.connect(lambda label, ms: self._show_info_bar(
+            title=f"测速：{label}",
+            content=f"耗时 {ms}ms",
+            duration=2000
+        ))
+        def python_result(label, ms, value):
+            self.ctx.env_config.cpython_source = value
+            self.cpython_source_opt.setValue(value)
+            self._show_info_bar(
+                title="测速结果",
+                content=f"已选择最快的Python下载源：{label}（{ms}ms）",
+                duration=3000
+            )
+        self._python_speed_thread.result_signal.connect(python_result)
+        self._python_speed_thread.start()
 
     def update_proxy_ui(self) -> None:
         """
@@ -298,3 +368,33 @@ class SettingEnvInterface(VerticalScrollInterface):
             self.personal_proxy_input.hide()
             self.gh_proxy_url_opt.hide()
             self.auto_fetch_gh_proxy_url_opt.hide()
+
+
+class PythonSourceSpeedTestThread(SpeedTestRunnerBase):
+    def __init__(self, ctx, parent=None):
+        super().__init__(ctx, parent)
+
+    def run(self):
+        result = self.ctx.python_service.choose_best_cpython_source()
+
+        if result:
+            best_label, best_ms = result
+            best_source_value = self.ctx.env_config.cpython_source
+            self.result_signal.emit(best_label, best_ms, best_source_value)
+        else:
+            self.result_signal.emit("Error", 9999, "")
+
+
+class PipSourceSpeedTestThread(SpeedTestRunnerBase):
+    def __init__(self, ctx, parent=None):
+        super().__init__(ctx, parent)
+
+    def run(self):
+        result = self.ctx.python_service.choose_best_pip_source()
+
+        if result:
+            best_label, best_ms = result
+            best_source_value = self.ctx.env_config.pip_source
+            self.result_signal.emit(best_label, best_ms, best_source_value)
+        else:
+            self.result_signal.emit("Error", 9999, "")

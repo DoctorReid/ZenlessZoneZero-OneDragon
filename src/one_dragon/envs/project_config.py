@@ -8,6 +8,7 @@ class ProjectConfig(YamlConfig):
 
         self.project_name = self.get('project_name')
         self.python_version = self.get('python_version')
+        self.uv_python_version = self.get('uv_python_version')
         self.github_homepage = self.get('github_homepage')
         self.github_https_repository = self.get('github_https_repository')
         self.github_ssh_repository = self.get('github_ssh_repository')

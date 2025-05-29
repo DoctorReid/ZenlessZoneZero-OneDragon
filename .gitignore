@@ -5,6 +5,7 @@ dist/
 .vscode/
 __pycache__/
 deploy/
+.env
 recording.jsonl
 
 # 子模块
@@ -40,7 +41,7 @@ assets/ui/remote_banner.webp
 
 # 用户运行时产生的文件
 .log/
-.env/
+.install/
 .temp_clone/
 .temp_clone**/
 .debug/

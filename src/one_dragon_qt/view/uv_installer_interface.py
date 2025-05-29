@@ -1,6 +1,5 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout
-from qfluentwidgets import ProgressBar, IndeterminateProgressBar, SettingCardGroup, \
-    FluentIcon
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
+from qfluentwidgets import ProgressBar, IndeterminateProgressBar, SettingCardGroup, FluentIcon, PushButton
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
@@ -8,18 +7,16 @@ from one_dragon_qt.widgets.log_display_card import LogDisplayCard
 from one_dragon_qt.widgets.install_card.all_install_card import AllInstallCard
 from one_dragon_qt.widgets.install_card.code_install_card import CodeInstallCard
 from one_dragon_qt.widgets.install_card.git_install_card import GitInstallCard
-from one_dragon_qt.widgets.install_card.python_install_card import PythonInstallCard
-from one_dragon_qt.widgets.install_card.venv_install_card import VenvInstallCard
+from one_dragon_qt.widgets.install_card.uv_install_card import UVInstallCard
+from one_dragon_qt.widgets.install_card.uv_python_install_card import UVPythonInstallCard
+from one_dragon_qt.widgets.install_card.uv_venv_install_card import UVVenvInstallCard
 from one_dragon.utils.i18_utils import gt
-from one_dragon_qt.widgets.welcome_dialog import WelcomeDialog
 
-
-class InstallerInterface(VerticalScrollInterface):
-
+class UVInstallerInterface(VerticalScrollInterface):
     def __init__(self, ctx: OneDragonEnvContext, parent=None):
-        VerticalScrollInterface.__init__(self, object_name='install_interface',
+        VerticalScrollInterface.__init__(self, object_name='uv_install_interface',
                                          parent=parent, content_widget=None,
-                                         nav_text_cn='一键安装', nav_icon=FluentIcon.CLOUD_DOWNLOAD)
+                                         nav_text_cn='一键安装', nav_icon=FluentIcon.DOWNLOAD)
         self.ctx: OneDragonEnvContext = ctx
 
     def get_content_widget(self) -> QWidget:
@@ -42,18 +39,22 @@ class InstallerInterface(VerticalScrollInterface):
         self.code_opt.progress_changed.connect(self.update_progress)
         self.code_opt.finished.connect(self._on_code_updated)
 
-        self.python_opt = PythonInstallCard(self.ctx)
+        self.uv_opt = UVInstallCard(self.ctx)
+        self.uv_opt.progress_changed.connect(self.update_progress)
+
+        self.python_opt = UVPythonInstallCard(self.ctx)
         self.python_opt.progress_changed.connect(self.update_progress)
 
-        self.venv_opt = VenvInstallCard(self.ctx)
+        self.venv_opt = UVVenvInstallCard(self.ctx)
         self.venv_opt.progress_changed.connect(self.update_progress)
 
-        self.all_opt = AllInstallCard(self.ctx, [self.git_opt, self.code_opt, self.python_opt, self.venv_opt])
+        self.all_opt = AllInstallCard(self.ctx, [self.git_opt, self.code_opt, self.uv_opt, self.python_opt, self.venv_opt])
 
         update_group = SettingCardGroup(gt('运行环境', 'ui'))
         update_group.addSettingCard(self.all_opt)
         update_group.addSettingCard(self.git_opt)
         update_group.addSettingCard(self.code_opt)
+        update_group.addSettingCard(self.uv_opt)
         update_group.addSettingCard(self.python_opt)
         update_group.addSettingCard(self.venv_opt)
 
@@ -73,6 +74,7 @@ class InstallerInterface(VerticalScrollInterface):
         VerticalScrollInterface.on_interface_shown(self)
         self.git_opt.check_and_update_display()
         self.code_opt.check_and_update_display()
+        self.uv_opt.check_and_update_display()
         self.python_opt.check_and_update_display()
         self.venv_opt.check_and_update_display()
         self.log_card.start()  # 开始日志更新
