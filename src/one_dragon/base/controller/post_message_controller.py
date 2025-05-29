@@ -381,71 +381,69 @@ class PostMessageController(ControllerBase):
             log.warning('无法获取窗口设备上下文')
             return None
 
-        try:
             # 创建兼容的设备上下文和位图
-            mfcDC = self.CreateCompatibleDC(hwndDC)
-            if not mfcDC:
-                log.warning('无法创建兼容设备上下文')
+        mfcDC = self.CreateCompatibleDC(hwndDC)
+        if not mfcDC:
+            log.warning('无法创建兼容设备上下文')
+            self.ReleaseDC(hwnd, hwndDC)
+            return None
+
+        saveBitMap = self.CreateCompatibleBitmap(hwndDC, width, height)
+        if not saveBitMap:
+            log.warning('无法创建兼容位图')
+            self.DeleteDC(mfcDC)
+            self.ReleaseDC(hwnd, hwndDC)
+            return None
+
+        try:
+            # 选择位图到设备上下文
+            self.SelectObject(mfcDC, saveBitMap)
+
+            # 复制窗口内容到位图 - 使用PrintWindow获取后台窗口内容
+            result = self.PrintWindow(hwnd, mfcDC, 0x00000002)  # PW_CLIENTONLY
+            if not result:
+                # 如果PrintWindow失败，尝试使用BitBlt
+                self.BitBlt(mfcDC, 0, 0, width, height, hwndDC, 0, 0, 0x00CC0020)  # SRCCOPY
+
+            # 获取位图数据
+            bmpinfo = BITMAPINFO()
+            bmpinfo.bmiHeader.biSize = ctypes.sizeof(BITMAPINFOHEADER)
+            bmpinfo.bmiHeader.biWidth = width
+            bmpinfo.bmiHeader.biHeight = -height  # 负数表示从上到下
+            bmpinfo.bmiHeader.biPlanes = 1
+            bmpinfo.bmiHeader.biBitCount = 32
+            bmpinfo.bmiHeader.biCompression = 0  # BI_RGB
+
+            # 创建缓冲区
+            buffer_size = width * height * 4
+            buffer = ctypes.create_string_buffer(buffer_size)
+
+            # 获取DIB数据
+            lines = self.GetDIBits(hwndDC, saveBitMap, 0, height, buffer, 
+                                 ctypes.byref(bmpinfo), 0)  # DIB_RGB_COLORS
+
+            if lines == 0:
+                log.warning('无法获取位图数据')
                 return None
 
-            try:
-                saveBitMap = self.CreateCompatibleBitmap(hwndDC, width, height)
-                if not saveBitMap:
-                    log.warning('无法创建兼容位图')
-                    return None
+            # 转换为numpy数组
+            img_array = np.frombuffer(buffer, dtype=np.uint8)
+            img_array = img_array.reshape((height, width, 4))
 
-                try:
-                    # 选择位图到设备上下文
-                    self.SelectObject(mfcDC, saveBitMap)
+            # 转换BGRA为RGB
+            screenshot = cv2.cvtColor(img_array, cv2.COLOR_BGRA2RGB)
 
-                    # 复制窗口内容到位图 - 使用PrintWindow获取后台窗口内容
-                    result = self.PrintWindow(hwnd, mfcDC, 0x00000002)  # PW_CLIENTONLY
-                    if not result:
-                        # 如果PrintWindow失败，尝试使用BitBlt
-                        self.BitBlt(mfcDC, 0, 0, width, height, hwndDC, 0, 0, 0x00CC0020)  # SRCCOPY
+            # 缩放到标准分辨率
+            if self.game_win.is_win_scale:
+                screenshot = cv2.resize(screenshot, (self.standard_width, self.standard_height))
 
-                    # 获取位图数据
-                    bmpinfo = BITMAPINFO()
-                    bmpinfo.bmiHeader.biSize = ctypes.sizeof(BITMAPINFOHEADER)
-                    bmpinfo.bmiHeader.biWidth = width
-                    bmpinfo.bmiHeader.biHeight = -height  # 负数表示从上到下
-                    bmpinfo.bmiHeader.biPlanes = 1
-                    bmpinfo.bmiHeader.biBitCount = 32
-                    bmpinfo.bmiHeader.biCompression = 0  # BI_RGB
+            return screenshot
 
-                    # 创建缓冲区
-                    buffer_size = width * height * 4
-                    buffer = ctypes.create_string_buffer(buffer_size)
-
-                    # 获取DIB数据
-                    lines = self.GetDIBits(hwndDC, saveBitMap, 0, height, buffer, 
-                                         ctypes.byref(bmpinfo), 0)  # DIB_RGB_COLORS
-
-                    if lines == 0:
-                        log.warning('无法获取位图数据')
-                        return None
-
-                    # 转换为numpy数组
-                    img_array = np.frombuffer(buffer, dtype=np.uint8)
-                    img_array = img_array.reshape((height, width, 4))
-
-                    # 转换BGRA为RGB
-                    screenshot = cv2.cvtColor(img_array, cv2.COLOR_BGRA2RGB)
-
-                    # 缩放到标准分辨率
-                    if self.game_win.is_win_scale:
-                        screenshot = cv2.resize(screenshot, (self.standard_width, self.standard_height))
-
-                    return screenshot
-
-                finally:
-                    self.DeleteObject(saveBitMap)
-            finally:
-                self.DeleteDC(mfcDC)
         finally:
+            # 清理资源，先创建的后释放
+            self.DeleteObject(saveBitMap)
+            self.DeleteDC(mfcDC)
             self.ReleaseDC(hwnd, hwndDC)
-
-        return None
 
     def close_game(self):
         """关闭游戏窗口"""
