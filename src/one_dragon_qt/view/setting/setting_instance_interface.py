@@ -150,6 +150,7 @@ class SettingInstanceInterface(VerticalScrollInterface):
     def init_game_account_config(self) -> None:
         # 初始化账号和密码
         self.game_path_opt.setContent(self.ctx.game_account_config.game_path)
+        self.custom_win_title_opt.init_with_adapter(self.ctx.game_account_config.get_prop_adapter('custom_win_title'))
         self.game_region_opt.init_with_adapter(self.ctx.game_account_config.get_prop_adapter('game_region'))
         self.game_account_opt.init_with_adapter(self.ctx.game_account_config.get_prop_adapter('account'))
         self.game_password_opt.init_with_adapter(self.ctx.game_account_config.get_prop_adapter('password'))
@@ -179,6 +180,9 @@ class SettingInstanceInterface(VerticalScrollInterface):
         self.game_path_opt = PushSettingCard(icon=FluentIcon.FOLDER, title='游戏路径', text='选择')
         self.game_path_opt.clicked.connect(self._on_game_path_clicked)
         instance_settings_group.addSettingCard(self.game_path_opt)
+
+        self.custom_win_title_opt = TextSettingCard(icon=FluentIcon.FIT_PAGE, title='窗口标题', input_placeholder='可用于云游戏', content='设置后切换实例生效',)
+        instance_settings_group.addSettingCard(self.custom_win_title_opt)
 
         self.game_region_opt = ComboBoxSettingCard(icon=FluentIcon.HOME, title='游戏区服', options_enum=GameRegionEnum)
         instance_settings_group.addSettingCard(self.game_region_opt)
