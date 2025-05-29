@@ -19,7 +19,7 @@ from zzz_od.operation.goto.goto_menu import GotoMenu
 
 class ChargePlanApp(ZApplication):
 
-    STATUS_NO_PLAN: ClassVar[str] = '未配置体力计划'
+    STATUS_NO_PLAN: ClassVar[str] = '没有可运行的计划'
     STATUS_ROUND_FINISHED: ClassVar[str] = '已完成一轮计划'
 
     def __init__(self, ctx: ZContext):
@@ -45,6 +45,7 @@ class ChargePlanApp(ZApplication):
     @node_from(from_name='挑战成功')
     @node_from(from_name='挑战失败')
     @node_from(from_name='开始体力计划')
+    @node_from(from_name='电量不足')
     @operation_node(name='打开菜单')
     def goto_menu(self) -> OperationRoundResult:
         op = GotoMenu(self.ctx)
@@ -182,15 +183,27 @@ class ChargePlanApp(ZApplication):
     @node_from(from_name='定期清剿', success=True)
     @node_from(from_name='专业挑战室', success=True)
     @node_from(from_name='恶名狩猎', success=True)
-    @node_from(from_name='传送', status='选择失败')
     @operation_node(name='挑战成功')
     def challenge_success(self) -> OperationRoundResult:
+        # 挑战成功后，重置last_tried_plan以继续查找下一个任务
+        self.last_tried_plan = None
+        return self.round_success()
+
+    @node_from(from_name='实战模拟室', status=CombatSimulation.STATUS_CHARGE_NOT_ENOUGH)
+    @node_from(from_name='定期清剿', status=RoutineCleanup.STATUS_CHARGE_NOT_ENOUGH)
+    @node_from(from_name='专业挑战室', status=ExpertChallenge.STATUS_CHARGE_NOT_ENOUGH)
+    @node_from(from_name='恶名狩猎', status=NotoriousHunt.STATUS_CHARGE_NOT_ENOUGH)
+    @node_from(from_name='传送', status='选择失败')
+    @operation_node(name='电量不足')
+    def charge_not_enough(self) -> OperationRoundResult:
         if self.ctx.charge_plan_config.skip_plan or self.next_plan.mission_type_name == '代理人方案培养':
+            # 跳过当前计划，继续尝试下一个
             self.last_tried_plan = self.next_plan
             return self.round_success()
         else:
+            # 不跳过，直接结束本轮计划
             self.last_tried_plan = None
-            return self.round_success()
+            return self.round_success(ChargePlanApp.STATUS_ROUND_FINISHED)
 
     @node_from(from_name='实战模拟室', success=False)
     @node_from(from_name='定期清剿', success=False)
@@ -200,6 +213,7 @@ class ChargePlanApp(ZApplication):
     def challenge_failed(self) -> OperationRoundResult:
         return self.round_success()
 
+    @node_from(from_name='电量不足', status=STATUS_ROUND_FINISHED)
     @node_from(from_name='查找并选择下一个可执行任务', status=STATUS_ROUND_FINISHED)
     @node_from(from_name='查找并选择下一个可执行任务', success=False)
     @operation_node(name='返回大世界')
