@@ -212,23 +212,18 @@ class ChargePlanConfig(YamlConfig):
 
             if last_tried_index != -1:
                 start_index = last_tried_index + 1
-                # 如果已到达列表末尾，从头开始查找未完成的任务
+                # 如果已到达列表末尾，返回 None
                 if start_index >= len(self.plan_list):
-                    start_index = 0
+                    return None
             else:
                 # 2. 找不到上次计划则从头开始
                 start_index = 0
 
-        # 3. 从指定位置开始遍历查找符合条件的计划，需要检查完整一轮
-        checked_count = 0
-        current_index = start_index
-        while checked_count < len(self.plan_list):
-            plan = self.plan_list[current_index]
+        # 3. 从指定位置开始遍历查找符合条件的计划
+        for i in range(start_index, len(self.plan_list)):
+            plan = self.plan_list[i]
             if plan.run_times < plan.plan_times:
                 return plan
-
-            current_index = (current_index + 1) % len(self.plan_list)
-            checked_count += 1
 
         # 4. 检查完一轮都没找到合适的计划
         return None
