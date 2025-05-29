@@ -155,7 +155,8 @@ class ZContext(OneDragonContext):
         if self.game_account_config.platform == GamePlatformEnum.PC.value.value:
             from one_dragon.base.config.game_account_config import GameRegionEnum
             win_title = '绝区零' if self.game_account_config.game_region == GameRegionEnum.CN.value.value else 'ZenlessZoneZero'
-            self.controller = ZPcController(
+            win_title = win_title if not self.game_account_config.custom_win_title else self.game_account_config.custom_win_title
+            self.controller: ZPcController = ZPcController(
                 game_config=self.game_config,
                 win_title=win_title,
                 standard_width=self.project_config.screen_standard_width,
