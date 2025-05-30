@@ -61,7 +61,7 @@ class PythonService:
                 return True, '安装 UV 成功'
 
         # 重试之后还是失败了
-        return False, '安装UV失败'
+        return False, '安装 UV 失败'
 
     def uv_install_python(self, progress_callback: Optional[Callable[[float, str, str], None]]) -> bool:
         """
@@ -72,9 +72,11 @@ class PythonService:
                 progress_callback(0, '未找到 UV 路径')
             return False
 
+        msg = '开始使用 UV 安装 Python'
         if progress_callback is not None:
-            progress_callback(-1, '开始使用 UV 安装 Python')
-        log.info('开始使用 UV 安装 Python')
+            progress_callback(-1, msg)
+        log.info(msg)
+
         source = self.env_config.cpython_source
         if source == CpythonSourceEnum.GITHUB.value.value and self.env_config.is_gh_proxy:
             source = f'{self.env_config.gh_proxy_url}/{source}'
@@ -112,6 +114,7 @@ class PythonService:
         if progress_callback is not None:
             progress_callback(-1, '开始使用 UV 创建虚拟环境')
         log.info('开始使用 UV 创建虚拟环境')
+
         os.environ["UV_PYTHON_INSTALL_DIR"] = DEFAULT_PYTHON_DIR_PATH
         result = cmd_utils.run_command([self.env_config.uv_path, 'venv', DEFAULT_VENV_DIR_PATH, '--python=3.11.12', '--no-python-downloads'])
         success = result is not None
@@ -129,6 +132,7 @@ class PythonService:
         if progress_callback is not None:
             progress_callback(-1, '正在安装...')
         log.info('开始使用 UV 安装依赖')
+
         os.environ["UV_PYTHON_INSTALL_DIR"] = DEFAULT_PYTHON_DIR_PATH
         result = cmd_utils.run_command([self.env_config.uv_path, 'sync'])
         success = result is not None
@@ -199,6 +203,7 @@ class PythonService:
         # 清理旧环境
         if progress_callback is not None:
             progress_callback(-1, '正在清理旧文件')
+
         self.env_config.python_path = ''
         if os.path.exists(DEFAULT_PYTHON_DIR_PATH):
             shutil.rmtree(DEFAULT_PYTHON_DIR_PATH)
@@ -327,6 +332,56 @@ class PythonService:
             "cpython_source",
             progress_callback
         )
+
+    def install_launcher(self, progress_callback: Optional[Callable[[float, str], None]]) -> Tuple[bool, str]:
+        if self.check_launcher_exist():
+            msg = '已经安装了启动器'
+            log.info(msg)
+            return True, msg
+
+        msg = '开始安装启动器'
+        if progress_callback is not None:
+            progress_callback(-1, msg)
+        log.info(msg)
+
+        for _ in range(2):
+            zip_file_name = f'{self.project_config.project_name}-Launcher.zip'
+            zip_file_path = os.path.join(DEFAULT_ENV_PATH, zip_file_name)
+            download_url = f'{self.project_config.github_homepage}/releases/latest/download/{zip_file_name}'
+            if not os.path.exists(zip_file_path):
+                success = self.download_service.download_file_from_url(download_url, zip_file_path, progress_callback=progress_callback)
+                if not success:
+                    return False, '下载安装器失败 请尝试到「设置」更改网络代理'
+
+            msg = f'开始解压 {zip_file_name}'
+            log.info(msg)
+            if progress_callback is not None:
+                progress_callback(0, msg)
+
+            success = file_utils.unzip_file(zip_file_path, os_utils.get_work_dir())
+
+            msg = '解压成功' if success else '解压失败 准备重试'
+            log.info(msg)
+            if progress_callback is not None:
+                progress_callback(1 if success else 0, msg)
+
+            if not success:  # 解压失败的话 可能是之前下的zip包坏了 尝试删除重来
+                os.remove(zip_file_path)
+                continue
+            else:
+                return True, '安装安装器成功'
+
+        # 重试之后还是失败了
+        return False, '安装安装器失败'
+    
+    def check_launcher_exist(self) -> bool:
+        """
+        检查启动器是否存在
+        :return: 是否存在
+        """
+        launcher_path = os.path.join(os_utils.get_work_dir(), 'OneDragon Launcher.exe')
+        scheduler_path = os.path.join(os_utils.get_work_dir(), 'OneDragon Scheduler.exe')
+        return os.path.exists(launcher_path) and os.path.exists(scheduler_path)
 
 
 if __name__ == '__main__':

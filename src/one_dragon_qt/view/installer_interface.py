@@ -14,6 +14,7 @@ from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterf
 from one_dragon_qt.widgets.install_card.all_install_card import AllInstallCard
 from one_dragon_qt.widgets.install_card.code_install_card import CodeInstallCard
 from one_dragon_qt.widgets.install_card.git_install_card import GitInstallCard
+from one_dragon_qt.widgets.install_card.launcher_install_card import LauncherInstallCard
 from one_dragon_qt.widgets.install_card.python_install_card import PythonInstallCard
 from one_dragon_qt.widgets.install_card.uv_install_card import UVInstallCard
 from one_dragon_qt.widgets.log_display_card import LogReceiver
@@ -444,9 +445,10 @@ class InstallerInterface(VerticalScrollInterface):
         self.code_opt = CodeInstallCard(self.ctx)
         self.uv_opt = UVInstallCard(self.ctx)
         self.python_opt = PythonInstallCard(self.ctx)
+        self.launcher_opt = LauncherInstallCard(self.ctx)
 
         # 合并所有安装卡到统一列表
-        self.all_install_cards = [self.git_opt, self.code_opt, self.uv_opt, self.python_opt]
+        self.all_install_cards = [self.git_opt, self.code_opt, self.uv_opt, self.python_opt, self.launcher_opt]
         if self.extra_install_cards:
             self.all_install_cards.extend(self.extra_install_cards)
 
@@ -470,7 +472,7 @@ class InstallerInterface(VerticalScrollInterface):
         main_layout.addWidget(title_label, stretch=1)
 
         # 步骤指示器
-        step_names = ["Git环境", "代码同步", "环境配置"]
+        step_names = ["Git环境", "代码同步", "环境配置", "安装启动器"]
         if self.extra_install_cards:
             step_names.append("扩展安装")
         self.step_indicator = StepIndicator(step_names)
@@ -481,27 +483,32 @@ class InstallerInterface(VerticalScrollInterface):
         # 创建安装步骤
         self.install_steps = [
             InstallStepWidget(
-                "Git环境配置",
-                "Git是代码版本管理工具，用于下载和更新项目代码。",
-                [self.git_opt]
+            "Git环境",
+            "安装Git版本控制工具，用于代码版本管理和项目更新。",
+            [self.git_opt]
             ),
             InstallStepWidget(
-                "代码同步",
-                "从远程仓库同步最新的项目代码。\n确保您使用的是最新版本的功能和修复。",
-                [self.code_opt]
+            "代码同步",
+            "从GitHub仓库同步最新项目代码，确保使用最新功能和修复。",
+            [self.code_opt]
             ),
             InstallStepWidget(
-                "环境安装配置",
-                "安装UV工具并配置Python虚拟环境。\n这些工具用于管理项目依赖和运行环境。",
-                [self.uv_opt, self.python_opt]
+            "环境配置",
+            "配置Python运行环境和依赖管理工具，为项目运行做好准备。",
+            [self.uv_opt, self.python_opt]
+            ),
+            InstallStepWidget(
+            "安装启动器",
+            "下载项目启动器，用于启动和管理一条龙应用。",
+            [self.launcher_opt]
             )
         ]
 
         if self.extra_install_cards is not None:
             self.install_steps.append(
                 InstallStepWidget(
-                    "扩展安装",
-                    "安装额外的依赖包或工具，用于某些特定项目功能。",
+                    "扩展组件",
+                    "安装项目所需的扩展组件和特定功能模块，提供完整的功能体验。",
                     self.extra_install_cards,
                     is_optional=True
                 )
