@@ -8,7 +8,7 @@ from typing import Optional, Callable, Tuple
 
 from one_dragon.envs.env_config import EnvConfig, PipSourceEnum, CpythonSourceEnum, DEFAULT_ENV_PATH, DEFAULT_UV_DIR_PATH,\
      DEFAULT_PYTHON_DIR_PATH, DEFAULT_PYTHON_PATH, DEFAULT_VENV_DIR_PATH, DEFAULT_VENV_PYTHON_PATH
-from one_dragon.envs.git_service import GitService
+from one_dragon.envs.download_service import DownloadService
 from one_dragon.envs.project_config import ProjectConfig
 from one_dragon.utils import file_utils, cmd_utils, os_utils
 from one_dragon.utils.log_utils import log
@@ -16,27 +16,31 @@ from one_dragon.utils.log_utils import log
 
 class PythonService:
 
-    def __init__(self, project_config: ProjectConfig, env_config: EnvConfig, git_service: GitService):
+    def __init__(self, project_config: ProjectConfig, env_config: EnvConfig, download_service: DownloadService):
         self.project_config = project_config
         self.env_config = env_config
-        self.git_service: GitService = git_service
+        self.download_service: DownloadService = download_service
 
     def install_default_uv(self, progress_callback: Optional[Callable[[float, str], None]]) -> Tuple[bool, str]:
         if self.get_uv_version() is not None:
             msg = '已经安装了 UV'
             log.info(msg)
             return True, msg
-        log.info('开始安装 UV')
+
+        msg = '开始安装 UV'
+        if progress_callback is not None:
+            progress_callback(-1, msg)
+        log.info(msg)
+
         for _ in range(2):
             zip_file_name = 'uv-x86_64-pc-windows-msvc.zip'
             zip_file_path = os.path.join(DEFAULT_ENV_PATH, zip_file_name)
+            download_url = f'https://github.com/astral-sh/uv/releases/latest/download/{zip_file_name}'
             if not os.path.exists(zip_file_path):
-                # success = self.git_service.download_env_file(zip_file_name, zip_file_path,
-                #                                              progress_callback=progress_callback)
-                success = self.git_service.temp_download_uv_file(zip_file_name, zip_file_path,
-                                                                     progress_callback=progress_callback)
+                # success = self.download_service.download_env_file(zip_file_name, zip_file_path, progress_callback=progress_callback)
+                success = self.download_service.download_file_from_url(download_url, zip_file_path, progress_callback=progress_callback)
                 if not success:
-                    return False, '下载uv-x86_64-pc-windows-msvc.zip失败 请尝试到「设置」更改网络代理'
+                    return False, '下载 UV 失败 请尝试到「设置」更改网络代理'
 
             msg = f'开始解压 {zip_file_name}'
             log.info(msg)
@@ -54,7 +58,7 @@ class PythonService:
                 os.remove(zip_file_path)
                 continue
             else:
-                return True, '安装UV成功'
+                return True, '安装 UV 成功'
 
         # 重试之后还是失败了
         return False, '安装UV失败'
@@ -73,8 +77,7 @@ class PythonService:
             zip_file_name = f'python-{self.project_config.python_version}-embed-amd64.zip'
             zip_file_path = os.path.join(DEFAULT_ENV_PATH, zip_file_name)
             if not os.path.exists(zip_file_path):
-                success = self.git_service.download_env_file(zip_file_name, zip_file_path,
-                                                             progress_callback=progress_callback)
+                success = self.download_service.download_env_file(zip_file_name, zip_file_path, progress_callback=progress_callback)
                 if not success:
                     return False  # 下载失败的 直接返回失败 不重试
             msg = f'开始解压 {zip_file_name}'
@@ -154,8 +157,7 @@ class PythonService:
             py_file_name = 'get-pip.py'
             py_file_path = os.path.join(DEFAULT_ENV_PATH, py_file_name)
             if not os.path.exists(py_file_path):
-                success = self.git_service.download_env_file(py_file_name, py_file_path,
-                                                             progress_callback=progress_callback)
+                success = self.download_service.download_env_file(py_file_name, py_file_path, progress_callback=progress_callback)
                 if not success:  # 下载失败的 直接返回失败 不重试
                     return False
 
@@ -535,6 +537,6 @@ class PythonService:
 if __name__ == '__main__':
     project_config = ProjectConfig()
     env_config = EnvConfig()
-    git_service = GitService(project_config, env_config)
-    python_service = PythonService(project_config, env_config, git_service)
+    download_service = DownloadService(project_config, env_config)
+    python_service = PythonService(project_config, env_config, download_service)
     python_service.uv_install_requirements(None)
