@@ -14,8 +14,8 @@ from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterf
 from one_dragon_qt.widgets.install_card.all_install_card import AllInstallCard
 from one_dragon_qt.widgets.install_card.code_install_card import CodeInstallCard
 from one_dragon_qt.widgets.install_card.git_install_card import GitInstallCard
+from one_dragon_qt.widgets.install_card.python_install_card import PythonInstallCard
 from one_dragon_qt.widgets.install_card.uv_install_card import UVInstallCard
-from one_dragon_qt.widgets.install_card.uv_python_install_card import UVPythonInstallCard
 from one_dragon_qt.widgets.log_display_card import LogReceiver
 
 
@@ -443,7 +443,7 @@ class UVInstallerInterface(VerticalScrollInterface):
         self.git_opt = GitInstallCard(self.ctx)
         self.code_opt = CodeInstallCard(self.ctx)
         self.uv_opt = UVInstallCard(self.ctx)
-        self.python_opt = UVPythonInstallCard(self.ctx)
+        self.python_opt = PythonInstallCard(self.ctx)
 
         # 合并所有安装卡到统一列表
         self.all_install_cards = [self.git_opt, self.code_opt, self.uv_opt, self.python_opt]

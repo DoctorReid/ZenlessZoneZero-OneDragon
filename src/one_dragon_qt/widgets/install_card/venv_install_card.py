@@ -14,7 +14,7 @@ class VenvInstallCard(BaseInstallCard):
             self,
             ctx=ctx,
             title_cn='运行依赖',
-            install_method=ctx.python_service.install_requirements
+            install_method=ctx.python_service.uv_install_requirements
         )
 
     def after_progress_done(self, success: bool, msg: str) -> None:

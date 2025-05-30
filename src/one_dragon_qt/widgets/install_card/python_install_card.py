@@ -15,7 +15,7 @@ class PythonInstallCard(WithExistedInstallCard):
             self,
             ctx=ctx,
             title_cn='Python虚拟环境',
-            install_method=ctx.python_service.install_default_python_venv,
+            install_method=ctx.python_service.uv_install_python_venv,
         )
 
     def get_existed_os_path(self) -> Optional[str]:
