@@ -447,13 +447,16 @@ class InstallerInterface(VerticalScrollInterface):
         self.python_opt = PythonInstallCard(self.ctx)
         self.launcher_opt = LauncherInstallCard(self.ctx)
 
-        # 合并所有安装卡到统一列表
-        self.all_install_cards = [self.git_opt, self.code_opt, self.uv_opt, self.python_opt, self.launcher_opt]
+        # 基础安装组件
+        base_install_cards = [self.git_opt, self.code_opt, self.uv_opt, self.python_opt, self.launcher_opt]
+
+        # 所有安装组件
+        self.all_install_cards = base_install_cards.copy()
         if self.extra_install_cards:
             self.all_install_cards.extend(self.extra_install_cards)
 
-        # 一键安装 不安装可选卡片
-        self.all_opt = AllInstallCard(self.ctx, [self.git_opt, self.code_opt, self.uv_opt, self.python_opt])
+        # 一键安装使用基础组件
+        self.all_opt = AllInstallCard(self.ctx, base_install_cards)
 
         # 事件绑定
         self.install_btn.clicked.connect(self.on_install_clicked)
