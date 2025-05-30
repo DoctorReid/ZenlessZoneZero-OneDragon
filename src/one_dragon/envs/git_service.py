@@ -4,8 +4,7 @@ import os
 import shutil
 from typing import Optional, Callable, List, Tuple
 
-from one_dragon.envs.env_config import DEFAULT_ENV_PATH, DEFAULT_GIT_DIR_PATH, ProxyTypeEnum, EnvConfig, \
-    RepositoryTypeEnum, GitMethodEnum
+from one_dragon.envs.env_config import DEFAULT_ENV_PATH, DEFAULT_GIT_DIR_PATH, EnvConfig, RepositoryTypeEnum, GitMethodEnum
 from one_dragon.envs.project_config import ProjectConfig
 from one_dragon.envs.download_service import DownloadService
 from one_dragon.utils import http_utils, cmd_utils, file_utils, os_utils
@@ -400,3 +399,13 @@ class GitService:
         """
         log_list = self.fetch_page_commit(0, 1)
         return None if len(log_list) == 0 else log_list[0].commit_id
+
+def __fetch_latest_code():
+    project_config = ProjectConfig()
+    env_config = EnvConfig()
+    download_service = DownloadService(project_config, env_config)
+    git_service = GitService(project_config, env_config, download_service)
+    return git_service.fetch_latest_code(progress_callback=None)
+
+if __name__ == '__main__':
+    __fetch_latest_code()
