@@ -46,8 +46,12 @@ class SettingCustomInterface(VerticalScrollInterface):
         self.theme_opt.value_changed.connect(self._on_theme_changed)
         basic_group.addSettingCard(self.theme_opt)
 
+        self.version_poster_opt = SwitchSettingCard(icon=FluentIcon.IMAGE_EXPORT, title='启用版本海报', content='版本活动海报持续整个版本')
+        self.version_poster_opt.value_changed.connect(self._on_version_poster_changed)
+        basic_group.addSettingCard(self.version_poster_opt)
+
         self.remote_banner_opt = SwitchSettingCard(icon=FluentIcon.CLOUD, title='启用官方启动器主页背景', content='关闭后仅用本地图片')
-        self.remote_banner_opt.value_changed.connect(self.reload_banner)
+        self.remote_banner_opt.value_changed.connect(self._on_remote_banner_changed)
         basic_group.addSettingCard(self.remote_banner_opt)
 
         self.banner_select_btn = PrimaryPushButton(FluentIcon.EDIT, '选择', self)
@@ -77,6 +81,7 @@ class SettingCustomInterface(VerticalScrollInterface):
         self.theme_opt.init_with_adapter(self.ctx.custom_config.get_prop_adapter('theme'))
         self.custom_banner_opt.init_with_adapter(self.ctx.custom_config.get_prop_adapter('custom_banner'))
         self.remote_banner_opt.init_with_adapter(self.ctx.custom_config.get_prop_adapter('remote_banner'))
+        self.version_poster_opt.init_with_adapter(self.ctx.custom_config.get_prop_adapter('version_poster'))
 
     def _on_theme_changed(self, index: int, value: str) -> None:
         """
@@ -103,4 +108,28 @@ class SettingCustomInterface(VerticalScrollInterface):
             self.reload_banner()
     
     def reload_banner(self) -> None:
+        self.ctx.signal.reload_banner = True
+
+    def _on_version_poster_changed(self, value: bool) -> None:
+        """
+        版本海报开关改变
+        :param value: 值
+        :return:
+        """
+        if value:
+            # 如果启用版本海报，需要关闭远程背景
+            self.ctx.custom_config.remote_banner = False
+            self.remote_banner_opt.btn.setChecked(False)
+        self.ctx.signal.reload_banner = True
+
+    def _on_remote_banner_changed(self, value: bool) -> None:
+        """
+        远程横幅开关改变
+        :param value: 值
+        :return:
+        """
+        if value:
+            # 如果启用远程背景，需要关闭版本海报
+            self.ctx.custom_config.version_poster = False
+            self.version_poster_opt.btn.setChecked(False)
         self.ctx.signal.reload_banner = True
