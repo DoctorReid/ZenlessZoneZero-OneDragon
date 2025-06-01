@@ -7,8 +7,6 @@ import subprocess
 import yaml
 from colorama import init, Fore, Style
 
-from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
-
 # 初始化 colorama
 init(autoreset=True)
 
