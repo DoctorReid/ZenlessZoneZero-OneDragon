@@ -1,7 +1,8 @@
 import os
-
+from functools import partial
+from typing import Callable, Tuple
 from PySide6.QtCore import Qt, Signal, QTimer, QSize
-from PySide6.QtGui import QPixmap
+from PySide6.QtGui import QPixmap, QIcon
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QStackedWidget, QFrame
 from qfluentwidgets import (ProgressRing, PrimaryPushButton, FluentIcon, SettingCardGroup, 
                             PushButton, HyperlinkButton, ProgressBar, IndeterminateProgressBar, 
@@ -185,6 +186,12 @@ class InstallStepWidget(QWidget):
         self.is_completed = False
         self.is_skipped = False
         self.completed_cards = 0
+        
+        # async flag
+        self.pending_checks = 0
+        self.completed_checks = 0
+        self.check_results = []
+        
         self.setup_ui()
 
         # 连接所有安装卡的完成信号
@@ -230,13 +237,115 @@ class InstallStepWidget(QWidget):
         layout.addWidget(self.status_label)
 
     def check_status(self):
-        if self.install_cards:
-            for card in self.install_cards:
-                if card:
-                    card.check_and_update_display()
-            self.update_status_from_cards()
+        try:
+            if self.install_cards:
+                for card in self.install_cards:
+                    if card:
+                        card.check_and_update_display()
+                self.update_status_from_cards_async()
+        except Exception as e:
+            log.error(f"检查状态时发生错误: {e}")
+            import traceback
+            log.error(f"错误堆栈: {traceback.format_exc()}")
+            raise
 
+    def update_status_from_cards_async(self):
+        """异步更新状态"""
+        try:
+            if not self.install_cards:
+                return
+
+            # reset flag
+            self.pending_checks = 0
+            self.completed_checks = 0
+            self.check_results = []
+
+            for i, card in enumerate(self.install_cards):
+                if card:
+                    self.pending_checks += 1
+
+                    if hasattr(card, 'display_checker') and card.display_checker.isRunning():
+                        card.display_checker.wait(3000)  # 最多等待3秒
+
+                    try:
+                        result = card.get_display_content()
+                        
+                        if result is not None and len(result) == 2:
+                            icon, message = result
+                            self.on_card_status_checked(i, icon, message)
+                        else:
+                            self.on_card_status_checked(i, QIcon(), "检查失败")
+                    except Exception as e:
+                        log.error(f"第 {i} 个卡片检查时出错: {e}")
+                        self.on_card_status_checked(i, QIcon(), f"检查出错: {str(e)}")
+            
+            # 如果没有需要检查的卡片，直接返回
+            if self.pending_checks == 0:
+                return
+                
+        except Exception as e:
+            log.error(f"异步状态更新时发生错误: {e}")
+            import traceback
+            log.error(f"错误堆栈: {traceback.format_exc()}")
+            raise
+
+    def on_card_status_checked(self, card_index: int, icon: QIcon, message: str):
+        """单个卡片状态检查完成的回调"""
+        try:
+            self.check_results.append((card_index, icon, message))
+            self.completed_checks += 1
+            
+            # 所有检查完成后，更新状态
+            if self.completed_checks >= self.pending_checks:
+                self.process_check_results()
+        except Exception as e:
+            log.error(f"处理卡片状态检查回调时发生错误: {e}")
+            import traceback
+            log.error(f"错误堆栈: {traceback.format_exc()}")
+            raise
+
+    def process_check_results(self):
+        """处理所有卡片的检查结果"""
+        try:
+            all_completed = True
+            has_pending = False
+
+            for card_index, icon, message in self.check_results:
+                if any(keyword in message for keyword in ["已安装", "已同步", "已配置"]):
+                    continue
+                elif any(keyword in message for keyword in ["未安装", "未同步", "未配置", "需更新"]):
+                    all_completed = False
+                    has_pending = True
+                else:
+                    all_completed = False
+
+            if all_completed:
+                self.is_completed = True
+                self.status_label.setText("✓ 已满足所有条件")
+                self.status_label.setStyleSheet("color: #00a86b; font-weight: bold;")
+            elif has_pending:
+                self.is_completed = False
+                if self.is_optional:
+                    self.status_label.setText("可选安装或配置")
+                else:
+                    self.status_label.setText("需要安装或配置")
+                self.status_label.setStyleSheet("color: #666;")
+            else:
+                self.is_completed = False
+                self.status_label.setText("状态检查中...")
+                self.status_label.setStyleSheet("color: #666;")
+        except Exception as e:
+            # 发生异常时设置默认状态
+            self.is_completed = False
+            self.status_label.setText("状态检查失败")
+            self.status_label.setStyleSheet("color: #666;")
+
+    # @deprecated
     def update_status_from_cards(self):
+        """
+        @deprecated: update status use sync
+        use update_status_from_cards_async() instead
+        """
         if not self.install_cards:
             return
 
@@ -299,17 +408,51 @@ class InstallStepWidget(QWidget):
         total_cards = len([card for card in self.install_cards if card])
         if self.completed_cards >= total_cards:
             # 检查是否所有安装都成功
+            self.check_install_results_async()
+
+    def check_install_results_async(self):
+        """异步检查安装结果"""
+        # reset flag
+        self.pending_checks = 0
+        self.completed_checks = 0
+        self.check_results = []
+
+        for i, card in enumerate(self.install_cards):
+            if card:
+                self.pending_checks += 1
+                try:
+                    result = card.get_display_content()
+                    
+                    if result is not None and len(result) == 2:
+                        icon, message = result
+                        # 直接调用回调，不使用线程
+                        self.on_install_result_checked(i, icon, message)
+                    else:
+                        self.on_install_result_checked(i, QIcon(), "检查失败")
+                except Exception as e:
+                    log.error(f"第 {i} 个卡片安装结果检查时出错: {e}")
+                    self.on_install_result_checked(i, QIcon(), f"检查出错: {str(e)}")
+        
+        # 如果没有需要检查的卡片，直接返回
+        if self.pending_checks == 0:
+            return
+
+    def on_install_result_checked(self, card_index: int, icon: QIcon, message: str):
+        """单个安装结果检查完成的回调"""
+        self.check_results.append((card_index, icon, message))
+        self.completed_checks += 1
+
+        if self.completed_checks >= self.pending_checks:
+            self.process_install_results()
+
+    def process_install_results(self):
+        """处理安装结果"""
+        try:
             all_success = True
-            for card in self.install_cards:
-                if card:
-                    try:
-                        icon, message = card.get_display_content()
-                        if not any(keyword in message for keyword in ["已安装", "已同步", "已配置"]):
-                            all_success = False
-                            break
-                    except:
-                        all_success = False
-                        break
+            for card_index, icon, message in self.check_results:
+                if not any(keyword in message for keyword in ["已安装", "已同步", "已配置"]):
+                    all_success = False
+                    break
 
             self.is_completed = all_success
 
@@ -321,6 +464,12 @@ class InstallStepWidget(QWidget):
                 self.status_label.setStyleSheet("color: #d13438; font-weight: bold;")
 
             self.step_completed.emit(all_success)
+        except Exception as e:
+            # 异常情况下认为安装失败
+            self.is_completed = False
+            self.status_label.setText("✗ 状态检查失败")
+            self.status_label.setStyleSheet("color: #d13438; font-weight: bold;")
+            self.step_completed.emit(False)
 
 
 class InstallerInterface(VerticalScrollInterface):
@@ -632,62 +781,68 @@ class InstallerInterface(VerticalScrollInterface):
 
     def update_step_display(self):
         """更新步骤显示"""
-        if not self.is_advanced_mode:
-            return
+        try:
+            if not self.is_advanced_mode:
+                return
 
-        self.update_step_indicator()
-        self.step_stack.setCurrentIndex(self.current_step)
+            self.update_step_indicator()
+            self.step_stack.setCurrentIndex(self.current_step)
 
-        # 更新按钮状态
-        if getattr(self, '_from_one_click_install', False):
-            self.prev_btn.setVisible(False)
-            self.back_btn.setVisible(False)
-            self.step_indicator.setVisible(False)
-        else:
-            self.prev_btn.setVisible(self.current_step > 0)
-            self.back_btn.setVisible(self.current_step == 0)
-
-        # 获取当前步骤
-        current_step_widget = self.install_steps[self.current_step]
-
-        if not current_step_widget.is_completed and not current_step_widget.is_skipped:
-            current_step_widget.check_status()
-
-        if self.is_all_completed:
-            self.next_btn.clicked.disconnect()
-            self.next_btn.clicked.connect(self.go_next_step)
-            self.is_all_completed = False
-
-        # 根据当前步骤状态更新按钮
-        if current_step_widget.is_completed:
-            self.install_step_btn.setVisible(False)
-            self.skip_current_btn.setVisible(False)
-            self.next_btn.setVisible(True)
-            self.next_btn.setEnabled(True)
-            if self.current_step == len(self.install_steps) - 1:
-                self.next_btn.setText("完成")
+            # 更新按钮状态
+            if getattr(self, '_from_one_click_install', False):
+                self.prev_btn.setVisible(False)
+                self.back_btn.setVisible(False)
+                self.step_indicator.setVisible(False)
             else:
-                self.next_btn.setText("下一步")
-        elif current_step_widget.is_skipped:
-            self.install_step_btn.setVisible(False)
-            self.skip_current_btn.setVisible(False)
-            self.next_btn.setVisible(True)
-            self.next_btn.setEnabled(True)
-            if self.current_step == len(self.install_steps) - 1:
-                self.next_btn.setText("完成")
-            else:
-                self.next_btn.setText("下一步")
-        else:
-            self.install_step_btn.setVisible(True)
-            if current_step_widget.is_optional:
+                self.prev_btn.setVisible(self.current_step > 0)
+                self.back_btn.setVisible(self.current_step == 0)
+
+            # 获取当前步骤
+            current_step_widget = self.install_steps[self.current_step]
+
+            if not current_step_widget.is_completed and not current_step_widget.is_skipped:
+                current_step_widget.check_status()
+
+            if self.is_all_completed:
+                self.next_btn.clicked.disconnect()
+                self.next_btn.clicked.connect(self.go_next_step)
+                self.is_all_completed = False
+
+            # 根据当前步骤状态更新按钮
+            if current_step_widget.is_completed:
+                self.install_step_btn.setVisible(False)
                 self.skip_current_btn.setVisible(False)
                 self.next_btn.setVisible(True)
                 self.next_btn.setEnabled(True)
                 if self.current_step == len(self.install_steps) - 1:
                     self.next_btn.setText("完成")
+                else:
+                    self.next_btn.setText("下一步")
+            elif current_step_widget.is_skipped:
+                self.install_step_btn.setVisible(False)
+                self.skip_current_btn.setVisible(False)
+                self.next_btn.setVisible(True)
+                self.next_btn.setEnabled(True)
+                if self.current_step == len(self.install_steps) - 1:
+                    self.next_btn.setText("完成")
+                else:
+                    self.next_btn.setText("下一步")
             else:
-                self.skip_current_btn.setVisible(True)
-                self.next_btn.setVisible(False)
+                self.install_step_btn.setVisible(True)
+                if current_step_widget.is_optional:
+                    self.skip_current_btn.setVisible(False)
+                    self.next_btn.setVisible(True)
+                    self.next_btn.setEnabled(True)
+                    if self.current_step == len(self.install_steps) - 1:
+                        self.next_btn.setText("完成")
+                else:
+                    self.skip_current_btn.setVisible(True)
+                    self.next_btn.setVisible(False)
+        except Exception as e:
+            log.error(f"更新步骤显示时发生错误: {e}")
+            import traceback
+            log.error(f"错误堆栈: {traceback.format_exc()}")
+            raise
 
     def update_step_indicator(self):
         """更新步骤指示器"""
