@@ -196,7 +196,7 @@ class PythonService:
         else:
             return None
 
-    def uv_install_python_venv(self, progress_callback: Optional[Callable[[float, str, str], None]]) -> Tuple[bool, str, str]:
+    def uv_install_python_venv(self, progress_callback: Optional[Callable[[float, str, str], None]]) -> Tuple[bool, str]:
         """
         完整流程使用 uv 安装 python 环境
         :param progress_callback:
