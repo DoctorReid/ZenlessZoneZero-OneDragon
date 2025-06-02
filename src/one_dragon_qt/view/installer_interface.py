@@ -1,11 +1,9 @@
-import os
-
 from PySide6.QtCore import Qt, Signal, QTimer, QSize
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QStackedWidget, QFrame
-from qfluentwidgets import (ProgressRing, PrimaryPushButton, FluentIcon, SettingCardGroup, 
-                            PushButton, HyperlinkButton, ProgressBar, IndeterminateProgressBar, 
-                            TitleLabel, SubtitleLabel, StrongBodyLabel, BodyLabel)
+from qfluentwidgets import (FluentIcon, ProgressRing, ProgressBar, IndeterminateProgressBar, 
+                            PushButton, PrimaryPushButton, HyperlinkButton, 
+                            TitleLabel, SubtitleLabel, BodyLabel)
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon.utils import app_utils
