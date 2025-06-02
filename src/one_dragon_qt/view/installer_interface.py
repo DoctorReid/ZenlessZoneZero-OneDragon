@@ -165,6 +165,7 @@ class InstallStepWidget(QWidget):
 
     step_completed = Signal(bool)
     step_skipped = Signal()
+    status_updated = Signal()
 
     def __init__(self, title: str, description: str, install_cards=None, is_optional: bool = False, parent=None):
         super().__init__(parent)
@@ -189,6 +190,7 @@ class InstallStepWidget(QWidget):
         for card in self.install_cards:
             if card:
                 card.finished.connect(self.on_install_finished)
+                card.display_checker.finished.connect(lambda: self.status_updated.emit())
 
     def setup_ui(self):
         layout = QVBoxLayout(self)
@@ -229,49 +231,43 @@ class InstallStepWidget(QWidget):
 
     def check_status(self):
         if self.install_cards:
-            for card in self.install_cards:
-                if card:
-                    card.check_and_update_display()
             self.update_status_from_cards()
 
     def update_status_from_cards(self):
         if not self.install_cards:
             return
 
-        try:
-            all_completed = True
-            has_pending = False
+        all_completed = True
+        has_pending = False
 
-            for card in self.install_cards:
-                if not card:
-                    continue
+        for card in self.install_cards:
+            if not card:
+                continue
 
-                icon, message = card.get_display_content()
-                if any(keyword in message for keyword in ["已安装", "已同步", "已配置"]):
-                    continue
-                elif any(keyword in message for keyword in ["未安装", "未同步", "未配置", "需更新"]):
-                    all_completed = False
-                    has_pending = True
-                else:
-                    all_completed = False
-
-            if all_completed:
-                self.is_completed = True
-                self.status_label.setText("✓ 已满足所有条件")
-                self.status_label.setStyleSheet("color: #00a86b; font-weight: bold;")
-            elif has_pending:
-                self.is_completed = False
-                if self.is_optional:
-                    self.status_label.setText("可选安装或配置")
-                else:
-                    self.status_label.setText("需要安装或配置")
-                self.status_label.setStyleSheet("color: #666;")
+            message = card.contentLabel.text()
+            if any(keyword in message for keyword in ["已安装", "已同步", "已配置"]):
+                continue
+            elif any(keyword in message for keyword in ["未安装", "未同步", "未配置", "需更新"]):
+                all_completed = False
+                has_pending = True
             else:
-                self.is_completed = False
-                self.status_label.setText("状态检查中...")
-                self.status_label.setStyleSheet("color: #666;")
-        except:
-            pass
+                all_completed = False
+
+        if all_completed:
+            self.is_completed = True
+            self.status_label.setText("✓ 已满足所有条件")
+            self.status_label.setStyleSheet("color: #00a86b; font-weight: bold;")
+        elif has_pending:
+            self.is_completed = False
+            if self.is_optional:
+                self.status_label.setText("可选安装或配置")
+            else:
+                self.status_label.setText("需要安装或配置")
+            self.status_label.setStyleSheet("color: #666;")
+        else:
+            self.is_completed = False
+            self.status_label.setText("状态检查中...")
+            self.status_label.setStyleSheet("color: #666;")
 
     def start_install(self):
         if self.install_cards and not self.is_completed and not self.is_skipped:
@@ -301,7 +297,7 @@ class InstallStepWidget(QWidget):
             for card in self.install_cards:
                 if card:
                     try:
-                        icon, message = card.get_display_content()
+                        message = card.contentLabel.text()
                         if not any(keyword in message for keyword in ["已安装", "已同步", "已配置"]):
                             all_success = False
                             break
@@ -519,6 +515,7 @@ class InstallerInterface(VerticalScrollInterface):
         for step in self.install_steps:
             step.step_completed.connect(self.on_step_completed)
             step.step_skipped.connect(self.on_step_skipped)
+            step.status_updated.connect(self.on_step_updated)
 
         # 步骤内容区域
         self.step_stack = QStackedWidget()
@@ -726,23 +723,11 @@ class InstallerInterface(VerticalScrollInterface):
             else:
                 self.show_completion_message()
 
-    def skip_current_step(self):
-        """跳过当前步骤"""
-        current_step_widget = self.install_steps[self.current_step]
-        if not current_step_widget.is_completed and not current_step_widget.is_skipped:
-            current_step_widget.skip_step()
-
     def on_step_completed(self, success: bool):
         """步骤完成回调"""
         self.update_step_display()
         if success and self.current_step < len(self.install_steps) - 1:
             QTimer.singleShot(1000, self.auto_next_step)
-
-    def auto_next_step(self):
-        """自动进入下一步"""
-        if self.current_step < len(self.install_steps) - 1:
-            self.current_step += 1
-            self.update_step_display()
 
     def on_step_skipped(self):
         """步骤跳过回调"""
@@ -750,6 +735,22 @@ class InstallerInterface(VerticalScrollInterface):
         self.update_step_display()
         if self.current_step < len(self.install_steps) - 1:
             QTimer.singleShot(500, self.auto_next_step)
+
+    def on_step_updated(self):
+        """步骤状态更新回调"""
+        self.update_step_display()
+
+    def auto_next_step(self):
+        """自动进入下一步"""
+        if self.current_step < len(self.install_steps) - 1:
+            self.current_step += 1
+            self.update_step_display()
+
+    def skip_current_step(self):
+        """跳过当前步骤"""
+        current_step_widget = self.install_steps[self.current_step]
+        if not current_step_widget.is_completed and not current_step_widget.is_skipped:
+            current_step_widget.skip_step()
 
     def show_completion_message(self):
         """显示完成消息"""
