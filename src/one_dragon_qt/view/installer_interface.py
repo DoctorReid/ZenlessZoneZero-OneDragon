@@ -809,19 +809,6 @@ class InstallerInterface(VerticalScrollInterface):
             self.progress_bar_2.setVisible(False)
             self.progress_bar_2.stop()
 
-    def on_interface_shown(self) -> None:
-        super().on_interface_shown()
-
-        # 更新所有安装卡的状态
-        for card in self.all_install_cards:
-            if card:
-                card.check_and_update_display()
-
-        # 如果是高级模式，检查所有步骤的状态
-        if self.is_advanced_mode:
-            for step in self.install_steps:
-                step.check_status()
-
     def update_log_display(self):
         """更新日志显示内容"""
         if not hasattr(self, 'log_receiver') or not hasattr(self, 'log_display_label'):
@@ -836,4 +823,29 @@ class InstallerInterface(VerticalScrollInterface):
                     latest_chinese_log = log_line
                     break
             if latest_chinese_log:
-                self.log_display_label.setText(latest_chinese_log)
+                # 如果日志太长，在中间添加换行符
+                if len(latest_chinese_log) > 50:
+                    mid_point = len(latest_chinese_log) // 2
+                    # 找到中间点附近的空格或标点符号作为换行位置
+                    break_point = mid_point
+                    for i in range(mid_point - 10, mid_point + 10):
+                        if i < len(latest_chinese_log) and latest_chinese_log[i] in [' ', '/']:
+                            break_point = i + 1
+                            break
+                    formatted_log = latest_chinese_log[:break_point] + '\n' + latest_chinese_log[break_point:]
+                    self.log_display_label.setText(formatted_log)
+                else:
+                    self.log_display_label.setText(latest_chinese_log)
+
+    def on_interface_shown(self) -> None:
+        super().on_interface_shown()
+
+        # 更新所有安装卡的状态
+        for card in self.all_install_cards:
+            if card:
+                card.check_and_update_display()
+
+        # 如果是高级模式，检查所有步骤的状态
+        if self.is_advanced_mode:
+            for step in self.install_steps:
+                step.check_status()
