@@ -42,15 +42,6 @@ def run_in_exe() -> bool:
 
 
 @lru_cache
-def run_as_installer() -> bool:
-    """
-    当前是否是安装器
-    :return:
-    """
-    return run_in_exe() and os.path.exists(os.path.join(sys._MEIPASS, 'resources'))
-
-
-@lru_cache
 def get_work_dir() -> str:
     """
     返回项目根目录的路径

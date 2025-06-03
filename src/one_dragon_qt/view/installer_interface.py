@@ -1,14 +1,13 @@
 from PySide6.QtCore import Qt, Signal, QTimer, QSize
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QStackedWidget, QFrame
-from qfluentwidgets import (FluentIcon, ProgressRing, ProgressBar, IndeterminateProgressBar, 
-                            PushButton, PrimaryPushButton, HyperlinkButton, 
+from qfluentwidgets import (FluentIcon, ProgressRing, ProgressBar, IndeterminateProgressBar,
+                            PushButton, PrimaryPushButton, HyperlinkButton,
                             TitleLabel, SubtitleLabel, BodyLabel)
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon.utils import app_utils
 from one_dragon.utils.log_utils import log
-from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon_qt.widgets.install_card.all_install_card import AllInstallCard
 from one_dragon_qt.widgets.install_card.code_install_card import CodeInstallCard
 from one_dragon_qt.widgets.install_card.git_install_card import GitInstallCard
@@ -16,6 +15,7 @@ from one_dragon_qt.widgets.install_card.launcher_install_card import LauncherIns
 from one_dragon_qt.widgets.install_card.python_install_card import PythonInstallCard
 from one_dragon_qt.widgets.install_card.uv_install_card import UVInstallCard
 from one_dragon_qt.widgets.log_display_card import LogReceiver
+from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 
 
 class ClickableStepCircle(QLabel):
@@ -312,12 +312,12 @@ class InstallStepWidget(QWidget):
 
 class InstallerInterface(VerticalScrollInterface):
 
-    def __init__(self, ctx: OneDragonEnvContext, extra_install_cards: list = [], parent=None):
+    def __init__(self, ctx: OneDragonEnvContext, extra_install_cards: list = None, parent=None):
         VerticalScrollInterface.__init__(self, object_name='install_interface',
                                          parent=parent, content_widget=None,
                                          nav_text_cn='一键安装', nav_icon=FluentIcon.DOWNLOAD)
         self.ctx: OneDragonEnvContext = ctx
-        self.extra_install_cards = extra_install_cards
+        self.extra_install_cards: list = extra_install_cards
         self._progress_value = 0
         self._progress_message = ''
         self._installing = False
@@ -439,7 +439,7 @@ class InstallerInterface(VerticalScrollInterface):
 
         # 所有安装组件
         self.all_install_cards = base_install_cards.copy()
-        if self.extra_install_cards:
+        if self.extra_install_cards is not None:
             self.all_install_cards.extend(self.extra_install_cards)
 
         # 一键安装使用基础组件
