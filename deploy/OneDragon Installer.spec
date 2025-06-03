@@ -8,9 +8,7 @@ a = Analysis(
     datas=[
         ('../config/project.yml', 'resources/config'),
         ('../assets/text', 'resources/assets/text'),
-        ('../assets/ui', 'resources/assets/ui'),
-        ('../pyproject.toml', 'resources'),
-        ('../uv.toml', 'resources')
+        ('../assets/ui', 'resources/assets/ui')
     ],
     hiddenimports=[],
     hookspath=[],

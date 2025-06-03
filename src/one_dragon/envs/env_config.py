@@ -235,7 +235,7 @@ class EnvConfig(YamlConfig):
         cpython-build-standalone 源
         :return:
         """
-        return self.get('cpython_source', CpythonSourceEnum.GITHUB.value.value)
+        return self.get('cpython_source', CpythonSourceEnum.NJU.value.value)
 
     @cpython_source.setter
     def cpython_source(self, new_value: str) -> None:
