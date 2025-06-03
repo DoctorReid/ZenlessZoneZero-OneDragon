@@ -7,7 +7,6 @@ from zzz_od.gui.view.installer.source_config_interface import SourceConfigInterf
 
 class ZInstallerWindow(InstallerWindowBase):
 
-
     def __init__(self, ctx: OneDragonEnvContext, win_title: str, parent=None):
         InstallerWindowBase.__init__(
             self,
@@ -30,7 +29,7 @@ class ZInstallerWindow(InstallerWindowBase):
 
     def resizeEvent(self, event):
         """重写窗口大小改变事件"""
-        super().resizeEvent(event)
+        InstallerWindowBase.resizeEvent(self, event)
         self._adjust_title_bar_position()
 
     def create_sub_interface(self):

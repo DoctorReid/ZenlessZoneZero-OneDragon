@@ -117,11 +117,13 @@ class SourceConfigInterface(VerticalScrollInterface):
         if index == 0:
             self.ctx.env_config.repository_type = RepositoryTypeEnum.GITEE.value.value
             self.ctx.env_config.proxy_type = ProxyTypeEnum.GHPROXY.value.value
+            self.ctx.env_config.cpython_source = CpythonSourceEnum.NJU.value.value
             self.ctx.env_config.pip_source = PipSourceEnum.TSING_HUA.value.value
             self.ctx.async_update_gh_proxy()
         elif index == 1:
             self.ctx.env_config.repository_type = RepositoryTypeEnum.GITHUB.value.value
             self.ctx.env_config.proxy_type = ProxyTypeEnum.NONE.value.value
+            self.ctx.env_config.cpython_source = CpythonSourceEnum.GITHUB.value.value
             self.ctx.env_config.pip_source = PipSourceEnum.PYPI.value.value
         self._init_config_values()
 
