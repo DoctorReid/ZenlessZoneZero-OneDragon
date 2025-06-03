@@ -35,7 +35,7 @@ class PythonService:
         for _ in range(2):
             zip_file_name = 'uv-x86_64-pc-windows-msvc.zip'
             zip_file_path = os.path.join(DEFAULT_ENV_PATH, zip_file_name)
-            download_url = f'https://github.com/astral-sh/uv/releases/latest/download/{zip_file_name}'
+            download_url = f'https://github.com/astral-sh/uv/releases/download/0.7.6/{zip_file_name}'
             if not os.path.exists(zip_file_path):
                 # success = self.download_service.download_env_file(zip_file_name, zip_file_path, progress_callback=progress_callback)
                 success = self.download_service.download_file_from_url(download_url, zip_file_path, progress_callback=progress_callback)
@@ -77,8 +77,12 @@ class PythonService:
             progress_callback(-1, msg)
         log.info(msg)
 
+        source = self.env_config.cpython_source
+        if source == CpythonSourceEnum.GITHUB.value.value and self.env_config.is_gh_proxy:
+            source = f'{self.env_config.gh_proxy_url}/{source}'
+
         result = cmd_utils.run_command([self.env_config.uv_path, 'python', 'install', self.project_config.uv_python_version,
-                                        '--mirror', self.env_config.cpython_source,
+                                        '--mirror', source,
                                         '--install-dir', DEFAULT_PYTHON_DIR_PATH])
         msg = 'UV 安装 Python 成功' if result is not None else 'UV 安装 Python 失败'
         log.info(msg)
