@@ -7,7 +7,7 @@ import urllib.parse
 from typing import Optional, Callable, Tuple
 
 from one_dragon.envs.env_config import EnvConfig, PipSourceEnum, CpythonSourceEnum, DEFAULT_ENV_PATH, DEFAULT_UV_DIR_PATH,\
-     DEFAULT_PYTHON_DIR_PATH, DEFAULT_PYTHON_PATH, DEFAULT_VENV_DIR_PATH, DEFAULT_VENV_PYTHON_PATH
+     DEFAULT_PYTHON_DIR_PATH, DEFAULT_VENV_DIR_PATH, DEFAULT_VENV_PYTHON_PATH
 from one_dragon.envs.download_service import DownloadService
 from one_dragon.envs.project_config import ProjectConfig
 from one_dragon.utils import file_utils, cmd_utils, os_utils
@@ -77,9 +77,6 @@ class PythonService:
             progress_callback(-1, msg)
         log.info(msg)
 
-        source = self.env_config.cpython_source
-        if source == CpythonSourceEnum.GITHUB.value.value and self.env_config.is_gh_proxy:
-            source = f'{self.env_config.gh_proxy_url}/{source}'
         result = cmd_utils.run_command([self.env_config.uv_path, 'python', 'install', self.project_config.uv_python_version,
                                         '--mirror', source,
                                         '--install-dir', DEFAULT_PYTHON_DIR_PATH])
