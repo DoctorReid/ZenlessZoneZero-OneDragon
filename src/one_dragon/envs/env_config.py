@@ -21,11 +21,11 @@ class ProxyTypeEnum(Enum):
 
     NONE = ConfigItem('无', 'None')
     PERSONAL = ConfigItem('个人代理', 'personal')
-    GHPROXY = ConfigItem('Github免费代理', 'ghproxy')
+    GHPROXY = ConfigItem('GitHub免费代理', 'ghproxy')
 
 class RepositoryTypeEnum(Enum):
 
-    GITHUB = ConfigItem('Github')
+    GITHUB = ConfigItem('GitHub')
     GITEE = ConfigItem('Gitee')
 
 class RegionEnum(Enum):
@@ -176,7 +176,7 @@ class EnvConfig(YamlConfig):
     @property
     def repository_type(self) -> str:
         """
-        仓库类型 Github / Gitee
+        仓库类型 GitHub / Gitee
         :return:
         """
         return self.get('repository_type', RepositoryTypeEnum.GITEE.value.value)
@@ -184,7 +184,7 @@ class EnvConfig(YamlConfig):
     @repository_type.setter
     def repository_type(self, new_value: str) -> None:
         """
-        仓库类型 Github / Gitee
+        仓库类型 GitHub / Gitee
         :return:
         """
         self.update('repository_type', new_value)

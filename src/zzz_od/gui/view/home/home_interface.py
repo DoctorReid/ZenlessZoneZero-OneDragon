@@ -57,7 +57,7 @@ class ButtonGroup(SimpleCardWidget):
         # 创建 GitHub 按钮
         github_button = IconButton(
             FluentIcon.GITHUB.icon(color=QColor("#fff")),
-            tip_title="Github仓库",
+            tip_title="GitHub仓库",
             tip_content="如果本项目有帮助到您~\n不妨给项目点一个Star⭐",
             isTooltip=True,
         )
