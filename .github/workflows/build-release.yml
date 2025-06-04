@@ -133,12 +133,11 @@ jobs:
         $rootDir = "$distDir/ZenlessZoneZero-OneDragon"
         New-Item -ItemType Directory -Path $rootDir -Force
 
-        # .env
-        $envDir = "$rootDir/.env"
+        # .install
+        $envDir = "$rootDir/.install"
         New-Item -ItemType Directory -Path $envDir -Force
-        Invoke-WebRequest -Uri "https://bootstrap.pypa.io/get-pip.py" -OutFile "$envDir/get-pip.py"
-        Invoke-WebRequest -Uri "https://github.com/git-for-windows/git/releases/download/v2.49.0.windows.1/MinGit-2.49.0-busybox-64-bit.zip" -OutFile "$envDir/PortableGit.zip"
-        Invoke-WebRequest -Uri "https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip" -OutFile "$envDir/python-3.11.9-embed-amd64.zip"
+        Invoke-WebRequest -Uri "https://github.com/DoctorReid/OneDragon-Env/releases/download/ZenlessZoneZero-OneDragon/uv-x86_64-pc-windows-msvc.zip" -OutFile "$envDir/uv-x86_64-pc-windows-msvc.zip"
+        Invoke-WebRequest -Uri "https://github.com/DoctorReid/OneDragon-Env/releases/download/ZenlessZoneZero-OneDragon/MinGit" -OutFile "$envDir/MinGit.zip"
 
         # artifact
         Copy-Item "$distDir/OneDragon Installer.exe" -Destination $rootDir -Force
@@ -194,6 +193,15 @@ jobs:
           "$rootDir/OneDragon Launcher.exe",
           "$rootDir/OneDragon Scheduler.exe"
         ) -DestinationPath "$distDir/ZenlessZoneZero-OneDragon-$version-Update.zip" -Force
+
+        # Pack Launcher
+        Compress-Archive -Path @(
+          "$rootDir/OneDragon Launcher.exe",
+          "$rootDir/OneDragon Scheduler.exe"
+        ) -DestinationPath "$distDir/ZenlessZoneZero-OneDragon-Launcher.zip" -Force
+        
+        # Copy Installer
+        Copy-Item "$rootDir/OneDragon Installer.exe" -Destination "$distDir/ZenlessZoneZero-OneDragon-$version-Installer.exe" -Force
 
     - name: Generate Changelog
       id: changelog
@@ -253,8 +261,11 @@ jobs:
 
           ${{ steps.changelog.outputs.clean_changelog }}
         files: |
+          deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Installer.exe
+          deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Full.zip
           deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Full.zip
           deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Update.zip
+          deploy/dist/ZenlessZoneZero-OneDragon-Launcher.zip
           deploy/dist/directory-structure.txt
         generate_release_notes: false
         prerelease: ${{ github.event_name == 'workflow_dispatch' }}
