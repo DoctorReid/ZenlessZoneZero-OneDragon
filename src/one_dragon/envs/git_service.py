@@ -73,7 +73,7 @@ class GitService:
         log.info(msg)
 
         for _ in range(2):
-            zip_file_name = 'PortableGit.zip'
+            zip_file_name = 'MinGit.zip'
             zip_file_path = os.path.join(DEFAULT_ENV_PATH, zip_file_name)
             if not os.path.exists(zip_file_path):
                 success = self.download_service.download_env_file(zip_file_name, zip_file_path,

@@ -37,8 +37,8 @@ class PythonService:
             zip_file_path = os.path.join(DEFAULT_ENV_PATH, zip_file_name)
             download_url = f'https://github.com/astral-sh/uv/releases/download/0.7.6/{zip_file_name}'
             if not os.path.exists(zip_file_path):
-                # success = self.download_service.download_env_file(zip_file_name, zip_file_path, progress_callback=progress_callback)
-                success = self.download_service.download_file_from_url(download_url, zip_file_path, progress_callback=progress_callback)
+                success = self.download_service.download_env_file(zip_file_name, zip_file_path, progress_callback=progress_callback)
+                # success = self.download_service.download_file_from_url(download_url, zip_file_path, progress_callback=progress_callback)
                 if not success:
                     return False, '下载 UV 失败 请尝试到「设置」更改网络代理'
 

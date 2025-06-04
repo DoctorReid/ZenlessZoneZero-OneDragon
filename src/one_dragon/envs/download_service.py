@@ -5,8 +5,7 @@ from one_dragon.envs.project_config import ProjectConfig
 from one_dragon.utils import http_utils
 
 GITHUB_ENV_DOWNLOAD_PREFIX = 'https://github.com/DoctorReid/OneDragon-Env/releases/download'
-GITEE_ENV_DOWNLOAD_PREFIX = 'https://gitee.com/DoctorReid/OneDragon-Env/releases/download'
-
+GITEE_ENV_DOWNLOAD_PREFIX = 'https://gitee.com/OneDragon-Anything/OneDragon-Env/releases/download'
 
 class DownloadService:
     """下载服务，统一处理各种文件下载"""
