@@ -27,7 +27,7 @@ class PythonService:
             log.info(msg)
             return True, msg
 
-        msg = '开始安装 UV'
+        msg = '正在安装 UV...'
         if progress_callback is not None:
             progress_callback(-1, msg)
         log.info(msg)
@@ -42,7 +42,7 @@ class PythonService:
                 if not success:
                     return False, '下载 UV 失败 请尝试到「设置」更改网络代理'
 
-            msg = f'开始解压 {zip_file_name}'
+            msg = f'正在解压 {zip_file_name}...'
             log.info(msg)
             if progress_callback is not None:
                 progress_callback(0, msg)
@@ -72,7 +72,7 @@ class PythonService:
                 progress_callback(0, '未找到 UV 路径')
             return False
 
-        msg = '开始使用 UV 安装 Python'
+        msg = '正在使用 UV 安装 Python...'
         if progress_callback is not None:
             progress_callback(-1, msg)
         log.info(msg)
@@ -112,9 +112,10 @@ class PythonService:
         :param progress_callback:
         :return:
         """
+        msg = '正在使用 UV 创建虚拟环境...'
         if progress_callback is not None:
-            progress_callback(-1, '开始使用 UV 创建虚拟环境')
-        log.info('开始使用 UV 创建虚拟环境')
+            progress_callback(-1, msg)
+        log.info(msg)
 
         os.environ["UV_PYTHON_INSTALL_DIR"] = DEFAULT_PYTHON_DIR_PATH
         result = cmd_utils.run_command([self.env_config.uv_path, 'venv', DEFAULT_VENV_DIR_PATH, '--python=3.11.12', '--no-python-downloads'])
@@ -130,9 +131,10 @@ class PythonService:
         使用uv安装环境和依赖
         :return:
         """
+        msg = '正在使用 UV 安装依赖...'
         if progress_callback is not None:
-            progress_callback(-1, '正在安装...')
-        log.info('开始使用 UV 安装依赖')
+            progress_callback(-1, msg)
+        log.info(msg)
 
         os.environ["UV_PYTHON_INSTALL_DIR"] = DEFAULT_PYTHON_DIR_PATH
         result = cmd_utils.run_command([self.env_config.uv_path, 'sync'])
@@ -252,17 +254,17 @@ class PythonService:
         :param progress_callback: 进度回调
         :return: (最佳源的标签, 延迟ms) or None if no sources or all fail
         """
-        display_log = f'开始{log_prefix}测速'
-        log.info(display_log)
+        msg = f'正在进行{log_prefix}测速...'
         if progress_callback is not None:
-            progress_callback(-1, display_log)
+            progress_callback(-1, msg)
+        log.info(msg)
 
         ping_result_list = []
         sources_to_test = list(source_enum_cls)
         if not sources_to_test:
-            log.warning(f"没有找到{log_prefix}以进行测速")
+            log.warning(f"找不到{log_prefix}以进行测速")
             if progress_callback is not None:
-                progress_callback(-1, f"没有找到{log_prefix}以进行测速")
+                progress_callback(-1, f"找不到{log_prefix}以进行测速")
             return None
 
         for source_enum_member in sources_to_test:
@@ -340,7 +342,7 @@ class PythonService:
             log.info(msg)
             return True, msg
 
-        msg = '开始安装启动器'
+        msg = '正在安装启动器...'
         if progress_callback is not None:
             progress_callback(-1, msg)
         log.info(msg)
@@ -354,7 +356,7 @@ class PythonService:
                 if not success:
                     return False, '下载安装器失败 请尝试到「设置」更改网络代理'
 
-            msg = f'开始解压 {zip_file_name}'
+            msg = f'正在解压 {zip_file_name} ...'
             log.info(msg)
             if progress_callback is not None:
                 progress_callback(0, msg)
