@@ -184,6 +184,7 @@ class InstallStepWidget(QWidget):
         self.is_completed = False
         self.is_skipped = False
         self.completed_cards = 0
+        self.installing_idx = -1  # 正在进行安装的下标
         self.setup_ui()
 
         # 连接所有安装卡的完成信号
@@ -274,11 +275,11 @@ class InstallStepWidget(QWidget):
             self.status_label.setText("正在安装...")
             self.status_label.setStyleSheet("color: #0078d4;")
             self.completed_cards = 0
+            self.installing_idx = 0
 
-            # 启动所有安装卡的安装进程
-            for card in self.install_cards:
-                if card:
-                    card.start_progress()
+            # 按顺序启动第一个安装卡的安装进程
+            if self.install_cards[self.installing_idx]:
+                self.install_cards[self.installing_idx].start_progress()
 
     def skip_step(self):
         self.is_skipped = True
@@ -287,34 +288,26 @@ class InstallStepWidget(QWidget):
         self.step_skipped.emit()
 
     def on_install_finished(self, success: bool):
-        self.completed_cards += 1
-
-        # 检查是否所有安装卡都完成了
-        total_cards = len([card for card in self.install_cards if card])
-        if self.completed_cards >= total_cards:
-            # 检查是否所有安装都成功
-            all_success = True
-            for card in self.install_cards:
-                if card:
-                    try:
-                        message = card.contentLabel.text()
-                        if not any(keyword in message for keyword in ["已安装", "已同步", "已配置"]):
-                            all_success = False
-                            break
-                    except:
-                        all_success = False
-                        break
-
-            self.is_completed = all_success
-
-            if all_success:
+        if self.installing_idx == -1:  # 并非从这里开始的顺序安装
+            return
+        if not success:  # 失败了 重置进度
+            self.status_label.setText("✗ 安装失败")
+            self.status_label.setStyleSheet("color: #d13438; font-weight: bold;")
+            self.installing_idx = -1
+            self.step_completed.emit(False)
+        else:
+            self.installing_idx += 1
+            if self.installing_idx < len(self.install_cards):
+                # 继续安装下一个
+                if self.install_cards[self.installing_idx]:
+                    self.install_cards[self.installing_idx].start_progress()
+            else:
+                # 所有安装完成
+                self.is_completed = True
                 self.status_label.setText("✓ 安装完成")
                 self.status_label.setStyleSheet("color: #00a86b; font-weight: bold;")
-            else:
-                self.status_label.setText("✗ 安装失败")
-                self.status_label.setStyleSheet("color: #d13438; font-weight: bold;")
-
-            self.step_completed.emit(all_success)
+                self.installing_idx = -1
+                self.step_completed.emit(True)
 
 
 class InstallerInterface(VerticalScrollInterface):
