@@ -1,11 +1,9 @@
 from typing import Optional, Callable
 
-from one_dragon.envs.env_config import EnvConfig, RepositoryTypeEnum
+from one_dragon.envs.env_config import EnvConfig
 from one_dragon.envs.project_config import ProjectConfig
 from one_dragon.utils import http_utils
 
-GITHUB_ENV_DOWNLOAD_PREFIX = 'https://github.com/DoctorReid/OneDragon-Env/releases/download'
-GITEE_ENV_DOWNLOAD_PREFIX = 'https://gitee.com/OneDragon-Anything/OneDragon-Env/releases/download'
 
 class DownloadService:
     """下载服务，统一处理各种文件下载"""
@@ -23,8 +21,7 @@ class DownloadService:
         :param progress_callback: 下载进度的回调，进度发生改变时，通过该方法通知调用方。
         :return: 是否下载成功
         """
-        env_download_prefix = GITHUB_ENV_DOWNLOAD_PREFIX if self.env_config.repository_type == RepositoryTypeEnum.GITHUB else GITEE_ENV_DOWNLOAD_PREFIX
-        download_url = f'{env_download_prefix}/{self.project_config.project_name}/{file_name}'
+        download_url = f'{self.env_config.env_source}/{self.project_config.project_name}/{file_name}'
         return self.download_file_from_url(download_url, save_file_path, progress_callback=progress_callback)
 
     def download_file_from_url(self, download_url: str, save_file_path: str,

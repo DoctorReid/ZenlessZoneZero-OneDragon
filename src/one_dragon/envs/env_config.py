@@ -58,6 +58,11 @@ class CpythonSourceEnum(Enum):
     NJU = ConfigItem('南京大学', 'https://mirror.nju.edu.cn/github-release/indygreg/python-build-standalone')
 
 
+class EnvSourceEnum(Enum):
+    GITHUB = ConfigItem('GitHub', 'https://github.com/DoctorReid/OneDragon-Env/releases/download')
+    GITEE = ConfigItem('Gitee', 'https://gitee.com/OneDragon-Anything/OneDragon-Env/releases/download')
+
+
 class EnvConfig(YamlConfig):
 
     def __init__(self):
@@ -260,6 +265,22 @@ class EnvConfig(YamlConfig):
         :return:
         """
         self.update('pip_source', new_value)
+
+    @property
+    def env_source(self) -> str:
+        """
+        环境下载源
+        :return:
+        """
+        return self.get('env_source', EnvSourceEnum.GITEE.value.value)
+
+    @env_source.setter
+    def env_source(self, new_value: str) -> None:
+        """
+        环境下载源
+        :return:
+        """
+        self.update('env_source', new_value)
 
     @property
     def pip_trusted_host(self) -> str:
