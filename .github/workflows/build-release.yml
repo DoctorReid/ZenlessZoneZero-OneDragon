@@ -147,10 +147,10 @@ jobs:
         # assets
         Copy-Item "assets/text" -Destination "$rootDir/assets/text" -Recurse -Force
         Copy-Item "assets/ui" -Destination "$rootDir/assets/ui" -Recurse -Force
-        Copy-Item "assets/models/onnx_ocr" -Destination "$rootDir/assets/models/onnx_ocr" -Recurse -Force
 
         # model route
         $modelBase = "$rootDir/assets/models"
+        New-Item -ItemType Directory -Path "$modelBase/onnx_ocr" -Force
         New-Item -ItemType Directory -Path "$modelBase/flash_classifier" -Force
         New-Item -ItemType Directory -Path "$modelBase/hollow_zero_event" -Force
         New-Item -ItemType Directory -Path "$modelBase/lost_void_det" -Force
@@ -158,6 +158,12 @@ jobs:
         # model name
         $tempDir = "temp_models"
         New-Item -ItemType Directory -Path $tempDir -Force
+
+        Expand-ZipIntoNamedFolder `
+          -url "https://github.com/OneDragon-Anything/OneDragon-Env/releases/download/ppocrv5/ppocrv5.zip" `
+          -downloadPath "$tempDir/ppocrv5.zip" `
+          -destRoot "$modelBase/onnx_ocr" `
+          -folderName "ppocrv5"
 
         Expand-ZipIntoNamedFolder `
           -url "https://github.com/DoctorReid/OneDragon-YOLO/releases/download/zzz_model/yolov8n-640-flash-0127.zip" `
