@@ -170,7 +170,7 @@ class LostVoidMoveByDet(ZOperation):
             if self.last_target_result is not None:
                 # 如果出现多次转向 说明可能是识别不准 然后又恰巧被卡住无法前进
                 self.lost_target_during_move_times += 1
-                # https://github.com/DoctorReid/ZenlessZoneZero-OneDragon/issues/867
+                # https://github.com/OneDragon-Anything/ZenlessZoneZero-OneDragon/issues/867
                 if self.lost_target_during_move_times % 5 == 0:  # 尝试脱困
                     self.stuck_times += 1
                     self.get_out_of_stuck()
@@ -203,7 +203,7 @@ class LostVoidMoveByDet(ZOperation):
             self.lost_target_during_move_times += 1
             # 移动过程中多次丢失目标 通常是因为识别不准
             # 游戏1.6版本出现了可以因为丢失目标转动镜头而一直无法进入脱困
-            # https://github.com/DoctorReid/ZenlessZoneZero-OneDragon/issues/867
+            # https://github.com/OneDragon-Anything/ZenlessZoneZero-OneDragon/issues/867
             if self.lost_target_during_move_times % 10 == 0:  # 尝试脱困
                 self.stuck_times += 1
                 self.get_out_of_stuck()
