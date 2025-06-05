@@ -36,7 +36,7 @@ class WelcomeDialog(MessageBoxBase):
         doc_button.adjustSize()
 
         github_button = PushButton("开源地址", self)
-        github_button.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://github.com/DoctorReid/ZenlessZoneZero-OneDragon")))
+        github_button.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://github.com/OneDragon-Anything/ZenlessZoneZero-OneDragon")))
         github_button.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         github_button.adjustSize()
 

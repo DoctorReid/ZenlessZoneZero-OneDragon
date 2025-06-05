@@ -59,7 +59,7 @@ class CpythonSourceEnum(Enum):
 
 
 class EnvSourceEnum(Enum):
-    GITHUB = ConfigItem('GitHub', 'https://github.com/DoctorReid/OneDragon-Env/releases/download')
+    GITHUB = ConfigItem('GitHub', 'https://github.com/OneDragon-Anything/OneDragon-Env/releases/download')
     GITEE = ConfigItem('Gitee', 'https://gitee.com/OneDragon-Anything/OneDragon-Env/releases/download')
 
 

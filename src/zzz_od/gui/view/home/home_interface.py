@@ -119,7 +119,7 @@ class ButtonGroup(SimpleCardWidget):
     def open_github(self):
         """打开 GitHub 链接"""
         QDesktopServices.openUrl(
-            QUrl("https://github.com/DoctorReid/ZenlessZoneZero-OneDragon")
+            QUrl("https://github.com/OneDragon-Anything/ZenlessZoneZero-OneDragon")
         )
 
     def open_chat(self):
