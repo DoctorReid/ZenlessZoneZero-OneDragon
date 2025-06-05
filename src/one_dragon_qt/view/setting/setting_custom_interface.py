@@ -4,7 +4,7 @@ import ctypes
 from ctypes import wintypes
 
 from PySide6.QtWidgets import QWidget, QFileDialog
-from qfluentwidgets import FluentIcon, SettingCardGroup, setTheme, Theme, PrimaryPushButton, Dialog
+from qfluentwidgets import FluentIcon, SettingCardGroup, setTheme, Theme, PrimaryPushButton
 
 from one_dragon.base.config.custom_config import ThemeEnum
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
@@ -15,7 +15,6 @@ from one_dragon_qt.widgets.setting_card.password_switch_setting_card import Pass
 from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.utils import os_utils
 from one_dragon.utils.i18_utils import gt
-from one_dragon.utils.log_utils import log
 
 class SettingCustomInterface(VerticalScrollInterface):
 
@@ -46,8 +45,12 @@ class SettingCustomInterface(VerticalScrollInterface):
         self.theme_opt.value_changed.connect(self._on_theme_changed)
         basic_group.addSettingCard(self.theme_opt)
 
+        self.version_poster_opt = SwitchSettingCard(icon=FluentIcon.IMAGE_EXPORT, title='启用版本海报', content='版本活动海报持续整个版本')
+        self.version_poster_opt.value_changed.connect(self._on_version_poster_changed)
+        basic_group.addSettingCard(self.version_poster_opt)
+
         self.remote_banner_opt = SwitchSettingCard(icon=FluentIcon.CLOUD, title='启用官方启动器主页背景', content='关闭后仅用本地图片')
-        self.remote_banner_opt.value_changed.connect(self.reload_banner)
+        self.remote_banner_opt.value_changed.connect(self._on_remote_banner_changed)
         basic_group.addSettingCard(self.remote_banner_opt)
 
         self.banner_select_btn = PrimaryPushButton(FluentIcon.EDIT, '选择', self)
@@ -77,6 +80,7 @@ class SettingCustomInterface(VerticalScrollInterface):
         self.theme_opt.init_with_adapter(self.ctx.custom_config.get_prop_adapter('theme'))
         self.custom_banner_opt.init_with_adapter(self.ctx.custom_config.get_prop_adapter('custom_banner'))
         self.remote_banner_opt.init_with_adapter(self.ctx.custom_config.get_prop_adapter('remote_banner'))
+        self.version_poster_opt.init_with_adapter(self.ctx.custom_config.get_prop_adapter('version_poster'))
 
     def _on_theme_changed(self, index: int, value: str) -> None:
         """
@@ -101,6 +105,16 @@ class SettingCustomInterface(VerticalScrollInterface):
             'banner')
             shutil.copyfile(file_path, banner_path)
             self.reload_banner()
+
+    def _on_version_poster_changed(self, value: bool) -> None:
+        if value:
+            self.remote_banner_opt.setValue(False)
+        self.reload_banner()
+
+    def _on_remote_banner_changed(self, value: bool) -> None:
+        if value:
+            self.version_poster_opt.setValue(False)
+        self.reload_banner()
     
     def reload_banner(self) -> None:
         self.ctx.signal.reload_banner = True

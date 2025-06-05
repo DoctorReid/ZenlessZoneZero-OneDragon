@@ -168,6 +168,64 @@ class CheckBannerRunner(CheckRunnerBase):
         if self.ctx.signal.reload_banner:
             self.need_update.emit(True)
 
+class VersionPosterDownloader(QThread):
+    """版本海报下载器"""
+    poster_downloaded = Signal(str)
+
+    def __init__(self, ctx: ZContext, parent=None):
+        super().__init__(parent)
+        self.ctx = ctx
+        self.save_path = os.path.join(os_utils.get_path_under_work_dir('assets', 'ui'), 'version_poster.webp')
+        self.url = "https://hyp-api.mihoyo.com/hyp/hyp-connect/api/getGames?launcher_id=jGHBHlcOq1&language=zh-cn"
+
+    def run(self):
+        if not os.path.exists(self.save_path):
+            self.get()
+        last_fetch_time_str = self.ctx.custom_config.last_version_poster_fetch_time
+        if last_fetch_time_str:
+            try:
+                last_fetch_time = datetime.strptime(last_fetch_time_str, '%Y-%m-%d %H:%M:%S')
+                if datetime.now() - last_fetch_time >= timedelta(days=1):
+                    self.get()
+            except ValueError:
+                pass
+        else:
+            self.get()
+
+    def get(self):
+        try:
+            resp = requests.get(self.url, timeout=5)
+            data = resp.json()
+            for game in data.get("data", {}).get("games", []):
+                if game.get("biz") != "nap_cn":
+                    continue
+                
+                display = game.get("display", {})
+                background = display.get("background", {})
+                if not background:
+                    continue
+                
+                img_url = background.get("url")
+                if not img_url:
+                    continue
+                
+                img_resp = requests.get(img_url, timeout=5)
+                if img_resp.status_code != 200:
+                    continue
+                
+                temp_path = self.save_path + '.tmp'
+                with open(temp_path, "wb") as f:
+                    f.write(img_resp.content)
+                if os.path.exists(self.save_path):
+                    os.remove(self.save_path)
+                os.rename(temp_path, self.save_path)
+                self.ctx.custom_config.last_version_poster_fetch_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                self.poster_downloaded.emit(True)
+                break
+
+        except Exception as e:
+            log.error(f"版本海报异步获取失败: {e}")
+
 class BannerDownloader(QThread):
     banner_downloaded = Signal(str)
 
@@ -319,6 +377,8 @@ class HomeInterface(VerticalScrollInterface):
         self._check_banner_runner.need_update.connect(self.reload_banner)
         self._banner_downloader = BannerDownloader(self.ctx)
         self._banner_downloader.banner_downloaded.connect(self.reload_banner)
+        self._version_poster_downloader = VersionPosterDownloader(self.ctx)
+        self._version_poster_downloader.poster_downloaded.connect(self.reload_banner)
 
     def on_interface_shown(self) -> None:
         """界面显示时启动检查更新的线程"""
@@ -327,7 +387,10 @@ class HomeInterface(VerticalScrollInterface):
         self._check_venv_runner.start()
         self._check_model_runner.start()
         self._check_banner_runner.start()
-        if self.ctx.custom_config.remote_banner:
+        # 根据配置启动相应的背景下载器
+        if self.ctx.custom_config.version_poster:
+            self._version_poster_downloader.start()
+        elif self.ctx.custom_config.remote_banner:
             self._banner_downloader.start()
 
     def _need_to_update_code(self, with_new: bool):
@@ -383,12 +446,15 @@ class HomeInterface(VerticalScrollInterface):
         """
         # 获取背景图片路径
         custom_banner_path = os.path.join(os_utils.get_path_under_work_dir('custom', 'assets', 'ui'), 'banner')
+        version_poster_path = os.path.join(os_utils.get_path_under_work_dir('assets', 'ui'), 'version_poster.webp')
         remote_banner_path = os.path.join(os_utils.get_path_under_work_dir('assets', 'ui'), 'remote_banner.webp')
         index_banner_path = os.path.join(os_utils.get_path_under_work_dir('assets', 'ui'), 'index.png')
 
         # 主页背景优先级：自定义 > 远端 > index.png
         if self.ctx.custom_config.custom_banner and os.path.exists(custom_banner_path):
             banner_path = custom_banner_path
+        elif self.ctx.custom_config.version_poster and os.path.exists(version_poster_path):
+            banner_path = version_poster_path
         elif self.ctx.custom_config.remote_banner and os.path.exists(remote_banner_path):
             banner_path = remote_banner_path
         else:
