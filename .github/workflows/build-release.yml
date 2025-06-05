@@ -136,8 +136,8 @@ jobs:
         # .install
         $envDir = "$rootDir/.install"
         New-Item -ItemType Directory -Path $envDir -Force
-        Invoke-WebRequest -Uri "https://github.com/DoctorReid/OneDragon-Env/releases/download/ZenlessZoneZero-OneDragon/uv-x86_64-pc-windows-msvc.zip" -OutFile "$envDir/uv-x86_64-pc-windows-msvc.zip"
-        Invoke-WebRequest -Uri "https://github.com/DoctorReid/OneDragon-Env/releases/download/ZenlessZoneZero-OneDragon/MinGit" -OutFile "$envDir/MinGit.zip"
+        Invoke-WebRequest -Uri "https://github.com/OneDragon-Anything/OneDragon-Env/releases/download/ZenlessZoneZero-OneDragon/uv-x86_64-pc-windows-msvc.zip" -OutFile "$envDir/uv-x86_64-pc-windows-msvc.zip"
+        Invoke-WebRequest -Uri "https://github.com/OneDragon-Anything/OneDragon-Env/releases/download/ZenlessZoneZero-OneDragon/MinGit.zip" -OutFile "$envDir/MinGit.zip"
 
         # artifact
         Copy-Item "$distDir/OneDragon Installer.exe" -Destination $rootDir -Force
@@ -259,7 +259,6 @@ jobs:
 
           # 更新内容
 
-          ${{ steps.changelog.outputs.clean_changelog }}
         files: |
           deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Installer.exe
           deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Full.zip
@@ -267,7 +266,7 @@ jobs:
           deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Update.zip
           deploy/dist/ZenlessZoneZero-OneDragon-Launcher.zip
           deploy/dist/directory-structure.txt
-        generate_release_notes: false
+        generate_release_notes: true
         prerelease: ${{ github.event_name == 'workflow_dispatch' }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
