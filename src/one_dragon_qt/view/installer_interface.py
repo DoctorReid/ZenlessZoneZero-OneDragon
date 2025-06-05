@@ -462,7 +462,7 @@ class InstallerInterface(VerticalScrollInterface):
         main_layout.addWidget(title_label, stretch=1)
 
         # 步骤指示器
-        step_names = ["Git环境", "代码同步", "环境配置", "安装启动器"]
+        step_names = ["Git 环境", "代码同步", "环境配置", "安装启动器"]
         if self.extra_install_cards:
             step_names.append("扩展安装")
         self.step_indicator = StepIndicator(step_names)
@@ -473,18 +473,18 @@ class InstallerInterface(VerticalScrollInterface):
         # 创建安装步骤
         self.install_steps = [
             InstallStepWidget(
-            "Git环境",
-            "安装Git版本控制工具，用于代码版本管理和项目更新。",
+            "Git 环境",
+            "安装 Git 版本控制工具，用于代码版本管理和项目更新。",
             [self.git_opt]
             ),
             InstallStepWidget(
             "代码同步",
-            "从GitHub仓库同步最新项目代码，确保使用最新功能和修复。",
+            "从 GitHub 仓库同步最新项目代码，确保使用最新功能和修复。",
             [self.code_opt]
             ),
             InstallStepWidget(
             "环境配置",
-            "配置Python运行环境和依赖管理工具，为项目运行做好准备。",
+            "配置 Python 运行环境和依赖管理工具，为项目运行做好准备。",
             [self.uv_opt, self.python_opt]
             ),
             InstallStepWidget(
