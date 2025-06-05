@@ -259,13 +259,14 @@ jobs:
 
           # 更新内容
 
+          ${{ steps.changelog.outputs.clean_changelog }}
         files: |
           deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Installer.exe
           deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Full.zip
           deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Update.zip
           deploy/dist/ZenlessZoneZero-OneDragon-Launcher.zip
           deploy/dist/directory-structure.txt
-        generate_release_notes: true
+        generate_release_notes: false
         prerelease: ${{ github.event_name == 'workflow_dispatch' }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
