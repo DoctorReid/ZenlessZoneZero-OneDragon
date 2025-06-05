@@ -4,7 +4,7 @@ import ctypes
 from ctypes import wintypes
 
 from PySide6.QtWidgets import QWidget, QFileDialog
-from qfluentwidgets import FluentIcon, SettingCardGroup, setTheme, Theme, PrimaryPushButton, Dialog
+from qfluentwidgets import FluentIcon, SettingCardGroup, setTheme, Theme, PrimaryPushButton
 
 from one_dragon.base.config.custom_config import ThemeEnum
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
@@ -15,7 +15,6 @@ from one_dragon_qt.widgets.setting_card.password_switch_setting_card import Pass
 from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.utils import os_utils
 from one_dragon.utils.i18_utils import gt
-from one_dragon.utils.log_utils import log
 
 class SettingCustomInterface(VerticalScrollInterface):
 
@@ -106,30 +105,16 @@ class SettingCustomInterface(VerticalScrollInterface):
             'banner')
             shutil.copyfile(file_path, banner_path)
             self.reload_banner()
-    
-    def reload_banner(self) -> None:
-        self.ctx.signal.reload_banner = True
 
     def _on_version_poster_changed(self, value: bool) -> None:
-        """
-        版本海报开关改变
-        :param value: 值
-        :return:
-        """
         if value:
-            # 如果启用版本海报，需要关闭远程背景
-            self.ctx.custom_config.remote_banner = False
-            self.remote_banner_opt.btn.setChecked(False)
-        self.ctx.signal.reload_banner = True
+            self.remote_banner_opt.setValue(False)
+        self.reload_banner()
 
     def _on_remote_banner_changed(self, value: bool) -> None:
-        """
-        远程横幅开关改变
-        :param value: 值
-        :return:
-        """
         if value:
-            # 如果启用远程背景，需要关闭版本海报
-            self.ctx.custom_config.version_poster = False
-            self.version_poster_opt.btn.setChecked(False)
+            self.version_poster_opt.setValue(False)
+        self.reload_banner()
+    
+    def reload_banner(self) -> None:
         self.ctx.signal.reload_banner = True
