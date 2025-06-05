@@ -171,7 +171,7 @@ class TemplateGenerationInterface(AppRunInterface):
     def _on_start_clicked(self) -> None:
         # 开始录制
         self.ctx.init_by_config()
-        self.ctx.ocr.init_model()
+        self.ctx.init_ocr()
 
         self.app = RecordContext(self.ctx)
         AppRunInterface._on_start_clicked(self)

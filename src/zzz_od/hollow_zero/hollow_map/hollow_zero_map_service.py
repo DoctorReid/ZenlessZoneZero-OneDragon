@@ -101,7 +101,7 @@ class HollowZeroMapService:
 def __debug_cal_current_map_by_screen():
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     service = HollowZeroMapService(ctx)
     service.init_event_yolo()
 

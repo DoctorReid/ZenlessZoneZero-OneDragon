@@ -541,7 +541,7 @@ def __debug_charge():
     """
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     from one_dragon.utils import debug_utils
     screen = debug_utils.get_debug_image('_1742622386361')
     area = ctx.screen_loader.get_area('恶名狩猎', '文本-剩余电量')
@@ -553,7 +553,7 @@ def __debug_charge():
 def __debug():
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     ctx.start_running()
     op = NotoriousHunt(ctx, ChargePlanItem(
         category_name='恶名狩猎',

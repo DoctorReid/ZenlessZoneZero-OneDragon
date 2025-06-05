@@ -214,8 +214,18 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
         异步初始化OCR
         :return:
         """
-        f = ONE_DRAGON_CONTEXT_EXECUTOR.submit(self.ocr.init_model)
+        f = ONE_DRAGON_CONTEXT_EXECUTOR.submit(self.init_ocr)
         f.add_done_callback(thread_utils.handle_future_result)
+
+    def init_ocr(self) -> None:
+        """
+        初始化OCR
+        :return:
+        """
+        self.ocr.init_model(
+            ghproxy_url=self.env_config.gh_proxy_url if self.env_config.is_gh_proxy else None,
+            proxy_url=self.env_config.personal_proxy if self.env_config.is_personal_proxy else None,
+        )
 
     def after_app_shutdown(self) -> None:
         """

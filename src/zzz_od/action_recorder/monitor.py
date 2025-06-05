@@ -631,7 +631,7 @@ class RecordContext:
 def _debug():
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
 
     rc_ctx = RecordContext(ctx)
     rc_ctx.records_status_and_action()

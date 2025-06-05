@@ -29,7 +29,7 @@ def __debug():
     from zzz_od.context.zzz_context import ZContext
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     from one_dragon.utils import debug_utils
     screen = debug_utils.get_debug_image('bag_full')
     op = FullInBag(ctx)

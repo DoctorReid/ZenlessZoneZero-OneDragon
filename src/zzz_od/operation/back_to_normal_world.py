@@ -155,7 +155,7 @@ class BackToNormalWorld(ZOperation):
 def __debug_op():
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     op = BackToNormalWorld(ctx)
     ctx.start_running()
     op.execute()
@@ -164,7 +164,7 @@ def __debug_op():
 def _debug():
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     op = BackToNormalWorld(ctx)
     from one_dragon.utils import debug_utils
     screen = debug_utils.get_debug_image('111')

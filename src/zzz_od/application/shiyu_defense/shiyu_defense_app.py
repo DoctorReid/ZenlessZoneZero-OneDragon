@@ -230,7 +230,7 @@ class ShiyuDefenseApp(ZApplication):
 def __debug():
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
 
     from one_dragon.utils import debug_utils
     screen = debug_utils.get_debug_image('_1728799789929')

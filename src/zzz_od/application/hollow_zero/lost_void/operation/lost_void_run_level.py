@@ -727,7 +727,7 @@ def __debug():
     ctx = ZContext()
     ctx.init_by_config()
     ctx.lost_void.init_before_run()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     ctx.start_running()
 
     op = LostVoidRunLevel(ctx, LostVoidRegionType.BOSS)

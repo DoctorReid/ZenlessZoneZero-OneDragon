@@ -379,7 +379,7 @@ def __debug():
     ctx = ZContext()
     ctx.init_by_config()
     ctx.start_running()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     ctx.hollow.init_before_hollow_start('旧都列车', '旧都列车-核心')
     op = HollowRunner(ctx)
     # from one_dragon.utils import debug_utils

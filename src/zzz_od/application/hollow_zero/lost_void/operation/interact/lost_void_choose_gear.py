@@ -167,7 +167,7 @@ class LostVoidChooseGear(ZOperation):
 def __debug():
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     ctx.lost_void.init_before_run()
     ctx.start_running()
 

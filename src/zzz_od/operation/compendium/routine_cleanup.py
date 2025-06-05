@@ -265,7 +265,7 @@ def __debug_charge():
     """
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     from one_dragon.utils import debug_utils
     screen = debug_utils.get_debug_image('_1742622263371')
     area = ctx.screen_loader.get_area('定期清剿', '剩余电量')
@@ -277,7 +277,7 @@ def __debug_charge():
 def __debug():
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     ctx.start_running()
     op = RoutineCleanup(ctx, ChargePlanItem(
         category_name='定期清剿',

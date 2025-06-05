@@ -167,5 +167,5 @@ class Application(Operation):
         初始化
         """
         if self.need_ocr:
-            self.ctx.ocr.init_model()
+            self.ctx.init_ocr()
         return True

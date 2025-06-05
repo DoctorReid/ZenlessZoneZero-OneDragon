@@ -362,7 +362,7 @@ class CombatSimulation(ZOperation):
 def __debug_coffee():
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     ctx.start_running()
     chosen_coffee = ctx.compendium_service.name_2_coffee['麦草拿提']
     charge_plan = ChargePlanItem(
@@ -385,7 +385,7 @@ def __debug_charge():
     """
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     from one_dragon.utils import debug_utils
     screen = debug_utils.get_debug_image('422708014-40e6c6d2-625f-4488-9e13-f17bdca02878')
     area = ctx.screen_loader.get_area('实战模拟室', '剩余电量')
@@ -396,7 +396,7 @@ def __debug_charge():
 def __debug():
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     ctx.start_running()
     charge_plan = ChargePlanItem(
         tab_name='训练',

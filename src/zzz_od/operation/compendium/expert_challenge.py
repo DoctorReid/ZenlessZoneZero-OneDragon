@@ -245,7 +245,7 @@ def __debug_charge():
     """
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     from one_dragon.utils import debug_utils
     screen = debug_utils.get_debug_image('_1742622386361')
     area = ctx.screen_loader.get_area('专业挑战室', '剩余电量')
@@ -257,7 +257,7 @@ def __debug_charge():
 def __debug():
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     ctx.start_running()
     op = ExpertChallenge(ctx, ChargePlanItem(
         category_name='专业挑战室',

@@ -267,7 +267,7 @@ def __debug():
     ctx = ZContext()
     ctx.init_by_config()
     ctx.start_running()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     op = CallForSupport(ctx)
     op.execute()
 
@@ -275,7 +275,7 @@ def __debug():
 def __debug_support_agent():
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     op = CallForSupport(ctx)
     from one_dragon.utils import os_utils
     import os
@@ -289,7 +289,7 @@ def __debug_support_agent():
 def __debug_current_agent():
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     op = CallForSupport(ctx)
     from one_dragon.utils import os_utils
     import os
@@ -307,7 +307,7 @@ def __debug_current_agent():
 def __debug_check_screen():
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     op = CallForSupport(ctx)
     from one_dragon.utils import os_utils
     import os
