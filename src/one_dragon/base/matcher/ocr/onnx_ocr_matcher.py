@@ -167,7 +167,7 @@ class OnnxOcrMatcher(OcrMatcher, ZipDownloader):
         if len(img_result) > 1:
             log.debug("禁检测的OCR模型返回多个识别结果")  # 目前没有出现这种情况
 
-        if threshold is not None and scan_result[0][1] < threshold:
+        if threshold is not None and img_result[0][1] < threshold:
             log.debug("OCR模型返回的识别结果置信度低于阈值")
             return ""
         log.debug('OCR结果 %s 耗时 %.2f', scan_result, time.time() - start_time)
@@ -224,8 +224,8 @@ def __debug():
         download_by_gitee=True)
     
     from one_dragon.utils import debug_utils
-    img = debug_utils.get_debug_image('1')
-    print(ocr.run_ocr(img))
+    img = debug_utils.get_debug_image('424905412-5c9df2d3-186d-4be5-a610-865553fd6adb')
+    print(ocr.run_ocr_single_line(img))
 
 
 if __name__ == '__main__':
