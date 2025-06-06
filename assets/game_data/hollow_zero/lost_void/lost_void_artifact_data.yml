@@ -374,6 +374,31 @@
   name: "被甲弹头"
   level: "A"
 
+  # 携游
+- category: "携游"
+  name: "节能载具"
+  level: "A"
+
+- category: "携游"
+  name: 威猛拳拳"
+  level: "A"
+
+- category: "携游"
+  name: "旋转木马"
+  level: "A"
+
+- category: "携游"
+  name: "充气游泳圈"
+  level: "B"
+
+- category: "携游"
+  name: "儿童餐盒"
+  level: "B"
+
+- category: "携游"
+  name: "飓风飞椅"
+  level: "B"
+  
   # 通用
 - category: "通用"
   name: "瓶中幸运星"
@@ -458,6 +483,18 @@
 - category: "通用"
   name: "昆虫手册"
   level: "B"
+
+- category: "通用"
+  name: "黄铜镇纸"
+  level: "A"
+
+- category: "通用"
+  name: "织锦香囊"
+  level: "A"
+
+- category: "通用"
+  name: "洒金墨锭"
+  level: "A"
 
   # 契合
 
@@ -859,6 +896,11 @@
 - category: "杰佩托"
   name: "近身突刺"
   level: "A"
+
+  # 焊炬
+- category: "射吸式焊炬"
+  name: "射吸式焊炬"
+  level: "S"
 
   # 无详情的特殊品
 - category: "无详情"
