@@ -14,6 +14,7 @@ from one_dragon_qt.widgets.install_card.git_install_card import GitInstallCard
 from one_dragon_qt.widgets.install_card.launcher_install_card import LauncherInstallCard
 from one_dragon_qt.widgets.install_card.python_install_card import PythonInstallCard
 from one_dragon_qt.widgets.install_card.uv_install_card import UVInstallCard
+from one_dragon_qt.widgets.install_card.venv_install_card import VenvInstallCard
 from one_dragon_qt.widgets.log_display_card import LogReceiver
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 
@@ -167,9 +168,8 @@ class InstallStepWidget(QWidget):
     step_skipped = Signal()
     status_updated = Signal()
 
-    def __init__(self, title: str, description: str, install_cards=None, is_optional: bool = False, parent=None):
+    def __init__(self, description: str, install_cards=None, is_optional: bool = False, parent=None):
         super().__init__(parent)
-        self.title = title
         self.description = description
         self.is_optional = is_optional
 
@@ -198,14 +198,6 @@ class InstallStepWidget(QWidget):
         layout.setContentsMargins(40, 0, 40, 40)
         layout.setSpacing(20)
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        # 标题
-        title_text = self.title
-        if self.is_optional:
-            title_text += "（可选）"
-        title_label = SubtitleLabel(title_text)
-        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(title_label)
 
         # 描述
         desc_label = BodyLabel(self.description)
@@ -432,10 +424,11 @@ class InstallerInterface(VerticalScrollInterface):
         self.code_opt = CodeInstallCard(self.ctx)
         self.uv_opt = UVInstallCard(self.ctx)
         self.python_opt = PythonInstallCard(self.ctx)
+        self.venv_opt = VenvInstallCard(self.ctx)
         self.launcher_opt = LauncherInstallCard(self.ctx)
 
         # 基础安装组件
-        base_install_cards = [self.git_opt, self.code_opt, self.uv_opt, self.python_opt, self.launcher_opt]
+        base_install_cards = [self.git_opt, self.code_opt, self.uv_opt, self.python_opt, self.venv_opt, self.launcher_opt]
 
         # 所有安装组件
         self.all_install_cards = base_install_cards.copy()
@@ -473,22 +466,18 @@ class InstallerInterface(VerticalScrollInterface):
         # 创建安装步骤
         self.install_steps = [
             InstallStepWidget(
-            "Git 环境",
             "安装 Git 版本控制工具，用于代码版本管理和项目更新。",
             [self.git_opt]
             ),
             InstallStepWidget(
-            "代码同步",
             "从 GitHub 仓库同步最新项目代码，确保使用最新功能和修复。",
             [self.code_opt]
             ),
             InstallStepWidget(
-            "环境配置",
             "配置 Python 运行环境和依赖管理工具，为项目运行做好准备。",
-            [self.uv_opt, self.python_opt]
+            [self.uv_opt, self.python_opt, self.venv_opt]
             ),
             InstallStepWidget(
-            "安装启动器",
             "下载项目启动器，用于启动和管理一条龙应用。",
             [self.launcher_opt]
             )
@@ -497,7 +486,6 @@ class InstallerInterface(VerticalScrollInterface):
         if self.extra_install_cards is not None:
             self.install_steps.append(
                 InstallStepWidget(
-                    "扩展组件",
                     "安装项目所需的扩展组件和特定功能模块，提供完整的功能体验。",
                     self.extra_install_cards,
                     is_optional=True

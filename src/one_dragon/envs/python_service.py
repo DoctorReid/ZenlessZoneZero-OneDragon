@@ -136,11 +136,31 @@ class PythonService:
         log.info(msg)
 
         os.environ["UV_PYTHON_INSTALL_DIR"] = DEFAULT_PYTHON_DIR_PATH
-        result = cmd_utils.run_command([self.env_config.uv_path, 'sync'])
+        result = cmd_utils.run_command([self.env_config.uv_path, 'sync', '--default-index', self.env_config.pip_source,])
         success = result is not None
         msg = '运行依赖安装成功' if success else '运行依赖安装失败'
         log.info(msg)
         return success, msg
+
+    def uv_check_sync_status(self, progress_callback: Optional[Callable[[float, str], None]] = None) -> Tuple[bool, str]:
+        """
+        检查环境是否与项目同步
+        :param progress_callback: 进度回调
+        :return: (是否同步, 状态信息)
+        """
+        msg = '正在检查环境同步状态...'
+        if progress_callback is not None:
+            progress_callback(-1, msg)
+        log.info(msg)
+        
+        os.environ["UV_PYTHON_INSTALL_DIR"] = DEFAULT_PYTHON_DIR_PATH
+        result = cmd_utils.run_command([self.env_config.uv_path, 'sync', '--check'])
+
+        is_synced = result is not None
+        msg = '环境已同步' if is_synced else '环境未同步'
+        log.info(msg)
+
+        return is_synced, msg
 
     def get_os_uv_path(self) -> Optional[str]:
         """
@@ -198,7 +218,7 @@ class PythonService:
 
     def uv_install_python_venv(self, progress_callback: Optional[Callable[[float, str, str], None]]) -> Tuple[bool, str]:
         """
-        完整流程使用 uv 安装 python 环境
+        完整流程使用uv安装python环境
         :param progress_callback:
         :return:
         """
@@ -216,7 +236,7 @@ class PythonService:
         if not self.uv_install_python(progress_callback):
             return False, '安装 Python 失败 请尝试到「设置」更改 Python 下载源'
 
-        if not self.uv_sync(progress_callback):
+        if not self.uv_create_venv(progress_callback):
             return False, '创建环境失败'
         self.env_config.python_path = DEFAULT_VENV_PYTHON_PATH
 
