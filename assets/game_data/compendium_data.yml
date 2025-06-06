@@ -26,6 +26,8 @@
               mission_name_display: "支援"
             - mission_name: "防护演练"
               mission_name_display: "防护"
+            - mission_name: "命破演练"
+              mission_name_display: "命破"
         - mission_type_name: "音擎改装"
           mission_list:
             - mission_name: "强攻极片试验"
@@ -38,6 +40,8 @@
               mission_name_display: "支援"
             - mission_name: "防护音圈试验"
               mission_name_display: "防护"
+            - mission_name: "命破共鸣试验"
+              mission_name_display: "命破"
         - mission_type_name: "代理人技能"
           mission_list:
             - mission_name: "刚性测试"
@@ -81,6 +85,8 @@
           mission_type_name_display: "折枝剑歌 静听嘉音"
         - mission_type_name: "游侠与守卫"
           mission_type_name_display: "如影相随 法厄同之歌"
+        - mission_type_name: "口舌与刀兵"
+          mission_type_name_display: "云岿如我 山大王"
         - mission_type_name: "代理人方案培养"
 
     - category_name: "专业挑战室"
@@ -94,6 +100,7 @@
         - mission_type_name: "多佩冈亚·简"
         - mission_type_name: "色雷斯人"
         - mission_type_name: "伐木机"
+        - mission_type_name: "秽息蚀者·阿瓦鲁斯"
         - mission_type_name: "代理人方案培养"
 
 - tab_name: "作战"
@@ -105,6 +112,7 @@
         - mission_type_name: "冥宁芙·双子"
         - mission_type_name: "「霸主侵蚀体·庞培」"
         - mission_type_name: "牲鬼·布林格"
+        - mission_type_name: "秽息司祭"
         - mission_type_name: "代理人方案培养"
     - category_name: "零号空洞"
       mission_type_list:
