@@ -256,7 +256,7 @@ class EnvConfig(YamlConfig):
         pip源
         :return:
         """
-        return self.get('pip_source', PipSourceEnum.TSING_HUA.value.value)
+        return self.get('pip_source', PipSourceEnum.ALIBABA.value.value)
 
     @pip_source.setter
     def pip_source(self, new_value: str) -> None:
