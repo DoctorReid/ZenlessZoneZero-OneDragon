@@ -376,7 +376,6 @@ class HomeInterface(VerticalScrollInterface):
         """界面显示时启动检查更新的线程"""
         super().on_interface_shown()
         self._check_code_runner.start()
-        self._check_venv_runner.start()
         self._check_model_runner.start()
         self._check_banner_runner.start()
         # 根据配置启动相应的背景下载器
