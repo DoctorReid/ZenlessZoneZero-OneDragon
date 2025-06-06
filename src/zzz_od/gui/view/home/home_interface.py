@@ -153,12 +153,6 @@ class CheckCodeRunner(CheckRunnerBase):
         elif msg != "获取远程代码失败":
             self.need_update.emit(not is_latest)
 
-class CheckVenvRunner(CheckRunnerBase):
-    def run(self):
-        last = self.ctx.env_config.requirement_time
-        if last != self.ctx.git_service.get_requirement_time():
-            self.need_update.emit(True)
-
 class CheckModelRunner(CheckRunnerBase):
     def run(self):
         self.need_update.emit(self.ctx.yolo_config.using_old_model())
@@ -369,8 +363,6 @@ class HomeInterface(VerticalScrollInterface):
         """初始化检查更新的线程"""
         self._check_code_runner = CheckCodeRunner(self.ctx)
         self._check_code_runner.need_update.connect(self._need_to_update_code)
-        self._check_venv_runner = CheckVenvRunner(self.ctx)
-        self._check_venv_runner.need_update.connect(self._need_to_update_venv)
         self._check_model_runner = CheckModelRunner(self.ctx)
         self._check_model_runner.need_update.connect(self._need_to_update_model)
         self._check_banner_runner = CheckBannerRunner(self.ctx)
@@ -399,10 +391,6 @@ class HomeInterface(VerticalScrollInterface):
             return
         else:
             self._show_info_bar("有新版本啦", "稍安勿躁~")
-
-    def _need_to_update_venv(self, with_new: bool):
-        if with_new:
-            self._show_info_bar("运行依赖更新", "到安装器更新吧~")
 
     def _need_to_update_model(self, with_new: bool):
         if with_new:
