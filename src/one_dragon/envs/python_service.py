@@ -77,6 +77,9 @@ class PythonService:
             progress_callback(-1, msg)
         log.info(msg)
 
+        source = self.env_config.cpython_source
+        if source == CpythonSourceEnum.GITHUB.value.value and self.env_config.is_gh_proxy:
+            source = f'{self.env_config.gh_proxy_url}/{source}'
         result = cmd_utils.run_command([self.env_config.uv_path, 'python', 'install', self.project_config.uv_python_version,
                                         '--mirror', source,
                                         '--install-dir', DEFAULT_PYTHON_DIR_PATH])
