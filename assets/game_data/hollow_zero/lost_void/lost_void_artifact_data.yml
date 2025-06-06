@@ -369,6 +369,11 @@
   name: "阵痛激素"
   level: "B"
 
+  # 命破
+- category: "命破"
+  name: "被甲弹头"
+  level: "A"
+
   # 通用
 - category: "通用"
   name: "瓶中幸运星"
@@ -597,6 +602,22 @@
   level: "S"
 
 - category: "契合"
+  name: "守华照寂"
+  level: "S"
+
+- category: "契合"
+  name: "好大威风"
+  level: "S"
+
+- category: "契合"
+  name: "煲汤为盟"
+  level: "S"
+
+- category: "契合"
+  name: "命破战术交流"
+  level: "A"
+
+- category: "契合"
   name: "强攻战术交流"
   level: "A"
 
@@ -796,6 +817,30 @@
 
 - category: "卡牌"
   name: "失衡猎杀之印"
+  level: "S"
+
+- category: "卡牌"
+  name: "「不动如山」马拉松"
+  level: "S"
+
+- category: "卡牌"
+  name: "「悭吝人」马拉松"
+  level: "S"
+
+- category: "卡牌"
+  name: "「凡人之躯」马拉松"
+  level: "S"
+
+- category: "卡牌"
+  name: "「挥金如土」马拉松"
+  level: "S"
+
+- category: "卡牌"
+  name: "「强风吹拂」马拉松"
+  level: "S"
+
+- category: "卡牌"
+  name: "「符号学原理」马拉松"
   level: "S"
 
   # 杰佩托
