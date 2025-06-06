@@ -167,7 +167,7 @@ class PythonService:
         获取当前系统环境变量中的uv路径
         :return:
         """
-        log.info('获取系统环境变量中的 UV')
+        log.debug('获取系统环境变量中的 UV')
         message = cmd_utils.run_command(['where', 'uv'])
         if message is not None and message.endswith('.exe'):
             return message
@@ -179,7 +179,7 @@ class PythonService:
         获取当前系统环境变量中的python路径
         :return:
         """
-        log.info('获取系统环境变量中的 Python')
+        log.debug('获取系统环境变量中的 Python')
         message = cmd_utils.run_command(['where', 'python'])
         if message is not None and message.endswith('.exe'):
             return message
@@ -190,7 +190,7 @@ class PythonService:
         """
         :return: 当前使用的uv版本
         """
-        log.info('检测当前 UV 版本')
+        log.debug('检测当前 UV 版本')
         uv_path = self.env_config.uv_path
         if uv_path == '' or not os.path.exists(uv_path):
             return None
@@ -205,7 +205,7 @@ class PythonService:
         """
         :return: 当前使用的python版本
         """
-        log.info('检测当前 Python 版本')
+        log.debug('检测当前 Python 版本')
         python_path = self.env_config.python_path
         if python_path == '' or not os.path.exists(python_path):
             return None
