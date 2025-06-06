@@ -174,18 +174,6 @@ class PythonService:
         else:
             return None
 
-    def get_os_python_path(self) -> Optional[str]:
-        """
-        获取当前系统环境变量中的python路径
-        :return:
-        """
-        log.debug('获取系统环境变量中的 Python')
-        message = cmd_utils.run_command(['where', 'python'])
-        if message is not None and message.endswith('.exe'):
-            return message
-        else:
-            return None
-
     def get_uv_version(self) -> Optional[str]:
         """
         :return: 当前使用的uv版本

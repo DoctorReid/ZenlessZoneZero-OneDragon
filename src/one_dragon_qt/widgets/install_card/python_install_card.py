@@ -18,13 +18,6 @@ class PythonInstallCard(WithExistedInstallCard):
             install_method=ctx.python_service.uv_install_python_venv,
         )
 
-    def get_existed_os_path(self) -> Optional[str]:
-        """
-        获取系统环境变量中的路径，由子类自行实现
-        :return:
-        """
-        return self.ctx.python_service.get_os_python_path()
-
     def on_existed_chosen(self, file_path: str) -> None:
         """
         选择了本地文件之后的回调，由子类自行实现
