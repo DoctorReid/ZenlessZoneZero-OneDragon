@@ -12,7 +12,6 @@ from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSetting
 from one_dragon_qt.widgets.setting_card.password_switch_setting_card import PasswordSwitchSettingCard
 from one_dragon_qt.widgets.install_card.code_install_card import CodeInstallCard
 from one_dragon_qt.widgets.install_card.git_install_card import GitInstallCard
-from one_dragon_qt.widgets.install_card.venv_install_card import VenvInstallCard
 from one_dragon.utils.i18_utils import gt
 
 
@@ -79,10 +78,6 @@ class CodeInterface(VerticalScrollInterface):
             password_hash='9eccbf284f363f3a5f416e879aa9bcb2c8d8445997f97740270fccc98d360a33'
         )
         v_layout.addWidget(self.custom_git_branch_opt)
-
-        self.venv_card = VenvInstallCard(ctx)
-        self.venv_card.install_btn.setDisabled(True)
-        v_layout.addWidget(self.venv_card)
 
         self.log_table = TableWidget()
         self.log_table.setMinimumHeight(self.page_size * 42)

@@ -222,22 +222,6 @@ class PythonService:
 
         return True, ''
 
-    def uv_install_requirements(self, progress_callback: Optional[Callable[[float, str], None]] = None) -> Tuple[bool, str]:
-        """
-        使用 UV 安装依赖
-        :return:
-        """
-        if progress_callback is not None:
-            progress_callback(-1, '正在安装...')
-
-        # result = cmd_utils.run_command([self.env_config.uv_path, 'pip', 'install', '--upgrade', '--link-mode=copy',
-        #                                 '-r', os.path.join(os_utils.get_work_dir(), self.project_config.requirements),
-        #                                 '--index-url', self.env_config.pip_source, '--trusted-host', self.env_config.pip_trusted_host])
-        result = cmd_utils.run_command([self.env_config.uv_path, 'sync'])
-        success = result is not None
-        msg = '运行依赖安装成功' if success else '运行依赖安装失败'
-        return success, msg
-
     def _choose_best_source_by_ping(
         self,
         source_enum_cls,
