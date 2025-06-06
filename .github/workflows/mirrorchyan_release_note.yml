@@ -3,12 +3,16 @@ name: mirrorchyan_release_note
 on:
   workflow_dispatch:
   release:
-    types: [edited, released]
+    types: [edited]
+  workflow_run:
+    workflows: ["Build and Release"]
+    types:
+      - completed
 
 jobs:
   mirrorchyan_release_note:
     runs-on: macos-latest
-
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     steps:
       - id: uploading
         uses: MirrorChyan/release-note-action@v1
