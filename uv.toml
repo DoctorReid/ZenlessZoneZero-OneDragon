@@ -1,5 +1,5 @@
 [[index]]
-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+url = "http://mirrors.aliyun.com/pypi/simple"
 
 verify-ssl = true
 
