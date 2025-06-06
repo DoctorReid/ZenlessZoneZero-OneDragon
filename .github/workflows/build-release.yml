@@ -166,19 +166,19 @@ jobs:
           -folderName "ppocrv5"
 
         Expand-ZipIntoNamedFolder `
-          -url "https://github.com/DoctorReid/OneDragon-YOLO/releases/download/zzz_model/yolov8n-640-flash-0127.zip" `
+          -url "https://github.com/OneDragon-Anything/OneDragon-YOLO/releases/download/zzz_model/yolov8n-640-flash-0127.zip" `
           -downloadPath "$tempDir/flash.zip" `
           -destRoot "$modelBase/flash_classifier" `
           -folderName "yolov8n-640-flash-0127"
 
         Expand-ZipIntoNamedFolder `
-          -url "https://github.com/DoctorReid/OneDragon-YOLO/releases/download/zzz_model/yolov8s-736-hollow-zero-event-0126.zip" `
+          -url "https://github.com/OneDragon-Anything/OneDragon-YOLO/releases/download/zzz_model/yolov8s-736-hollow-zero-event-0126.zip" `
           -downloadPath "$tempDir/hollow.zip" `
           -destRoot "$modelBase/hollow_zero_event" `
           -folderName "yolov8s-736-hollow-zero-event-0126"
 
         Expand-ZipIntoNamedFolder `
-          -url "https://github.com/DoctorReid/OneDragon-YOLO/releases/download/zzz_model/yolov8n-736-lost-void-det-0125.zip" `
+          -url "https://github.com/OneDragon-Anything/OneDragon-YOLO/releases/download/zzz_model/yolov8n-736-lost-void-det-0125.zip" `
           -downloadPath "$tempDir/lost.zip" `
           -destRoot "$modelBase/lost_void_det" `
           -folderName "yolov8n-736-lost-void-det-0125"
