@@ -797,26 +797,43 @@ class InstallerInterface(VerticalScrollInterface):
 
         new_logs = self.log_receiver.get_new_logs()
         if new_logs:
+            latest_log = new_logs[-1]
             # 找到最新一行包含中文字符的日志
             latest_chinese_log = ''
             for log_line in reversed(new_logs):
                 if any('\u4e00' <= char <= '\u9fff' for char in log_line):
                     latest_chinese_log = log_line
                     break
-            if latest_chinese_log:
-                # 如果日志太长，在中间添加换行符
-                if len(latest_chinese_log) > 50:
-                    mid_point = len(latest_chinese_log) // 2
+
+            # 对日志进行换行处理的函数
+            def format_log_with_line_breaks(log_text):
+                if len(log_text) > 50:
+                    mid_point = len(log_text) // 2
                     # 找到中间点附近的空格或标点符号作为换行位置
                     break_point = mid_point
                     for i in range(mid_point - 10, mid_point + 10):
-                        if i < len(latest_chinese_log) and latest_chinese_log[i] in [' ', '/']:
+                        if i < len(log_text) and log_text[i] in [' ', '/', '-', '.', ',']:
                             break_point = i + 1
                             break
-                    formatted_log = latest_chinese_log[:break_point] + '\n' + latest_chinese_log[break_point:]
-                    self.log_display_label.setText(formatted_log)
+                    return log_text[:break_point] + '\n' + log_text[break_point:]
+                return log_text
+
+            if latest_chinese_log:
+                # 格式化中文日志
+                formatted_chinese_log = format_log_with_line_breaks(latest_chinese_log)
+
+                if latest_chinese_log == latest_log:
+                    # 如果中文日志就是最新日志，只显示格式化后的中文日志
+                    formatted_log = formatted_chinese_log
                 else:
-                    self.log_display_label.setText(latest_chinese_log)
+                    # 格式化最新日志并组合显示
+                    formatted_latest_log = format_log_with_line_breaks(latest_log)
+                    formatted_log = formatted_chinese_log + '\n\n' + formatted_latest_log
+                self.log_display_label.setText(formatted_log)
+            elif latest_log:
+                # 如果没有中文日志，对最新日志进行换行处理后显示
+                formatted_latest_log = format_log_with_line_breaks(latest_log)
+                self.log_display_label.setText(formatted_latest_log)
 
     def on_interface_shown(self) -> None:
         super().on_interface_shown()
