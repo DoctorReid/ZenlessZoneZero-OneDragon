@@ -5,10 +5,10 @@ area_list:
 - area_name: 按钮-确定
   id_mark: true
   pc_rect:
-  - 858
-  - 784
-  - 1180
-  - 854
+  - 860
+  - 786
+  - 1184
+  - 896
   text: 确定
   lcs_percent: 0.5
   template_sub_dir: ''

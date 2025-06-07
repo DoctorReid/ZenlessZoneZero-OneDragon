@@ -19,10 +19,10 @@ area_list:
 - area_name: 按钮-确定
   id_mark: true
   pc_rect:
-  - 864
-  - 794
-  - 1116
-  - 908
+  - 866
+  - 812
+  - 1122
+  - 970
   text: 确定
   lcs_percent: 0.5
   template_sub_dir: ''
@@ -48,9 +48,9 @@ area_list:
   id_mark: false
   pc_rect:
   - 854
-  - 148
-  - 1058
-  - 186
+  - 146
+  - 1076
+  - 212
   text: 请选择1个武备
   lcs_percent: 0.7
   template_sub_dir: ''
@@ -76,9 +76,9 @@ area_list:
   id_mark: false
   pc_rect:
   - 854
-  - 148
-  - 1058
-  - 186
+  - 146
+  - 1076
+  - 212
   text: 请选择1项
   lcs_percent: 0.5
   template_sub_dir: ''
@@ -90,9 +90,9 @@ area_list:
   id_mark: false
   pc_rect:
   - 854
-  - 148
-  - 1058
-  - 186
+  - 146
+  - 1076
+  - 212
   text: 武备已升级
   lcs_percent: 0.5
   template_sub_dir: ''
@@ -104,9 +104,9 @@ area_list:
   id_mark: false
   pc_rect:
   - 854
-  - 148
-  - 1058
-  - 186
+  - 146
+  - 1076
+  - 212
   text: ''
   lcs_percent: 0.5
   template_sub_dir: ''
