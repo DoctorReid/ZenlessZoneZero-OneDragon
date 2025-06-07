@@ -81,20 +81,20 @@ class DirectoryPickerInterface(QWidget):
 
     def _on_browse_clicked(self):
         """浏览按钮点击事件"""
-        directory = QFileDialog.getExistingDirectory(
+        selected_dir_path = QFileDialog.getExistingDirectory(
             self,
             "选择目录",
             "",
             QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.DontResolveSymlinks
         )
 
-        if directory:
+        if selected_dir_path:
             # 检查路径是否为全英文或者包含空格
-            if not all(c.isascii() for c in directory) or ' ' in directory:
+            if not all(c.isascii() for c in selected_dir_path) or ' ' in selected_dir_path:
                 # 显示警告对话框
                 w = MessageBox(
                     "警告",
-                    "所选目录包含非英文字符或空格，请确保路径全为英文且不包含空格。",
+                    "所选目录的路径不合规，请确保路径全为英文且不包含空格。",
                     parent=self.window(),
                 )
                 w.yesButton.setText("我知道了")
@@ -106,23 +106,23 @@ class DirectoryPickerInterface(QWidget):
                 return
 
             # 检查目录是否为空
-            if os.listdir(directory):
+            if os.listdir(selected_dir_path):
                 # 目录不为空，显示警告对话框
                 w = MessageBox(
                     title="警告",
-                    content=f"所选目录不为空：\n{directory}\n\n是否继续使用此目录？",
+                    content=f"所选目录不为空：\n{selected_dir_path}\n\n是否继续使用此目录？",
                     parent=self.window(),
                 )
                 w.yesButton.setText("继续使用")
                 w.cancelButton.setText("选择其他目录")
                 if w.exec():
-                    self.selected_path = directory
-                    self.path_input.setText(directory)
+                    self.selected_path = selected_dir_path
+                    self.path_input.setText(selected_dir_path)
                     self.confirm_btn.setEnabled(True)
             else:
                 # 目录为空，直接使用
-                self.selected_path = directory
-                self.path_input.setText(directory)
+                self.selected_path = selected_dir_path
+                self.path_input.setText(selected_dir_path)
                 self.confirm_btn.setEnabled(True)
 
     def _on_confirm_clicked(self):
