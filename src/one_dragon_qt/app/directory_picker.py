@@ -10,14 +10,14 @@ from one_dragon_qt.services.styles_manager import OdQtStyleSheet
 
 class DirectoryPickerInterface(QWidget):
     """路径选择器界面"""
-    
+
     def __init__(self, parent=None, icon_path=None):
         QWidget.__init__(self, parent=parent)
         self.setObjectName("directory_picker_interface")
         self.selected_path = ""
         self.icon_path = icon_path
         self._init_ui()
-    
+
     def _init_ui(self):
         """初始化用户界面"""
         # 创建主布局
@@ -42,16 +42,16 @@ class DirectoryPickerInterface(QWidget):
                 icon_label.setFixedSize(target_size)
                 icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
                 main_layout.addWidget(icon_label, alignment=Qt.AlignmentFlag.AlignCenter)
-        
+
         # 标题
         title_label = SubtitleLabel("请选择安装路径")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main_layout.addWidget(title_label)
-        
+
         # 路径显示区域
         path_layout = QHBoxLayout()
         path_layout.setSpacing(10)
-        
+
         self.path_input = LineEdit()
         self.path_input.setPlaceholderText("选择安装路径...")
         self.path_input.setReadOnly(True)
@@ -60,9 +60,9 @@ class DirectoryPickerInterface(QWidget):
         self.browse_btn.setIcon(FluentIcon.FOLDER_ADD)
         self.browse_btn.clicked.connect(self._on_browse_clicked)
         path_layout.addWidget(self.browse_btn)
-        
+
         main_layout.addLayout(path_layout)
-        
+
         # 按钮区域
         button_layout = QHBoxLayout()
         button_layout.addStretch(1)
@@ -73,12 +73,12 @@ class DirectoryPickerInterface(QWidget):
         self.confirm_btn.setEnabled(False)
         button_layout.addWidget(self.confirm_btn)
         button_layout.addStretch(1)
-        
+
         main_layout.addLayout(button_layout)
-        
+
         # 添加弹性空间
         main_layout.addStretch(1)
-    
+
     def _on_browse_clicked(self):
         """浏览按钮点击事件"""
         directory = QFileDialog.getExistingDirectory(
@@ -87,8 +87,24 @@ class DirectoryPickerInterface(QWidget):
             "",
             QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.DontResolveSymlinks
         )
-        
+
         if directory:
+            # 检查路径是否为全英文或者包含空格
+            if not all(c.isascii() for c in directory) or ' ' in directory:
+                # 显示警告对话框
+                w = MessageBox(
+                    "警告",
+                    "所选目录包含非英文字符或空格，请确保路径全为英文且不包含空格。",
+                    parent=self.window(),
+                )
+                w.yesButton.setText("我知道了")
+                w.cancelButton.setVisible(False)
+                w.exec()
+                self.selected_path = ""
+                self.path_input.clear()
+                self.confirm_btn.setEnabled(False)
+                return
+
             # 检查目录是否为空
             if os.listdir(directory):
                 # 目录不为空，显示警告对话框
@@ -108,7 +124,7 @@ class DirectoryPickerInterface(QWidget):
                 self.selected_path = directory
                 self.path_input.setText(directory)
                 self.confirm_btn.setEnabled(True)
-    
+
     def _on_confirm_clicked(self):
         """确认按钮点击事件"""
         if self.selected_path:
@@ -163,11 +179,11 @@ class DirectoryPickerWindow(PhosWindow):
         # 如果没有选择目录，退出程序
         if not self.selected_directory:
             QApplication.quit()
-        
+
         # 退出事件循环
         if hasattr(self, '_event_loop') and self._event_loop.isRunning():
             self._event_loop.quit()
-        
+
         event.accept()
 
     def create_sub_interface(self) -> None:
