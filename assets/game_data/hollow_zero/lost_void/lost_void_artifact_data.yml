@@ -1,3 +1,14 @@
+  # 携游
+- category: "携游"
+  name: "敕令玄幡"
+  level: "S"
+  template_id: "gear_mobile_1"
+
+- category: "携游"
+  name: "破军鸣锋"
+  level: "S"
+  template_id: "gear_mobile_1"
+
   # 终结
 - category: "终结"
   name: "律动节能器"
