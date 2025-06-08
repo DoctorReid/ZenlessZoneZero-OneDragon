@@ -25,7 +25,7 @@ def get_ocr_model_dir(ocr_model_name: str) -> str:
 
 
 def get_ocr_download_url_github(ocr_model_name: str) -> str:
-    return get_ocr_download_url(GITEE_DOWNLOAD_URL, ocr_model_name)
+    return get_ocr_download_url(GITHUB_DOWNLOAD_URL, ocr_model_name)
 
 
 def get_ocr_download_url_gitee(ocr_model_name: str) -> str:
