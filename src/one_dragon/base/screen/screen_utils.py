@@ -129,7 +129,7 @@ def find_and_click_area(ctx: OneDragonContext, screen: MatLike, screen_name: str
         return OcrClickResultEnum.OCR_CLICK_SUCCESS
 
 
-def get_match_screen_name(ctx: OneDragonContext, screen: MatLike, screen_name_list: Optional[List[str]] = None) -> str:
+def get_match_screen_name(ctx: OneDragonContext, screen: MatLike, screen_name_list: Optional[List[str]] = None) -> Optional[str]:
     """
     根据游戏截图 匹配一个最合适的画面
     :param ctx: 上下文
@@ -149,6 +149,8 @@ def get_match_screen_name(ctx: OneDragonContext, screen: MatLike, screen_name_li
         for screen_info in ctx.screen_loader.screen_info_list:
             if is_target_screen(ctx, screen, screen_info=screen_info):
                 return screen_info.screen_name
+
+    return None
 
 
 def get_match_screen_name_from_last(ctx: OneDragonContext, screen: MatLike) -> str:
