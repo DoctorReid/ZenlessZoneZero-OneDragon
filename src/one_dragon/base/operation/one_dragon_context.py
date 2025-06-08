@@ -222,35 +222,9 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
         初始化OCR
         :return:
         """
-        # 根据仓库配置智能选择下载源
-        download_by_github = True
-        download_by_gitee = False
-        ghproxy_url = None
-        proxy_url = None
-        
-        # 判断使用哪个下载源
-        if self.env_config.repository_type == 'Gitee':
-            # 如果配置为Gitee仓库，优先使用Gitee下载，不使用GitHub代理
-            download_by_github = False
-            download_by_gitee = True
-            # Gitee下载时，只在配置了个人代理的情况下使用代理
-            if self.env_config.is_personal_proxy:
-                proxy_url = self.env_config.personal_proxy
-        else:
-            # GitHub仓库配置，使用GitHub下载
-            download_by_github = True
-            download_by_gitee = False
-            # 应用相应的代理设置
-            if self.env_config.is_gh_proxy:
-                ghproxy_url = self.env_config.gh_proxy_url
-            elif self.env_config.is_personal_proxy:
-                proxy_url = self.env_config.personal_proxy
-        
         self.ocr.init_model(
-            download_by_github=download_by_github,
-            download_by_gitee=download_by_gitee,
-            ghproxy_url=ghproxy_url,
-            proxy_url=proxy_url,
+            ghproxy_url=self.env_config.gh_proxy_url if self.env_config.is_gh_proxy else None,
+            proxy_url=self.env_config.personal_proxy if self.env_config.is_personal_proxy else None,
         )
 
     def after_app_shutdown(self) -> None:
