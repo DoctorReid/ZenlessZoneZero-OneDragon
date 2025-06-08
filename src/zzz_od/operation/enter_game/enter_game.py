@@ -1,4 +1,7 @@
 import time
+from typing import Optional
+
+from cv2.typing import MatLike
 
 from one_dragon.base.config.basic_game_config import TypeInputWay
 from one_dragon.base.config.game_account_config import GameRegionEnum
@@ -8,6 +11,7 @@ from one_dragon.base.geometry.point import Point
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
+from one_dragon.utils import str_utils
 from one_dragon.utils.i18_utils import gt
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.back_to_normal_world import BackToNormalWorld
@@ -32,12 +36,33 @@ class EnterGame(ZOperation):
         self.use_clipboard: bool = self.ctx.game_config.type_input_way == TypeInputWay.CLIPBOARD.value.value  # 使用剪切板输入
 
     @node_from(from_name='国服-输入账号密码')
+    @node_from(from_name='国服-输入账号密码-新')
     @node_from(from_name='B服-输入账号密码')
     @node_from(from_name='国际服-换服')
     @operation_node(name='画面识别', node_max_retry_times=60, is_start_node=True)
     def check_screen(self) -> OperationRoundResult:
         screen = self.screenshot()
 
+        login_result = self.check_login_related(screen)
+        if login_result is not None:
+            return login_result
+
+        interact_result = self.check_screen_to_interact(screen)
+        if interact_result is not None:
+            return interact_result
+
+        in_game_result = self.round_by_find_area(screen, '大世界', '信息')
+        if in_game_result.is_success:
+            return self.round_success('大世界', wait=1)
+
+        return self.round_retry(status='未知画面', wait=1)
+
+    def check_login_related(self, screen: MatLike) -> Optional[OperationRoundResult]:
+        """
+        判断登陆相关的出现内容
+        :param screen: 游戏画面
+        :return: 是否有相关操作 有的话返回对应操作结果
+        """
         if self.force_login and not self.already_login:
             result = self.round_by_find_area(screen, '打开游戏', '点击进入游戏')
             if result.is_success:
@@ -50,7 +75,7 @@ class EnterGame(ZOperation):
         else:
             result = self.round_by_find_and_click_area(screen, '打开游戏', '点击进入游戏')
             if result.is_success:
-                return self.round_success(result.status, wait=5)
+                return self.round_wait(result.status, wait=5)
 
         result = self.round_by_find_area(screen, '打开游戏', '标题-退出登录')
         if result.is_success:
@@ -74,18 +99,12 @@ class EnterGame(ZOperation):
         if result.is_success:
             return self.round_success(result.status, wait=1)
 
-        result = self.round_by_find_and_click_area(screen, '打开游戏', '重试')
-        if result.is_success:
-            return self.round_wait(result.status, wait=5)
-
         if self.ctx.game_account_config.game_region != GameRegionEnum.CN.value.value:
-            return self.check_screen_intl()
+            return self.check_screen_intl(screen)
 
-        return self.round_retry(wait=1)
+        return None
 
-    def check_screen_intl(self) -> OperationRoundResult:
-        screen = self.screenshot()
-
+    def check_screen_intl(self, screen: MatLike) -> Optional[OperationRoundResult]:
         result = self.round_by_find_area(screen, '打开游戏', '国际服-点击登录')
         if result.is_success:
             time.sleep(2)  # 已登录的状态也可能出现几秒“点击登录”
@@ -98,7 +117,7 @@ class EnterGame(ZOperation):
         if result.is_success:
             return self.round_success(result.status, wait=1)
 
-        return self.round_retry(wait=1)
+        return None
 
     @node_from(from_name='画面识别', status='国服-账号密码')
     @operation_node(name='国服-输入账号密码')
@@ -254,11 +273,70 @@ class EnterGame(ZOperation):
         screen = self.screenshot()
         return self.round_by_find_and_click_area(screen, '打开游戏', area_name, success_wait=1)
 
-    @node_from(from_name='画面识别', status='点击进入游戏')
-    @operation_node(name='等待画面加载')
-    def wait_game(self) -> OperationRoundResult:
-        op = BackToNormalWorld(self.ctx)
-        return self.round_by_op_result(op.execute())
+    def check_screen_to_interact(self, screen: MatLike) -> Optional[OperationRoundResult]:
+        """
+        判断画面 处理可能出现的需要交互的情况
+        :param screen: 游戏画面
+        :return: 是否有相关操作 有的话返回对应操作结果
+        """
+        ocr_result_map = self.ctx.ocr.run_ocr(screen)
+        back_btn_result = self.round_by_find_area(screen, '菜单', '返回')
+
+        target_word_list: list[str] = [
+            '领取',
+            '已领取',  # 需要有这个词 防止画面出现"已领取"也匹配到"领取"
+            '取消',
+            '确定',
+            '重试',
+            '今日到账'
+        ]
+        target_word_idx_map: dict[str, int] = {}
+        to_match_list: list[str] = []
+        for idx, target_word in enumerate(target_word_list):
+            target_word_idx_map[target_word] = idx
+            to_match_list.append(gt(target_word))
+
+        for ocr_result, mrl in ocr_result_map.items():
+            target_word_idx = str_utils.find_best_match_by_difflib(ocr_result, target_word_list)
+            if (back_btn_result.is_success
+                    and target_word_idx == target_word_idx_map['领取']
+            ):
+                # 每个版本出现的10连抽奖励 issue #893
+                self.ctx.controller.click(mrl.max.center)
+                return self.round_wait(status='领取', wait=1)
+
+            if target_word_idx == target_word_idx_map['取消']:
+                # 上一次战斗还没结束 出现是否继续的对话框 issue #957
+                self.ctx.controller.click(mrl.max.center)
+                return self.round_wait(status='取消', wait=1)
+
+            if target_word_idx == target_word_idx_map['确定']:
+                # 游戏更新时出现的确定按钮 issue #991
+                # '确定'要放在'取消'之后 因为对话框有一个'确认' 会匹配到
+                self.ctx.controller.click(mrl.max.center)
+                return self.round_wait(status='确定', wait=1)
+
+            if target_word_idx == target_word_idx_map['确定']:
+                # 登陆时可能出现登陆超时问题 merge request #886
+                self.ctx.controller.click(mrl.max.center)
+                return self.round_wait(status='重试', wait=1)
+
+            if target_word_idx == target_word_idx_map['今日到账']:
+                # 小月卡 issue #893
+                self.ctx.controller.click(mrl.max.center)
+                return self.round_wait(status='今日到账', wait=1)
+
+        if back_btn_result.is_success:
+            # 左上角的返回
+            self.round_by_click_area('菜单', '返回')
+            return self.round_wait(status=back_btn_result.status, wait=1)
+
+        # 一周年自选奖励 应该在2.1时候删除相关资源
+        annual_reward_result = self.round_by_find_and_click_area(screen, '打开游戏', '一周年自选奖励')
+        if annual_reward_result.is_success:
+            return self.round_wait(status=annual_reward_result.status, wait=1)
+
+        return None
 
 
 def __debug():
@@ -266,7 +344,7 @@ def __debug():
     ctx.init_by_config()
     ctx.start_running()
     ctx.init_ocr()
-    op = EnterGame(ctx, switch=True)
+    op = EnterGame(ctx, switch=False)
     op.execute()
 
 
