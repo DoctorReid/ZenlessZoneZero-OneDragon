@@ -94,7 +94,10 @@ class LostVoidChooseCommon(ZOperation):
 
         artifact_name_list: list[str] = []
         for art in self.ctx.lost_void.all_artifact_list:
-            artifact_name_list.append(gt(art.name))
+            if art.is_gear:
+                artifact_name_list.append(gt(f'[{art.category}]{art.name}'))
+            else:
+                artifact_name_list.append(gt(art.name))
 
         artifact_pos_list: list[LostVoidArtifactPos] = []
         ocr_result_map = self.ctx.ocr.run_ocr(screen)
