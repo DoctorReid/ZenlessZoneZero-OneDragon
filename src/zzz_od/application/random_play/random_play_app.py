@@ -29,7 +29,7 @@ class RandomPlayApp(ZApplication):
         ZApplication.__init__(
             self,
             ctx=ctx, app_id='random_play',
-            op_name=gt('影像店营业', 'ui'),
+            op_name=gt('录像店营业', 'ui'),
             run_record=ctx.random_play_run_record,
             retry_in_od=True,  # 传送落地有可能会歪 重试
             need_notify=True,
@@ -49,7 +49,7 @@ class RandomPlayApp(ZApplication):
 
     @operation_node(name='传送', is_start_node=True)
     def transport(self) -> OperationRoundResult:
-        op = Transport(self.ctx, 'Random Play', '柜台')
+        op = Transport(self.ctx, '录像店', '柜台')
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='传送')
