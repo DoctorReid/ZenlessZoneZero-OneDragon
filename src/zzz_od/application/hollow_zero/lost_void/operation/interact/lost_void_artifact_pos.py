@@ -10,6 +10,7 @@ class LostVoidArtifactPos:
         self.artifact: LostVoidArtifact = art
         self.rect: Rect = rect
 
+        self.can_choose: bool = True
         self.store_price: Optional[int] = None
         self.store_buy_rect: Optional[Rect] = None
 

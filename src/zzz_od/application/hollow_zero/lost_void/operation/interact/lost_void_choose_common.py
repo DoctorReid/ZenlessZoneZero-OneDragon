@@ -25,6 +25,7 @@ class LostVoidChooseCommon(ZOperation):
         ZOperation.__init__(self, ctx, op_name='迷失之地-通用选择')
 
         self.to_choose_num: int = 1  # 需要选择的数量
+        self.chosen_idx_list: list[int] = []  # 已经选择过的下标
 
     @operation_node(name='选择', is_start_node=True)
     def choose_artifact(self) -> OperationRoundResult:
@@ -81,7 +82,7 @@ class LostVoidChooseCommon(ZOperation):
         else:
             return self.round_retry(result.status, wait=1)
 
-    def get_artifact_pos(self, screen: MatLike) -> Tuple[List[MatchResult], List[MatchResult]]:
+    def get_artifact_pos(self, screen: MatLike) -> Tuple[List[LostVoidArtifactPos], List[LostVoidArtifactPos]]:
         """
         获取藏品的位置
         @param screen: 游戏画面
@@ -106,33 +107,38 @@ class LostVoidChooseCommon(ZOperation):
             artifact_pos = LostVoidArtifactPos(artifact, mrl.max.rect)
             artifact_pos_list.append(artifact_pos)
 
-        display_text = ','.join([i.artifact.display_name for i in artifact_pos_list]) if len(artifact_pos_list) > 0 else '无'
-        log.info(f'当前识别藏品 {display_text}')
-
         # 识别其它标识
         target_chosen_word_list = [
             gt('有同流派武备'),
             gt('已选择'),
+            gt('齿轮硬币不足'),
         ]
         to_cancel_list: list[LostVoidArtifactPos] = []
         for ocr_result, mrl in ocr_result_map.items():
             artifact_idx: int = str_utils.find_best_match_by_difflib(ocr_result, target_chosen_word_list)
             if artifact_idx is None or artifact_idx < 0:
                 continue
-            if artifact_idx == 1:  # 已选择
-                # 找横坐标最接近的藏品
-                closest_artifact_pos: Optional[LostVoidArtifactPos] = None
-                for artifact_pos in artifact_pos_list:
-                    if closest_artifact_pos is None:
-                        closest_artifact_pos = artifact_pos
-                        continue
-                    old_dis = abs(mrl.max.center.x - closest_artifact_pos.rect.center.x)
-                    new_dis = abs(mrl.max.center.x - artifact_pos.rect.center.x)
-                    if new_dis < old_dis:
-                        closest_artifact_pos = artifact_pos
+            # 找横坐标最接近的藏品
+            closest_artifact_pos: Optional[LostVoidArtifactPos] = None
+            for artifact_pos in artifact_pos_list:
+                if closest_artifact_pos is None:
+                    closest_artifact_pos = artifact_pos
+                    continue
+                old_dis = abs(mrl.max.center.x - closest_artifact_pos.rect.center.x)
+                new_dis = abs(mrl.max.center.x - artifact_pos.rect.center.x)
+                if new_dis < old_dis:
+                    closest_artifact_pos = artifact_pos
 
-                if closest_artifact_pos is not None:
+            if closest_artifact_pos is not None:
+                if artifact_idx == 1:  # 已选择
                     to_cancel_list.append(closest_artifact_pos)
+                elif artifact_idx == 2:  # 齿轮硬币不足
+                    closest_artifact_pos.can_choose = False
+
+        artifact_pos_list = [i for i in artifact_pos_list if i.can_choose]
+
+        display_text = ','.join([i.artifact.display_name for i in artifact_pos_list]) if len(artifact_pos_list) > 0 else '无'
+        log.info(f'当前可选择藏品 {display_text}')
 
         display_text = ','.join([i.artifact.display_name for i in to_cancel_list]) if len(to_cancel_list) > 0 else '无'
         log.info(f'当前已选择藏品 {display_text}')
