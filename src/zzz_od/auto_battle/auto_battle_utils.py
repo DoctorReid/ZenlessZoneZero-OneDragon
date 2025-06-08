@@ -2,10 +2,14 @@ import time
 from concurrent.futures import Future
 from typing import Tuple, Union
 
+from cv2.typing import MatLike
+
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from zzz_od.application.zzz_application import ZApplication
+from zzz_od.auto_battle.auto_battle_dodge_context import YoloStateEventEnum
 from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
-from zzz_od.game_data.agent import AgentEnum
+from zzz_od.context.zzz_context import ZContext
+from zzz_od.game_data.agent import AgentEnum, CommonAgentStateEnum
 from zzz_od.operation.zzz_operation import ZOperation
 
 
@@ -79,3 +83,53 @@ def check_astra_and_switch(auto_op: AutoBattleOperator, timeout_seconds: float =
 
         auto_op.auto_battle_context.switch_next()  # 随便切换下一个角色
         time.sleep(0.2)
+
+
+def check_battle_encounter(auto_op: AutoBattleOperator, screen: MatLike, screenshot_time: float) -> bool:
+    """
+    判断是否进入了战斗
+    1. 识别角色血量扣减
+    2. 识别黄光红光
+    @param screen: 游戏截图
+    @param screenshot_time: 截图时间
+    @return: 是否进入了战斗
+    """
+    if auto_op is None:
+        return False
+
+    in_battle = auto_op.auto_battle_context.is_normal_attack_btn_available(screen)
+    if in_battle:
+        auto_op.auto_battle_context.agent_context.check_agent_related(screen, screenshot_time)
+        state = auto_op.get_state_recorder(CommonAgentStateEnum.LIFE_DEDUCTION_31.value.state_name)
+        if state is not None and state.last_record_time == screenshot_time:
+            return True
+
+        auto_op.auto_battle_context.dodge_context.check_dodge_flash(screen, screenshot_time)
+        state = auto_op.get_state_recorder(YoloStateEventEnum.DODGE_RED.value)
+        if state is not None and state.last_record_time == screenshot_time:
+            return True
+        state = auto_op.get_state_recorder(YoloStateEventEnum.DODGE_YELLOW.value)
+        if state is not None and state.last_record_time == screenshot_time:
+            return True
+
+    return False
+
+def check_battle_encounter_in_period(ctx: ZContext, auto_op: AutoBattleOperator, total_check_seconds: float) -> bool:
+    """
+    持续一段时间检测是否进入战斗
+    @param total_check_seconds: 总共检测的秒数
+    @return:
+    """
+    start = time.time()
+
+    while True:
+        screenshot_time = time.time()
+
+        if screenshot_time - start >= total_check_seconds:
+            return False
+
+        screen = ctx.controller.screenshot()
+        if check_battle_encounter(auto_op, screen, screenshot_time):
+            return True
+
+        time.sleep(ctx.battle_assistant_config.screenshot_interval)
