@@ -28,7 +28,7 @@ if __name__ == '__main__':
         icon_path = os.path.join(os.getcwd(), 'assets', 'ui', 'installer_logo.ico')
     picker_window = DirectoryPickerWindow(win_title="", icon_path=icon_path)
     picker_window.exec()
-    work_dir = picker_window.selected_directory if picker_window.selected_directory else None
+    work_dir = picker_window.selected_directory
     if not work_dir:
         sys.exit(0)
     os.chdir(work_dir)

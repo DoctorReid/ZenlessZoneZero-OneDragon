@@ -89,12 +89,11 @@ class DirectoryPickerInterface(QWidget):
         )
 
         if selected_dir_path:
-            # 检查路径是否为全英文或者包含空格
-            if not all(c.isascii() for c in selected_dir_path) or ' ' in selected_dir_path:
-                # 显示警告对话框
+            # 检查路径是否为根目录
+            if len(selected_dir_path) <= 3:
                 w = MessageBox(
                     "警告",
-                    "所选目录的路径不合规，请确保路径全为英文且不包含空格。",
+                    "所选目录为根目录，请选择其他目录。",
                     parent=self.window(),
                 )
                 w.yesButton.setText("我知道了")
@@ -103,14 +102,28 @@ class DirectoryPickerInterface(QWidget):
                 self.selected_path = ""
                 self.path_input.clear()
                 self.confirm_btn.setEnabled(False)
-                return
+                return self._on_browse_clicked()
+
+            # 检查路径是否为全英文或者包含空格
+            if not all(c.isascii() for c in selected_dir_path) or ' ' in selected_dir_path:
+                w = MessageBox(
+                    "警告",
+                    "所选目录的路径包含非法字符，请确保路径全为英文字符且不包含空格。",
+                    parent=self.window(),
+                )
+                w.yesButton.setText("我知道了")
+                w.cancelButton.setVisible(False)
+                w.exec()
+                self.selected_path = ""
+                self.path_input.clear()
+                self.confirm_btn.setEnabled(False)
+                return self._on_browse_clicked()
 
             # 检查目录是否为空
             if os.listdir(selected_dir_path):
-                # 目录不为空，显示警告对话框
                 w = MessageBox(
                     title="警告",
-                    content=f"所选目录不为空：\n{selected_dir_path}\n\n是否继续使用此目录？",
+                    content=f"所选目录不为空，里面的内容将被覆盖：\n{selected_dir_path}\n\n是否继续使用此目录？",
                     parent=self.window(),
                 )
                 w.yesButton.setText("继续使用")
@@ -119,6 +132,8 @@ class DirectoryPickerInterface(QWidget):
                     self.selected_path = selected_dir_path
                     self.path_input.setText(selected_dir_path)
                     self.confirm_btn.setEnabled(True)
+                else:
+                    return self._on_browse_clicked()
             else:
                 # 目录为空，直接使用
                 self.selected_path = selected_dir_path
