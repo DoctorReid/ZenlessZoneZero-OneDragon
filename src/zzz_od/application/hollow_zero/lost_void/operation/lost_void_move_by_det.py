@@ -138,8 +138,7 @@ class LostVoidMoveByDet(ZOperation):
         :return:
         """
         possible_screen_name_list = [
-            '迷失之地-武备选择', '迷失之地-通用选择', '迷失之地-无详情选择',
-            '迷失之地-无数量选择',
+            '迷失之地-武备选择', '迷失之地-通用选择',
         ]
         screen_name = self.check_and_update_current_screen(screen, possible_screen_name_list)
         if screen_name is not None:

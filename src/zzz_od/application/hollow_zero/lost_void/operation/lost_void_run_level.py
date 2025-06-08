@@ -1,8 +1,8 @@
 import time
+from typing import ClassVar, Optional, List
 
 import cv2
 from cv2.typing import MatLike
-from typing import ClassVar, Optional, List
 
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.operation.operation import Operation
@@ -20,9 +20,6 @@ from zzz_od.application.hollow_zero.lost_void.lost_void_challenge_config import 
 from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_bangboo_store import LostVoidBangbooStore
 from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_choose_common import LostVoidChooseCommon
 from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_choose_gear import LostVoidChooseGear
-from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_choose_no_detail import \
-    LostVoidChooseNoDetail
-from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_choose_no_num import LostVoidChooseNoNum
 from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_interact_target_const import \
     match_interact_target, LostVoidInteractTarget, LostVoidInteractNPC
 from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_lottery import LostVoidLottery
@@ -104,7 +101,7 @@ class LostVoidRunLevel(ZOperation):
         # 2. 有战略可以导致进入新一层时获取战利品
         # 因此在加载这里判断是否有奖励需要选择
         possible_screen_name_list = [
-            '迷失之地-武备选择', '迷失之地-通用选择', '迷失之地-无详情选择', '迷失之地-无数量选择'
+            '迷失之地-武备选择', '迷失之地-通用选择',
         ]
         screen_name = self.check_and_update_current_screen(screen, screen_name_list=possible_screen_name_list)
         if screen_name is not None:
@@ -324,8 +321,6 @@ class LostVoidRunLevel(ZOperation):
     @node_from(from_name='等待加载', status='识别正在交互')
     @node_from(from_name='尝试交互', status='交互成功')
     @node_from(from_name='战斗中', status='识别正在交互')
-    @node_from(from_name='交互处理', status='迷失之地-通用选择')  # 可能判断错误画面 在LostVoidChooseNoDetail中返回正确画面重新进行判断 #869
-    @node_from(from_name='交互后处理', status='迷失之地-通用选择')  # 可能判断错误画面 在LostVoidChooseNoDetail中返回正确画面重新进行判断 #869
     @operation_node(name='交互处理')
     def handle_interact(self) -> OperationRoundResult:
         """
@@ -337,17 +332,23 @@ class LostVoidRunLevel(ZOperation):
         """
         screen = self.screenshot()
 
-        screen_name = self.check_and_update_current_screen(screen)
+        screen_name = self.check_and_update_current_screen(
+            screen,
+            screen_name_list=[
+                '迷失之地-武备选择',
+                '迷失之地-通用选择',
+                '迷失之地-邦布商店',
+                '迷失之地-路径迭换',
+                '迷失之地-抽奖机',
+                '迷失之地-大世界'
+            ]
+        )
         interact_op: Optional[ZOperation] = None
         interact_type: Optional[str] = None
         if screen_name == '迷失之地-武备选择':
             interact_op = LostVoidChooseGear(self.ctx)
         elif screen_name == '迷失之地-通用选择':
             interact_op = LostVoidChooseCommon(self.ctx)
-        elif screen_name == '迷失之地-无详情选择':
-            interact_op = LostVoidChooseNoDetail(self.ctx)
-        elif screen_name == '迷失之地-无数量选择':
-            interact_op = LostVoidChooseNoNum(self.ctx)
         elif screen_name == '迷失之地-邦布商店':
             interact_type = '邦布商店'
             interact_op = LostVoidBangbooStore(self.ctx)
@@ -617,7 +618,7 @@ class LostVoidRunLevel(ZOperation):
             ):
                 self.last_check_finish_time = screenshot_time
                 possible_screen_name_list = [
-                    '迷失之地-武备选择', '迷失之地-通用选择', '迷失之地-无详情选择', '迷失之地-无数量选择',
+                    '迷失之地-武备选择', '迷失之地-通用选择',
                     '迷失之地-挑战结果',
                     '迷失之地-大世界',  # 有可能是之前交互识别错了 认为进入了战斗楼层 实际上没有交互
                     '迷失之地-战斗失败'

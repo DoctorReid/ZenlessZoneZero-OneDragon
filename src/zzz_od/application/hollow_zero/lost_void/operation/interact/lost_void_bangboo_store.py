@@ -1,12 +1,10 @@
 import time
+from typing import List
 
 import cv2
 from cv2.typing import MatLike
-from typing import List, Optional
 
 from one_dragon.base.geometry.point import Point
-from one_dragon.base.geometry.rectangle import Rect
-from one_dragon.base.matcher.match_result import MatchResult
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
@@ -14,42 +12,10 @@ from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from zzz_od.application.hollow_zero.lost_void.context.lost_void_artifact import LostVoidArtifact
+from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_artifact_pos import LostVoidArtifactPos
 from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_choose_common import LostVoidChooseCommon
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.zzz_operation import ZOperation
-
-
-class StoreItemWrapper:
-
-    def __init__(self, art: LostVoidArtifact, rect: Rect):
-        self.artifact: LostVoidArtifact = art
-        self.artifact_rect: Rect = rect
-        self.price: Optional[int] = None
-        self.buy_rect: Optional[Rect] = None
-
-    def add_price(self, price: int, rect: Rect) -> bool:
-        """
-        添加价格
-        @return:
-        """
-        x_dis = abs(self.artifact_rect.center.x - rect.center.x)
-        if x_dis >= self.artifact_rect.width:
-            return False
-
-        self.price = price
-        return True
-
-    def add_buy(self, rect: Rect) -> bool:
-        """
-        添加购买按钮
-        @return:
-        """
-        x_dis = abs(self.artifact_rect.center.x - rect.center.x)
-        if x_dis >= self.artifact_rect.width:
-            return False
-
-        self.buy_rect = rect
-        return True
 
 
 class LostVoidBangbooStore(ZOperation):
@@ -107,11 +73,11 @@ class LostVoidBangbooStore(ZOperation):
             # 进入本指令之前 有可能识别错画面
             return self.round_retry(status=f'当前画面 {screen_name}', wait=1)
 
-        art_list: List[MatchResult] = self.get_artifact_pos(screen)
+        art_list: List[LostVoidArtifactPos] = self.get_artifact_pos(screen)
         if len(art_list) == 0:
             return self.round_retry(status='未识别可购买藏品', wait=1)
 
-        priority_list: List[MatchResult] = self.ctx.lost_void.get_artifact_by_priority(
+        priority_list: List[LostVoidArtifactPos] = self.ctx.lost_void.get_artifact_by_priority(
             art_list, 1,
             consider_priority_1=True, consider_priority_2=self.refresh_times > self.ctx.lost_void.challenge_config.buy_only_priority_1,
             consider_not_in_priority=self.refresh_times > self.ctx.lost_void.challenge_config.buy_only_priority_2,
@@ -128,19 +94,19 @@ class LostVoidBangbooStore(ZOperation):
         if len(priority_list) == 0:
             return self.round_retry(status='按优先级选择藏品失败', wait=1)
 
-        target: MatchResult = priority_list[0]
-        target_item: LostVoidArtifact = target.data
+        target: LostVoidArtifactPos = priority_list[0]
+        target_item: LostVoidArtifact = target.artifact
 
-        self.ctx.controller.click(target.center)
+        self.ctx.controller.click(target.store_buy_rect.center)
         return self.round_success(target_item.name, wait=1)
 
-    def get_artifact_pos(self, screen: MatLike) -> List[MatchResult]:
+    def get_artifact_pos(self, screen: MatLike) -> List[LostVoidArtifactPos]:
         """
         获取藏品的位置
         @param screen: 游戏画面
         @return: 识别到的藏品
         """
-        result_list: List[StoreItemWrapper] = []
+        result_list: List[LostVoidArtifactPos] = []
 
         # 识别藏品
         area = self.ctx.screen_loader.get_area('迷失之地-邦布商店', '区域-藏品名称')
@@ -153,7 +119,7 @@ class LostVoidBangbooStore(ZOperation):
 
             mr = mrl.max.rect
             mr.add_offset(area.left_top)
-            result_list.append(StoreItemWrapper(art, mr))
+            result_list.append(LostVoidArtifactPos(art, mr))
 
         # 识别价格
         area = self.ctx.screen_loader.get_area('迷失之地-邦布商店', '区域-价格')
@@ -188,14 +154,8 @@ class LostVoidBangbooStore(ZOperation):
                 for result in result_list:
                     result.add_buy(mr.rect)
 
-        result_list: List[MatchResult] = [
-            MatchResult(1, i.buy_rect.x1, i.buy_rect.y1, i.buy_rect.width, i.buy_rect.height,
-                        data=i.artifact)
-            for i in result_list
-            if i.price is not None and i.buy_rect is not None
-        ]
-
-        display_text = ','.join([i.data.display_name for i in result_list]) if len(result_list) > 0 else '无'
+        result_list = [i for i in result_list if i.store_buy_rect is not None]
+        display_text = ','.join([i.artifact.display_name for i in result_list]) if len(result_list) > 0 else '无'
         log.info(f'当前识别藏品 {display_text}')
 
         return result_list

@@ -5,9 +5,6 @@ from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils import cv2_utils, str_utils
 from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_choose_common import LostVoidChooseCommon
-from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_choose_no_detail import \
-    LostVoidChooseNoDetail
-from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_choose_no_num import LostVoidChooseNoNum
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.zzz_operation import ZOperation
 
@@ -55,10 +52,6 @@ class LostVoidLottery(ZOperation):
 
         if screen_name == '迷失之地-通用选择':
             interact_op = LostVoidChooseCommon(self.ctx)
-        elif screen_name == '迷失之地-无详情选择':
-            interact_op = LostVoidChooseNoDetail(self.ctx)
-        elif screen_name == '迷失之地-无数量选择':
-            interact_op = LostVoidChooseNoNum(self.ctx)
         elif screen_name == '迷失之地-抽奖机':
             return self.round_success(LostVoidLottery.STATUS_CONTINUE)
 
