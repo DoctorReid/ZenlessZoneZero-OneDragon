@@ -125,6 +125,20 @@ class OperationTask:
         """
         if interrupt_states is not None:
             self.interrupt_states.update(interrupt_states)
+    
+    def add_expr(self, expr: str, debug_name: Optional[str] = None) -> None:
+        """
+        添加表达式和调试名称
+        :param expr: 表达式字符串
+        :param debug_name: 调试名称（可选）
+        :return:
+        """
+        if expr:
+            self.expr_list.append(expr)
+        if debug_name:
+            self.debug_name_list.append(debug_name)
+        elif expr:  # 如果没有debug_name但有expr，添加空字符串保持列表长度一致
+            self.debug_name_list.append('')
 
     @property
     def expr_display(self) -> str:
