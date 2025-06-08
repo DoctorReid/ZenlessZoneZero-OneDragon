@@ -7,6 +7,7 @@ from typing import Callable, List, Optional
 from one_dragon.base.matcher.match_result import MatchResult, MatchResultList
 from one_dragon.base.matcher.ocr import ocr_utils
 from one_dragon.base.matcher.ocr.ocr_matcher import OcrMatcher
+from one_dragon.base.web.common_downloader import CommonDownloaderParam
 from one_dragon.base.web.zip_downloader import ZipDownloader
 from one_dragon.utils import os_utils
 from one_dragon.utils import str_utils
@@ -22,8 +23,7 @@ class OnnxOcrMatcher(OcrMatcher, ZipDownloader):
     def __init__(self):
         self.base_dir: str = os_utils.get_path_under_work_dir('assets', 'models', 'onnx_ocr', 'ppocrv5')
         OcrMatcher.__init__(self)
-        ZipDownloader.__init__(
-            self,
+        param = CommonDownloaderParam(
             save_file_path=self.base_dir,
             save_file_name='ppocrv5.zip',
             github_release_download_url='https://github.com/OneDragon-Anything/OneDragon-Env/releases/download/ppocrv5/ppocrv5.zip',
@@ -36,6 +36,10 @@ class OnnxOcrMatcher(OcrMatcher, ZipDownloader):
                 os.path.join(self.base_dir, 'ppocrv5_dict.txt'),
                 os.path.join(self.base_dir, 'simfang.ttf'),
             ]
+        )
+        ZipDownloader.__init__(
+            self,
+            param=param,
         )
         self._model = None
         self._loading: bool = False
@@ -224,8 +228,8 @@ def __debug():
         download_by_gitee=True)
     
     from one_dragon.utils import debug_utils
-    img = debug_utils.get_debug_image('424905412-5c9df2d3-186d-4be5-a610-865553fd6adb')
-    print(ocr.run_ocr_single_line(img))
+    img = debug_utils.get_debug_image('1')
+    print(ocr.run_ocr(img))
 
 
 if __name__ == '__main__':

@@ -5,7 +5,7 @@ from one_dragon.utils import http_utils
 from one_dragon.utils.log_utils import log
 
 
-class CommonDownloader:
+class CommonDownloaderParam:
 
     def __init__(
             self,
@@ -15,7 +15,7 @@ class CommonDownloader:
             gitee_release_download_url: Optional[str] = None,
             mirror_chan_download_url: Optional[str] = None,
             check_existed_list: Optional[list[str]] = None,
-            ) -> None:
+    ):
         """
         一个通用下载器 可提供3个下载源 并检查文件是否存在 如果存在则不进行下载
 
@@ -34,6 +34,21 @@ class CommonDownloader:
         self.mirror_chan_download_url: Optional[str] = mirror_chan_download_url
         self.check_existed_list: list[str] = [] if check_existed_list is None else check_existed_list
 
+
+class CommonDownloader:
+
+    def __init__(
+            self,
+            param: CommonDownloaderParam,
+            ) -> None:
+        """
+        一个通用下载器 可提供3个下载源 并检查文件是否存在 如果存在则不进行下载
+
+        Args:
+            param (CommonDownloaderParam): 下载参数
+        """
+        self.param: CommonDownloaderParam = param
+
     def download(
             self,
             download_by_github: bool = True,
@@ -48,15 +63,15 @@ class CommonDownloader:
             return True
         
         download_url: str = ''
-        if download_by_github and self.github_release_download_url is not None:
+        if download_by_github and self.param.github_release_download_url is not None:
             if ghproxy_url is not None:
-                download_url=f'{ghproxy_url}/{self.github_release_download_url}'
+                download_url=f'{ghproxy_url}/{self.param.github_release_download_url}'
             else:
-                download_url = self.github_release_download_url
-        elif download_by_gitee and self.gitee_release_download_url is not None:
-            download_url = self.gitee_release_download_url
-        elif download_by_mirror_chan and self.mirror_chan_download_url is not None:
-            download_url = self.mirror_chan_download_url
+                download_url = self.param.github_release_download_url
+        elif download_by_gitee and self.param.gitee_release_download_url is not None:
+            download_url = self.param.gitee_release_download_url
+        elif download_by_mirror_chan and self.param.mirror_chan_download_url is not None:
+            download_url = self.param.mirror_chan_download_url
 
         if download_url == '':
             log.error('没有指定下载方法或对应的下载地址')
@@ -64,7 +79,7 @@ class CommonDownloader:
         
         return http_utils.download_file(
             download_url=download_url,
-            save_file_path=os.path.join(self.save_file_path, self.save_file_name),
+            save_file_path=os.path.join(self.param.save_file_path, self.param.save_file_name),
             proxy=proxy_url,
             progress_callback=progress_callback)
 
@@ -76,7 +91,7 @@ class CommonDownloader:
             bool: 是否都存在
         """
         all_existed: bool = True
-        for file_name in self.check_existed_list:
+        for file_name in self.param.check_existed_list:
             if not os.path.exists(file_name):
                 all_existed = False
                 break

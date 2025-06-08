@@ -1,13 +1,13 @@
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import SettingCardGroup, FluentIcon, HyperlinkCard
 
-from one_dragon_qt.widgets.log_display_card import LogDisplayCard
-from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
-from one_dragon_qt.widgets.setting_card.yolo_model_card import ModelDownloadSettingCard
-from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.utils.i18_utils import gt
 from one_dragon_qt.widgets.column import Column
-from zzz_od.config.yolo_config import ZZZ_MODEL_DOWNLOAD_URL, get_flash_classifier_opts, get_hollow_zero_event_opts, \
+from one_dragon_qt.widgets.log_display_card import LogDisplayCard
+from one_dragon_qt.widgets.setting_card.common_download_card import ZipDownloaderSettingCard
+from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
+from zzz_od.config.yolo_config import get_flash_classifier_opts, get_hollow_zero_event_opts, \
     get_lost_void_det_opts
 from zzz_od.context.zzz_context import ZContext
 
@@ -42,27 +42,21 @@ class SettingYoloInterface(VerticalScrollInterface):
         self.help_opt.setContent('下载失败时 请尝试到「脚本环境」更改网络代理')
         group.addSettingCard(self.help_opt)
 
-        self.flash_classifier_opt = ModelDownloadSettingCard(
-            ctx=self.ctx, sub_dir='flash_classifier', download_url=ZZZ_MODEL_DOWNLOAD_URL,
-            icon=FluentIcon.GLOBE, title='闪光识别')
+        self.flash_classifier_opt = ZipDownloaderSettingCard(ctx=self.ctx, icon=FluentIcon.GLOBE, title='闪光识别')
         self.flash_classifier_opt.value_changed.connect(self._on_flash_classifier_changed)
         group.addSettingCard(self.flash_classifier_opt)
 
         self.flash_classifier_gpu_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='闪光识别-GPU运算')
         group.addSettingCard(self.flash_classifier_gpu_opt)
 
-        self.hollow_zero_event_opt = ModelDownloadSettingCard(
-            ctx=self.ctx, sub_dir='hollow_zero_event', download_url=ZZZ_MODEL_DOWNLOAD_URL,
-            icon=FluentIcon.GLOBE, title='空洞格子识别')
+        self.hollow_zero_event_opt = ZipDownloaderSettingCard(ctx=self.ctx, icon=FluentIcon.GLOBE, title='空洞格子识别')
         self.hollow_zero_event_opt.value_changed.connect(self._on_hollow_zero_event_changed)
         group.addSettingCard(self.hollow_zero_event_opt)
 
         self.hollow_zero_event_gpu_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='空洞格子识别-GPU运算')
         group.addSettingCard(self.hollow_zero_event_gpu_opt)
 
-        self.lost_void_det_opt = ModelDownloadSettingCard(
-            ctx=self.ctx, sub_dir='lost_void_det', download_url=ZZZ_MODEL_DOWNLOAD_URL,
-            icon=FluentIcon.GLOBE, title='迷失之地识别')
+        self.lost_void_det_opt = ZipDownloaderSettingCard(ctx=self.ctx, icon=FluentIcon.GLOBE, title='迷失之地识别')
         self.lost_void_det_opt.value_changed.connect(self._on_hollow_zero_event_changed)
         group.addSettingCard(self.lost_void_det_opt)
 

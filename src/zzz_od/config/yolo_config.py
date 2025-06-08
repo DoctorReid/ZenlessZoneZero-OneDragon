@@ -1,10 +1,13 @@
+import os
 from typing import List
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
+from one_dragon.base.web.common_downloader import CommonDownloaderParam
 from one_dragon.utils import yolo_config_utils
 
-ZZZ_MODEL_DOWNLOAD_URL = 'https://github.com/OneDragon-Anything/OneDragon-YOLO/releases/download/zzz_model'
+_GITHUB_MODEL_DOWNLOAD_URL = 'https://github.com/OneDragon-Anything/OneDragon-YOLO/releases/download/zzz_model'
+_GITEE_MODEL_DOWNLOAD_URL = 'https://gitee.com/OneDragon-Anything/OneDragon-YOLO/releases/download/zzz_model'
 
 _DEFAULT_FLASH_CLASSIFIER = 'yolov8n-640-flash-0127'
 _BACKUP_FLASH_CLASSIFIER = 'yolov8n-640-flash-1215'
@@ -125,7 +128,28 @@ def get_flash_classifier_opts() -> List[ConfigItem]:
     if _DEFAULT_FLASH_CLASSIFIER not in models_list:
         models_list.append(_DEFAULT_FLASH_CLASSIFIER)
 
-    return [ConfigItem(i) for i in models_list]
+    config_list: list[ConfigItem] = []
+    for model in models_list:
+        model_dir = yolo_config_utils.get_model_dir('flash_classifier', model)
+        zip_file_name: str = f'{model}.zip'
+        param = CommonDownloaderParam(
+            save_file_path=model_dir,
+            save_file_name=zip_file_name,
+            github_release_download_url=f'{_GITHUB_MODEL_DOWNLOAD_URL}/{zip_file_name}',
+            gitee_release_download_url=f'{_GITEE_MODEL_DOWNLOAD_URL}/{zip_file_name}',
+            check_existed_list=[
+                os.path.join(model_dir, 'model.onnx'),
+                os.path.join(model_dir, 'labels.csv'),
+            ],
+        )
+        config_list.append(
+            ConfigItem(
+                label=model,
+                value=param,
+            )
+        )
+
+    return config_list
 
 
 def get_hollow_zero_event_opts() -> List[ConfigItem]:
@@ -137,7 +161,28 @@ def get_hollow_zero_event_opts() -> List[ConfigItem]:
     if _DEFAULT_HOLLOW_ZERO_EVENT not in models_list:
         models_list.append(_DEFAULT_HOLLOW_ZERO_EVENT)
 
-    return [ConfigItem(i) for i in models_list]
+    config_list: list[ConfigItem] = []
+    for model in models_list:
+        model_dir = yolo_config_utils.get_model_dir('hollow_zero_event', model)
+        zip_file_name: str = f'{model}.zip'
+        param = CommonDownloaderParam(
+            save_file_path=model_dir,
+            save_file_name=zip_file_name,
+            github_release_download_url=f'{_GITHUB_MODEL_DOWNLOAD_URL}/{zip_file_name}',
+            gitee_release_download_url=f'{_GITEE_MODEL_DOWNLOAD_URL}/{zip_file_name}',
+            check_existed_list=[
+                os.path.join(model_dir, 'model.onnx'),
+                os.path.join(model_dir, 'labels.csv'),
+            ],
+        )
+        config_list.append(
+            ConfigItem(
+                label=model,
+                value=param,
+            )
+        )
+
+    return config_list
 
 
 def get_lost_void_det_opts() -> List[ConfigItem]:
@@ -149,4 +194,25 @@ def get_lost_void_det_opts() -> List[ConfigItem]:
     if _DEFAULT_LOST_VOID_DET not in models_list:
         models_list.append(_DEFAULT_LOST_VOID_DET)
 
-    return [ConfigItem(i) for i in models_list]
+    config_list: list[ConfigItem] = []
+    for model in models_list:
+        model_dir = yolo_config_utils.get_model_dir('lost_void_det', model)
+        zip_file_name: str = f'{model}.zip'
+        param = CommonDownloaderParam(
+            save_file_path=model_dir,
+            save_file_name=zip_file_name,
+            github_release_download_url=f'{_GITHUB_MODEL_DOWNLOAD_URL}/{zip_file_name}',
+            gitee_release_download_url=f'{_GITEE_MODEL_DOWNLOAD_URL}/{zip_file_name}',
+            check_existed_list=[
+                os.path.join(model_dir, 'model.onnx'),
+                os.path.join(model_dir, 'labels.csv'),
+            ],
+        )
+        config_list.append(
+            ConfigItem(
+                label=model,
+                value=param,
+            )
+        )
+
+    return config_list
