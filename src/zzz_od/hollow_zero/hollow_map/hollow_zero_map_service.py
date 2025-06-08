@@ -21,11 +21,11 @@ class HollowZeroMapService:
         self.map_list: List[HollowZeroMap] = []
 
     def init_event_yolo(self) -> None:
-        use_gpu = self.ctx.yolo_config.hollow_zero_event_gpu
+        use_gpu = self.ctx.model_config.hollow_zero_event_gpu
         if self.event_model is None or self.event_model.gpu != use_gpu:
             self.event_model = HollowEventDetector(
-                model_name=self.ctx.yolo_config.hollow_zero_event,
-                backup_model_name=self.ctx.yolo_config.hollow_zero_event_backup,
+                model_name=self.ctx.model_config.hollow_zero_event,
+                backup_model_name=self.ctx.model_config.hollow_zero_event_backup,
                 gh_proxy=self.ctx.env_config.is_gh_proxy,
                 gh_proxy_url=self.ctx.env_config.gh_proxy_url if self.ctx.env_config.is_gh_proxy else None,
                 personal_proxy=self.ctx.env_config.personal_proxy if self.ctx.env_config.is_personal_proxy else None,

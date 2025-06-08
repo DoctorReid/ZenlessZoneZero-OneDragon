@@ -33,6 +33,7 @@ config/hollow_zero_challenge/*
 config/lost_void_challenge/*
 !config/lost_void_challenge/*.sample.yml
 config/yolo.yml
+config/model.yml
 custom/assets/ui/banner
 assets/ui/remote_banner.webp
 

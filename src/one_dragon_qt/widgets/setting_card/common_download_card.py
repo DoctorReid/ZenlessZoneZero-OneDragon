@@ -1,5 +1,6 @@
 from PySide6.QtCore import Signal, QThread
 from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import QAbstractButton
 from qfluentwidgets import SettingCard, FluentIconBase, PushButton
 from typing import Union, Optional, List
 
@@ -52,14 +53,19 @@ class CommonDownloaderSettingCard(MultiPushSettingCard):
     def __init__(
             self,
             ctx: OneDragonContext,
-            icon: Union[str, QIcon, FluentIconBase], title: str,
-            content=None, parent=None
+            icon: Union[str, QIcon, FluentIconBase],
+            title: str,
+            content=None,
+            extra_btn_list: List[QAbstractButton] = None,
+            parent=None
     ):
 
         """
+        :param ctx: 上下文
         :param icon: 左边显示的图标
         :param title: 左边的标题 中文
         :param content: 左侧的详细文本 中文
+        :param extra_btn_list: 在最右边额外显示的组件
         :param parent: 组件的parent
         """
         self.combo_box = ComboBox()
@@ -70,9 +76,13 @@ class CommonDownloaderSettingCard(MultiPushSettingCard):
         self.download_btn = PushButton(text=gt('下载', 'ui'))
         self.download_btn.clicked.connect(self._on_download_click)
 
+        btn_list = [self.combo_box, self.download_btn]
+        if extra_btn_list is not None:
+            btn_list.extend(extra_btn_list)
+
         MultiPushSettingCard.__init__(
             self,
-            btn_list=[self.combo_box, self.download_btn],
+            btn_list=btn_list,
             icon=icon,
             title=title,
             content=content,
@@ -162,14 +172,13 @@ class CommonDownloaderSettingCard(MultiPushSettingCard):
 
 class ZipDownloaderSettingCard(CommonDownloaderSettingCard):
 
-    value_changed = Signal(int, object)
-
     def __init__(
             self,
             ctx: OneDragonContext,
             icon: Union[str, QIcon, FluentIconBase],
             title: str,
             content=None,
+            extra_btn_list: List[QAbstractButton] = None,
             parent=None
     ):
         CommonDownloaderSettingCard.__init__(
@@ -178,6 +187,7 @@ class ZipDownloaderSettingCard(CommonDownloaderSettingCard):
             icon=icon,
             title=title,
             content=content,
+            extra_btn_list=extra_btn_list,
             parent=parent
         )
 

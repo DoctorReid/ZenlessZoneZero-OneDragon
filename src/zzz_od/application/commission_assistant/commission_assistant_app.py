@@ -214,7 +214,7 @@ class CommissionAssistantApp(ZApplication):
         """
         # 空洞内不好处理事件
         return self.round_wait(status='空洞中', wait=1)
-        self.ctx.hollow.init_event_yolo(self.ctx.yolo_config.hollow_zero_event_gpu)
+        self.ctx.hollow.init_event_yolo(self.ctx.model_config.hollow_zero_event_gpu)
 
         # 判断当前邦布是否存在
         hollow_map = self.ctx.hollow.map_service.cal_current_map_by_screen(screen, screenshot_time)

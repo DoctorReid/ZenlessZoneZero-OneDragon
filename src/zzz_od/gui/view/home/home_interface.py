@@ -155,7 +155,7 @@ class CheckCodeRunner(CheckRunnerBase):
 
 class CheckModelRunner(CheckRunnerBase):
     def run(self):
-        self.need_update.emit(self.ctx.yolo_config.using_old_model())
+        self.need_update.emit(self.ctx.model_config.using_old_model())
 
 class CheckBannerRunner(CheckRunnerBase):
     def run(self):

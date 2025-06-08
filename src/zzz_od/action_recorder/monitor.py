@@ -150,8 +150,8 @@ class BattleDodgeContext4Recording(AutoBattleDodgeContext):
 
         if self._flash_model is None or self._flash_model.gpu != use_gpu:
             self._flash_model = FlashClassifier(
-                model_name=self.ctx.yolo_config.flash_classifier,
-                backup_model_name=self.ctx.yolo_config.flash_classifier_backup,
+                model_name=self.ctx.model_config.flash_classifier,
+                backup_model_name=self.ctx.model_config.flash_classifier_backup,
                 model_parent_dir_path=yolo_config_utils.get_model_category_dir('flash_classifier'),
                 gh_proxy=self.ctx.env_config.is_gh_proxy,
                 gh_proxy_url=self.ctx.env_config.gh_proxy_url if self.ctx.env_config.is_gh_proxy else None,
@@ -565,7 +565,7 @@ class RecordContext:
         try:
             # 尽量小间隔,避免漏检
             self.battle.init_battle_context(
-                use_gpu=self.ctx.yolo_config.flash_classifier_gpu,
+                use_gpu=self.ctx.model_config.flash_classifier_gpu,
                 check_dodge_interval=0.02,
                 check_agent_interval=0.02,
                 check_chain_interval=0.05,

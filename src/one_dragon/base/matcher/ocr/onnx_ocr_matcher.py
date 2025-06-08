@@ -15,27 +15,59 @@ from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 
 
+DEFAULT_OCR_MODEL_NAME: str = 'ppocrv5'
+GITHUB_DOWNLOAD_URL: str = 'https://github.com/OneDragon-Anything/OneDragon-Env/releases/download'
+GITEE_DOWNLOAD_URL: str = 'https://gitee.com/OneDragon-Anything/OneDragon-Env/releases/download'
+
+
+def get_ocr_model_dir(ocr_model_name: str) -> str:
+    return os_utils.get_path_under_work_dir('assets', 'models', 'onnx_ocr', ocr_model_name)
+
+
+def get_ocr_download_url_github(ocr_model_name: str) -> str:
+    return get_ocr_download_url(GITEE_DOWNLOAD_URL, ocr_model_name)
+
+
+def get_ocr_download_url_gitee(ocr_model_name: str) -> str:
+    return get_ocr_download_url(GITEE_DOWNLOAD_URL, ocr_model_name)
+
+
+def get_ocr_download_url(website: str, ocr_model_name: str) -> str:
+    return f'{website}/{ocr_model_name}/{ocr_model_name}.zip'
+
+
+def get_final_file_list(ocr_model_name: str) -> list[str]:
+    """
+    下载成功后 整个模型的所有文件
+    :param ocr_model_name: 模型名称
+    :return:
+    """
+    base_dir = get_ocr_model_dir(ocr_model_name)
+    return [
+        os.path.join(base_dir, 'det.onnx'),
+        os.path.join(base_dir, 'rec.onnx'),
+        os.path.join(base_dir, 'cls.onnx'),
+        os.path.join(base_dir, 'ppocrv5_dict.txt'),
+        os.path.join(base_dir, 'simfang.ttf'),
+    ]
+
+
+
 class OnnxOcrMatcher(OcrMatcher, ZipDownloader):
     """
     使用onnx的ocr模型 速度更快
     """
 
-    def __init__(self):
-        self.base_dir: str = os_utils.get_path_under_work_dir('assets', 'models', 'onnx_ocr', 'ppocrv5')
+    def __init__(self, ocr_model_name: str = DEFAULT_OCR_MODEL_NAME):
+        self.base_dir: str = get_ocr_model_dir(ocr_model_name)
         OcrMatcher.__init__(self)
         param = CommonDownloaderParam(
             save_file_path=self.base_dir,
-            save_file_name='ppocrv5.zip',
-            github_release_download_url='https://github.com/OneDragon-Anything/OneDragon-Env/releases/download/ppocrv5/ppocrv5.zip',
-            gitee_release_download_url='https://gitee.com/OneDragon-Anything/OneDragon-Env/releases/download/ppocrv5/ppocrv5.zip',
+            save_file_name=f'{ocr_model_name}.zip',
+            github_release_download_url=get_ocr_download_url_github(ocr_model_name),
+            gitee_release_download_url=get_ocr_download_url_gitee(ocr_model_name),
             mirror_chan_download_url='',
-            check_existed_list=[
-                os.path.join(self.base_dir, 'det.onnx'),
-                os.path.join(self.base_dir, 'rec.onnx'),
-                os.path.join(self.base_dir, 'cls.onnx'),
-                os.path.join(self.base_dir, 'ppocrv5_dict.txt'),
-                os.path.join(self.base_dir, 'simfang.ttf'),
-            ]
+            check_existed_list=get_final_file_list(ocr_model_name)
         )
         ZipDownloader.__init__(
             self,

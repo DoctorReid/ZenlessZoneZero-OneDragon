@@ -15,12 +15,12 @@ class ZContext(OneDragonContext):
         from zzz_od.application.hollow_zero.lost_void.context.lost_void_context import LostVoidContext
         self.lost_void: LostVoidContext = LostVoidContext(self)
 
-        from zzz_od.config.yolo_config import YoloConfig
+        from zzz_od.config.model_config import ModelConfig
         from zzz_od.game_data.compendium import CompendiumService
         from zzz_od.game_data.map_area import MapAreaService
 
         # 基础配置
-        self.yolo_config: YoloConfig = YoloConfig()
+        self.model_config: ModelConfig = ModelConfig()
 
         # 游戏数据
         self.map_service: MapAreaService = MapAreaService()
