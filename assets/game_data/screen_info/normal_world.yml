@@ -33,7 +33,7 @@ area_list:
 - area_name: 地图
   id_mark: false
   pc_rect:
-  - 1788
+  - 1730
   - 318
   - 1860
   - 400
