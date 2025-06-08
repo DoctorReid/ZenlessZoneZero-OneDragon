@@ -617,20 +617,20 @@ class LostVoidRunLevel(ZOperation):
                 or (self.no_in_battle_times > 0 and screenshot_time - self.last_check_finish_time >= 0.1)  # 之前也识别到脱离战斗 0.1秒识别一次
             ):
                 self.last_check_finish_time = screenshot_time
-                possible_screen_name_list = [
+                no_in_battle_screen_name_list = [
                     '迷失之地-武备选择', '迷失之地-通用选择',
                     '迷失之地-挑战结果',
-                    '迷失之地-大世界',  # 有可能是之前交互识别错了 认为进入了战斗楼层 实际上没有交互
                     '迷失之地-战斗失败'
                 ]
-                screen_name = self.check_and_update_current_screen(screen, possible_screen_name_list)
-                if screen_name in possible_screen_name_list:
+                screen_name = self.check_and_update_current_screen(screen, no_in_battle_screen_name_list)
+                if screen_name in no_in_battle_screen_name_list:
                     self.no_in_battle_times += 1
                 else:
                     self.no_in_battle_times = 0
 
                 if self.no_in_battle_times >= 10:
                     auto_battle_utils.stop_running(self.auto_op)
+                    self.no_in_battle_times = 0
 
                     if screen_name == '迷失之地-战斗失败':
                         return self.round_success(screen_name)
@@ -731,7 +731,7 @@ def __debug():
     ctx.init_ocr()
     ctx.start_running()
 
-    op = LostVoidRunLevel(ctx, LostVoidRegionType.BOSS)
+    op = LostVoidRunLevel(ctx, LostVoidRegionType.ELITE)
     op.execute()
 
 
