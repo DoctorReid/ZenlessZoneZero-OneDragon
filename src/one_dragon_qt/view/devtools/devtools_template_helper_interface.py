@@ -1,5 +1,6 @@
 import os
-from PySide6.QtWidgets import QWidget, QFileDialog, QTableWidgetItem
+import cv2
+from PySide6.QtWidgets import QWidget, QFileDialog, QTableWidgetItem, QMessageBox
 from qfluentwidgets import FluentIcon, PushButton, TableWidget, ToolButton, ImageLabel, CaptionLabel, LineEdit
 from typing import List, Optional
 
@@ -193,14 +194,17 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
             options_enum=ImageScaleEnum
         )
         self.image_display_size_opt.setValue(0.5)
+        self.image_display_size_opt.setFixedWidth(240)
         self.image_display_size_opt.value_changed.connect(self._update_screen_image_display)
         widget.add_widget(self.image_display_size_opt)
 
         self.image_click_pos_opt = TextSettingCard(icon=FluentIcon.MOVE, title='鼠标选择区域')
+        self.image_click_pos_opt.setFixedWidth(240)
         widget.add_widget(self.image_click_pos_opt)
 
         self.image_label = ClickImageLabel()
         self.image_label.clicked_with_pos.connect(self._on_image_clicked)
+        self.image_label.right_clicked_with_pos.connect(self._on_image_right_clicked)
         widget.add_widget(self.image_label)
 
         widget.add_stretch(1)
@@ -578,8 +582,7 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
         display_width = self.image_label.width()
         display_height = self.image_label.height()
 
-        image_width = self.chosen_template.screen_image.shape[1]
-        image_height = self.chosen_template.screen_image.shape[0]
+        image_height, image_width, _ = self.chosen_template.screen_image.shape
 
         real_x = int(x1 * image_width / display_width)
         real_y = int(y1 * image_height / display_height)
@@ -596,9 +599,9 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
         if self.chosen_template is None:
             return
 
-        input = self.h_move_input.text()
+        input_text = self.h_move_input.text()
         try:
-            dx = int(input)
+            dx = int(input_text)
             self.chosen_template.update_all_points(dx, 0)
             self._update_point_table_display()
             self._update_all_image_display()
@@ -612,11 +615,44 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
         if self.chosen_template is None:
             return
 
-        input = self.v_move_input.text()
+        input_text = self.v_move_input.text()
         try:
-            dy = int(input)
+            dy = int(input_text)
             self.chosen_template.update_all_points(0, dy)
             self._update_point_table_display()
             self._update_all_image_display()
         except Exception:
             pass
+
+    def _on_image_right_clicked(self, x: int, y: int) -> None:
+        """
+        右键点击图片时，弹窗显示点击位置的 HSV 颜色
+        """
+        if self.chosen_template is None or self.chosen_template.screen_image is None:
+            QMessageBox.warning(self, "错误", "未选择图片")
+            return
+
+        display_width = self.image_label.width()
+        display_height = self.image_label.height()
+
+        image_height, image_width, _ = self.chosen_template.screen_image.shape
+
+        # 将显示坐标转换为原始图像坐标
+        real_x = int(x * image_width / display_width)
+        real_y = int(y * image_height / display_height)
+
+        if not (0 <= real_y < image_height and 0 <= real_x < image_width):
+            QMessageBox.warning(self, "错误", f"点击位置 ({real_x}, {real_y}) 超出图像范围")
+            return
+
+        # 获取 RGB 颜色值
+        rgb_color = self.chosen_template.screen_image[real_y, real_x]
+        
+        # 将 RGB 转换为 HSV
+        hsv_color = cv2.cvtColor(rgb_color.reshape(1, 1, 3), cv2.COLOR_RGB2HSV)[0, 0]
+
+        message = (f"点击位置: ({real_x}, {real_y})\n"
+                   f"RGB: ({rgb_color[0]}, {rgb_color[1]}, {rgb_color[2]})\n"
+                   f"HSV: ({hsv_color[0]}, {hsv_color[1]}, {hsv_color[2]})")
+        
+        QMessageBox.information(self, "像素颜色信息", message)
