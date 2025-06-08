@@ -1,5 +1,4 @@
 import time
-
 from typing import List
 
 from one_dragon.base.operation.operation_edge import node_from
@@ -9,7 +8,6 @@ from one_dragon.utils.i18_utils import gt
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.back_to_normal_world import BackToNormalWorld
-from zzz_od.operation.open_menu import OpenMenu
 
 
 class RedemptionCodeApp(ZApplication):
@@ -47,8 +45,7 @@ class RedemptionCodeApp(ZApplication):
     @node_from(from_name='检测新兑换码', status='有新的兑换码')
     @operation_node(name='打开菜单')
     def open_menu(self) -> OperationRoundResult:
-        op = OpenMenu(self.ctx)
-        return self.round_by_op_result(op.execute())
+        return self.round_by_goto_screen(screen_name='菜单')
 
     @node_from(from_name='打开菜单')
     @operation_node(name='点击更多')

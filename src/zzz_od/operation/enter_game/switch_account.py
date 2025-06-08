@@ -4,7 +4,6 @@ from one_dragon.base.operation.operation_round_result import OperationRoundResul
 from one_dragon.utils.i18_utils import gt
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.enter_game.enter_game import EnterGame
-from zzz_od.operation.open_menu import OpenMenu
 from zzz_od.operation.zzz_operation import ZOperation
 
 
@@ -16,8 +15,7 @@ class SwitchAccount(ZOperation):
 
     @operation_node(name='打开菜单', is_start_node=True)
     def open_menu(self) -> OperationRoundResult:
-        op = OpenMenu(self.ctx)
-        return self.round_by_op_result(op.execute())
+        return self.round_by_goto_screen(screen_name='菜单')
 
     @node_from(from_name='打开菜单')
     @operation_node(name='点击更多')
