@@ -136,7 +136,6 @@ class CodeInterface(VerticalScrollInterface):
         self.start_fetch_total()
         self.git_card.check_and_update_display()
         self.code_card.check_and_update_display()
-        self.venv_card.check_and_update_display()
 
     def start_fetch_total(self) -> None:
         """
@@ -224,7 +223,6 @@ class CodeInterface(VerticalScrollInterface):
         if not success:
             return
 
-        self.venv_card.check_and_update_display()
         self.pager.setCurrentIndex(0)
         self.page_num = -1
         self.start_fetch_total()
