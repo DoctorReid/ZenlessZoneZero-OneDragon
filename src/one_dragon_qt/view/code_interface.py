@@ -5,8 +5,6 @@ from typing import Callable, List
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon.envs.git_service import GitLog
-from one_dragon.envs.env_config import GitBranchEnum
-from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon_qt.widgets.setting_card.password_switch_setting_card import PasswordSwitchSettingCard
@@ -45,7 +43,7 @@ class CodeInterface(VerticalScrollInterface):
         content_widget = QWidget()
 
         self.page_num: int = -1
-        self.page_size: int = 10
+        self.page_size: int = 9
 
         v_layout = VBoxLayout(content_widget)
         v_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -64,16 +62,15 @@ class CodeInterface(VerticalScrollInterface):
         self.code_card.finished.connect(self.on_code_updated)
         v_layout.addWidget(self.code_card)
 
-        self.git_branch_opt = ComboBoxSettingCard(icon=FluentIcon.SYNC, title='分支选择', options_enum=GitBranchEnum)
-        v_layout.addWidget(self.git_branch_opt)
-
         self.custom_git_branch_lineedit = LineEdit()
         self.custom_git_branch_lineedit.setPlaceholderText('自定义分支')
-        self.custom_git_branch_lineedit.textChanged.connect(self._on_custom_branch_changed)
+        self.custom_git_branch_lineedit.textEdited.connect(self._on_custom_branch_edited)
+        self.code_card.git_branch_opt.currentIndexChanged.connect(
+            lambda: self.custom_git_branch_lineedit.setText(self.code_card.git_branch_opt.currentData())
+        )
         self.custom_git_branch_opt = PasswordSwitchSettingCard(
             icon=FluentIcon.EDIT,
             title='自定义分支',
-            content='启用后将覆盖上方分支选择的值',
             extra_btn=self.custom_git_branch_lineedit,
             password_hash='9eccbf284f363f3a5f416e879aa9bcb2c8d8445997f97740270fccc98d360a33'
         )
@@ -91,7 +88,7 @@ class CodeInterface(VerticalScrollInterface):
         self.log_table.setColumnWidth(1, 100)
         self.log_table.setColumnWidth(2, 150)
         self.log_table.setColumnWidth(3, 200)
-        self.log_table.setColumnWidth(4, 400)
+        self.log_table.setColumnWidth(4, 440)
         self.log_table.verticalHeader().hide()
         self.log_table.setHorizontalHeaderLabels([
             gt('回滚', 'ui'),
@@ -130,7 +127,6 @@ class CodeInterface(VerticalScrollInterface):
         """
         VerticalScrollInterface.on_interface_shown(self)
         self.force_update_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('force_update'))
-        self.git_branch_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('git_branch'))
         self.custom_git_branch_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('custom_git_branch'))
         self.custom_git_branch_lineedit.setText(self.ctx.env_config.git_branch)
         self.start_fetch_total()
@@ -184,6 +180,7 @@ class CodeInterface(VerticalScrollInterface):
 
         for i in range(page_size):
             reset_btn = ToolButton(FluentIcon.LEFT_ARROW, parent=None)
+            reset_btn.setFixedSize(32, 32)
             reset_btn.setProperty('commit', log_list[i].commit_id)
             reset_btn.clicked.connect(self.on_reset_commit_clicked)
             self.log_table.setCellWidget(i, 0, reset_btn)
@@ -240,9 +237,6 @@ class CodeInterface(VerticalScrollInterface):
             self.page_num = -1
             self.start_fetch_total()
 
-    def _on_custom_branch_changed(self, text):
-        if self.custom_git_branch_lineedit.isEnabled():
-            if text:
-                self.ctx.env_config.git_branch = text
-            else:
-                self.ctx.env_config.git_branch = self.git_branch_opt.getValue()
+    def _on_custom_branch_edited(self, text):
+        self.ctx.env_config.git_branch = text
+        self.code_card.check_and_update_display()
