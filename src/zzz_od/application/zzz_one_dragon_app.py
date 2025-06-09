@@ -16,6 +16,7 @@ from zzz_od.application.redemption_code.redemption_code_app import RedemptionCod
 from zzz_od.application.ridu_weekly.ridu_weekly_app import RiduWeeklyApp
 from zzz_od.application.scratch_card.scratch_card_app import ScratchCardApp
 from zzz_od.application.shiyu_defense.shiyu_defense_app import ShiyuDefenseApp
+from zzz_od.application.trigrams_collection.trigrams_collection_app import TrigramsCollectionApp
 from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.enter_game.open_and_enter_game import OpenAndEnterGame
@@ -40,6 +41,7 @@ class ZOneDragonApp(OneDragonApp, ZApplication):
             RedemptionCodeApp(self.ctx),
             RandomPlayApp(self.ctx),
             ScratchCardApp(self.ctx),
+            TrigramsCollectionApp(self.ctx),
             ChargePlanApp(self.ctx),
             CoffeeApp(self.ctx),
             NotoriousHuntApp(self.ctx),

@@ -107,6 +107,9 @@ class ZContext(OneDragonContext):
         self.life_on_line_record.check_and_update_status()
         self.redemption_code_record: RedemptionCodeRunRecord = RedemptionCodeRunRecord(self.current_instance_idx, game_refresh_hour_offset)
         self.redemption_code_record.check_and_update_status()
+        from zzz_od.application.trigrams_collection.trigrams_collection_record import TrigramsCollectionRunRecord
+        self.trigrams_collection_record: TrigramsCollectionRunRecord = TrigramsCollectionRunRecord(self.current_instance_idx, game_refresh_hour_offset)
+        self.trigrams_collection_record.check_and_update_status()
 
         from zzz_od.application.ridu_weekly.ridu_weekly_run_record import RiduWeeklyRunRecord
         self.ridu_weekly_record: RiduWeeklyRunRecord = RiduWeeklyRunRecord(self.current_instance_idx, game_refresh_hour_offset)
