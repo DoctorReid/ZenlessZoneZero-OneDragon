@@ -5,10 +5,10 @@ area_list:
 - area_name: 标题-音擎仓库
   id_mark: true
   pc_rect:
-  - 70
-  - 116
-  - 164
-  - 164
+  - 62
+  - 112
+  - 166
+  - 166
   text: 音擎仓库
   lcs_percent: 0.5
   template_sub_dir: ''
@@ -19,10 +19,10 @@ area_list:
 - area_name: 按钮-回收
   id_mark: true
   pc_rect:
-  - 250
-  - 900
-  - 438
-  - 960
+  - 272
+  - 902
+  - 494
+  - 958
   text: 回收
   lcs_percent: 0.5
   template_sub_dir: ''
@@ -48,10 +48,10 @@ area_list:
 - area_name: TAB-驱动盘
   id_mark: false
   pc_rect:
-  - 1510
-  - 126
-  - 1588
-  - 210
+  - 1530
+  - 154
+  - 1568
+  - 190
   text: ''
   lcs_percent: 0.5
   template_sub_dir: ''

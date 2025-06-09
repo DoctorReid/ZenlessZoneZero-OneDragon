@@ -5,10 +5,10 @@ area_list:
 - area_name: 标题-驱动仓库
   id_mark: true
   pc_rect:
-  - 70
-  - 116
-  - 164
-  - 164
+  - 58
+  - 120
+  - 166
+  - 162
   text: 驱动仓库
   lcs_percent: 0.5
   template_sub_dir: ''
@@ -19,10 +19,10 @@ area_list:
 - area_name: 按钮-拆解
   id_mark: true
   pc_rect:
-  - 250
-  - 900
-  - 438
-  - 960
+  - 266
+  - 894
+  - 498
+  - 962
   text: 拆解
   lcs_percent: 0.5
   template_sub_dir: ''
