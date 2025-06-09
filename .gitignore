@@ -35,6 +35,7 @@ config/lost_void_challenge/*
 config/yolo.yml
 config/model.yml
 custom/assets/ui/banner
+assets/ui/version_poster.webp
 assets/ui/remote_banner.webp
 
 # 执行文件
@@ -47,12 +48,8 @@ assets/ui/remote_banner.webp
 .temp_clone**/
 .debug/
 .conda/
-.vscode/
 .venv/
 notice_cache/
 
 # 需自行下载的模型文件
 models/
-
-# 缓存文件
-notice_cache/

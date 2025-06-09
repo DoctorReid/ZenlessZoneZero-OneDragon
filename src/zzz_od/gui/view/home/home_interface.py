@@ -16,13 +16,11 @@ from qfluentwidgets import (
     FluentIcon,
     InfoBar,
     InfoBarPosition,
-    Dialog,
     SimpleCardWidget,
     PrimaryPushButton,
 )
 
 from one_dragon.utils import os_utils
-from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from one_dragon_qt.services.styles_manager import OdQtStyleSheet
 from one_dragon_qt.widgets.banner import Banner
@@ -162,27 +160,38 @@ class CheckBannerRunner(CheckRunnerBase):
         if self.ctx.signal.reload_banner:
             self.need_update.emit(True)
 
-class VersionPosterDownloader(QThread):
-    """版本海报下载器"""
-    poster_downloaded = Signal(str)
+class BackgroundImageDownloader(QThread):
+    """背景图片下载器"""
+    image_downloaded = Signal(bool)
 
-    def __init__(self, ctx: ZContext, parent=None):
+    def __init__(self, ctx: ZContext, download_type: str, parent=None):
         super().__init__(parent)
         self.ctx = ctx
-        self.save_path = os.path.join(os_utils.get_path_under_work_dir('assets', 'ui'), 'version_poster.webp')
-        self.url = "https://hyp-api.mihoyo.com/hyp/hyp-connect/api/getGames?launcher_id=jGHBHlcOq1&language=zh-cn"
+        self.download_type = download_type
+        
+        if download_type == "version_poster":
+            self.save_path = os.path.join(os_utils.get_path_under_work_dir('assets', 'ui'), 'version_poster.webp')
+            self.url = "https://hyp-api.mihoyo.com/hyp/hyp-connect/api/getGames?launcher_id=jGHBHlcOq1&language=zh-cn"
+            self.config_key = f'last_{download_type}_fetch_time'
+            self.error_msg = "版本海报异步获取失败"
+        elif download_type == "remote_banner":
+            self.save_path = os.path.join(os_utils.get_path_under_work_dir('assets', 'ui'), 'remote_banner.webp')
+            self.url = "https://hyp-api.mihoyo.com/hyp/hyp-connect/api/getAllGameBasicInfo?launcher_id=jGHBHlcOq1&language=zh-cn"
+            self.config_key = f'last_{download_type}_fetch_time'
+            self.error_msg = "当前版本主页背景异步获取失败"
 
     def run(self):
         if not os.path.exists(self.save_path):
             self.get()
-        last_fetch_time_str = self.ctx.custom_config.last_version_poster_fetch_time
+        
+        last_fetch_time_str = getattr(self.ctx.custom_config, self.config_key)
         if last_fetch_time_str:
             try:
                 last_fetch_time = datetime.strptime(last_fetch_time_str, '%Y-%m-%d %H:%M:%S')
                 if datetime.now() - last_fetch_time >= timedelta(days=1):
                     self.get()
             except ValueError:
-                pass
+                self.get()
         else:
             self.get()
 
@@ -190,88 +199,51 @@ class VersionPosterDownloader(QThread):
         try:
             resp = requests.get(self.url, timeout=5)
             data = resp.json()
+            
+            img_url = self._extract_image_url(data)
+            if not img_url:
+                return
+                
+            img_resp = requests.get(img_url, timeout=5)
+            if img_resp.status_code != 200:
+                return
+            
+            self._save_image(img_resp.content)
+            setattr(self.ctx.custom_config, self.config_key, datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+            self.image_downloaded.emit(True)
+
+        except Exception as e:
+            log.error(f"{self.error_msg}: {e}")
+
+    def _extract_image_url(self, data):
+        """提取图片URL"""
+        if self.download_type == "version_poster":
             for game in data.get("data", {}).get("games", []):
                 if game.get("biz") != "nap_cn":
                     continue
                 
                 display = game.get("display", {})
                 background = display.get("background", {})
-                if not background:
-                    continue
-                
-                img_url = background.get("url")
-                if not img_url:
-                    continue
-                
-                img_resp = requests.get(img_url, timeout=5)
-                if img_resp.status_code != 200:
-                    continue
-                
-                temp_path = self.save_path + '.tmp'
-                with open(temp_path, "wb") as f:
-                    f.write(img_resp.content)
-                if os.path.exists(self.save_path):
-                    os.remove(self.save_path)
-                os.rename(temp_path, self.save_path)
-                self.ctx.custom_config.last_version_poster_fetch_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                self.poster_downloaded.emit(True)
-                break
-
-        except Exception as e:
-            log.error(f"版本海报异步获取失败: {e}")
-
-class BannerDownloader(QThread):
-    banner_downloaded = Signal(str)
-
-    def __init__(self, ctx: ZContext, parent=None):
-        super().__init__(parent)
-        self.ctx = ctx
-        self.save_path = os.path.join(os_utils.get_path_under_work_dir('assets', 'ui'), 'remote_banner.webp')
-        self.url = "https://hyp-api.mihoyo.com/hyp/hyp-connect/api/getAllGameBasicInfo?launcher_id=jGHBHlcOq1&language=zh-cn"
-
-    def run(self):
-        if not os.path.exists(self.save_path):
-            self.get()
-        last_fetch_time_str = self.ctx.custom_config.last_remote_banner_fetch_time
-        if last_fetch_time_str:
-            try:
-                last_fetch_time = datetime.strptime(last_fetch_time_str, '%Y-%m-%d %H:%M:%S')
-                if datetime.now() - last_fetch_time >= timedelta(days=1):
-                    self.get()
-            except ValueError:
-                pass
-        else:
-            self.get()
-
-    def get(self):
-        try:
-            resp = requests.get(self.url, timeout=5)
-            data = resp.json()
+                if background:
+                    return background.get("url")
+        elif self.download_type == "remote_banner":
             for game in data.get("data", {}).get("game_info_list", []):
                 if game.get("game", {}).get("biz") != "nap_cn":
                     continue
                 
                 backgrounds = game.get("backgrounds", [])
-                if not backgrounds:
-                    continue
-                
-                img_url = backgrounds[0]["background"]["url"]
-                img_resp = requests.get(img_url, timeout=5)
-                if img_resp.status_code != 200:
-                    continue
-                
-                temp_path = self.save_path + '.tmp'
-                with open(temp_path, "wb") as f:
-                    f.write(img_resp.content)
-                if os.path.exists(self.save_path):
-                    os.remove(self.save_path)
-                os.rename(temp_path, self.save_path)
-                self.ctx.custom_config.last_remote_banner_fetch_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                self.banner_downloaded.emit(True)
-                break
+                if backgrounds:
+                    return backgrounds[0]["background"]["url"]
+        return None
 
-        except Exception as e:
-            log.error(f"当前版本主页背景异步获取失败: {e}")
+    def _save_image(self, content):
+        """保存图片"""
+        temp_path = self.save_path + '.tmp'
+        with open(temp_path, "wb") as f:
+            f.write(content)
+        if os.path.exists(self.save_path):
+            os.remove(self.save_path)
+        os.rename(temp_path, self.save_path)
 
 class HomeInterface(VerticalScrollInterface):
     """主页界面"""
@@ -299,9 +271,9 @@ class HomeInterface(VerticalScrollInterface):
         h1_layout.addStretch()
 
         # 按钮组
-        buttonGroup = ButtonGroup()
-        buttonGroup.setMaximumHeight(320)
-        h1_layout.addWidget(buttonGroup)
+        button_group = ButtonGroup()
+        button_group.setMaximumHeight(320)
+        h1_layout.addWidget(button_group)
 
         # 空白占位符
         h1_layout.addItem(QSpacerItem(20, 10, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum))
@@ -327,13 +299,13 @@ class HomeInterface(VerticalScrollInterface):
         h2_layout.addStretch()
 
         # 启动游戏按钮布局
-        gameButton = PrimaryPushButton(text="启动一条龙🚀")
-        gameButton.setFont(QFont("Microsoft YaHei", 16, QFont.Weight.Bold))
-        gameButton.setFixedSize(160, 48)
-        gameButton.clicked.connect(self._on_start_game)
+        start_button = PrimaryPushButton(text="启动一条龙🚀")
+        start_button.setFont(QFont("Microsoft YaHei", 16, QFont.Weight.Bold))
+        start_button.setFixedSize(160, 48)
+        start_button.clicked.connect(self._on_start_game)
 
         v1_layout = QVBoxLayout()
-        v1_layout.addWidget(gameButton, alignment=Qt.AlignmentFlag.AlignBottom)
+        v1_layout.addWidget(start_button, alignment=Qt.AlignmentFlag.AlignBottom)
 
         h2_layout.addLayout(v1_layout)
 
@@ -353,7 +325,7 @@ class HomeInterface(VerticalScrollInterface):
         )
 
         # 应用样式
-        OdQtStyleSheet.GAME_BUTTON.apply(gameButton)
+        OdQtStyleSheet.GAME_BUTTON.apply(start_button)
         OdQtStyleSheet.NOTICE_CARD.apply(noticeCard)
 
         self.ctx = ctx
@@ -367,10 +339,10 @@ class HomeInterface(VerticalScrollInterface):
         self._check_model_runner.need_update.connect(self._need_to_update_model)
         self._check_banner_runner = CheckBannerRunner(self.ctx)
         self._check_banner_runner.need_update.connect(self.reload_banner)
-        self._banner_downloader = BannerDownloader(self.ctx)
-        self._banner_downloader.banner_downloaded.connect(self.reload_banner)
-        self._version_poster_downloader = VersionPosterDownloader(self.ctx)
-        self._version_poster_downloader.poster_downloaded.connect(self.reload_banner)
+        self._banner_downloader = BackgroundImageDownloader(self.ctx, "remote_banner")
+        self._banner_downloader.image_downloaded.connect(self.reload_banner)
+        self._version_poster_downloader = BackgroundImageDownloader(self.ctx, "version_poster")
+        self._version_poster_downloader.image_downloaded.connect(self.reload_banner)
 
     def on_interface_shown(self) -> None:
         """界面显示时启动检查更新的线程"""
@@ -427,10 +399,6 @@ class HomeInterface(VerticalScrollInterface):
             self._show_info_bar("背景已更新", "新的背景已成功应用", 3000)
 
     def choose_banner_image(self) -> str:
-        """
-        选择主页背景图片
-        :param banner_path: 背景图片路径
-        """
         # 获取背景图片路径
         custom_banner_path = os.path.join(os_utils.get_path_under_work_dir('custom', 'assets', 'ui'), 'banner')
         version_poster_path = os.path.join(os_utils.get_path_under_work_dir('assets', 'ui'), 'version_poster.webp')
