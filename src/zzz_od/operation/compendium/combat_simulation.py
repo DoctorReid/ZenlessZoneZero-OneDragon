@@ -160,6 +160,10 @@ class CombatSimulation(ZOperation):
                 target_point = area.left_top + mrl.max + Point(0, 50)
 
         if target_point is None:
+            area = self.ctx.screen_loader.get_area('实战模拟室', '副本名称列表')
+            start = area.center
+            end = start + Point(-400, 0)
+            self.ctx.controller.drag_to(start=start, end=end)
             return self.round_retry(status='找不到 %s' % self.plan.mission_name, wait=1)
 
         click = self.ctx.controller.click(target_point)
@@ -401,8 +405,8 @@ def __debug():
     charge_plan = ChargePlanItem(
         tab_name='训练',
         category_name='实战模拟室',
-        mission_type_name='自定义模板',
-        mission_name='自定义模板1',
+        mission_type_name='音擎改装',
+        mission_name='命破共鸣试验',
         run_times=0,
         plan_times=1,
         predefined_team_idx=ctx.coffee_config.predefined_team_idx,
@@ -414,4 +418,4 @@ def __debug():
 
 
 if __name__ == '__main__':
-    __debug_charge()
+    __debug()
