@@ -8,13 +8,12 @@ from one_dragon.base.config.game_account_config import GameRegionEnum
 from one_dragon.base.config.one_dragon_config import InstanceRun
 from one_dragon.base.controller.pc_clipboard import PcClipboard
 from one_dragon.base.geometry.point import Point
+from one_dragon.base.matcher.ocr import ocr_utils
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
-from one_dragon.utils import str_utils
 from one_dragon.utils.i18_utils import gt
 from zzz_od.context.zzz_context import ZContext
-from zzz_od.operation.back_to_normal_world import BackToNormalWorld
 from zzz_od.operation.zzz_operation import ZOperation
 
 
@@ -283,12 +282,15 @@ class EnterGame(ZOperation):
         back_btn_result = self.round_by_find_area(screen, '菜单', '返回')
 
         target_word_list: list[str] = [
-            '领取',
+            '领取',  # 每个版本出现的10连抽奖励 issue #893
             '已领取',  # 需要有这个词 防止画面出现"已领取"也匹配到"领取"
-            '取消',
-            '确定',
-            '重试',
-            '今日到账'
+            '取消',  # 上一次战斗还没结束 出现是否继续的对话框 issue #957 '确定'要放在'取消'之后 因为有对话框同时出现这两个词
+            '确定',  # 游戏更新时出现的确定按钮 issue #991
+            '重试',  # 登陆时可能出现登陆超时问题 merge request #886
+            '今日到账'  # 小月卡 issue #893
+        ]
+        ignore_list: list[str] = [
+            '已领取'
         ]
         target_word_idx_map: dict[str, int] = {}
         to_match_list: list[str] = []
@@ -296,35 +298,14 @@ class EnterGame(ZOperation):
             target_word_idx_map[target_word] = idx
             to_match_list.append(gt(target_word))
 
-        for ocr_result, mrl in ocr_result_map.items():
-            target_word_idx = str_utils.find_best_match_by_difflib(ocr_result, target_word_list)
-            if (back_btn_result.is_success
-                    and target_word_idx == target_word_idx_map['领取']
-            ):
-                # 每个版本出现的10连抽奖励 issue #893
-                self.ctx.controller.click(mrl.max.center)
-                return self.round_wait(status='领取', wait=1)
-
-            if target_word_idx == target_word_idx_map['取消']:
-                # 上一次战斗还没结束 出现是否继续的对话框 issue #957
-                self.ctx.controller.click(mrl.max.center)
-                return self.round_wait(status='取消', wait=1)
-
-            if target_word_idx == target_word_idx_map['确定']:
-                # 游戏更新时出现的确定按钮 issue #991
-                # '确定'要放在'取消'之后 因为对话框有一个'确认' 会匹配到
-                self.ctx.controller.click(mrl.max.center)
-                return self.round_wait(status='确定', wait=1)
-
-            if target_word_idx == target_word_idx_map['确定']:
-                # 登陆时可能出现登陆超时问题 merge request #886
-                self.ctx.controller.click(mrl.max.center)
-                return self.round_wait(status='重试', wait=1)
-
-            if target_word_idx == target_word_idx_map['今日到账']:
-                # 小月卡 issue #893
-                self.ctx.controller.click(mrl.max.center)
-                return self.round_wait(status='今日到账', wait=1)
+        match_word, match_word_mrl = ocr_utils.match_word_list_by_priority(
+            ocr_result_map,
+            target_word_list,
+            ignore_list=ignore_list
+        )
+        if match_word is not None and match_word_mrl is not None and match_word_mrl.max is not None:
+            self.ctx.controller.click(match_word_mrl.max.center)
+            return self.round_wait(status=match_word, wait=1)
 
         if back_btn_result.is_success:
             # 左上角的返回
