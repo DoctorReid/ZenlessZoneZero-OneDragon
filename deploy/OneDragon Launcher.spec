@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['..\\src\\zzz_od\\win_exe\\full_launcher.py'],
+    ['..\\src\\zzz_od\\win_exe\\launcher.py'],
     pathex=[],
     binaries=[],
     datas=[],

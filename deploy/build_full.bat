@@ -6,7 +6,6 @@ cd %~dp0
 rem Build exe
 uv run pyinstaller "OneDragon Installer.spec"
 uv run pyinstaller "OneDragon Launcher.spec"
-uv run pyinstaller "OneDragon Scheduler.spec"
 
 set "DIST_DIR=%~dp0dist"
 set "TARGET_DIR=%DIST_DIR%\ZenlessZoneZero-OneDragon"
@@ -16,7 +15,6 @@ if not exist "%TARGET_DIR%" (
 
 copy "%DIST_DIR%\OneDragon Installer.exe" "%TARGET_DIR%"
 copy "%DIST_DIR%\OneDragon Launcher.exe" "%TARGET_DIR%"
-copy "%DIST_DIR%\OneDragon Scheduler.exe" "%TARGET_DIR%"
 
 rem Copy additional resources from spec file
 copy "..\config\project.yml" "%TARGET_DIR%\config\"
