@@ -1,0 +1,8 @@
+sub_dir: battle
+template_id: avatar_chain_yixuan
+template_name: 连携技-2
+template_shape: circle
+auto_mask: true
+point_list:
+- 1381, 887
+- 1332, 887

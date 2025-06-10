@@ -126,8 +126,8 @@ class TeamInfo:
             for i in range(len(current_agent_list)):
                 agent, matched_template_id = current_agent_list[i]
                 energy = energy_list[i] if i < len(energy_list) else 0
-                special_ready = (special_list[i] if i < len(special_list) else 0) == 1
-                ultimate_ready = (ultimate_list[i] if i < len(ultimate_list) else 0) == 1
+                special_ready = (special_list[i] if i < len(special_list) else 0) > 0
+                ultimate_ready = (ultimate_list[i] if i < len(ultimate_list) else 0) > 0
                 self.agent_list.append(AgentInfo(agent, energy, special_ready, ultimate_ready, matched_template_id))
 
             # log.debug('更新后角色列表 %s 更新时间 %.4f',
