@@ -39,9 +39,18 @@ class InstanceRun(Enum):
 class OneDragonConfig(YamlConfig):
 
     def __init__(self):
-        self.instance_list: List[OneDragonInstance] = []
         YamlConfig.__init__(self, 'zzz_one_dragon', sample=False)
+        self.instance_list: List[OneDragonInstance] = []
+        self._temp_instance_indices: Optional[List[int]] = None
         self._init_instance_list()
+
+    def set_temp_instance_indices(self, instance_indices: Optional[List[int]]):
+        """设置临时实例索引列表"""
+        self._temp_instance_indices = instance_indices
+
+    def clear_temp_instance_indices(self):
+        """清除临时实例索引列表"""
+        self._temp_instance_indices = None
 
     def _init_instance_list(self):
         """
@@ -158,8 +167,11 @@ class OneDragonConfig(YamlConfig):
     def instance_list_in_od(self) -> List[OneDragonInstance]:
         """
         需要在一条龙中运行的实例列表
+        如果设置了临时实例索引，则使用临时配置
         :return:
         """
+        if self._temp_instance_indices is not None:
+            return [instance for instance in self.instance_list if instance.idx in self._temp_instance_indices]
         return [instance for instance in self.instance_list if instance.active_in_od]
 
     @property
