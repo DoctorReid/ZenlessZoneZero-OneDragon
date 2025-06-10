@@ -132,16 +132,32 @@ def execute_python_script(app_path, log_folder, no_windows: bool, args: list = N
         run_args.extend(args)
         print_message(f"传递参数：{' '.join(args)}", "INFO")
 
-    # 使用 PowerShell 启动 Python 脚本并重定向输出
-    escaped_args = ' '.join(f"'{arg}'" if ' ' in arg else arg for arg in run_args)
-    powershell_command = (
-        f"Start-Process '{uv_path}' -ArgumentList '{escaped_args}' -NoNewWindow -RedirectStandardOutput '{log_file_path}' -PassThru"
-    )
+    # 构建 PowerShell 命令参数列表
+    def escape_powershell_arg(arg):
+        # 转义 PowerShell 中的特殊字符
+        return arg.replace("'", "''").replace('"', '""')
+
+    escaped_args = [escape_powershell_arg(arg) for arg in run_args]
+    arg_list = ', '.join(f"'{arg}'" for arg in escaped_args)
+
+    # 构建 PowerShell 命令
+    powershell_command = [
+        "Start-Process",
+        f"'{escape_powershell_arg(uv_path)}'",
+        "-ArgumentList",
+        f"@({arg_list})",
+        "-NoNewWindow",
+        "-RedirectStandardOutput",
+        f"'{escape_powershell_arg(log_file_path)}'",
+        "-PassThru"
+    ]
+    full_command = " ".join(powershell_command)
+
     # 使用 subprocess.Popen 启动新的 PowerShell 窗口并执行命令
     if no_windows:
-        subprocess.Popen(["powershell", "-Command", powershell_command], creationflags=subprocess.CREATE_NO_WINDOW)
+        subprocess.Popen(["powershell", "-Command", full_command], creationflags=subprocess.CREATE_NO_WINDOW)
     else:
-        subprocess.Popen(["powershell", "-Command", powershell_command])
+        subprocess.Popen(["powershell", "-Command", full_command])
     print_message("一条龙 正在启动中，大约 3+ 秒...", "INFO")
 
 def run_python(app_path, no_windows: bool = True, args: list = None):
