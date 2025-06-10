@@ -14,7 +14,7 @@ from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSetting
 from one_dragon_qt.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from zzz_od.config.game_config import GamepadTypeEnum
-from zzz_od.config.agent_outfit_config import AgentOutfitNicole, AgentOutfitEllen, AgentOutfitAstraYao
+from zzz_od.config.agent_outfit_config import AgentOutfitNicole, AgentOutfitEllen, AgentOutfitAstraYao, AgentOutfitYiXuan
 from zzz_od.context.zzz_context import ZContext
 
 
@@ -65,6 +65,10 @@ class SettingGameInterface(VerticalScrollInterface):
         self.outfit_astra_yao_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='耀嘉音', options_enum=AgentOutfitAstraYao)
         self.outfit_astra_yao_opt.value_changed.connect(self._on_agent_outfit_changed)
         agent_outfit_group.addSettingCard(self.outfit_astra_yao_opt)
+
+        self.outfit_yixuan_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='仪玄', options_enum=AgentOutfitYiXuan)
+        self.outfit_yixuan_opt.value_changed.connect(self._on_agent_outfit_changed)
+        agent_outfit_group.addSettingCard(self.outfit_yixuan_opt)
 
         return agent_outfit_group
 
@@ -421,6 +425,7 @@ class SettingGameInterface(VerticalScrollInterface):
         self.outfit_nicole_opt.setVisible(not value)
         self.outfit_ellen_opt.setVisible(not value)
         self.outfit_astra_yao_opt.setVisible(not value)
+        self.outfit_yixuan_opt.setVisible(not value)
 
     def _on_agent_outfit_changed(self) -> None:
         if not self.ctx.agent_outfit_config.match_all_outfits:

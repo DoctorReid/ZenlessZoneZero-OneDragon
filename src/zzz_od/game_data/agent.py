@@ -312,7 +312,7 @@ class AgentEnum(Enum):
                                     connect_cnt=5)
                     ])
 
-    YIXUAN = Agent('yixuan', '仪玄', RareTypeEnum.S, AgentTypeEnum.RUPTURE, DmgTypeEnum.ETHER, ['yixuan'],
+    YIXUAN = Agent('yixuan', '仪玄', RareTypeEnum.S, AgentTypeEnum.RUPTURE, DmgTypeEnum.ETHER, ['yixuan', 'yixuan_trails_of_ink'],
                    state_list=[
                        AgentStateDef('仪玄-玄墨值', AgentStateCheckWay.COLOR_RANGE_CONNECT,
                                      template_id='yixuan_auric_Ink',
