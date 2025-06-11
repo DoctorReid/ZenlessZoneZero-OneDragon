@@ -55,6 +55,7 @@ class CombatSimulation(ZOperation):
         self.can_run_times: int = can_run_times
         self.charge_left: Optional[int] = None
         self.charge_need: Optional[int] = None
+        self.scroll_count: int = 0  # 滑动次数计数器
 
         self.auto_op: Optional[AutoBattleOperator] = None
         self.async_init_future: Optional[Future[Tuple[bool, str]]] = None  # 初始化自动战斗的future
@@ -115,6 +116,12 @@ class CombatSimulation(ZOperation):
     @node_from(from_name='选择类型')
     @operation_node(name='选择副本')
     def choose_mission(self) -> OperationRoundResult:
+
+        # 滑动次数大于5则返回失败
+        if self.scroll_count > 5:
+            self.scroll_count = 0
+            return self.round_success(status=CombatSimulation.STATUS_CHOOSE_FAIL)
+        
         screen = self.screenshot()
         if self.plan.mission_name == '代理人方案培养':
             target_point: Optional[Point] = None
@@ -135,10 +142,11 @@ class CombatSimulation(ZOperation):
                 log.info(f'找到代理人目标，点击位置: {target_point}')
 
             if target_point is None:
-                return self.round_success(status=CombatSimulation.STATUS_CHOOSE_FAIL)
-
-            if target_point is None:
-                return self.round_success(status=CombatSimulation.STATUS_CHOOSE_FAIL)
+                start = area.center
+                end = start + Point(-400, 0)
+                self.ctx.controller.drag_to(start=start, end=end)
+                self.scroll_count += 1
+                return self.round_retry(status='找不到 %s' % self.plan.mission_name, wait=1)
 
         else:
             area = self.ctx.screen_loader.get_area('实战模拟室', '副本名称列表')
@@ -164,6 +172,7 @@ class CombatSimulation(ZOperation):
             start = area.center
             end = start + Point(-400, 0)
             self.ctx.controller.drag_to(start=start, end=end)
+            self.scroll_count += 1
             return self.round_retry(status='找不到 %s' % self.plan.mission_name, wait=1)
 
         click = self.ctx.controller.click(target_point)
