@@ -10,9 +10,10 @@ handlers:
       - state_template: "连携模板-异常"
       - state_template: "连携模板-跳过"
 
-  - states: " [前台-强攻] & [自定义-连携换人, 0, 3] "
+  - states: " [前台-强攻] & [前台-命破] & [自定义-连携换人, 0, 3] "
     sub_handlers:
       - state_template: "连携模板-支援"
+      - state_template: "连携模板-命破"
       - state_template: "连携模板-强攻"
       - state_template: "连携模板-跳过"
 
@@ -20,6 +21,7 @@ handlers:
     sub_handlers:
       - state_template: "连携模板-支援"
       - state_template: "连携模板-异常"
+      - state_template: "连携模板-命破"
       - state_template: "连携模板-强攻"
       - states: "![前台-强攻]"
         sub_handlers:
