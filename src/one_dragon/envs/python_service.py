@@ -345,7 +345,7 @@ class PythonService:
             if not os.path.exists(zip_file_path):
                 success = self.download_service.download_file_from_url(download_url, zip_file_path, progress_callback=progress_callback)
                 if not success:
-                    return False, '下载安装器失败 请尝试到「设置」更改网络代理'
+                    return False, '下载启动器失败 请尝试到「设置」更改网络代理'
 
             msg = f'正在解压 {zip_file_name} ...'
             log.info(msg)
@@ -363,19 +363,18 @@ class PythonService:
                 os.remove(zip_file_path)
                 continue
             else:
-                return True, '安装安装器成功'
+                return True, '安装启动器成功'
 
         # 重试之后还是失败了
-        return False, '安装安装器失败'
-    
+        return False, '安装启动器失败'
+
     def check_launcher_exist(self) -> bool:
         """
         检查启动器是否存在
         :return: 是否存在
         """
         launcher_path = os.path.join(os_utils.get_work_dir(), 'OneDragon Launcher.exe')
-        scheduler_path = os.path.join(os_utils.get_work_dir(), 'OneDragon Scheduler.exe')
-        return os.path.exists(launcher_path) and os.path.exists(scheduler_path)
+        return os.path.exists(launcher_path)
 
 
 if __name__ == '__main__':

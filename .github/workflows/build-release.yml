@@ -3,7 +3,7 @@ name: Build and Release
 on:
   push:
     tags:
-      - '*'
+      - 'v*'
   workflow_dispatch:
     inputs:
       create_release:
@@ -67,7 +67,6 @@ jobs:
         cd deploy
         pyinstaller "OneDragon Installer.spec"
         pyinstaller "OneDragon Launcher.spec"
-        pyinstaller "OneDragon Scheduler.spec"
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
@@ -76,7 +75,6 @@ jobs:
         path: |
           deploy/dist/OneDragon Installer.exe
           deploy/dist/OneDragon Launcher.exe
-          deploy/dist/OneDragon Scheduler.exe
 
   release:
     needs: build
@@ -142,7 +140,6 @@ jobs:
         # artifact
         Copy-Item "$distDir/OneDragon Installer.exe" -Destination $rootDir -Force
         Copy-Item "$distDir/OneDragon Launcher.exe" -Destination $rootDir -Force
-        Copy-Item "$distDir/OneDragon Scheduler.exe" -Destination $rootDir -Force
 
         # assets
         Copy-Item "assets/text" -Destination "$rootDir/assets/text" -Recurse -Force
@@ -196,16 +193,14 @@ jobs:
         # Pack Update
         Compress-Archive -Path @(
           "$rootDir/OneDragon Installer.exe",
-          "$rootDir/OneDragon Launcher.exe",
-          "$rootDir/OneDragon Scheduler.exe"
+          "$rootDir/OneDragon Launcher.exe"
         ) -DestinationPath "$distDir/ZenlessZoneZero-OneDragon-$version-Update.zip" -Force
 
         # Pack Launcher
         Compress-Archive -Path @(
-          "$rootDir/OneDragon Launcher.exe",
-          "$rootDir/OneDragon Scheduler.exe"
+          "$rootDir/OneDragon Launcher.exe"
         ) -DestinationPath "$distDir/ZenlessZoneZero-OneDragon-Launcher.zip" -Force
-        
+
         # Copy Installer
         Copy-Item "$rootDir/OneDragon Installer.exe" -Destination "$distDir/ZenlessZoneZero-OneDragon-$version-Installer.exe" -Force
 
