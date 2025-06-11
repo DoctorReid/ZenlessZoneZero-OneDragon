@@ -168,7 +168,7 @@ class BackgroundImageDownloader(QThread):
         super().__init__(parent)
         self.ctx = ctx
         self.download_type = download_type
-        
+
         if download_type == "version_poster":
             self.save_path = os.path.join(os_utils.get_path_under_work_dir('assets', 'ui'), 'version_poster.webp')
             self.url = "https://hyp-api.mihoyo.com/hyp/hyp-connect/api/getGames?launcher_id=jGHBHlcOq1&language=zh-cn"
@@ -183,7 +183,7 @@ class BackgroundImageDownloader(QThread):
     def run(self):
         if not os.path.exists(self.save_path):
             self.get()
-        
+
         last_fetch_time_str = getattr(self.ctx.custom_config, self.config_key)
         if last_fetch_time_str:
             try:
@@ -199,15 +199,15 @@ class BackgroundImageDownloader(QThread):
         try:
             resp = requests.get(self.url, timeout=5)
             data = resp.json()
-            
+
             img_url = self._extract_image_url(data)
             if not img_url:
                 return
-                
+
             img_resp = requests.get(img_url, timeout=5)
             if img_resp.status_code != 200:
                 return
-            
+
             self._save_image(img_resp.content)
             setattr(self.ctx.custom_config, self.config_key, datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
             self.image_downloaded.emit(True)
@@ -221,7 +221,7 @@ class BackgroundImageDownloader(QThread):
             for game in data.get("data", {}).get("games", []):
                 if game.get("biz") != "nap_cn":
                     continue
-                
+
                 display = game.get("display", {})
                 background = display.get("background", {})
                 if background:
@@ -230,7 +230,7 @@ class BackgroundImageDownloader(QThread):
             for game in data.get("data", {}).get("game_info_list", []):
                 if game.get("game", {}).get("biz") != "nap_cn":
                     continue
-                
+
                 backgrounds = game.get("backgrounds", [])
                 if backgrounds:
                     return backgrounds[0]["background"]["url"]

@@ -258,7 +258,7 @@ def __debug():
     ocr.init_model(
         download_by_github=False,
         download_by_gitee=True)
-    
+
     from one_dragon.utils import debug_utils
     img = debug_utils.get_debug_image('1')
     print(ocr.run_ocr(img))

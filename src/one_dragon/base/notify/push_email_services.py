@@ -423,7 +423,7 @@ class PushEmailServices:
             if "domains" in config and key in [domain.lower() for domain in config["domains"]]:
                 return config
         return None
-    
+
     @classmethod
     def load_services(cls):
         """

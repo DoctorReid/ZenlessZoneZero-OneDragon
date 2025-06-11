@@ -388,6 +388,7 @@ def check_exist_by_color_channel_equal_range(
     # 因为它已经返回了1或0（当点数量大于等于阈值时返回1，否则返回0）
     return check_cnt_by_color_channel_equal_range(ctx, screen, state_def, total, pos)
 
+
 def filter_by_color(
     image: MatLike,
     state_def: AgentStateDef,
@@ -432,7 +433,7 @@ def filter_by_color(
             lower1 = np.array([lower_h + 180, lower_s, lower_v])
             upper1 = np.array([179, upper_s, upper_v])
             mask1 = cv2.inRange(hsv_image, lower1, upper1)
-            
+
             lower2 = np.array([0, lower_s, lower_v])
             upper2 = np.array([upper_h, upper_s, upper_v])
             mask2 = cv2.inRange(hsv_image, lower2, upper2)
@@ -446,13 +447,13 @@ def filter_by_color(
             lower2 = np.array([0, lower_s, lower_v])
             upper2 = np.array([upper_h - 180, upper_s, upper_v])
             mask2 = cv2.inRange(hsv_image, lower2, upper2)
-            
+
             mask = cv2.bitwise_or(mask1, mask2)
         else:
             lower = np.array([lower_h, lower_s, lower_v])
             upper = np.array([upper_h, upper_s, upper_v])
             mask = cv2.inRange(hsv_image, lower, upper)
-            
+
         return mask
     elif use_rgb:
         mask = cv2.inRange(image, state_def.lower_color, state_def.upper_color)

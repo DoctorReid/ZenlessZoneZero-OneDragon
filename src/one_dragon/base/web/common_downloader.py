@@ -61,7 +61,7 @@ class CommonDownloader:
             ) -> bool:
         if skip_if_existed and self.is_file_existed():
             return True
-        
+
         download_url: str = ''
         if download_by_github and self.param.github_release_download_url is not None:
             if ghproxy_url is not None:
@@ -76,7 +76,7 @@ class CommonDownloader:
         if download_url == '':
             log.error('没有指定下载方法或对应的下载地址')
             return False
-        
+
         return http_utils.download_file(
             download_url=download_url,
             save_file_path=os.path.join(self.param.save_file_path, self.param.save_file_name),

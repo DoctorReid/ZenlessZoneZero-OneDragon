@@ -115,6 +115,6 @@ class SettingCustomInterface(VerticalScrollInterface):
         if value:
             self.version_poster_opt.setValue(False)
         self.reload_banner()
-    
+
     def reload_banner(self) -> None:
         self.ctx.signal.reload_banner = True

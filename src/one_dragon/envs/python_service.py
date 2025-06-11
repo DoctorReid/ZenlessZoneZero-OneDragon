@@ -152,7 +152,7 @@ class PythonService:
         if progress_callback is not None:
             progress_callback(-1, msg)
         log.info(msg)
-        
+
         os.environ["UV_PYTHON_INSTALL_DIR"] = DEFAULT_PYTHON_DIR_PATH
         result = cmd_utils.run_command([self.env_config.uv_path, 'sync', '--check'])
 

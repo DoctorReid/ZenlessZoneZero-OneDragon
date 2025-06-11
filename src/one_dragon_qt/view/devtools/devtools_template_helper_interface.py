@@ -647,12 +647,12 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
 
         # 获取 RGB 颜色值
         rgb_color = self.chosen_template.screen_image[real_y, real_x]
-        
+
         # 将 RGB 转换为 HSV
         hsv_color = cv2.cvtColor(rgb_color.reshape(1, 1, 3), cv2.COLOR_RGB2HSV)[0, 0]
 
         message = (f"点击位置: ({real_x}, {real_y})\n"
                    f"RGB: ({rgb_color[0]}, {rgb_color[1]}, {rgb_color[2]})\n"
                    f"HSV: ({hsv_color[0]}, {hsv_color[1]}, {hsv_color[2]})")
-        
+
         QMessageBox.information(self, "像素颜色信息", message)

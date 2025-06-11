@@ -66,7 +66,7 @@ class GitService:
             msg = '已经安装了 Git'
             log.info(msg)
             return True, msg
-        
+
         msg = '开始安装 Git'
         if progress_callback is not None:
             progress_callback(-1, msg)

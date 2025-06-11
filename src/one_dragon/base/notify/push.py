@@ -43,7 +43,7 @@ class Push():
             "title": title,
             "body": content,
         }
-        
+
         # 添加可选参数
         if self.get_config("BARK_ARCHIVE"):
             data["isArchive"] = self.get_config("BARK_ARCHIVE")

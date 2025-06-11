@@ -136,7 +136,7 @@ class CombatSimulation(ZOperation):
                 click_offset=(0, 80),  # 向下偏移80像素，用于点击头像下方的区域
                 min_area=800
             )
-            
+
             if click_pos:
                 target_point = Point(click_pos[0], click_pos[1])
                 log.info(f'找到代理人目标，点击位置: {target_point}')

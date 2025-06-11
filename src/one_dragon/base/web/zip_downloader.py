@@ -47,7 +47,7 @@ class ZipDownloader(CommonDownloader):
 
             if not download_result:
                 return download_result
-        
+
             unzip_result = self.unzip()
             if unzip_result:
                 break
@@ -57,7 +57,7 @@ class ZipDownloader(CommonDownloader):
 
         # 解压有可能失败 最后再判断一次文件是否已经存在了
         return self.is_file_existed()
-        
+
     def unzip(self) -> bool:
         """
         对目标压缩包进行解压
@@ -66,11 +66,11 @@ class ZipDownloader(CommonDownloader):
         exists = CommonDownloader.is_file_existed(self)
         if exists:
             return True
-        
+
         zip_file_path = os.path.join(self.param.save_file_path, self.param.save_file_name)
         if not os.path.exists(zip_file_path):
             return False
-        
+
         file_utils.unzip_file(zip_file_path=zip_file_path, unzip_dir_path=self.param.save_file_path)
         log.info(f"解压完成 {zip_file_path}")
 
@@ -85,9 +85,9 @@ class ZipDownloader(CommonDownloader):
         exists = CommonDownloader.is_file_existed(self)
         if exists:
             return True
-        
+
         zip_file_path = os.path.join(self.param.save_file_path, self.param.save_file_name)
         if os.path.exists(zip_file_path):
             return True
-        
+
         return False

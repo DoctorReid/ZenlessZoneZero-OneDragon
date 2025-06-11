@@ -69,7 +69,7 @@ class PasswordSwitchSettingCard(SettingCardBase):
         self.hBoxLayout.addWidget(self.btn, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
         self.hBoxLayout.insertWidget(4, self.password, 0, Qt.AlignmentFlag.AlignRight)
-    
+
     def _set_extra_btn_value(self, value: bool):
         if self.extra_btn is not None:
             self.extra_btn.setEnabled(value)

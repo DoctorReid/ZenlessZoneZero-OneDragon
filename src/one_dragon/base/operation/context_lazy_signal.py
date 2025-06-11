@@ -5,7 +5,7 @@ class ContextLazySignal:
     """
     def __init__(self):
         self._signals = {}
-    
+
     @property
     def reload_banner(self) -> bool:
         """
