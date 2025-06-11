@@ -327,54 +327,6 @@ class PythonService:
             progress_callback
         )
 
-    def install_launcher(self, progress_callback: Optional[Callable[[float, str], None]]) -> Tuple[bool, str]:
-        msg = '正在安装启动器...'
-        if progress_callback is not None:
-            progress_callback(-1, msg)
-        log.info(msg)
-
-        for _ in range(2):
-            zip_file_name = f'{self.project_config.project_name}-Launcher.zip'
-            zip_file_path = os.path.join(DEFAULT_ENV_PATH, zip_file_name)
-            download_url = f'{self.project_config.github_homepage}/releases/latest/download/{zip_file_name}'
-            if not os.path.exists(zip_file_path):
-                success = self.download_service.download_file_from_url(download_url, zip_file_path, progress_callback=progress_callback)
-                if not success:
-                    return False, '下载启动器失败 请尝试到「设置」更改网络代理'
-
-            msg = f'正在解压 {zip_file_name} ...'
-            log.info(msg)
-            if progress_callback is not None:
-                progress_callback(0, msg)
-
-            old_launcher_path = os.path.join(os_utils.get_work_dir(), 'OneDragon-Launcher.exe')
-            if os.path.exists(old_launcher_path):
-                shutil.rmtree(old_launcher_path)
-
-            success = file_utils.unzip_file(zip_file_path, os_utils.get_work_dir())
-
-            msg = '解压成功' if success else '解压失败 准备重试'
-            log.info(msg)
-            if progress_callback is not None:
-                progress_callback(1 if success else 0, msg)
-
-            if not success:  # 解压失败的话 可能是之前下的zip包坏了 尝试删除重来
-                os.remove(zip_file_path)
-                continue
-            else:
-                return True, '安装启动器成功'
-
-        # 重试之后还是失败了
-        return False, '安装启动器失败'
-
-    def check_launcher_exist(self) -> bool:
-        """
-        检查启动器是否存在
-        :return: 是否存在
-        """
-        launcher_path = os.path.join(os_utils.get_work_dir(), 'OneDragon-Launcher.exe')
-        return os.path.exists(launcher_path)
-
 
 if __name__ == '__main__':
     project_config = ProjectConfig()
