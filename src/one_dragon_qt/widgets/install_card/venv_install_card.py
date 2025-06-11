@@ -39,7 +39,7 @@ class VenvInstallCard(BaseInstallCard):
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.DEFAULT_BLUE.value)
             msg = f"{gt('环境已同步', 'ui')}"
         else:
-            icon = FluentIcon.INFO.icon(color=FluentThemeColor.GOLD.value)
+            icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
             msg = gt('环境未同步，请点击默认安装更新', 'ui')
 
         return icon, msg
