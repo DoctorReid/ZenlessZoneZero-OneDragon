@@ -145,7 +145,7 @@ class CombatSimulation(ZOperation):
                 start = area.center
                 end = start + Point(-400, 0)
                 self.ctx.controller.drag_to(start=start, end=end)
-                self.scroll_count += 1  # 滑动次数=1
+                self.scroll_count += 1
                 return self.round_retry(status='找不到 %s' % self.plan.mission_name, wait=1)
 
         else:
@@ -172,7 +172,7 @@ class CombatSimulation(ZOperation):
             start = area.center
             end = start + Point(-400, 0)
             self.ctx.controller.drag_to(start=start, end=end)
-            self.scroll_count += 1  # 滑动次数=1
+            self.scroll_count += 1
             return self.round_retry(status='找不到 %s' % self.plan.mission_name, wait=1)
 
         click = self.ctx.controller.click(target_point)
