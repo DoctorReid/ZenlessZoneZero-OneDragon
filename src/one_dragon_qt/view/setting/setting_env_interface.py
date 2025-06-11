@@ -57,6 +57,12 @@ class SettingEnvInterface(VerticalScrollInterface):
         self.debug_opt.value_changed.connect(self._on_debug_changed)
         basic_group.addSettingCard(self.debug_opt)
 
+        self.copy_screenshot_opt = SwitchSettingCard(
+            icon=FluentIcon.CAMERA, title='复制截图到剪贴板',
+            content='按下截图按键时，自动将截图复制到剪贴板'
+        )
+        basic_group.addSettingCard(self.copy_screenshot_opt)
+
         return basic_group
 
     def _init_code_group(self) -> SettingCardGroup:
@@ -184,6 +190,7 @@ class SettingEnvInterface(VerticalScrollInterface):
         VerticalScrollInterface.on_interface_shown(self)
 
         self.debug_opt.setValue(self.ctx.env_config.is_debug)
+        self.copy_screenshot_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('copy_screenshot'))
 
         self.key_start_running_input.setValue(self.ctx.env_config.key_start_running)
         self.key_stop_running_input.setValue(self.ctx.env_config.key_stop_running)

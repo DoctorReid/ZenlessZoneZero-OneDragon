@@ -54,7 +54,7 @@ class ContextInstanceEventEnum(Enum):
 
 class OneDragonContext(ContextEventBus, OneDragonEnvContext):
 
-    def __init__(self, controller: Optional = None):
+    def __init__(self, controller: Optional[ControllerBase] = None):
         ContextEventBus.__init__(self)
         OneDragonEnvContext.__init__(self)
 
@@ -153,7 +153,7 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
         elif key == self.key_stop_running:
             self.stop_running()
         elif key == self.key_screenshot:
-            self.screenshot_and_save_debug()
+            self.screenshot_and_save_debug(self.env_config.copy_screenshot)
 
         self.dispatch_event(ContextKeyboardEventEnum.PRESS.value, key)
 
@@ -181,7 +181,7 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
     def key_debug(self) -> str:
         return self.env_config.key_debug
 
-    def screenshot_and_save_debug(self) -> None:
+    def screenshot_and_save_debug(self, copy_screenshot: bool) -> None:
         """
         截图 保存到debug
         """
@@ -190,7 +190,7 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
         if self.controller.game_win is not None:
             self.controller.game_win.active()
         img = self.controller.screenshot(independent=True)
-        debug_utils.save_debug_image(img)
+        debug_utils.save_debug_image(img, copy_screenshot)
 
     def switch_instance(self, instance_idx: int) -> None:
         """

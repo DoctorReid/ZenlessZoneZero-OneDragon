@@ -499,7 +499,7 @@ class Operation(OperationBase):
         :return: 字节流对象，如果截图不存在则返回 None
         """
         screen = self.screenshot()
-        retval, buffer = cv2.imencode('.png', cv2.cvtColor(screen, cv2.COLOR_BGR2RGB))
+        retval, buffer = cv2.imencode('.png', cv2.cvtColor(screen, cv2.COLOR_RGB2BGR))
         if retval:
             return BytesIO(buffer.tobytes())
         else:

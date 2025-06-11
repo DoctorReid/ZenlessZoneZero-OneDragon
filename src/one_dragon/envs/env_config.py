@@ -377,6 +377,22 @@ class EnvConfig(YamlConfig):
         self.update('is_debug', new_value)
 
     @property
+    def copy_screenshot(self) -> bool:
+        """
+        截图后是否复制到剪贴板
+        :return:
+        """
+        return self.get('copy_screenshot', True)
+
+    @copy_screenshot.setter
+    def copy_screenshot(self, new_value: bool) -> None:
+        """
+        截图后是否复制到剪贴板
+        :return:
+        """
+        self.update('copy_screenshot', new_value)
+
+    @property
     def key_start_running(self) -> str:
         """
         开始、暂停、恢复运行的按键
