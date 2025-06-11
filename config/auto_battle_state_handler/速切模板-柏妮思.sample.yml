@@ -66,10 +66,16 @@ handlers:
         operations:
           - operation_template: "柏妮思-短按单双喷"
 
-      - states: ""
+      - states: "[后台-1-异常] | [后台-2-异常]"
         debug_name: "充能打普攻"
         operations:
           - operation_template: "柏妮思-普通攻击"
           - op_name: "设置状态"
             data: ["自定义-速切结束"]
-        
+
+      - states: ""
+        debug_name: "单异常，马上离开"
+        operations:
+          - op_name: "设置状态"
+            data: ["自定义-速切结束"]
+          - operation_template: "柏妮思-普通攻击"

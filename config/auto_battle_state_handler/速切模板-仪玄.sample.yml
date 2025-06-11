@@ -48,9 +48,22 @@ handlers:
                 data: ["自定义-仪玄-大太极"]
               - operation_template: "仪玄-太极合轴"
 
-      - states: "[仪玄-法术值]{0, 119} & [仪玄-能量]{60, 120}"
+      - states: "[自定义-仪玄-大太极,0,1] | [自定义-仪玄-小太极,0,2]"
+        debug_name: "太极中，等待一下"
         operations:
-          - operation_template: "仪玄-强化特殊技三连"
+          - op_name: "等待秒数"
+            seconds: 1
+
+      - states: "[仪玄-法术值]{0, 119} & [仪玄-能量]{60, 120}"
+        sub_handlers:
+          - states: "[前台-血量扣减]{1, 100}"
+            debug_name: "被人胖揍过开格挡"
+            operations:
+              - operation_template: "仪玄-强化特殊技三连"
+          - states: ""
+            debug_name: "割草长按A"
+            operations:
+              - operation_template: "仪玄-凸"
 
       - states: "[仪玄-法术值]{1, 1}"
         operations:
@@ -58,15 +71,33 @@ handlers:
             data: ["自定义-仪玄-大太极"]
           - operation_template: "仪玄-太极合轴"
 
-      - states: "[自定义-仪玄-大太极,0,2] | [自定义-仪玄-小太极,0,3]"
-        debug_name: "太极中，等待一下"
-        operations:
-          - op_name: "等待秒数"
-            seconds: 1
-
-      - states: ""
-        debug_name: "没事做了"
+      - states: "[后台-1-潘引壶] & [潘引壶-特殊技可用]"
+        debug_name: "让熊补buff吧"
         operations:
           - op_name: "设置状态"
             data: ["自定义-仪玄-小太极"]
           - operation_template: "仪玄-太极合轴"
+
+      - states: "([后台-珂蕾妲] | [后台-安比] | [后台-青衣]) & [仪玄-法术值]{120, 120}"
+        debug_name: "有力量了，上来打击破吧"
+        operations:
+          - op_name: "设置状态"
+            data: ["自定义-仪玄-小太极"]
+          - operation_template: "仪玄-太极合轴"
+
+      - states: "[仪玄-终结技可用] & [仪玄-法术值]{120, 120}"
+        debug_name: "法术终结技"
+        operations:
+          - operation_template: "仪玄-法术终结技"
+
+      - states: "[仪玄-终结技可用]"
+        debug_name: "喧嚣终结技"
+        operations:
+          - operation_template: "仪玄-喧嚣终结技"
+
+      - states: ""
+        debug_name: "没能量了"
+        operations:
+          - operation_template: "仪玄-普通攻击"
+          - op_name: "设置状态"
+            data: ["自定义-速切结束"]
