@@ -7,6 +7,7 @@ from one_dragon.base.controller.pc_button.xbox_button_controller import XboxButt
 from one_dragon.utils import cmd_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon_qt.widgets.column import Column
+from one_dragon_qt.widgets.horizontal_setting_card_group import HorizontalSettingCardGroup
 from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon_qt.widgets.setting_card.key_setting_card import KeySettingCard
 from one_dragon_qt.widgets.setting_card.multi_push_setting_card import MultiPushSettingCard
@@ -56,19 +57,23 @@ class SettingGameInterface(VerticalScrollInterface):
 
         self.outfit_nicole_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='妮可', options_enum=AgentOutfitNicole)
         self.outfit_nicole_opt.value_changed.connect(self._on_agent_outfit_changed)
-        agent_outfit_group.addSettingCard(self.outfit_nicole_opt)
 
         self.outfit_ellen_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='艾莲', options_enum=AgentOutfitEllen)
         self.outfit_ellen_opt.value_changed.connect(self._on_agent_outfit_changed)
-        agent_outfit_group.addSettingCard(self.outfit_ellen_opt)
 
         self.outfit_astra_yao_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='耀嘉音', options_enum=AgentOutfitAstraYao)
         self.outfit_astra_yao_opt.value_changed.connect(self._on_agent_outfit_changed)
-        agent_outfit_group.addSettingCard(self.outfit_astra_yao_opt)
 
         self.outfit_yixuan_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='仪玄', options_enum=AgentOutfitYiXuan)
         self.outfit_yixuan_opt.value_changed.connect(self._on_agent_outfit_changed)
-        agent_outfit_group.addSettingCard(self.outfit_yixuan_opt)
+
+        self.agent_outfit_group_horizontal = HorizontalSettingCardGroup([
+            self.outfit_nicole_opt,
+            self.outfit_ellen_opt,
+            self.outfit_astra_yao_opt,
+            self.outfit_yixuan_opt
+        ])
+        agent_outfit_group.addSettingCard(self.agent_outfit_group_horizontal)
 
         return agent_outfit_group
 
@@ -422,10 +427,7 @@ class SettingGameInterface(VerticalScrollInterface):
         self._update_agent_outfit_options(value)
 
     def _update_agent_outfit_options(self, value: bool) -> None:
-        self.outfit_nicole_opt.setVisible(not value)
-        self.outfit_ellen_opt.setVisible(not value)
-        self.outfit_astra_yao_opt.setVisible(not value)
-        self.outfit_yixuan_opt.setVisible(not value)
+        self.agent_outfit_group_horizontal.setVisible(not value)
 
     def _on_agent_outfit_changed(self) -> None:
         if not self.ctx.agent_outfit_config.match_all_outfits:

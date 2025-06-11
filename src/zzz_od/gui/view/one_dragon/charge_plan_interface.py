@@ -6,6 +6,7 @@ from typing import Optional, List
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon_qt.widgets.column import Column
 from one_dragon_qt.widgets.combo_box import ComboBox
+from one_dragon_qt.widgets.horizontal_setting_card_group import HorizontalSettingCardGroup
 from one_dragon_qt.widgets.setting_card.multi_push_setting_card import MultiLineSettingCard
 from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon_qt.widgets.setting_card.multi_push_setting_card import MultiPushSettingCard
@@ -264,23 +265,13 @@ class ChargePlanInterface(VerticalScrollInterface):
     def get_content_widget(self) -> QWidget:
         self.content_widget = Column()
 
-        # 创建水平布局容器
-        switch_container = QWidget()
-        switch_layout = QHBoxLayout(switch_container)
-        switch_layout.setContentsMargins(0, 0, 0, 0)
-
         self.loop_opt = SwitchSettingCard(icon=FluentIcon.SYNC, title='循环执行', content='开启时 会循环执行到体力用尽')
         self.loop_opt.value_changed.connect(lambda value: self._on_config_changed(value, 'loop'))
 
         self.skip_plan_opt = SwitchSettingCard(icon=FluentIcon.FLAG, title='跳过计划', content='开启时 自动跳过体力不足的计划')
         self.skip_plan_opt.value_changed.connect(lambda value: self._on_config_changed(value, 'skip_plan'))
 
-        # 将两个开关添加到水平布局中
-        switch_layout.addWidget(self.loop_opt)
-        switch_layout.addWidget(self.skip_plan_opt)
-
-        # 将容器添加到主布局中
-        self.content_widget.add_widget(switch_container)
+        self.content_widget.add_widget(HorizontalSettingCardGroup([self.loop_opt,self.skip_plan_opt], 6))
 
         self.cancel_btn = PushButton(icon=FluentIcon.CANCEL, text='撤销')
         self.cancel_btn.setEnabled(False)
