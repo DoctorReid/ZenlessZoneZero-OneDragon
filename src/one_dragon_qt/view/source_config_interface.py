@@ -3,13 +3,12 @@ from PySide6.QtWidgets import QWidget, QHBoxLayout
 from qfluentwidgets import FluentIcon, SettingCardGroup, TitleLabel, PrimaryPushButton
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
-from one_dragon.envs.env_config import CpythonSourceEnum, ProxyTypeEnum, PipSourceEnum, RepositoryTypeEnum, RegionEnum, EnvSourceEnum
+from one_dragon.envs.env_config import CpythonSourceEnum, EnvSourceEnum, ProxyTypeEnum, PipSourceEnum, RegionEnum, RepositoryTypeEnum
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon_qt.widgets.column import Column
 from one_dragon_qt.widgets.horizontal_setting_card_group import HorizontalSettingCardGroup
 from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon_qt.widgets.setting_card.text_setting_card import TextSettingCard
-from one_dragon.utils.i18_utils import gt
 
 
 class SourceConfigInterface(VerticalScrollInterface):
@@ -43,21 +42,21 @@ class SourceConfigInterface(VerticalScrollInterface):
         region_confirm_layout = QHBoxLayout(region_confirm_widget)
         region_confirm_layout.setContentsMargins(0, 0, 0, 0)
         region_confirm_layout.setSpacing(10)
-        
+
         self.region_opt = ComboBoxSettingCard(
             icon=FluentIcon.GLOBE,
             title='地区选择',
             options_enum=RegionEnum
         )
         self.region_opt.value_changed.connect(self._on_region_changed)
-        
+
         self.confirm_btn = PrimaryPushButton("确认配置")
         self.confirm_btn.setFixedSize(120, 40)
         self.confirm_btn.clicked.connect(lambda: self.finished.emit(True))
-        
+
         region_confirm_layout.addWidget(self.region_opt, 1)
         region_confirm_layout.addWidget(self.confirm_btn, 0)
-        
+
         content_widget.add_widget(region_confirm_widget, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # 高级配置组
@@ -78,6 +77,7 @@ class SourceConfigInterface(VerticalScrollInterface):
             title='代码仓库',
             options_enum=RepositoryTypeEnum
         )
+        self.repository_type_opt.value_changed.connect(lambda: self.ctx.git_service.update_git_remote())
 
         self.env_source_opt = ComboBoxSettingCard(
             icon=FluentIcon.CLOUD_DOWNLOAD,
@@ -133,6 +133,7 @@ class SourceConfigInterface(VerticalScrollInterface):
             self.ctx.env_config.cpython_source = CpythonSourceEnum.NJU.value.value
             self.ctx.env_config.pip_source = PipSourceEnum.ALIBABA.value.value
             self.ctx.env_config.proxy_type = ProxyTypeEnum.GHPROXY.value.value
+            self._on_proxy_changed()
             self.ctx.async_update_gh_proxy()
         elif index == 1:
             self.ctx.env_config.repository_type = RepositoryTypeEnum.GITHUB.value.value
@@ -140,6 +141,7 @@ class SourceConfigInterface(VerticalScrollInterface):
             self.ctx.env_config.cpython_source = CpythonSourceEnum.GITHUB.value.value
             self.ctx.env_config.pip_source = PipSourceEnum.PYPI.value.value
             self.ctx.env_config.proxy_type = ProxyTypeEnum.NONE.value.value
+            self._on_proxy_changed()
         self._init_config_values()
 
     def _init_config_values(self):
@@ -155,8 +157,10 @@ class SourceConfigInterface(VerticalScrollInterface):
     def _update_proxy_ui(self):
         """更新代理界面显示"""
         current_proxy_type = self.ctx.env_config.proxy_type
+        self.proxy_url_input.value_changed.disconnect()
         if current_proxy_type == ProxyTypeEnum.PERSONAL.value.value:
             self.proxy_url_input.init_with_adapter(self.ctx.env_config.get_prop_adapter('personal_proxy'))
+            self.proxy_url_input.value_changed.connect(lambda: self._on_proxy_changed())
             self.proxy_url_input.titleLabel.setText('个人代理地址')
             self.proxy_url_input.line_edit.setPlaceholderText('http://127.0.0.1:8080')
             self.proxy_url_input.setVisible(True)
