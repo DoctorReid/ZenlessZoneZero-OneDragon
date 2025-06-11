@@ -102,28 +102,32 @@ class LostVoidChooseCommon(ZOperation):
         artifact_pos_list: list[LostVoidArtifactPos] = []
         ocr_result_map = self.ctx.ocr.run_ocr(screen)
         for ocr_result, mrl in ocr_result_map.items():
-            artifact_idx: int = str_utils.find_best_match_by_difflib(ocr_result, artifact_name_list)
-            if artifact_idx is None or artifact_idx < 0:
+            title_idx: int = str_utils.find_best_match_by_difflib(ocr_result, artifact_name_list)
+            if title_idx is None or title_idx < 0:
                 continue
 
-            artifact = self.ctx.lost_void.all_artifact_list[artifact_idx]
+            artifact = self.ctx.lost_void.all_artifact_list[title_idx]
             artifact_pos = LostVoidArtifactPos(artifact, mrl.max.rect)
             artifact_pos_list.append(artifact_pos)
 
         # 识别其它标识
-        target_chosen_word_list = [
+        title_word_list = [
             gt('有同流派武备'),
             gt('已选择'),
             gt('齿轮硬币不足'),
         ]
         to_cancel_list: list[LostVoidArtifactPos] = []
         for ocr_result, mrl in ocr_result_map.items():
-            artifact_idx: int = str_utils.find_best_match_by_difflib(ocr_result, target_chosen_word_list)
-            if artifact_idx is None or artifact_idx < 0:
+            title_idx: int = str_utils.find_best_match_by_difflib(ocr_result, title_word_list)
+            if title_idx is None or title_idx < 0:
                 continue
             # 找横坐标最接近的藏品
             closest_artifact_pos: Optional[LostVoidArtifactPos] = None
             for artifact_pos in artifact_pos_list:
+                # 标题需要在藏品的上方
+                if not mrl.max.rect.y2 < artifact_pos.rect.y1:
+                    continue
+
                 if closest_artifact_pos is None:
                     closest_artifact_pos = artifact_pos
                     continue
@@ -133,9 +137,9 @@ class LostVoidChooseCommon(ZOperation):
                     closest_artifact_pos = artifact_pos
 
             if closest_artifact_pos is not None:
-                if artifact_idx == 1:  # 已选择
+                if title_idx == 1:  # 已选择
                     to_cancel_list.append(closest_artifact_pos)
-                elif artifact_idx == 2:  # 齿轮硬币不足
+                elif title_idx == 2:  # 齿轮硬币不足
                     closest_artifact_pos.can_choose = False
 
         artifact_pos_list = [i for i in artifact_pos_list if i.can_choose]
@@ -218,7 +222,7 @@ def __get_get_artifact_pos():
 
     op = LostVoidChooseCommon(ctx)
     from one_dragon.utils import debug_utils
-    screen = debug_utils.get_debug_image('lost_void_choose_common')
+    screen = debug_utils.get_debug_image('1')
     art_list, chosen_list = op.get_artifact_pos(screen)
     print(len(art_list), len(chosen_list))
     cv2_utils.show_image(screen, chosen_list[0] if len(chosen_list) > 0 else None, wait=0)
@@ -227,4 +231,4 @@ def __get_get_artifact_pos():
 
 
 if __name__ == '__main__':
-    __debug()
+    __get_get_artifact_pos()
