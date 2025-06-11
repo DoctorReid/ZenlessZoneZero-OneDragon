@@ -14,5 +14,5 @@ class ZApplicationLauncher(ApplicationLauncher):
 
 
 if __name__ == '__main__':
-    runner = ZApplicationLauncher()
-    runner.run()
+    launcher = ZApplicationLauncher()
+    launcher.run()
