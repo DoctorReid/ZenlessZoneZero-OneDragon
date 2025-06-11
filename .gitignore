@@ -4,7 +4,8 @@ dist/
 .idea/
 .vscode/
 __pycache__/
-deploy/
+deploy/build/
+deploy/dist/
 .env
 recording.jsonl
 
