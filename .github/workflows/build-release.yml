@@ -65,16 +65,16 @@ jobs:
       run: |
         .\zzz-od\Scripts\Activate.ps1
         cd deploy
-        pyinstaller "OneDragon Installer.spec"
-        pyinstaller "OneDragon Launcher.spec"
+        pyinstaller "OneDragon-Installer.spec"
+        pyinstaller "OneDragon-Launcher.spec"
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: executables
         path: |
-          deploy/dist/OneDragon Installer.exe
-          deploy/dist/OneDragon Launcher.exe
+          deploy/dist/OneDragon-Installer.exe
+          deploy/dist/OneDragon-Launcher.exe
 
   release:
     needs: build
@@ -138,8 +138,8 @@ jobs:
         Invoke-WebRequest -Uri "https://github.com/OneDragon-Anything/OneDragon-Env/releases/download/ZenlessZoneZero-OneDragon/MinGit.zip" -OutFile "$envDir/MinGit.zip"
 
         # artifact
-        Copy-Item "$distDir/OneDragon Installer.exe" -Destination $rootDir -Force
-        Copy-Item "$distDir/OneDragon Launcher.exe" -Destination $rootDir -Force
+        Copy-Item "$distDir/OneDragon-Installer.exe" -Destination $rootDir -Force
+        Copy-Item "$distDir/OneDragon-Launcher.exe" -Destination $rootDir -Force
 
         # assets
         Copy-Item "assets/text" -Destination "$rootDir/assets/text" -Recurse -Force
@@ -192,17 +192,17 @@ jobs:
 
         # Pack Update
         Compress-Archive -Path @(
-          "$rootDir/OneDragon Installer.exe",
-          "$rootDir/OneDragon Launcher.exe"
+          "$rootDir/OneDragon-Installer.exe",
+          "$rootDir/OneDragon-Launcher.exe"
         ) -DestinationPath "$distDir/ZenlessZoneZero-OneDragon-$version-Update.zip" -Force
 
         # Pack Launcher
         Compress-Archive -Path @(
-          "$rootDir/OneDragon Launcher.exe"
+          "$rootDir/OneDragon-Launcher.exe"
         ) -DestinationPath "$distDir/ZenlessZoneZero-OneDragon-Launcher.zip" -Force
 
         # Copy Installer
-        Copy-Item "$rootDir/OneDragon Installer.exe" -Destination "$distDir/ZenlessZoneZero-OneDragon-$version-Installer.exe" -Force
+        Copy-Item "$rootDir/OneDragon-Installer.exe" -Destination "$distDir/ZenlessZoneZero-OneDragon-$version-Installer.exe" -Force
 
     - name: Generate Changelog
       id: changelog
@@ -251,7 +251,7 @@ jobs:
         body: |
           # 安装方式
 
-          - 如果你是第一次安装，下载 `ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Full.zip` ，解压后运行 `OneDragon Installer.exe`。
+          - 如果你是第一次安装，下载 `ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Full.zip` ，解压后运行 `OneDragon-Installer.exe`。
           - 如果你已经安装过了，下载 `ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Update.zip` 解压后复制到你原来的文件夹中覆盖即可。
           - __不要下载Source Code__
 

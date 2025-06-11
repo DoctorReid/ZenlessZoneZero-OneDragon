@@ -373,7 +373,7 @@ class PythonService:
         检查启动器是否存在
         :return: 是否存在
         """
-        launcher_path = os.path.join(os_utils.get_work_dir(), 'OneDragon Launcher.exe')
+        launcher_path = os.path.join(os_utils.get_work_dir(), 'OneDragon-Launcher.exe')
         return os.path.exists(launcher_path)
 
 
