@@ -106,7 +106,7 @@ def __debug_charge():
     """
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     from one_dragon.utils import debug_utils
     screen = debug_utils.get_debug_image('0')
     area = ctx.screen_loader.get_area('家政券', '数量')

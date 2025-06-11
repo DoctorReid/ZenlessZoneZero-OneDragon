@@ -233,7 +233,7 @@ class BambooMerchant(ZOperation):
 def __debug_check_screen():
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     op = BambooMerchant(ctx)
     from one_dragon.utils import os_utils
     import os

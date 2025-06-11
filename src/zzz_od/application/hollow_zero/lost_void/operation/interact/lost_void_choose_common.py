@@ -10,6 +10,7 @@ from one_dragon.base.operation.operation_round_result import OperationRoundResul
 from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
+from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_artifact_pos import LostVoidArtifactPos
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.zzz_operation import ZOperation
 
@@ -24,6 +25,7 @@ class LostVoidChooseCommon(ZOperation):
         ZOperation.__init__(self, ctx, op_name='迷失之地-通用选择')
 
         self.to_choose_num: int = 1  # 需要选择的数量
+        self.chosen_idx_list: list[int] = []  # 已经选择过的下标
 
     @operation_node(name='选择', is_start_node=True)
     def choose_artifact(self) -> OperationRoundResult:
@@ -32,32 +34,23 @@ class LostVoidChooseCommon(ZOperation):
         time.sleep(0.1)
         screen = self.screenshot()
 
-        screen_name = self.check_and_update_current_screen()
-        if screen_name != '迷失之地-通用选择':
-            # 进入本指令之前 有可能识别错画面
-            result = self.round_by_find_area(screen, '迷失之地-通用选择', '文本-详情')
-            if result.is_success and screen_name == '迷失之地-无详情选择':
-                self.ctx.screen_loader.update_current_screen_name('迷失之地-通用选择')
-            else:
-                return self.round_retry(status=f'当前画面 {screen_name}', wait=1)
-
         result = self.round_by_find_area(screen, '迷失之地-通用选择', '按钮-刷新')
         can_refresh = result.is_success
 
         art_list, chosen_list = self.get_artifact_pos(screen)
-        art: Optional[MatchResult] = None
+        art: Optional[LostVoidArtifactPos] = None
         if self.to_choose_num > 0:
             if len(art_list) == 0:
                 return self.round_retry(status='无法识别藏品', wait=1)
 
-            priority_list = self.ctx.lost_void.get_artifact_by_priority(
+            priority_list: list[LostVoidArtifactPos] = self.ctx.lost_void.get_artifact_by_priority(
                 art_list, self.to_choose_num,
                 consider_priority_1=True, consider_priority_2=not can_refresh,
                 consider_not_in_priority=not can_refresh
             )
 
             # 如果需要选择多个 则有任意一个符合优先级即可 剩下的用优先级以外的补上
-            if len(priority_list) > 0 and len(priority_list) < self.to_choose_num:
+            if 0 < len(priority_list) < self.to_choose_num:
                 priority_list = self.ctx.lost_void.get_artifact_by_priority(
                     art_list, self.to_choose_num,
                     consider_priority_1=True, consider_priority_2=True,
@@ -68,11 +61,11 @@ class LostVoidChooseCommon(ZOperation):
             # 不然在选择2个情况下会一直选择1个 导致无法继续
             if len(priority_list) == self.to_choose_num:
                 for chosen in chosen_list:
-                    self.ctx.controller.click(chosen.center + Point(0, 100))
+                    self.ctx.controller.click(chosen.rect.center + Point(0, 100))
                     time.sleep(0.5)
 
                 for art in priority_list:
-                    self.ctx.controller.click(art.center)
+                    self.ctx.controller.click(art.rect.center)
                     time.sleep(0.5)
             elif can_refresh:
                 result = self.round_by_find_and_click_area(screen, '迷失之地-通用选择', '按钮-刷新')
@@ -84,21 +77,83 @@ class LostVoidChooseCommon(ZOperation):
         result = self.round_by_find_and_click_area(screen=screen, screen_name='迷失之地-通用选择', area_name='按钮-确定',
                                                    success_wait=1, retry_wait=1)
         if result.is_success:
-            status = result.status if art is None else f'选择 {art.data.name}'
+            status = result.status if art is None else f'选择 {art.artifact.name}'
             return self.round_success(status)
         else:
             return self.round_retry(result.status, wait=1)
 
-    def get_artifact_pos(self, screen: MatLike) -> Tuple[List[MatchResult], List[MatchResult]]:
+    def get_artifact_pos(self, screen: MatLike) -> Tuple[List[LostVoidArtifactPos], List[LostVoidArtifactPos]]:
         """
         获取藏品的位置
         @param screen: 游戏画面
         @return: Tuple[识别到的武备的位置, 已经选择的位置]
         """
-        is_gear: bool = False  # 区域-武备名称
-        is_artifact: bool = False  # 区域-藏品名称
-        self.to_choose_num = 0
+        self.check_choose_title(screen)
+        if self.to_choose_num == 0:  # 不需要选择的
+            return [], []
 
+        artifact_name_list: list[str] = []
+        for art in self.ctx.lost_void.all_artifact_list:
+            if art.is_gear:
+                artifact_name_list.append(gt(f'[{art.category}]{art.name}'))
+            else:
+                artifact_name_list.append(gt(art.name))
+
+        artifact_pos_list: list[LostVoidArtifactPos] = []
+        ocr_result_map = self.ctx.ocr.run_ocr(screen)
+        for ocr_result, mrl in ocr_result_map.items():
+            artifact_idx: int = str_utils.find_best_match_by_difflib(ocr_result, artifact_name_list)
+            if artifact_idx is None or artifact_idx < 0:
+                continue
+
+            artifact = self.ctx.lost_void.all_artifact_list[artifact_idx]
+            artifact_pos = LostVoidArtifactPos(artifact, mrl.max.rect)
+            artifact_pos_list.append(artifact_pos)
+
+        # 识别其它标识
+        target_chosen_word_list = [
+            gt('有同流派武备'),
+            gt('已选择'),
+            gt('齿轮硬币不足'),
+        ]
+        to_cancel_list: list[LostVoidArtifactPos] = []
+        for ocr_result, mrl in ocr_result_map.items():
+            artifact_idx: int = str_utils.find_best_match_by_difflib(ocr_result, target_chosen_word_list)
+            if artifact_idx is None or artifact_idx < 0:
+                continue
+            # 找横坐标最接近的藏品
+            closest_artifact_pos: Optional[LostVoidArtifactPos] = None
+            for artifact_pos in artifact_pos_list:
+                if closest_artifact_pos is None:
+                    closest_artifact_pos = artifact_pos
+                    continue
+                old_dis = abs(mrl.max.center.x - closest_artifact_pos.rect.center.x)
+                new_dis = abs(mrl.max.center.x - artifact_pos.rect.center.x)
+                if new_dis < old_dis:
+                    closest_artifact_pos = artifact_pos
+
+            if closest_artifact_pos is not None:
+                if artifact_idx == 1:  # 已选择
+                    to_cancel_list.append(closest_artifact_pos)
+                elif artifact_idx == 2:  # 齿轮硬币不足
+                    closest_artifact_pos.can_choose = False
+
+        artifact_pos_list = [i for i in artifact_pos_list if i.can_choose]
+
+        display_text = ','.join([i.artifact.display_name for i in artifact_pos_list]) if len(artifact_pos_list) > 0 else '无'
+        log.info(f'当前可选择藏品 {display_text}')
+
+        display_text = ','.join([i.artifact.display_name for i in to_cancel_list]) if len(to_cancel_list) > 0 else '无'
+        log.info(f'当前已选择藏品 {display_text}')
+
+        return artifact_pos_list, to_cancel_list
+
+    def check_choose_title(self, screen: MatLike) -> None:
+        """
+        识别标题 判断要选择的类型和数量
+        :param screen: 游戏画面
+        """
+        self.to_choose_num = 0
         area = self.ctx.screen_loader.get_area('迷失之地-通用选择', '区域-标题')
         part = cv2_utils.crop_image_only(screen, area.rect)
         ocr_result = self.ctx.ocr.run_ocr(part)
@@ -139,66 +194,15 @@ class LostVoidChooseCommon(ZOperation):
                 is_artifact = True
                 self.to_choose_num = 1
 
-        if self.to_choose_num == 0:  # 不需要选择的
-            return [], []
-
-        if is_artifact:
-            area_name = '区域-藏品名称'
-            chosen_area_name = '区域-藏品已选择'
-        elif is_gear:
-            area_name = '区域-武备名称'
-            chosen_area_name = None
-        else:
-            result = self.round_by_find_area(screen, '迷失之地-通用选择', '区域-武备标识')  # 下方的GEAR
-            if result.is_success:
-                area_name = '区域-武备名称'
-                self.to_choose_num = 1
-            else:
-                area_name = '区域-藏品名称'
-                self.to_choose_num = 1
-            chosen_area_name = None
-
-        area = self.ctx.screen_loader.get_area('迷失之地-通用选择', area_name)
-        part = cv2_utils.crop_image_only(screen, area.rect)
-
-        result_list: List[MatchResult] = []
-
-        ocr_result_map = self.ctx.ocr.run_ocr(part)
-        for ocr_result, mrl in ocr_result_map.items():
-            art = self.ctx.lost_void.match_artifact_by_ocr_full(ocr_result)
-            if art is None:
-                continue
-
-            result = mrl.max
-            result.add_offset(area.left_top)
-            result.data = art
-            result_list.append(result)
-
-        display_text = ','.join([i.data.display_name for i in result_list]) if len(result_list) > 0 else '无'
-        log.info(f'当前识别藏品 {display_text}')
-
-        to_cancel_list: List[MatchResult] = []
-        target_chosen_words = ['有同流派武备', '已选择']
-        if chosen_area_name is not None:
-            area = self.ctx.screen_loader.get_area('迷失之地-通用选择', chosen_area_name)
-            part = cv2_utils.crop_image_only(screen, area.rect)
-            ocr_result_map = self.ctx.ocr.run_ocr(part)
-            for ocr_word, mrl in ocr_result_map.items():
-                idx = str_utils.find_best_match_by_difflib(ocr_word, target_chosen_words)
-                if idx is None:
-                    continue
-
-                for mr in mrl:
-                    mr.add_offset(area.left_top)
-                    to_cancel_list.append(mr)
-
-        return result_list, to_cancel_list
-
+        result = self.round_by_find_area(screen, '迷失之地-通用选择', '区域-武备标识')  # 下方的GEAR
+        if result.is_success:
+            is_gear = True
+            self.to_choose_num = 1
 
 def __debug():
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     ctx.lost_void.init_before_run()
     ctx.start_running()
 
@@ -209,7 +213,7 @@ def __debug():
 def __get_get_artifact_pos():
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     ctx.lost_void.init_before_run()
 
     op = LostVoidChooseCommon(ctx)

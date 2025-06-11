@@ -129,7 +129,7 @@ class LostVoidApp(ZApplication):
     @node_from(from_name='层间移动')
     @operation_node(name='层间移动')
     def run_level(self) -> OperationRoundResult:
-        log.debug(f'推测楼层类型 {self.next_region_type.value.value}')
+        log.info(f'推测楼层类型 {self.next_region_type.value.value}')
         op = LostVoidRunLevel(self.ctx, self.next_region_type)
         op_result = op.execute()
         if op_result.success:

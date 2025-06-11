@@ -1,7 +1,5 @@
 import time
 
-from typing import ClassVar
-
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
@@ -10,7 +8,6 @@ from zzz_od.application.zzz_application import ZApplication
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.operation.back_to_normal_world import BackToNormalWorld
 from zzz_od.operation.transport import Transport
-from zzz_od.operation.wait_normal_world import WaitNormalWorld
 
 
 class ScratchCardApp(ZApplication):
@@ -24,13 +21,6 @@ class ScratchCardApp(ZApplication):
             retry_in_od=True,  # 传送落地有可能会歪 重试,
             need_notify=True,
         )
-
-    def handle_init(self) -> None:
-        """
-        执行前的初始化 由子类实现
-        注意初始化要全面 方便一个指令重复使用
-        """
-        pass
 
     @operation_node(name='传送', is_start_node=True)
     def transport(self) -> OperationRoundResult:
@@ -75,33 +65,37 @@ class ScratchCardApp(ZApplication):
 
         result = self.round_by_find_area(screen, '报刊亭', '每日可刮取一次')
         if result.is_success:
-            return self.round_success(wait=1)
+            return self.round_success(status=result.status, wait=1)
+
+        result = self.round_by_find_area(screen, '报刊亭', '按钮-同类型确认')
+        if result.is_success:
+            return self.round_success(status=result.status, wait=1)
 
         result = self.round_by_find_and_click_area(screen, '报刊亭', '刮刮卡')
         if result.is_success:
-            return self.round_wait(wait=1)
+            return self.round_wait(status=result.status, wait=1)
 
         area = self.ctx.screen_loader.get_area('报刊亭', '对话选项')
 
         result = self.round_by_ocr_and_click(screen, '叫醒他', area=area)
         if result.is_success:
-            return self.round_wait(wait=1)
+            return self.round_wait(status=result.status, wait=1)
 
         result = self.round_by_ocr_and_click(screen, '叫醒嗷呜', area=area)
         if result.is_success:
-            return self.round_wait(wait=1)
+            return self.round_wait(status=result.status, wait=1)
 
         result = self.round_by_ocr_and_click(screen, '只是来看刮刮卡和报纸', area=area)
         if result.is_success:
-            return self.round_wait(wait=1)
+            return self.round_wait(status=result.status, wait=1)
 
         result = self.round_by_find_and_click_area(screen, '报刊亭', '嗷呜被你叫醒了')
         if result.is_success:
-            return self.round_wait(wait=1)
+            return self.round_wait(status=result.status, wait=1)
 
-        self.round_by_click_area('报刊亭', '嗷呜标题')
+        result = self.round_by_click_area('报刊亭', '嗷呜标题')
 
-        return self.round_retry(wait=1)
+        return self.round_retry(status=result.status, wait=1)
 
     @node_from(from_name='点击刮刮卡')
     @operation_node(name='刮刮')
@@ -125,6 +119,7 @@ class ScratchCardApp(ZApplication):
 
         return self.round_success()
 
+    @node_from(from_name='点击刮刮卡', status='按钮-同类型确认')
     @node_from(from_name='刮刮')
     @operation_node(name='返回大世界')
     def back_to_world(self) -> OperationRoundResult:

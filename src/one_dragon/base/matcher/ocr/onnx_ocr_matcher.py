@@ -2,47 +2,126 @@ import time
 
 import os
 from cv2.typing import MatLike
-from typing import List
+from typing import Callable, List, Optional
 
 from one_dragon.base.matcher.match_result import MatchResult, MatchResultList
 from one_dragon.base.matcher.ocr import ocr_utils
 from one_dragon.base.matcher.ocr.ocr_matcher import OcrMatcher
+from one_dragon.base.web.common_downloader import CommonDownloaderParam
+from one_dragon.base.web.zip_downloader import ZipDownloader
 from one_dragon.utils import os_utils
 from one_dragon.utils import str_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 
 
-class OnnxOcrMatcher(OcrMatcher):
+DEFAULT_OCR_MODEL_NAME: str = 'ppocrv5'
+GITHUB_DOWNLOAD_URL: str = 'https://github.com/OneDragon-Anything/OneDragon-Env/releases/download'
+GITEE_DOWNLOAD_URL: str = 'https://gitee.com/OneDragon-Anything/OneDragon-Env/releases/download'
+
+
+def get_ocr_model_dir(ocr_model_name: str) -> str:
+    return os_utils.get_path_under_work_dir('assets', 'models', 'onnx_ocr', ocr_model_name)
+
+
+def get_ocr_download_url_github(ocr_model_name: str) -> str:
+    return get_ocr_download_url(GITHUB_DOWNLOAD_URL, ocr_model_name)
+
+
+def get_ocr_download_url_gitee(ocr_model_name: str) -> str:
+    return get_ocr_download_url(GITEE_DOWNLOAD_URL, ocr_model_name)
+
+
+def get_ocr_download_url(website: str, ocr_model_name: str) -> str:
+    return f'{website}/{ocr_model_name}/{ocr_model_name}.zip'
+
+
+def get_final_file_list(ocr_model_name: str) -> list[str]:
+    """
+    下载成功后 整个模型的所有文件
+    :param ocr_model_name: 模型名称
+    :return:
+    """
+    base_dir = get_ocr_model_dir(ocr_model_name)
+    return [
+        os.path.join(base_dir, 'det.onnx'),
+        os.path.join(base_dir, 'rec.onnx'),
+        os.path.join(base_dir, 'cls.onnx'),
+        os.path.join(base_dir, 'ppocrv5_dict.txt'),
+        os.path.join(base_dir, 'simfang.ttf'),
+    ]
+
+
+
+class OnnxOcrMatcher(OcrMatcher, ZipDownloader):
     """
     使用onnx的ocr模型 速度更快
-    TODO 未测试使用 RGB图片是否有影响
     """
 
-    def __init__(self):
+    def __init__(self, ocr_model_name: str = DEFAULT_OCR_MODEL_NAME):
+        self.base_dir: str = get_ocr_model_dir(ocr_model_name)
         OcrMatcher.__init__(self)
+        param = CommonDownloaderParam(
+            save_file_path=self.base_dir,
+            save_file_name=f'{ocr_model_name}.zip',
+            github_release_download_url=get_ocr_download_url_github(ocr_model_name),
+            gitee_release_download_url=get_ocr_download_url_gitee(ocr_model_name),
+            mirror_chan_download_url='',
+            check_existed_list=get_final_file_list(ocr_model_name)
+        )
+        ZipDownloader.__init__(
+            self,
+            param=param,
+        )
         self._model = None
         self._loading: bool = False
 
-    def init_model(self) -> bool:
+    def init_model(
+            self,
+            download_by_github: bool = True,
+            download_by_gitee: bool = False,
+            download_by_mirror_chan: bool = False,
+            proxy_url: Optional[str] = None,
+            ghproxy_url: Optional[str] = None,
+            skip_if_existed: bool = True,
+            progress_callback: Optional[Callable[[float, str], None]] = None
+            ) -> bool:
         log.info('正在加载OCR模型')
-        while self._loading:
-            time.sleep(1)
-            return True
+
+        # 保证只有一个线程下载
+        if self._loading:
+            while self._loading:
+                time.sleep(1)
+            return self._model is not None
         self._loading = True
 
+        # 先检查模型文件和下载模型
+        done: bool = self.download(
+            download_by_github=download_by_github,
+            download_by_gitee=download_by_gitee,
+            download_by_mirror_chan=download_by_mirror_chan,
+            proxy_url=proxy_url,
+            ghproxy_url=ghproxy_url,
+            skip_if_existed=skip_if_existed,
+            progress_callback=progress_callback
+        )
+        if not done:
+            log.error('下载OCR模型失败')
+            self._loading = False
+            return False
+
+        # 加载模型
         if self._model is None:
             from onnxocr.onnx_paddleocr import ONNXPaddleOcr
-            models_dir = os_utils.get_path_under_work_dir('assets', 'models', 'onnx_ocr')
 
             try:
                 self._model = ONNXPaddleOcr(
                     use_angle_cls=False, use_gpu=False,
-                    det_model_dir=os.path.join(models_dir, 'det.onnx'),
-                    rec_model_dir=os.path.join(models_dir, 'rec.onnx'),
-                    cls_model_dir=os.path.join(models_dir, 'cls.onnx'),
-                    rec_char_dict_path=os.path.join(models_dir, 'ppocr_keys_v1.txt'),
-                    vis_font_path=os.path.join(models_dir, 'simfang.tt'),
+                    det_model_dir=os.path.join(self.base_dir, 'det.onnx'),
+                    rec_model_dir=os.path.join(self.base_dir, 'rec.onnx'),
+                    cls_model_dir=os.path.join(self.base_dir, 'cls.onnx'),
+                    rec_char_dict_path=os.path.join(self.base_dir, 'ppocrv5_dict.txt'),
+                    vis_font_path=os.path.join(self.base_dir, 'simfang.ttf'),
                 )
                 self._loading = False
                 log.info('加载OCR模型完毕')
@@ -56,7 +135,7 @@ class OnnxOcrMatcher(OcrMatcher):
         self._loading = False
         return True
 
-    def run_ocr_single_line(self, image: MatLike, threshold: float = None, strict_one_line: bool = True) -> str:
+    def run_ocr_single_line(self, image: MatLike, threshold: float = 0, strict_one_line: bool = True) -> str:
         """
         单行文本识别 手动合成一行 按匹配结果从左到右 从上到下
         理论中文情况不会出现过长分行的 这里只是为了兼容英语的情况
@@ -72,7 +151,7 @@ class OnnxOcrMatcher(OcrMatcher):
             tmp = ocr_utils.merge_ocr_result_to_single_line(ocr_map, join_space=False)
             return tmp
 
-    def run_ocr(self, image: MatLike, threshold: float = None,
+    def run_ocr(self, image: MatLike, threshold: float = 0,
                 merge_line_distance: float = -1) -> dict[str, MatchResultList]:
         """
         对图片进行OCR 返回所有匹配结果
@@ -93,7 +172,7 @@ class OnnxOcrMatcher(OcrMatcher):
             anchor_position = anchor[0]
             anchor_text = anchor[1][0]
             anchor_score = anchor[1][1]
-            if threshold is not None and anchor_score < threshold:
+            if anchor_score < threshold:
                 continue
             if anchor_text not in result_map:
                 result_map[anchor_text] = MatchResultList(only_best=False)
@@ -124,16 +203,21 @@ class OnnxOcrMatcher(OcrMatcher):
         if len(img_result) > 1:
             log.debug("禁检测的OCR模型返回多个识别结果")  # 目前没有出现这种情况
 
-        if threshold is not None and scan_result[0][1] < threshold:
+        if threshold is not None and img_result[0][1] < threshold:
             log.debug("OCR模型返回的识别结果置信度低于阈值")
             return ""
         log.debug('OCR结果 %s 耗时 %.2f', scan_result, time.time() - start_time)
         return img_result[0][0]
 
-    def match_words(self, image: MatLike, words: List[str], threshold: float = None,
-                    same_word: bool = False,
-                    ignore_case: bool = True, lcs_percent: float = -1, merge_line_distance: float = -1) -> dict[
-        str, MatchResultList]:
+    def match_words(
+            self,
+            image: MatLike, words: List[str],
+            threshold: float = None,
+            same_word: bool = False,
+            ignore_case: bool = True,
+            lcs_percent: float = -1,
+            merge_line_distance: float = -1
+    ) -> dict[str, MatchResultList]:
         """
         在图片中查找关键词 返回所有词对应的位置
         :param image: 图片
@@ -168,3 +252,17 @@ class OnnxOcrMatcher(OcrMatcher):
 
         return {key: all_match_result[key] for key in match_key if key in all_match_result}
 
+
+def __debug():
+    ocr = OnnxOcrMatcher()
+    ocr.init_model(
+        download_by_github=False,
+        download_by_gitee=True)
+    
+    from one_dragon.utils import debug_utils
+    img = debug_utils.get_debug_image('1')
+    print(ocr.run_ocr(img))
+
+
+if __name__ == '__main__':
+    __debug()

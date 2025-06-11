@@ -270,11 +270,9 @@ class ChargePlanInterface(VerticalScrollInterface):
         switch_layout.setContentsMargins(0, 0, 0, 0)
 
         self.loop_opt = SwitchSettingCard(icon=FluentIcon.SYNC, title='循环执行', content='开启时 会循环执行到体力用尽')
-        self.loop_opt.setValue(self.ctx.charge_plan_config.loop)
         self.loop_opt.value_changed.connect(lambda value: self._on_config_changed(value, 'loop'))
 
         self.skip_plan_opt = SwitchSettingCard(icon=FluentIcon.FLAG, title='跳过计划', content='开启时 自动跳过体力不足的计划')
-        self.skip_plan_opt.setValue(self.ctx.charge_plan_config.skip_plan)
         self.skip_plan_opt.value_changed.connect(lambda value: self._on_config_changed(value, 'skip_plan'))
 
         # 将两个开关添加到水平布局中
@@ -306,7 +304,6 @@ class ChargePlanInterface(VerticalScrollInterface):
         self.content_widget.add_widget(self.remove_setting_card)
 
         self.coupon_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='使用家政券', content='运行定期清剿时使用家政券')
-        self.coupon_opt.setValue(self.ctx.charge_plan_config.use_coupon)
         self.coupon_opt.value_changed.connect(lambda value: self._on_config_changed(value, 'use_coupon'))
         self.content_widget.add_widget(self.coupon_opt)
 
@@ -327,6 +324,10 @@ class ChargePlanInterface(VerticalScrollInterface):
 
     def update_plan_list_display(self):
         plan_list = self.ctx.charge_plan_config.plan_list
+
+        self.loop_opt.setValue(self.ctx.charge_plan_config.loop)
+        self.skip_plan_opt.setValue(self.ctx.charge_plan_config.skip_plan)
+        self.coupon_opt.setValue(self.ctx.charge_plan_config.use_coupon)
 
         if len(plan_list) > len(self.card_list):
             self.content_widget.remove_widget(self.plus_btn)
@@ -380,6 +381,7 @@ class ChargePlanInterface(VerticalScrollInterface):
 
     def _on_config_changed(self, new_value: bool, config_item: str) -> None:
         setattr(self.ctx.charge_plan_config, config_item, new_value)
+        self.ctx.charge_plan_config.save()
 
     def _on_remove_all_completed_clicked(self) -> None:
         dialog = Dialog('警告', '是否删除所有已完成的体力计划？', self)

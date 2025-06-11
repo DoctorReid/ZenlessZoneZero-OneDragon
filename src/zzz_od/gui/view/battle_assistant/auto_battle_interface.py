@@ -116,7 +116,7 @@ class AutoBattleInterface(AppRunInterface):
         AppRunInterface.on_interface_shown(self)
         self._update_auto_battle_config_opts()
         self.config_opt.setValue(self.ctx.battle_assistant_config.auto_battle_config)
-        self.gpu_opt.init_with_adapter(self.ctx.yolo_config.get_prop_adapter('flash_classifier_gpu'))
+        self.gpu_opt.init_with_adapter(self.ctx.model_config.get_prop_adapter('flash_classifier_gpu'))
         self.screenshot_interval_opt.setValue(str(self.ctx.battle_assistant_config.screenshot_interval))
         self.gamepad_type_opt.setValue(self.ctx.battle_assistant_config.gamepad_type)
         self.debug_btn.setText('%s %s' % (self.ctx.key_debug.upper(), '调试'))
@@ -237,6 +237,6 @@ class AutoBattleInterface(AppRunInterface):
         """
         self._update_auto_battle_config_opts()
         self.config_opt.setValue(self.ctx.battle_assistant_config.auto_battle_config)
-        self.gpu_opt.init_with_adapter(self.ctx.yolo_config.get_prop_adapter('flash_classifier_gpu'))
+        self.gpu_opt.init_with_adapter(self.ctx.model_config.get_prop_adapter('flash_classifier_gpu'))
         self.screenshot_interval_opt.setValue(str(self.ctx.battle_assistant_config.screenshot_interval))
         self.gamepad_type_opt.setValue(self.ctx.battle_assistant_config.gamepad_type)

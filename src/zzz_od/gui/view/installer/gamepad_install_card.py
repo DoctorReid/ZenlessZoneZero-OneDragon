@@ -4,6 +4,7 @@ from qfluentwidgets import FluentIcon, FluentThemeColor
 from typing import Tuple, Optional, Callable
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
+from one_dragon.envs.env_config import DEFAULT_VENV_DIR_PATH
 from one_dragon_qt.widgets.install_card.base_install_card import BaseInstallCard
 from one_dragon.utils import cmd_utils, os_utils
 from one_dragon.utils.i18_utils import gt
@@ -65,9 +66,13 @@ class GamepadInstallCard(BaseInstallCard):
         :return:
         """
         progress_callback(-1, '正在安装...安装过程可能需要安装驱动 正常安装即可')
-        result = cmd_utils.run_command([self.ctx.env_config.python_path, '-m', 'pip', 'install', '--upgrade',
+        if not self.ctx.env_config.uv_path:
+            return False, '未配置UV'
+        os.environ["VIRTUAL_ENV"] = DEFAULT_VENV_DIR_PATH
+        result = cmd_utils.run_command([self.ctx.env_config.uv_path, 'pip', 'install', '--upgrade',
                                         '-r', self.get_requirement_path(),
-                                        '--index-url', self.ctx.env_config.pip_source, '--trusted-host', self.ctx.env_config.pip_trusted_host])
+                                        '--index-url', self.ctx.env_config.pip_source,
+                                        '--trusted-host', self.ctx.env_config.pip_trusted_host])
         success = result is not None
         msg = '运行依赖安装成功' if success else '运行依赖安装失败'
         return success, msg

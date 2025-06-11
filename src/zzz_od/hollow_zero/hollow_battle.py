@@ -314,7 +314,7 @@ def __debug():
     ctx = ZContext()
     ctx.init_by_config()
     ctx.start_running()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     op = HollowBattle(ctx)
     op.execute()
 

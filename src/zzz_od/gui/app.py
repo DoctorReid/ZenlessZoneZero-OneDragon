@@ -74,7 +74,7 @@ try:
 
         # 继承初始化函数
         def init_window(self):
-            self.resize(960, 700)
+            self.resize(1050, 700)
 
             # 初始化位置
             self.move(100, 100)

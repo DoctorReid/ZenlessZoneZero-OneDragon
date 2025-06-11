@@ -74,7 +74,7 @@ class AutoBattleOperator(ConditionalOperator):
 
             self.auto_battle_context.init_battle_context(
                 auto_op=self,
-                use_gpu=self.ctx.yolo_config.flash_classifier_gpu,
+                use_gpu=self.ctx.model_config.flash_classifier_gpu,
                 check_dodge_interval=self.get('check_dodge_interval', 0.02),
                 check_agent_interval=self.get('check_agent_interval', 0.5),
                 check_chain_interval=self.get('check_chain_interval', 1),

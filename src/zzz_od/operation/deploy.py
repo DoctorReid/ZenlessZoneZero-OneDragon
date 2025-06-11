@@ -51,7 +51,7 @@ class Deploy(ZOperation):
 def __debug():
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     ctx.start_running()
     op = Deploy(ctx)
     op.execute()

@@ -1,12 +1,8 @@
-import os
 from enum import Enum
 from typing import Optional
-from qfluentwidgets import FluentIcon
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
-from one_dragon.base.config.yaml_operator import YamlOperator
-from one_dragon.utils import os_utils
 
 
 class NotifyMethodEnum(Enum):
@@ -58,11 +54,10 @@ class PushConfig(YamlConfig):
 
     def _generate_dynamic_properties(self):
         # 遍历所有配置组
-        for group_name, items in PushCard.get_configs().items():
+        for group_name, items in PushConfigNames.get_configs().items():
             group_lower = group_name.lower()
             # 遍历组内的每个配置项
-            for item in items:
-                var_suffix = item["var_suffix"]
+            for var_suffix in items:
                 var_suffix_lower = var_suffix.lower()
                 prop_name = f"{group_lower}_{var_suffix_lower}"
 
@@ -84,66 +79,33 @@ class PushConfig(YamlConfig):
                 )
                 setattr(PushConfig, prop_name, prop)
 
-class PushCard:
-    _configs = None
-    _yaml_path = os.path.join(
-                os_utils.get_path_under_work_dir('src', 'one_dragon', 'base', 'config'),
-                'push_cards.yml'
-            )
-
-    @classmethod
-    def load_configs(cls):
-        if cls._configs is None:
-            if os.path.exists(cls._yaml_path):
-                raw = YamlOperator(cls._yaml_path).data or {}
-                # icon 字段转为 FluentIcon
-                for group, items in raw.items():
-                    for item in items:
-                        icon_name = item.get("icon")
-                        if icon_name and hasattr(FluentIcon, icon_name):
-                            item["icon"] = getattr(FluentIcon, icon_name)
-                cls._configs = raw
-            else:
-                cls._configs = {}
-        return cls._configs
+class PushConfigNames:
+    # 推送配置项名称定义，用于动态生成PushConfig属性
+    push_config_names = {
+    "BARK": ["PUSH","DEVICE_KEY","ARCHIVE","GROUP","SOUND","ICON","LEVEL","URL"],
+    "DD_BOT": ["SECRET","TOKEN"],
+    "FS": ["KEY"],
+    "ONEBOT": ["URL","USER","GROUP","TOKEN"],
+    "GOTIFY": ["URL","TOKEN","PRIORITY"],
+    "IGOT": ["PUSH_KEY"],
+    "SERVERCHAN": ["PUSH_KEY"],
+    "DEER": ["KEY","URL"],
+    "CHAT": ["URL","TOKEN"],
+    "PUSH_PLUS": ["TOKEN","USER","TEMPLATE","CHANNEL","WEBHOOK","CALLBACKURL","TO"],
+    "WE_PLUS_BOT": ["TOKEN","RECEIVER","VERSION"],
+    "QMSG": ["KEY","TYPE"],
+    "QYWX": ["ORIGIN","AM","KEY"],
+    "DISCORD": ["BOT_TOKEN","USER_ID"],
+    "TG": ["BOT_TOKEN","USER_ID","PROXY_HOST","PROXY_PORT","PROXY_AUTH","API_HOST"],
+    "AIBOTK": ["KEY","TYPE","NAME"],
+    "SMTP": ["SERVER","SSL","EMAIL","PASSWORD","NAME"],
+    "PUSHME": ["KEY","URL"],
+    "CHRONOCAT": ["QQ","TOKEN","URL"],
+    "WEBHOOK": ["URL","BODY","HEADERS","METHOD","CONTENT_TYPE"],
+    "NTFY": ["URL","TOPIC","PRIORITY"],
+    "WXPUSHER": ["APP_TOKEN","TOPIC_IDS","UIDS"]
+    }
 
     @classmethod
     def get_configs(cls):
-        return cls.load_configs()
-
-class EmailServiceConfig:
-    _services = None
-    _yaml_path =os.path.join(
-                os_utils.get_path_under_work_dir('src', 'one_dragon', 'base', 'config'),
-                'push_email_services.yml'
-            )
-
-    @classmethod
-    def load_services(cls):
-        if cls._services is None:
-            if os.path.exists(cls._yaml_path):
-                cls._services = YamlOperator(cls._yaml_path).data or {}
-            else:
-                cls._services = {}
-        return cls._services
-
-    @classmethod
-    def get_configs(cls, keyword: str):
-        """
-        根据关键词、别名、域名查找邮箱服务配置。
-        :param keyword: 用户输入的邮箱服务关键字（如 qq/gmail/163/域名等）
-        :return: 匹配到的邮箱服务配置 dict 或 None
-        """
-        services = cls.load_services()
-        key = keyword.strip().lower()
-        for service_name, config in services.items():
-            # 关键词匹配
-            if key == service_name.lower():
-                return config
-            # 匹配别名
-            if "aliases" in config and key in [alias.lower() for alias in config["aliases"]]:
-                return config
-            # 匹配域名
-            if "domains" in config and key in [domain.lower() for domain in config["domains"]]:
-                return config
-        return None
+        return cls.push_config_names

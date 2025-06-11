@@ -5,7 +5,11 @@ a = Analysis(
     ['..\\src\\zzz_od\\gui\\zzz_installer.py'],
     pathex=[],
     binaries=[],
-    datas=[('../config/project.yml', 'config')],
+    datas=[
+        ('../config/project.yml', 'resources/config'),
+        ('../assets/text', 'resources/assets/text'),
+        ('../assets/ui', 'resources/assets/ui')
+    ],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -35,6 +39,6 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    uac_admin=True,
+    uac_admin=False,
     icon=['..\\assets\\ui\\installer_logo.ico'],
 )

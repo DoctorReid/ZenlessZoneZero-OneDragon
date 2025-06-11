@@ -7,6 +7,7 @@ from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterf
 from one_dragon_qt.widgets.log_display_card import LogDisplayCard
 from one_dragon.utils.i18_utils import gt
 from zzz_od.gui.view.installer.gamepad_install_card import GamepadInstallCard
+from zzz_od.gui.view.installer.uv_gamepad_install_card import UVGamepadInstallCard
 
 
 class ExtendInstallInterface(VerticalScrollInterface):
@@ -30,10 +31,12 @@ class ExtendInstallInterface(VerticalScrollInterface):
         self.progress_bar_2.setVisible(False)
         v_layout.addWidget(self.progress_bar_2)
 
-        self.gamepad_opt = GamepadInstallCard(self.ctx)
+        # self.gamepad_opt = GamepadInstallCard(self.ctx)
+        self.uv_gamepad_opt = UVGamepadInstallCard(self.ctx)
 
         update_group = SettingCardGroup(gt('运行环境', 'ui'))
-        update_group.addSettingCard(self.gamepad_opt)
+        # update_group.addSettingCard(self.gamepad_opt)
+        update_group.addSettingCard(self.uv_gamepad_opt)
 
         v_layout.addWidget(update_group)
 
@@ -50,7 +53,8 @@ class ExtendInstallInterface(VerticalScrollInterface):
         :return:
         """
         VerticalScrollInterface.on_interface_shown(self)
-        self.gamepad_opt.check_and_update_display()
+        # self.gamepad_opt.check_and_update_display()
+        self.uv_gamepad_opt.check_and_update_display()
         self.log_card.start()
 
     def on_interface_hidden(self) -> None:
@@ -77,4 +81,3 @@ class ExtendInstallInterface(VerticalScrollInterface):
             self.progress_bar.setVal(progress)
             self.progress_bar_2.setVisible(False)
             self.progress_bar_2.stop()
-

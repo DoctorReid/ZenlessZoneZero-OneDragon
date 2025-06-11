@@ -2,13 +2,15 @@ name: mirrorchyan_uploading
 
 on:
   workflow_dispatch:
-  release:
-    types: [released]
+  workflow_run:
+    workflows: ["Build and Release"]
+    types:
+      - completed
 
 jobs:
-
   mirrorchyan:
     runs-on: macos-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: MirrorChyan/uploading-action@v1
         with:

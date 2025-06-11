@@ -1,0 +1,278 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Create a release with current build'
+        required: true
+        default: false
+        type: boolean
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python 3.11.9
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11.9'
+
+    - name: Install uv
+      shell: pwsh
+      run: |
+        Invoke-WebRequest -Uri https://astral.sh/uv/install.ps1 -OutFile install.ps1
+        .\install.ps1
+
+    - name: Create and activate virtual environment
+      shell: pwsh
+      run: |
+        uv venv zzz-od --python=3.11.9
+
+    - name: Install dependencies
+      shell: pwsh
+      run: |
+        .\zzz-od\Scripts\Activate.ps1
+        uv pip install -r requirements-dev.txt
+        uv pip install -r requirements-dev-ext.txt
+        uv pip compile --annotation-style=line --output-file=requirements-prod.txt requirements-dev.txt
+        uv pip install -r requirements-prod.txt
+
+    - name: Download and extract UPX into venv Scripts
+      shell: pwsh
+      run: |
+        $venvScripts = ".\zzz-od\Scripts"
+        $upxDir = Join-Path $venvScripts "upx"
+        $sourceUpxPath = Join-Path $upxDir "upx-4.2.3-win64" "upx.exe"
+        $destinationUpxPath = Join-Path $venvScripts "upx.exe"
+        $zipPath = "upx.zip"
+
+        Invoke-WebRequest -Uri "https://github.com/upx/upx/releases/download/v4.2.3/upx-4.2.3-win64.zip" -OutFile $zipPath
+        Expand-Archive -Path $zipPath -DestinationPath $upxDir -Force
+        Move-Item -Path $sourceUpxPath -Destination $destinationUpxPath -Force
+        Remove-Item -Path $upxDir -Recurse -Force
+
+    - name: Build executables
+      shell: pwsh
+      run: |
+        .\zzz-od\Scripts\Activate.ps1
+        cd deploy
+        pyinstaller "OneDragon Installer.spec"
+        pyinstaller "OneDragon Launcher.spec"
+        pyinstaller "OneDragon Scheduler.spec"
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: executables
+        path: |
+          deploy/dist/OneDragon Installer.exe
+          deploy/dist/OneDragon Launcher.exe
+          deploy/dist/OneDragon Scheduler.exe
+
+  release:
+    needs: build
+    if: ${{ (github.event_name == 'workflow_dispatch' && inputs.create_release == true) || startsWith(github.ref, 'refs/tags/') }}
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Get version
+      id: get_version
+      shell: pwsh
+      run: |
+        if ($env:GITHUB_REF -like 'refs/tags/*') {
+          $version = $env:GITHUB_REF.Substring(10)
+          $tag = $version
+        } else {
+          $date = (Get-Date).ToUniversalTime().AddHours(8).ToString('yyyy.MMdd.HHmm')
+          $tag = "$date"
+          $version = $tag
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git tag $tag
+          git push origin $tag
+        }
+        echo "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        echo "tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: executables
+        path: deploy/dist
+
+    - name: Prepare release directory and models
+      shell: pwsh
+      run: |
+        function Expand-ZipIntoNamedFolder {
+            param (
+                [string]$url,
+                [string]$downloadPath,
+                [string]$destRoot,
+                [string]$folderName
+            )
+            Invoke-WebRequest -Uri $url -OutFile $downloadPath
+            $targetPath = Join-Path $destRoot $folderName
+            New-Item -ItemType Directory -Path $targetPath -Force
+            Expand-Archive -Path $downloadPath -DestinationPath $targetPath -Force
+        }
+
+        $distDir = "deploy/dist"
+        $rootDir = "$distDir/ZenlessZoneZero-OneDragon"
+        New-Item -ItemType Directory -Path $rootDir -Force
+
+        # .install
+        $envDir = "$rootDir/.install"
+        New-Item -ItemType Directory -Path $envDir -Force
+        Invoke-WebRequest -Uri "https://github.com/OneDragon-Anything/OneDragon-Env/releases/download/ZenlessZoneZero-OneDragon/uv-x86_64-pc-windows-msvc.zip" -OutFile "$envDir/uv-x86_64-pc-windows-msvc.zip"
+        Invoke-WebRequest -Uri "https://github.com/OneDragon-Anything/OneDragon-Env/releases/download/ZenlessZoneZero-OneDragon/MinGit.zip" -OutFile "$envDir/MinGit.zip"
+
+        # artifact
+        Copy-Item "$distDir/OneDragon Installer.exe" -Destination $rootDir -Force
+        Copy-Item "$distDir/OneDragon Launcher.exe" -Destination $rootDir -Force
+        Copy-Item "$distDir/OneDragon Scheduler.exe" -Destination $rootDir -Force
+
+        # assets
+        Copy-Item "assets/text" -Destination "$rootDir/assets/text" -Recurse -Force
+        Copy-Item "assets/ui" -Destination "$rootDir/assets/ui" -Recurse -Force
+
+        # model route
+        $modelBase = "$rootDir/assets/models"
+        New-Item -ItemType Directory -Path "$modelBase/onnx_ocr" -Force
+        New-Item -ItemType Directory -Path "$modelBase/flash_classifier" -Force
+        New-Item -ItemType Directory -Path "$modelBase/hollow_zero_event" -Force
+        New-Item -ItemType Directory -Path "$modelBase/lost_void_det" -Force
+
+        # model name
+        $tempDir = "temp_models"
+        New-Item -ItemType Directory -Path $tempDir -Force
+
+        Expand-ZipIntoNamedFolder `
+          -url "https://github.com/OneDragon-Anything/OneDragon-Env/releases/download/ppocrv5/ppocrv5.zip" `
+          -downloadPath "$tempDir/ppocrv5.zip" `
+          -destRoot "$modelBase/onnx_ocr" `
+          -folderName "ppocrv5"
+
+        Expand-ZipIntoNamedFolder `
+          -url "https://github.com/OneDragon-Anything/OneDragon-YOLO/releases/download/zzz_model/yolov8n-640-flash-0127.zip" `
+          -downloadPath "$tempDir/flash.zip" `
+          -destRoot "$modelBase/flash_classifier" `
+          -folderName "yolov8n-640-flash-0127"
+
+        Expand-ZipIntoNamedFolder `
+          -url "https://github.com/OneDragon-Anything/OneDragon-YOLO/releases/download/zzz_model/yolov8s-736-hollow-zero-event-0126.zip" `
+          -downloadPath "$tempDir/hollow.zip" `
+          -destRoot "$modelBase/hollow_zero_event" `
+          -folderName "yolov8s-736-hollow-zero-event-0126"
+
+        Expand-ZipIntoNamedFolder `
+          -url "https://github.com/OneDragon-Anything/OneDragon-YOLO/releases/download/zzz_model/yolov8n-736-lost-void-det-0125.zip" `
+          -downloadPath "$tempDir/lost.zip" `
+          -destRoot "$modelBase/lost_void_det" `
+          -folderName "yolov8n-736-lost-void-det-0125"
+
+        Remove-Item -Path $tempDir -Recurse -Force
+
+        # tree $rootDir /f > "$distDir/directory-structure.txt"
+
+        # version
+        $version = "${{ steps.get_version.outputs.version }}"
+
+        # Pack Full
+        Compress-Archive -Path "$rootDir\*" -DestinationPath "$distDir/ZenlessZoneZero-OneDragon-$version-Full.zip" -Force
+
+        # Pack Update
+        Compress-Archive -Path @(
+          "$rootDir/OneDragon Installer.exe",
+          "$rootDir/OneDragon Launcher.exe",
+          "$rootDir/OneDragon Scheduler.exe"
+        ) -DestinationPath "$distDir/ZenlessZoneZero-OneDragon-$version-Update.zip" -Force
+
+        # Pack Launcher
+        Compress-Archive -Path @(
+          "$rootDir/OneDragon Launcher.exe",
+          "$rootDir/OneDragon Scheduler.exe"
+        ) -DestinationPath "$distDir/ZenlessZoneZero-OneDragon-Launcher.zip" -Force
+        
+        # Copy Installer
+        Copy-Item "$rootDir/OneDragon Installer.exe" -Destination "$distDir/ZenlessZoneZero-OneDragon-$version-Installer.exe" -Force
+
+    - name: Generate Changelog
+      id: changelog
+      shell: pwsh
+      run: |
+        $changelog_content = ""
+        $current_version_tag = "${{ steps.get_version.outputs.tag }}" # Tag from get_version step
+
+        if ($env:GITHUB_REF -like 'refs/tags/*') {
+          # This is a release triggered by a tag
+          # Attempt to find the latest tag on the parent of the current tag's commit
+          $previous_tag_candidate = $(git describe --tags --abbrev=0 "$current_version_tag^" 2>$null)
+          if ($previous_tag_candidate) {
+            Write-Host "Generating changelog from $previous_tag_candidate to $current_version_tag"
+            $changelog_content = git log --pretty=format:"- %s (%h)" "$previous_tag_candidate..$current_version_tag"
+          } else {
+            Write-Host "No previous tag found relative to $current_version_tag^. Listing last 10 commits for $current_version_tag."
+            # This could be the first tag. List commits leading to it.
+            $changelog_content = git log --pretty=format:"- %s (%h)" -n 10 "$current_version_tag"
+          }
+        } else {
+          # This is a manual workflow_dispatch or a push to a branch
+          Write-Host "Manual or branch build. Listing last 5 commits from HEAD."
+          $changelog_content = git log --pretty=format:"- %s (%h)" -n 5 HEAD
+        }
+
+        # Convert array from git log to a single string, trim whitespace
+        $changelog_content = ($changelog_content | Out-String).Trim()
+
+        if ([string]::IsNullOrWhiteSpace($changelog_content)) {
+          $changelog_content = "No new changes or unable to determine changelog."
+        }
+
+        $output_name = "clean_changelog"
+        $delimiter = "CHANGELOG_DELIMITER_$(New-Guid)"
+
+        echo "$output_name<<$delimiter" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        echo $changelog_content | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        echo $delimiter | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.get_version.outputs.tag }}
+        name: "Release ${{ steps.get_version.outputs.version }}"
+        body: |
+          # 安装方式
+
+          - 如果你是第一次安装，下载 `ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Full.zip` ，解压后运行 `OneDragon Installer.exe`。
+          - 如果你已经安装过了，下载 `ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Update.zip` 解压后复制到你原来的文件夹中覆盖即可。
+          - __不要下载Source Code__
+
+          安装前请查看 [安装指南](https://onedragon-anything.github.io/zzz/zh/quickstart.html)  
+          若运行出错请查看 [自助排障指南](https://www.kdocs.cn/l/cbSJUUNotJ3Z)
+
+          # 更新内容
+
+          ${{ steps.changelog.outputs.clean_changelog }}
+        files: |
+          deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Installer.exe
+          deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Full.zip
+          deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Update.zip
+          deploy/dist/ZenlessZoneZero-OneDragon-Launcher.zip
+          deploy/dist/directory-structure.txt
+        generate_release_notes: false
+        prerelease: ${{ github.event_name == 'workflow_dispatch' }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

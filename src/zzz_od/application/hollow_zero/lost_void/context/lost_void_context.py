@@ -16,6 +16,7 @@ from zzz_od.application.hollow_zero.lost_void.context.lost_void_artifact import 
 from zzz_od.application.hollow_zero.lost_void.context.lost_void_detector import LostVoidDetector
 from zzz_od.application.hollow_zero.lost_void.lost_void_challenge_config import LostVoidRegionType, \
     LostVoidChallengeConfig
+from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_artifact_pos import LostVoidArtifactPos
 from zzz_od.application.hollow_zero.lost_void.operation.lost_void_move_by_det import MoveTargetWrapper
 from zzz_od.auto_battle.auto_battle_dodge_context import YoloStateEventEnum
 from zzz_od.auto_battle.auto_battle_operator import AutoBattleOperator
@@ -64,11 +65,11 @@ class LostVoidContext:
             self.cate_2_artifact[artifact.category].append(artifact)
 
     def init_lost_void_det_model(self):
-        use_gpu = self.ctx.yolo_config.lost_void_det_gpu
+        use_gpu = self.ctx.model_config.lost_void_det_gpu
         if self.detector is None or self.detector.gpu != use_gpu:
             self.detector = LostVoidDetector(
-                model_name=self.ctx.yolo_config.lost_void_det,
-                backup_model_name=self.ctx.yolo_config.lost_void_det_backup,
+                model_name=self.ctx.model_config.lost_void_det,
+                backup_model_name=self.ctx.model_config.lost_void_det_backup,
                 gh_proxy=self.ctx.env_config.is_gh_proxy,
                 gh_proxy_url=self.ctx.env_config.gh_proxy_url if self.ctx.env_config.is_gh_proxy else None,
                 personal_proxy=self.ctx.env_config.personal_proxy if self.ctx.env_config.is_personal_proxy else None,
@@ -295,10 +296,10 @@ class LostVoidContext:
 
         return filter_result_list, error_msg
 
-    def get_artifact_by_priority(self, artifact_list: List[MatchResult], choose_num: int,
+    def get_artifact_by_priority(self, artifact_list: List[LostVoidArtifactPos], choose_num: int,
                                  consider_priority_1: bool = True, consider_priority_2: bool = True,
                                  consider_not_in_priority: bool = True,
-                                 ignore_idx_list: Optional[list[int]] = None) -> List[MatchResult]:
+                                 ignore_idx_list: Optional[list[int]] = None) -> List[LostVoidArtifactPos]:
         """
         根据优先级 返回需要选择的藏品
         :param artifact_list: 识别到的藏品结果
@@ -334,7 +335,7 @@ class LostVoidContext:
                         if ignore_idx_list is not None and idx in ignore_idx_list:  # 需要忽略的下标
                             continue
 
-                        artifact: LostVoidArtifact = artifact_list[idx].data
+                        artifact: LostVoidArtifact = artifact_list[idx].artifact
 
                         if artifact.level != target_level:
                             continue
@@ -367,19 +368,19 @@ class LostVoidContext:
                     if idx in priority_idx_list:  # 已经加入过了
                         continue
 
-                    artifact: LostVoidArtifact = artifact_list[idx].data
+                    artifact: LostVoidArtifact = artifact_list[idx].artifact
 
                     if artifact.level == level:
                         priority_idx_list.append(idx)
 
-        result_list: List[MatchResult] = []
+        result_list: List[LostVoidArtifactPos] = []
         for i in range(choose_num):
             if i >= len(priority_idx_list):
                 continue
             result_list.append(artifact_list[priority_idx_list[i]])
 
         log.info(f'当前考虑优先级 数量={choose_num} 第一优先级={consider_priority_1} 第二优先级={consider_priority_2} 其他={consider_not_in_priority}')
-        display_text = ','.join([i.data.display_name for i in result_list]) if len(result_list) > 0 else '无'
+        display_text = ','.join([i.artifact.display_name for i in result_list]) if len(result_list) > 0 else '无'
         log.info(f'当前符合优先级列表 {display_text}')
 
         return result_list

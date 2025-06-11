@@ -1,8 +1,8 @@
 import time
+from typing import ClassVar, Optional, List
 
 import cv2
 from cv2.typing import MatLike
-from typing import ClassVar, Optional, List
 
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.operation.operation import Operation
@@ -20,9 +20,6 @@ from zzz_od.application.hollow_zero.lost_void.lost_void_challenge_config import 
 from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_bangboo_store import LostVoidBangbooStore
 from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_choose_common import LostVoidChooseCommon
 from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_choose_gear import LostVoidChooseGear
-from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_choose_no_detail import \
-    LostVoidChooseNoDetail
-from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_choose_no_num import LostVoidChooseNoNum
 from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_interact_target_const import \
     match_interact_target, LostVoidInteractTarget, LostVoidInteractNPC
 from zzz_od.application.hollow_zero.lost_void.operation.interact.lost_void_lottery import LostVoidLottery
@@ -104,7 +101,7 @@ class LostVoidRunLevel(ZOperation):
         # 2. 有战略可以导致进入新一层时获取战利品
         # 因此在加载这里判断是否有奖励需要选择
         possible_screen_name_list = [
-            '迷失之地-武备选择', '迷失之地-通用选择', '迷失之地-无详情选择', '迷失之地-无数量选择'
+            '迷失之地-武备选择', '迷失之地-通用选择',
         ]
         screen_name = self.check_and_update_current_screen(screen, screen_name_list=possible_screen_name_list)
         if screen_name is not None:
@@ -324,8 +321,6 @@ class LostVoidRunLevel(ZOperation):
     @node_from(from_name='等待加载', status='识别正在交互')
     @node_from(from_name='尝试交互', status='交互成功')
     @node_from(from_name='战斗中', status='识别正在交互')
-    @node_from(from_name='交互处理', status='迷失之地-通用选择')  # 可能判断错误画面 在LostVoidChooseNoDetail中返回正确画面重新进行判断 #869
-    @node_from(from_name='交互后处理', status='迷失之地-通用选择')  # 可能判断错误画面 在LostVoidChooseNoDetail中返回正确画面重新进行判断 #869
     @operation_node(name='交互处理')
     def handle_interact(self) -> OperationRoundResult:
         """
@@ -337,17 +332,23 @@ class LostVoidRunLevel(ZOperation):
         """
         screen = self.screenshot()
 
-        screen_name = self.check_and_update_current_screen(screen)
+        screen_name = self.check_and_update_current_screen(
+            screen,
+            screen_name_list=[
+                '迷失之地-武备选择',
+                '迷失之地-通用选择',
+                '迷失之地-邦布商店',
+                '迷失之地-路径迭换',
+                '迷失之地-抽奖机',
+                '迷失之地-大世界'
+            ]
+        )
         interact_op: Optional[ZOperation] = None
         interact_type: Optional[str] = None
         if screen_name == '迷失之地-武备选择':
             interact_op = LostVoidChooseGear(self.ctx)
         elif screen_name == '迷失之地-通用选择':
             interact_op = LostVoidChooseCommon(self.ctx)
-        elif screen_name == '迷失之地-无详情选择':
-            interact_op = LostVoidChooseNoDetail(self.ctx)
-        elif screen_name == '迷失之地-无数量选择':
-            interact_op = LostVoidChooseNoNum(self.ctx)
         elif screen_name == '迷失之地-邦布商店':
             interact_type = '邦布商店'
             interact_op = LostVoidBangbooStore(self.ctx)
@@ -616,20 +617,20 @@ class LostVoidRunLevel(ZOperation):
                 or (self.no_in_battle_times > 0 and screenshot_time - self.last_check_finish_time >= 0.1)  # 之前也识别到脱离战斗 0.1秒识别一次
             ):
                 self.last_check_finish_time = screenshot_time
-                possible_screen_name_list = [
-                    '迷失之地-武备选择', '迷失之地-通用选择', '迷失之地-无详情选择', '迷失之地-无数量选择',
+                no_in_battle_screen_name_list = [
+                    '迷失之地-武备选择', '迷失之地-通用选择',
                     '迷失之地-挑战结果',
-                    '迷失之地-大世界',  # 有可能是之前交互识别错了 认为进入了战斗楼层 实际上没有交互
                     '迷失之地-战斗失败'
                 ]
-                screen_name = self.check_and_update_current_screen(screen, possible_screen_name_list)
-                if screen_name in possible_screen_name_list:
+                screen_name = self.check_and_update_current_screen(screen, no_in_battle_screen_name_list)
+                if screen_name in no_in_battle_screen_name_list:
                     self.no_in_battle_times += 1
                 else:
                     self.no_in_battle_times = 0
 
                 if self.no_in_battle_times >= 10:
                     auto_battle_utils.stop_running(self.auto_op)
+                    self.no_in_battle_times = 0
 
                     if screen_name == '迷失之地-战斗失败':
                         return self.round_success(screen_name)
@@ -727,10 +728,10 @@ def __debug():
     ctx = ZContext()
     ctx.init_by_config()
     ctx.lost_void.init_before_run()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     ctx.start_running()
 
-    op = LostVoidRunLevel(ctx, LostVoidRegionType.BOSS)
+    op = LostVoidRunLevel(ctx, LostVoidRegionType.ELITE)
     op.execute()
 
 

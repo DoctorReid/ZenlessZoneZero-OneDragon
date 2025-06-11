@@ -1,4 +1,5 @@
 from cv2.typing import MatLike
+from typing import Optional, Callable
 
 from one_dragon.base.matcher.match_result import MatchResultList
 
@@ -8,7 +9,16 @@ class OcrMatcher:
     def __init__(self):
         pass
 
-    def init_model(self) -> bool:
+    def init_model(
+            self,
+            download_by_github: bool = True,
+            download_by_gitee: bool = False,
+            download_by_mirror_chan: bool = False,
+            proxy_url: Optional[str] = None,
+            ghproxy_url: Optional[str] = None,
+            skip_if_existed: bool = True,
+            progress_callback: Optional[Callable[[float, str], None]] = None
+    ) -> bool:
         pass
 
     def run_ocr_single_line(self, image: MatLike, threshold: float = None, strict_one_line: bool = True) -> str:

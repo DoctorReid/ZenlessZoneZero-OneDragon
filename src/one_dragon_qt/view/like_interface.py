@@ -22,12 +22,12 @@ class LikeInterface(VerticalScrollInterface):
         content = Column()
 
         star_opt = HyperlinkCard(icon=FluentIcon.HOME, title='Star', text='前往',
-                                 content='Github主页右上角点一个星星是最简单直接的',
+                                 content='GitHub主页右上角点一个星星是最简单直接的',
                                  url=self.ctx.project_config.github_homepage)
         content.add_widget(star_opt)
 
-        help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='访问Github指南', text='前往',
-                                 content='没法访问Github可以查看帮助文档',
+        help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='访问GitHub指南', text='前往',
+                                 content='没法访问GitHub可以查看帮助文档',
                                  url='https://onedragon-anything.github.io/other/zh/visit_github.html')
         content.add_widget(help_opt)
 

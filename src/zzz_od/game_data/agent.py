@@ -12,6 +12,7 @@ class AgentTypeEnum(Enum):
     SUPPORT = '支援'
     DEFENSE = '防护'
     ANOMALY = '异常'
+    RUPTURE = '命破'
     UNKNOWN = '未知'
 
     @classmethod
@@ -82,6 +83,8 @@ class AgentStateDef:
                  template_id: str,
                  lower_color: Union[MatLike, Tuple, int] = None,
                  upper_color: Union[MatLike, Tuple, int] = None,
+                 hsv_color: Union[MatLike, Tuple, int] = None,
+                 hsv_color_diff: Union[MatLike, Tuple, int] = None,
                  connect_cnt: Optional[int] = None,
                  split_color_range: Optional[List[Union[MatLike, int]]] = None,
                  max_length: int = 100,
@@ -93,9 +96,14 @@ class AgentStateDef:
         self.check_way: AgentStateCheckWay = check_way
         self.should_check_in_battle: bool = True  # 是否需要在战斗中检测 自动战斗开始前进行初始化
 
-        # 需要匹配的颜色范围
+        # 需要匹配的颜色范围RGB
         self.lower_color: Union[MatLike, int] = lower_color
         self.upper_color: Union[MatLike, int] = upper_color
+
+        # 需要匹配的颜色范围HVS
+        self.hsv_color: Union[MatLike, int] = hsv_color
+        self.hsv_color_diff: Union[MatLike, int] = hsv_color_diff
+
         # 匹配用于分割的颜色范围 类似能量条的中间有空白时使用
         self.split_color_range: Optional[List[Union[MatLike, int]]] = split_color_range
 
@@ -135,30 +143,34 @@ class CommonAgentStateEnum(Enum):
                               lower_color=90, upper_color=255, template_id='energy_2_2',
                               split_color_range=[0, 30], max_length=120)
 
-    SPECIAL_31 = AgentStateDef('前台-特殊技可用', AgentStateCheckWay.TEMPLATE_FOUND,
-                               template_id='special_3_1', template_threshold=0.9)
+    SPECIAL_31 = AgentStateDef('前台-特殊技可用', AgentStateCheckWay.COLOR_RANGE_CONNECT,
+                               template_id='special_3_1', hsv_color=(0, 0, 255), hsv_color_diff=(90, 255, 50),
+                                     connect_cnt=200)
     SPECIAL_32 = AgentStateDef('后台-1-特殊技可用', AgentStateCheckWay.COLOR_CHANNEL_MAX_RANGE_EXIST,
                                template_id='energy_3_2', min_value_trigger_state=0,  # 不存在的时候 也需要触发一个清除
                                lower_color=150, upper_color=255, connect_cnt=10)
     SPECIAL_33 = AgentStateDef('后台-2-特殊技可用', AgentStateCheckWay.COLOR_CHANNEL_MAX_RANGE_EXIST,
                                template_id = 'energy_3_3', min_value_trigger_state=0,  # 不存在的时候 也需要触发一个清除
                                lower_color=150, upper_color=255, connect_cnt=10)
-    SPECIAL_21 = AgentStateDef('前台-特殊技可用', AgentStateCheckWay.TEMPLATE_FOUND,
-                               template_id='special_3_1', template_threshold=0.9)
+    SPECIAL_21 = AgentStateDef('前台-特殊技可用', AgentStateCheckWay.COLOR_RANGE_CONNECT,
+                               template_id='special_3_1', hsv_color=(0, 0, 255), hsv_color_diff=(90, 255, 50),
+                                     connect_cnt=200)
     SPECIAL_22 = AgentStateDef('后台-1-特殊技可用', AgentStateCheckWay.COLOR_CHANNEL_MAX_RANGE_EXIST,
                                template_id='energy_2_2', min_value_trigger_state=0,  # 不存在的时候 也需要触发一个清除
                                lower_color=150, upper_color=255, connect_cnt=10)
 
-    ULTIMATE_31 = AgentStateDef('前台-终结技可用', AgentStateCheckWay.TEMPLATE_FOUND,
-                                template_id='ultimate_3_1', template_threshold=0.9)
+    ULTIMATE_31 = AgentStateDef('前台-终结技可用', AgentStateCheckWay.COLOR_RANGE_CONNECT,
+                                template_id='ultimate_3_1', hsv_color=(0, 0, 255), hsv_color_diff=(90, 255, 50),
+                                     connect_cnt=1000)
     ULTIMATE_32 = AgentStateDef('后台-1-终结技可用', AgentStateCheckWay.COLOR_RANGE_EXIST,
                                 template_id='ultimate_3_2', min_value_trigger_state=0,  # 不存在的时候 也需要触发一个清除
                                 lower_color=(250, 150, 20), upper_color=(255, 255, 70), connect_cnt=5)
     ULTIMATE_33 = AgentStateDef('后台-2-终结技可用', AgentStateCheckWay.COLOR_RANGE_EXIST,
                                 template_id='ultimate_3_3', min_value_trigger_state=0,  # 不存在的时候 也需要触发一个清除
                                 lower_color=(250, 150, 20), upper_color=(255, 255, 70), connect_cnt=5)
-    ULTIMATE_21 = AgentStateDef('前台-终结技可用', AgentStateCheckWay.TEMPLATE_FOUND,
-                                template_id='ultimate_3_1', template_threshold=0.9)
+    ULTIMATE_21 = AgentStateDef('前台-终结技可用', AgentStateCheckWay.COLOR_RANGE_CONNECT,
+                                template_id='ultimate_3_1', hsv_color=(0, 0, 255), hsv_color_diff=(90, 255, 50),
+                                     connect_cnt=1000)
     ULTIMATE_22 = AgentStateDef('后台-1-终结技可用', AgentStateCheckWay.COLOR_RANGE_EXIST,
                                 template_id='ultimate_2_2', min_value_trigger_state=0,  # 不存在的时候 也需要触发一个清除
                                 lower_color=(250, 150, 20), upper_color=(255, 255, 70), connect_cnt=5)
@@ -299,3 +311,19 @@ class AgentEnum(Enum):
                                     'vivian_master_2', lower_color=(170, 170, 200), upper_color=(255, 255, 255),
                                     connect_cnt=5)
                     ])
+
+    HUGO_VLAD = Agent('hugo_vlad', '雨果', RareTypeEnum.S, AgentTypeEnum.ATTACK, DmgTypeEnum.ICE, ['hugo_vlad'])
+
+    YIXUAN = Agent('yixuan', '仪玄', RareTypeEnum.S, AgentTypeEnum.RUPTURE, DmgTypeEnum.ETHER, ['yixuan', 'yixuan_trails_of_ink'],
+                   state_list=[
+                       AgentStateDef('仪玄-玄墨值', AgentStateCheckWay.COLOR_RANGE_CONNECT,
+                                     template_id='yixuan_auric_Ink',
+                                     hsv_color=(20, 127, 255), hsv_color_diff=(15, 128, 50),
+                                     connect_cnt=10, min_value_trigger_state=0),
+                       AgentStateDef('仪玄-法术值', AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH,
+                                     template_id='yixuan_technique',
+                                     hsv_color=(30, 127, 255), hsv_color_diff=(20, 128, 50),
+                                     max_length=120)
+                   ])
+
+    PANYINHU = Agent('panyinhu', '潘引壶', RareTypeEnum.A, AgentTypeEnum.DEFENSE, DmgTypeEnum.PHYSICAL, ['panyinhu'])

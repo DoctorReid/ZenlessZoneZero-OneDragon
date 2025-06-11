@@ -50,7 +50,7 @@ def __debug_opts():
     from zzz_od.context.zzz_context import ZContext
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     from zzz_od.hollow_zero.hollow_runner import HollowRunner
     op = HollowRunner(ctx)
     from one_dragon.utils import debug_utils

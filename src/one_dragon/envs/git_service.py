@@ -4,13 +4,11 @@ import os
 import shutil
 from typing import Optional, Callable, List, Tuple
 
-from one_dragon.envs.env_config import DEFAULT_ENV_PATH, DEFAULT_GIT_DIR_PATH, ProxyTypeEnum, EnvConfig, \
-    RepositoryTypeEnum, GitMethodEnum
+from one_dragon.envs.env_config import DEFAULT_ENV_PATH, DEFAULT_GIT_DIR_PATH, EnvConfig, RepositoryTypeEnum, GitMethodEnum
 from one_dragon.envs.project_config import ProjectConfig
+from one_dragon.envs.download_service import DownloadService
 from one_dragon.utils import http_utils, cmd_utils, file_utils, os_utils
 from one_dragon.utils.log_utils import log
-
-GITHUB_ENV_DOWNLOAD_PREFIX = 'https://github.com/DoctorReid/OneDragon-Env/releases/download'
 DOT_GIT_DIR_PATH = os.path.join(os_utils.get_work_dir(), '.git')
 
 
@@ -26,30 +24,12 @@ class GitLog:
 
 class GitService:
 
-    def __init__(self, project_config: ProjectConfig, env_config: EnvConfig):
+    def __init__(self, project_config: ProjectConfig, env_config: EnvConfig, download_service: DownloadService):
         self.project_config: ProjectConfig = project_config
         self.env_config: EnvConfig = env_config
+        self.download_service: DownloadService = download_service
 
         self.is_proxy_set: bool = False  # 是否已经设置代理了
-
-    def download_env_file(self, file_name: str, save_file_path: str,
-                          progress_callback: Optional[Callable[[float, str], None]] = None) -> bool:
-        """
-        下载环境文件
-        :param file_name: 要下载的文件名
-        :param save_file_path: 保存路径，包含文件名
-        :param progress_callback: 下载进度的回调，进度发生改变时，通过该方法通知调用方。
-        :return: 是否下载成功
-        """
-        download_url = f'{GITHUB_ENV_DOWNLOAD_PREFIX}/{self.project_config.project_name}/{file_name}'
-        proxy = None
-        if self.env_config.is_gh_proxy:
-            download_url = f'{self.env_config.gh_proxy_url}/{download_url}'
-        elif self.env_config.is_personal_proxy:
-            proxy = self.env_config.personal_proxy
-
-        return http_utils.download_file(download_url, save_file_path,
-                                        proxy=proxy, progress_callback=progress_callback)
 
     def get_os_git_path(self) -> Optional[str]:
         """
@@ -82,29 +62,34 @@ class GitService:
         :param progress_callback: 进度回调。进度发生改变时，通过该方法通知调用方。
         :return: 是否安装成功
         """
-        log.info('开始安装 git')
         if self.get_git_version() is not None:
-            msg = '已经安装了git'
+            msg = '已经安装了 Git'
             log.info(msg)
             return True, msg
+        
+        msg = '开始安装 Git'
+        if progress_callback is not None:
+            progress_callback(-1, msg)
+        log.info(msg)
+
         for _ in range(2):
-            zip_file_name = 'PortableGit.zip'
+            zip_file_name = 'MinGit.zip'
             zip_file_path = os.path.join(DEFAULT_ENV_PATH, zip_file_name)
             if not os.path.exists(zip_file_path):
-                success = self.download_env_file(zip_file_name, zip_file_path,
+                success = self.download_service.download_env_file(zip_file_name, zip_file_path,
                                                  progress_callback=progress_callback)
                 if not success:
-                    return False, '下载PortableGit.zip失败 请尝试到「脚本环境」更改网络代理'
+                    return False, '下载 Git 失败 请尝试到「脚本环境」更改网络代理'
 
             msg = f'开始解压 {zip_file_name}'
             log.info(msg)
-            if progress_callback:
+            if progress_callback is not None:
                 progress_callback(0, msg)
 
             success = file_utils.unzip_file(zip_file_path, DEFAULT_GIT_DIR_PATH)
 
             msg = '解压成功' if success else '解压失败 准备重试'
-            if progress_callback:
+            if progress_callback is not None:
                 progress_callback(1 if success else 0, msg)
 
             if not success:  # 解压失败的话 可能是之前下的zip包坏了 尝试删除重来
@@ -414,3 +399,13 @@ class GitService:
         """
         log_list = self.fetch_page_commit(0, 1)
         return None if len(log_list) == 0 else log_list[0].commit_id
+
+def __fetch_latest_code():
+    project_config = ProjectConfig()
+    env_config = EnvConfig()
+    download_service = DownloadService(project_config, env_config)
+    git_service = GitService(project_config, env_config, download_service)
+    return git_service.fetch_latest_code(progress_callback=None)
+
+if __name__ == '__main__':
+    __fetch_latest_code()

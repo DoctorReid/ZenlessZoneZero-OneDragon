@@ -15,12 +15,12 @@ class ZContext(OneDragonContext):
         from zzz_od.application.hollow_zero.lost_void.context.lost_void_context import LostVoidContext
         self.lost_void: LostVoidContext = LostVoidContext(self)
 
-        from zzz_od.config.yolo_config import YoloConfig
+        from zzz_od.config.model_config import ModelConfig
         from zzz_od.game_data.compendium import CompendiumService
         from zzz_od.game_data.map_area import MapAreaService
 
         # 基础配置
-        self.yolo_config: YoloConfig = YoloConfig()
+        self.model_config: ModelConfig = ModelConfig()
 
         # 游戏数据
         self.map_service: MapAreaService = MapAreaService()
@@ -107,6 +107,9 @@ class ZContext(OneDragonContext):
         self.life_on_line_record.check_and_update_status()
         self.redemption_code_record: RedemptionCodeRunRecord = RedemptionCodeRunRecord(self.current_instance_idx, game_refresh_hour_offset)
         self.redemption_code_record.check_and_update_status()
+        from zzz_od.application.trigrams_collection.trigrams_collection_record import TrigramsCollectionRunRecord
+        self.trigrams_collection_record: TrigramsCollectionRunRecord = TrigramsCollectionRunRecord(self.current_instance_idx, game_refresh_hour_offset)
+        self.trigrams_collection_record.check_and_update_status()
 
         from zzz_od.application.ridu_weekly.ridu_weekly_run_record import RiduWeeklyRunRecord
         self.ridu_weekly_record: RiduWeeklyRunRecord = RiduWeeklyRunRecord(self.current_instance_idx, game_refresh_hour_offset)

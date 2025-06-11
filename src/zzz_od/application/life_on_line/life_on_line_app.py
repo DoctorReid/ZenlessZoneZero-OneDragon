@@ -39,7 +39,7 @@ class LifeOnLineApp(ZApplication):
     @node_from(from_name='检查运行次数', status=STATUS_CONTINUE_OVER_NIGHT)
     @operation_node(name='传送', is_start_node=True)
     def tp(self) -> OperationRoundResult:
-        op = Transport(self.ctx, 'Random Play', 'HDD')
+        op = Transport(self.ctx, '录像店', 'HDD')
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='传送')

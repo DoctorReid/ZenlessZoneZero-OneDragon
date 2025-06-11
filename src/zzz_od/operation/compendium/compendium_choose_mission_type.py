@@ -1,6 +1,5 @@
-import cv2
 import difflib
-from typing import Optional, List
+from typing import Optional, ClassVar, List
 
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.geometry.rectangle import Rect
@@ -19,6 +18,8 @@ class CompendiumChooseMissionType(ZOperation):
     """
     快捷手册中选择特定副本类型的操作类
     """
+    STATUS_CHOOSE_SUCCESS: ClassVar[str] = '选择成功'
+    STATUS_CHOOSE_FAIL: ClassVar[str] = '选择失败'
 
     def __init__(self, ctx: ZContext, mission_type: CompendiumMissionType):
         """
@@ -87,64 +88,35 @@ class CompendiumChooseMissionType(ZOperation):
 
     def handle_agent_training(self) -> OperationRoundResult:
         """
-        专门处理"代理人方案培养"副本的方法
+        专门处理"代理人方案培养"的方法
         """
-        log.debug("开始处理代理人方案培养副本")
-
-        # 1. 截取当前屏幕
         screen = self.screenshot()
-
-        # 2. 获取代理人方案培养的特殊区域
         area = self.ctx.screen_loader.get_area("快捷手册", "目标列表")
-
-        # 3. 裁剪出区域图像
         part = cv2_utils.crop_image_only(screen, area.rect)
 
-        # 4. 转换到HSV色彩空间并过滤低饱和度和色调值
-        hsv = cv2.cvtColor(part, cv2.COLOR_BGR2HSV)
-        # 创建掩码：H和S都小于10的像素
-        mask = cv2.inRange(hsv, (0, 0, 0), (10, 10, 255))
-        # 反转掩码（保留非黑灰色区域）
-        binary = cv2.bitwise_not(mask)
-
-        # 5. 查找所有连通区域并过滤小面积区域
-        contours, _ = cv2.findContours(
-            binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        click_pos = cv2_utils.find_character_avatar_center_with_offset(
+            part, 
+            area_offset=(area.left_top.x, area.left_top.y),
+            click_offset=(0, -80),  # 向上偏移80像素，确保能找到前往按钮
+            min_area=800
         )
-        # 过滤掉面积小于800的连通区域
-        min_area = 800  # 最小有效区域面积
-        contours = [cnt for cnt in contours if cv2.contourArea(cnt) >= min_area]
 
-        for i, cnt in enumerate(contours):
-            x, y, w, h = cv2.boundingRect(cnt)
-            log.debug(
-                f"目标代理人头像{i}: x={x}, y={y}, 宽={w}, 高={h}, 面积={cv2.contourArea(cnt)}"
-            )
-
-        # 6. 过滤并找到一个有效区域
-        target_point = None
-        if contours and len(contours) > 0:
-            x, y, w, h = cv2.boundingRect(contours[0])
-            target_point = area.left_top + Point(
-                x + w // 2, y + h // 2 - 80
-            )  # 减去80是为了确保能找到前往
-
-        # 7. 如果没有找到有效区域，执行滑动操作
-        if target_point is None:
-            log.debug("未找到有效区域，执行滑动操作")
+        if click_pos is None:
+            log.debug("未找到有效的代理人头像，执行滑动操作")
             return self.handle_scroll(area, 1)
 
-        log.debug(f"最终目标点: {target_point}")
+        target_point = Point(click_pos[0], click_pos[1])
+        log.debug(f"找到代理人目标，最终目标点: {target_point}")
         return self.handle_go_button(screen, target_point)
 
-    def handle_scroll(
-        self, area: Rect, before_target_cnt: int = 0
-    ) -> OperationRoundResult:
+    def handle_scroll(self, area: Rect, before_target_cnt: int = 0) -> OperationRoundResult:
         """
         处理滑动操作
         """
         self.scroll_count += 1
         if self.scroll_count > 5:
+            if self.mission_type.mission_type_name == "代理人方案培养":
+                return self.round_success(status=CompendiumChooseMissionType.STATUS_CHOOSE_FAIL)
             return self.round_fail('滑动超过5次仍未找到目标副本')
 
         if before_target_cnt > 0:
@@ -153,9 +125,9 @@ class CompendiumChooseMissionType(ZOperation):
             dy = 1
 
         # 部分特殊类型的副本 外面的顺序和里面的顺序反转
-        if self.mission_type.category.category_name in ['定期清剿', '专业挑战室', '恶名狩猎'] and \
-                self.mission_type.mission_type_name != '代理人方案培养':
-                dy = dy * -1
+        if (self.mission_type.category.category_name in ['定期清剿', '专业挑战室', '恶名狩猎']
+            and self.mission_type.mission_type_name != '代理人方案培养'):
+            dy = dy * -1
 
         # 滑动
         start = area.center
@@ -193,9 +165,9 @@ class CompendiumChooseMissionType(ZOperation):
             return self.round_retry(status='找不到 %s' % '前往', wait=1)
 
         click = self.ctx.controller.click(target_go_point)
-        return self.round_success(wait=1)
+        return self.round_success(status=CompendiumChooseMissionType.STATUS_CHOOSE_SUCCESS, wait=1)
 
-    @node_from(from_name='选择副本')
+    @node_from(from_name='选择副本', status=STATUS_CHOOSE_SUCCESS)
     @operation_node(name='确认')
     def confirm(self) -> OperationRoundResult:
         screen = self.screenshot()
@@ -206,7 +178,7 @@ class CompendiumChooseMissionType(ZOperation):
 def __debug():
     ctx = ZContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     ctx.start_running()
     target = ctx.compendium_service.get_mission_type_data('训练', '定期清剿', '高塔与巨炮')
     op = CompendiumChooseMissionType(ctx, target)

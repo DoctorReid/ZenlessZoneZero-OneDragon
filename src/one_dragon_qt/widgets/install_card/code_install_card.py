@@ -3,6 +3,8 @@ from qfluentwidgets import FluentIcon, FluentThemeColor
 from typing import Tuple
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
+from one_dragon.envs.env_config import GitBranchEnum
+from one_dragon_qt.widgets.combo_box import ComboBox
 from one_dragon_qt.widgets.install_card.base_install_card import BaseInstallCard
 from one_dragon.utils.i18_utils import gt
 
@@ -11,6 +13,11 @@ class CodeInstallCard(BaseInstallCard):
 
     def __init__(self, ctx: OneDragonEnvContext, parent=None):
 
+        self.git_branches = [opt.value for opt in GitBranchEnum]
+        self.git_branch_opt = ComboBox()
+        self.git_branch_opt.set_items(self.git_branches)
+        self.git_branch_opt.currentIndexChanged.connect(self.on_git_branch_changed)
+
         BaseInstallCard.__init__(
             self,
             ctx=ctx,
@@ -18,10 +25,15 @@ class CodeInstallCard(BaseInstallCard):
             install_method=ctx.git_service.fetch_latest_code,
             install_btn_icon=FluentIcon.SYNC,
             install_btn_text_cn='代码同步',
-            parent=parent
+            parent=parent,
+            left_widgets=[self.git_branch_opt]
         )
 
         self.updated: bool = False  # 是否已经更新了
+
+    def on_git_branch_changed(self, index: int) -> None:
+        self.ctx.env_config.git_branch = self.git_branches[index].value
+        self.check_and_update_display()
 
     def after_progress_done(self, success: bool, msg: str) -> None:
         """
@@ -43,6 +55,7 @@ class CodeInstallCard(BaseInstallCard):
         :return: 显示的图标、文本
         """
         git_path = self.ctx.env_config.git_path
+        self.git_branch_opt.init_with_value(self.ctx.env_config.git_branch)
         current_branch = self.ctx.git_service.get_current_branch()
         if git_path == '':
             return FluentIcon.INFO.icon(color=FluentThemeColor.RED.value), gt('未配置Git', 'ui')

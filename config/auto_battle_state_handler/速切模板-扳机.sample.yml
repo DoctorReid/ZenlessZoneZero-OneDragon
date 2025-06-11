@@ -30,12 +30,9 @@ handlers:
         operations:
           - operation_template: "扳机-终结技"
 
-      - states: "![自定义-扳机-强化追击, 0, 7]"
-        debug_name: "强化追击还有"
-        sub_handlers:
-          - states: "[扳机-特殊技可用]"
-            operations:
-              - operation_template: "扳机-强化特殊技"
+      - states: "[扳机-特殊技可用]"
+        operations:
+          - operation_template: "扳机-强化特殊技"
 
       - states: ""
         operations:

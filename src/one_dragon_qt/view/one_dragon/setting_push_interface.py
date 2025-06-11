@@ -2,8 +2,10 @@ from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon
 
 from one_dragon.base.config.config_item import ConfigItem
-from one_dragon.base.config.push_config import NotifyMethodEnum, PushCard, EmailServiceConfig
+from one_dragon.base.config.push_config import NotifyMethodEnum
 from one_dragon.base.notify.push import Push
+from one_dragon.base.notify.push_cards import PushCards
+from one_dragon.base.notify.push_email_services import PushEmailServices
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon_qt.widgets.column import Column
 from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
@@ -22,7 +24,8 @@ class SettingPushInterface(VerticalScrollInterface):
             self,
             object_name='setting_push_interface',
             content_widget=None, parent=parent,
-            nav_text_cn='通知设置'
+            nav_text_cn='通知设置',
+            nav_icon=FluentIcon.MESSAGE
         )
         self.ctx: OneDragonContext = ctx
 
@@ -52,7 +55,7 @@ class SettingPushInterface(VerticalScrollInterface):
         self.notification_method_opt.value_changed.connect(self._update_notification_ui)
         content_widget.add_widget(self.notification_method_opt)
 
-        email_services = EmailServiceConfig.load_services()
+        email_services = PushEmailServices.load_services()
         service_options = [ConfigItem(label=name, value=name, desc="") for name in email_services.keys()]
         self.email_service_opt = EditableComboBoxSettingCard(
             icon=FluentIcon.MESSAGE,
@@ -67,7 +70,7 @@ class SettingPushInterface(VerticalScrollInterface):
         content_widget.add_widget(self.email_service_opt)
 
         self.cards = {} 
-        for method, configs in PushCard.get_configs().items():
+        for method, configs in PushCards.get_configs().items():
             method_cards = []
 
             for config in configs:
@@ -108,7 +111,7 @@ class SettingPushInterface(VerticalScrollInterface):
         pusher.send("这是一条测试消息", None, self.notification_method_opt.getValue())
 
     def _on_email_service_selected(self, text):
-        config = EmailServiceConfig.get_configs(str(text))
+        config = PushEmailServices.get_configs(str(text))
         if config:
             # 自动填充SMTP相关卡片
             smtp_server = config["host"]
@@ -146,7 +149,7 @@ class SettingPushInterface(VerticalScrollInterface):
         self.send_image_opt.init_with_adapter(self.ctx.push_config.get_prop_adapter('send_image'))
 
         # 动态初始化所有通知卡片
-        for method_group, configs in PushCard.get_configs().items():
+        for method_group, configs in PushCards.get_configs().items():
             for config in configs:
                 var_suffix = config["var_suffix"]
                 var_name = f"{method_group.lower()}_{var_suffix.lower()}_push_card"
