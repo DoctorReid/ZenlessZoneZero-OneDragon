@@ -135,10 +135,10 @@ class CombatSimulation(ZOperation):
                 log.info(f'找到代理人目标，点击位置: {target_point}')
 
             if target_point is None:
-                return self.round_success(status=CombatSimulation.STATUS_CHOOSE_FAIL)
-
-            if target_point is None:
-                return self.round_success(status=CombatSimulation.STATUS_CHOOSE_FAIL)
+                start = area.center
+                end = start + Point(-400, 0)
+                self.ctx.controller.drag_to(start=start, end=end)
+                return self.round_retry(status='找不到 %s' % self.plan.mission_name, wait=1)
 
         else:
             area = self.ctx.screen_loader.get_area('实战模拟室', '副本名称列表')
