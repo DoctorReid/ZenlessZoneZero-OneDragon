@@ -1,31 +1,22 @@
 import os
 from PySide6.QtGui import QIcon
 from qfluentwidgets import FluentIcon, FluentThemeColor
-from typing import Optional, Tuple
+from typing import Tuple
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
-from one_dragon_qt.widgets.install_card.wtih_existed_install_card import WithExistedInstallCard
+from one_dragon_qt.widgets.install_card.base_install_card import BaseInstallCard
 from one_dragon.utils.i18_utils import gt
 
 
-class PythonInstallCard(WithExistedInstallCard):
+class PythonInstallCard(BaseInstallCard):
 
     def __init__(self, ctx: OneDragonEnvContext):
-        WithExistedInstallCard.__init__(
+        BaseInstallCard.__init__(
             self,
             ctx=ctx,
             title_cn='Python虚拟环境',
             install_method=ctx.python_service.uv_install_python_venv,
         )
-
-    def on_existed_chosen(self, file_path: str) -> None:
-        """
-        选择了本地文件之后的回调，由子类自行实现
-        :param file_path: 本地文件的路径
-        :return:
-        """
-        self.ctx.env_config.python_path = file_path
-        self.check_and_update_display()
 
     def after_progress_done(self, success: bool, msg: str) -> None:
         """
@@ -48,13 +39,10 @@ class PythonInstallCard(WithExistedInstallCard):
 
         if python_path == '':
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
-            msg = gt('未安装。可选择你自己的虚拟环境的python.exe，或默认安装。', 'ui')
+            msg = gt('未安装', 'ui')
         elif not os.path.exists(python_path):
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
             msg = gt('文件不存在', 'ui') + ' ' + python_path
-        elif not self.ctx.python_service.is_virtual_python():
-            icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
-            msg = gt('非虚拟环境', 'ui') + ' ' + python_path
         else:
             python_version = self.ctx.python_service.get_python_version()
             if python_version is None:
