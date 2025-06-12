@@ -190,7 +190,7 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
         if self.controller.game_win is not None:
             self.controller.game_win.active()
         img = self.controller.screenshot(independent=True)
-        debug_utils.save_debug_image(img, copy_screenshot)
+        debug_utils.save_debug_image(img, copy_screenshot=copy_screenshot)
 
     def switch_instance(self, instance_idx: int) -> None:
         """

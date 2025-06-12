@@ -15,8 +15,8 @@ _BACKUP_FLASH_CLASSIFIER = 'yolov8n-640-flash-1215'
 _DEFAULT_HOLLOW_ZERO_EVENT = 'yolov8s-736-hollow-zero-event-0126'
 _BACKUP_HOLLOW_ZERO_EVENT = 'yolov8s-736-hollow-zero-event-1130'
 
-_DEFAULT_LOST_VOID_DET = 'yolov8n-736-lost-void-det-0125'
-_BACKUP_LOST_VOID_DET = 'yolov8n-736-lost-void-det-0113'
+_DEFAULT_LOST_VOID_DET = 'yolov8n-736-lost-void-det-20250612'
+_BACKUP_LOST_VOID_DET = 'yolov8n-736-lost-void-det-0125'
 
 
 class ModelConfig(BasicModelConfig):

@@ -43,7 +43,7 @@ class ZResourceDownloadInterface(ResourceDownloadInterface):
     def init_flash_classifier(self) -> None:
         self.flash_classifier_opt.blockSignals(True)
         self.flash_classifier_opt.set_options_by_list(get_flash_classifier_opts())
-        self.flash_classifier_opt.setValue(self.ctx.model_config.flash_classifier)
+        self.flash_classifier_opt.set_value_by_save_file_name(f'{self.ctx.model_config.flash_classifier}.zip')
         self.flash_classifier_opt.gpu_opt.setChecked(self.ctx.model_config.flash_classifier_gpu)
         self.flash_classifier_opt.check_and_update_display()
         self.flash_classifier_opt.blockSignals(False)
@@ -51,7 +51,7 @@ class ZResourceDownloadInterface(ResourceDownloadInterface):
     def init_hollow_zero_event_opts(self) -> None:
         self.hollow_zero_event_opt.blockSignals(True)
         self.hollow_zero_event_opt.set_options_by_list(get_hollow_zero_event_opts())
-        self.hollow_zero_event_opt.setValue(self.ctx.model_config.hollow_zero_event)
+        self.hollow_zero_event_opt.set_value_by_save_file_name(f'{self.ctx.model_config.hollow_zero_event}.zip')
         self.hollow_zero_event_opt.gpu_opt.setChecked(self.ctx.model_config.hollow_zero_event_gpu)
         self.hollow_zero_event_opt.check_and_update_display()
         self.hollow_zero_event_opt.blockSignals(False)
@@ -59,7 +59,7 @@ class ZResourceDownloadInterface(ResourceDownloadInterface):
     def init_lost_void_det_opts(self) -> None:
         self.lost_void_det_opt.blockSignals(True)
         self.lost_void_det_opt.set_options_by_list(get_lost_void_det_opts())
-        self.lost_void_det_opt.setValue(self.ctx.model_config.lost_void_det)
+        self.lost_void_det_opt.set_value_by_save_file_name(f'{self.ctx.model_config.lost_void_det}.zip')
         self.lost_void_det_opt.gpu_opt.setChecked(self.ctx.model_config.lost_void_det_gpu)
         self.lost_void_det_opt.check_and_update_display()
         self.lost_void_det_opt.blockSignals(False)
@@ -71,15 +71,15 @@ class ZResourceDownloadInterface(ResourceDownloadInterface):
     def on_flash_classifier_gpu_changed(self, value: bool) -> None:
         self.ctx.model_config.flash_classifier_gpu = value
 
-    def on_hollow_zero_event_changed(self, index: int, value: str) -> None:
-        self.ctx.model_config.hollow_zero_event = value
+    def on_hollow_zero_event_changed(self, index: int, value: CommonDownloaderParam) -> None:
+        self.ctx.model_config.hollow_zero_event = value.save_file_name[:-4]
         self.hollow_zero_event_opt.check_and_update_display()
 
     def on_hollow_zero_event_gpu_changed(self, value: bool) -> None:
         self.ctx.model_config.hollow_zero_event_gpu = value
 
-    def on_lost_void_det_changed(self, index: int, value: str) -> None:
-        self.ctx.model_config.lost_void_det = value
+    def on_lost_void_det_changed(self, index: int, value: CommonDownloaderParam) -> None:
+        self.ctx.model_config.lost_void_det = value.save_file_name[:-4]
         self.lost_void_det_opt.check_and_update_display()
 
     def on_lost_void_det_gpu_changed(self, value: bool) -> None:

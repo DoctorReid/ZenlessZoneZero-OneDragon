@@ -89,6 +89,7 @@ class LostVoidMoveByDet(ZOperation):
     STATUS_NO_FOUND: ClassVar[str] = '未识别到目标'
     STATUS_CONTINUE: ClassVar[str] = '继续识别目标'
     STATUS_INTERACT: ClassVar[str] = '处于交互中'
+    STATUS_NEED_DETECT: ClassVar[str] = '需要重新识别'
 
     def __init__(self, ctx: ZContext,
                  current_region: LostVoidRegionType, target_type: str,
@@ -199,10 +200,19 @@ class LostVoidMoveByDet(ZOperation):
         target_result = self.get_move_target(frame_result)
 
         if target_result is None:
+            if self.target_type == LostVoidDetector.CLASS_ENTRY:
+                # 调用的时候识别的是入口 但进入之后发现有其他优先级更高的 退出执行
+                another_result = self.ctx.lost_void.detector.get_result_by_x(frame_result, LostVoidDetector.CLASS_DISTANCE)
+                if another_result is not None:
+                    return self.round_success(status=LostVoidMoveByDet.STATUS_NEED_DETECT)
+
+                another_result = self.ctx.lost_void.detector.get_result_by_x(frame_result, LostVoidDetector.CLASS_INTERACT)
+                if another_result is not None:
+                    return self.round_success(status=LostVoidMoveByDet.STATUS_NEED_DETECT)
+
             self.lost_target_during_move_times += 1
             # 移动过程中多次丢失目标 通常是因为识别不准
-            # 游戏1.6版本出现了可以因为丢失目标转动镜头而一直无法进入脱困
-            # https://github.com/OneDragon-Anything/ZenlessZoneZero-OneDragon/issues/867
+            # 游戏1.6版本出现了可以因为丢失目标转动镜头而一直无法进入脱困 issues #867
             if self.lost_target_during_move_times % 10 == 0:  # 尝试脱困
                 self.stuck_times += 1
                 self.get_out_of_stuck()
@@ -262,7 +272,14 @@ class LostVoidMoveByDet(ZOperation):
             else:
                 return None
         else:
-            return self.get_entry_target(frame_result)
+            entry_target = self.get_entry_target(frame_result)
+            if entry_target is not None:
+                return entry_target
+
+            detect_result = self.ctx.lost_void.detector.get_result_by_x(frame_result, self.target_type,
+                                                                        by_max_x=self.choose_by_max_x)
+
+        return None
 
     def get_entry_target(self, frame_result: DetectFrameResult) -> Optional[MoveTargetWrapper]:
         """

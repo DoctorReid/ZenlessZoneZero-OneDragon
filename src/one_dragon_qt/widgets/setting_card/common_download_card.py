@@ -128,14 +128,14 @@ class CommonDownloaderSettingCard(MultiPushSettingCard):
         """
         SettingCard.setContent(self, gt(content, 'ui'))
 
-    def setValue(self, value: object) -> None:
+    def set_value_by_save_file_name(self, save_file_name: str) -> None:
         """
         设置值
-        :param value:
+        :param save_file_name: 保存文件名称
         :return:
         """
         for idx, item in enumerate(self.combo_box.items):
-            if item.userData == value:
+            if item.userData.save_file_name == save_file_name:
                 self.combo_box.setCurrentIndex(idx)
                 return
 
