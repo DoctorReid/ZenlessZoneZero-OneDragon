@@ -4,6 +4,7 @@ from qfluentwidgets import FluentIcon, FluentThemeColor
 from typing import Tuple
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
+from one_dragon.envs.env_config import DEFAULT_VENV_DIR_PATH, DEFAULT_VENV_PYTHON_PATH
 from one_dragon_qt.widgets.install_card.wtih_existed_install_card import WithExistedInstallCard
 from one_dragon.utils.i18_utils import gt
 
@@ -48,19 +49,19 @@ class PythonInstallCard(WithExistedInstallCard):
 
         if python_path == '':
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
-            msg = gt('未安装。可选择 .venv 文件夹中的 python.exe', 'ui')
+            msg = f"{gt('未安装。可选择手动创建', 'ui')} {DEFAULT_VENV_DIR_PATH}"
         elif not os.path.exists(python_path):
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
             msg = gt('文件不存在', 'ui') + ' ' + python_path
-        elif ".venv" not in python_path:
+        elif python_path != DEFAULT_VENV_PYTHON_PATH:
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
-            msg = gt('仅支持 .venv 作为 Python 虚拟环境文件夹命名', 'ui') + ' ' + python_path
+            msg = f"{gt('请确保手动创建的虚拟环境目录为', 'ui')}: {DEFAULT_VENV_DIR_PATH}"
         else:
             python_version = self.ctx.python_service.get_python_version()
             if python_version is None:
                 icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
                 msg = gt('无法获取 Python 版本', 'ui') + ' ' + python_path
-            elif self.ctx.project_config.python_version not in python_version:
+            elif not python_version.startswith(self.ctx.project_config.python_version):
                 icon = FluentIcon.INFO.icon(color=FluentThemeColor.GOLD.value)
                 msg = (f"{gt('当前版本', 'ui')}: {python_version}; {gt('建议版本', 'ui')}: {self.ctx.project_config.python_version}"
                        + ' ' + python_path)
