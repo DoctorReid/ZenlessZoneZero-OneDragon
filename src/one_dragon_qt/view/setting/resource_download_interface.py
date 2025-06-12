@@ -1,9 +1,9 @@
-from concurrent.futures import ThreadPoolExecutor
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import SettingCardGroup, FluentIcon, HyperlinkCard
 
-from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.base.config.basic_model_config import get_ocr_opts
+from one_dragon.base.operation.one_dragon_context import OneDragonContext
+from one_dragon.base.web.common_downloader import CommonDownloaderParam
 from one_dragon.utils.i18_utils import gt
 from one_dragon_qt.widgets.column import Column
 from one_dragon_qt.widgets.install_card.launcher_install_card import LauncherInstallCard
@@ -80,13 +80,13 @@ class ResourceDownloadInterface(VerticalScrollInterface):
     def init_ocr_opts(self) -> None:
         self.ocr_opt.blockSignals(True)
         self.ocr_opt.set_options_by_list(get_ocr_opts())
-        self.ocr_opt.setValue(self.ctx.model_config.ocr)
+        self.ocr_opt.set_value_by_save_file_name(self.ctx.model_config.ocr)
         self.ocr_opt.gpu_opt.setChecked(self.ctx.model_config.ocr_gpu)
         self.ocr_opt.check_and_update_display()
         self.ocr_opt.blockSignals(False)
 
-    def on_ocr_changed(self, index: int, value: str) -> None:
-        self.ctx.model_config.ocr = value
+    def on_ocr_changed(self, index: int, value: CommonDownloaderParam) -> None:
+        self.ctx.model_config.ocr = value.save_file_name[:-4]
         self.ocr_opt.check_and_update_display()
 
     def on_ocr_gpu_changed(self, value: bool) -> None:

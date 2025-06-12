@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import SettingCardGroup, FluentIcon
 
+from one_dragon.base.web.common_downloader import CommonDownloaderParam
 from one_dragon_qt.view.setting.resource_download_interface import ResourceDownloadInterface
 from one_dragon_qt.widgets.setting_card.onnx_model_download_card import OnnxModelDownloadCard
 from zzz_od.config.model_config import get_flash_classifier_opts, get_hollow_zero_event_opts, get_lost_void_det_opts
@@ -65,7 +66,7 @@ class ZResourceDownloadInterface(ResourceDownloadInterface):
         self.lost_void_det_opt.blockSignals(False)
 
     def on_flash_classifier_changed(self, index: int, value: str) -> None:
-        self.ctx.model_config.flash_classifier = value
+        self.ctx.model_config.flash_classifier = value.save_file_name[:-4]
         self.flash_classifier_opt.check_and_update_display()
 
     def on_flash_classifier_gpu_changed(self, value: bool) -> None:
