@@ -167,6 +167,7 @@ class GitService:
                                         ])
         success = result is not None
         msg = '克隆仓库成功' if success else '克隆仓库失败'
+        shutil.rmtree(temp_dir_path, ignore_errors=True)  # 删除临时文件夹
         return success, msg
 
     def fetch_remote_branch(self) -> Tuple[bool, str]:
