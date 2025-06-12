@@ -173,6 +173,7 @@ class LostVoidRunLevel(ZOperation):
 
     @node_from(from_name='区域类型初始化', status='非战斗区域')
     @node_from(from_name='非战斗画面识别', status=LostVoidDetector.CLASS_DISTANCE)  # 朝白点移动后重新循环
+    @node_from(from_name='非战斗画面识别', status=LostVoidMoveByDet.STATUS_NEED_DETECT)  # 之前判断是入口 进入后发现有更高优先级的目标 重新识别
     @node_from(from_name='交互后处理', status='大世界')  # 目前交互之后都不会有战斗
     @node_from(from_name='战斗中', status='识别需移动交互')  # 战斗后出现距离 或者下层入口
     @node_from(from_name='尝试交互', success=False)  # 没能交互到
@@ -254,6 +255,8 @@ class LostVoidRunLevel(ZOperation):
                 elif op_result.status == LostVoidMoveByDet.STATUS_INTERACT:
                     self.interact_target = LostVoidInteractTarget(name='未知', icon='感叹号', is_exclamation=True)
                     return self.round_success('未在大世界')
+                elif op_result.status == LostVoidMoveByDet.STATUS_NEED_DETECT:
+                    return self.round_success(op_result.status)
                 else:
                     interact_type = op_result.data  # 根据显示图标 返回入口类型
                     self.interact_target = LostVoidInteractTarget(name=interact_type, icon=interact_type, is_entry=True)
@@ -731,7 +734,7 @@ def __debug():
     ctx.init_ocr()
     ctx.start_running()
 
-    op = LostVoidRunLevel(ctx, LostVoidRegionType.ELITE)
+    op = LostVoidRunLevel(ctx, LostVoidRegionType.ENTRY)
     op.execute()
 
 
