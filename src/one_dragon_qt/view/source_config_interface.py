@@ -116,10 +116,8 @@ class SourceConfigInterface(VerticalScrollInterface):
         )
         self.proxy_type_opt.value_changed.connect(self._on_proxy_type_changed)
 
-        self.proxy_url_input = TextSettingCard(
-            icon=FluentIcon.WIFI,
-            title='代理地址'
-        )
+        self.proxy_url_input = TextSettingCard(icon=FluentIcon.WIFI, title='代理地址')
+        self.proxy_url_input.value_changed.connect(lambda: self._init_proxy())
 
         proxy_group.addSettingCards([self.proxy_type_opt, self.proxy_url_input])
         advanced_group.addSettingCard(proxy_group)
@@ -133,7 +131,7 @@ class SourceConfigInterface(VerticalScrollInterface):
             self.ctx.env_config.cpython_source = CpythonSourceEnum.NJU.value.value
             self.ctx.env_config.pip_source = PipSourceEnum.ALIBABA.value.value
             self.ctx.env_config.proxy_type = ProxyTypeEnum.GHPROXY.value.value
-            self._on_proxy_changed()
+            self._on_proxy_type_changed()
             self.ctx.async_update_gh_proxy()
         elif index == 1:
             self.ctx.env_config.repository_type = RepositoryTypeEnum.GITHUB.value.value
@@ -141,7 +139,7 @@ class SourceConfigInterface(VerticalScrollInterface):
             self.ctx.env_config.cpython_source = CpythonSourceEnum.GITHUB.value.value
             self.ctx.env_config.pip_source = PipSourceEnum.PYPI.value.value
             self.ctx.env_config.proxy_type = ProxyTypeEnum.NONE.value.value
-            self._on_proxy_changed()
+            self._on_proxy_type_changed()
         self._init_config_values()
 
     def _init_config_values(self):
@@ -157,10 +155,8 @@ class SourceConfigInterface(VerticalScrollInterface):
     def _update_proxy_ui(self):
         """更新代理界面显示"""
         current_proxy_type = self.ctx.env_config.proxy_type
-        self.proxy_url_input.value_changed.disconnect()
         if current_proxy_type == ProxyTypeEnum.PERSONAL.value.value:
             self.proxy_url_input.init_with_adapter(self.ctx.env_config.get_prop_adapter('personal_proxy'))
-            self.proxy_url_input.value_changed.connect(lambda: self._on_proxy_changed())
             self.proxy_url_input.titleLabel.setText('个人代理地址')
             self.proxy_url_input.line_edit.setPlaceholderText('http://127.0.0.1:8080')
             self.proxy_url_input.setVisible(True)
@@ -175,13 +171,15 @@ class SourceConfigInterface(VerticalScrollInterface):
     def _on_proxy_type_changed(self, index: int, value: str):
         """代理类型改变回调"""
         self._update_proxy_ui()
-        self._on_proxy_changed()
+        self._init_proxy()
 
-    def _on_proxy_changed(self):
-        """代理发生改变"""
+    def _init_proxy(self):
+        """初始化代理设置"""
+        self.ctx.env_config.init_system_proxy()
         self.ctx.git_service.is_proxy_set = False
         self.ctx.git_service.init_git_proxy()
 
     def on_interface_shown(self):
         VerticalScrollInterface.on_interface_shown(self)
         self._init_config_values()
+        self._init_proxy()

@@ -35,10 +35,8 @@ class PythonService:
         for _ in range(2):
             zip_file_name = 'uv-x86_64-pc-windows-msvc.zip'
             zip_file_path = os.path.join(DEFAULT_ENV_PATH, zip_file_name)
-            download_url = f'https://github.com/astral-sh/uv/releases/download/0.7.6/{zip_file_name}'
             if not os.path.exists(zip_file_path):
                 success = self.download_service.download_env_file(zip_file_name, zip_file_path, progress_callback=progress_callback)
-                # success = self.download_service.download_file_from_url(download_url, zip_file_path, progress_callback=progress_callback)
                 if not success:
                     return False, '下载 UV 失败 请尝试到「设置」更改网络代理'
 
@@ -93,17 +91,6 @@ class PythonService:
             if progress_callback is not None:
                 progress_callback(1, msg)
             return True
-
-    def is_virtual_python(self) -> bool:
-        """
-        是否虚拟环境的python
-        :return:
-        """
-        is_virtual_str = cmd_utils.run_command([self.env_config.python_path, "-c", "import sys; print(getattr(sys, 'base_prefix', sys.prefix) != sys.prefix)"])
-        if is_virtual_str is None:
-            return False
-        else:
-            return is_virtual_str == 'True'
 
     def uv_create_venv(self, progress_callback: Optional[Callable[[float, str, str], None]]) -> bool:
         """
@@ -333,4 +320,4 @@ if __name__ == '__main__':
     env_config = EnvConfig()
     download_service = DownloadService(project_config, env_config)
     python_service = PythonService(project_config, env_config, download_service)
-    python_service.uv_install_requirements(None)
+    python_service.uv_check_sync_status()

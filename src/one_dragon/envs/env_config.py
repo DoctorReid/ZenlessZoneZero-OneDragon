@@ -465,3 +465,14 @@ class EnvConfig(YamlConfig):
         是否第一次运行
         """
         self.update('is_first_run', new_value)
+
+    def init_system_proxy(self):
+        """
+        初始化系统代理设置
+        """
+        if self.is_personal_proxy:
+            os.environ['HTTP_PROXY'] = self.personal_proxy
+            os.environ['HTTPS_PROXY'] = self.personal_proxy
+        else:
+            os.environ['HTTP_PROXY'] = ""
+            os.environ['HTTPS_PROXY'] = ""

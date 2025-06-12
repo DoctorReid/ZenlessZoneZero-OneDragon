@@ -14,15 +14,6 @@ from one_dragon_qt.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils.i18_utils import gt
 
 
-class SpeedTestRunnerBase(QThread):
-    log_signal = Signal(str, int)
-    result_signal = Signal(str, int, str)
-
-    def __init__(self, ctx, parent=None):
-        super().__init__(parent)
-        self.ctx = ctx
-
-
 class SettingEnvInterface(VerticalScrollInterface):
 
     def __init__(self, ctx: OneDragonEnvContext, parent=None):
@@ -214,10 +205,8 @@ class SettingEnvInterface(VerticalScrollInterface):
         代理发生改变
         :return:
         """
-        # 清除当前代理设置的状态
+        self.ctx.env_config.init_system_proxy()
         self.ctx.git_service.is_proxy_set = False
-
-        # 调用 init_git_proxy 同步更新 Git 的代理设置
         self.ctx.git_service.init_git_proxy()
 
     def on_fetch_gh_proxy_url_clicked(self) -> None:
@@ -293,9 +282,18 @@ class SettingEnvInterface(VerticalScrollInterface):
             self.auto_fetch_gh_proxy_url_opt.hide()
 
 
+class SpeedTestRunnerBase(QThread):
+    log_signal = Signal(str, int)
+    result_signal = Signal(str, int, str)
+
+    def __init__(self, ctx: OneDragonEnvContext, parent=None):
+        self.ctx: OneDragonEnvContext = ctx
+        super().__init__(parent)
+
+
 class PythonSourceSpeedTestThread(SpeedTestRunnerBase):
     def __init__(self, ctx, parent=None):
-        super().__init__(ctx, parent)
+        SpeedTestRunnerBase.__init__(self, ctx, parent)
 
     def run(self):
         result = self.ctx.python_service.choose_best_cpython_source()
@@ -310,7 +308,7 @@ class PythonSourceSpeedTestThread(SpeedTestRunnerBase):
 
 class PipSourceSpeedTestThread(SpeedTestRunnerBase):
     def __init__(self, ctx, parent=None):
-        super().__init__(ctx, parent)
+        SpeedTestRunnerBase.__init__(self, ctx, parent)
 
     def run(self):
         result = self.ctx.python_service.choose_best_pip_source()
