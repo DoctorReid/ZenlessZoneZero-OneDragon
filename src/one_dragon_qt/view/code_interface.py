@@ -1,6 +1,6 @@
 from PySide6.QtCore import QThread, Signal, Qt
 from PySide6.QtWidgets import QWidget, QTableWidgetItem
-from qfluentwidgets import TableWidget, PipsPager, FluentIcon, VBoxLayout, ToolButton, LineEdit
+from qfluentwidgets import TableWidget, PipsPager, FluentIcon, VBoxLayout, ToolButton, LineEdit, Dialog
 from typing import Callable, List
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
@@ -10,6 +10,7 @@ from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSetting
 from one_dragon_qt.widgets.setting_card.password_switch_setting_card import PasswordSwitchSettingCard
 from one_dragon_qt.widgets.install_card.code_install_card import CodeInstallCard
 from one_dragon_qt.widgets.install_card.git_install_card import GitInstallCard
+from one_dragon.utils.app_utils import start_one_dragon
 from one_dragon.utils.i18_utils import gt
 
 
@@ -60,6 +61,7 @@ class CodeInterface(VerticalScrollInterface):
 
         self.code_card = CodeInstallCard(ctx)
         self.code_card.finished.connect(self.on_code_updated)
+        self.code_card.finished.connect(self._show_dialog_after_code_updated)
         v_layout.addWidget(self.code_card)
 
         self.custom_git_branch_lineedit = LineEdit()
@@ -224,7 +226,7 @@ class CodeInterface(VerticalScrollInterface):
         self.page_num = -1
         self.start_fetch_total()
 
-    def on_reset_commit_clicked(self):
+    def on_reset_commit_clicked(self) -> None:
         """
         回滚到特定的commit
         """
@@ -237,6 +239,17 @@ class CodeInterface(VerticalScrollInterface):
             self.page_num = -1
             self.start_fetch_total()
 
-    def _on_custom_branch_edited(self, text):
+    def _on_custom_branch_edited(self, text) -> None:
         self.ctx.env_config.git_branch = text
         self.code_card.check_and_update_display()
+
+    def _show_dialog_after_code_updated(self, success: bool) -> None:
+        """显示代码更新后的对话框"""
+        if not success:
+            return
+        dialog = Dialog("更新完成", "代码已更新，重启以应用更改", self)
+        dialog.setTitleBarVisible(False)
+        dialog.yesButton.setText("立即重启")
+        dialog.cancelButton.setText("稍后重启")
+        if dialog.exec():
+            start_one_dragon(restart=True)
