@@ -80,7 +80,7 @@ class ResourceDownloadInterface(VerticalScrollInterface):
     def init_ocr_opts(self) -> None:
         self.ocr_opt.blockSignals(True)
         self.ocr_opt.set_options_by_list(get_ocr_opts())
-        self.ocr_opt.set_value_by_save_file_name(self.ctx.model_config.ocr)
+        self.ocr_opt.set_value_by_save_file_name(f'{self.ctx.model_config.ocr}.zip')
         self.ocr_opt.gpu_opt.setChecked(self.ctx.model_config.ocr_gpu)
         self.ocr_opt.check_and_update_display()
         self.ocr_opt.blockSignals(False)
