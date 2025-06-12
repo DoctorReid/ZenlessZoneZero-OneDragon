@@ -471,6 +471,8 @@ class EnvConfig(YamlConfig):
         初始化系统代理设置
         """
         if self.is_personal_proxy:
-            os.environ['ALL_PROXY'] = self.personal_proxy
+            os.environ['HTTP_PROXY'] = self.personal_proxy
+            os.environ['HTTPS_PROXY'] = self.personal_proxy
         else:
-            os.environ['ALL_PROXY'] = ""
+            os.environ['HTTP_PROXY'] = ""
+            os.environ['HTTPS_PROXY'] = ""

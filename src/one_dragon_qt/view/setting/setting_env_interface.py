@@ -293,7 +293,7 @@ class SpeedTestRunnerBase(QThread):
 
 class PythonSourceSpeedTestThread(SpeedTestRunnerBase):
     def __init__(self, ctx, parent=None):
-        SpeedTestRunnerBase.__init__(ctx, parent)
+        SpeedTestRunnerBase.__init__(self, ctx, parent)
 
     def run(self):
         result = self.ctx.python_service.choose_best_cpython_source()
@@ -308,7 +308,7 @@ class PythonSourceSpeedTestThread(SpeedTestRunnerBase):
 
 class PipSourceSpeedTestThread(SpeedTestRunnerBase):
     def __init__(self, ctx, parent=None):
-        SpeedTestRunnerBase.__init__(ctx, parent)
+        SpeedTestRunnerBase.__init__(self, ctx, parent)
 
     def run(self):
         result = self.ctx.python_service.choose_best_pip_source()
