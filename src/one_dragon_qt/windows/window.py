@@ -30,7 +30,7 @@ from qfluentwidgets.common.animation import BackgroundAnimationWidget
 from qfluentwidgets.common.config import qconfig
 from qfluentwidgets.components.widgets.frameless_window import FramelessWindow
 from qfluentwidgets.window.stacked_widget import StackedWidget
-from typing import Union
+from typing import Tuple, Union
 
 
 # 伪装父类 (替换 FluentWindowBase 初始化)
@@ -395,7 +395,7 @@ class PhosTitleBar(SplitTitleBar):
     def setTitle(self, title: str):
         self.titleLabel.setText(title)
 
-    def setVersion(self, version: tuple[str, str]) -> None:
+    def setVersion(self, version: Tuple[str, str]) -> None:
         """
         设置版本号 会更新UI
         @param version: 版本号
