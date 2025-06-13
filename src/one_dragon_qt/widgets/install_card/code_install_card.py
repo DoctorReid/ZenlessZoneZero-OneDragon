@@ -16,6 +16,7 @@ class CodeInstallCard(BaseInstallCard):
         self.git_branches = [opt.value for opt in GitBranchEnum]
         self.git_branch_opt = ComboBox()
         self.git_branch_opt.set_items(self.git_branches)
+        self.git_branch_opt.init_with_value(ctx.env_config.git_branch)
         self.git_branch_opt.currentIndexChanged.connect(self.on_git_branch_changed)
 
         BaseInstallCard.__init__(
@@ -55,7 +56,6 @@ class CodeInstallCard(BaseInstallCard):
         :return: 显示的图标、文本
         """
         git_path = self.ctx.env_config.git_path
-        self.git_branch_opt.init_with_value(self.ctx.env_config.git_branch)
         current_branch = self.ctx.git_service.get_current_branch()
         if git_path == '':
             return FluentIcon.INFO.icon(color=FluentThemeColor.RED.value), gt('未配置Git', 'ui')
