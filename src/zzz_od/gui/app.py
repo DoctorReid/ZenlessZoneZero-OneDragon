@@ -38,11 +38,10 @@ try:
             self.ctx = ctx
 
         def run(self):
-            launcher_ver = app_utils.get_launcher_version()
-            code_ver = self.ctx.git_service.get_current_version()
-            ver = (launcher_ver, code_ver)
-            if ver is not None:
-                self.get.emit(ver)
+            launcher_version = app_utils.get_launcher_version()
+            code_version = self.ctx.git_service.get_current_version()
+            versions = (launcher_version, code_version)
+            self.get.emit(versions)
 
     # 定义应用程序的主窗口类
     class AppWindow(AppWindowBase):
@@ -182,13 +181,13 @@ try:
                 )
             )
 
-        def _update_version(self, ver: Tuple[str, str]) -> None:
+        def _update_version(self, versions: Tuple[str, str]) -> None:
             """
             更新版本显示
             @param ver:
             @return:
             """
-            self.titleBar.setVersion(ver)
+            self.titleBar.setVersion(versions[0], versions[1])
 
         def _check_first_run(self):
             """首次运行时显示防倒卖弹窗"""

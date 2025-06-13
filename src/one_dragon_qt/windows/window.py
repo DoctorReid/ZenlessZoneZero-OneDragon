@@ -30,7 +30,7 @@ from qfluentwidgets.common.animation import BackgroundAnimationWidget
 from qfluentwidgets.common.config import qconfig
 from qfluentwidgets.components.widgets.frameless_window import FramelessWindow
 from qfluentwidgets.window.stacked_widget import StackedWidget
-from typing import Tuple, Union
+from typing import Union
 
 
 # 伪装父类 (替换 FluentWindowBase 初始化)
@@ -395,16 +395,16 @@ class PhosTitleBar(SplitTitleBar):
     def setTitle(self, title: str):
         self.titleLabel.setText(title)
 
-    def setVersion(self, version: Tuple[str, str]) -> None:
+    def setVersion(self, launcher_version: str, code_version: str) -> None:
         """
         设置版本号 会更新UI
         @param version: 版本号
         @return:
         """
-        self.launcher_version = version[0]
-        self.code_version = version[1]
-        self.launcherVersionButton.setText(f"ⓘ 启动器版本 {version[0]}")
-        self.codeVersionButton.setText(f"ⓘ 代码版本 {version[1]}")
+        self.launcher_version = launcher_version
+        self.code_version = code_version
+        self.launcherVersionButton.setText(f"ⓘ 启动器版本 {launcher_version}")
+        self.codeVersionButton.setText(f"ⓘ 代码版本 {code_version}")
 
     # 定义打开GitHub网页的函数
     def open_github(self):
