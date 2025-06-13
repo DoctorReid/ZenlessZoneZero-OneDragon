@@ -70,7 +70,7 @@ class LauncherInstallCard(BaseInstallCard):
         return os.path.exists(launcher_path)
 
     def check_launcher_update(self) -> Tuple[bool, str, str]:
-        current_version = app_utils.check_version()
+        current_version = app_utils.get_launcher_version()
         latest_version = self.ctx.git_service.get_latest_tag()
         if current_version == latest_version:
             return True, latest_version, current_version

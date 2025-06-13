@@ -42,8 +42,6 @@ class InstallerWindowBase(AppWindowBase):
         self.stackedWidget.currentChanged.connect(self.init_interface_on_shown)
         self.create_sub_interface()
 
-        self.titleBar.versionButton.hide()
-
         # 隐藏启动页面
         self.splashScreen.finish()
 
