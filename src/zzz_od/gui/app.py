@@ -12,7 +12,6 @@ try:
     from one_dragon_qt.view.code_interface import CodeInterface
     from one_dragon_qt.view.context_event_signal import ContextEventSignal
     from one_dragon_qt.windows.app_window_base import AppWindowBase
-    from one_dragon_qt.widgets.welcome_dialog import WelcomeDialog
     from one_dragon.utils import app_utils
     from one_dragon.utils.i18_utils import gt
 
@@ -25,6 +24,7 @@ try:
     from zzz_od.gui.view.home.home_interface import HomeInterface
     from zzz_od.gui.view.one_dragon.zzz_one_dragon_interface import ZOneDragonInterface
     from zzz_od.gui.view.setting.app_setting_interface import AppSettingInterface
+    from zzz_od.gui.widgets.zzz_welcome_dialog import ZWelcomeDialog
 
     _init_error = None
 
@@ -188,7 +188,7 @@ try:
         def _check_first_run(self):
             """首次运行时显示防倒卖弹窗"""
             if self.ctx.env_config.is_first_run:
-                dialog = WelcomeDialog(self)
+                dialog = ZWelcomeDialog(self)
                 if dialog.exec():
                     self.ctx.env_config.is_first_run = False
 
