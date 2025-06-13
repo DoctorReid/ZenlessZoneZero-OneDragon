@@ -12,6 +12,7 @@ class NotifyConfig(BasicNotifyConfig):
         'redemption_code': '兑换码',
         'random_play': '影像店营业',
         'scratch_card': '刮刮卡',
+        'trigrams_collection': '卦象集录',
         'charge_plan': '体力刷本',
         'coffee': '咖啡店',
         'notorious_hunt': '恶名狩猎',
