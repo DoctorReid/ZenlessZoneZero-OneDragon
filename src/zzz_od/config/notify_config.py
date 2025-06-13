@@ -12,6 +12,7 @@ class NotifyConfig(BasicNotifyConfig):
         'redemption_code': '兑换码',
         'random_play': '影像店营业',
         'scratch_card': '刮刮卡',
+        'trigrams_collection': '卦象集录',
         'charge_plan': '体力刷本',
         'coffee': '咖啡店',
         'notorious_hunt': '恶名狩猎',
@@ -24,6 +25,5 @@ class NotifyConfig(BasicNotifyConfig):
         'email': '邮件',
         'drive_disc_dismantle': '驱动盘分解',
         'life_on_line': '真拿命验收'
-        'trigrams_collection': '卦象集录',
         }
         return self.get('app_list', zzz_app_list)
