@@ -17,6 +17,7 @@ try:
     from one_dragon.utils.i18_utils import gt
 
     from zzz_od.context.zzz_context import ZContext
+    from zzz_od.gui.view.accounts.app_accounts_interface import AccountsInterface
     from zzz_od.gui.view.battle_assistant.battle_assistant_interface import BattleAssistantInterface
     from zzz_od.gui.view.devtools.app_devtools_interface import AppDevtoolsInterface
     from zzz_od.gui.view.game_assistant.game_assistant import GameAssistantInterface
@@ -24,7 +25,6 @@ try:
     from zzz_od.gui.view.home.home_interface import HomeInterface
     from zzz_od.gui.view.one_dragon.zzz_one_dragon_interface import ZOneDragonInterface
     from zzz_od.gui.view.setting.app_setting_interface import AppSettingInterface
-    from zzz_od.gui.view.accounts.app_accounts_interface import AccountsInterface
 
     _init_error = None
 
@@ -60,18 +60,14 @@ try:
                 app_icon="zzz_logo.ico",
                 parent=parent,
             )
+
+            self.ctx.listen_event(ContextInstanceEventEnum.instance_active.value, self._on_instance_active_event)
+            self._context_event_signal: ContextEventSignal = ContextEventSignal()
+            self._context_event_signal.instance_changed.connect(self._on_instance_active_signal)
+
             self._check_version_runner = CheckVersionRunner(self.ctx)
             self._check_version_runner.get.connect(self._update_version)
             self._check_version_runner.start()
-
-            self.ctx.listen_event(
-                ContextInstanceEventEnum.instance_active.value,
-                self._on_instance_active_event,
-            )
-            self._context_event_signal: ContextEventSignal = ContextEventSignal()
-            self._context_event_signal.instance_changed.connect(
-                self._on_instance_active_signal
-            )
 
             self._check_first_run()
 
