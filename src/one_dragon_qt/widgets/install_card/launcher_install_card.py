@@ -72,7 +72,7 @@ class LauncherInstallCard(BaseInstallCard):
     def check_launcher_update(self) -> Tuple[bool, str, str]:
         current_version = app_utils.check_version()
         latest_version = self.ctx.git_service.get_latest_tag()
-        if current_version == latest_version or latest_version is None:
+        if current_version == latest_version:
             return True, latest_version, current_version
         return False, latest_version, current_version
 
@@ -97,7 +97,7 @@ class LauncherInstallCard(BaseInstallCard):
             is_latest, latest_version, current_version = self.check_launcher_update()
             if is_latest or os_utils.run_in_exe:  # 安装器中不检查更新
                 icon = FluentIcon.INFO.icon(color=FluentThemeColor.DEFAULT_BLUE.value)
-                msg = f"{gt('已安装', 'ui')}"
+                msg = f"{gt('已安装', 'ui')} {current_version}"
             else:
                 icon = FluentIcon.INFO.icon(color=FluentThemeColor.GOLD.value)
                 msg = f"需更新。{gt('当前版本', 'ui')}: {current_version}; {gt('最新版本', 'ui')}: {latest_version}"
