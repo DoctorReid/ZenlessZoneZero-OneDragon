@@ -189,7 +189,7 @@ class OnnxOcrMatcher(OcrMatcher, ZipDownloader):
         log.debug('OCR结果 %s 耗时 %.2f', result_map.keys(), time.time() - start_time)
         return result_map
 
-    def _run_ocr_without_det(self, image: MatLike, threshold: float = None) -> str:
+    def _run_ocr_without_det(self, image: MatLike, threshold: float = 0) -> str:
         """
         不使用检测模型分析图片内文字的分布
         默认传入的图片仅有文字信息
@@ -203,7 +203,7 @@ class OnnxOcrMatcher(OcrMatcher, ZipDownloader):
         if len(img_result) > 1:
             log.debug("禁检测的OCR模型返回多个识别结果")  # 目前没有出现这种情况
 
-        if threshold is not None and img_result[0][1] < threshold:
+        if img_result[0][1] < threshold:
             log.debug("OCR模型返回的识别结果置信度低于阈值")
             return ""
         log.debug('OCR结果 %s 耗时 %.2f', scan_result, time.time() - start_time)
@@ -212,7 +212,7 @@ class OnnxOcrMatcher(OcrMatcher, ZipDownloader):
     def match_words(
             self,
             image: MatLike, words: List[str],
-            threshold: float = None,
+            threshold: float = 0,
             same_word: bool = False,
             ignore_case: bool = True,
             lcs_percent: float = -1,
