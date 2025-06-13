@@ -95,7 +95,7 @@ class LauncherInstallCard(BaseInstallCard):
         """
         if self.check_launcher_exist():
             is_latest, latest_version, current_version = self.check_launcher_update()
-            if is_latest or os_utils.run_in_exe:  # 安装器中不检查更新
+            if is_latest or os_utils.run_in_exe():  # 安装器中不检查更新
                 icon = FluentIcon.INFO.icon(color=FluentThemeColor.DEFAULT_BLUE.value)
                 msg = f"{gt('已安装', 'ui')} {current_version}"
             else:
