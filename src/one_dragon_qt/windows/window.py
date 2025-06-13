@@ -358,6 +358,7 @@ class PhosTitleBar(SplitTitleBar):
         self.launcherVersionButton = QPushButton("ⓘ 启动器版本 未知")
         self.launcherVersionButton.setObjectName("launcherVersionButton")
         self.launcherVersionButton.clicked.connect(lambda: self.copy_version(self.launcher_version))
+        self.launcherVersionButton.setVisible(False)
         Qlayout.addWidget(
             self.launcherVersionButton,
             0,
@@ -367,6 +368,7 @@ class PhosTitleBar(SplitTitleBar):
         self.codeVersionButton = QPushButton("ⓘ 代码版本 未知")
         self.codeVersionButton.setObjectName("codeVersionButton")
         self.codeVersionButton.clicked.connect(lambda: self.copy_version(self.code_version))
+        self.codeVersionButton.setVisible(False)
         Qlayout.addWidget(
             self.codeVersionButton,
             0,
@@ -405,6 +407,9 @@ class PhosTitleBar(SplitTitleBar):
         self.code_version = code_version
         self.launcherVersionButton.setText(f"ⓘ 启动器版本 {launcher_version}")
         self.codeVersionButton.setText(f"ⓘ 代码版本 {code_version}")
+        if launcher_version:
+            self.launcherVersionButton.setVisible(True)
+        self.codeVersionButton.setVisible(True)
 
     # 定义打开GitHub网页的函数
     def open_github(self):

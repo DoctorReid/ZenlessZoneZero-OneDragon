@@ -31,7 +31,7 @@ try:
 
     class CheckVersionRunner(QThread):
 
-        get = Signal(Tuple[str, str])
+        get = Signal(tuple)
 
         def __init__(self, ctx: ZContext, parent=None):
             super().__init__(parent)
