@@ -1,5 +1,6 @@
 try:
     import sys
+    from typing import Tuple
     from PySide6.QtCore import Qt, QThread, Signal
     from PySide6.QtWidgets import QApplication
     from qfluentwidgets import NavigationItemPosition, setTheme, Theme
@@ -12,6 +13,7 @@ try:
     from one_dragon_qt.view.context_event_signal import ContextEventSignal
     from one_dragon_qt.windows.app_window_base import AppWindowBase
     from one_dragon_qt.widgets.welcome_dialog import WelcomeDialog
+    from one_dragon.utils import app_utils
     from one_dragon.utils.i18_utils import gt
 
     from zzz_od.context.zzz_context import ZContext
@@ -29,14 +31,16 @@ try:
 
     class CheckVersionRunner(QThread):
 
-        get = Signal(str)
+        get = Signal(Tuple[str, str])
 
         def __init__(self, ctx: ZContext, parent=None):
             super().__init__(parent)
             self.ctx = ctx
 
         def run(self):
-            ver = self.ctx.git_service.get_current_version()
+            launcher_ver = app_utils.get_launcher_version()
+            code_ver = self.ctx.git_service.get_current_version()
+            ver = (launcher_ver, code_ver)
             if ver is not None:
                 self.get.emit(ver)
 
@@ -178,7 +182,7 @@ try:
                 )
             )
 
-        def _update_version(self, ver: str) -> None:
+        def _update_version(self, ver: Tuple[str, str]) -> None:
             """
             更新版本显示
             @param ver:

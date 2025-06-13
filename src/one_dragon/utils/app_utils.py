@@ -18,7 +18,7 @@ def start_one_dragon(restart: bool) -> None:
         sys.exit(0)
 
 
-def check_version() -> str:
+def get_launcher_version() -> str:
     """
     检查启动器版本
     :return: 版本号
@@ -34,4 +34,4 @@ def check_version() -> str:
 
 
 if __name__ == '__main__':
-    print(check_version())
+    print(get_launcher_version())
