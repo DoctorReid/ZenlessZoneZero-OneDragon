@@ -24,5 +24,6 @@ class NotifyConfig(BasicNotifyConfig):
         'email': '邮件',
         'drive_disc_dismantle': '驱动盘分解',
         'life_on_line': '真拿命验收'
+        'trigrams_collection': '卦象集录',
         }
         return self.get('app_list', zzz_app_list)
