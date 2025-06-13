@@ -24,14 +24,14 @@ class BannerImageLoader(QThread):
     """异步banner图片加载器"""
     image_loaded = Signal(QPixmap, str)  # pixmap, url
     all_images_loaded = Signal()
-    
+
     def __init__(self, banners, device_pixel_ratio, parent=None):
         super().__init__(parent)
         self.banners = banners
         self.device_pixel_ratio = device_pixel_ratio
         self.loaded_count = 0
         self.total_count = len(banners)
-    
+
     def run(self):
         """异步加载所有banner图片"""
         for banner in self.banners:
@@ -52,9 +52,9 @@ class BannerImageLoader(QThread):
                     self.image_loaded.emit(pixmap, banner["image"]["link"])
             except Exception as e:
                 print(f"异步加载图片失败: {e}")
-            
+
             self.loaded_count += 1
-        
+
         self.all_images_loaded.emit()
 
 
@@ -137,7 +137,7 @@ class NoticeCard(SimpleCardWidget):
         )
         self._banner_loader = None
         self._is_loading_banners = False
-        
+
         self.setup_ui()
         self.fetch_data()
 
@@ -194,14 +194,14 @@ class NoticeCard(SimpleCardWidget):
         """
         if self._is_loading_banners or not banners:
             return
-            
+
         # 清空现有的banners，准备加载新的
         self.banners.clear()
         self.banner_urls.clear()
-        
+
         self._is_loading_banners = True
         pixel_ratio = self.devicePixelRatio()
-        
+
         self._banner_loader = BannerImageLoader(banners, pixel_ratio, self)
         self._banner_loader.image_loaded.connect(self._on_banner_image_loaded)
         self._banner_loader.all_images_loaded.connect(self._on_all_banners_loaded)
@@ -289,7 +289,7 @@ class NoticeCard(SimpleCardWidget):
         # 清空现有内容，避免重复添加
         self.flipView.clear()
         self.flipView.addImages(self.banners)
-        
+
         # 清空并重新添加posts
         for widget, type in zip(
             [self.activityWidget, self.announceWidget, self.infoWidget],
