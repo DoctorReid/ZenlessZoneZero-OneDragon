@@ -206,6 +206,19 @@ class LostVoidContext:
 
             time.sleep(self.ctx.battle_assistant_config.screenshot_interval)
 
+    def get_artifact_by_full_name(self, name_full_str: str) -> Optional[LostVoidArtifact]:
+        """
+        根据完整名称 获取对应的藏品 名称需要完全一致
+        :param name_full_str: 识别的文本 [类型]名称
+        :return:
+        """
+        for artifact in self.all_artifact_list:
+            artifact_full_name = artifact.display_name
+            if artifact_full_name == name_full_str:
+                return artifact
+
+        return None
+
     def match_artifact_by_ocr_full(self, name_full_str: str) -> Optional[LostVoidArtifact]:
         """
         使用 [类型]名称 的文本匹配 藏品

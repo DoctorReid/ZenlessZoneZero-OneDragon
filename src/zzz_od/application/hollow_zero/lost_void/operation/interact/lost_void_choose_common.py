@@ -24,6 +24,9 @@ class LostVoidChooseCommon(ZOperation):
         """
         ZOperation.__init__(self, ctx, op_name='迷失之地-通用选择')
 
+        self.to_choose_artifact: bool = False  # 需要选择普通藏品
+        self.to_choose_gear: bool = False  # 需要选择武备
+        self.to_choose_gear_branch: bool = False  # 需要选择武备分支
         self.to_choose_num: int = 1  # 需要选择的数量
         self.chosen_idx_list: list[int] = []  # 已经选择过的下标
 
@@ -96,10 +99,7 @@ class LostVoidChooseCommon(ZOperation):
 
         artifact_name_list: list[str] = []
         for art in self.ctx.lost_void.all_artifact_list:
-            if art.is_gear:
-                artifact_name_list.append(gt(f'[{art.category}]{art.name}'))
-            else:
-                artifact_name_list.append(gt(art.name))
+            artifact_name_list.append(gt(art.display_name))
 
         artifact_pos_list: list[LostVoidArtifactPos] = []
         ocr_result_map = self.ctx.ocr.run_ocr(screen)
@@ -111,6 +111,39 @@ class LostVoidChooseCommon(ZOperation):
             artifact = self.ctx.lost_void.all_artifact_list[title_idx]
             artifact_pos = LostVoidArtifactPos(artifact, mrl.max.rect)
             artifact_pos_list.append(artifact_pos)
+
+        # 识别武备分支
+        if self.to_choose_gear_branch:
+            for branch in ['a', 'b']:
+                template_id = f'gear_branch_{branch}'
+                template = self.ctx.template_loader.get_template('lost_void', template_id)
+                if template is None:
+                    continue
+                mrl = cv2_utils.match_template(screen, template.raw, mask=template.mask, threshold=0.9)
+                if mrl is None or mrl.max is None:
+                    continue
+
+                # 找横坐标最接近的藏品
+                closest_artifact_pos: Optional[LostVoidArtifactPos] = None
+                for artifact_pos in artifact_pos_list:
+                    # 标识需要在藏品的右方
+                    if not mrl.max.rect.x1 > artifact_pos.rect.center.x:
+                        continue
+
+                    if closest_artifact_pos is None:
+                        closest_artifact_pos = artifact_pos
+                        continue
+                    old_dis = abs(mrl.max.center.x - closest_artifact_pos.rect.center.x)
+                    new_dis = abs(mrl.max.center.x - artifact_pos.rect.center.x)
+                    if new_dis < old_dis:
+                        closest_artifact_pos = artifact_pos
+
+                if closest_artifact_pos is not None:
+                    original_artifact = closest_artifact_pos.artifact
+                    branch_artifact_name: str = f'{original_artifact.display_name}-{branch}'
+                    branch_artifact = self.ctx.lost_void.get_artifact_by_full_name(branch_artifact_name)
+                    if branch_artifact is not None:
+                        closest_artifact_pos.artifact = branch_artifact
 
         # 识别其它标识
         title_word_list = [
@@ -162,6 +195,9 @@ class LostVoidChooseCommon(ZOperation):
         识别标题 判断要选择的类型和数量
         :param screen: 游戏画面
         """
+        self.to_choose_artifact = False
+        self.to_choose_gear = False
+        self.to_choose_gear_branch = False
         self.to_choose_num = 0
         area = self.ctx.screen_loader.get_area('迷失之地-通用选择', '区域-标题')
         part = cv2_utils.crop_image_only(screen, area.rect)
@@ -178,6 +214,11 @@ class LostVoidChooseCommon(ZOperation):
             gt('请选择战术棱镜方案强化的方向'),
         ]
 
+        result = self.round_by_find_area(screen, '迷失之地-通用选择', '区域-武备标识')  # 下方的GEAR
+        if result.is_success:
+            self.to_choose_gear = True
+            self.to_choose_num = 1
+
         for ocr_word in ocr_result.keys():
             idx = str_utils.find_best_match_by_difflib(ocr_word, target_result_list)
             if idx is None:
@@ -186,31 +227,27 @@ class LostVoidChooseCommon(ZOperation):
                 # 1.5 更新后 武备和普通鸣徽都是这个标题
                 self.to_choose_num = 1
             elif idx == 1:  # 请选择2项
-                is_artifact = True
+                self.to_choose_artifact = True
                 self.to_choose_num = 2
             elif idx == 2:  # 请选择1个武备
-                is_gear = True
+                self.to_choose_gear = True
                 self.to_choose_num = 1
             elif idx == 3:  # 获得武备
-                is_gear = True
+                self.to_choose_gear = True
                 self.to_choose_num = 0
             elif idx == 4:  # 武备已升级
-                is_gear = True
+                self.to_choose_gear = True
                 self.to_choose_num = 0
             elif idx == 5:  # 获得战利品
-                is_artifact = True
+                self.to_choose_artifact = True
                 self.to_choose_num = 0
             elif idx == 6:  # 请选择1张卡牌
-                is_artifact = True
+                self.to_choose_artifact = True
                 self.to_choose_num = 1
             elif idx == 7:  # 请选择战术棱镜方案强化的方向
-                is_gear = True
+                self.to_choose_gear = True
+                self.to_choose_gear_branch = True
                 self.to_choose_num = 1
-
-        result = self.round_by_find_area(screen, '迷失之地-通用选择', '区域-武备标识')  # 下方的GEAR
-        if result.is_success:
-            is_gear = True
-            self.to_choose_num = 1
 
 def __debug():
     ctx = ZContext()
@@ -240,4 +277,4 @@ def __get_get_artifact_pos():
 
 
 if __name__ == '__main__':
-    __debug()
+    __get_get_artifact_pos()

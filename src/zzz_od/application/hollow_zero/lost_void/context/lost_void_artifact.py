@@ -11,4 +11,14 @@ class LostVoidArtifact:
         self.level: str = level  # 等级
         self.is_gear: bool = is_gear  # 是否武备
         self.template_id: str = template_id  # 模板ID 仅部分武备有
-        self.display_name: str = f'{self.category} {self.name}'
+
+    @property
+    def display_name(self) -> str:
+        """
+        游戏中显示的完整名字
+        :return:
+        """
+        if self.category not in ['卡牌', '无详情']:
+            return f'[{self.category}]{self.name}'
+        else:
+            return self.name
