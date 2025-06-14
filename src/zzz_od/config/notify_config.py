@@ -3,9 +3,6 @@ from one_dragon.base.config.basic_notify_config import BasicNotifyConfig
 
 class NotifyConfig(BasicNotifyConfig):
 
-    def __init__(self, instance_idx: int):
-        BasicNotifyConfig.__init__(self, instance_idx=instance_idx)
-
     @property
     def app_list(self) -> dict:
         zzz_app_list = {
