@@ -320,7 +320,7 @@ class AgentEnum(Enum):
                                      template_id='yixuan_auric_Ink',
                                      hsv_color=(20, 127, 255), hsv_color_diff=(15, 128, 50),
                                      connect_cnt=10, min_value_trigger_state=0),
-                       AgentStateDef('仪玄-法术值', AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH,
+                       AgentStateDef('仪玄-术法值', AgentStateCheckWay.FOREGROUND_COLOR_RANGE_LENGTH,
                                      template_id='yixuan_technique',
                                      hsv_color=(30, 127, 255), hsv_color_diff=(20, 128, 50),
                                      max_length=120)
