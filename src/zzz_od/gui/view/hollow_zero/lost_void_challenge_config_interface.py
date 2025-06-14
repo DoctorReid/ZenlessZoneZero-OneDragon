@@ -100,6 +100,10 @@ class LostVoidChallengeConfigInterface(VerticalScrollInterface):
                                                      content='血量 ≥ x% 时 才会进行购买')
         widget.add_widget(self.store_blood_min_opt)
 
+        self.priority_new_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='优先选择NEW!藏品',
+                                                  content='最高优先级 但不保证识别正确')
+        widget.add_widget(self.priority_new_opt)
+
         self.buy_only_priority_1_opt = TextSettingCard(icon=FluentIcon.GAME, title='只购买第一优先级',
                                                      content='刷新多少次数内 只购买第一优先级内的藏品')
         widget.add_widget(self.buy_only_priority_1_opt)
@@ -172,6 +176,7 @@ class LostVoidChallengeConfigInterface(VerticalScrollInterface):
         self.period_buff_no_opt.setDisabled(not chosen or is_sample)
         self.store_blood_opt.setDisabled(not chosen or is_sample)
         self.store_blood_min_opt.setDisabled(not chosen or is_sample)
+        self.priority_new_opt.setDisabled(not chosen or is_sample)
         self.buy_only_priority_1_opt.setDisabled(not chosen or is_sample)
         self.buy_only_priority_2_opt.setDisabled(not chosen or is_sample)
         self.artifact_priority_input.setDisabled(not chosen or is_sample)
@@ -192,9 +197,9 @@ class LostVoidChallengeConfigInterface(VerticalScrollInterface):
             self.period_buff_no_opt.init_with_adapter(self.chosen_config.get_prop_adapter('period_buff_no'))
             self.store_blood_opt.init_with_adapter(self.chosen_config.get_prop_adapter('store_blood'))
             self.store_blood_min_opt.init_with_adapter(self.chosen_config.get_prop_adapter('store_blood_min', getter_convert='str', setter_convert='int'))
+            self.priority_new_opt.init_with_adapter(self.chosen_config.get_prop_adapter('artifact_priority_new'))
             self.buy_only_priority_1_opt.init_with_adapter(self.chosen_config.get_prop_adapter('buy_only_priority_1', getter_convert='str', setter_convert='int'))
             self.buy_only_priority_2_opt.init_with_adapter(self.chosen_config.get_prop_adapter('buy_only_priority_2', getter_convert='str', setter_convert='int'))
-            # self.buy_only_priority_opt.setContent('达到刷新次数前 只购买优先级内的藏品')  # 不知道为啥需要在这里设置才生效
 
             self.artifact_priority_input.blockSignals(True)
             self.artifact_priority_input.setPlainText(self.chosen_config.artifact_priority_str)

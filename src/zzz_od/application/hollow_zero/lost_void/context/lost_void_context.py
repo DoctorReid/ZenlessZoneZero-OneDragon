@@ -313,10 +313,13 @@ class LostVoidContext:
 
         return filter_result_list, error_msg
 
-    def get_artifact_by_priority(self, artifact_list: List[LostVoidArtifactPos], choose_num: int,
-                                 consider_priority_1: bool = True, consider_priority_2: bool = True,
-                                 consider_not_in_priority: bool = True,
-                                 ignore_idx_list: Optional[list[int]] = None) -> List[LostVoidArtifactPos]:
+    def get_artifact_by_priority(
+            self, artifact_list: List[LostVoidArtifactPos], choose_num: int,
+            consider_priority_1: bool = True, consider_priority_2: bool = True,
+            consider_not_in_priority: bool = True,
+            ignore_idx_list: Optional[list[int]] = None,
+            consider_priority_new: bool = False,
+    ) -> List[LostVoidArtifactPos]:
         """
         根据优先级 返回需要选择的藏品
         :param artifact_list: 识别到的藏品结果
@@ -325,8 +328,10 @@ class LostVoidContext:
         :param consider_priority_2: 是否考虑优先级2的内容
         :param consider_not_in_priority: 是否考虑优先级以外的选项
         :param ignore_idx_list: 需要忽略的下标
+        :param consider_priority_new: 是否优先选择NEW类型 最高优先级
         :return: 按优先级选择的结果
         """
+        log.info(f'当前考虑优先级 数量={choose_num} NEW!={consider_priority_new} 第一优先级={consider_priority_1} 第二优先级={consider_priority_2} 其他={consider_not_in_priority}')
         priority_list_to_consider = []
         if consider_priority_1:
             priority_list_to_consider.append(self.challenge_config.artifact_priority)
@@ -334,6 +339,25 @@ class LostVoidContext:
             priority_list_to_consider.append(self.challenge_config.artifact_priority_2)
 
         priority_idx_list: List[int] = []  # 优先级排序的下标
+
+        # 优先选择NEW类型 最高优先级
+        if consider_priority_new:
+            for level in ['S', 'A', 'B']:
+                for idx in range(len(artifact_list)):
+                    if ignore_idx_list is not None and idx in ignore_idx_list:  # 需要忽略的下标
+                        continue
+
+                    if idx in priority_idx_list:  # 已经加入过了
+                        continue
+
+                    pos = artifact_list[idx]
+                    if pos.artifact.level != level:
+                        continue
+
+                    if not pos.is_new:
+                        continue
+
+                    priority_idx_list.append(idx)
 
         # 按优先级顺序 将匹配的藏品下标加入
         # 同时 优先考虑等级高的
@@ -396,7 +420,6 @@ class LostVoidContext:
                 continue
             result_list.append(artifact_list[priority_idx_list[i]])
 
-        log.info(f'当前考虑优先级 数量={choose_num} 第一优先级={consider_priority_1} 第二优先级={consider_priority_2} 其他={consider_not_in_priority}')
         display_text = ','.join([i.artifact.display_name for i in result_list]) if len(result_list) > 0 else '无'
         log.info(f'当前符合优先级列表 {display_text}')
 

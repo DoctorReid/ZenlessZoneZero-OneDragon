@@ -134,6 +134,18 @@ class LostVoidChallengeConfig(YamlConfig):
         self.update('auto_battle', new_value)
 
     @property
+    def artifact_priority_new(self) -> bool:
+        """
+        优先选择NEW!藏品
+        :return:
+        """
+        return self.get('artifact_priority_new', False)
+
+    @artifact_priority_new.setter
+    def artifact_priority_new(self, new_value: bool):
+        self.update('artifact_priority_new', new_value)
+
+    @property
     def artifact_priority(self) -> List[str]:
         return self.get('artifact_priority', [])
 

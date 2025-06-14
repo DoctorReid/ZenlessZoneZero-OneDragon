@@ -46,7 +46,8 @@ class LostVoidChooseCommon(ZOperation):
             priority_list: list[LostVoidArtifactPos] = self.ctx.lost_void.get_artifact_by_priority(
                 art_list, self.to_choose_num,
                 consider_priority_1=True, consider_priority_2=not can_refresh,
-                consider_not_in_priority=not can_refresh
+                consider_not_in_priority=not can_refresh,
+                consider_priority_new=self.ctx.lost_void.challenge_config.artifact_priority_new
             )
 
             # 如果需要选择多个 则有任意一个符合优先级即可 剩下的用优先级以外的补上
@@ -54,7 +55,8 @@ class LostVoidChooseCommon(ZOperation):
                 priority_list = self.ctx.lost_void.get_artifact_by_priority(
                     art_list, self.to_choose_num,
                     consider_priority_1=True, consider_priority_2=True,
-                    consider_not_in_priority=True
+                    consider_not_in_priority=True,
+                    consider_priority_new=self.ctx.lost_void.challenge_config.artifact_priority_new
                 )
 
             # 注意最后筛选优先级的长度一定要符合需求的选择数量
@@ -115,6 +117,7 @@ class LostVoidChooseCommon(ZOperation):
             gt('有同流派武备'),
             gt('已选择'),
             gt('齿轮硬币不足'),
+            gt('NEW!')
         ]
         to_cancel_list: list[LostVoidArtifactPos] = []
         for ocr_result, mrl in ocr_result_map.items():
@@ -141,6 +144,8 @@ class LostVoidChooseCommon(ZOperation):
                     to_cancel_list.append(closest_artifact_pos)
                 elif title_idx == 2:  # 齿轮硬币不足
                     closest_artifact_pos.can_choose = False
+                elif title_idx == 3:  # NEW!
+                    closest_artifact_pos.is_new = True
 
         artifact_pos_list = [i for i in artifact_pos_list if i.can_choose]
 
@@ -170,6 +175,7 @@ class LostVoidChooseCommon(ZOperation):
             gt('武备已升级'),
             gt('获得战利品'),
             gt('请选择1张卡牌'),
+            gt('请选择战术棱镜方案强化的方向'),
         ]
 
         for ocr_word in ocr_result.keys():
@@ -197,6 +203,9 @@ class LostVoidChooseCommon(ZOperation):
             elif idx == 6:  # 请选择1张卡牌
                 is_artifact = True
                 self.to_choose_num = 1
+            elif idx == 7:  # 请选择战术棱镜方案强化的方向
+                is_gear = True
+                self.to_choose_num = 1
 
         result = self.round_by_find_area(screen, '迷失之地-通用选择', '区域-武备标识')  # 下方的GEAR
         if result.is_success:
@@ -222,7 +231,7 @@ def __get_get_artifact_pos():
 
     op = LostVoidChooseCommon(ctx)
     from one_dragon.utils import debug_utils
-    screen = debug_utils.get_debug_image('1')
+    screen = debug_utils.get_debug_image('_1749883678280')
     art_list, chosen_list = op.get_artifact_pos(screen)
     print(len(art_list), len(chosen_list))
     cv2_utils.show_image(screen, chosen_list[0] if len(chosen_list) > 0 else None, wait=0)
@@ -231,4 +240,4 @@ def __get_get_artifact_pos():
 
 
 if __name__ == '__main__':
-    __get_get_artifact_pos()
+    __debug()

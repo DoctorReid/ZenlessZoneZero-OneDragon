@@ -219,6 +219,12 @@
   template_id: "gear_astra_yao_3"
 
 - category: "耀嘉音"
+  name: "绯色鼓点"
+  level: "S"
+  is_gear: true
+  template_id: "gear_astra_yao_1"
+
+- category: "耀嘉音"
   name: "完美救场"
   level: "A"
   is_gear: true
