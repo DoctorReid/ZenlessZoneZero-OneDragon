@@ -37,11 +37,12 @@ class LostVoidContext:
         self.gear_by_name: dict[str, LostVoidArtifact] = {}  # key=名称 value=武备
         self.cate_2_artifact: dict[str, List[LostVoidArtifact]] = {}  # key=分类 value=藏品
 
+        self.predefined_team_idx: int = -1  # 本次挑战所使用的预备编队
+
     def init_before_run(self) -> None:
         self.init_lost_void_det_model()
         self.load_artifact_data()
         self.load_challenge_config()
-        self.init_auto_op()
 
     def load_artifact_data(self) -> None:
         """
@@ -83,10 +84,26 @@ class LostVoidContext:
         """
         if self.auto_op is not None:  # 如果有上一个 先销毁
             self.auto_op.dispose()
-        self.auto_op = AutoBattleOperator(self.ctx, 'auto_battle', self.challenge_config.auto_battle)
+        self.auto_op = AutoBattleOperator(self.ctx, 'auto_battle', self.get_auto_op_name())
         success, msg = self.auto_op.init_before_running()
         if not success:
             raise Exception(msg)
+
+    def get_auto_op_name(self) -> str:
+        """
+        获取所需使用的自动战斗配置文件名
+        :return:
+        """
+        if self.predefined_team_idx == -1:
+            if self.challenge_config is not None:
+                return self.challenge_config.auto_battle
+        else:
+            from zzz_od.config.team_config import PredefinedTeamInfo
+            team_info: PredefinedTeamInfo = self.ctx.team_config.get_team_by_idx(self.predefined_team_idx)
+            if team_info is not None:
+                return team_info.auto_battle
+
+        return '全配队通用'
 
     def load_challenge_config(self) -> None:
         """

@@ -105,6 +105,27 @@ class LostVoidChallengeConfig(YamlConfig):
         YamlConfig.save(self)
 
     @property
+    def predefined_team_idx(self) -> int:
+        # 预备配队下标 -1为使用当前配队
+        return self.get('predefined_team_idx', -1)
+
+    @predefined_team_idx.setter
+    def predefined_team_idx(self, new_value: int):
+        self.update('predefined_team_idx', new_value)
+
+    @property
+    def choose_team_by_priority(self) -> bool:
+        """
+        当副本有当期UP时 优先选择相关配队
+        :return:
+        """
+        return self.get('choose_team_by_priority', False)
+
+    @choose_team_by_priority.setter
+    def choose_team_by_priority(self, new_value: bool):
+        self.update('choose_team_by_priority', new_value)
+
+    @property
     def auto_battle(self) -> str:
         return self.get('auto_battle', '全配队通用')
 
