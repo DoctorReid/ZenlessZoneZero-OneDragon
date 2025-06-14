@@ -8,7 +8,7 @@ from one_dragon.base.config.yaml_operator import YamlOperator
 from one_dragon.base.matcher.match_result import MatchResult
 from one_dragon.base.screen import screen_utils
 from one_dragon.base.screen.screen_utils import FindAreaResultEnum
-from one_dragon.utils import os_utils, str_utils
+from one_dragon.utils import os_utils, str_utils, cv2_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from one_dragon.yolo.detect_utils import DetectFrameResult
@@ -325,6 +325,108 @@ class LostVoidContext:
                 error_msg += f'输入非法 {i}'
 
         return filter_result_list, error_msg
+
+    def get_artifact_pos(
+            self, screen: MatLike,
+            to_choose_gear_branch: bool = False
+    ) -> list[LostVoidArtifactPos]:
+        """
+        识别画面中出现的藏品
+        - 通用选择
+        - 邦布商店
+        :param screen: 游戏画面
+        :param to_choose_gear_branch: 是否识别战术棱镜
+        :return:
+        """
+        artifact_name_list: list[str] = []
+        for art in self.ctx.lost_void.all_artifact_list:
+            artifact_name_list.append(gt(art.display_name))
+
+        artifact_pos_list: list[LostVoidArtifactPos] = []
+        ocr_result_map = self.ctx.ocr.run_ocr(screen)
+        for ocr_result, mrl in ocr_result_map.items():
+            title_idx: int = str_utils.find_best_match_by_difflib(ocr_result, artifact_name_list)
+            if title_idx is None or title_idx < 0:
+                continue
+
+            artifact = self.ctx.lost_void.all_artifact_list[title_idx]
+            artifact_pos = LostVoidArtifactPos(artifact, mrl.max.rect)
+            artifact_pos_list.append(artifact_pos)
+
+        # 识别武备分支
+        if to_choose_gear_branch:
+            for branch in ['a', 'b']:
+                template_id = f'gear_branch_{branch}'
+                template = self.ctx.template_loader.get_template('lost_void', template_id)
+                if template is None:
+                    continue
+                mrl = cv2_utils.match_template(screen, template.raw, mask=template.mask, threshold=0.9)
+                if mrl is None or mrl.max is None:
+                    continue
+
+                # 找横坐标最接近的藏品
+                closest_artifact_pos: Optional[LostVoidArtifactPos] = None
+                for artifact_pos in artifact_pos_list:
+                    # 标识需要在藏品的右方
+                    if not mrl.max.rect.x1 > artifact_pos.rect.center.x:
+                        continue
+
+                    if closest_artifact_pos is None:
+                        closest_artifact_pos = artifact_pos
+                        continue
+                    old_dis = abs(mrl.max.center.x - closest_artifact_pos.rect.center.x)
+                    new_dis = abs(mrl.max.center.x - artifact_pos.rect.center.x)
+                    if new_dis < old_dis:
+                        closest_artifact_pos = artifact_pos
+
+                if closest_artifact_pos is not None:
+                    original_artifact = closest_artifact_pos.artifact
+                    branch_artifact_name: str = f'{original_artifact.display_name}-{branch}'
+                    branch_artifact = self.ctx.lost_void.get_artifact_by_full_name(branch_artifact_name)
+                    if branch_artifact is not None:
+                        closest_artifact_pos.artifact = branch_artifact
+
+        # 识别其它标识
+        title_word_list = [
+            gt('有同流派武备'),
+            gt('已选择'),
+            gt('齿轮硬币不足'),
+            gt('NEW!')
+        ]
+        for ocr_result, mrl in ocr_result_map.items():
+            title_idx: int = str_utils.find_best_match_by_difflib(ocr_result, title_word_list)
+            if title_idx is None or title_idx < 0:
+                continue
+            # 找横坐标最接近的藏品
+            closest_artifact_pos: Optional[LostVoidArtifactPos] = None
+            for artifact_pos in artifact_pos_list:
+                # 标题需要在藏品的上方
+                if not mrl.max.rect.y2 < artifact_pos.rect.y1:
+                    continue
+
+                if closest_artifact_pos is None:
+                    closest_artifact_pos = artifact_pos
+                    continue
+                old_dis = abs(mrl.max.center.x - closest_artifact_pos.rect.center.x)
+                new_dis = abs(mrl.max.center.x - artifact_pos.rect.center.x)
+                if new_dis < old_dis:
+                    closest_artifact_pos = artifact_pos
+
+            if closest_artifact_pos is not None:
+                if title_idx == 1:  # 已选择
+                    closest_artifact_pos.chosen = True
+                    closest_artifact_pos.can_choose = False
+                elif title_idx == 2:  # 齿轮硬币不足
+                    closest_artifact_pos.can_choose = False
+                elif title_idx == 3:  # NEW!
+                    closest_artifact_pos.is_new = True
+
+        artifact_pos_list = [i for i in artifact_pos_list if i.can_choose]
+
+        display_text = ', '.join([i.artifact.display_name for i in artifact_pos_list]) if len(artifact_pos_list) > 0 else '无'
+        log.info(f'当前识别藏品 {display_text}')
+
+        return artifact_pos_list
 
     def get_artifact_by_priority(
             self, artifact_list: List[LostVoidArtifactPos], choose_num: int,

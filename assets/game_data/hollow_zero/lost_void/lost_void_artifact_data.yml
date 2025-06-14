@@ -5,11 +5,19 @@
   is_gear: true
   template_id: "gear_mobile_1"
 
+- category: "射吸式焊炬"
+  name: "敕令玄幡"
+  level: "S"
+
 - category: "携游"
   name: "破军鸣锋"
   level: "S"
   is_gear: true
   template_id: "gear_mobile_1"
+
+- category: "射吸式焊炬"
+  name: "破军鸣锋"
+  level: "S"
 
   # 终结
 - category: "终结"
@@ -18,11 +26,19 @@
   is_gear: true
   template_id: "gear_ultimate_1"
 
+- category: "射吸式焊炬"
+  name: "律动节能器"
+  level: "S"
+
 - category: "终结"
   name: "养气香囊"
   level: "S"
   is_gear: true
   template_id: "gear_ultimate_2"
+
+- category: "射吸式焊炬"
+  name: "养气香囊"
+  level: "S"
 
   # 机敏
 - category: "机敏"
@@ -31,11 +47,19 @@
   is_gear: true
   template_id: "gear_dexterity_1"
 
+- category: "射吸式焊炬"
+  name: "机敏蓄能盾"
+  level: "S"
+
 - category: "机敏"
   name: "五界天符"
   level: "S"
   is_gear: true
   template_id: "gear_dexterity_2"
+
+- category: "射吸式焊炬"
+  name: "五界天符"
+  level: "S"
 
   # 异常·击破
 - category: "异常·击破"
@@ -44,11 +68,19 @@
   is_gear: true
   template_id: "gear_anomaly_stun_1"
 
+- category: "射吸式焊炬"
+  name: "溶剂弹射枪"
+  level: "S"
+
 - category: "异常·击破"
   name: "混元丹"
   level: "S"
   is_gear: true
   template_id: "gear_anomaly_stun_2"
+
+- category: "射吸式焊炬"
+  name: "混元丹"
+  level: "S"
 
   # 绝境
 - category: "绝境"
@@ -57,11 +89,19 @@
   is_gear: true
   template_id: "gear_adversity_1"
 
+- category: "射吸式焊炬"
+  name: "战斗维生包"
+  level: "S"
+
 - category: "绝境"
   name: "浩劫令牌"
   level: "S"
   is_gear: true
   template_id: "gear_adversity_2"
+
+- category: "射吸式焊炬"
+  name: "浩劫令牌"
+  level: "S"
 
   # 星见雅
 - category: "星见雅"

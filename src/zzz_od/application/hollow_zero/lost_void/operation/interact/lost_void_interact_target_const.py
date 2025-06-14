@@ -14,9 +14,10 @@ class LostVoidInteractNPC(Enum):
     """
     可交互的NPC名称
     """
-
     MA_LIN = '玛琳'  # 挚交会谈 左边重置路线的
-    AO_FEI_LI_YA = '奥菲莉亚'  # 武备
+    AO_FEI_LI_YA = '奥菲莉亚'  # 代理人武备
+    LEI = '蕾'  # 通用武备
+    SCGMDYJY = '神出鬼没的研究员'  # 2.0版本 特遣调查 入口
     A_YUAN = '阿援'  # 挚交会谈 商店
     GUAI_ZAI = '乖仔'  # 抽奖机
 

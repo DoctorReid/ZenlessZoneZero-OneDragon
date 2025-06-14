@@ -101,94 +101,20 @@ class LostVoidChooseCommon(ZOperation):
         for art in self.ctx.lost_void.all_artifact_list:
             artifact_name_list.append(gt(art.display_name))
 
-        artifact_pos_list: list[LostVoidArtifactPos] = []
-        ocr_result_map = self.ctx.ocr.run_ocr(screen)
-        for ocr_result, mrl in ocr_result_map.items():
-            title_idx: int = str_utils.find_best_match_by_difflib(ocr_result, artifact_name_list)
-            if title_idx is None or title_idx < 0:
-                continue
+        artifact_pos_list: list[LostVoidArtifactPos] = self.ctx.lost_void.get_artifact_pos(
+            screen,
+            to_choose_gear_branch=self.to_choose_gear_branch
+        )
 
-            artifact = self.ctx.lost_void.all_artifact_list[title_idx]
-            artifact_pos = LostVoidArtifactPos(artifact, mrl.max.rect)
-            artifact_pos_list.append(artifact_pos)
-
-        # 识别武备分支
-        if self.to_choose_gear_branch:
-            for branch in ['a', 'b']:
-                template_id = f'gear_branch_{branch}'
-                template = self.ctx.template_loader.get_template('lost_void', template_id)
-                if template is None:
-                    continue
-                mrl = cv2_utils.match_template(screen, template.raw, mask=template.mask, threshold=0.9)
-                if mrl is None or mrl.max is None:
-                    continue
-
-                # 找横坐标最接近的藏品
-                closest_artifact_pos: Optional[LostVoidArtifactPos] = None
-                for artifact_pos in artifact_pos_list:
-                    # 标识需要在藏品的右方
-                    if not mrl.max.rect.x1 > artifact_pos.rect.center.x:
-                        continue
-
-                    if closest_artifact_pos is None:
-                        closest_artifact_pos = artifact_pos
-                        continue
-                    old_dis = abs(mrl.max.center.x - closest_artifact_pos.rect.center.x)
-                    new_dis = abs(mrl.max.center.x - artifact_pos.rect.center.x)
-                    if new_dis < old_dis:
-                        closest_artifact_pos = artifact_pos
-
-                if closest_artifact_pos is not None:
-                    original_artifact = closest_artifact_pos.artifact
-                    branch_artifact_name: str = f'{original_artifact.display_name}-{branch}'
-                    branch_artifact = self.ctx.lost_void.get_artifact_by_full_name(branch_artifact_name)
-                    if branch_artifact is not None:
-                        closest_artifact_pos.artifact = branch_artifact
-
-        # 识别其它标识
-        title_word_list = [
-            gt('有同流派武备'),
-            gt('已选择'),
-            gt('齿轮硬币不足'),
-            gt('NEW!')
-        ]
-        to_cancel_list: list[LostVoidArtifactPos] = []
-        for ocr_result, mrl in ocr_result_map.items():
-            title_idx: int = str_utils.find_best_match_by_difflib(ocr_result, title_word_list)
-            if title_idx is None or title_idx < 0:
-                continue
-            # 找横坐标最接近的藏品
-            closest_artifact_pos: Optional[LostVoidArtifactPos] = None
-            for artifact_pos in artifact_pos_list:
-                # 标题需要在藏品的上方
-                if not mrl.max.rect.y2 < artifact_pos.rect.y1:
-                    continue
-
-                if closest_artifact_pos is None:
-                    closest_artifact_pos = artifact_pos
-                    continue
-                old_dis = abs(mrl.max.center.x - closest_artifact_pos.rect.center.x)
-                new_dis = abs(mrl.max.center.x - artifact_pos.rect.center.x)
-                if new_dis < old_dis:
-                    closest_artifact_pos = artifact_pos
-
-            if closest_artifact_pos is not None:
-                if title_idx == 1:  # 已选择
-                    to_cancel_list.append(closest_artifact_pos)
-                elif title_idx == 2:  # 齿轮硬币不足
-                    closest_artifact_pos.can_choose = False
-                elif title_idx == 3:  # NEW!
-                    closest_artifact_pos.is_new = True
-
-        artifact_pos_list = [i for i in artifact_pos_list if i.can_choose]
-
-        display_text = ','.join([i.artifact.display_name for i in artifact_pos_list]) if len(artifact_pos_list) > 0 else '无'
+        can_choose_list = [i for i in artifact_pos_list if i.can_choose]
+        display_text = ', '.join([i.artifact.display_name for i in can_choose_list]) if len(can_choose_list) > 0 else '无'
         log.info(f'当前可选择藏品 {display_text}')
 
-        display_text = ','.join([i.artifact.display_name for i in to_cancel_list]) if len(to_cancel_list) > 0 else '无'
+        chosen_list = [i for i in artifact_pos_list if i.chosen]
+        display_text = ', '.join([i.artifact.display_name for i in chosen_list]) if len(chosen_list) > 0 else '无'
         log.info(f'当前已选择藏品 {display_text}')
 
-        return artifact_pos_list, to_cancel_list
+        return can_choose_list, chosen_list
 
     def check_choose_title(self, screen: MatLike) -> None:
         """
@@ -277,4 +203,4 @@ def __get_get_artifact_pos():
 
 
 if __name__ == '__main__':
-    __get_get_artifact_pos()
+    __debug()
