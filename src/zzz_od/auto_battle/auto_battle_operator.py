@@ -36,6 +36,7 @@ from zzz_od.auto_battle.auto_battle_dodge_context import YoloStateEventEnum
 from zzz_od.auto_battle.auto_battle_state import BattleStateEnum
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import AgentEnum, AgentTypeEnum, CommonAgentStateEnum
+from zzz_od.game_data.target_state import EnemyTypeValue, LockDistanceValue, AbnormalTypeValue
 
 _auto_battle_operator_executor = ThreadPoolExecutor(thread_name_prefix='_auto_battle_operator_executor', max_workers=1)
 
@@ -201,6 +202,23 @@ class AutoBattleOperator(ConditionalOperator):
         # 特殊处理邦布
         for i in range(1, 3):
             event_ids.append(f'连携技-{i}-邦布')
+
+        # 添加目标状态 (V9: 精确命名)
+        # 1. 基础类别状态 (硬编码，因为它们是逻辑的根)
+        event_ids.append('敌人类型')
+        event_ids.append('目标-失衡值')
+        event_ids.append('目标-锁定状态')
+
+        # 2. 派生的虚拟状态 (通过循环和display_map生成)
+        # 2.1 对于值本身可能产生歧义的，保留分类名，如 `目标-异常-侵蚀`
+        for abnormal_enum in AbnormalTypeValue:
+            event_ids.append(f'目标-异常-{abnormal_enum.value}')
+        
+        # 2.2 对于值在上下文中语义唯一的，省略分类名，如 `目标-强敌`
+        for _, display_name in EnemyTypeValue.get_display_map().items():
+            event_ids.append(f'目标-{display_name}')
+        for _, display_name in LockDistanceValue.get_display_map().items():
+            event_ids.append(f'目标-{display_name}')
 
         return event_ids
 

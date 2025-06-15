@@ -14,11 +14,26 @@ class EnemyTypeValue(Enum):
     NORMAL = 0  # 非强敌
     BOSS = 1    # 强敌
 
+    @classmethod
+    def get_display_map(cls) -> dict:
+        return {
+            cls.NORMAL: '非强敌',
+            cls.BOSS: '强敌'
+        }
+
 class LockDistanceValue(Enum):
     """锁定距离-值枚举"""
     NONE = 0 # 未锁定
     NEAR = 1 # 近距离锁定
     FAR = 2  # 远距离锁定
+
+    @classmethod
+    def get_display_map(cls) -> dict:
+        return {
+            cls.NONE: '未锁定',
+            cls.NEAR: '近距离锁定',
+            cls.FAR: '远距离锁定'
+        }
 
 class AbnormalTypeValue(Enum):
     """七大异常状态-值枚举"""

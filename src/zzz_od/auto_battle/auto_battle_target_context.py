@@ -8,7 +8,7 @@ from one_dragon.base.conditional_operation.conditional_operator import Condition
 from one_dragon.base.conditional_operation.state_recorder import StateRecord
 from one_dragon.utils.log_utils import log
 from one_dragon.utils.cal_utils import random_in_range
-from zzz_od.auto_battle.target_state_checker import (
+from zzz_od.auto_battle.target_state.target_state_checker import (
     check_enemy_type,
     check_stagger_value,
     check_abnormal_status,
@@ -16,7 +16,7 @@ from zzz_od.auto_battle.target_state_checker import (
     BUILTIN_TARGET_STATE_DEFS
 )
 from zzz_od.context.zzz_context import ZContext
-from zzz_od.game_data.target_state import TargetStateDef, TargetStateCheckWay
+from zzz_od.game_data.target_state import TargetStateDef, TargetStateCheckWay, EnemyTypeValue, LockDistanceValue
 
 # 模块私有的独立线程池，用于并行处理状态检测任务
 _target_context_executor = ThreadPoolExecutor(thread_name_prefix='od_target_context', max_workers=8)
@@ -121,15 +121,38 @@ class AutoBattleTargetContext:
         for future, state_def in future_map.items():
             try:
                 result = future.result(timeout=5)
+
+                # V12: 按需更新。如果checker返回None，则不更新该状态
+                if result is None:
+                    continue
+
                 # V3设计：所有状态检测结果直接转换为StateRecord
                 # bool值也转为0/1
                 value = result
                 if isinstance(result, bool):
                     value = 1 if result else 0
 
+                # 更新基础状态
                 records_to_update.append(StateRecord(state_def.state_name, screenshot_time, value))
+
+                # 根据基础状态，派生出虚拟状态，用于bool判断 (V8: 采用 '目标-值' 的简洁模式)
+                if state_def.check_way == TargetStateCheckWay.ENEMY_TYPE:
+                    display_map = EnemyTypeValue.get_display_map()
+                    for enum_member, display_name in display_map.items():
+                        is_current_type = (value == enum_member.value)
+                        records_to_update.append(
+                            StateRecord(f'目标-{display_name}', screenshot_time, is_clear=not is_current_type)
+                        )
+                elif state_def.check_way == TargetStateCheckWay.LOCK_DISTANCE:
+                    display_map = LockDistanceValue.get_display_map()
+                    for enum_member, display_name in display_map.items():
+                        is_current_dist = (value == enum_member.value)
+                        records_to_update.append(
+                            StateRecord(f'目标-{display_name}', screenshot_time, is_clear=not is_current_dist)
+                        )
+
             except Exception:
                 log.error(f"检测目标状态失败: {state_def.state_name}", exc_info=True)
-        
+
         if records_to_update:
             self.auto_op.batch_update_states(records_to_update)
