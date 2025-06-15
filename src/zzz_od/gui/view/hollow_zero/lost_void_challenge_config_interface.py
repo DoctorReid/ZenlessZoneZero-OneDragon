@@ -2,6 +2,7 @@ from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, PushButton, PlainTextEdit, SubtitleLabel, BodyLabel, FluentThemeColor
 from typing import List, Optional
 
+from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.utils.i18_utils import gt
 from one_dragon_qt.widgets.column import Column
 from one_dragon_qt.widgets.combo_box import ComboBox
@@ -75,7 +76,15 @@ class LostVoidChallengeConfigInterface(VerticalScrollInterface):
         self.name_opt.value_changed.connect(self._on_name_changed)
         widget.add_widget(self.name_opt)
 
-        self.auto_battle_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='自动战斗')
+        self.predefined_team_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='预备编队')
+        widget.add_widget(self.predefined_team_opt)
+
+        self.priority_team_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='当期UP代理人',
+                                                   content='可领额外奖励时 优先选择包含当期UP的编队 覆盖预备编队选项')
+        widget.add_widget(self.priority_team_opt)
+
+        self.auto_battle_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='自动战斗',
+                                                   content='预备编队使用游戏内配队时生效')
         self.auto_battle_opt.value_changed.connect(self._on_auto_battle_config_changed)
         widget.add_widget(self.auto_battle_opt)
 
@@ -90,6 +99,10 @@ class LostVoidChallengeConfigInterface(VerticalScrollInterface):
         self.store_blood_min_opt = TextSettingCard(icon=FluentIcon.GAME, title='商店-使用血量购买',
                                                      content='血量 ≥ x% 时 才会进行购买')
         widget.add_widget(self.store_blood_min_opt)
+
+        self.priority_new_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='优先选择NEW!藏品',
+                                                  content='最高优先级 但不保证识别正确')
+        widget.add_widget(self.priority_new_opt)
 
         self.buy_only_priority_1_opt = TextSettingCard(icon=FluentIcon.GAME, title='只购买第一优先级',
                                                      content='刷新多少次数内 只购买第一优先级内的藏品')
@@ -157,10 +170,13 @@ class LostVoidChallengeConfigInterface(VerticalScrollInterface):
         self.cancel_btn.setDisabled(not chosen)
 
         self.name_opt.setDisabled(not chosen or is_sample)
+        self.predefined_team_opt.setDisabled(not chosen or is_sample)
+        self.priority_team_opt.setDisabled(not chosen or is_sample)
         self.auto_battle_opt.setDisabled(not chosen or is_sample)
         self.period_buff_no_opt.setDisabled(not chosen or is_sample)
         self.store_blood_opt.setDisabled(not chosen or is_sample)
         self.store_blood_min_opt.setDisabled(not chosen or is_sample)
+        self.priority_new_opt.setDisabled(not chosen or is_sample)
         self.buy_only_priority_1_opt.setDisabled(not chosen or is_sample)
         self.buy_only_priority_2_opt.setDisabled(not chosen or is_sample)
         self.artifact_priority_input.setDisabled(not chosen or is_sample)
@@ -168,17 +184,22 @@ class LostVoidChallengeConfigInterface(VerticalScrollInterface):
         self.region_type_priority_input.setDisabled(not chosen or is_sample)
 
         self._update_existed_yml_options()
+        team_config_list = ([ConfigItem('游戏内配队', -1)] +
+                       [ConfigItem(team.name, team.idx) for team in self.ctx.team_config.team_list])
+        self.predefined_team_opt.set_options_by_list(team_config_list)
         self.auto_battle_opt.set_options_by_list(get_auto_battle_op_config_list('auto_battle'))
 
         if chosen:
             self.name_opt.setValue(self.chosen_config.module_name)
+            self.predefined_team_opt.init_with_adapter(self.chosen_config.get_prop_adapter('predefined_team_idx'))
+            self.priority_team_opt.init_with_adapter(self.chosen_config.get_prop_adapter('choose_team_by_priority'))
             self.auto_battle_opt.setValue(self.chosen_config.auto_battle)
             self.period_buff_no_opt.init_with_adapter(self.chosen_config.get_prop_adapter('period_buff_no'))
             self.store_blood_opt.init_with_adapter(self.chosen_config.get_prop_adapter('store_blood'))
             self.store_blood_min_opt.init_with_adapter(self.chosen_config.get_prop_adapter('store_blood_min', getter_convert='str', setter_convert='int'))
+            self.priority_new_opt.init_with_adapter(self.chosen_config.get_prop_adapter('artifact_priority_new'))
             self.buy_only_priority_1_opt.init_with_adapter(self.chosen_config.get_prop_adapter('buy_only_priority_1', getter_convert='str', setter_convert='int'))
             self.buy_only_priority_2_opt.init_with_adapter(self.chosen_config.get_prop_adapter('buy_only_priority_2', getter_convert='str', setter_convert='int'))
-            # self.buy_only_priority_opt.setContent('达到刷新次数前 只购买优先级内的藏品')  # 不知道为啥需要在这里设置才生效
 
             self.artifact_priority_input.blockSignals(True)
             self.artifact_priority_input.setPlainText(self.chosen_config.artifact_priority_str)

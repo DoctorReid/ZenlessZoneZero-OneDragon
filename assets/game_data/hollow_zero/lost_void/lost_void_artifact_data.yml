@@ -5,11 +5,19 @@
   is_gear: true
   template_id: "gear_mobile_1"
 
+- category: "射吸式焊炬"
+  name: "敕令玄幡"
+  level: "S"
+
 - category: "携游"
   name: "破军鸣锋"
   level: "S"
   is_gear: true
   template_id: "gear_mobile_1"
+
+- category: "射吸式焊炬"
+  name: "破军鸣锋"
+  level: "S"
 
   # 终结
 - category: "终结"
@@ -18,11 +26,19 @@
   is_gear: true
   template_id: "gear_ultimate_1"
 
+- category: "射吸式焊炬"
+  name: "律动节能器"
+  level: "S"
+
 - category: "终结"
   name: "养气香囊"
   level: "S"
   is_gear: true
   template_id: "gear_ultimate_2"
+
+- category: "射吸式焊炬"
+  name: "养气香囊"
+  level: "S"
 
   # 机敏
 - category: "机敏"
@@ -31,11 +47,19 @@
   is_gear: true
   template_id: "gear_dexterity_1"
 
+- category: "射吸式焊炬"
+  name: "机敏蓄能盾"
+  level: "S"
+
 - category: "机敏"
   name: "五界天符"
   level: "S"
   is_gear: true
   template_id: "gear_dexterity_2"
+
+- category: "射吸式焊炬"
+  name: "五界天符"
+  level: "S"
 
   # 异常·击破
 - category: "异常·击破"
@@ -44,11 +68,19 @@
   is_gear: true
   template_id: "gear_anomaly_stun_1"
 
+- category: "射吸式焊炬"
+  name: "溶剂弹射枪"
+  level: "S"
+
 - category: "异常·击破"
   name: "混元丹"
   level: "S"
   is_gear: true
   template_id: "gear_anomaly_stun_2"
+
+- category: "射吸式焊炬"
+  name: "混元丹"
+  level: "S"
 
   # 绝境
 - category: "绝境"
@@ -57,11 +89,19 @@
   is_gear: true
   template_id: "gear_adversity_1"
 
+- category: "射吸式焊炬"
+  name: "战斗维生包"
+  level: "S"
+
 - category: "绝境"
   name: "浩劫令牌"
   level: "S"
   is_gear: true
   template_id: "gear_adversity_2"
+
+- category: "射吸式焊炬"
+  name: "浩劫令牌"
+  level: "S"
 
   # 星见雅
 - category: "星见雅"
@@ -71,16 +111,64 @@
   template_id: "gear_hoshimi_miyabi_1"
 
 - category: "星见雅"
+  name: "霜炎烈灼"
+  level: "S"
+  is_gear: true
+  template_id: "gear_hoshimi_miyabi_1"
+
+- category: "星见雅"
+  name: "霜炎烈灼-a"
+  level: "S"
+  is_gear: true
+
+- category: "星见雅"
+  name: "霜炎烈灼-b"
+  level: "S"
+  is_gear: true
+
+- category: "星见雅"
   name: "心间舞雀"
   level: "S"
   is_gear: true
   template_id: "gear_hoshimi_miyabi_2"
 
 - category: "星见雅"
+  name: "镜花匿影"
+  level: "S"
+  is_gear: true
+  template_id: "gear_hoshimi_miyabi_2"
+
+- category: "星见雅"
+  name: "镜花匿影-a"
+  level: "S"
+  is_gear: true
+
+- category: "星见雅"
+  name: "镜花匿影-b"
+  level: "S"
+  is_gear: true
+
+- category: "星见雅"
   name: "花间雀"
   level: "S"
   is_gear: true
   template_id: "gear_hoshimi_miyabi_3"
+
+- category: "星见雅"
+  name: "秋水洄鸣"
+  level: "S"
+  is_gear: true
+  template_id: "gear_hoshimi_miyabi_3"
+
+- category: "星见雅"
+  name: "秋水洄鸣-a"
+  level: "S"
+  is_gear: true
+
+- category: "星见雅"
+  name: "秋水洄鸣-b"
+  level: "S"
+  is_gear: true
 
 - category: "星见雅"
   name: "无边飞雪"
@@ -105,6 +193,22 @@
   template_id: "gear_billy_1"
 
 - category: "比利"
+  name: "彩弹环节"
+  level: "S"
+  is_gear: true
+  template_id: "gear_billy_1"
+
+- category: "比利"
+  name: "彩弹环节-a"
+  level: "S"
+  is_gear: true
+
+- category: "比利"
+  name: "彩弹环节-b"
+  level: "S"
+  is_gear: true
+
+- category: "比利"
   name: "神秘变身器"
   level: "S"
   is_gear: true
@@ -115,6 +219,16 @@
   level: "S"
   is_gear: true
   template_id: "gear_billy_3"
+
+- category: "比利"
+  name: "爆裂子弹-a"
+  level: "S"
+  is_gear: true
+
+- category: "比利"
+  name: "爆裂子弹-b"
+  level: "S"
+  is_gear: true
 
 - category: "比利"
   name: "火力压制"
@@ -139,16 +253,64 @@
   template_id: "gear_ellen_1"
 
 - category: "艾莲"
+  name: "霜锋缚杀"
+  level: "S"
+  is_gear: true
+  template_id: "gear_ellen_1"
+
+- category: "艾莲"
+  name: "霜锋缚杀-a"
+  level: "S"
+  is_gear: true
+
+- category: "艾莲"
+  name: "霜锋缚杀-b"
+  level: "S"
+  is_gear: true
+
+- category: "艾莲"
   name: "凶险轴承"
   level: "S"
   is_gear: true
   template_id: "gear_ellen_2"
 
 - category: "艾莲"
+  name: "雾汐回涌"
+  level: "S"
+  is_gear: true
+  template_id: "gear_ellen_2"
+
+- category: "艾莲"
+  name: "雾汐回涌-a"
+  level: "S"
+  is_gear: true
+
+- category: "艾莲"
+  name: "雾汐回涌-b"
+  level: "S"
+  is_gear: true
+
+- category: "艾莲"
   name: "狩猎背鳍"
   level: "S"
   is_gear: true
   template_id: "gear_ellen_3"
+
+- category: "艾莲"
+  name: "冰渊巡猎"
+  level: "S"
+  is_gear: true
+  template_id: "gear_ellen_3"
+
+- category: "艾莲"
+  name: "冰渊巡猎-a"
+  level: "S"
+  is_gear: true
+
+- category: "艾莲"
+  name: "冰渊巡猎-b"
+  level: "S"
+  is_gear: true
 
 - category: "艾莲"
   name: "雪暴修剪法"
@@ -173,16 +335,64 @@
   template_id: "gear_yanagi_1"
 
 - category: "月城柳"
+  name: "惊蟄月华"
+  level: "S"
+  is_gear: true
+  template_id: "gear_yanagi_1"
+
+- category: "月城柳"
+  name: "惊蟄月华-a"
+  level: "S"
+  is_gear: true
+
+- category: "月城柳"
+  name: "惊蟄月华-b"
+  level: "S"
+  is_gear: true
+
+- category: "月城柳"
   name: "流转映镜"
   level: "S"
   is_gear: true
   template_id: "gear_yanagi_2"
 
 - category: "月城柳"
+  name: "月刃逐影"
+  level: "S"
+  is_gear: true
+  template_id: "gear_yanagi_2"
+
+- category: "月城柳"
+  name: "月刃逐影-a"
+  level: "S"
+  is_gear: true
+
+- category: "月城柳"
+  name: "月刃逐影-b"
+  level: "S"
+  is_gear: true
+
+- category: "月城柳"
   name: "翩飞神乐"
   level: "S"
   is_gear: true
   template_id: "gear_yanagi_3"
+
+- category: "月城柳"
+  name: "胧月清辉"
+  level: "S"
+  is_gear: true
+  template_id: "gear_yanagi_3"
+
+- category: "月城柳"
+  name: "胧月清辉-a"
+  level: "S"
+  is_gear: true
+
+- category: "月城柳"
+  name: "胧月清辉-b"
+  level: "S"
+  is_gear: true
 
 - category: "月城柳"
   name: "月转天华"
@@ -201,22 +411,70 @@
 
   # 耀嘉音
 - category: "耀嘉音"
-  name: "璀璨时刻"
+  name: "和声回响"
   level: "S"
   is_gear: true
   template_id: "gear_astra_yao_1"
 
 - category: "耀嘉音"
-  name: "空洞交响曲"
+  name: "霓虹协奏"
+  level: "S"
+  is_gear: true
+  template_id: "gear_astra_yao_1"
+
+- category: "耀嘉音"
+  name: "霓虹协奏-a"
+  level: "S"
+  is_gear: true
+
+- category: "耀嘉音"
+  name: "霓虹协奏-b"
+  level: "S"
+  is_gear: true
+
+- category: "耀嘉音"
+  name: "璀璨时刻"
   level: "S"
   is_gear: true
   template_id: "gear_astra_yao_2"
 
 - category: "耀嘉音"
-  name: "和声回响"
+  name: "绯色鼓点"
+  level: "S"
+  is_gear: true
+  template_id: "gear_astra_yao_2"
+
+- category: "耀嘉音"
+  name: "绯色鼓点-a"
+  level: "S"
+  is_gear: true
+
+- category: "耀嘉音"
+  name: "绯色鼓点-b"
+  level: "S"
+  is_gear: true
+
+- category: "耀嘉音"
+  name: "空洞交响曲"
   level: "S"
   is_gear: true
   template_id: "gear_astra_yao_3"
+
+- category: "耀嘉音"
+  name: "星落圆舞曲"
+  level: "S"
+  is_gear: true
+  template_id: "gear_astra_yao_3"
+
+- category: "耀嘉音"
+  name: "星落圆舞曲-a"
+  level: "S"
+  is_gear: true
+
+- category: "耀嘉音"
+  name: "星落圆舞曲-b"
+  level: "S"
+  is_gear: true
 
 - category: "耀嘉音"
   name: "完美救场"
@@ -241,16 +499,64 @@
   template_id: "gear_evelyn_1"
 
 - category: "伊芙琳"
+  name: "鎏金旋刃"
+  level: "S"
+  is_gear: true
+  template_id: "gear_evelyn_1"
+
+- category: "伊芙琳"
+  name: "鎏金旋刃-a"
+  level: "S"
+  is_gear: true
+
+- category: "伊芙琳"
+  name: "鎏金旋刃-b"
+  level: "S"
+  is_gear: true
+
+- category: "伊芙琳"
   name: "便携式雷管"
   level: "S"
   is_gear: true
   template_id: "gear_evelyn_2"
 
 - category: "伊芙琳"
+  name: "致命仪式"
+  level: "S"
+  is_gear: true
+  template_id: "gear_evelyn_2"
+
+- category: "伊芙琳"
+  name: "致命仪式-a"
+  level: "S"
+  is_gear: true
+
+- category: "伊芙琳"
+  name: "致命仪式-b"
+  level: "S"
+  is_gear: true
+
+- category: "伊芙琳"
   name: "最高应急预案"
   level: "S"
   is_gear: true
   template_id: "gear_evelyn_3"
+
+- category: "伊芙琳"
+  name: "失控焰影"
+  level: "S"
+  is_gear: true
+  template_id: "gear_evelyn_3"
+
+- category: "伊芙琳"
+  name: "失控焰影-a"
+  level: "S"
+  is_gear: true
+
+- category: "伊芙琳"
+  name: "失控焰影-b"
+  level: "S"
+  is_gear: true
 
 - category: "伊芙琳"
   name: "袖中捷刃"
@@ -275,16 +581,64 @@
   template_id: "gear_jane_1"
 
 - category: "简"
+  name: "诡影疾袭"
+  level: "S"
+  is_gear: true
+  template_id: "gear_jane_1"
+
+- category: "简"
+  name: "诡影疾袭-a"
+  level: "S"
+  is_gear: true
+
+- category: "简"
+  name: "诡影疾袭-b"
+  level: "S"
+  is_gear: true
+
+- category: "简"
   name: "沸腾猎意"
   level: "S"
   is_gear: true
   template_id: "gear_jane_2"
 
 - category: "简"
+  name: "围猎时间"
+  level: "S"
+  is_gear: true
+  template_id: "gear_jane_2"
+
+- category: "简"
+  name: "围猎时间-a"
+  level: "S"
+  is_gear: true
+
+- category: "简"
+  name: "围猎时间-b"
+  level: "S"
+  is_gear: true
+
+- category: "简"
   name: "尖峰毒獠"
   level: "S"
   is_gear: true
   template_id: "gear_jane_3"
+
+- category: "简"
+  name: "谑笑追戏"
+  level: "S"
+  is_gear: true
+  template_id: "gear_jane_3"
+
+- category: "简"
+  name: "谑笑追戏-a"
+  level: "S"
+  is_gear: true
+
+- category: "简"
+  name: "谑笑追戏-b"
+  level: "S"
+  is_gear: true
 
 - category: "简"
   name: "游戏时间"
@@ -309,10 +663,42 @@
   template_id: "gear_corin_1"
 
 - category: "可琳"
+  name: "茶歇时间到"
+  level: "S"
+  is_gear: true
+  template_id: "gear_corin_1"
+
+- category: "可琳"
+  name: "茶歇时间到-a"
+  level: "S"
+  is_gear: true
+
+- category: "可琳"
+  name: "茶歇时间到-b"
+  level: "S"
+  is_gear: true
+
+- category: "可琳"
   name: "过载驱动"
   level: "S"
   is_gear: true
   template_id: "gear_corin_2"
+
+- category: "可琳"
+  name: "高效清洁法"
+  level: "S"
+  is_gear: true
+  template_id: "gear_corin_2"
+
+- category: "可琳"
+  name: "高效清洁法-a"
+  level: "S"
+  is_gear: true
+
+- category: "可琳"
+  name: "高效清洁法-b"
+  level: "S"
+  is_gear: true
 
 - category: "可琳"
   name: "特型鼓风机"
@@ -550,7 +936,7 @@
   level: "B"
 
 - category: "通用"
-  name: "昆虫手册"
+  name: "昆虫图册"
   level: "B"
 
 - category: "通用"

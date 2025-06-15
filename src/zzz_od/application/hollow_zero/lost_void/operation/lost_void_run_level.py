@@ -542,6 +542,12 @@ class LostVoidRunLevel(ZOperation):
         if self.region_type == LostVoidRegionType.ENTRY:
             # 第一层 两个武备选择后 往后走 可以方便走上楼梯
             self.ctx.controller.move_s(press=True, press_time=1, release=True)
+            # 2.0版本 入口左侧增加了一个研究员 因此从其他角色交互后 往左移动一点
+            if self.interact_target.is_npc:
+                if self.interact_target.name == LostVoidInteractNPC.SCGMDYJY.value:
+                    self.ctx.controller.move_d(press=True, press_time=0.5, release=True)
+                else:
+                    self.ctx.controller.move_a(press=True, press_time=0.5, release=True)
         elif self.region_type == LostVoidRegionType.FRIENDLY_TALK:
             # 挚交会谈
             if self.interact_target.is_agent:  # 如果是代理人 向后右移动 可以避开中间桌子的障碍

@@ -42,7 +42,7 @@ class SettingCardBase(SettingCard):
         self.contentLabel = QLabel(gt(content, "ui"), self)
 
         # 处理内容显示
-        self.contentLabel.setVisible(bool(content))
+        self.contentLabel.setVisible(content is not None and len(content) > 0)
 
         # 如果有图标，初始化图标组件
         if icon is not None:

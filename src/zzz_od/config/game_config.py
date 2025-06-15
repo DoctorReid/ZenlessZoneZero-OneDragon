@@ -15,9 +15,6 @@ class GamepadTypeEnum(Enum):
 
 class GameConfig(BasicGameConfig):
 
-    def __init__(self, instance_idx: int):
-        BasicGameConfig.__init__(self, instance_idx=instance_idx)
-
     @property
     def key_normal_attack(self) -> str:
         return self.get('key_normal_attack', 'mouse_left')

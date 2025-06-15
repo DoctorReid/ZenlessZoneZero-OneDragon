@@ -25,7 +25,7 @@ class LostVoidBangbooStore(ZOperation):
 
         self.refresh_times: int = 0  # 刷新次数
         self.store_type: str = '标识-金币'  # 商店类型
-
+        self.slide_to_right: bool = False  # 滑动到右侧看更多的商品
 
     @operation_node(name='识别商店类型', is_start_node=True)
     def check_store_type(self) -> OperationRoundResult:
@@ -75,17 +75,32 @@ class LostVoidBangbooStore(ZOperation):
 
         art_list: List[LostVoidArtifactPos] = self.get_artifact_pos(screen)
         if len(art_list) == 0:
+            if not self.slide_to_right:
+                start = Point(self.ctx.controller.standard_width // 2, self.ctx.controller.standard_height // 2)
+                end = start + Point(-400, 0)
+                self.ctx.controller.drag_to(start=start, end=end)
+                self.slide_to_right = True
+                return self.round_wait(status='向右滑动')
             return self.round_retry(status='未识别可购买藏品', wait=1)
 
         priority_list: List[LostVoidArtifactPos] = self.ctx.lost_void.get_artifact_by_priority(
             art_list, 1,
             consider_priority_1=True, consider_priority_2=self.refresh_times > self.ctx.lost_void.challenge_config.buy_only_priority_1,
             consider_not_in_priority=self.refresh_times > self.ctx.lost_void.challenge_config.buy_only_priority_2,
+            consider_priority_new=self.ctx.lost_void.challenge_config.artifact_priority_new
         )
 
         if len(priority_list) == 0:
+            if not self.slide_to_right:
+                start = Point(self.ctx.controller.standard_width // 2, self.ctx.controller.standard_height // 2)
+                end = start + Point(-400, 0)
+                self.ctx.controller.drag_to(start=start, end=end)
+                self.slide_to_right = True
+                return self.round_wait(status='向右滑动')
+
             result = self.round_by_find_and_click_area(screen, '迷失之地-邦布商店', '按钮-刷新-可用')
             if result.is_success:
+                self.slide_to_right = False  # 刷新后 重置滑动
                 return self.round_wait(result.status, wait=1)
 
             # 不可以刷新了 就不管优先级都买了
@@ -106,20 +121,7 @@ class LostVoidBangbooStore(ZOperation):
         @param screen: 游戏画面
         @return: 识别到的藏品
         """
-        result_list: List[LostVoidArtifactPos] = []
-
-        # 识别藏品
-        area = self.ctx.screen_loader.get_area('迷失之地-邦布商店', '区域-藏品名称')
-        part = cv2_utils.crop_image_only(screen, area.rect)
-        ocr_result_map = self.ctx.ocr.run_ocr(part)
-        for ocr_result, mrl in ocr_result_map.items():
-            art = self.ctx.lost_void.match_artifact_by_ocr_full(ocr_result)
-            if art is None:
-                continue
-
-            mr = mrl.max.rect
-            mr.add_offset(area.left_top)
-            result_list.append(LostVoidArtifactPos(art, mr))
+        artifact_pos_list: list[LostVoidArtifactPos] = self.ctx.lost_void.get_artifact_pos(screen)
 
         # 识别价格
         area = self.ctx.screen_loader.get_area('迷失之地-邦布商店', '区域-价格')
@@ -135,8 +137,8 @@ class LostVoidBangbooStore(ZOperation):
 
             for mr in mrl:
                 mr.add_offset(area.left_top)
-                for result in result_list:
-                    result.add_price(price, mr.rect)
+                for artifact_pos in artifact_pos_list:
+                    artifact_pos.add_price(price, mr.rect)
 
         # 识别购买按钮
         area = self.ctx.screen_loader.get_area('迷失之地-邦布商店', '区域-购买按钮')
@@ -151,14 +153,14 @@ class LostVoidBangbooStore(ZOperation):
 
             for mr in mrl:
                 mr.add_offset(area.left_top)
-                for result in result_list:
-                    result.add_buy(mr.rect)
+                for artifact_pos in artifact_pos_list:
+                    artifact_pos.add_buy(mr.rect)
 
-        result_list = [i for i in result_list if i.store_buy_rect is not None]
-        display_text = ','.join([i.artifact.display_name for i in result_list]) if len(result_list) > 0 else '无'
-        log.info(f'当前识别藏品 {display_text}')
+        can_buy_list = [i for i in artifact_pos_list if i.store_buy_rect is not None]
+        display_text = ', '.join([i.artifact.display_name for i in can_buy_list]) if len(can_buy_list) > 0 else '无'
+        log.info(f'当前可购买藏品 {display_text}')
 
-        return result_list
+        return can_buy_list
 
     def check_min_blood_valid(self, screen: MatLike) -> bool:
         """

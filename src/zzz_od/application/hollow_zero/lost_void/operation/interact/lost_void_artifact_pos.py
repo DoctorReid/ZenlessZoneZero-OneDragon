@@ -11,8 +11,10 @@ class LostVoidArtifactPos:
         self.rect: Rect = rect
 
         self.can_choose: bool = True
+        self.chosen: bool = False  # 已经被选择了
         self.store_price: Optional[int] = None
         self.store_buy_rect: Optional[Rect] = None
+        self.is_new: bool = False
 
     def add_price(self, price: int, rect: Rect) -> bool:
         """
