@@ -7,8 +7,17 @@ handlers:
           - operation_template: "仪玄-支援攻击"
 
       - states: "[自定义-红光闪避, 0, 1]"
-        operations:
-          - operation_template: "仪玄-闪A"
+        sub_handlers:
+        - states: "[仪玄-术法值]{0, 119} & [仪玄-能量]{60, 120}"
+          sub_handlers:
+            - states: "[前台-血量扣减]{1, 100}"
+              debug_name: "被人胖揍过开格挡"
+              operations:
+                - operation_template: "仪玄-强化特殊技三连"
+                
+        - states: ""
+          operations:
+            - operation_template: "仪玄-闪A"
 
       - states: "[按键可用-连携技, 0, 0.5]"
         operations:
