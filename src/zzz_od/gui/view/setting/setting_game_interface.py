@@ -84,12 +84,12 @@ class SettingGameInterface(VerticalScrollInterface):
                                                  options_enum=TypeInputWay)
         basic_group.addSettingCard(self.input_way_opt)
 
-        self.hdr_btn_enable = PushButton(text='启用HDR', icon=FluentIcon.SETTING, parent=self)
+        self.hdr_btn_enable = PushButton(text=gt('启用 HDR'), icon=FluentIcon.SETTING, parent=self)
         self.hdr_btn_enable.clicked.connect(self._on_hdr_enable_clicked)
-        self.hdr_btn_disable = PushButton(text='禁用HDR', icon=FluentIcon.SETTING, parent=self)
+        self.hdr_btn_disable = PushButton(text=gt('禁用 HDR'), icon=FluentIcon.SETTING, parent=self)
         self.hdr_btn_disable.clicked.connect(self._on_hdr_disable_clicked)
-        self.hdr_btn = MultiPushSettingCard(icon=FluentIcon.SETTING, title='切换HDR状态',
-                                            content='仅影响手动启动游戏，一条龙启动游戏会自动禁用HDR',
+        self.hdr_btn = MultiPushSettingCard(icon=FluentIcon.SETTING, title='切换 HDR 状态',
+                                            content='仅影响手动启动游戏，一条龙启动游戏会自动禁用 HDR',
                                             btn_list=[self.hdr_btn_disable, self.hdr_btn_enable])
         basic_group.addSettingCard(self.hdr_btn)
 
@@ -120,13 +120,6 @@ class SettingGameInterface(VerticalScrollInterface):
             input_placeholder='如果你不知道这是做什么的 请不要填写'
         )
         launch_argument_group.addSettingCard(self.launch_argument_advance)
-
-        # self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='使用说明', text='前往',
-        #                               url='https://onedragon-anything.github.io/zzz/zh/docs/feat_launch_argument.html')
-        # self.help_opt.setContent('先看说明 再使用与提问')
-        # launch_argument_group.addSettingCard(self.help_opt)
-
-        # 这里可以补充文档后取消注释
 
         return launch_argument_group
 
@@ -414,9 +407,9 @@ class SettingGameInterface(VerticalScrollInterface):
 
     def _on_match_all_outfits_changed(self, value: bool) -> None:
         if value:
-            dialog = Dialog('警告', '此功能可能会严重影响自动战斗的识别效率，如果自动战斗功能不正常，请关闭此功能！', self)
+            dialog = Dialog(gt('警告'), gt('此功能可能会严重影响自动战斗的识别效率，如果自动战斗功能不正常，请关闭此功能！'), self)
             dialog.setTitleBarVisible(False)
-            dialog.yesButton.setText('确定')
+            dialog.yesButton.setText(gt('确定'))
             dialog.cancelButton.hide()
             if dialog.exec():
                 self.ctx.agent_outfit_config.match_all_outfits = value

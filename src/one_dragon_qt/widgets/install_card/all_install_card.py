@@ -19,7 +19,7 @@ class AllInstallCard(BaseInstallCard):
 
         guide_btn = HyperlinkButton(
             url='http://onedragon-anything.github.io/zzz/zh/quickstart.html',
-            text='安装指南'
+            text=gt('安装指南')
         )
 
         self.run_btn = PushButton(text=gt('启动一条龙'))

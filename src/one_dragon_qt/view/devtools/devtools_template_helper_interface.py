@@ -99,14 +99,14 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
         save_row.add_stretch(1)
 
         self.h_move_input = LineEdit()
-        self.h_btn = PushButton(text='移动')
+        self.h_btn = PushButton(text=gt('移动'))
         self.h_btn.clicked.connect(self._on_h_move_clicked)
         self.h_move_opt = MultiPushSettingCard(icon=FluentIcon.MOVE, title='横移',
                                                btn_list=[self.h_move_input, self.h_btn])
         widget.add_widget(self.h_move_opt)
 
         self.v_move_input = LineEdit()
-        self.v_btn = PushButton(text='移动')
+        self.v_btn = PushButton(text=gt('移动'))
         self.v_btn.clicked.connect(self._on_v_move_clicked)
         self.v_move_opt = MultiPushSettingCard(icon=FluentIcon.MOVE, title='纵移',
                                                btn_list=[self.v_move_input, self.v_btn])
@@ -158,25 +158,25 @@ class DevtoolsTemplateHelperInterface(VerticalScrollInterface):
     def _init_mid_part(self) -> QWidget:
         widget = Column()
 
-        raw_label = CaptionLabel(text='模板原图')
+        raw_label = CaptionLabel(text=gt('模板原图'))
         widget.add_widget(raw_label)
 
         self.template_raw_label = ImageLabel()
         widget.add_widget(self.template_raw_label)
 
-        mask_label = CaptionLabel(text='模板掩码')
+        mask_label = CaptionLabel(text=gt('模板掩码'))
         widget.add_widget(mask_label)
 
         self.template_mask_label = ImageLabel()
         widget.add_widget(self.template_mask_label)
 
-        merge_label = CaptionLabel(text='模板抠图')
+        merge_label = CaptionLabel(text=gt('模板抠图'))
         widget.add_widget(merge_label)
 
         self.template_merge_label = ImageLabel()
         widget.add_widget(self.template_merge_label)
 
-        reversed_label = CaptionLabel(text='反向抠图')
+        reversed_label = CaptionLabel(text=gt('反向抠图'))
         widget.add_widget(reversed_label)
 
         self.template_reversed_label = ImageLabel()

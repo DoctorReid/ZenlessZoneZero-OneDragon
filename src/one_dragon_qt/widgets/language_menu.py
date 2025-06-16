@@ -32,10 +32,10 @@ class LanguageMenu(RoundMenu):
         self.hide()
 
         # 显示语言切换成功确认对话框
-        dialog = Dialog(gt('提示', language), gt('语言切换成功，需要重启应用程序以生效', language))
+        dialog = Dialog(gt('提示', 'ui', language), gt('语言切换成功，需要重启应用程序以生效', 'ui', language))
         dialog.setTitleBarVisible(False)
-        dialog.yesButton.setText(gt('立即重启', language))
-        dialog.cancelButton.setText(gt('稍后重启', language))
+        dialog.yesButton.setText(gt('立即重启', 'ui', language))
+        dialog.cancelButton.setText(gt('稍后重启', 'ui', language))
 
         if dialog.exec():
             app_utils.start_one_dragon(True)

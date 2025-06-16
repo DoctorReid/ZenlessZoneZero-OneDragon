@@ -25,7 +25,7 @@ class ShiyuDefenseInterface(VerticalScrollInterface):
         content_widget = Column()
 
         self.critical_reset_opt = PushSettingCard(icon=FluentIcon.SYNC, title='剧变节点 重置运行记录',
-                                                  text='重置')
+                                                  text=gt('重置'))
         self.critical_reset_opt.clicked.connect(self.on_critical_reset_clicked)
         content_widget.add_widget(self.critical_reset_opt)
 

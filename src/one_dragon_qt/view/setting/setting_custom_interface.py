@@ -60,7 +60,7 @@ class SettingCustomInterface(VerticalScrollInterface):
         self.remote_banner_opt.value_changed.connect(self._on_remote_banner_changed)
         basic_group.addSettingCard(self.remote_banner_opt)
 
-        self.banner_select_btn = PrimaryPushButton(FluentIcon.EDIT, '选择', self)
+        self.banner_select_btn = PrimaryPushButton(FluentIcon.EDIT, gt('选择'), self)
         self.banner_select_btn.clicked.connect(self._on_banner_select_clicked)
         self.custom_banner_opt = PasswordSwitchSettingCard(
             icon=FluentIcon.PHOTO,
@@ -122,7 +122,7 @@ class SettingCustomInterface(VerticalScrollInterface):
         # 将默认路径设为图片库路径
         default_path = ctypes.create_unicode_buffer(wintypes.MAX_PATH)
         ctypes.windll.shell32.SHGetFolderPathW(None, 0x0027, None, 0, default_path)
-        file_path, _ = QFileDialog.getOpenFileName(self, gt('选择你的背景图片'), default_path.value, filter="Images (*.png *.jpg *.jpeg *.webp *.bmp)")
+        file_path, _ = QFileDialog.getOpenFileName(self, f"{gt('选择你的')}{gt('背景图片')}", default_path.value, filter="Images (*.png *.jpg *.jpeg *.webp *.bmp)")
         if file_path is not None and file_path != '':
             banner_path = os.path.join(
             os_utils.get_path_under_work_dir('custom', 'assets', 'ui'),

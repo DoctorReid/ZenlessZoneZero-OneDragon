@@ -3,10 +3,11 @@ from qfluentwidgets import FluentIcon, PushSettingCard, HyperlinkCard
 from typing import Optional, List
 
 from one_dragon.base.config.config_item import ConfigItem
+from one_dragon.utils.i18_utils import gt
+from one_dragon.utils.log_utils import log
 from one_dragon_qt.view.app_run_interface import AppRunInterface
 from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon_qt.widgets.setting_card.text_setting_card import TextSettingCard
-from one_dragon.utils.log_utils import log
 from zzz_od.application.hollow_zero.lost_void.lost_void_app import LostVoidApp
 from zzz_od.application.hollow_zero.lost_void.lost_void_challenge_config import LostVoidChallengeConfig, \
     get_all_lost_void_challenge_config
@@ -51,7 +52,7 @@ class LostVoidRunInterface(AppRunInterface):
 
         self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='使用说明', text='前往',
                                       url='https://onedragon-anything.github.io/zzz/zh/docs/feat_lost_void.html')
-        self.help_opt.setContent('先看说明 再使用与提问')
+        self.help_opt.setContent(gt('先看说明 再使用与提问'))
         left_layout.addWidget(self.help_opt)
 
         self.mission_opt = ComboBoxSettingCard(

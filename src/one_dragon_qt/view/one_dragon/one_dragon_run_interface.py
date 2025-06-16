@@ -99,12 +99,12 @@ class OneDragonRunInterface(VerticalScrollInterface):
         layout.addWidget(run_group)
 
         if self.help_url is not None:
-            self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='使用说明', text='前往', url=self.help_url)
-            self.help_opt.setContent('先看说明 再使用与提问')
+            self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title=gt('使用说明'), text=gt('前往'), url=self.help_url)
+            self.help_opt.setContent(gt('先看说明 再使用与提问'))
             run_group.addSettingCard(self.help_opt)
 
         self.notify_switch = SwitchSettingCard(icon=FluentIcon.INFO, title='单应用通知')
-        self.notify_btn = PushButton(text='设置', icon=FluentIcon.SETTING)
+        self.notify_btn = PushButton(text=gt('设置'), icon=FluentIcon.SETTING)
         self.notify_btn.clicked.connect(self._on_notify_setting_clicked)
         self.notify_switch.hBoxLayout.addWidget(self.notify_btn, 0, Qt.AlignmentFlag.AlignRight)
         self.notify_switch.hBoxLayout.addSpacing(16)
