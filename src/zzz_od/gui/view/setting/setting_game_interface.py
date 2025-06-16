@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QWidget
-from qfluentwidgets import FluentIcon, SettingCardGroup, HyperlinkCard, Dialog, PushButton
+from qfluentwidgets import FluentIcon, SettingCardGroup, Dialog, PushButton
 
 from one_dragon.base.config.basic_game_config import TypeInputWay, ScreenSizeEnum, FullScreenEnum, MonitorEnum
 from one_dragon.base.controller.pc_button.ds4_button_controller import Ds4ButtonEnum
@@ -9,6 +9,7 @@ from one_dragon.utils.i18_utils import gt
 from one_dragon_qt.widgets.column import Column
 from one_dragon_qt.widgets.horizontal_setting_card_group import HorizontalSettingCardGroup
 from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon_qt.widgets.setting_card.help_card import HelpCard
 from one_dragon_qt.widgets.setting_card.key_setting_card import KeySettingCard
 from one_dragon_qt.widgets.setting_card.multi_push_setting_card import MultiPushSettingCard
 from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
@@ -47,8 +48,7 @@ class SettingGameInterface(VerticalScrollInterface):
     def _get_agent_outfit_group(self) -> QWidget:
         agent_outfit_group = SettingCardGroup(gt('代理人皮肤'))
 
-        self.help_opt = HyperlinkCard(icon=FluentIcon.PIN, title='！设置皮肤以正常使用自动战斗功能  ！', url='', text='')
-        self.help_opt.linkButton.hide()
+        self.help_opt = HelpCard(title='！设置皮肤以正常使用自动战斗功能 ！', content=None)
         agent_outfit_group.addSettingCard(self.help_opt)
 
         self.match_all_outfits_switch = SwitchSettingCard(icon=FluentIcon.INFO, title='匹配所有可能的皮肤')

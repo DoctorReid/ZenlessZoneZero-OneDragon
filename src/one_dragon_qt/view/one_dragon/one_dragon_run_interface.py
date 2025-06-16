@@ -1,6 +1,6 @@
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
-from qfluentwidgets import FluentIcon, SettingCardGroup, SubtitleLabel, PrimaryPushButton, PushButton, HyperlinkCard
+from qfluentwidgets import FluentIcon, SettingCardGroup, SubtitleLabel, PrimaryPushButton, PushButton
 from typing import List, Optional
 
 from one_dragon.base.config.one_dragon_app_config import OneDragonAppConfig
@@ -15,6 +15,7 @@ from one_dragon_qt.view.context_event_signal import ContextEventSignal
 from one_dragon_qt.widgets.log_display_card import LogDisplayCard
 from one_dragon_qt.widgets.setting_card.app_run_card import AppRunCard
 from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon_qt.widgets.setting_card.help_card import HelpCard
 from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon_qt.widgets.notify_dialog import NotifyDialog
@@ -99,8 +100,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
         layout.addWidget(run_group)
 
         if self.help_url is not None:
-            self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title=gt('使用说明'), text=gt('前往'), url=self.help_url)
-            self.help_opt.setContent(gt('先看说明 再使用与提问'))
+            self.help_opt = HelpCard(url=self.help_url)
             run_group.addSettingCard(self.help_opt)
 
         self.notify_switch = SwitchSettingCard(icon=FluentIcon.INFO, title='单应用通知')
