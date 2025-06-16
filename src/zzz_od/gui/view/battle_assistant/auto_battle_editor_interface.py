@@ -1,6 +1,6 @@
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QWidget
-from qfluentwidgets import PushButton, FluentIcon, SettingCardGroup, HyperlinkCard
+from qfluentwidgets import PushButton, ToolButton, FluentIcon, SettingCardGroup, HyperlinkCard
 from typing import Optional, List
 
 from one_dragon.base.config.config_item import ConfigItem
@@ -98,7 +98,7 @@ class AutoBattleEditorInterface(VerticalScrollInterface):
         # self.copy_btn.clicked.connect(self._on_copy_clicked)
         btn_row.add_widget(self.copy_btn)
 
-        self.delete_btn = PushButton(text=gt('删除'))
+        self.delete_btn = ToolButton(FluentIcon.DELETE)
         # self.delete_btn.clicked.connect(self._on_delete_clicked)
         btn_row.add_widget(self.delete_btn)
 

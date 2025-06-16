@@ -2,7 +2,7 @@ import os.path
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
-from qfluentwidgets import FluentIcon, PushButton
+from qfluentwidgets import FluentIcon, PushButton, ToolButton
 
 from one_dragon.base.operation.context_event_bus import ContextEventItem
 from one_dragon.utils.i18_utils import gt
@@ -51,7 +51,7 @@ class DodgeAssistantInterface(AppRunInterface):
         self.dodge_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='闪避方式')
         top_widget.add_widget(self.dodge_opt)
 
-        self.del_btn = PushButton(text=gt('删除'))
+        self.del_btn = ToolButton(FluentIcon.DELETE)
         self.dodge_opt.hBoxLayout.addWidget(self.del_btn, alignment=Qt.AlignmentFlag.AlignRight)
         self.dodge_opt.hBoxLayout.addSpacing(16)
         self.del_btn.clicked.connect(self._on_del_clicked)

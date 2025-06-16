@@ -2,7 +2,7 @@ import os.path
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
-from qfluentwidgets import FluentIcon, PushButton
+from qfluentwidgets import FluentIcon, PushButton, ToolButton
 from typing import Optional
 
 from one_dragon.base.operation.context_event_bus import ContextEventItem
@@ -54,7 +54,7 @@ class AutoBattleInterface(AppRunInterface):
         self.shared_btn.clicked.connect(self._on_shared_clicked)
         self.config_opt.hBoxLayout.addWidget(self.shared_btn, alignment=Qt.AlignmentFlag.AlignRight)
         self.config_opt.hBoxLayout.addSpacing(16)
-        self.del_btn = PushButton(gt('删除'))
+        self.del_btn = ToolButton(FluentIcon.DELETE)
         self.del_btn.clicked.connect(self._on_del_clicked)
         self.config_opt.hBoxLayout.addWidget(self.del_btn, alignment=Qt.AlignmentFlag.AlignRight)
         self.config_opt.hBoxLayout.addSpacing(16)
