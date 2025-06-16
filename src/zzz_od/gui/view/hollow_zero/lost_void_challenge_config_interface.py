@@ -120,7 +120,7 @@ class LostVoidChallengeConfigInterface(VerticalScrollInterface):
 
         artifact_priority_widget = Column()
         widget.add_widget(artifact_priority_widget)
-        artifact_priority_title = SubtitleLabel(text='藏品第一优先级')
+        artifact_priority_title = SubtitleLabel(text=gt('藏品第一优先级'))
         artifact_priority_widget.v_layout.addWidget(artifact_priority_title)
         self.artifact_priority_input = PlainTextEdit()
         self.artifact_priority_input.textChanged.connect(self._on_artifact_priority_changed)
@@ -128,7 +128,7 @@ class LostVoidChallengeConfigInterface(VerticalScrollInterface):
 
         artifact_priority_widget_2 = Column()
         widget.add_widget(artifact_priority_widget_2)
-        artifact_priority_title_2 = SubtitleLabel(text='藏品第二优先级(无刷新时考虑)')
+        artifact_priority_title_2 = SubtitleLabel(text=gt('藏品第二优先级 (无刷新时考虑)'))
         artifact_priority_widget.v_layout.addWidget(artifact_priority_title_2)
         self.artifact_priority_input_2 = PlainTextEdit()
         self.artifact_priority_input_2.textChanged.connect(self._on_artifact_priority_2_changed)
@@ -136,7 +136,7 @@ class LostVoidChallengeConfigInterface(VerticalScrollInterface):
 
         region_priority_widget = Column()
         widget.add_widget(region_priority_widget)
-        region_priority_title = SubtitleLabel(text='区域类型优先级')
+        region_priority_title = SubtitleLabel(text=gt('区域类型优先级'))
         region_priority_widget.v_layout.addWidget(region_priority_title)
         self.region_type_priority_input = PlainTextEdit()
         self.region_type_priority_input.textChanged.connect(self._on_region_type_priority_changed)

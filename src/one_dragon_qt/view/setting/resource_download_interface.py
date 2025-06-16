@@ -35,13 +35,13 @@ class ResourceDownloadInterface(VerticalScrollInterface):
     def _init_common_group(self) -> SettingCardGroup:
         group = SettingCardGroup(gt('资源下载'))
 
-        self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='下载说明', text='', url='')
+        self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title=gt('下载说明'), text='', url='')
         self.help_opt.linkButton.hide()
-        self.help_opt.setContent('下载失败时 请尝试到「脚本环境」更改网络代理')
+        self.help_opt.setContent(gt('下载失败时 请尝试到「脚本环境」更改网络代理'))
         group.addSettingCard(self.help_opt)
 
         self.launcher_opt = LauncherInstallCard(self.ctx)
-        self.launcher_opt.install_btn.setText('下载')
+        self.launcher_opt.install_btn.setText(gt('下载'))
         self.launcher_opt.check_and_update_display()
         group.addSettingCard(self.launcher_opt)
 

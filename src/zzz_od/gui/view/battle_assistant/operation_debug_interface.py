@@ -4,6 +4,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, PushButton
 
+from one_dragon.utils.i18_utils import gt
 from one_dragon_qt.view.app_run_interface import AppRunInterface
 from one_dragon_qt.widgets.column import Column
 from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
@@ -41,7 +42,7 @@ class OperationDebugInterface(AppRunInterface):
         self.config_opt.value_changed.connect(self._on_config_changed)
         top_widget.add_widget(self.config_opt)
 
-        self.del_btn = PushButton(text='删除')
+        self.del_btn = PushButton(text=gt('删除'))
         self.config_opt.hBoxLayout.addWidget(self.del_btn, alignment=Qt.AlignmentFlag.AlignRight)
         self.config_opt.hBoxLayout.addSpacing(16)
         self.del_btn.clicked.connect(self._on_del_clicked)

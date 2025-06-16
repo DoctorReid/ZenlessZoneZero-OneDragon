@@ -105,21 +105,21 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
         widget.add_widget(self.path_finding_opt)
 
         go_in_1_step_widget = Column()
-        go_in_1_step_title = SubtitleLabel(text='一步可达时前往')
+        go_in_1_step_title = SubtitleLabel(text=gt('一步可达时前往'))
         go_in_1_step_widget.v_layout.addWidget(go_in_1_step_title)
         self.go_in_1_step_input = PlainTextEdit()
         self.go_in_1_step_input.textChanged.connect(self._on_go_in_1_step_changed)
         go_in_1_step_widget.v_layout.addWidget(self.go_in_1_step_input)
 
         waypoint_widget = Column()
-        waypoint_title = SubtitleLabel(text='优先途经点')
+        waypoint_title = SubtitleLabel(text=gt('优先途经点'))
         waypoint_widget.v_layout.addWidget(waypoint_title)
         self.waypoint_input = PlainTextEdit()
         self.waypoint_input.textChanged.connect(self._on_waypoint_changed)
         waypoint_widget.v_layout.addWidget(self.waypoint_input)
 
         avoid_widget = Column()
-        avoid_title = SubtitleLabel(text='避免途经点')
+        avoid_title = SubtitleLabel(text=gt('避免途经点'))
         avoid_widget.v_layout.addWidget(avoid_title)
         self.avoid_input = PlainTextEdit()
         self.avoid_input.textChanged.connect(self._on_avoid_changed)
@@ -138,13 +138,13 @@ class HollowZeroChallengeConfigInterface(VerticalScrollInterface):
     def _init_right_part(self) -> QWidget:
         widget = Column()
 
-        resonium_title = TitleLabel(text='奖励优先级')
+        resonium_title = TitleLabel(text=gt('奖励优先级'))
         widget.add_widget(resonium_title)
         self.resonium_priority_input = PlainTextEdit()
         self.resonium_priority_input.textChanged.connect(self._on_resonium_priority_changed)
         widget.add_widget(self.resonium_priority_input)
 
-        event_priority_title = TitleLabel(text='选项优先级')
+        event_priority_title = TitleLabel(text=gt('选项优先级'))
         event_priority_title.setVisible(False)
         widget.add_widget(event_priority_title)
         self.event_priority_input = PlainTextEdit()

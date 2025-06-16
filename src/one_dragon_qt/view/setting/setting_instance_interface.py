@@ -45,10 +45,10 @@ class InstanceSettingCard(MultiPushSettingCard):
         self.run_opt.setCurrentIndex(target_idx)
         self.run_opt.currentIndexChanged.connect(self._on_run_changed)
 
-        self.active_btn = PushButton(text='启用')
+        self.active_btn = PushButton(text=gt('启用'))
         self.active_btn.clicked.connect(self._on_active_clicked)
         self.active_btn.setDisabled(self.instance.active)
-        self.login_btn = PushButton(text='登录')
+        self.login_btn = PushButton(text=gt('登录'))
         self.login_btn.clicked.connect(self._on_login_clicked)
         self.delete_btn = ToolButton(FluentIcon.DELETE, parent=None)
         self.delete_btn.clicked.connect(self._on_delete_clicked)
@@ -166,7 +166,7 @@ class SettingInstanceInterface(VerticalScrollInterface):
             instance_card.login.connect(self._on_instance_login)
             instance_card.delete.connect(self._on_instance_delete)
 
-        self.add_btn = PrimaryPushButton(text='新增')
+        self.add_btn = PrimaryPushButton(text=gt('新增'))
         self.add_btn.setFixedHeight(40)  # 设置按钮的固定高度
         self.add_btn.clicked.connect(self._on_add_clicked)
         instance_switch_group.addSettingCard(self.add_btn)
@@ -186,7 +186,8 @@ class SettingInstanceInterface(VerticalScrollInterface):
         self.game_account_opt = TextSettingCard(
             icon=FluentIcon.PEOPLE,
             title='账号',
-            input_placeholder='所有信息都明文保存在本地')
+            input_placeholder='所有信息都明文保存在本地'
+        )
         instance_settings_group.addSettingCard(self.game_account_opt)
 
         self.game_password_opt = TextSettingCard(
@@ -235,9 +236,9 @@ class SettingInstanceInterface(VerticalScrollInterface):
         self.ctx.init_by_config()
 
     def _on_game_path_clicked(self) -> None:
-        file_path, _ = QFileDialog.getOpenFileName(self, gt('选择你的 ZenlessZoneZero.exe', 'game'), filter="Exe (*.exe)")
+        file_path, _ = QFileDialog.getOpenFileName(self, f"{gt('选择你的')} ZenlessZoneZero.exe", filter="Exe (*.exe)")
         if file_path is not None and file_path.endswith('.exe'):
-            log.info('选择路径 %s', file_path)
+            log.info(f"{gt('选择路径')} {file_path}")
             self._on_game_path_chosen(os.path.normpath(file_path))
 
     def _on_game_path_chosen(self, file_path) -> None:
