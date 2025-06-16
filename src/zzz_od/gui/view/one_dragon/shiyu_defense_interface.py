@@ -42,7 +42,7 @@ class ShiyuDefenseInterface(VerticalScrollInterface):
         self.team_table.setColumnCount(len(labels))
         for i in range(len(labels)):
             self.team_table.setColumnWidth(i, (200 if i == 0 else 70))
-        self.team_table.setHorizontalHeaderLabels([gt(i, 'ui') for i in labels])
+        self.team_table.setHorizontalHeaderLabels([gt(i) for i in labels])
 
         content_widget.add_widget(self.team_table, stretch=1)
 

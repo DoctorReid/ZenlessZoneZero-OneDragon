@@ -45,8 +45,8 @@ class CombatSimulation(ZOperation):
         ZOperation.__init__(
             self, ctx,
             op_name='%s %s' % (
-                gt('实战模拟室'),
-                gt(plan.mission_name)
+                gt('实战模拟室', 'game'),
+                gt(plan.mission_name, 'game')
             )
         )
 
@@ -112,7 +112,7 @@ class CombatSimulation(ZOperation):
         category = self.ctx.compendium_service.get_category_data('训练', '实战模拟室')
         if category is None:
             return False
-        target_word_list: list[str] = [gt(i.mission_type_name) for i in category.mission_type_list]
+        target_word_list: list[str] = [gt(i.mission_type_name, 'game') for i in category.mission_type_list]
         match_type_cnt: int = 0
         for ocr_result in ocr_result_map.keys():
             match_idx: int = str_utils.find_best_match_by_difflib(ocr_result, target_word_list)

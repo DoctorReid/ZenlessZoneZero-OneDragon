@@ -20,9 +20,9 @@ class CompendiumChooseCategory(ZOperation):
         ZOperation.__init__(
             self, ctx,
             op_name='%s %s %s' % (
-                gt('快捷手册'),
-                gt('选择分类', 'ui'),
-                gt(category_name)
+                gt('快捷手册', 'game'),
+                gt('选择分类'),
+                gt(category_name, 'game')
             )
         )
 
@@ -39,7 +39,7 @@ class CompendiumChooseCategory(ZOperation):
         for ocr_result, mrl in ocr_results.items():
             if mrl.max is None:
                 continue
-            if str_utils.find_by_lcs(gt(self.category_name), ocr_result, percent=0.5):
+            if str_utils.find_by_lcs(gt(self.category_name, 'game'), ocr_result, percent=0.5):
                 target_point = area.left_top + mrl.max.center
                 break
 

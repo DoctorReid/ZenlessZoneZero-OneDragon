@@ -38,8 +38,8 @@ class SettingCardBase(SettingCard):
         self.vBoxLayout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
 
         # 设置初始参数
-        self.titleLabel = QLabel(gt(title, "ui"), self)
-        self.contentLabel = QLabel(gt(content, "ui"), self)
+        self.titleLabel = QLabel(gt(title), self)
+        self.contentLabel = QLabel(gt(content), self)
 
         # 处理内容显示
         self.contentLabel.setVisible(content is not None and len(content) > 0)
@@ -64,7 +64,7 @@ class SettingCardBase(SettingCard):
 
     def setContent(self, content: str):
         """设置卡片内容"""
-        self.contentLabel.setText(gt(content, "ui"))
+        self.contentLabel.setText(gt(content))
         self.contentLabel.setVisible(content is not None and len(content) > 0)  # 根据内容设置可见性
 
     def setIconSize(self, width: int, height: int):

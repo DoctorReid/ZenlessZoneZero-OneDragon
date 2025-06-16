@@ -41,7 +41,7 @@ if __name__ == '__main__':
     _unpack_resources()
     _ctx = OneDragonEnvContext()
     _ctx.async_update_gh_proxy()
-    w = ZInstallerWindow(_ctx, gt(f'{_ctx.project_config.project_name}-installer', 'ui'))
+    w = ZInstallerWindow(_ctx, gt(f'{_ctx.project_config.project_name}-installer'))
     w.show()
     app.exec()
     _ctx.after_app_shutdown()

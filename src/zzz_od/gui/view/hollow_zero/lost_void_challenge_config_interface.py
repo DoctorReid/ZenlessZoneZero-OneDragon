@@ -46,23 +46,23 @@ class LostVoidChallengeConfigInterface(VerticalScrollInterface):
         widget.add_widget(btn_row)
 
         self.existed_yml_btn = ComboBox()
-        self.existed_yml_btn.setPlaceholderText(gt('选择已有', 'ui'))
+        self.existed_yml_btn.setPlaceholderText(gt('选择已有'))
         self.existed_yml_btn.currentIndexChanged.connect(self._on_choose_existed_yml)
         btn_row.add_widget(self.existed_yml_btn)
 
-        self.create_btn = PushButton(text=gt('新建', 'ui'))
+        self.create_btn = PushButton(text=gt('新建'))
         self.create_btn.clicked.connect(self._on_create_clicked)
         btn_row.add_widget(self.create_btn)
 
-        self.copy_btn = PushButton(text=gt('复制', 'ui'))
+        self.copy_btn = PushButton(text=gt('复制'))
         self.copy_btn.clicked.connect(self._on_copy_clicked)
         btn_row.add_widget(self.copy_btn)
 
-        self.delete_btn = PushButton(text=gt('删除', 'ui'))
+        self.delete_btn = PushButton(text=gt('删除'))
         self.delete_btn.clicked.connect(self._on_delete_clicked)
         btn_row.add_widget(self.delete_btn)
 
-        self.cancel_btn = PushButton(text=gt('取消', 'ui'))
+        self.cancel_btn = PushButton(text=gt('取消'))
         self.cancel_btn.clicked.connect(self._on_cancel_clicked)
         btn_row.add_widget(self.cancel_btn)
 
@@ -229,7 +229,7 @@ class LostVoidChallengeConfigInterface(VerticalScrollInterface):
         for config in config_list:
             self.existed_yml_btn.addItem(text=config.module_name, icon=None, userData=config)
         self.existed_yml_btn.setCurrentIndex(-1)
-        self.existed_yml_btn.setPlaceholderText(gt('选择已有', 'ui'))
+        self.existed_yml_btn.setPlaceholderText(gt('选择已有'))
         self.existed_yml_btn.blockSignals(False)
 
     def _on_choose_existed_yml(self, idx: int):

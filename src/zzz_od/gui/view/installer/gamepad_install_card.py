@@ -34,7 +34,7 @@ class GamepadInstallCard(BaseInstallCard):
             self.ctx.env_config.update('vgamepad_requirement', self.get_requirement_time())
             self.check_and_update_display()
         else:
-            self.update_display(FluentIcon.INFO.icon(color=FluentThemeColor.RED.value), gt(msg, 'ui'))
+            self.update_display(FluentIcon.INFO.icon(color=FluentThemeColor.RED.value), gt(msg))
 
     def get_display_content(self) -> Tuple[QIcon, str]:
         """
@@ -45,10 +45,10 @@ class GamepadInstallCard(BaseInstallCard):
 
         if last != self.get_requirement_time():
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.GOLD.value)
-            msg = gt('需更新，请使用安装器更新', 'ui')
+            msg = gt('需更新，请使用安装器更新')
         else:
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.DEFAULT_BLUE.value)
-            msg = f"{gt('已安装', 'ui')}" + ' ' + last
+            msg = f"{gt('已安装')}" + ' ' + last
 
         return icon, msg
 

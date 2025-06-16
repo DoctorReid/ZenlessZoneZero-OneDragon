@@ -67,7 +67,7 @@ def find_area_in_screen(ctx: OneDragonContext, screen: MatLike, area: ScreenArea
 
         ocr_result_map = ctx.ocr.run_ocr(to_ocr)
         for ocr_result, mrl in ocr_result_map.items():
-            if str_utils.find_by_lcs(gt(area.text), ocr_result, percent=area.lcs_percent):
+            if str_utils.find_by_lcs(gt(area.text, 'game'), ocr_result, percent=area.lcs_percent):
                 find = True
                 break
     elif area.is_template_area:
@@ -104,7 +104,7 @@ def find_and_click_area(ctx: OneDragonContext, screen: MatLike, screen_name: str
 
         ocr_result_map = ctx.ocr.run_ocr(to_ocr_part)
         for ocr_result, mrl in ocr_result_map.items():
-            if str_utils.find_by_lcs(gt(area.text), ocr_result, percent=area.lcs_percent):
+            if str_utils.find_by_lcs(gt(area.text, 'game'), ocr_result, percent=area.lcs_percent):
                 to_click = mrl.max.center + area.left_top
                 if ctx.controller.click(to_click, pc_alt=area.pc_alt):
                     return OcrClickResultEnum.OCR_CLICK_SUCCESS
@@ -248,7 +248,7 @@ def find_by_ocr(ctx: OneDragonContext, screen: MatLike, target_cn: str,
     for ocr_result, mrl in ocr_result_map.items():
         if mrl.max is None:
             continue
-        if str_utils.find_by_lcs(gt(target_cn), ocr_result, percent=lcs_percent):
+        if str_utils.find_by_lcs(gt(target_cn, 'game'), ocr_result, percent=lcs_percent):
             to_click = mrl.max.center
             break
 

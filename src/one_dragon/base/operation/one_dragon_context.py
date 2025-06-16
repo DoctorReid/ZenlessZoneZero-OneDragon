@@ -127,11 +127,11 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
     @property
     def context_running_status_text(self) -> str:
         if self.context_running_state == ContextRunStateEnum.STOP:
-            return gt('空闲', 'ui')
+            return gt('空闲')
         elif self.context_running_state == ContextRunStateEnum.RUN:
-            return gt('运行中', 'ui')
+            return gt('运行中')
         elif self.context_running_state == ContextRunStateEnum.PAUSE:
-            return gt('暂停中', 'ui')
+            return gt('暂停中')
         else:
             return gt('未知')
 

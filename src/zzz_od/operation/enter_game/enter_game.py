@@ -21,7 +21,7 @@ class EnterGame(ZOperation):
 
     def __init__(self, ctx: ZContext, switch: bool = False):
         ZOperation.__init__(self, ctx,
-                            op_name=gt('进入游戏', 'ui')
+                            op_name=gt('进入游戏')
                             )
 
         self.force_login: bool = (self.ctx.one_dragon_config.instance_run == InstanceRun.ALL.value.value
@@ -296,7 +296,7 @@ class EnterGame(ZOperation):
         to_match_list: list[str] = []
         for idx, target_word in enumerate(target_word_list):
             target_word_idx_map[target_word] = idx
-            to_match_list.append(gt(target_word))
+            to_match_list.append(gt(target_word, 'game'))
 
         match_word, match_word_mrl = ocr_utils.match_word_list_by_priority(
             ocr_result_map,

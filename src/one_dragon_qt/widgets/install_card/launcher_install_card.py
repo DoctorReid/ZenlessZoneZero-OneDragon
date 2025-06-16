@@ -86,7 +86,7 @@ class LauncherInstallCard(BaseInstallCard):
         if success:
             self.check_and_update_display()
         else:
-            self.update_display(FluentIcon.INFO.icon(color=FluentThemeColor.RED.value), gt(msg, 'ui'))
+            self.update_display(FluentIcon.INFO.icon(color=FluentThemeColor.RED.value), gt(msg))
 
     def get_display_content(self) -> Tuple[QIcon, str]:
         """
@@ -97,12 +97,12 @@ class LauncherInstallCard(BaseInstallCard):
             is_latest, latest_version, current_version = self.check_launcher_update()
             if is_latest or os_utils.run_in_exe():  # 安装器中不检查更新
                 icon = FluentIcon.INFO.icon(color=FluentThemeColor.DEFAULT_BLUE.value)
-                msg = f"{gt('已安装', 'ui')} {current_version}"
+                msg = f"{gt('已安装')} {current_version}"
             else:
                 icon = FluentIcon.INFO.icon(color=FluentThemeColor.GOLD.value)
-                msg = f"需更新。{gt('当前版本', 'ui')}: {current_version}; {gt('最新版本', 'ui')}: {latest_version}"
+                msg = f"需更新。{gt('当前版本')}: {current_version}; {gt('最新版本')}: {latest_version}"
         else:
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
-            msg = gt('需下载', 'ui')
+            msg = gt('需下载')
 
         return icon, msg

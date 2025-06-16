@@ -770,7 +770,7 @@ class Operation(OperationBase):
             ocr_result_list.append(ocr_result)
             mrl_list.append(mrl)
 
-        results = difflib.get_close_matches(gt(target_cn), ocr_result_list, n=1)
+        results = difflib.get_close_matches(gt(target_cn, 'game'), ocr_result_list, n=1)
         if results is None or len(results) == 0:
             return self.round_retry(f'找不到 {target_cn}', wait=retry_wait, wait_round_time=retry_wait_round)
 
@@ -778,7 +778,7 @@ class Operation(OperationBase):
             idx = ocr_result_list.index(result)
             ocr_result = ocr_result_list[idx]
             mrl = mrl_list[idx]
-            if str_utils.find_by_lcs(gt(target_cn), ocr_result, percent=lcs_percent):
+            if str_utils.find_by_lcs(gt(target_cn, 'game'), ocr_result, percent=lcs_percent):
                 to_click = mrl.max.center
                 break
 
