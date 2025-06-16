@@ -83,7 +83,7 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
         self.save_btn.clicked.connect(self._on_save_clicked)
         btn_row.add_widget(self.save_btn)
 
-        self.delete_btn = PushButton(text=gt('删除'))
+        self.delete_btn = ToolButton(FluentIcon.DELETE)
         self.delete_btn.clicked.connect(self._on_delete_clicked)
         btn_row.add_widget(self.delete_btn)
 

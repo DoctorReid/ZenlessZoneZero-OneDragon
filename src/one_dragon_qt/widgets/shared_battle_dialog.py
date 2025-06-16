@@ -13,7 +13,7 @@ from PySide6.QtWidgets import (
     QTableWidgetItem,
 )
 from dataclasses import dataclass
-from qfluentwidgets import SimpleCardWidget, PushButton, LineEdit, Dialog, TableWidget
+from qfluentwidgets import FluentIcon, SimpleCardWidget, PushButton, ToolButton, LineEdit, Dialog, TableWidget
 from qframelesswindow import FramelessDialog
 
 from one_dragon.utils.i18_utils import gt
@@ -250,7 +250,7 @@ class SharedConfigDialog(FramelessDialog):
                 )
 
                 # 创建删除按钮
-                delete_button = PushButton(text=gt('删除'))
+                delete_button = ToolButton(FluentIcon.DELETE)
                 delete_button.setFixedSize(60, 30)
                 delete_button.clicked.connect(
                     lambda checked, path=file_path: self.delete_local_config(path)
