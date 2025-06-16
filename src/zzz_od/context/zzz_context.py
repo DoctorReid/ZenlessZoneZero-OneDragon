@@ -148,7 +148,6 @@ class ZContext(OneDragonContext):
         :return:
         """
         OneDragonContext.init_by_config(self)
-        i18_utils.update_default_lang(self.game_account_config.game_language)
 
         from zzz_od.controller.zzz_pc_controller import ZPcController
         from one_dragon.base.config.game_account_config import GamePlatformEnum

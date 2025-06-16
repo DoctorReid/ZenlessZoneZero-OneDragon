@@ -81,7 +81,7 @@ class OneDragonConfig(YamlConfig):
             if not existed:
                 break
 
-        new_instance = OneDragonInstance(idx, '账号%02d' % idx, first, True)
+        new_instance = OneDragonInstance(idx, '%02d' % idx, first, True)
         self.instance_list.append(new_instance)
 
         dict_instance_list = self.dict_instance_list
