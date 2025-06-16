@@ -4,16 +4,16 @@ import ctypes
 from ctypes import wintypes
 
 from PySide6.QtWidgets import QWidget, QFileDialog
-from qfluentwidgets import FluentIcon, SettingCardGroup, setTheme, Theme, PrimaryPushButton
+from qfluentwidgets import Dialog, FluentIcon, PrimaryPushButton, SettingCardGroup, setTheme, Theme
 
-from one_dragon.base.config.custom_config import ThemeEnum
+from one_dragon.base.config.custom_config import ThemeEnum, UILanguageEnum
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon_qt.widgets.column import Column
 from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon_qt.widgets.setting_card.password_switch_setting_card import PasswordSwitchSettingCard
 from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
-from one_dragon.utils import os_utils
+from one_dragon.utils import app_utils, os_utils
 from one_dragon.utils.i18_utils import gt
 
 class SettingCustomInterface(VerticalScrollInterface):
@@ -37,6 +37,13 @@ class SettingCustomInterface(VerticalScrollInterface):
 
     def _init_basic_group(self) -> SettingCardGroup:
         basic_group = SettingCardGroup(gt('外观', 'ui'))
+
+        self.ui_language_opt = ComboBoxSettingCard(
+            icon=FluentIcon.LANGUAGE, title='界面语言',
+            options_enum=UILanguageEnum
+        )
+        self.ui_language_opt.value_changed.connect(self._on_ui_language_changed)
+        basic_group.addSettingCard(self.ui_language_opt)
 
         self.theme_opt = ComboBoxSettingCard(
             icon=FluentIcon.CONSTRACT, title='界面主题',
@@ -81,11 +88,28 @@ class SettingCustomInterface(VerticalScrollInterface):
         :return:
         """
         VerticalScrollInterface.on_interface_shown(self)
+        self.ui_language_opt.init_with_adapter(self.ctx.custom_config.get_prop_adapter('ui_language'))
         self.theme_opt.init_with_adapter(self.ctx.custom_config.get_prop_adapter('theme'))
         self.notice_card_opt.init_with_adapter(self.ctx.custom_config.get_prop_adapter('notice_card'))
         self.custom_banner_opt.init_with_adapter(self.ctx.custom_config.get_prop_adapter('custom_banner'))
         self.remote_banner_opt.init_with_adapter(self.ctx.custom_config.get_prop_adapter('remote_banner'))
         self.version_poster_opt.init_with_adapter(self.ctx.custom_config.get_prop_adapter('version_poster'))
+
+    def _on_ui_language_changed(self, index: int, value: str) -> None:
+        """
+        界面语言改变
+        :param index: 选项下标
+        :param value: 值
+        :return:
+        """
+        language = self.ctx.custom_config.ui_language
+        dialog = Dialog(gt("提示", "ui", language), gt("语言切换成功，需要重启应用程序以生效", "ui", language), self)
+        dialog.setTitleBarVisible(False)
+        dialog.yesButton.setText(gt("立即重启", "ui", language))
+        dialog.cancelButton.setText(gt("稍后重启", "ui", language))
+
+        if dialog.exec():
+            app_utils.start_one_dragon(True)
 
     def _on_theme_changed(self, index: int, value: str) -> None:
         """

@@ -17,16 +17,19 @@ DEFAULT_VENV_PYTHON_PATH = os.path.join(DEFAULT_VENV_DIR_PATH, 'Scripts', 'pytho
 
 GH_PROXY_URL = 'https://ghfast.top'  # 免费代理的路径
 
+
 class ProxyTypeEnum(Enum):
 
     NONE = ConfigItem('无', 'None')
     PERSONAL = ConfigItem('个人代理', 'personal')
     GHPROXY = ConfigItem('GitHub免费代理', 'ghproxy')
 
+
 class RepositoryTypeEnum(Enum):
 
     GITHUB = ConfigItem('GitHub')
     GITEE = ConfigItem('Gitee')
+
 
 class RegionEnum(Enum):
 
