@@ -3,7 +3,6 @@ from PySide6.QtCore import Qt
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QIcon
 from PySide6.QtGui import Qt
-from dataclasses import dataclass
 from qfluentwidgets import PushButton
 from qfluentwidgets import SettingCard, FluentIconBase
 from typing import Union, Optional
@@ -28,7 +27,6 @@ class KeyEventWorker(QObject):
         self.key_pressed.emit(key)
 
 
-@dataclass(eq=False)
 class KeySettingCard(SettingCardBase):
 
     value_changed = Signal(str)
