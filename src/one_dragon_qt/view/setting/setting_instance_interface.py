@@ -67,7 +67,7 @@ class InstanceSettingCard(MultiPushSettingCard):
         """
         title = '%02d' % self.instance.idx
         if self.instance.active:
-            title += ' ' + gt('当前', 'ui')
+            title += ' ' + gt('当前')
         self.setTitle(title)
 
     def _on_name_changed(self, text: str) -> None:
@@ -155,7 +155,7 @@ class SettingInstanceInterface(VerticalScrollInterface):
         self.game_password_opt.init_with_adapter(self.ctx.game_account_config.get_prop_adapter('password'))
 
     def _get_instanceSwitch_group(self) -> QWidget:
-        instance_switch_group = SettingCardGroup(gt('账户列表', 'ui'))
+        instance_switch_group = SettingCardGroup(gt('账户列表'))
 
         for instance in self.ctx.one_dragon_config.instance_list:
             instance_card = InstanceSettingCard(instance)
@@ -174,7 +174,7 @@ class SettingInstanceInterface(VerticalScrollInterface):
         return instance_switch_group
 
     def _get_instanceSettings_group(self) -> QWidget:
-        instance_settings_group = SettingCardGroup(gt('当前账户设置', 'ui'))
+        instance_settings_group = SettingCardGroup(gt('当前账户设置'))
 
         self.game_path_opt = PushSettingCard(icon=FluentIcon.FOLDER, title='游戏路径', text='选择')
         self.game_path_opt.clicked.connect(self._on_game_path_clicked)
@@ -235,7 +235,7 @@ class SettingInstanceInterface(VerticalScrollInterface):
         self.ctx.init_by_config()
 
     def _on_game_path_clicked(self) -> None:
-        file_path, _ = QFileDialog.getOpenFileName(self, gt('选择你的 ZenlessZoneZero.exe'), filter="Exe (*.exe)")
+        file_path, _ = QFileDialog.getOpenFileName(self, gt('选择你的 ZenlessZoneZero.exe', 'game'), filter="Exe (*.exe)")
         if file_path is not None and file_path.endswith('.exe'):
             log.info('选择路径 %s', file_path)
             self._on_game_path_chosen(os.path.normpath(file_path))

@@ -445,7 +445,7 @@ class LostVoidRunLevel(ZOperation):
         for ocr_result in ocr_result_map.keys():
             for special_talk in special_talk_list:
                 # 穷举比较麻烦 有超过10个字符的 就认为这里有对话吧
-                if len(ocr_result) <= 10 and not str_utils.find_by_lcs(gt(special_talk), ocr_result):
+                if len(ocr_result) <= 10 and not str_utils.find_by_lcs(gt(special_talk, 'game'), ocr_result):
                     continue
 
                 # 判断是否有选项

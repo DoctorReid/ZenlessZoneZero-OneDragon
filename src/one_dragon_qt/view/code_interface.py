@@ -93,11 +93,11 @@ class CodeInterface(VerticalScrollInterface):
         self.log_table.setColumnWidth(4, 440)
         self.log_table.verticalHeader().hide()
         self.log_table.setHorizontalHeaderLabels([
-            gt('回滚', 'ui'),
-            gt('ID', 'ui'),
-            gt('作者', 'ui'),
-            gt('时间', 'ui'),
-            gt('内容', 'ui')
+            gt('回滚'),
+            gt('ID'),
+            gt('作者'),
+            gt('时间'),
+            gt('内容')
         ])
 
         v_layout.addWidget(self.log_table)

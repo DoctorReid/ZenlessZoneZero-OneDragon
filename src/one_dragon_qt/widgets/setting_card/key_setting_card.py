@@ -76,7 +76,7 @@ class KeySettingCard(SettingCardBase):
             self.button_listener = PcButtonListener(
                 self._on_key_press, listen_keyboard=True, listen_mouse=True
             )
-            self.btn.setText(gt("请按键", "ui"))
+            self.btn.setText(gt('请按键'))
             self.button_listener.start()
         else:
             self._stop_listener()
@@ -114,7 +114,7 @@ class KeySettingCard(SettingCardBase):
         :param content: 文本 中文
         :return:
         """
-        SettingCard.setContent(self, gt(content, "ui"))
+        SettingCard.setContent(self, gt(content))
 
     def setValue(self, value: str, emit_signal: bool = True) -> None:
         """

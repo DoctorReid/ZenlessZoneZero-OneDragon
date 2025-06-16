@@ -82,7 +82,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
         :return:
         """
         layout = QVBoxLayout()
-        self.app_card_group = SettingCardGroup(gt('任务列表', 'ui'))
+        self.app_card_group = SettingCardGroup(gt('任务列表'))
         layout.addWidget(self.app_card_group)
 
         return layout
@@ -95,7 +95,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
         layout = QVBoxLayout()
         layout.setSpacing(5)
 
-        run_group = SettingCardGroup(gt('运行设置', 'ui'))
+        run_group = SettingCardGroup(gt('运行设置'))
         layout.addWidget(run_group)
 
         if self.help_url is not None:
@@ -121,7 +121,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
         run_group.addSettingCard(self.after_done_opt)
 
         self.state_text = SubtitleLabel()
-        self.state_text.setText('%s %s' % (gt('当前状态', 'ui'), self.ctx.context_running_status_text))
+        self.state_text.setText('%s %s' % (gt('当前状态'), self.ctx.context_running_status_text))
         self.state_text.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         layout.addWidget(self.state_text)
 
@@ -130,14 +130,14 @@ class OneDragonRunInterface(VerticalScrollInterface):
         layout.addLayout(btn_row)
 
         self.start_btn = PrimaryPushButton(
-            text='%s %s' % (gt('开始', 'ui'), self.ctx.key_start_running.upper()),
+            text='%s %s' % (gt('开始'), self.ctx.key_start_running.upper()),
             icon=FluentIcon.PLAY,
         )
         self.start_btn.clicked.connect(self._on_start_clicked)
         btn_row.addWidget(self.start_btn, stretch=1)
 
         self.stop_btn = PushButton(
-            text='%s %s' % (gt('停止', 'ui'), self.ctx.key_stop_running.upper()),
+            text='%s %s' % (gt('停止'), self.ctx.key_stop_running.upper()),
             icon=FluentIcon.CLOSE
         )
         self.stop_btn.clicked.connect(self._on_stop_clicked)
@@ -243,21 +243,21 @@ class OneDragonRunInterface(VerticalScrollInterface):
         :return:
         """
         if self.ctx.is_context_running:
-            text = gt('暂停', 'ui')
+            text = gt('暂停')
             icon = FluentIcon.PAUSE
             self.log_card.start()  # 开始日志更新
         elif self.ctx.is_context_pause:
-            text = gt('继续', 'ui')
+            text = gt('继续')
             icon = FluentIcon.PLAY
             self.log_card.pause()  # 暂停日志更新
         else:
-            text = gt('开始', 'ui')
+            text = gt('开始')
             icon = FluentIcon.PLAY
             self.log_card.stop()  # 停止日志更新
 
         self.start_btn.setText('%s %s' % (text, self.ctx.key_start_running.upper()))
         self.start_btn.setIcon(icon)
-        self.state_text.setText('%s %s' % (gt('当前状态', 'ui'), self.ctx.context_running_status_text))
+        self.state_text.setText('%s %s' % (gt('当前状态'), self.ctx.context_running_status_text))
 
         for app_card in self._app_run_cards:
             app_card.update_display()

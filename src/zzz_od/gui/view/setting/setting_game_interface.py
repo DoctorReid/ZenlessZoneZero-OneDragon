@@ -45,7 +45,7 @@ class SettingGameInterface(VerticalScrollInterface):
         return content_widget
 
     def _get_agent_outfit_group(self) -> QWidget:
-        agent_outfit_group = SettingCardGroup(gt('代理人皮肤', 'ui'))
+        agent_outfit_group = SettingCardGroup(gt('代理人皮肤'))
 
         self.help_opt = HyperlinkCard(icon=FluentIcon.PIN, title='！设置皮肤以正常使用自动战斗功能  ！', url='', text='')
         self.help_opt.linkButton.hide()
@@ -78,7 +78,7 @@ class SettingGameInterface(VerticalScrollInterface):
         return agent_outfit_group
 
     def _get_basic_group(self) -> QWidget:
-        basic_group = SettingCardGroup(gt('游戏基础', 'ui'))
+        basic_group = SettingCardGroup(gt('游戏基础'))
 
         self.input_way_opt = ComboBoxSettingCard(icon=FluentIcon.CLIPPING_TOOL, title='输入方式',
                                                  options_enum=TypeInputWay)
@@ -96,7 +96,7 @@ class SettingGameInterface(VerticalScrollInterface):
         return basic_group
 
     def _get_launch_argument_group(self) -> QWidget:
-        launch_argument_group = SettingCardGroup(gt('启动参数', 'ui'))
+        launch_argument_group = SettingCardGroup(gt('启动参数'))
 
         self.launch_argument_switch = SwitchSettingCard(icon=FluentIcon.SETTING, title='启用')
         self.launch_argument_switch.value_changed.connect(self._on_launch_argument_switch_changed)
@@ -131,7 +131,7 @@ class SettingGameInterface(VerticalScrollInterface):
         return launch_argument_group
 
     def _get_key_group(self) -> QWidget:
-        key_group = SettingCardGroup(gt('游戏按键', 'ui'))
+        key_group = SettingCardGroup(gt('游戏按键'))
 
         self.key_normal_attack_opt = KeySettingCard(icon=FluentIcon.GAME, title='普通攻击')
         key_group.addSettingCard(self.key_normal_attack_opt)
@@ -181,7 +181,7 @@ class SettingGameInterface(VerticalScrollInterface):
         return key_group
 
     def _get_gamepad_group(self) -> QWidget:
-        gamepad_group = SettingCardGroup(gt('手柄按键', 'ui'))
+        gamepad_group = SettingCardGroup(gt('手柄按键'))
 
         self.gamepad_type_opt = ComboBoxSettingCard(
             icon=FluentIcon.GAME, title='手柄类型',

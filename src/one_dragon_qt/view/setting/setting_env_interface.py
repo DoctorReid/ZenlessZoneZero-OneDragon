@@ -40,7 +40,7 @@ class SettingEnvInterface(VerticalScrollInterface):
         return content_widget
 
     def _init_basic_group(self) -> SettingCardGroup:
-        basic_group = SettingCardGroup(gt('基础', 'ui'))
+        basic_group = SettingCardGroup(gt('基础'))
 
         self.debug_opt = SwitchSettingCard(
             icon=FluentIcon.SEARCH, title='调试模式', content='正常无需开启'
@@ -57,7 +57,7 @@ class SettingEnvInterface(VerticalScrollInterface):
         return basic_group
 
     def _init_code_group(self) -> SettingCardGroup:
-        code_group = SettingCardGroup(gt('Git相关', 'ui'))
+        code_group = SettingCardGroup(gt('Git相关'))
 
         self.repository_type_opt = ComboBoxSettingCard(
             icon=FluentIcon.APPLICATION, title='代码源', content='国内无法访问GitHub则选择Gitee',
@@ -86,7 +86,7 @@ class SettingEnvInterface(VerticalScrollInterface):
         return code_group
 
     def _init_python_group(self) -> SettingCardGroup:
-        python_group = SettingCardGroup(gt('Python相关', 'ui'))
+        python_group = SettingCardGroup(gt('Python相关'))
 
         self.cpython_source_opt = ComboBoxSettingCard(icon=FluentIcon.GLOBE, title='Python下载源', options_enum=CpythonSourceEnum)
         self.cpython_build_choose_best_btn = PushButton('自动测速选择', self)
@@ -105,7 +105,7 @@ class SettingEnvInterface(VerticalScrollInterface):
         return python_group
 
     def _init_web_group(self) -> SettingCardGroup:
-        web_group = SettingCardGroup(gt('网络相关', 'ui'))
+        web_group = SettingCardGroup(gt('网络相关'))
 
         self.proxy_type_opt = ComboBoxSettingCard(
             icon=FluentIcon.GLOBE, title='网络代理', content='免费代理仅能加速工具和模型下载，无法加速代码同步',
@@ -143,7 +143,7 @@ class SettingEnvInterface(VerticalScrollInterface):
         return web_group
 
     def _init_key_group(self) -> SettingCardGroup:
-        key_group = SettingCardGroup(gt('脚本按键', 'ui'))
+        key_group = SettingCardGroup(gt('脚本按键'))
 
         self.key_start_running_input = KeySettingCard(
             icon=FluentIcon.PLAY, title='开始运行', content='开始、暂停、恢复某个应用',

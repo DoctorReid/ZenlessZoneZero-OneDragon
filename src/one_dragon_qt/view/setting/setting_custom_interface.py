@@ -36,7 +36,7 @@ class SettingCustomInterface(VerticalScrollInterface):
         return content_widget
 
     def _init_basic_group(self) -> SettingCardGroup:
-        basic_group = SettingCardGroup(gt('外观', 'ui'))
+        basic_group = SettingCardGroup(gt('外观'))
 
         self.ui_language_opt = ComboBoxSettingCard(
             icon=FluentIcon.LANGUAGE, title='界面语言',

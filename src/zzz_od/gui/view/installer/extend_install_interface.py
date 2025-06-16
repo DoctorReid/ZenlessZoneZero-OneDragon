@@ -34,13 +34,13 @@ class ExtendInstallInterface(VerticalScrollInterface):
         # self.gamepad_opt = GamepadInstallCard(self.ctx)
         self.uv_gamepad_opt = UVGamepadInstallCard(self.ctx)
 
-        update_group = SettingCardGroup(gt('运行环境', 'ui'))
+        update_group = SettingCardGroup(gt('运行环境'))
         # update_group.addSettingCard(self.gamepad_opt)
         update_group.addSettingCard(self.uv_gamepad_opt)
 
         v_layout.addWidget(update_group)
 
-        log_group = SettingCardGroup(gt('安装日志', 'ui'))
+        log_group = SettingCardGroup(gt('安装日志'))
         self.log_card = LogDisplayCard()
         log_group.addSettingCard(self.log_card)
         v_layout.addWidget(log_group)

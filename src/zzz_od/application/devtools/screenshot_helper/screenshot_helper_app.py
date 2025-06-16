@@ -24,7 +24,7 @@ class ScreenshotHelperApp(ZApplication):
         ZApplication.__init__(
             self,
             ctx=ctx, app_id='screenshot_helper',
-            op_name=gt('闪避截图', 'ui')
+            op_name=gt('闪避截图')
         )
 
         self.to_save_screenshot: bool = False  # 去保存截图 由按键触发

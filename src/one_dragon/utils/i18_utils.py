@@ -47,7 +47,7 @@ def get_translations(model: str, lang: str):
     return translation
 
 
-def gt(msg: str, model: str = 'game', lang: str = None) -> str:
+def gt(msg: str, model: str = 'ui', lang: str = None) -> str:
     if msg is None or len(msg) == 0:
         return ''
     if lang is None:
@@ -61,7 +61,7 @@ def gt(msg: str, model: str = 'game', lang: str = None) -> str:
     return trans.gettext(msg) if trans is not None else msg
 
 
-def coalesce_gt(msg: Optional[str], default: str, model: str = 'game', lang: str = None) -> str:
+def coalesce_gt(msg: Optional[str], default: str, model: str = 'ui', lang: str = None) -> str:
     """
     带有默认值的获取多语言
     :param msg: 原字符串

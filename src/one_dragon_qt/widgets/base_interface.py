@@ -20,7 +20,7 @@ class BaseInterface(QWidget):
         :param nav_icon: 出现在导航上的图标
         """
         QWidget.__init__(self, parent=parent)
-        self.nav_text: str = gt(nav_text_cn, 'ui')
+        self.nav_text: str = gt(nav_text_cn)
         self.nav_icon: Union[FluentIconBase, QIcon, str] = nav_icon
         self.setObjectName(object_name)
 

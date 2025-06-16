@@ -33,7 +33,7 @@ class ResourceDownloadInterface(VerticalScrollInterface):
         return content_widget
 
     def _init_common_group(self) -> SettingCardGroup:
-        group = SettingCardGroup(gt('资源下载', 'ui'))
+        group = SettingCardGroup(gt('资源下载'))
 
         self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='下载说明', text='', url='')
         self.help_opt.linkButton.hide()
@@ -58,7 +58,7 @@ class ResourceDownloadInterface(VerticalScrollInterface):
         pass
 
     def _init_log_group(self) -> SettingCardGroup:
-        log_group = SettingCardGroup(gt('安装日志', 'ui'))
+        log_group = SettingCardGroup(gt('安装日志'))
         self.log_card = LogDisplayCard()
         log_group.addSettingCard(self.log_card)
         self._set_log_card_height(self.log_card)

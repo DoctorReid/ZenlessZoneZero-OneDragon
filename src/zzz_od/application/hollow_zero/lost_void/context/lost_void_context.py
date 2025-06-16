@@ -235,7 +235,7 @@ class LostVoidContext:
 
         # 取出与分类名称长度一致的前缀 用LCS来判断对应的cate分类
         for cate in self.cate_2_artifact.keys():
-            cate_name = gt(cate)
+            cate_name = gt(cate, 'game')
 
             if cate not in ['卡牌', '无详情']:
                 if len(name_full_str) < len(cate_name):
@@ -253,7 +253,7 @@ class LostVoidContext:
             art_list = self.cate_2_artifact[cate]
             # 符合分类的情况下 判断后缀和藏品名字是否一致
             for art in art_list:
-                art_name = gt(art.name)
+                art_name = gt(art.name, 'game')
                 suffix = name_full_str[-len(art_name):]
                 if str_utils.find_by_lcs(art_name, suffix, percent=0.5):
                     return art
@@ -340,7 +340,7 @@ class LostVoidContext:
         """
         artifact_name_list: list[str] = []
         for art in self.ctx.lost_void.all_artifact_list:
-            artifact_name_list.append(gt(art.display_name))
+            artifact_name_list.append(gt(art.display_name, 'game'))
 
         artifact_pos_list: list[LostVoidArtifactPos] = []
         ocr_result_map = self.ctx.ocr.run_ocr(screen)
@@ -388,10 +388,10 @@ class LostVoidContext:
 
         # 识别其它标识
         title_word_list = [
-            gt('有同流派武备'),
-            gt('已选择'),
-            gt('齿轮硬币不足'),
-            gt('NEW!')
+            gt('有同流派武备', 'game'),
+            gt('已选择', 'game'),
+            gt('齿轮硬币不足', 'game'),
+            gt('NEW!', 'game')
         ]
         for ocr_result, mrl in ocr_result_map.items():
             title_idx: int = str_utils.find_best_match_by_difflib(ocr_result, title_word_list)
