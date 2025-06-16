@@ -453,6 +453,9 @@ class LostVoidContext:
         if consider_priority_2:
             priority_list_to_consider.append(self.challenge_config.artifact_priority_2)
 
+        if len(priority_list_to_consider) == 0:  # 两个优先级都是空的时候 强制考虑非优先级的
+            consider_not_in_priority = True
+
         priority_idx_list: List[int] = []  # 优先级排序的下标
 
         # 优先选择NEW类型 最高优先级
