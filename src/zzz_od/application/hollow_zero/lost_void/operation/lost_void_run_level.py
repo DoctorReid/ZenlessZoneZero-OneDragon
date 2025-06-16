@@ -392,6 +392,12 @@ class LostVoidRunLevel(ZOperation):
         if result.is_success:
             return self.round_success('迷失之地-挑战结果')
 
+        # 有可能出现对话框需要确认 issue #1104
+        # 这里偷懒了 复用了挑战对话框的按钮
+        result = self.round_by_find_and_click_area(screen, '迷失之地-大世界', '按钮-挑战-确认')
+        if result.is_success:
+            return self.round_wait(status=result.status, wait=1)
+
         # 不在大世界的话 说明交互入口成功了
         if self.interact_target is not None and self.interact_target.is_entry:
             return self.round_success(LostVoidRunLevel.STATUS_NEXT_LEVEL)
