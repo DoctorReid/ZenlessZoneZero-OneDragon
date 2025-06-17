@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
 from qfluentwidgets import SimpleCardWidget, HorizontalFlipView, ListWidget
 
 from one_dragon_qt.widgets.pivot import CustomListItemDelegate, PhosPivot
+from one_dragon.utils.log_utils import log
 from .label import EllipsisLabel
 
 
@@ -111,7 +112,7 @@ class BannerImageLoader(QThread):
                     pixmap.setDevicePixelRatio(self.device_pixel_ratio)  # 设置设备像素比
                     self.image_loaded.emit(pixmap, banner["image"]["link"])
             except Exception as e:
-                print(f"异步加载图片失败: {e}")
+                log.error(f"加载banner图片失败: {e}")
 
             self.loaded_count += 1
 
@@ -172,7 +173,7 @@ class DataFetcher(QThread):
                 with open(file_path, "wb") as file:
                     file.write(response.content)
             except requests.RequestException as e:
-                print(f"Failed to download {file_url}: {e}")
+                log.error(f"下载相关文件失败: {e}")
 
 
 class NoticeCard(SimpleCardWidget):
@@ -214,14 +215,12 @@ class NoticeCard(SimpleCardWidget):
 
     def show_skeleton(self):
         """显示骨架屏"""
-        print(f"显示骨架屏 - Banner可见: {self.skeleton_banner.isVisible()}, Content可见: {self.skeleton_content.isVisible()}")  # 调试信息
         self.skeleton_banner.show()
         self.skeleton_content.show()
         # 确保骨架屏在最前面
         self.skeleton_banner.raise_()
         self.skeleton_content.raise_()
-        print(f"显示后 - Banner可见: {self.skeleton_banner.isVisible()}, Content可见: {self.skeleton_content.isVisible()}")
-        
+
         if hasattr(self, 'flipView'):
             self.flipView.hide()
         if hasattr(self, 'pivot'):
@@ -231,7 +230,6 @@ class NoticeCard(SimpleCardWidget):
 
     def hide_skeleton(self):
         """隐藏骨架屏"""
-        print("隐藏骨架屏")  # 调试信息
         self.skeleton_banner.hide()
         self.skeleton_content.hide()
         if hasattr(self, 'flipView'):
@@ -286,7 +284,7 @@ class NoticeCard(SimpleCardWidget):
                 self.banners.append(pixmap)
                 self.banner_urls.append(banner["image"]["link"])
             except Exception as e:
-                print(f"加载图片失败: {e}")
+                log.error(f"加载banner图片失败: {e}")
 
     def load_banners_async(self, banners):
         """
@@ -459,3 +457,65 @@ class NoticeCard(SimpleCardWidget):
         layout.setStretch(0, 1)
         layout.setStretch(1, 0)
         return item_widget
+
+
+class NoticeCardContainer(QWidget):
+    """公告卡片容器 - 支持动态显示/隐藏，无需重启"""
+    
+    notice_visibility_changed = Signal(bool)  # 公告可见性变化信号
+    
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName("NoticeCardContainer")
+        
+        # 创建主布局
+        self.main_layout = QVBoxLayout(self)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.main_layout.setSpacing(0)
+        
+        # 立即创建公告卡片
+        self.notice_card = NoticeCard()
+        self.main_layout.addWidget(self.notice_card)
+        
+        # 控制状态
+        self._notice_enabled = False
+        
+        # 设置固定宽度
+        self.setFixedWidth(351)
+        
+        # 初始状态为隐藏
+        self._apply_visibility_state()
+        
+    def set_notice_enabled(self, enabled: bool):
+        """设置公告是否启用"""
+        if self._notice_enabled == enabled:
+            return
+            
+        self._notice_enabled = enabled
+        self._apply_visibility_state()
+        
+        # 发出可见性变化信号
+        self.notice_visibility_changed.emit(self._notice_enabled)
+        
+    def _apply_visibility_state(self):
+        """应用可见性状态"""
+        if self._notice_enabled:
+            self.notice_card.show()
+            self.show()
+        else:
+            self.notice_card.hide()
+            self.hide()
+            
+    def refresh_notice(self):
+        """刷新公告内容"""
+        if self.notice_card is not None and self._notice_enabled:
+            # 重新获取数据
+            self.notice_card.fetch_data()
+            
+    def update_config(self, enabled: bool):
+        """更新配置（由设置页面调用）"""
+        self.set_notice_enabled(enabled)
+        
+    def isVisible(self) -> bool:
+        """重写可见性检查"""
+        return super().isVisible() and self._notice_enabled

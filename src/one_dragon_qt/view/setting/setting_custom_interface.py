@@ -45,7 +45,8 @@ class SettingCustomInterface(VerticalScrollInterface):
         self.theme_opt.value_changed.connect(self._on_theme_changed)
         basic_group.addSettingCard(self.theme_opt)
 
-        self.notice_card_opt = SwitchSettingCard(icon=FluentIcon.PIN, title='主页公告', content='在主页显示游戏公告，设置后重启脚本生效')
+        self.notice_card_opt = SwitchSettingCard(icon=FluentIcon.PIN, title='主页公告', content='在主页显示游戏公告')
+        self.notice_card_opt.value_changed.connect(self._on_notice_card_changed)
         basic_group.addSettingCard(self.notice_card_opt)
 
         self.version_poster_opt = SwitchSettingCard(icon=FluentIcon.IMAGE_EXPORT, title='启用版本海报', content='版本活动海报持续整个版本')
@@ -122,3 +123,12 @@ class SettingCustomInterface(VerticalScrollInterface):
 
     def reload_banner(self) -> None:
         self.ctx.signal.reload_banner = True
+
+    def _on_notice_card_changed(self, value: bool) -> None:
+        """
+        主页公告开关变化
+        :param value: 开关状态
+        :return:
+        """
+        # 设置信号标记，通知主页面配置发生了变化
+        self.ctx.signal.notice_card_config_changed = True
