@@ -104,7 +104,10 @@ class PythonService:
         log.info(msg)
 
         os.environ["UV_PYTHON_INSTALL_DIR"] = DEFAULT_PYTHON_DIR_PATH
-        result = cmd_utils.run_command([self.env_config.uv_path, 'venv', DEFAULT_VENV_DIR_PATH, '--python=3.11.12', '--no-python-downloads'])
+        result = cmd_utils.run_command([self.env_config.uv_path, 'venv',
+                                        DEFAULT_VENV_DIR_PATH,
+                                        f'--python={self.project_config.python_version}',
+                                        '--no-python-downloads'])
         success = result is not None
         msg = '创建虚拟环境成功' if success else '创建虚拟环境失败'
         log.info(msg)
@@ -129,7 +132,7 @@ class PythonService:
         log.info(msg)
         return success, msg
 
-    def uv_check_sync_status(self, progress_callback: Optional[Callable[[float, str], None]] = None) -> Tuple[bool, str]:
+    def uv_check_sync_status(self, progress_callback: Optional[Callable[[float, str], None]] = None) -> bool:
         """
         检查环境是否与项目同步
         :param progress_callback: 进度回调
@@ -144,10 +147,7 @@ class PythonService:
         result = cmd_utils.run_command([self.env_config.uv_path, 'sync', '--check'])
 
         is_synced = result is not None
-        msg = '环境已同步' if is_synced else '环境未同步'
-        log.info(msg)
-
-        return is_synced, msg
+        return is_synced
 
     def get_os_uv_path(self) -> Optional[str]:
         """
@@ -202,9 +202,6 @@ class PythonService:
             progress_callback(-1, '正在清理旧文件')
 
         self.env_config.python_path = ''
-        if os.path.exists(DEFAULT_PYTHON_DIR_PATH):
-            shutil.rmtree(DEFAULT_PYTHON_DIR_PATH)
-
         if os.path.exists(DEFAULT_VENV_DIR_PATH):
             shutil.rmtree(DEFAULT_VENV_DIR_PATH)
 
@@ -320,4 +317,4 @@ if __name__ == '__main__':
     env_config = EnvConfig()
     download_service = DownloadService(project_config, env_config)
     python_service = PythonService(project_config, env_config, download_service)
-    python_service.uv_check_sync_status()
+    print(python_service.uv_get_installed_python())

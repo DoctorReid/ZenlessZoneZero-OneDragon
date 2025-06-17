@@ -58,7 +58,7 @@ class GamepadInstallCard(BaseInstallCard):
         :return:
         """
         log.info('获取依赖文件的最后修改时间')
-        return cmd_utils.run_command([self.ctx.env_config.git_path, 'log', '-1', '--pretty=format:"%ai', '--', self.get_requirement_path()])
+        return cmd_utils.run_command([self.ctx.env_config.git_path, 'log', '-1', '--pretty=format:"%ai"', '--', self.get_requirement_path()])
 
     def install_requirements(self, progress_callback: Optional[Callable[[float, str], None]]) -> Tuple[bool, str]:
         """

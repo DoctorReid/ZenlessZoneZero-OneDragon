@@ -137,6 +137,17 @@ jobs:
         Invoke-WebRequest -Uri "https://github.com/OneDragon-Anything/OneDragon-Env/releases/download/ZenlessZoneZero-OneDragon/uv-x86_64-pc-windows-msvc.zip" -OutFile "$envDir/uv-x86_64-pc-windows-msvc.zip"
         Invoke-WebRequest -Uri "https://github.com/OneDragon-Anything/OneDragon-Env/releases/download/ZenlessZoneZero-OneDragon/MinGit.zip" -OutFile "$envDir/MinGit.zip"
 
+        # Download and extract Python
+        $pythonDir = "$envDir/python"
+        $pythonTargetDir = "$pythonDir/cpython-3.11.12-windows-x86_64-none"
+        New-Item -ItemType Directory -Path $pythonTargetDir -Force
+        $pythonTarGz = "$envDir/python.tar.gz"
+        Invoke-WebRequest -Uri "https://github.com/astral-sh/python-build-standalone/releases/download/20250517/cpython-3.11.12+20250517-x86_64-pc-windows-msvc-install_only_stripped.tar.gz" -OutFile $pythonTarGz
+
+        # Extract tar.gz file
+        tar -xzf $pythonTarGz -C $pythonTargetDir --strip-components=1
+        Remove-Item -Path $pythonTarGz -Force
+
         # artifact
         Copy-Item "$distDir/OneDragon-Installer.exe" -Destination $rootDir -Force
         Copy-Item "$distDir/OneDragon-Launcher.exe" -Destination $rootDir -Force
@@ -156,50 +167,164 @@ jobs:
         $tempDir = "temp_models"
         New-Item -ItemType Directory -Path $tempDir -Force
 
-        Expand-ZipIntoNamedFolder `
-          -url "https://github.com/OneDragon-Anything/OneDragon-Env/releases/download/ppocrv5/ppocrv5.zip" `
-          -downloadPath "$tempDir/ppocrv5.zip" `
-          -destRoot "$modelBase/onnx_ocr" `
-          -folderName "ppocrv5"
+        # Function to get latest model asset from GitHub releases
+        function Get-LatestModelAsset {
+            param (
+                [string]$repo,
+                [string]$pattern
+            )
+            $apiUrl = "https://api.github.com/repos/$repo/releases"
+            $releases = Invoke-RestMethod -Uri $apiUrl -Headers @{ "Accept" = "application/vnd.github.v3+json" }
 
-        Expand-ZipIntoNamedFolder `
-          -url "https://github.com/OneDragon-Anything/OneDragon-YOLO/releases/download/zzz_model/yolov8n-640-flash-0127.zip" `
-          -downloadPath "$tempDir/flash.zip" `
-          -destRoot "$modelBase/flash_classifier" `
-          -folderName "yolov8n-640-flash-0127"
+            foreach ($release in $releases) {
+                foreach ($asset in $release.assets) {
+                    if ($asset.name -match $pattern) {
+                        # Extract download count from asset name or find the highest download count
+                        $downloadCount = $asset.download_count
+                        return @{
+                            url = $asset.browser_download_url
+                            name = $asset.name
+                            download_count = $downloadCount
+                        }
+                    }
+                }
+            }
+            return $null
+        }
 
-        Expand-ZipIntoNamedFolder `
-          -url "https://github.com/OneDragon-Anything/OneDragon-YOLO/releases/download/zzz_model/yolov8s-736-hollow-zero-event-0126.zip" `
-          -downloadPath "$tempDir/hollow.zip" `
-          -destRoot "$modelBase/hollow_zero_event" `
-          -folderName "yolov8s-736-hollow-zero-event-0126"
+        # Function to get the latest model by highest 8-digit number at the end
+        function Get-LatestModelByNumber {
+            param (
+                [string]$repo,
+                [string]$pattern
+            )
+            $apiUrl = "https://api.github.com/repos/$repo/releases"
+            $releases = Invoke-RestMethod -Uri $apiUrl -Headers @{ "Accept" = "application/vnd.github.v3+json" }
 
-        Expand-ZipIntoNamedFolder `
-          -url "https://github.com/OneDragon-Anything/OneDragon-YOLO/releases/download/zzz_model/yolov8n-736-lost-void-det-0125.zip" `
-          -downloadPath "$tempDir/lost.zip" `
-          -destRoot "$modelBase/lost_void_det" `
-          -folderName "yolov8n-736-lost-void-det-0125"
+            $bestAsset = $null
+            $maxNumber = -1
 
-        Remove-Item -Path $tempDir -Recurse -Force
+            foreach ($release in $releases) {
+                foreach ($asset in $release.assets) {
+                    if ($asset.name -match $pattern) {
+                        # Extract 8-digit number from the end of filename (before .zip)
+                        if ($asset.name -match '(\d{8})\.zip$') {
+                            $number = [int]$matches[1]
+                            if ($number -gt $maxNumber) {
+                                $maxNumber = $number
+                                $bestAsset = @{
+                                    url = $asset.browser_download_url
+                                    name = $asset.name
+                                    version_number = $number
+                                }
+                            }
+                        }
+                        # For ppocrv5 and other models without 8-digit suffix, use as fallback
+                        elseif ($bestAsset -eq $null) {
+                            $bestAsset = @{
+                                url = $asset.browser_download_url
+                                name = $asset.name
+                                version_number = 0
+                            }
+                        }
+                    }
+                }
+            }
+            return $bestAsset
+        }
 
-        # tree $rootDir /f > "$distDir/directory-structure.txt"
+        # Get latest models by highest version numbers
+        Write-Host "Fetching latest model information..."
+
+        # Get ppocrv5 model (onnx_ocr)
+        $ppocrModel = Get-LatestModelByNumber -repo "OneDragon-Anything/OneDragon-Env" -pattern "ppocrv5\.zip$"
+        if ($ppocrModel) {
+            $ppocrName = $ppocrModel.name -replace "\.zip$", ""
+            Write-Host "Found ppocrv5 model: $($ppocrModel.name) (Version: $($ppocrModel.version_number))"
+            Expand-ZipIntoNamedFolder `
+              -url $ppocrModel.url `
+              -downloadPath "$tempDir/ppocrv5.zip" `
+              -destRoot "$modelBase/onnx_ocr" `
+              -folderName $ppocrName
+        } else {
+            Write-Warning "Could not find ppocrv5 model, using fallback"
+            Expand-ZipIntoNamedFolder `
+              -url "https://github.com/OneDragon-Anything/OneDragon-Env/releases/download/ppocrv5/ppocrv5.zip" `
+              -downloadPath "$tempDir/ppocrv5.zip" `
+              -destRoot "$modelBase/onnx_ocr" `
+              -folderName "ppocrv5"
+        }
+
+        # Get flash classifier model
+        $flashModel = Get-LatestModelByNumber -repo "OneDragon-Anything/OneDragon-YOLO" -pattern "flash.*\.zip$"
+        if ($flashModel) {
+            $flashName = $flashModel.name -replace "\.zip$", ""
+            Write-Host "Found flash model: $($flashModel.name) (Version: $($flashModel.version_number))"
+            Expand-ZipIntoNamedFolder `
+              -url $flashModel.url `
+              -downloadPath "$tempDir/flash.zip" `
+              -destRoot "$modelBase/flash_classifier" `
+              -folderName $flashName
+        } else {
+            Write-Warning "Could not find flash model, using fallback"
+            Expand-ZipIntoNamedFolder `
+              -url "https://github.com/OneDragon-Anything/OneDragon-YOLO/releases/download/zzz_model/yolov8n-640-flash-0127.zip" `
+              -downloadPath "$tempDir/flash.zip" `
+              -destRoot "$modelBase/flash_classifier" `
+              -folderName "yolov8n-640-flash-0127"
+        }
+
+        # Get hollow zero event model
+        $hollowModel = Get-LatestModelByNumber -repo "OneDragon-Anything/OneDragon-YOLO" -pattern "hollow.*\.zip$"
+        if ($hollowModel) {
+            $hollowName = $hollowModel.name -replace "\.zip$", ""
+            Write-Host "Found hollow model: $($hollowModel.name) (Version: $($hollowModel.version_number))"
+            Expand-ZipIntoNamedFolder `
+              -url $hollowModel.url `
+              -downloadPath "$tempDir/hollow.zip" `
+              -destRoot "$modelBase/hollow_zero_event" `
+              -folderName $hollowName
+        } else {
+            Write-Warning "Could not find hollow model, using fallback"
+            Expand-ZipIntoNamedFolder `
+              -url "https://github.com/OneDragon-Anything/OneDragon-YOLO/releases/download/zzz_model/yolov8s-736-hollow-zero-event-0126.zip" `
+              -downloadPath "$tempDir/hollow.zip" `
+              -destRoot "$modelBase/hollow_zero_event" `
+              -folderName "yolov8s-736-hollow-zero-event-0126"
+        }
+
+        # Get lost void detection model
+        $lostModel = Get-LatestModelByNumber -repo "OneDragon-Anything/OneDragon-YOLO" -pattern "lost.*\.zip$"
+        if ($lostModel) {
+            $lostName = $lostModel.name -replace "\.zip$", ""
+            Write-Host "Found lost void model: $($lostModel.name) (Version: $($lostModel.version_number))"
+            Expand-ZipIntoNamedFolder `
+              -url $lostModel.url `
+              -downloadPath "$tempDir/lost.zip" `
+              -destRoot "$modelBase/lost_void_det" `
+              -folderName $lostName
+        } else {
+            Write-Warning "Could not find lost void model, using fallback"
+            Expand-ZipIntoNamedFolder `
+              -url "https://github.com/OneDragon-Anything/OneDragon-YOLO/releases/download/zzz_model/yolov8n-736-lost-void-det-20250612.zip" `
+              -downloadPath "$tempDir/lost.zip" `
+              -destRoot "$modelBase/lost_void_det" `
+              -folderName "yolov8n-736-lost-void-det-20250612"
+        }
+
+        # Pack Launcher
+        Compress-Archive -Path @(
+          "$rootDir/OneDragon-Launcher.exe"
+        ) -DestinationPath "$distDir/ZenlessZoneZero-OneDragon-Launcher.zip" -Force
+
+        # Copy packed launcher zip to .install folder
+        Copy-Item "$distDir/ZenlessZoneZero-OneDragon-Launcher.zip" -Destination "$envDir/ZenlessZoneZero-OneDragon-Launcher.zip" -Force
 
         # version
         $version = "${{ steps.get_version.outputs.version }}"
 
         # Pack Full
         Compress-Archive -Path "$rootDir\*" -DestinationPath "$distDir/ZenlessZoneZero-OneDragon-$version-Full.zip" -Force
-
-        # Pack Update
-        Compress-Archive -Path @(
-          "$rootDir/OneDragon-Installer.exe",
-          "$rootDir/OneDragon-Launcher.exe"
-        ) -DestinationPath "$distDir/ZenlessZoneZero-OneDragon-$version-Update.zip" -Force
-
-        # Pack Launcher
-        Compress-Archive -Path @(
-          "$rootDir/OneDragon-Launcher.exe"
-        ) -DestinationPath "$distDir/ZenlessZoneZero-OneDragon-Launcher.zip" -Force
 
         # Copy Installer
         Copy-Item "$rootDir/OneDragon-Installer.exe" -Destination "$distDir/ZenlessZoneZero-OneDragon-$version-Installer.exe" -Force
@@ -251,11 +376,12 @@ jobs:
         body: |
           # 安装方式
 
-          - 如果你是第一次安装，下载 `ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Full.zip` ，解压后运行 `OneDragon-Installer.exe`。
-          - 如果你已经安装过了，下载 `ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Update.zip` 解压后复制到你原来的文件夹中覆盖即可。
+          - `ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Full.zip` 为完整包，解压后选择解压目录为安装目录，不需要额外下载资源。
+          - `ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Installer.exe` 为精简安装程序，运行后会自动下载所需的资源。
+          - 如果你想更新启动器，前往主程序【设置】-【资源下载】页面更新，或者下载 `ZenlessZoneZero-OneDragon-Launcher.zip`，解压后替换。
           - __不要下载Source Code__
 
-          安装前请查看 [安装指南](https://onedragon-anything.github.io/zzz/zh/quickstart.html)  
+          安装前请查看 [安装指南](https://onedragon-anything.github.io/zzz/zh/quickstart.html)
           若运行出错请查看 [自助排障指南](https://www.kdocs.cn/l/cbSJUUNotJ3Z)
 
           # 更新内容
@@ -264,9 +390,7 @@ jobs:
         files: |
           deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Installer.exe
           deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Full.zip
-          deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Update.zip
           deploy/dist/ZenlessZoneZero-OneDragon-Launcher.zip
-          deploy/dist/directory-structure.txt
         generate_release_notes: false
         prerelease: ${{ github.event_name == 'workflow_dispatch' }}
       env:

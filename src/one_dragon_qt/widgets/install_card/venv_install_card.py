@@ -34,7 +34,7 @@ class VenvInstallCard(BaseInstallCard):
         获取需要显示的状态，由子类自行实现
         :return: 显示的图标、文本
         """
-        is_synced, sync_msg = self.ctx.python_service.uv_check_sync_status()
+        is_synced = self.ctx.python_service.uv_check_sync_status()
         if is_synced:
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.DEFAULT_BLUE.value)
             msg = f"{gt('环境已同步', 'ui')}"

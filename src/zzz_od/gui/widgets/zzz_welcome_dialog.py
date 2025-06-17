@@ -13,10 +13,10 @@ class ZWelcomeDialog(WelcomeDialog):
 
     def _setup_buttons(self):
         """设置对话框按钮"""
-        quick_start_button = PushButton("快速开始", self)
-        quick_start_button.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://onedragon-anything.github.io/zzz/zh/quickstart.html")))
-        quick_start_button.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        quick_start_button.adjustSize()
+        essential_setup_button = PushButton("必要设置", self)
+        essential_setup_button.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://onedragon-anything.github.io/zzz/zh/docs/config.html")))
+        essential_setup_button.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        essential_setup_button.adjustSize()
 
         doc_button = PushButton("自助排障", self)
         doc_button.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.kdocs.cn/l/cbSJUUNotJ3Z")))
@@ -32,7 +32,7 @@ class ZWelcomeDialog(WelcomeDialog):
 
         button_layout = QHBoxLayout()
         button_layout.addStretch(1)
-        button_layout.addWidget(quick_start_button)
+        button_layout.addWidget(essential_setup_button)
         button_layout.addItem(spacer)
         button_layout.addWidget(doc_button)
         button_layout.addItem(spacer)

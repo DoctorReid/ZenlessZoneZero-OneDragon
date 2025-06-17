@@ -292,7 +292,7 @@ class GitService:
         :return:
         """
         log.info('获取依赖文件的最后修改时间')
-        return cmd_utils.run_command([self.env_config.git_path, 'log', '-1', '--pretty=format:"%ai', '--', self.project_config.requirements])
+        return cmd_utils.run_command([self.env_config.git_path, 'log', '-1', '--pretty=format:"%ai"', '--', self.project_config.requirements])
 
     def fetch_total_commit(self) -> int:
         """
