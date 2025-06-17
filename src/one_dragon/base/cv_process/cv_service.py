@@ -66,7 +66,7 @@ class CvService:
         """
         加载并运行指定的流水线
         :param pipeline_name: 流水线名称
-        :param image: BGR图像
+        :param image: RGB图像
         :param debug_mode: 是否为调试模式
         :return: 包含所有结果的上下文
         """
@@ -76,8 +76,7 @@ class CvService:
             ctx.error_str = f"流水线 {pipeline_name} 加载失败"
             return ctx
 
-        source_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        return pipeline.execute(source_image, service=self, debug_mode=debug_mode)
+        return pipeline.execute(image, service=self, debug_mode=debug_mode)
 
     def get_pipeline_names(self) -> List[str]:
         """

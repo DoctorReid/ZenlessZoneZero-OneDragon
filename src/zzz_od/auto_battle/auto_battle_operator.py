@@ -73,6 +73,7 @@ class AutoBattleOperator(ConditionalOperator):
             if not success:
                 return success, msg
 
+            check_stagger_interval = self.get('check_stagger_interval', 0.5)
             self.auto_battle_context.init_battle_context(
                 auto_op=self,
                 use_gpu=self.ctx.model_config.flash_classifier_gpu,
@@ -81,6 +82,10 @@ class AutoBattleOperator(ConditionalOperator):
                 check_chain_interval=self.get('check_chain_interval', 1),
                 check_quick_interval=self.get('check_quick_interval', 0.5),
                 check_end_interval=self.get('check_end_interval', 5),
+                check_stagger_interval=check_stagger_interval,
+                check_abnormal_interval=self.get('check_abnormal_interval', 1.0),
+                check_lock_interval_locked=self.get('check_lock_interval_locked', 1.0),
+                check_lock_interval_unlocked=self.get('check_lock_interval_unlocked', 0.1)
             )
 
             log.info(f'自动战斗配置加载成功 {self.module_name}')

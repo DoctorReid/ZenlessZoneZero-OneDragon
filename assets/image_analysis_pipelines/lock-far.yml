@@ -31,7 +31,3 @@
   params:
     max_distance: 1
     draw_contours: 0
-- step: 轮廓属性分析
-  params:
-    show_bounding_box: 2
-    show_center: 2

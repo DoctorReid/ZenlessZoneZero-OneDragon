@@ -303,7 +303,7 @@ class BattleContext4Recording(AutoBattleContext):
         if in_battle:
             # 状态部分
             future_list.append(_record_executor.submit(self.agent_context.check_agent_related, screen, screenshot_time))
-            future_list.append(_record_executor.submit(self.target_context.check_target_states_in_parallel, screen, screenshot_time))
+            future_list.append(_record_executor.submit(self.target_context.run_all_checks, screen, screenshot_time))
             future_list.append(_record_executor.submit(self.check_quick_assist, screen, screenshot_time))
 
             audio_future = _record_executor.submit(self.dodge_context.check_dodge_audio, screenshot_time)

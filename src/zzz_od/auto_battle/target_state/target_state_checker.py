@@ -1,104 +1,119 @@
-from typing import Optional, List
+import re
+from typing import List, Tuple, Any
 
 from cv2.typing import MatLike
 
 from one_dragon.base.cv_process.cv_pipeline import CvPipelineContext
 from zzz_od.context.zzz_context import ZContext
-from zzz_od.game_data.target_state import EnemyTypeValue, LockDistanceValue, TargetStateDef, TargetStateCheckWay
+from zzz_od.game_data.target_state import AbnormalTypeValue
 
 
-def _run_pipeline_and_check_success(ctx: ZContext, screen: MatLike, config_params: dict) -> CvPipelineContext | None:
+class TargetStateChecker:
     """
-    运行指定的CV流水线，并返回一个标记成功与否的布尔值
-    :return: 成功则为True，否则为False
+    一个高效、职责单一的目标状态检测器。
+    它提供高级接口，一次调用即可返回多个相关的状态结果，内部封装了对CV流水线的调用。
     """
-    pipeline_name = config_params.get('pipeline_name')
-    if not pipeline_name:
-        return None
 
-    # V15 增加debug参数
-    debug = ctx.env_config.is_debug and config_params.get('debug', False)
-    return ctx.cv_service.run_pipeline(pipeline_name, screen, debug_mode=debug)
+    _ABNORMAL_KEYWORDS = {
+        "霜": AbnormalTypeValue.FROSTBITE.value,
+        "侵": AbnormalTypeValue.CORRUPTION.value, "蚀": AbnormalTypeValue.CORRUPTION.value,
+        "烧": AbnormalTypeValue.BURNING.value,
+        "感": AbnormalTypeValue.SHOCKED.value, "电": AbnormalTypeValue.SHOCKED.value,
+        "碎": AbnormalTypeValue.SHATTER.value, "冰": AbnormalTypeValue.SHATTER.value,
+        "冻": AbnormalTypeValue.FREEZE.value, "结": AbnormalTypeValue.FREEZE.value,
+        "强": AbnormalTypeValue.ASSAULT.value, "击": AbnormalTypeValue.ASSAULT.value,
+    }
+    """异常状态关键字与标准名称的宽松匹配映射"""
 
+    def __init__(self, ctx: ZContext):
+        """
+        初始化检测器
+        :param ctx: 全局上下文
+        """
+        self.ctx: ZContext = ctx
 
-def check_enemy_type(ctx: ZContext, screen: MatLike, config_params: dict) -> Optional[int]:
-    """
-    检测敌人类型（普通/强敌）
-    """
-    result = _run_pipeline_and_check_success(ctx, screen, config_params)
-    if result is None:
-        return None
+    def _run_pipeline(self, pipeline_name: str, screen: MatLike) -> CvPipelineContext | None:
+        """
+        运行指定的CV流水线
+        :param pipeline_name: 流水线名称
+        :param screen: 屏幕截图
+        :return: 流水线执行上下文，失败则返回None
+        """
+        # 在自动战斗的上下文中，强制关闭调试模式以保证性能
+        return self.ctx.cv_service.run_pipeline(pipeline_name, screen, debug_mode=False)
 
-    if result.is_success:
-        return EnemyTypeValue.ELITE.value
-    else:
-        return EnemyTypeValue.NORMAL.value
+    def check_lock_on(self, screen: MatLike) -> List[Tuple[str, Any]]:
+        """
+        检测目标锁定状态。统一使用 lock-far 进行检测。
+        :param screen: 屏幕截图
+        :return: 状态元组列表。
+                 - [('目标-近距离锁定', True)]
+                 - [('目标-未锁定', True)]
+        """
+        result = self._run_pipeline('lock-far', screen)
+        if result is not None and result.is_success and len(result.contours) > 0:
+            # 根据用户要求，使用宽松的 far 检测，但统一返回近距离锁定的状态
+            return [('目标-近距离锁定', True)]
+        else:
+            return [('目标-未锁定', True)]
 
+    def check_enemy_type_and_stagger(self, screen: MatLike) -> List[Tuple[str, Any]]:
+        """
+        检测敌人类型（是否为Boss）并获取其失衡值。
+        :param screen: 屏幕截图
+        :return: 状态元组列表。
+                 - 如果是Boss, 返回 [('目标-强敌', True), ('目标-失衡值', 75)]
+                 - 如果是普通敌人, 返回 [('目标-非强敌', True)]
+        """
+        result = self._run_pipeline('boss_stun', screen)
+        if result is None or not result.is_success or result.ocr_result is None:
+            return [('目标-非强敌', True)]
 
-def check_stagger_value(ctx: ZContext, screen: MatLike, config_params: dict) -> Optional[int]:
-    """
-    检测目标的失衡值
-    """
-    result = _run_pipeline_and_check_success(ctx, screen, config_params)
-    if result is None:
-        return None
+        # 根据返回结果的类型，用不同的方式获取文本
+        ocr_result_obj = result.ocr_result
+        if isinstance(ocr_result_obj, dict):
+            # 如果是字典，将其所有的键拼接成一个文本字符串
+            ocr_text = "".join(ocr_result_obj.keys())
+        else:
+            # 否则，假定它有get_text方法
+            ocr_text = ocr_result_obj.get_text()
 
-    if result.is_success:
-        # 假设流水线成功后，结果存储在 ocr_result 中
-        try:
-            return int(result.ocr_result.get_text())
-        except (ValueError, AttributeError):
-            return None
-    else:
-        return None
+        if not ocr_text:
+            return [('目标-非强敌', True)]
+            
+        match = re.search(r'\d+', ocr_text)
 
+        if match:
+            stagger_value = int(match.group(0))
+            return [('目标-强敌', True), ('目标-失衡值', stagger_value)]
+        else:
+            return [('目标-非强敌', True)]
 
-def check_abnormal_status(ctx: ZContext, screen: MatLike, config_params: dict) -> Optional[int]:
-    """
-    检测目标身上指定的单个异常状态
-    """
-    result = _run_pipeline_and_check_success(ctx, screen, config_params)
-    if result is None:
-        return None
+    def check_abnormal_statuses(self, screen: MatLike) -> List[Tuple[str, Any]]:
+        """
+        检测目标所有的异常状态。
+        :param screen: 屏幕截图
+        :return: 状态元组列表，例如 [('目标-异常-强击', True), ('目标-异常-燃烧', True)]
+        """
+        result = self._run_pipeline('ocr-abnormal', screen)
+        if result is None or not result.is_success or result.ocr_result is None:
+            return []
 
-    return 1 if result.is_success else None
+        # 根据返回结果的类型，用不同的方式获取文本
+        ocr_result_obj = result.ocr_result
+        if isinstance(ocr_result_obj, dict):
+            # 如果是字典，将其所有的键拼接成一个文本字符串
+            ocr_text = "".join(ocr_result_obj.keys())
+        else:
+            # 否则，假定它有get_text方法
+            ocr_text = ocr_result_obj.get_text()
 
+        if not ocr_text:
+            return []
+            
+        detected_statuses = set()
+        for char, standard_name in self._ABNORMAL_KEYWORDS.items():
+            if char in ocr_text:
+                detected_statuses.add(standard_name)
 
-def check_lock_distance(ctx: ZContext, screen: MatLike, config_params: dict) -> Optional[int]:
-    """
-    检测锁定距离
-    """
-    result = _run_pipeline_and_check_success(ctx, screen, config_params)
-    if result is None:
-        return None
-
-    # TODO: 根据不同的流水线结果，判断是近还是远
-    return LockDistanceValue.NEAR.value if result.is_success else LockDistanceValue.NONE.value
-
-
-# 内置目标状态定义
-BUILTIN_TARGET_STATE_DEFS: List[TargetStateDef] = [
-    # 敌人类型检测 - 使用 `enemy_type_elite` 流水线
-    TargetStateDef("敌人类型",
-                   TargetStateCheckWay.ENEMY_TYPE,
-                   {'pipeline_name': 'enemy_type_elite', 'debug': True}),
-
-    # 失衡值检测 - 使用 `enemy_stagger` 流水线
-    TargetStateDef("目标-失衡值",
-                   TargetStateCheckWay.STAGGER,
-                   {'pipeline_name': 'enemy_stagger', 'debug': True}),
-
-    # 锁定距离检测 - 使用 `lock_distance_near` 流水线
-    TargetStateDef("目标-锁定状态",
-                   TargetStateCheckWay.LOCK_DISTANCE,
-                   {'pipeline_name': 'lock_distance_near', 'debug': True}),
-
-    # 异常状态检测 (每个状态独立定义)
-    TargetStateDef("目标-异常-强击", TargetStateCheckWay.ABNORMAL, {"pipeline_name": "abnormal_qiangji"}),
-    TargetStateDef("目标-异常-冻结", TargetStateCheckWay.ABNORMAL, {"pipeline_name": "abnormal_dongjie"}),
-    TargetStateDef("目标-异常-碎冰", TargetStateCheckWay.ABNORMAL, {"pipeline_name": "abnormal_suibing"}),
-    TargetStateDef("目标-异常-感电", TargetStateCheckWay.ABNORMAL, {"pipeline_name": "abnormal_gandian"}),
-    TargetStateDef("目标-异常-燃烧", TargetStateCheckWay.ABNORMAL, {"pipeline_name": "abnormal_ranshao"}),
-    TargetStateDef("目标-异常-侵蚀", TargetStateCheckWay.ABNORMAL, {"pipeline_name": "abnormal_qinshi"}),
-    TargetStateDef("目标-异常-霜寒", TargetStateCheckWay.ABNORMAL, {"pipeline_name": "abnormal_shuanghan"}),
-]
+        return [(f'目标-异常-{status}', True) for status in detected_statuses]

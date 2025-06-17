@@ -43,9 +43,9 @@ class AbnormalTypeValue(Enum):
     FREEZE = "冻结"
     SHATTER = "碎冰"
     SHOCKED = "感电"
-    BURNING = "燃烧"
+    BURNING = "灼烧"
     CORRUPTION = "侵蚀"
-    FROSTBITE = "霜寒"
+    FROSTBITE = "霜灼"
 
 class TargetStateDef:
     """目标状态定义类 (V5 - 纯数据)"""

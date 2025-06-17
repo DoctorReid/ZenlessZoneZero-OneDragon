@@ -326,7 +326,10 @@ class AutoBattleContext:
             check_chain_interval: Union[float, List[float]] = 0,
             check_quick_interval: Union[float, List[float]] = 0,
             check_end_interval: Union[float, List[float]] = 5,
-            check_target_interval: Union[float, List[float]] = 0.1,
+            check_stagger_interval: float = 0.5,
+            check_abnormal_interval: float = 1.0,
+            check_lock_interval_locked: float = 1.0,
+            check_lock_interval_unlocked: float = 0.1,
     ) -> None:
         """
         自动战斗前的初始化
@@ -346,7 +349,10 @@ class AutoBattleContext:
         )
         self.custom_context.init_battle_custom_context(auto_op)
         self.target_context.init_battle_target_context(auto_op=auto_op,
-                                                       check_target_interval=check_target_interval)
+                                                       check_stagger_interval=check_stagger_interval,
+                                                       check_abnormal_interval=check_abnormal_interval,
+                                                       check_lock_interval_locked=check_lock_interval_locked,
+                                                       check_lock_interval_unlocked=check_lock_interval_unlocked)
 
         self._to_check_states: set[str] = set(to_check_state_list) if to_check_state_list is not None else None
 
@@ -407,7 +413,7 @@ class AutoBattleContext:
             future_list.append(_battle_state_check_executor.submit(self.agent_context.check_agent_related, screen, screenshot_time))
 
             # 目标状态
-            future_list.append(_battle_state_check_executor.submit(self.target_context.check_target_states_in_parallel, screen, screenshot_time))
+            future_list.append(_battle_state_check_executor.submit(self.target_context.run_all_checks, screen, screenshot_time))
 
             # 快速支援
             future_list.append(_battle_state_check_executor.submit(self.check_quick_assist, screen, screenshot_time))
