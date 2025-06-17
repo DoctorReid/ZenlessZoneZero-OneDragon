@@ -13,11 +13,71 @@ from PySide6.QtWidgets import (
     QLabel,
     QHBoxLayout,
     QStackedWidget,
+    QFrame,
 )
 from qfluentwidgets import SimpleCardWidget, HorizontalFlipView, ListWidget
 
 from one_dragon_qt.widgets.pivot import CustomListItemDelegate, PhosPivot
 from .label import EllipsisLabel
+
+
+class SkeletonBanner(QFrame):
+    """骨架屏Banner组件 - 简化版"""
+    
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName("SkeletonBanner")
+        self.setFixedSize(345, 160)
+        # 设置基础样式
+        self.setStyleSheet("""
+            SkeletonBanner {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 rgba(240, 240, 240, 200),
+                    stop:0.5 rgba(255, 255, 255, 230),
+                    stop:1 rgba(240, 240, 240, 200));
+                border-radius: 10px;
+                border: 2px solid rgba(200, 200, 200, 100);
+            }
+        """)
+
+
+class SkeletonContent(QWidget):
+    """骨架屏内容组件 - 简化版"""
+    
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName("SkeletonContent")
+        self.setFixedHeight(80)
+        self.setupUI()
+    
+    def setupUI(self):
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(10, 5, 10, 5)
+        layout.setSpacing(8)
+        
+        # 创建多个骨架条
+        for i in range(2):
+            skeleton_item = QFrame()
+            skeleton_item.setObjectName("SkeletonItem")
+            skeleton_item.setFixedHeight(20)
+            # 不同长度的骨架条
+            if i == 0:
+                skeleton_item.setFixedWidth(280)
+            else:
+                skeleton_item.setFixedWidth(220)
+            
+            # 设置骨架条样式
+            skeleton_item.setStyleSheet("""
+                QFrame#SkeletonItem {
+                    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                        stop:0 rgba(224, 224, 224, 150),
+                        stop:0.5 rgba(240, 240, 240, 200),
+                        stop:1 rgba(224, 224, 224, 150));
+                    border-radius: 8px;
+                    border: 1px solid rgba(200, 200, 200, 80);
+                }
+            """)
+            layout.addWidget(skeleton_item)
 
 
 class BannerImageLoader(QThread):
@@ -122,8 +182,10 @@ class NoticeCard(SimpleCardWidget):
         self.setFixedWidth(351)
         self.mainLayout = QVBoxLayout(self)
         self.mainLayout.setContentsMargins(3, 3, 0, 0)
-        self.mainLayout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
+        self.mainLayout.setAlignment(Qt.AlignmentFlag.AlignCenter)        # 骨架屏组件
+        self.skeleton_banner = SkeletonBanner(self)
+        self.skeleton_content = SkeletonContent(self)
+        
         self.error_label = QLabel("无法获取数据")
         self.error_label.setWordWrap(True)
         self.error_label.setObjectName("error")
@@ -139,10 +201,45 @@ class NoticeCard(SimpleCardWidget):
         self._is_loading_banners = False
 
         self.setup_ui()
+        
+        # 在setup_ui之后添加骨架屏到布局
+        self.mainLayout.insertWidget(0, self.skeleton_banner)  # 在第一个位置插入
+        self.mainLayout.insertWidget(1, self.skeleton_content)  # 在第二个位置插入
+        
+        self.show_skeleton()  # 初始显示骨架屏
         self.fetch_data()
 
     def _normalBackgroundColor(self):
         return QColor(255, 255, 255, 13)
+
+    def show_skeleton(self):
+        """显示骨架屏"""
+        print(f"显示骨架屏 - Banner可见: {self.skeleton_banner.isVisible()}, Content可见: {self.skeleton_content.isVisible()}")  # 调试信息
+        self.skeleton_banner.show()
+        self.skeleton_content.show()
+        # 确保骨架屏在最前面
+        self.skeleton_banner.raise_()
+        self.skeleton_content.raise_()
+        print(f"显示后 - Banner可见: {self.skeleton_banner.isVisible()}, Content可见: {self.skeleton_content.isVisible()}")
+        
+        if hasattr(self, 'flipView'):
+            self.flipView.hide()
+        if hasattr(self, 'pivot'):
+            self.pivot.hide()
+        if hasattr(self, 'stackedWidget'):
+            self.stackedWidget.hide()
+
+    def hide_skeleton(self):
+        """隐藏骨架屏"""
+        print("隐藏骨架屏")  # 调试信息
+        self.skeleton_banner.hide()
+        self.skeleton_content.hide()
+        if hasattr(self, 'flipView'):
+            self.flipView.show()
+        if hasattr(self, 'pivot'):
+            self.pivot.show()
+        if hasattr(self, 'stackedWidget'):
+            self.stackedWidget.show()
 
     def fetch_data(self):
         self.fetcher = DataFetcher()
@@ -151,15 +248,18 @@ class NoticeCard(SimpleCardWidget):
 
     def handle_data(self, content):
         if "error" in content:
+            self.hide_skeleton()  # 隐藏骨架屏
             self.error_label.setText(f"无法获取数据: {content['error']}")
             self.error_label.setFixedSize(330, 160)
             self.error_label.show()
-            self.flipView.hide()
+            if hasattr(self, 'flipView'):
+                self.flipView.hide()
             self.update_ui()
             return
         self.load_banners_async(content["data"]["content"]["banners"])
         self.load_posts(content["data"]["content"]["posts"])
         self.error_label.hide()
+        # banner加载时会自动隐藏骨架屏，这里不需要重复调用
         self.update_ui()
 
     # @deprecated
@@ -212,8 +312,14 @@ class NoticeCard(SimpleCardWidget):
         """单个banner图片加载完成的回调"""
         self.banners.append(pixmap)
         self.banner_urls.append(url)
+        
+        # 如果这是第一个加载完成的banner，隐藏骨架屏并显示内容
+        if len(self.banners) == 1:
+            self.hide_skeleton()
+        
         # 实时更新UI显示新加载的图片 (单独添加，避免重复)
-        self.flipView.addImages([pixmap])
+        if hasattr(self, 'flipView'):
+            self.flipView.addImages([pixmap])
 
     def _on_all_banners_loaded(self):
         """所有banner图片加载完成的回调"""
