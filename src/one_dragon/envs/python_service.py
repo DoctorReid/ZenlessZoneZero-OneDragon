@@ -78,7 +78,7 @@ class PythonService:
         source = self.env_config.cpython_source
         if source == CpythonSourceEnum.GITHUB.value.value and self.env_config.is_gh_proxy:
             source = f'{self.env_config.gh_proxy_url}/{source}'
-        result = cmd_utils.run_command([self.env_config.uv_path, 'python', 'install', self.project_config.uv_python_version,
+        result = cmd_utils.run_command([self.env_config.uv_path, 'python', 'install', self.project_config.python_version,
                                         '--mirror', source,
                                         '--install-dir', DEFAULT_PYTHON_DIR_PATH])
         msg = 'UV 安装 Python 成功' if result is not None else 'UV 安装 Python 失败'

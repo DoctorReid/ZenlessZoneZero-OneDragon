@@ -53,6 +53,7 @@ class SourceConfigInterface(VerticalScrollInterface):
         self.confirm_btn = PrimaryPushButton("确认配置")
         self.confirm_btn.setFixedSize(120, 40)
         self.confirm_btn.clicked.connect(lambda: self.finished.emit(True))
+        self.confirm_btn.clicked.connect(self._init_proxy)
 
         region_confirm_layout.addWidget(self.region_opt, 1)
         region_confirm_layout.addWidget(self.confirm_btn, 0)
@@ -114,10 +115,9 @@ class SourceConfigInterface(VerticalScrollInterface):
             title='代理类型',
             options_enum=ProxyTypeEnum
         )
-        self.proxy_type_opt.value_changed.connect(self._on_proxy_type_changed)
+        self.proxy_type_opt.value_changed.connect(self._update_proxy_ui)
 
         self.proxy_url_input = TextSettingCard(icon=FluentIcon.WIFI, title='代理地址')
-        self.proxy_url_input.value_changed.connect(lambda: self._init_proxy())
 
         proxy_group.addSettingCards([self.proxy_type_opt, self.proxy_url_input])
         advanced_group.addSettingCard(proxy_group)
@@ -131,7 +131,6 @@ class SourceConfigInterface(VerticalScrollInterface):
             self.ctx.env_config.cpython_source = CpythonSourceEnum.NJU.value.value
             self.ctx.env_config.pip_source = PipSourceEnum.ALIBABA.value.value
             self.ctx.env_config.proxy_type = ProxyTypeEnum.GHPROXY.value.value
-            self._on_proxy_type_changed()
             self.ctx.async_update_gh_proxy()
         elif index == 1:
             self.ctx.env_config.repository_type = RepositoryTypeEnum.GITHUB.value.value
@@ -139,7 +138,6 @@ class SourceConfigInterface(VerticalScrollInterface):
             self.ctx.env_config.cpython_source = CpythonSourceEnum.GITHUB.value.value
             self.ctx.env_config.pip_source = PipSourceEnum.PYPI.value.value
             self.ctx.env_config.proxy_type = ProxyTypeEnum.NONE.value.value
-            self._on_proxy_type_changed()
         self._init_config_values()
 
     def _init_config_values(self):
@@ -168,11 +166,6 @@ class SourceConfigInterface(VerticalScrollInterface):
         else:
             self.proxy_url_input.setVisible(False)
 
-    def _on_proxy_type_changed(self, index: int, value: str):
-        """代理类型改变回调"""
-        self._update_proxy_ui()
-        self._init_proxy()
-
     def _init_proxy(self):
         """初始化代理设置"""
         self.ctx.env_config.init_system_proxy()
@@ -182,4 +175,3 @@ class SourceConfigInterface(VerticalScrollInterface):
     def on_interface_shown(self):
         VerticalScrollInterface.on_interface_shown(self)
         self._init_config_values()
-        self._init_proxy()

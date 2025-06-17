@@ -17,6 +17,3 @@ class ZOneDragonRunInterface(OneDragonRunInterface):
 
     def get_one_dragon_app(self) -> OneDragonApp:
         return ZOneDragonApp(self.ctx)
-
-    def _init_notify_switch(self) -> None:
-        self.notify_switch.init_with_adapter(self.ctx.notify_config.get_prop_adapter('enable_notify'))

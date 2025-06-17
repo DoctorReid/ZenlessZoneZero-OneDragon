@@ -3,15 +3,13 @@ from one_dragon.base.config.basic_notify_config import BasicNotifyConfig
 
 class NotifyConfig(BasicNotifyConfig):
 
-    def __init__(self, instance_idx: int):
-        BasicNotifyConfig.__init__(self, instance_idx=instance_idx)
-
     @property
     def app_list(self) -> dict:
         zzz_app_list = {
         'redemption_code': '兑换码',
         'random_play': '影像店营业',
         'scratch_card': '刮刮卡',
+        'trigrams_collection': '卦象集录',
         'charge_plan': '体力刷本',
         'coffee': '咖啡店',
         'notorious_hunt': '恶名狩猎',

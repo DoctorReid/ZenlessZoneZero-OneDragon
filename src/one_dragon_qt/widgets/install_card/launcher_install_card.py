@@ -5,8 +5,7 @@ from qfluentwidgets import FluentIcon, FluentThemeColor
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon.envs.env_config import DEFAULT_ENV_PATH
-from one_dragon.utils.app_utils import check_version
-from one_dragon.utils import os_utils, file_utils
+from one_dragon.utils import app_utils, os_utils, file_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from one_dragon_qt.widgets.install_card.base_install_card import BaseInstallCard
@@ -71,11 +70,11 @@ class LauncherInstallCard(BaseInstallCard):
         return os.path.exists(launcher_path)
 
     def check_launcher_update(self) -> Tuple[bool, str, str]:
-        current_version = check_version()
+        current_version = app_utils.get_launcher_version()
         latest_version = self.ctx.git_service.get_latest_tag()
-        if current_version == latest_version or latest_version is None:
-            return False, latest_version, current_version
-        return True, latest_version, current_version
+        if current_version == latest_version:
+            return True, latest_version, current_version
+        return False, latest_version, current_version
 
     def after_progress_done(self, success: bool, msg: str) -> None:
         """
@@ -95,14 +94,15 @@ class LauncherInstallCard(BaseInstallCard):
         :return: 显示的图标、文本
         """
         if self.check_launcher_exist():
-            need_update, latest_version, current_version = self.check_launcher_update()
-            if need_update:
+            is_latest, latest_version, current_version = self.check_launcher_update()
+            if is_latest or os_utils.run_in_exe():  # 安装器中不检查更新
+                icon = FluentIcon.INFO.icon(color=FluentThemeColor.DEFAULT_BLUE.value)
+                msg = f"{gt('已安装', 'ui')} {current_version}"
+            else:
                 icon = FluentIcon.INFO.icon(color=FluentThemeColor.GOLD.value)
                 msg = f"需更新。{gt('当前版本', 'ui')}: {current_version}; {gt('最新版本', 'ui')}: {latest_version}"
-            else:
-                icon = FluentIcon.INFO.icon(color=FluentThemeColor.DEFAULT_BLUE.value)
-                msg = f"{gt('已安装', 'ui')}"
         else:
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
             msg = gt('需下载', 'ui')
+
         return icon, msg

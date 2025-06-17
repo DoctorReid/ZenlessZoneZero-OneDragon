@@ -65,7 +65,7 @@ class ZResourceDownloadInterface(ResourceDownloadInterface):
         self.lost_void_det_opt.check_and_update_display()
         self.lost_void_det_opt.blockSignals(False)
 
-    def on_flash_classifier_changed(self, index: int, value: str) -> None:
+    def on_flash_classifier_changed(self, index: int, value: CommonDownloaderParam) -> None:
         self.ctx.model_config.flash_classifier = value.save_file_name[:-4]
         self.flash_classifier_opt.check_and_update_display()
 

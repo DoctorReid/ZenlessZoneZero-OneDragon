@@ -66,7 +66,7 @@ class CodeInterface(VerticalScrollInterface):
 
         self.custom_git_branch_lineedit = LineEdit()
         self.custom_git_branch_lineedit.setPlaceholderText('自定义分支')
-        self.custom_git_branch_lineedit.textEdited.connect(self._on_custom_branch_edited)
+        self.custom_git_branch_lineedit.editingFinished.connect(self._on_custom_branch_edited)
         self.code_card.git_branch_opt.currentIndexChanged.connect(
             lambda: self.custom_git_branch_lineedit.setText(self.code_card.git_branch_opt.currentData())
         )
@@ -239,8 +239,9 @@ class CodeInterface(VerticalScrollInterface):
             self.page_num = -1
             self.start_fetch_total()
 
-    def _on_custom_branch_edited(self, text) -> None:
-        self.ctx.env_config.git_branch = text
+    def _on_custom_branch_edited(self) -> None:
+        text = self.custom_git_branch_lineedit.text()
+        self.ctx.env_config.git_branch = text if text else self.code_card.git_branch_opt.currentData()
         self.code_card.check_and_update_display()
 
     def _show_dialog_after_code_updated(self, success: bool) -> None:

@@ -412,10 +412,18 @@ class GitService:
         获取最新tag
         @return: 最新的tag名称，如果没有tag则返回None
         """
-        result = cmd_utils.run_command([self.env_config.git_path, 'describe', '--tags', '--abbrev=0'])
-        if result is None or result.strip() == '':
-            return None
-        return result.strip()
+        # 从远程获取最新标签
+        result = cmd_utils.run_command([self.env_config.git_path, 'ls-remote', '--refs', '--tags', '--sort=-version:refname', 'origin'])
+        if result is not None and result.strip() != '':
+            lines = result.strip().split('\n')
+            if lines:
+                first_line = lines[0]
+                # 截取 refs/tags/ 后面的版本号
+                if 'refs/tags/' in first_line:
+                    tag_name = first_line.split('refs/tags/')[1]
+                    return tag_name
+
+        return None
 
 def __fetch_latest_code():
     project_config = ProjectConfig()

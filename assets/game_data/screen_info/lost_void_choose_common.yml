@@ -61,10 +61,10 @@ area_list:
 - area_name: 区域-标题
   id_mark: false
   pc_rect:
-  - 854
+  - 760
   - 146
-  - 1076
-  - 212
+  - 1156
+  - 220
   text: ''
   lcs_percent: 0.5
   template_sub_dir: ''

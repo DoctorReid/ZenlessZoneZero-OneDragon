@@ -1,5 +1,5 @@
 sub_dir: battle
-template_id: avatar_quick_anby
+template_id: avatar_quick_xx
 template_name: 模板-战斗-头像-快速支援
 template_shape: circle
 auto_mask: true

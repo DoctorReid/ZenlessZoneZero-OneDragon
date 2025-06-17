@@ -83,8 +83,7 @@ class CombatSimulation(ZOperation):
         if result.is_success:
             return self.round_success(self.plan.mission_type_name)
 
-        result = self.round_by_find_area(screen, '实战模拟室', '沉浸模式')
-        if result.is_success:
+        if self.is_in_category_screen(screen):
             return self.round_success(CombatSimulation.STATUS_NEED_TYPE)
 
         return self.round_retry(wait=1)
@@ -93,8 +92,8 @@ class CombatSimulation(ZOperation):
     @operation_node(name='自定义模版的返回')
     def back_for_div(self) -> OperationRoundResult:
         screen = self.screenshot()
-        result = self.round_by_find_area(screen, '实战模拟室', '沉浸模式')
-        if result.is_success:
+
+        if self.is_in_category_screen(screen):
             return self.round_success()
 
         result = self.round_by_click_area('菜单', '返回')
@@ -102,6 +101,24 @@ class CombatSimulation(ZOperation):
             return self.round_retry('尝试返回副本类型列表' ,wait=1)
         else:
             return self.round_retry(result.status, wait=1)
+
+    def is_in_category_screen(self, screen) -> bool:
+        """
+        是否在选择类别的画面
+        :param screen: 游戏画面
+        :return:
+        """
+        ocr_result_map = self.ctx.ocr.run_ocr(screen)
+        category = self.ctx.compendium_service.get_category_data('训练', '实战模拟室')
+        if category is None:
+            return False
+        target_word_list: list[str] = [gt(i.mission_type_name) for i in category.mission_type_list]
+        match_type_cnt: int = 0
+        for ocr_result in ocr_result_map.keys():
+            match_idx: int = str_utils.find_best_match_by_difflib(ocr_result, target_word_list)
+            if match_idx is not None and match_idx >= 0:
+                match_type_cnt += 1
+        return match_type_cnt >= 3
 
     @node_from(from_name='等待入口加载', status=STATUS_NEED_TYPE)
     @node_from(from_name='自定义模版的返回')

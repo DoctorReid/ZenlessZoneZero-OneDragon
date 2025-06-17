@@ -392,6 +392,12 @@ class LostVoidRunLevel(ZOperation):
         if result.is_success:
             return self.round_success('迷失之地-挑战结果')
 
+        # 有可能出现对话框需要确认 issue #1104
+        # 这里偷懒了 复用了挑战对话框的按钮
+        result = self.round_by_find_and_click_area(screen, '迷失之地-大世界', '按钮-挑战-确认')
+        if result.is_success:
+            return self.round_wait(status=result.status, wait=1)
+
         # 不在大世界的话 说明交互入口成功了
         if self.interact_target is not None and self.interact_target.is_entry:
             return self.round_success(LostVoidRunLevel.STATUS_NEXT_LEVEL)
@@ -542,6 +548,12 @@ class LostVoidRunLevel(ZOperation):
         if self.region_type == LostVoidRegionType.ENTRY:
             # 第一层 两个武备选择后 往后走 可以方便走上楼梯
             self.ctx.controller.move_s(press=True, press_time=1, release=True)
+            # 2.0版本 入口左侧增加了一个研究员 因此从其他角色交互后 往左移动一点
+            if self.interact_target.is_npc:
+                if self.interact_target.name == LostVoidInteractNPC.SCGMDYJY.value:
+                    self.ctx.controller.move_d(press=True, press_time=0.5, release=True)
+                else:
+                    self.ctx.controller.move_a(press=True, press_time=0.5, release=True)
         elif self.region_type == LostVoidRegionType.FRIENDLY_TALK:
             # 挚交会谈
             if self.interact_target.is_agent:  # 如果是代理人 向后右移动 可以避开中间桌子的障碍
