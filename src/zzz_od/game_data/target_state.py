@@ -13,12 +13,14 @@ class EnemyTypeValue(Enum):
     """敌人类型-值枚举"""
     NORMAL = 0  # 非强敌
     BOSS = 1    # 强敌
+    ELITE = 2   # 精英怪
 
     @classmethod
     def get_display_map(cls) -> dict:
         return {
             cls.NORMAL: '非强敌',
-            cls.BOSS: '强敌'
+            cls.BOSS: '强敌',
+            cls.ELITE: '精英怪'
         }
 
 class LockDistanceValue(Enum):
