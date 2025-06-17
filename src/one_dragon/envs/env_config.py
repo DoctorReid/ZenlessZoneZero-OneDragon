@@ -54,11 +54,13 @@ class GitBranchEnum(Enum):
 
 
 class CpythonSourceEnum(Enum):
-    GITHUB = ConfigItem('官方 (GitHub)', 'https://github.com/astral-sh/python-build-standalone/releases/download')
-    NJU = ConfigItem('南京大学', 'https://mirror.nju.edu.cn/github-release/indygreg/python-build-standalone')
+
+    GITHUB = ConfigItem('GitHub', 'https://github.com/astral-sh/python-build-standalone/releases/download')
+    GITEE = ConfigItem('Gitee', 'https://gitee.com/OneDragon-Anything/python-build-standalone/releases/download')
 
 
 class EnvSourceEnum(Enum):
+
     GITHUB = ConfigItem('GitHub', 'https://github.com/OneDragon-Anything/OneDragon-Env/releases/download')
     GITEE = ConfigItem('Gitee', 'https://gitee.com/OneDragon-Anything/OneDragon-Env/releases/download')
 
@@ -240,7 +242,7 @@ class EnvConfig(YamlConfig):
         cpython-build-standalone 源
         :return:
         """
-        return self.get('cpython_source', CpythonSourceEnum.NJU.value.value)
+        return self.get('cpython_source', CpythonSourceEnum.GITEE.value.value)
 
     @cpython_source.setter
     def cpython_source(self, new_value: str) -> None:

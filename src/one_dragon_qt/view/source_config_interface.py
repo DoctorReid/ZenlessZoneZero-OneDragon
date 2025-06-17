@@ -128,7 +128,7 @@ class SourceConfigInterface(VerticalScrollInterface):
         if index == 0:
             self.ctx.env_config.repository_type = RepositoryTypeEnum.GITEE.value.value
             self.ctx.env_config.env_source = EnvSourceEnum.GITEE.value.value
-            self.ctx.env_config.cpython_source = CpythonSourceEnum.NJU.value.value
+            self.ctx.env_config.cpython_source = CpythonSourceEnum.GITEE.value.value
             self.ctx.env_config.pip_source = PipSourceEnum.ALIBABA.value.value
             self.ctx.env_config.proxy_type = ProxyTypeEnum.GHPROXY.value.value
             self.ctx.async_update_gh_proxy()
