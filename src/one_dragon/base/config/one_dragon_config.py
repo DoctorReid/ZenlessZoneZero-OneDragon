@@ -103,6 +103,7 @@ class OneDragonConfig(YamlConfig):
                 instance['name'] = to_update.name
                 instance['active_in_od'] = to_update.active_in_od
 
+        self.dict_instance_list = dict_instance_list
         self.save()
         self._init_instance_list()
 
@@ -117,6 +118,7 @@ class OneDragonConfig(YamlConfig):
         for instance in dict_instance_list:
             instance['active'] = instance['idx'] == instance_idx
 
+        self.dict_instance_list = dict_instance_list
         self.save()
         self._init_instance_list()
 

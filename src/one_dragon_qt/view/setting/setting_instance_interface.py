@@ -31,8 +31,10 @@ class InstanceSettingCard(MultiPushSettingCard):
         self.instance_name_input = LineEdit()
         self.instance_name_input.setText(self.instance.name)
         self.instance_name_input.textChanged.connect(self._on_name_changed)
+        self.instance_name_input.setFixedWidth(120)  # 设置固定宽度
 
         self.run_opt = ComboBox()
+        self.run_opt.setFixedWidth(150)  # 设置固定宽度
         run_idx = 0
         target_idx = 0
         for opt_enum in RunInOneDragonApp:
@@ -48,8 +50,12 @@ class InstanceSettingCard(MultiPushSettingCard):
         self.active_btn = PushButton(text='启用')
         self.active_btn.clicked.connect(self._on_active_clicked)
         self.active_btn.setDisabled(self.instance.active)
+        self.active_btn.setFixedWidth(60)  # 设置固定宽度
+        
         self.login_btn = PushButton(text='登录')
         self.login_btn.clicked.connect(self._on_login_clicked)
+        self.login_btn.setFixedWidth(60)  # 设置固定宽度
+        
         self.delete_btn = ToolButton(FluentIcon.DELETE, parent=None)
         self.delete_btn.clicked.connect(self._on_delete_clicked)
 
@@ -75,7 +81,7 @@ class InstanceSettingCard(MultiPushSettingCard):
         self.changed.emit(self.instance)
 
     def _on_run_changed(self, idx: int) -> None:
-        self.instance.active_in_od = self.run_opt.itemData(idx)
+        self.instance.active_in_od = bool(self.run_opt.itemData(idx))
         self.changed.emit(self.instance)
 
     def _on_active_clicked(self) -> None:
