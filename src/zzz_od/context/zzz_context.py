@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 class ZContext(OneDragonContext):
 
-    def __init__(self,):
+    def __init__(self, lazy_load: bool = False):
         OneDragonContext.__init__(self)
 
 
@@ -30,8 +30,15 @@ class ZContext(OneDragonContext):
         # 基础配置
         self.model_config: ModelConfig = ModelConfig()
 
+        # 标记是否在延迟加载模式
+        self._lazy_load_pending = lazy_load
+
         # 实例独有的配置
-        self.load_instance_config()
+        if not lazy_load:
+            self.load_instance_config()
+        else:
+            # 延迟加载时，只加载最基本的配置以避免错误
+            self._load_basic_config()
 
     @property
     def hollow(self) -> 'HollowContext':
@@ -522,3 +529,77 @@ class ZContext(OneDragonContext):
         for attr in record_attrs:
             if hasattr(self, attr):
                 delattr(self, attr)
+
+    def _load_basic_config(self):
+        """加载基础配置，避免UI初始化时出错"""
+        # 不调用父类的load_instance_config，只加载最基本的配置来避免阻塞
+        # 创建最基本的配置对象以避免属性错误
+        from one_dragon.base.config.one_dragon_app_config import OneDragonAppConfig
+        from one_dragon.base.config.game_account_config import GameAccountConfig
+        from one_dragon.base.config.push_config import PushConfig
+        from zzz_od.config.game_config import GameConfig
+        from zzz_od.config.team_config import TeamConfig
+        from zzz_od.config.agent_outfit_config import AgentOutfitConfig
+        
+        # 这些是UI需要的最基本配置
+        self.one_dragon_app_config: OneDragonAppConfig = OneDragonAppConfig(self.current_instance_idx)
+        self.game_config: GameConfig = GameConfig(self.current_instance_idx)
+        self.game_account_config: GameAccountConfig = GameAccountConfig(
+            self.current_instance_idx,
+            default_platform=self.game_config.get('platform'),
+            default_game_region=self.game_config.get('game_region'),
+            default_game_path=self.game_config.get('game_path'),
+            default_account=self.game_config.get('account'),
+            default_password=self.game_config.get('password'),
+        )
+        self.push_config: PushConfig = PushConfig(self.current_instance_idx)
+        
+        # 加载基本的游戏配置，但不初始化复杂的组件
+        self.team_config: TeamConfig = TeamConfig(self.current_instance_idx)
+        self.agent_outfit_config: AgentOutfitConfig = AgentOutfitConfig(self.current_instance_idx)
+        
+        # 执行最基本的初始化，但跳过耗时的操作
+        self._basic_init_by_config()
+
+    def _basic_init_by_config(self) -> None:
+        """基础的配置初始化，跳过耗时操作"""
+        from one_dragon.utils import log_utils
+        import logging
+        from one_dragon.utils import i18_utils
+        
+        # 设置日志级别
+        log_utils.set_log_level(logging.DEBUG if self.env_config.is_debug else logging.INFO)
+        
+        # 设置语言
+        i18_utils.update_default_lang(self.game_account_config.game_language)
+        
+        # 不在这里初始化控制器，避免阻塞
+        # self.controller 将在完整配置加载时初始化
+
+    def async_load_instance_config(self):
+        """异步加载实例配置"""
+        import threading
+        from one_dragon.utils.log_utils import log
+        
+        def _load_config():
+            try:
+                if self._lazy_load_pending:
+                    log.info('开始异步加载完整实例配置')
+                    # 加载完整的实例配置
+                    self.load_instance_config()
+                    self._lazy_load_pending = False
+                    log.info('异步加载完整实例配置完成')
+                    
+                    # 发送信号通知配置加载完成
+                    if hasattr(self, 'signal'):
+                        self.signal.config_loaded = True
+                        self.signal.reload_banner = True
+                return True
+            except Exception as e:
+                log.error(f"异步加载配置失败: {e}", exc_info=True)
+                return False
+        
+        # 使用简单的线程而不是线程池
+        thread = threading.Thread(target=_load_config, daemon=True, name='config-loader')
+        thread.start()
+        return thread

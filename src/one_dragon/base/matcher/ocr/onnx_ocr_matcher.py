@@ -92,11 +92,13 @@ class OnnxOcrMatcher(OcrMatcher, ZipDownloader):
             ghproxy_url: Optional[str] = None,
             skip_if_existed: bool = True,
             progress_callback: Optional[Callable[[float, str], None]] = None,
-            async_init: bool = True  # 新增参数：是否异步初始化
+            async_init: bool = True,  # 新增参数：是否异步初始化
+            completion_callback: Optional[Callable[[], None]] = None  # 新增参数：完成回调
     ) -> bool:
         """
         初始化OCR模型
         :param async_init: 是否异步初始化模型，True时立即返回，后台加载；False时同步等待加载完成
+        :param completion_callback: 模型加载完成后的回调函数
         """
         log.info('正在加载OCR模型')
 
@@ -105,6 +107,8 @@ class OnnxOcrMatcher(OcrMatcher, ZipDownloader):
             if self.ocr_model_name in _global_model_cache:
                 self._model = _global_model_cache[self.ocr_model_name]
                 log.info('使用缓存的OCR模型')
+                if completion_callback:
+                    completion_callback()
                 return True
 
         # 保证只有一个线程下载和初始化
@@ -124,16 +128,19 @@ class OnnxOcrMatcher(OcrMatcher, ZipDownloader):
             self._init_future = self._executor.submit(self._init_model_sync,
                                                       download_by_github, download_by_gitee,
                                                       download_by_mirror_chan, proxy_url,
-                                                      ghproxy_url, skip_if_existed, progress_callback)
+                                                      ghproxy_url, skip_if_existed, progress_callback,
+                                                      completion_callback)
             return True
         else:
             # 同步初始化
             return self._init_model_sync(download_by_github, download_by_gitee,
                                          download_by_mirror_chan, proxy_url,
-                                         ghproxy_url, skip_if_existed, progress_callback)
+                                         ghproxy_url, skip_if_existed, progress_callback,
+                                         completion_callback)
 
     def _init_model_sync(self, download_by_github, download_by_gitee, download_by_mirror_chan,
-                         proxy_url, ghproxy_url, skip_if_existed, progress_callback) -> bool:
+                         proxy_url, ghproxy_url, skip_if_existed, progress_callback,
+                         completion_callback=None) -> bool:
         """同步初始化模型的内部方法"""
         try:
             # 先检查模型文件和下载模型
@@ -157,6 +164,8 @@ class OnnxOcrMatcher(OcrMatcher, ZipDownloader):
                     if self.ocr_model_name in _global_model_cache:
                         self._model = _global_model_cache[self.ocr_model_name]
                         log.info('使用其他线程缓存的OCR模型')
+                        if completion_callback:
+                            completion_callback()
                         return True
 
                 from onnxocr.onnx_paddleocr import ONNXPaddleOcr
@@ -184,12 +193,18 @@ class OnnxOcrMatcher(OcrMatcher, ZipDownloader):
                     # 模型预热 - 使用小图片进行一次推理以优化后续性能
                     self._warmup_model()
 
+                    # 调用完成回调
+                    if completion_callback:
+                        completion_callback()
+
                     return True
                 except Exception:
                     log.error('OCR模型加载出错', exc_info=True)
                     return False
 
             log.info('OCR模型已加载')
+            if completion_callback:
+                completion_callback()
             return True
         finally:
             self._loading = False

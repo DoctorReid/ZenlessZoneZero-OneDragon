@@ -246,9 +246,16 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
         初始化OCR
         :return:
         """
+        def ocr_completion_callback():
+            """OCR加载完成回调"""
+            if hasattr(self, 'signal'):
+                self.signal.ocr_loaded = True
+        
         self.ocr.init_model(
             ghproxy_url=self.env_config.gh_proxy_url if self.env_config.is_gh_proxy else None,
             proxy_url=self.env_config.personal_proxy if self.env_config.is_personal_proxy else None,
+            async_init=True,  # 使用异步初始化模式
+            completion_callback=ocr_completion_callback
         )
 
     def after_app_shutdown(self) -> None:

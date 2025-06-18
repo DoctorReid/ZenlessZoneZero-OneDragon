@@ -73,6 +73,10 @@ try:
             self._check_version_runner.get.connect(self._update_version)
             self._check_version_runner.start()
 
+            # 初始化加载状态
+            self._loading_complete = False
+            self._setup_loading_status()
+
             self._check_first_run()
 
         # 继承初始化函数
@@ -206,6 +210,64 @@ try:
                 if dialog.exec():
                     self.ctx.env_config.is_first_run = False
 
+        def _setup_loading_status(self):
+            """设置加载状态指示器"""
+            # 如果是懒加载模式，显示加载状态
+            if hasattr(self.ctx, '_lazy_load_pending') and self.ctx._lazy_load_pending:
+                from PySide6.QtCore import QTimer
+                from qfluentwidgets import InfoBar, InfoBarPosition
+                from PySide6.QtCore import Qt
+                
+                # 显示加载提示
+                self._loading_info_bar = InfoBar.info(
+                    title="正在初始化",
+                    content="配置和模型正在后台加载中，请稍候...",
+                    orient=Qt.Orientation.Horizontal,
+                    isClosable=False,
+                    position=InfoBarPosition.TOP,
+                    duration=-1,  # 不自动消失
+                    parent=self,
+                )
+                
+                # 定期检查加载状态
+                self._loading_check_timer = QTimer()
+                self._loading_check_timer.timeout.connect(self._check_loading_status)
+                self._loading_check_timer.start(1000)  # 每秒检查一次
+
+        def _check_loading_status(self):
+            """检查加载状态"""
+            config_loaded = not hasattr(self.ctx, '_lazy_load_pending') or not self.ctx._lazy_load_pending
+            ocr_loaded = hasattr(self.ctx, 'signal') and self.ctx.signal.ocr_loaded
+            
+            if config_loaded and ocr_loaded:
+                # 所有加载完成
+                if hasattr(self, '_loading_info_bar'):
+                    self._loading_info_bar.close()
+                if hasattr(self, '_loading_check_timer'):
+                    self._loading_check_timer.stop()
+                self._loading_complete = True
+                
+                # 显示加载完成提示
+                from qfluentwidgets import InfoBar, InfoBarPosition
+                from PySide6.QtCore import Qt
+                # InfoBar.success(
+                #     title="初始化完成",
+                #     content="配置和模型加载完成，可以正常使用了！",
+                #     orient=Qt.Orientation.Horizontal,
+                #     isClosable=True,
+                #     position=InfoBarPosition.TOP,
+                #     duration=3000,
+                #     parent=self,
+                # )
+            elif config_loaded:
+                # 配置加载完成，但OCR还在加载
+                if hasattr(self, '_loading_info_bar'):
+                    self._loading_info_bar.setContent("配置加载完成，OCR模型加载中...")
+            elif ocr_loaded:
+                # OCR加载完成，但配置还在加载
+                if hasattr(self, '_loading_info_bar'):
+                    self._loading_info_bar.setContent("OCR模型加载完成，配置加载中...")
+
 
 # 调用Windows错误弹窗
 except Exception as e:
@@ -228,18 +290,10 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setAttribute(Qt.ApplicationAttribute.AA_DontCreateNativeWidgetSiblings)
 
-    _ctx = ZContext()
+    # 使用懒加载模式创建上下文，避免阻塞UI显示
+    _ctx = ZContext(lazy_load=True)
 
-    # 测试配置加载时间
-    _ctx.init_by_config()
-
-    # 异步加载OCR
-    _ctx.async_init_ocr()
-
-    # 异步更新免费代理
-    _ctx.async_update_gh_proxy()
-
-    # 设置主题
+    # 设置主题（使用基础配置）
     setTheme(Theme[_ctx.custom_config.theme.upper()])
 
     # 创建并显示主窗口
@@ -249,6 +303,14 @@ if __name__ == "__main__":
     w.show()
     w.activateWindow()
 
+    # 在窗口显示后，异步加载完整配置
+    _ctx.async_load_instance_config()
+
+    # 异步加载OCR
+    _ctx.async_init_ocr()
+
+    # 异步更新免费代理
+    _ctx.async_update_gh_proxy()
 
     # 启动应用程序事件循环
     app.exec()
