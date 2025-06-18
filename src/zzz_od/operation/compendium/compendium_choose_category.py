@@ -40,7 +40,7 @@ class CompendiumChooseCategory(ZOperation):
             if mrl.max is None:
                 continue
             if str_utils.find_by_lcs(gt(self.category_name), ocr_result, percent=0.5):
-                target_point = area.left_top + mrl.max
+                target_point = area.left_top + mrl.max.center
                 break
 
         if target_point is None:
