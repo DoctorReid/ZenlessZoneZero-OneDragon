@@ -4,26 +4,15 @@ from typing import List, Tuple, Any
 from cv2.typing import MatLike
 
 from one_dragon.base.cv_process.cv_pipeline import CvPipelineContext
+from one_dragon.utils.log_utils import log
 from zzz_od.context.zzz_context import ZContext
-from zzz_od.game_data.target_state import AbnormalTypeValue
+from zzz_od.game_data.target_state import DetectionTask, TargetStateDef, TargetCheckWay
 
 
 class TargetStateChecker:
     """
-    一个高效、职责单一的目标状态检测器。
-    它提供高级接口，一次调用即可返回多个相关的状态结果，内部封装了对CV流水线的调用。
+    一个完全由数据驱动的通用目标状态检测器
     """
-
-    _ABNORMAL_KEYWORDS = {
-        "霜": AbnormalTypeValue.FROSTBITE.value,
-        "侵": AbnormalTypeValue.CORRUPTION.value, "蚀": AbnormalTypeValue.CORRUPTION.value,
-        "烧": AbnormalTypeValue.BURNING.value,
-        "感": AbnormalTypeValue.SHOCKED.value, "电": AbnormalTypeValue.SHOCKED.value,
-        "碎": AbnormalTypeValue.SHATTER.value, "冰": AbnormalTypeValue.SHATTER.value,
-        "冻": AbnormalTypeValue.FREEZE.value, "结": AbnormalTypeValue.FREEZE.value,
-        "强": AbnormalTypeValue.ASSAULT.value, "击": AbnormalTypeValue.ASSAULT.value,
-    }
-    """异常状态关键字与标准名称的宽松匹配映射"""
 
     def __init__(self, ctx: ZContext):
         """
@@ -31,89 +20,148 @@ class TargetStateChecker:
         :param ctx: 全局上下文
         """
         self.ctx: ZContext = ctx
+        self._check_way_handlers = {
+            TargetCheckWay.CONTOUR_COUNT_IN_RANGE: self._check_contour_count,
+            TargetCheckWay.OCR_RESULT_AS_NUMBER: self._check_ocr_as_number,
+            TargetCheckWay.OCR_TEXT_CONTAINS: self._check_ocr_text_contains,
+            TargetCheckWay.DIRECT_RETURN: self._check_direct_return,
+        }
 
-    def _run_pipeline(self, pipeline_name: str, screen: MatLike) -> CvPipelineContext | None:
+    def run_task(self, screen: MatLike, task: DetectionTask, debug_mode: bool = False) -> Tuple[CvPipelineContext, List[Tuple[str, Any]]]:
         """
-        运行指定的CV流水线
-        :param pipeline_name: 流水线名称
+        运行一个检测任务组，并返回所有解读出的状态
         :param screen: 屏幕截图
-        :return: 流水线执行上下文，失败则返回None
+        :param task: 检测任务组的定义
+        :param debug_mode: 是否开启CV流水线的调试模式
+        :return: CV结果上下文, 状态元组列表 (state_name, result)
         """
-        # 在自动战斗的上下文中，强制关闭调试模式以保证性能
-        return self.ctx.cv_service.run_pipeline(pipeline_name, screen, debug_mode=False)
+        # 1. 运行一次CV流水线
+        cv_result = self.ctx.cv_service.run_pipeline(task.pipeline_name, screen, debug_mode=debug_mode)
 
-    def check_lock_on(self, screen: MatLike) -> List[Tuple[str, Any]]:
+        # 2. 循环解读结果
+        results = []
+        for state_def in task.state_definitions:
+            interpreted_value = self._interpret_result(cv_result, state_def)
+            results.append((state_def.state_name, interpreted_value))
+
+        return cv_result, results
+
+    def _interpret_result(self, cv_result: CvPipelineContext, state_def: TargetStateDef) -> Any:
         """
-        检测目标锁定状态。统一使用 lock-far 进行检测。
-        :param screen: 屏幕截图
-        :return: 状态元组列表。
-                 - [('目标-近距离锁定', True)]
-                 - [('目标-未锁定', True)]
+        根据单个状态定义，解读一份CV结果。
+        现在返回True, (True, value), False, 或 None
         """
-        result = self._run_pipeline('lock-far', screen)
-        if result is not None and result.is_success and len(result.contours) > 0:
-            # 根据用户要求，使用宽松的 far 检测，但统一返回近距离锁定的状态
-            return [('目标-近距离锁定', True)]
+        if cv_result is None or not cv_result.is_success:
+            # CV失败时，视为未检测到
+            return None if state_def.clear_on_miss else False
+
+        handler = self._check_way_handlers.get(state_def.check_way)
+        if handler:
+            return handler(cv_result, state_def)
         else:
-            return [('目标-未锁定', True)]
+            log.warn(f"未知的 TargetCheckWay: {state_def.check_way} for state {state_def.state_name}")
+            return False # 未知check_way视为不处理
 
-    def check_enemy_type_and_stagger(self, screen: MatLike) -> List[Tuple[str, Any]]:
+    def _check_contour_count(self, cv_result: CvPipelineContext, state_def: TargetStateDef) -> bool | None:
         """
-        检测敌人类型（是否为Boss）并获取其失衡值。
-        :param screen: 屏幕截图
-        :return: 状态元组列表。
-                 - 如果是Boss, 返回 [('目标-强敌', True), ('目标-失衡值', 75)]
-                 - 如果是普通敌人, 返回 [('目标-非强敌', True)]
+        处理 CONTOUR_COUNT_IN_RANGE
         """
-        result = self._run_pipeline('boss_stun', screen)
-        if result is None or not result.is_success or result.ocr_result is None:
-            return [('目标-非强敌', True)]
-
-        # 根据返回结果的类型，用不同的方式获取文本
-        ocr_result_obj = result.ocr_result
-        if isinstance(ocr_result_obj, dict):
-            # 如果是字典，将其所有的键拼接成一个文本字符串
-            ocr_text = "".join(ocr_result_obj.keys())
+        params = state_def.check_params
+        count = len(cv_result.contours)
+        min_count = params.get('min_count', 0)
+        max_count = params.get('max_count', 999)
+        if min_count <= count <= max_count:
+            return True
         else:
-            # 否则，假定它有get_text方法
-            ocr_text = ocr_result_obj.get_text()
+            return None if state_def.clear_on_miss else False
 
-        if not ocr_text:
-            return [('目标-非强敌', True)]
+    def _check_ocr_as_number(self, cv_result: CvPipelineContext, state_def: TargetStateDef) -> tuple | bool | None:
+        """
+        处理 OCR_RESULT_AS_NUMBER
+        """
+        try:
+            # 兼容dict和OcrResult两种返回类型
+            ocr_text = "".join(cv_result.ocr_result.keys()) if isinstance(cv_result.ocr_result,
+                                                                          dict) else cv_result.ocr_result.get_text()
+            match = re.search(r'\d+', ocr_text)
+            if match:
+                return True, int(match.group(0))
+        except (ValueError, TypeError, AttributeError):
+            pass  # 异常情况视为未识别到
+
+        # 对于OCR_RESULT_AS_NUMBER，如果没有数字，则根据clear_on_miss决定
+        return None if state_def.clear_on_miss else False
+
+    def _check_ocr_text_contains(self, cv_result: CvPipelineContext, state_def: TargetStateDef) -> bool | None:
+        """
+        处理 OCR_TEXT_CONTAINS
+        """
+        params = state_def.check_params
+        try:
+            # 兼容dict和OcrResult两种返回类型
+            ocr_text = "".join(cv_result.ocr_result.keys()) if isinstance(cv_result.ocr_result,
+                                                                          dict) else cv_result.ocr_result.get_text()
+            if not ocr_text: # 初始的空文本检查
+                return None if state_def.clear_on_miss else False
+
+            contains = params.get('contains', [])
+            if isinstance(contains, str):
+                contains = [contains]
+
+            mode = params.get('mode', 'any')
+            case_sensitive = params.get('case_sensitive', False)
+            exclude = params.get('exclude', [])
+            if isinstance(exclude, str):
+                exclude = [exclude]
+
+            # 处理大小写
+            processed_ocr_text = ocr_text
+            if not case_sensitive:
+                processed_ocr_text = ocr_text.lower()
+                processed_contains = [c.lower() for c in contains]
+                processed_exclude = [e.lower() for e in exclude]
+            else:
+                processed_contains = contains
+                processed_exclude = exclude
+
+            # 检查排除项
+            for ex_text in processed_exclude:
+                if ex_text in processed_ocr_text:
+                    return None if state_def.clear_on_miss else False
+
+            # 检查包含项
+            if mode == 'any':
+                if any(c_text in processed_ocr_text for c_text in processed_contains):
+                    return True
+            elif mode == 'all':
+                if all(c_text in processed_ocr_text for c_text in processed_contains):
+                    return True
             
-        match = re.search(r'\d+', ocr_text)
+            # 如果以上条件都不满足，则说明未命中
+            return None if state_def.clear_on_miss else False
 
-        if match:
-            stagger_value = int(match.group(0))
-            return [('目标-强敌', True), ('目标-失衡值', stagger_value)]
-        else:
-            return [('目标-非强敌', True)]
+        except (ValueError, TypeError, AttributeError):
+            # 异常情况也视为无有效结果
+            return None if state_def.clear_on_miss else False
 
-    def check_abnormal_statuses(self, screen: MatLike) -> List[Tuple[str, Any]]:
-        """
-        检测目标所有的异常状态。
-        :param screen: 屏幕截图
-        :return: 状态元组列表，例如 [('目标-异常-强击', True), ('目标-异常-燃烧', True)]
-        """
-        result = self._run_pipeline('ocr-abnormal', screen)
-        if result is None or not result.is_success or result.ocr_result is None:
-            return []
+    # def _check_direct_return(self, cv_result: CvPipelineContext, state_def: TargetStateDef) -> Any:
+    #     """
+    #     处理 DIRECT_RETURN，直接返回在check_params中指定的结果
+    #     CV结果在此方法中通常不被使用，但保持参数一致性
+    #     """
+    #     params = state_def.check_params
+    #     value_to_return = params.get('value_to_return')
 
-        # 根据返回结果的类型，用不同的方式获取文本
-        ocr_result_obj = result.ocr_result
-        if isinstance(ocr_result_obj, dict):
-            # 如果是字典，将其所有的键拼接成一个文本字符串
-            ocr_text = "".join(ocr_result_obj.keys())
-        else:
-            # 否则，假定它有get_text方法
-            ocr_text = ocr_result_obj.get_text()
+    #     # 检查是否返回一个带值的元组
+    #     if isinstance(value_to_return, tuple) and len(value_to_return) == 2 and value_to_return[0] is True:
+    #         return value_to_return # 返回 (True, value)
 
-        if not ocr_text:
-            return []
-            
-        detected_statuses = set()
-        for char, standard_name in self._ABNORMAL_KEYWORDS.items():
-            if char in ocr_text:
-                detected_statuses.add(standard_name)
+    #     # 检查是否返回布尔值
+    #     if isinstance(value_to_return, bool):
+    #         if value_to_return:
+    #             return True
+    #         else: # value_to_return is False
+    #             return None if state_def.clear_on_miss else False
 
-        return [(f'目标-异常-{status}', True) for status in detected_statuses]
+    #     # 如果 value_to_return 未提供或是无效类型，则视为未命中
+    #     return None if state_def.clear_on_miss else False

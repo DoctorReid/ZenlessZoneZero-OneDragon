@@ -36,7 +36,7 @@ from zzz_od.auto_battle.auto_battle_dodge_context import YoloStateEventEnum
 from zzz_od.auto_battle.auto_battle_state import BattleStateEnum
 from zzz_od.context.zzz_context import ZContext
 from zzz_od.game_data.agent import AgentEnum, AgentTypeEnum, CommonAgentStateEnum
-from zzz_od.game_data.target_state import EnemyTypeValue, LockDistanceValue, AbnormalTypeValue
+from zzz_od.game_data.target_state import DETECTION_TASKS
 
 _auto_battle_operator_executor = ThreadPoolExecutor(thread_name_prefix='_auto_battle_operator_executor', max_workers=1)
 
@@ -73,7 +73,6 @@ class AutoBattleOperator(ConditionalOperator):
             if not success:
                 return success, msg
 
-            check_stagger_interval = self.get('check_stagger_interval', 0.5)
             self.auto_battle_context.init_battle_context(
                 auto_op=self,
                 use_gpu=self.ctx.model_config.flash_classifier_gpu,
@@ -81,11 +80,7 @@ class AutoBattleOperator(ConditionalOperator):
                 check_agent_interval=self.get('check_agent_interval', 0.5),
                 check_chain_interval=self.get('check_chain_interval', 1),
                 check_quick_interval=self.get('check_quick_interval', 0.5),
-                check_end_interval=self.get('check_end_interval', 5),
-                check_stagger_interval=check_stagger_interval,
-                check_abnormal_interval=self.get('check_abnormal_interval', 1.0),
-                check_lock_interval_locked=self.get('check_lock_interval_locked', 1.0),
-                check_lock_interval_unlocked=self.get('check_lock_interval_unlocked', 0.1)
+                check_end_interval=self.get('check_end_interval', 5)
             )
 
             log.info(f'自动战斗配置加载成功 {self.module_name}')
@@ -208,22 +203,11 @@ class AutoBattleOperator(ConditionalOperator):
         for i in range(1, 3):
             event_ids.append(f'连携技-{i}-邦布')
 
-        # 添加目标状态 (V9: 精确命名)
-        # 1. 基础类别状态 (硬编码，因为它们是逻辑的根)
-        event_ids.append('敌人类型')
-        event_ids.append('目标-失衡值')
-        event_ids.append('目标-锁定状态')
-
-        # 2. 派生的虚拟状态 (通过循环和display_map生成)
-        # 2.1 对于值本身可能产生歧义的，保留分类名，如 `目标-异常-侵蚀`
-        for abnormal_enum in AbnormalTypeValue:
-            event_ids.append(f'目标-异常-{abnormal_enum.value}')
-        
-        # 2.2 对于值在上下文中语义唯一的，省略分类名，如 `目标-强敌`
-        for _, display_name in EnemyTypeValue.get_display_map().items():
-            event_ids.append(f'目标-{display_name}')
-        for _, display_name in LockDistanceValue.get_display_map().items():
-            event_ids.append(f'目标-{display_name}')
+        # 添加目标状态 (V10: 从数据定义中动态获取)
+        for task in DETECTION_TASKS:
+            for state_def in task.state_definitions:
+                if state_def.state_name not in event_ids:
+                    event_ids.append(state_def.state_name)
 
         return event_ids
 
