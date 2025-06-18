@@ -68,7 +68,8 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
 
         self.context_running_state: ContextRunStateEnum = ContextRunStateEnum.STOP
 
-        self.screen_loader: ScreenContext = ScreenContext()
+        # 延迟加载屏幕上下文 - 避免构造函数卡顿
+        self._screen_loader: Optional[ScreenContext] = None
         self.template_loader: TemplateLoader = TemplateLoader()
         self.tm: TemplateMatcher = TemplateMatcher(self.template_loader)
         self.ocr: OcrMatcher = OnnxOcrMatcher()
@@ -78,6 +79,29 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
         self.mouse_controller = mouse.Controller()
         self.btn_listener = PcButtonListener(on_button_tap=self._on_key_press, listen_keyboard=True, listen_mouse=True)
         self.btn_listener.start()
+
+    def _lazy_init_screen_loader(self) -> None:
+        """懒加载屏幕上下文"""
+        if self._screen_loader is None:
+            self._screen_loader = ScreenContext()
+
+    @property
+    def screen_context(self) -> ScreenContext:
+        """获取屏幕上下文，首次访问时才加载"""
+        self._lazy_init_screen_loader()
+        return self._screen_loader
+
+    @property
+    def screen_loader(self) -> ScreenContext:
+        """兼容性属性，保持向后兼容"""
+        if self._screen_loader is None:
+            self._screen_loader = ScreenContext()
+        return self._screen_loader
+
+    @screen_loader.setter
+    def screen_loader(self, value: ScreenContext) -> None:
+        """设置屏幕加载器"""
+        self._screen_loader = value
 
     def init_by_config(self) -> None:
         """
@@ -222,9 +246,16 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
         初始化OCR
         :return:
         """
+        def ocr_completion_callback():
+            """OCR加载完成回调"""
+            if hasattr(self, 'signal'):
+                self.signal.ocr_loaded = True
+        
         self.ocr.init_model(
             ghproxy_url=self.env_config.gh_proxy_url if self.env_config.is_gh_proxy else None,
             proxy_url=self.env_config.personal_proxy if self.env_config.is_personal_proxy else None,
+            async_init=True,  # 使用异步初始化模式
+            completion_callback=ocr_completion_callback
         )
 
     def after_app_shutdown(self) -> None:

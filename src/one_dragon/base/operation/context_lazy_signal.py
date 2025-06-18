@@ -27,3 +27,25 @@ class ContextLazySignal:
     @start_onedragon.setter
     def start_onedragon(self, new_value: bool) -> None:
         self._signals['start_onedragon'] = new_value
+
+    @property
+    def config_loaded(self) -> bool:
+        """
+        配置加载完成
+        """
+        return self._signals.get('config_loaded', False)
+
+    @config_loaded.setter
+    def config_loaded(self, new_value: bool) -> None:
+        self._signals['config_loaded'] = new_value
+
+    @property
+    def ocr_loaded(self) -> bool:
+        """
+        OCR模型加载完成
+        """
+        return self._signals.get('ocr_loaded', False)
+
+    @ocr_loaded.setter
+    def ocr_loaded(self, new_value: bool) -> None:
+        self._signals['ocr_loaded'] = new_value
