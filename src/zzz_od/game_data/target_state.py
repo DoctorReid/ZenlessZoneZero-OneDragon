@@ -91,46 +91,46 @@ DETECTION_TASKS: List[DetectionTask] = [
         ]
     ),
 
-    # 任务4: 全面测试用任务 (DIRECT_RETURN)
-    DetectionTask(
-        task_id='test_direct_return_comprehensive',
-        pipeline_name='lock-far',  # 使用一个已知存在的流水线
-        interval=1.0,  # 测试任务通常不需要太频繁
-        is_async=False, # 同步执行便于观察
-        state_definitions=[
-            # 测试1: 直接返回True
-            TargetStateDef(
-                '测试状态-直接True',
-                TargetCheckWay.DIRECT_RETURN,
-                {'value_to_return': True}
-                # clear_on_miss 默认为 True，但在这里不生效，因为是返回True
-            ),
-            # 测试2: 直接返回False，并且 clear_on_miss 为 True (默认行为)
-            TargetStateDef(
-                '测试状态-直接False清除',
-                TargetCheckWay.DIRECT_RETURN,
-                {'value_to_return': False}
-                # clear_on_miss 默认为 True
-            ),
-            # 测试3: 直接返回False，并且 clear_on_miss 为 False
-            TargetStateDef(
-                '测试状态-直接False不清除',
-                TargetCheckWay.DIRECT_RETURN,
-                {'value_to_return': False},
-                clear_on_miss=False
-            ),
-            # 测试4: check_params中未提供 value_to_return (预期返回None)
-            TargetStateDef(
-                '测试状态-直接返回无参数',
-                TargetCheckWay.DIRECT_RETURN
-                # check_params 为空, clear_on_miss 默认为 True
-            ),
-            # 测试5: value_to_return 不是布尔值 (预期返回None)
-            TargetStateDef(
-                '测试状态-直接返回无效值',
-                TargetCheckWay.DIRECT_RETURN,
-                {'value_to_return': 'not_a_boolean'}
-            ),
-        ]
-    )
+    # # 任务4: 全面测试用任务 (DIRECT_RETURN)
+    # DetectionTask(
+    #     task_id='test_direct_return_comprehensive',
+    #     pipeline_name='lock-far',  # 使用一个已知存在的流水线
+    #     interval=1.0,  # 测试任务通常不需要太频繁
+    #     is_async=False, # 同步执行便于观察
+    #     state_definitions=[
+    #         # 测试1: 直接返回True
+    #         TargetStateDef(
+    #             '测试状态-直接True',
+    #             TargetCheckWay.DIRECT_RETURN,
+    #             {'value_to_return': True}
+    #             # clear_on_miss 默认为 True，但在这里不生效，因为是返回True
+    #         ),
+    #         # 测试2: 直接返回False，并且 clear_on_miss 为 True (默认行为)
+    #         TargetStateDef(
+    #             '测试状态-直接False清除',
+    #             TargetCheckWay.DIRECT_RETURN,
+    #             {'value_to_return': False}
+    #             # clear_on_miss 默认为 True
+    #         ),
+    #         # 测试3: 直接返回False，并且 clear_on_miss 为 False
+    #         TargetStateDef(
+    #             '测试状态-直接False不清除',
+    #             TargetCheckWay.DIRECT_RETURN,
+    #             {'value_to_return': False},
+    #             clear_on_miss=False
+    #         ),
+    #         # 测试4: check_params中未提供 value_to_return (预期返回None)
+    #         TargetStateDef(
+    #             '测试状态-直接返回无参数',
+    #             TargetCheckWay.DIRECT_RETURN
+    #             # check_params 为空, clear_on_miss 默认为 True
+    #         ),
+    #         # 测试5: value_to_return 不是布尔值 (预期返回None)
+    #         TargetStateDef(
+    #             '测试状态-直接返回无效值',
+    #             TargetCheckWay.DIRECT_RETURN,
+    #             {'value_to_return': 'not_a_boolean'}
+    #         ),
+    #     ]
+    # )
 ]
