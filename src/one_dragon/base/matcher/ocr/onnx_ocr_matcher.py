@@ -209,10 +209,11 @@ class OnnxOcrMatcher(OcrMatcher, ZipDownloader):
             log.warning('OCR模型预热失败，但不影响正常使用', exc_info=True)
 
     def _ensure_model_ready(self) -> bool:
-        """确保模型已准备就绪"""
+        """确保模型已准备就绪，如果需要会等待加载完成"""
         if self._model is not None:
             return True
-
+            
+        # 如果异步初始化正在进行，等待完成
         if self._init_future and not self._init_future.done():
             log.info('等待OCR模型异步加载完成...')
             try:
@@ -221,11 +222,26 @@ class OnnxOcrMatcher(OcrMatcher, ZipDownloader):
             except Exception as e:
                 log.error(f'等待OCR模型加载超时: {e}')
                 return False
-
-        # 如果没有异步初始化，尝试同步初始化
-        if not self._loading:
+        
+        # 如果没有初始化过，尝试同步初始化
+        if not self._loading and self._model is None:
+            log.info('OCR模型未初始化，开始同步初始化...')
             return self.init_model(async_init=False)
-
+        
+        # 如果正在同步加载中，等待完成
+        if self._loading:
+            log.info('等待OCR模型同步加载完成...')
+            wait_count = 0
+            while self._loading and wait_count < 300:  # 最多等待30秒 (300 * 0.1s)
+                time.sleep(0.1)
+                wait_count += 1
+            
+            if self._loading:
+                log.error('等待OCR模型同步加载超时')
+                return False
+                
+            return self._model is not None
+        
         return False
 
     def run_ocr_single_line(self, image: MatLike, threshold: float = 0, strict_one_line: bool = True) -> str:
@@ -308,7 +324,7 @@ class OnnxOcrMatcher(OcrMatcher, ZipDownloader):
 
             img_result = scan_result[0]  # 取第一张图片的结果
             if len(img_result) > 1:
-                log.debug("禁检测的OCR模型返回多个识别结果")  # 目前没有出现这种情况
+                log.debug("检测的OCR模型返回多个识别结果")  # 目前没有出现这种情况
 
             if len(img_result) > 0 and img_result[0][1] >= threshold:
                 text = img_result[0][0]
