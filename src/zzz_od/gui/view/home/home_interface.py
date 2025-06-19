@@ -374,8 +374,10 @@ class HomeInterface(VerticalScrollInterface):
             self._first_time_shown = False
 
     def _need_to_update_code(self, with_new: bool):
-        # 只在有新版本时显示提示，没有更新时不显示任何提示
-        if with_new:
+        if not with_new:
+            self._show_info_bar("代码已是最新版本", "Enjoy it & have fun!")
+            return
+        else:
             self._show_info_bar("有新版本啦", "稍安勿躁~")
 
     def _need_to_update_model(self, with_new: bool):
