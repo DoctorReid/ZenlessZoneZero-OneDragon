@@ -76,7 +76,7 @@ jobs:
         
         # 创建目标目录并生成 wheel 包
         New-Item -ItemType Directory -Path deploy/dist/wheels -Force
-        uv build --all-packages --wheel -o deploy/dist/wheels
+        pip wheel --wheel-dir=deploy/dist/wheels -r requirements-prod.txt
     
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
