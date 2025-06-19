@@ -63,7 +63,7 @@ class HollowZeroApp(ZApplication):
             self.phase = -1
             return self.round_success(HollowZeroApp.STATUS_IN_HOLLOW)
 
-        result = self.round_by_find_area(screen, '大世界', '信息')
+        result = self.round_by_find_area(screen, '大世界', '地图')
 
         if result.is_success:
             return self.round_success(result.status)

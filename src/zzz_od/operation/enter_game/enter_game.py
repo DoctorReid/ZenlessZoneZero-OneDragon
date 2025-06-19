@@ -50,7 +50,7 @@ class EnterGame(ZOperation):
         if interact_result is not None:
             return interact_result
 
-        in_game_result = self.round_by_find_area(screen, '大世界', '信息')
+        in_game_result = self.round_by_find_area(screen, '大世界', '地图')
         if in_game_result.is_success:
             return self.round_success('大世界', wait=1)
 

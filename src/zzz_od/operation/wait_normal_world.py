@@ -27,5 +27,5 @@ class WaitNormalWorld(ZOperation):
         """
         screen = self.screenshot()
 
-        return self.round_by_find_area(screen, '大世界', '信息',
+        return self.round_by_find_area(screen, '大世界', '地图',
                                        retry_wait=1)

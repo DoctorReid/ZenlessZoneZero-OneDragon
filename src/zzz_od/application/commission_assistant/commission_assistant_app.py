@@ -82,7 +82,7 @@ class CommissionAssistantApp(ZApplication):
         now = time.time()
         screen = self.screenshot()
 
-        result = self.round_by_find_area(screen, '大世界', '信息')
+        result = self.round_by_find_area(screen, '大世界', '地图')
         if result.is_success:
             return self.round_wait(status='大世界', wait=1)
 
@@ -437,7 +437,7 @@ class CommissionAssistantApp(ZApplication):
             if self.fishing_done:
                 return self.round_success('钓鱼结束')
 
-            result = self.round_by_find_area(screen, '大世界-普通', '按钮-信息')
+            result = self.round_by_find_area(screen, '大世界-普通', '按钮-地图')
             if result.is_success:
                 return self.round_success('钓鱼结束')
 

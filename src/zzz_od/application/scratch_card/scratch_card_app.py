@@ -36,7 +36,7 @@ class ScratchCardApp(ZApplication):
         if result.is_success:
             return self.round_success(result.status)
 
-        result = self.round_by_find_area(screen, '大世界', '信息')
+        result = self.round_by_find_area(screen, '大世界', '地图')
         if result.is_success:
             return self.round_success(result.status)
 
