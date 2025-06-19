@@ -68,6 +68,16 @@ jobs:
         pyinstaller "OneDragon-Installer.spec"
         pyinstaller "OneDragon-Launcher.spec"
 
+    - name: Bundle dependencies into wheels
+      shell: pwsh
+      run: |
+        # 激活虚拟环境
+        .\zzz-od\Scripts\Activate.ps1
+        
+        # 创建目标目录并生成 wheel 包
+        New-Item -ItemType Directory -Path deploy/dist/wheels -Force
+        uv build --all-packages --wheel -o deploy/dist/wheels
+    
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -75,6 +85,7 @@ jobs:
         path: |
           deploy/dist/OneDragon-Installer.exe
           deploy/dist/OneDragon-Launcher.exe
+          deploy/dist/wheels
 
   release:
     needs: build
@@ -329,6 +340,17 @@ jobs:
         # Copy Installer
         Copy-Item "$rootDir/OneDragon-Installer.exe" -Destination "$distDir/ZenlessZoneZero-OneDragon-$version-Installer.exe" -Force
 
+    - name: Package environment dependencies
+      shell: pwsh
+      run: |
+        $version = "${{ steps.get_version.outputs.version }}"
+        
+        # 压缩生成的 wheels 目录
+        Compress-Archive -Path deploy/dist/wheels/* -DestinationPath deploy/dist/ZenlessZoneZero-OneDragon-$version-Environment.zip
+        
+        # 清理临时文件
+        Remove-Item -Path deploy/dist/wheels -Recurse -Force
+
     - name: Generate Changelog
       id: changelog
       shell: pwsh
@@ -390,6 +412,7 @@ jobs:
         files: |
           deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Installer.exe
           deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Full.zip
+          deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Environment.zip
           deploy/dist/ZenlessZoneZero-OneDragon-Launcher.zip
         generate_release_notes: false
         prerelease: ${{ github.event_name == 'workflow_dispatch' }}
