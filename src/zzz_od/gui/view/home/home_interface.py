@@ -426,6 +426,6 @@ class HomeInterface(VerticalScrollInterface):
         """检查公告卡片配置是否发生变化"""
         if self.ctx.signal.notice_card_config_changed:
             current_config = self.ctx.custom_config.notice_card
-            self.notice_container.update_config(current_config)
+            self.notice_container.set_notice_enabled(current_config)
             # 重置信号状态
             self.ctx.signal.notice_card_config_changed = False

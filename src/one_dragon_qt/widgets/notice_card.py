@@ -484,11 +484,3 @@ class NoticeCardContainer(QWidget):
         if self.notice_card is not None and self._notice_enabled:
             # 重新获取数据
             self.notice_card.fetch_data()
-
-    def update_config(self, enabled: bool):
-        """更新配置（由设置页面调用）"""
-        self.set_notice_enabled(enabled)
-
-    def isVisible(self) -> bool:
-        """重写可见性检查"""
-        return super().isVisible() and self._notice_enabled
