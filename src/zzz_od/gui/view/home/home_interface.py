@@ -1,7 +1,7 @@
 import os
 import requests
 from datetime import datetime, timedelta
-from PySide6.QtCore import Qt, QThread, Signal, QSize, QUrl, QTimer
+from PySide6.QtCore import Qt, QThread, Signal, QSize, QUrl
 from PySide6.QtGui import (
     QFont,
     QDesktopServices, QColor
@@ -294,9 +294,8 @@ class HomeInterface(VerticalScrollInterface):
 
         # 公告卡片
         self.notice_container = NoticeCardContainer()
-        self.notice_container.notice_visibility_changed.connect(self._on_notice_visibility_changed)
         h2_layout.addWidget(self.notice_container)
-        
+
         # 根据配置设置启用状态
         self.notice_container.set_notice_enabled(self.ctx.custom_config.notice_card)
 
@@ -358,16 +357,9 @@ class HomeInterface(VerticalScrollInterface):
             self._version_poster_downloader.start()
         elif self.ctx.custom_config.remote_banner:
             self._banner_downloader.start()
-        
+
         # 检查公告卡片配置是否变化
         self._check_notice_config_change()
-        
-        # 确保公告卡片样式正确应用
-        if (self.notice_container._notice_enabled and 
-            hasattr(self.notice_container, 'notice_card') and 
-            self.notice_container.notice_card):
-            from one_dragon_qt.services.styles_manager import OdQtStyleSheet
-            OdQtStyleSheet.NOTICE_CARD.apply(self.notice_container.notice_card)
 
     def _need_to_update_code(self, with_new: bool):
         if not with_new:
@@ -433,16 +425,7 @@ class HomeInterface(VerticalScrollInterface):
     def _check_notice_config_change(self):
         """检查公告卡片配置是否发生变化"""
         if self.ctx.signal.notice_card_config_changed:
-
             current_config = self.ctx.custom_config.notice_card
             self.notice_container.update_config(current_config)
             # 重置信号状态
             self.ctx.signal.notice_card_config_changed = False
-            
-    def _on_notice_visibility_changed(self, visible: bool):
-        """公告可见性变化的回调"""
-
-        # 当公告卡片显示时，应用样式
-        if visible and hasattr(self.notice_container, 'notice_card') and self.notice_container.notice_card:
-            from one_dragon_qt.services.styles_manager import OdQtStyleSheet
-            OdQtStyleSheet.NOTICE_CARD.apply(self.notice_container.notice_card)

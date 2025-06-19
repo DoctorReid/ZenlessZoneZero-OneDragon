@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
 )
 from qfluentwidgets import SimpleCardWidget, HorizontalFlipView, ListWidget
 
+from one_dragon_qt.services.styles_manager import OdQtStyleSheet
 from one_dragon_qt.widgets.pivot import CustomListItemDelegate, PhosPivot
 from one_dragon.utils.log_utils import log
 from .label import EllipsisLabel
@@ -24,7 +25,7 @@ from .label import EllipsisLabel
 
 class SkeletonBanner(QFrame):
     """骨架屏Banner组件 - 简化版"""
-    
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("SkeletonBanner")
@@ -44,18 +45,18 @@ class SkeletonBanner(QFrame):
 
 class SkeletonContent(QWidget):
     """骨架屏内容组件 - 简化版"""
-    
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("SkeletonContent")
         self.setFixedHeight(80)
         self.setupUI()
-    
+
     def setupUI(self):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(10, 5, 10, 5)
         layout.setSpacing(8)
-        
+
         # 创建多个骨架条
         for i in range(2):
             skeleton_item = QFrame()
@@ -66,7 +67,7 @@ class SkeletonContent(QWidget):
                 skeleton_item.setFixedWidth(280)
             else:
                 skeleton_item.setFixedWidth(220)
-            
+
             # 设置骨架条样式
             skeleton_item.setStyleSheet("""
                 QFrame#SkeletonItem {
@@ -183,10 +184,12 @@ class NoticeCard(SimpleCardWidget):
         self.setFixedWidth(351)
         self.mainLayout = QVBoxLayout(self)
         self.mainLayout.setContentsMargins(3, 3, 0, 0)
-        self.mainLayout.setAlignment(Qt.AlignmentFlag.AlignCenter)        # 骨架屏组件
+        self.mainLayout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        # 骨架屏组件
         self.skeleton_banner = SkeletonBanner(self)
         self.skeleton_content = SkeletonContent(self)
-        
+
         self.error_label = QLabel("无法获取数据")
         self.error_label.setWordWrap(True)
         self.error_label.setObjectName("error")
@@ -202,11 +205,11 @@ class NoticeCard(SimpleCardWidget):
         self._is_loading_banners = False
 
         self.setup_ui()
-        
+
         # 在setup_ui之后添加骨架屏到布局
         self.mainLayout.insertWidget(0, self.skeleton_banner)  # 在第一个位置插入
         self.mainLayout.insertWidget(1, self.skeleton_content)  # 在第二个位置插入
-        
+
         self.show_skeleton()  # 初始显示骨架屏
         self.fetch_data()
 
@@ -260,32 +263,6 @@ class NoticeCard(SimpleCardWidget):
         # banner加载时会自动隐藏骨架屏，这里不需要重复调用
         self.update_ui()
 
-    # @deprecated
-    def load_banners(self, banners):
-        """
-        同步加载banner图片
-        @deprecated: see load_banners_async
-        """
-        pixel_ratio = self.devicePixelRatio()  # 获取设备像素比
-        for banner in banners:
-            try:
-                response = requests.get(banner["image"]["url"])
-                pixmap = QPixmap()
-                pixmap.loadFromData(response.content)
-
-                # 缩放图片，确保清晰
-                size = QSize(pixmap.width(), pixmap.height())
-                pixmap = pixmap.scaled(
-                    size * pixel_ratio,  # 按设备像素比缩放
-                    Qt.AspectRatioMode.IgnoreAspectRatio,
-                    Qt.TransformationMode.SmoothTransformation,
-                )
-                pixmap.setDevicePixelRatio(pixel_ratio)  # 设置设备像素比
-                self.banners.append(pixmap)
-                self.banner_urls.append(banner["image"]["link"])
-            except Exception as e:
-                log.error(f"加载banner图片失败: {e}")
-
     def load_banners_async(self, banners):
         """
         异步加载banner图片
@@ -310,11 +287,11 @@ class NoticeCard(SimpleCardWidget):
         """单个banner图片加载完成的回调"""
         self.banners.append(pixmap)
         self.banner_urls.append(url)
-        
+
         # 如果这是第一个加载完成的banner，隐藏骨架屏并显示内容
         if len(self.banners) == 1:
             self.hide_skeleton()
-        
+
         # 实时更新UI显示新加载的图片 (单独添加，避免重复)
         if hasattr(self, 'flipView'):
             self.flipView.addImages([pixmap])
@@ -461,42 +438,38 @@ class NoticeCard(SimpleCardWidget):
 
 class NoticeCardContainer(QWidget):
     """公告卡片容器 - 支持动态显示/隐藏，无需重启"""
-    
-    notice_visibility_changed = Signal(bool)  # 公告可见性变化信号
-    
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("NoticeCardContainer")
-        
+
         # 创建主布局
         self.main_layout = QVBoxLayout(self)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
-        
-        # 立即创建公告卡片
+
+        # 创建公告卡片
         self.notice_card = NoticeCard()
+        OdQtStyleSheet.NOTICE_CARD.apply(self.notice_card)
         self.main_layout.addWidget(self.notice_card)
-        
+
         # 控制状态
         self._notice_enabled = False
-        
+
         # 设置固定宽度
         self.setFixedWidth(351)
-        
+
         # 初始状态为隐藏
         self._apply_visibility_state()
-        
+
     def set_notice_enabled(self, enabled: bool):
         """设置公告是否启用"""
         if self._notice_enabled == enabled:
             return
-            
+
         self._notice_enabled = enabled
         self._apply_visibility_state()
-        
-        # 发出可见性变化信号
-        self.notice_visibility_changed.emit(self._notice_enabled)
-        
+
     def _apply_visibility_state(self):
         """应用可见性状态"""
         if self._notice_enabled:
@@ -505,17 +478,17 @@ class NoticeCardContainer(QWidget):
         else:
             self.notice_card.hide()
             self.hide()
-            
+
     def refresh_notice(self):
         """刷新公告内容"""
         if self.notice_card is not None and self._notice_enabled:
             # 重新获取数据
             self.notice_card.fetch_data()
-            
+
     def update_config(self, enabled: bool):
         """更新配置（由设置页面调用）"""
         self.set_notice_enabled(enabled)
-        
+
     def isVisible(self) -> bool:
         """重写可见性检查"""
         return super().isVisible() and self._notice_enabled
