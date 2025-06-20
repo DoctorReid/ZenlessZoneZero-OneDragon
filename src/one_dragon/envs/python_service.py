@@ -7,7 +7,7 @@ import urllib.parse
 from typing import Optional, Callable, Tuple
 
 from one_dragon.envs.env_config import EnvConfig, PipSourceEnum, CpythonSourceEnum, DEFAULT_ENV_PATH, DEFAULT_UV_DIR_PATH,\
-     DEFAULT_PYTHON_DIR_PATH, DEFAULT_VENV_DIR_PATH, DEFAULT_VENV_PYTHON_PATH
+     DEFAULT_PYTHON_DIR_PATH, DEFAULT_WHEELS_DIR_PATH, DEFAULT_VENV_DIR_PATH, DEFAULT_VENV_PYTHON_PATH
 from one_dragon.envs.download_service import DownloadService
 from one_dragon.envs.project_config import ProjectConfig
 from one_dragon.utils import file_utils, cmd_utils
@@ -39,7 +39,7 @@ class PythonService:
             if not os.path.exists(zip_file_path):
                 success = self.download_service.download_env_file(zip_file_name, zip_file_path, progress_callback=progress_callback)
                 if not success:
-                    return False, gt('下载 UV 失败 请尝试到「设置」更改网络代理')
+                    return False, gt('下载 UV 失败 请尝试更改网络代理')
 
             msg = f"{gt('正在解压')} {zip_file_name}..."
             log.info(msg)
@@ -126,11 +126,23 @@ class PythonService:
             progress_callback(-1, msg)
         log.info(msg)
 
+        env_zip_path = os.path.join(DEFAULT_ENV_PATH, 'ZenlessZoneZero-OneDragon-Environment.zip')
+        if os.path.exists(env_zip_path):
+            msg = gt('检测到已存在的环境压缩包，正在解压...')
+            log.info(msg)
+
+            success = file_utils.unzip_file(env_zip_path, DEFAULT_WHEELS_DIR_PATH)
+            if success:
+                msg = gt('解压环境包成功，正在安装运行依赖...')
+                log.info(msg)
+
         os.environ["UV_PYTHON_INSTALL_DIR"] = DEFAULT_PYTHON_DIR_PATH
-        result = cmd_utils.run_command([self.env_config.uv_path, 'sync', '--default-index', self.env_config.pip_source,])
+        result = cmd_utils.run_command([self.env_config.uv_path, 'sync', '--find-links', DEFAULT_WHEELS_DIR_PATH, '--default-index', self.env_config.pip_source])
         success = result is not None
         msg = gt('运行依赖安装成功') if success else gt('运行依赖安装失败')
         log.info(msg)
+        if progress_callback is not None:
+            progress_callback(1, msg)
         return success, msg
 
     def uv_check_sync_status(self, progress_callback: Optional[Callable[[float, str], None]] = None) -> bool:

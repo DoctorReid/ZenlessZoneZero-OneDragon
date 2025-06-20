@@ -21,7 +21,7 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Set up Python 3.11.9
+    - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.11.9'
@@ -41,7 +41,7 @@ jobs:
       shell: pwsh
       run: |
         .\.venv\Scripts\Activate.ps1
-        uv sync --with dev
+        uv sync --all-groups
 
     - name: Download and extract UPX into venv Scripts
       shell: pwsh
@@ -160,9 +160,13 @@ jobs:
         tar -xzf $pythonTarGz -C $pythonTargetDir --strip-components=1
         Remove-Item -Path $pythonTarGz -Force
 
-        # 复制构建产物
+        # 复制安装器
         Copy-Item "$distDir/OneDragon-Installer.exe" -Destination $rootDir -Force
-        Copy-Item "$distDir/OneDragon-Launcher.exe" -Destination $rootDir -Force
+
+        # 打包启动器
+        Compress-Archive -Path @(
+          "$distDir/OneDragon-Launcher.exe"
+        ) -DestinationPath "$envDir/ZenlessZoneZero-OneDragon-Launcher.zip" -Force
 
         # 复制资源文件
         Copy-Item "assets/text" -Destination "$rootDir/assets/text" -Recurse -Force
@@ -323,14 +327,6 @@ jobs:
               -folderName "yolov8n-736-lost-void-det-20250612"
         }
 
-        # 打包启动器
-        Compress-Archive -Path @(
-          "$rootDir/OneDragon-Launcher.exe"
-        ) -DestinationPath "$distDir/ZenlessZoneZero-OneDragon-Launcher.zip" -Force
-
-        # 复制打包的启动器zip到.install文件夹
-        Copy-Item "$distDir/ZenlessZoneZero-OneDragon-Launcher.zip" -Destination "$envDir/ZenlessZoneZero-OneDragon-Launcher.zip" -Force
-
         # 获取版本号
         $version = "${{ steps.get_version.outputs.version }}"
 
@@ -346,10 +342,7 @@ jobs:
         # 复制安装程序
         Copy-Item "$rootDir/OneDragon-Installer.exe" -Destination "$distDir/ZenlessZoneZero-OneDragon-$version-Installer.exe" -Force
 
-        # 清理临时文件
-        Remove-Item -Path deploy/dist/wheels -Recurse -Force
-
-    - name: 生成更新日志
+    - name: Generate Changelog
       id: changelog
       shell: pwsh
       run: |
