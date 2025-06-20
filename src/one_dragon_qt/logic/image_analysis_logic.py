@@ -71,7 +71,7 @@ class ImageAnalysisLogic:
         if index >= 0 and index < len(self.pipeline.steps) - 1:
             self.pipeline.steps.insert(index + 1, self.pipeline.steps.pop(index))
 
-    def execute_pipeline(self) -> (np.ndarray, List[str]):
+    def execute_pipeline(self) -> tuple[np.ndarray, List[str]]:
         """
         执行流水线
         """
@@ -142,7 +142,7 @@ class ImageAnalysisLogic:
         else:
             return self.context.source_image
 
-    def get_color_info_at(self, image_x: int, image_y: int) -> (dict, None):
+    def get_color_info_at(self, image_x: int, image_y: int) -> dict | None:
         """
         获取原始图片上某个坐标点的颜色信息
         """
@@ -217,6 +217,12 @@ class ImageAnalysisLogic:
 
     def get_template_names(self) -> List[str]:
         return self.cv_service.get_template_names()
+
+    def get_template_info_list(self) -> List[TemplateInfo]:
+        """
+        获取所有模板的信息
+        """
+        return self.ctx.template_loader.get_all_template_info_from_disk(need_raw=True, need_config=True)
 
     def save_contour_as_template(self, template_name: str, contour_index: int) -> bool:
         """

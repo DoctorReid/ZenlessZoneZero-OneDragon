@@ -74,8 +74,6 @@ class DevtoolsImageAnalysisInterface(VerticalScrollInterface):
         self.run_btn.clicked.connect(self._on_run_pipeline)
         self.toggle_view_btn.clicked.connect(self._on_toggle_view)
         self.pipeline_list_widget.currentItemChanged.connect(self._on_pipeline_selection_changed)
-        self.pipeline_list_widget.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.pipeline_list_widget.customContextMenuRequested.connect(self._on_pipeline_list_context_menu)
 
         # 流水线管理
         self.pipeline_combo.currentIndexChanged.connect(self._on_pipeline_combo_changed)
