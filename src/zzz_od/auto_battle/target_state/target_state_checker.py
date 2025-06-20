@@ -1,6 +1,7 @@
 import re
 from typing import List, Tuple, Any
 
+import cv2
 from cv2.typing import MatLike
 
 from one_dragon.base.cv_process.cv_pipeline import CvPipelineContext
@@ -24,7 +25,7 @@ class TargetStateChecker:
             TargetCheckWay.CONTOUR_COUNT_IN_RANGE: self._check_contour_count,
             TargetCheckWay.OCR_RESULT_AS_NUMBER: self._check_ocr_as_number,
             TargetCheckWay.OCR_TEXT_CONTAINS: self._check_ocr_text_contains,
-            TargetCheckWay.DIRECT_RETURN: self._check_direct_return,
+            TargetCheckWay.MAP_CONTOUR_LENGTH_TO_PERCENT: self._check_map_contour_length_to_percent,
         }
 
     def run_task(self, screen: MatLike, task: DetectionTask, debug_mode: bool = False) -> Tuple[CvPipelineContext, List[Tuple[str, Any]]]:
@@ -59,7 +60,7 @@ class TargetStateChecker:
         if handler:
             return handler(cv_result, state_def)
         else:
-            log.warn(f"未知的 TargetCheckWay: {state_def.check_way} for state {state_def.state_name}")
+            log.debug(f"未知的 TargetCheckWay: {state_def.check_way} for state {state_def.state_name}")
             return False # 未知check_way视为不处理
 
     def _check_contour_count(self, cv_result: CvPipelineContext, state_def: TargetStateDef) -> bool | None:
@@ -144,24 +145,46 @@ class TargetStateChecker:
             # 异常情况也视为无有效结果
             return None if state_def.clear_on_miss else False
 
-    # def _check_direct_return(self, cv_result: CvPipelineContext, state_def: TargetStateDef) -> Any:
-    #     """
-    #     处理 DIRECT_RETURN，直接返回在check_params中指定的结果
-    #     CV结果在此方法中通常不被使用，但保持参数一致性
-    #     """
-    #     params = state_def.check_params
-    #     value_to_return = params.get('value_to_return')
+    def _check_map_contour_length_to_percent(self, cv_result: CvPipelineContext, state_def: TargetStateDef) -> tuple | bool | None:
+        """
+        处理 MAP_CONTOUR_LENGTH_TO_PERCENT (最终逻辑)
+        计算轮廓的【外接矩形宽度】与【遮罩图像宽度】的比值
+        """
+        # 1. 验证输入
+        if not cv_result.contours:
+            log.debug(f"状态 {state_def.state_name}: 未找到轮廓")
+            return None if state_def.clear_on_miss else False
 
-    #     # 检查是否返回一个带值的元组
-    #     if isinstance(value_to_return, tuple) and len(value_to_return) == 2 and value_to_return[0] is True:
-    #         return value_to_return # 返回 (True, value)
+        if cv_result.mask_image is None:
+            log.warn(f"状态 {state_def.state_name} 需要CV流水线提供 mask_image 输出，但未找到。")
+            return None if state_def.clear_on_miss else False
 
-    #     # 检查是否返回布尔值
-    #     if isinstance(value_to_return, bool):
-    #         if value_to_return:
-    #             return True
-    #         else: # value_to_return is False
-    #             return None if state_def.clear_on_miss else False
+        # 2. 获取参数
+        contour_index = state_def.check_params.get('contour_index', 0)
+        if len(cv_result.contours) <= contour_index:
+            log.debug(f"状态 {state_def.state_name}: 轮廓索引 {contour_index} 越界 (共 {len(cv_result.contours)} 个轮廓)")
+            return None if state_def.clear_on_miss else False
 
-    #     # 如果 value_to_return 未提供或是无效类型，则视为未命中
-    #     return None if state_def.clear_on_miss else False
+        # 3. 计算
+        try:
+            contour = cv_result.contours[contour_index]
+            mask_width = cv_result.mask_image.shape[1]
+
+            if mask_width == 0:
+                log.debug(f"状态 {state_def.state_name}: 遮罩宽度为0")
+                return None if state_def.clear_on_miss else False
+
+            # 【核心修正】: 使用外接矩形的宽度，而不是轮廓周长
+            _x, _y, w, _h = cv2.boundingRect(contour)
+            contour_width = w
+
+            ratio = min(contour_width, mask_width) / mask_width
+            
+            result_percent = int(ratio * 100)
+            log.debug(f"状态 {state_def.state_name}: 轮廓宽度={contour_width}, 遮罩宽度={mask_width}, 比率={ratio:.2f}, 百分比={result_percent}%")
+            
+            return True, result_percent
+
+        except Exception as e:
+            log.exception(f"计算轮廓宽度与遮罩宽度比率时出错: {e}")
+            return None if state_def.clear_on_miss else False

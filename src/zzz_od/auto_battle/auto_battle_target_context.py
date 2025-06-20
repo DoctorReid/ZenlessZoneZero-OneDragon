@@ -31,19 +31,42 @@ class AutoBattleTargetContext:
 
         self._check_lock = threading.Lock()
 
-        # 从数据定义加载所有检测任务
-        self.tasks: List[DetectionTask] = DETECTION_TASKS
+        # 从数据定义加载所有启用的检测任务
+        self.tasks: List[DetectionTask] = [task for task in DETECTION_TASKS if task.enabled]
 
         # 动态初始化计时器和间隔
         self._last_check_times: Dict[str, float] = {task.task_id: 0 for task in self.tasks}
         self._current_intervals: Dict[str, float] = {task.task_id: task.interval for task in self.tasks}
 
-    def init_battle_target_context(self, auto_op: ConditionalOperator):
+    def init_battle_target_context(self,
+                                   auto_op: ConditionalOperator,
+                                   target_lock_interval: float = 0,
+                                   abnormal_status_interval: float = 0):
         """
         初始化上下文
         """
         self.auto_op = auto_op
+        self._apply_config_intervals(target_lock_interval, abnormal_status_interval)  # 应用配置文件中的间隔
         log.info("目标上下文初始化完成 (由数据驱动)")
+
+    def _apply_config_intervals(self, target_lock_interval: float, abnormal_status_interval: float):
+        """
+        使用战斗配置文件中的值，覆盖任务的默认间隔
+        """
+        for task in self.tasks:
+            if task.task_id == 'lock_on' and target_lock_interval > 0:
+                task.interval = target_lock_interval
+                # 同时更新动态间隔配置，以确保非锁定时使用新频率
+                if 'interval_if_not_state' in task.dynamic_interval_config:
+                    task.dynamic_interval_config['interval_if_not_state'] = target_lock_interval
+                log.info(f"已从配置加载 [目标锁定] 检测间隔: {target_lock_interval}s")
+
+            elif task.task_id == 'abnormal_statuses' and abnormal_status_interval > 0:
+                task.interval = abnormal_status_interval
+                log.info(f"已从配置加载 [异常状态] 检测间隔: {abnormal_status_interval}s")
+
+        # 更新当前的计时器间隔
+        self._current_intervals: Dict[str, float] = {task.task_id: task.interval for task in self.tasks}
 
     def run_all_checks(self, screen: MatLike, screenshot_time: float):
         """
@@ -63,7 +86,11 @@ class AutoBattleTargetContext:
 
             # 遍历并执行所有到期的任务
             for task in self.tasks:
-                if now - self._last_check_times[task.task_id] >= self._current_intervals[task.task_id]:
+                interval = self._current_intervals[task.task_id]
+                if interval <= 0:  # 间隔为0或负数时，不执行此任务
+                    continue
+
+                if now - self._last_check_times[task.task_id] >= interval:
                     self._last_check_times[task.task_id] = now
                     if task.is_async:
                         future = _target_context_executor.submit(self.checker.run_task, screen, task)

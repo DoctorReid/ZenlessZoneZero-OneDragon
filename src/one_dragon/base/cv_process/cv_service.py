@@ -11,10 +11,10 @@ from one_dragon.base.cv_process.cv_step import (
     CvStep, CvStepFilterByRGB, CvStepFilterByHSV, CvErodeStep, CvDilateStep,
     CvMorphologyExStep, CvFindContoursStep, CvStepFilterByArea, CvStepFilterByArcLength,
     CvStepFilterByRadius, CvContourPropertiesStep, CvMatchShapesStep, CvStepCropByTemplate, CvStepFilterByAspectRatio,
-    CvStepFilterByCentroidDistance, CvStepOcr, CvStepGrayscale, CvStepHistogramEqualization, CvStepThreshold
+    CvStepFilterByCentroidDistance, CvStepOcr, CvStepGrayscale, CvStepHistogramEqualization, CvStepThreshold,
+    CvStepCropByArea
 )
-from one_dragon.base.matcher.ocr.onnx_ocr_matcher import OnnxOcrMatcher
-from one_dragon.base.screen.template_loader import TemplateLoader
+from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils import os_utils
 
 
@@ -26,17 +26,18 @@ class CvService:
     PIPELINE_DIR: str = os_utils.get_path_under_work_dir('assets', 'image_analysis_pipelines')
     TEMPLATE_DIR: str = os_utils.get_path_under_work_dir('assets', 'image_analysis_templates')
 
-    def __init__(self, ocr: OnnxOcrMatcher, template_loader: TemplateLoader):
+    def __init__(self, od_ctx: OneDragonContext):
         """
         服务初始化
-        :param ocr: OCR识别器实例
-        :param template_loader: 模板加载器实例
+        :param od_ctx: 总上下文
         """
-        self.ocr: OnnxOcrMatcher = ocr
-        self.template_loader: TemplateLoader = template_loader
+        self.od_ctx: OneDragonContext = od_ctx
+        self.ocr = od_ctx.ocr
+        self.template_loader = od_ctx.template_loader
 
         # 可用的步骤类型
         self.available_steps: Dict[str, Type[CvStep]] = {
+            '按区域裁剪': CvStepCropByArea,
             '按模板裁剪': CvStepCropByTemplate,
             '灰度化': CvStepGrayscale,
             '直方图均衡化': CvStepHistogramEqualization,

@@ -45,7 +45,8 @@ class DevtoolsImageAnalysisInterface(VerticalScrollInterface):
         self.ctx: OneDragonContext = ctx
         self.logic = ImageAnalysisLogic(ctx)
         self.param_layout: QVBoxLayout = None
-        self.param_widgets = []  # 用于存储动态创建的参数控件
+        self.param_widgets = []  # 用于存储动态创建的参数控件，用于统一删除
+        self.param_widget_map = {}  # 用于通过参数名快速查找控件 {param_name: input_widget}
 
         super().__init__(
             content_widget=self._init_content_widget(),
@@ -296,6 +297,11 @@ class DevtoolsImageAnalysisInterface(VerticalScrollInterface):
         for param_name, definition in param_defs.items():
             self._create_param_widget(step, param_name, definition)
 
+        # 首次加载时，触发一次所有根参数的更新，确保子控件被正确初始化
+        for param_name, definition in param_defs.items():
+            if 'parent' not in definition:
+                self._refresh_dependent_widgets(step, param_name)
+
     def _clear_param_widgets(self):
         """
         清除所有动态生成的参数控件
@@ -304,6 +310,7 @@ class DevtoolsImageAnalysisInterface(VerticalScrollInterface):
             self.param_layout.removeWidget(widget)
             widget.deleteLater()
         self.param_widgets.clear()
+        self.param_widget_map.clear()
 
     def _create_param_row(self, label_text: str, input_widget: QWidget) -> QWidget:
         """
@@ -327,75 +334,68 @@ class DevtoolsImageAnalysisInterface(VerticalScrollInterface):
         为单个参数创建输入控件
         """
         param_type = definition['type']
-        label_text = definition.get('label', param_name)  # 优先使用label，否则回退到param_name
+        label_text = definition.get('label', param_name)
         tooltip_text = definition.get('tooltip', None)
 
         def _set_tooltip(widget: QWidget):
             if tooltip_text:
                 widget.setToolTip(tooltip_text)
 
-        if param_type == 'tuple_int':
-            component_labels = ['R', 'G', 'B'] if 'rgb' in param_name else ['H', 'S', 'V']
-            current_value = step.params.get(param_name, definition.get('default'))
+        input_widget = None
 
-            # Robustness check for corrupted data (e.g., from manual YAML edit)
+        if param_type == 'tuple_int':
+            # 元组参数比较特殊，因为它创建了多个行，所以单独处理
+            component_labels = ['R', 'G', 'B'] if 'rgb' in param_name else ['H', 'S', 'V']
+            current_value = step.params.get(param_name, definition.get('default', (0, 0, 0)))
+
             if not isinstance(current_value, (list, tuple)):
-                current_value = definition.get('default')
+                current_value = definition.get('default', (0, 0, 0))
                 step.params[param_name] = current_value
 
             for i in range(len(current_value)):
-                label_text = f"{param_name} {component_labels[i]}"
+                sub_label_text = f"{label_text} {component_labels[i]}"
                 spin_box = SpinBox()
                 spin_box.setFixedWidth(160)
-                param_range = definition['range']
+                param_range = definition.get('range', [(0, 255), (0, 255), (0, 255)])
                 min_val, max_val = param_range[i] if isinstance(param_range[0], tuple) else param_range
                 spin_box.setRange(min_val, max_val)
                 spin_box.setValue(current_value[i])
                 spin_box.valueChanged.connect(partial(self._on_tuple_param_changed, step, param_name, i))
-                row = self._create_param_row(label_text, spin_box)
-                _set_tooltip(row)
-                self.param_layout.addWidget(row)
-                self.param_widgets.append(row)
+
+                tuple_row = self._create_param_row(sub_label_text, spin_box)
+                _set_tooltip(tuple_row)
+                self.param_layout.addWidget(tuple_row)
+                self.param_widgets.append(tuple_row)
+            return  # 直接返回，不走下面的通用逻辑
+
         elif param_type == 'int':
             spin_box = SpinBox()
             spin_box.setFixedWidth(160)
-            min_val, max_val = definition['range']
+            min_val, max_val = definition.get('range', (0, 9999))
             spin_box.setRange(min_val, max_val)
-            spin_box.setValue(step.params.get(param_name, definition['default']))
-            spin_box.valueChanged.connect(partial(self._on_simple_param_changed, step, param_name))
-            row = self._create_param_row(label_text, spin_box)
-            _set_tooltip(row)
-            self.param_layout.addWidget(row)
-            self.param_widgets.append(row)
+            spin_box.setValue(step.params.get(param_name, definition.get('default', 0)))
+            spin_box.valueChanged.connect(partial(self._on_param_value_changed, step, param_name))
+            input_widget = spin_box
         elif param_type == 'bool':
             check_box = CheckBox()
-            check_box.setChecked(step.params.get(param_name, definition['default']))
-            check_box.stateChanged.connect(partial(self._on_simple_param_changed, step, param_name))
-            row = self._create_param_row(label_text, check_box)
-            _set_tooltip(row)
-            self.param_layout.addWidget(row)
-            self.param_widgets.append(row)
+            check_box.setChecked(step.params.get(param_name, definition.get('default', False)))
+            check_box.stateChanged.connect(partial(self._on_param_value_changed, step, param_name))
+            input_widget = check_box
         elif param_type == 'enum':
             combo_box = ComboBox()
-            combo_box.addItems(definition['options'])
-            combo_box.setCurrentText(step.params.get(param_name, definition['default']))
-            combo_box.currentTextChanged.connect(partial(self._on_simple_param_changed, step, param_name))
-            row = self._create_param_row(label_text, combo_box)
-            _set_tooltip(row)
-            self.param_layout.addWidget(row)
-            self.param_widgets.append(row)
+            combo_box.addItems(definition.get('options', []))
+            combo_box.setCurrentText(step.params.get(param_name, definition.get('default', '')))
+            combo_box.currentTextChanged.connect(partial(self._on_param_value_changed, step, param_name))
+            input_widget = combo_box
         elif param_type == 'float':
             spin_box = DoubleSpinBox()
             spin_box.setFixedWidth(160)
-            min_val, max_val = definition['range']
+            min_val, max_val = definition.get('range', (0.0, 1.0))
             spin_box.setRange(min_val, max_val)
-            spin_box.setValue(step.params.get(param_name, definition['default']))
+            spin_box.setValue(step.params.get(param_name, definition.get('default', 0.0)))
             spin_box.setSingleStep(0.1)
-            spin_box.valueChanged.connect(partial(self._on_simple_param_changed, step, param_name))
-            row = self._create_param_row(label_text, spin_box)
-            _set_tooltip(row)
-            self.param_layout.addWidget(row)
-            self.param_widgets.append(row)
+            spin_box.valueChanged.connect(partial(self._on_param_value_changed, step, param_name))
+            input_widget = spin_box
         elif param_type == 'enum_template':
             combo_box = ComboBox()
             template_infos = self.logic.get_template_info_list()
@@ -405,23 +405,87 @@ class DevtoolsImageAnalysisInterface(VerticalScrollInterface):
             else:
                 template_names = [f"{t.sub_dir}/{t.template_id}" for t in template_infos]
                 combo_box.addItems(template_names)
-                combo_box.setCurrentText(step.params.get(param_name, definition['default']))
+                combo_box.setCurrentText(step.params.get(param_name, definition.get('default', '')))
+            combo_box.currentTextChanged.connect(partial(self._on_param_value_changed, step, param_name))
+            input_widget = combo_box
+        elif param_type == 'enum_screen_name':
+            combo_box = ComboBox()
+            screen_names = self.logic.get_screen_names()
+            combo_box.addItems(screen_names)
+            combo_box.setCurrentText(step.params.get(param_name, definition.get('default', '')))
+            combo_box.currentTextChanged.connect(partial(self._on_param_value_changed, step, param_name))
+            input_widget = combo_box
+        elif param_type == 'enum_area_name':
+            combo_box = ComboBox()
+            # 初始为空，由 _refresh_dependent_widgets 填充
+            combo_box.setCurrentText(step.params.get(param_name, definition.get('default', '')))
+            combo_box.currentTextChanged.connect(partial(self._on_param_value_changed, step, param_name))
+            input_widget = combo_box
 
-            combo_box.currentTextChanged.connect(partial(self._on_simple_param_changed, step, param_name))
-            row = self._create_param_row(label_text, combo_box)
+        if input_widget:
+            row = self._create_param_row(label_text, input_widget)
             _set_tooltip(row)
             self.param_layout.addWidget(row)
             self.param_widgets.append(row)
+            self.param_widget_map[param_name] = input_widget
+
+    def _on_param_value_changed(self, step: CvStep, param_name: str, value):
+        """
+        当一个参数值发生变化时，更新模型并触发依赖刷新
+        """
+        # 对于 CheckBox，信号传递的是 Qt.CheckState 枚举，需要转换为 bool
+        if isinstance(value, Qt.CheckState):
+            value = (value == Qt.CheckState.Checked)
+
+        # 如果值没有实际变化，则不进行任何操作，防止不必要的刷新和信号循环
+        if step.params.get(param_name) == value:
+            return
+
+        step.params[param_name] = value
+        self._refresh_dependent_widgets(step, param_name)
+
+    def _refresh_dependent_widgets(self, step: CvStep, changed_param_name: str):
+        """
+        刷新所有依赖于某个参数的控件
+        """
+        param_defs = step.get_params()
+
+        for child_param_name, definition in param_defs.items():
+            if definition.get('parent') == changed_param_name:
+                child_input_widget = self.param_widget_map.get(child_param_name)
+                if not child_input_widget or not isinstance(child_input_widget, ComboBox):
+                    continue
+
+                parent_value = step.params.get(changed_param_name)
+
+                new_options = []
+                child_param_type = definition.get('type')
+
+                if child_param_type == 'enum_area_name':
+                    new_options = self.logic.get_area_names_by_screen(parent_value) if parent_value else []
+
+                child_input_widget.blockSignals(True)
+                current_child_value = child_input_widget.currentText()
+                child_input_widget.clear()
+                child_input_widget.addItems(new_options)
+
+                if current_child_value in new_options:
+                    child_input_widget.setCurrentText(current_child_value)
+                else:
+                    if step.params.get(child_param_name) is not None:
+                        step.params[child_param_name] = ''
+                    child_input_widget.setCurrentIndex(-1)
+
+                child_input_widget.blockSignals(False)
 
     def _on_tuple_param_changed(self, step: CvStep, param_name: str, index: int, value: int):
         """
-        当元组参数值发生变化时
+        当元组参数值发生变化时 (特殊处理)
         """
-        current_tuple = step.params.get(param_name, None)
-        if isinstance(current_tuple, (list, tuple)):
-            new_list = list(current_tuple)
-            new_list[index] = value
-            step.params[param_name] = tuple(new_list)
+        current_tuple = list(step.params.get(param_name, ()))
+        if index < len(current_tuple):
+            current_tuple[index] = value
+            step.params[param_name] = tuple(current_tuple)
 
     def _on_simple_param_changed(self, step: CvStep, param_name: str, value):
         """

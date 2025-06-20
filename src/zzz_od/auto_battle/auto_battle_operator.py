@@ -80,7 +80,9 @@ class AutoBattleOperator(ConditionalOperator):
                 check_agent_interval=self.get('check_agent_interval', 0.5),
                 check_chain_interval=self.get('check_chain_interval', 1),
                 check_quick_interval=self.get('check_quick_interval', 0.5),
-                check_end_interval=self.get('check_end_interval', 5)
+                check_end_interval=self.get('check_end_interval', 5),
+                target_lock_interval=self.get('target_lock_interval', 0),
+                abnormal_status_interval=self.get('abnormal_status_interval', 0)
             )
 
             log.info(f'自动战斗配置加载成功 {self.module_name}')
@@ -205,6 +207,8 @@ class AutoBattleOperator(ConditionalOperator):
 
         # 添加目标状态 (V10: 从数据定义中动态获取)
         for task in DETECTION_TASKS:
+            if not task.enabled:
+                continue
             for state_def in task.state_definitions:
                 if state_def.state_name not in event_ids:
                     event_ids.append(state_def.state_name)

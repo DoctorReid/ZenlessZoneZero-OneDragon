@@ -28,7 +28,7 @@ class ZContext(OneDragonContext):
         self.compendium_service: CompendiumService = CompendiumService()
 
         # CV服务
-        self.cv_service: CvService = CvService(self.ocr, self.template_loader)
+        self.cv_service: CvService = CvService(self)
 
         # 实例独有的配置
         self.load_instance_config()

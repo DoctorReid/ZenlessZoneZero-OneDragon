@@ -6,14 +6,9 @@ import cv2
 import numpy as np
 
 from one_dragon.base.cv_process.cv_pipeline import CvPipeline, CvPipelineContext
-from one_dragon.base.cv_process.cv_step import (
-    CvStep, CvStepFilterByRGB, CvStepFilterByHSV, CvErodeStep, CvDilateStep,
-    CvMorphologyExStep, CvFindContoursStep, CvStepFilterByArea, CvStepFilterByArcLength,
-    CvStepFilterByRadius, CvContourPropertiesStep, CvMatchShapesStep, CvStepCropByTemplate, CvStepFilterByAspectRatio,
-    CvStepFilterByCentroidDistance, CvStepOcr, CvStepGrayscale, CvStepHistogramEqualization, CvStepThreshold
-)
+from one_dragon.base.cv_process.cv_step import CvStep
 from one_dragon.base.screen.template_info import TemplateInfo
-from one_dragon.utils import os_utils, cv2_utils
+from one_dragon.utils import cv2_utils
 from zzz_od.context.zzz_context import ZContext
 from one_dragon.base.cv_process.cv_code_generator import CvCodeGenerator
 
@@ -205,11 +200,20 @@ class ImageAnalysisLogic:
 
     # ==================== 模板文件操作(委托给CvService) ====================
 
-    def get_template_info_list(self) -> List[TemplateInfo]:
+    def get_screen_names(self) -> List[str]:
         """
-        获取所有模板的信息
+        获取所有画面的名称，用于UI下拉框
         """
-        return self.ctx.template_loader.get_all_template_info_from_disk(need_raw=True, need_config=True)
+        return list(self.ctx.screen_loader.screen_info_map.keys())
+
+    def get_area_names_by_screen(self, screen_name: str) -> List[str]:
+        """
+        根据画面名称，获取其下所有区域的名称
+        """
+        screen = self.ctx.screen_loader.get_screen(screen_name)
+        if screen is None:
+            return []
+        return [area.area_name for area in screen.area_list]
 
     def get_template_names(self) -> List[str]:
         return self.cv_service.get_template_names()

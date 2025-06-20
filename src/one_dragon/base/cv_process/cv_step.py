@@ -34,8 +34,12 @@ class CvPipelineContext:
         return self.error_str is None and self.success
 
     @property
-    def od_ctx(self):
-        return None  # 核心模块不应直接依赖ZContext
+    def od_ctx(self) -> 'OneDragonContext':
+        """
+        通过service获取上下文
+        :return:
+        """
+        return self.service.od_ctx if self.service else None
 
     @property
     def template_loader(self):
@@ -912,3 +916,38 @@ class CvStepOcr(CvStep):
                 if context.debug_mode and draw_text_box:
                     cv2.rectangle(display_with_ocr, (match.rect.x1, match.rect.y1), (match.rect.x2, match.rect.y2), (255, 0, 255), 2)
         context.display_image = display_with_ocr
+
+
+class CvStepCropByArea(CvStep):
+
+    def __init__(self):
+        super().__init__('按区域裁剪')
+
+    def get_params(self) -> Dict[str, Any]:
+        return {
+            'screen_name': {'type': 'enum_screen_name', 'default': '', 'label': '画面名称', 'tooltip': '选择一个已定义的画面。'},
+            'area_name': {'type': 'enum_area_name', 'default': '', 'label': '区域名称', 'tooltip': '选择该画面下的一个区域进行裁剪。', 'parent': 'screen_name'}
+        }
+
+    def get_description(self) -> str:
+        return "根据画面和区域的名称，从画面配置中找到对应区域进行裁剪。"
+
+    def _execute(self, context: CvPipelineContext, screen_name: str = '', area_name: str = '', **kwargs):
+        if context.od_ctx is None or context.od_ctx.screen_loader is None:
+            context.error_str = "错误: 缺少画面加载器 (ScreenLoader)"
+            context.success = False
+            return
+
+        if not screen_name or not area_name:
+            context.error_str = "错误: 未选择画面名称或区域名称"
+            context.success = False
+            return
+
+        area = context.od_ctx.screen_loader.get_area(screen_name, area_name)
+        if area is None:
+            context.error_str = f"错误: 在画面 '{screen_name}' 中未找到区域 '{area_name}'"
+            context.success = False
+            return
+
+        context.display_image = cv2_utils.crop_image_only(context.display_image, area.rect)
+        context.analysis_results.append(f"已按区域裁剪: {screen_name} -> {area_name} ({area.rect})")
