@@ -35,21 +35,18 @@ jobs:
     - name: Create and activate virtual environment
       shell: pwsh
       run: |
-        uv venv zzz-od --python=3.11.9
+        uv venv .venv --python=3.11.12
 
     - name: Install dependencies
       shell: pwsh
       run: |
-        .\zzz-od\Scripts\Activate.ps1
-        uv pip install -r requirements-dev.txt
-        uv pip install -r requirements-dev-ext.txt
-        uv pip compile --annotation-style=line --output-file=requirements-prod.txt requirements-dev.txt
-        uv pip install -r requirements-prod.txt
+        .\.venv\Scripts\Activate.ps1
+        uv sync --with dev
 
     - name: Download and extract UPX into venv Scripts
       shell: pwsh
       run: |
-        $venvScripts = ".\zzz-od\Scripts"
+        $venvScripts = ".\.venv\Scripts"
         $upxDir = Join-Path $venvScripts "upx"
         $sourceUpxPath = Join-Path $upxDir "upx-4.2.3-win64" "upx.exe"
         $destinationUpxPath = Join-Path $venvScripts "upx.exe"
@@ -63,18 +60,33 @@ jobs:
     - name: Build executables
       shell: pwsh
       run: |
-        .\zzz-od\Scripts\Activate.ps1
+        .\.venv\Scripts\Activate.ps1
         cd deploy
         pyinstaller "OneDragon-Installer.spec"
         pyinstaller "OneDragon-Launcher.spec"
 
+    - name: Bundle dependencies into wheels
+      shell: pwsh
+      run: |
+        # 激活虚拟环境
+        .\.venv\Scripts\Activate.ps1
+
+        # 创建目标目录并生成 wheel 包
+        New-Item -ItemType Directory -Path deploy/dist/wheels -Force
+        uv export --no-hashes --no-dev --format requirements-txt > requirements-prod.txt
+        pip wheel --wheel-dir=deploy/dist/wheels -r requirements-prod.txt
+
+        # 压缩生成的 wheels 目录
+        Compress-Archive -Path deploy/dist/wheels/* -DestinationPath deploy/dist/ZenlessZoneZero-OneDragon-Environment.zip
+
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: executables
+        name: artifacts
         path: |
           deploy/dist/OneDragon-Installer.exe
           deploy/dist/OneDragon-Launcher.exe
+          deploy/dist/ZenlessZoneZero-OneDragon-Environment.zip
 
   release:
     needs: build
@@ -108,7 +120,7 @@ jobs:
     - name: Download build artifacts
       uses: actions/download-artifact@v4
       with:
-        name: executables
+        name: artifacts
         path: deploy/dist
 
     - name: Prepare release directory and models
@@ -137,37 +149,37 @@ jobs:
         Invoke-WebRequest -Uri "https://github.com/OneDragon-Anything/OneDragon-Env/releases/download/ZenlessZoneZero-OneDragon/uv-x86_64-pc-windows-msvc.zip" -OutFile "$envDir/uv-x86_64-pc-windows-msvc.zip"
         Invoke-WebRequest -Uri "https://github.com/OneDragon-Anything/OneDragon-Env/releases/download/ZenlessZoneZero-OneDragon/MinGit.zip" -OutFile "$envDir/MinGit.zip"
 
-        # Download and extract Python
+        # 下载并提取Python
         $pythonDir = "$envDir/python"
         $pythonTargetDir = "$pythonDir/cpython-3.11.12-windows-x86_64-none"
         New-Item -ItemType Directory -Path $pythonTargetDir -Force
         $pythonTarGz = "$envDir/python.tar.gz"
         Invoke-WebRequest -Uri "https://github.com/astral-sh/python-build-standalone/releases/download/20250517/cpython-3.11.12+20250517-x86_64-pc-windows-msvc-install_only_stripped.tar.gz" -OutFile $pythonTarGz
 
-        # Extract tar.gz file
+        # 提取 tar.gz 文件
         tar -xzf $pythonTarGz -C $pythonTargetDir --strip-components=1
         Remove-Item -Path $pythonTarGz -Force
 
-        # artifact
+        # 复制构建产物
         Copy-Item "$distDir/OneDragon-Installer.exe" -Destination $rootDir -Force
         Copy-Item "$distDir/OneDragon-Launcher.exe" -Destination $rootDir -Force
 
-        # assets
+        # 复制资源文件
         Copy-Item "assets/text" -Destination "$rootDir/assets/text" -Recurse -Force
         Copy-Item "assets/ui" -Destination "$rootDir/assets/ui" -Recurse -Force
 
-        # model route
+        # 创建模型目录
         $modelBase = "$rootDir/assets/models"
         New-Item -ItemType Directory -Path "$modelBase/onnx_ocr" -Force
         New-Item -ItemType Directory -Path "$modelBase/flash_classifier" -Force
         New-Item -ItemType Directory -Path "$modelBase/hollow_zero_event" -Force
         New-Item -ItemType Directory -Path "$modelBase/lost_void_det" -Force
 
-        # model name
+        # 临时模型目录
         $tempDir = "temp_models"
         New-Item -ItemType Directory -Path $tempDir -Force
 
-        # Function to get latest model asset from GitHub releases
+        # 从GitHub releases获取最新模型资源的函数
         function Get-LatestModelAsset {
             param (
                 [string]$repo,
@@ -175,11 +187,10 @@ jobs:
             )
             $apiUrl = "https://api.github.com/repos/$repo/releases"
             $releases = Invoke-RestMethod -Uri $apiUrl -Headers @{ "Accept" = "application/vnd.github.v3+json" }
-
             foreach ($release in $releases) {
                 foreach ($asset in $release.assets) {
                     if ($asset.name -match $pattern) {
-                        # Extract download count from asset name or find the highest download count
+                        # 从资源名称中提取下载数量或找到下载数量最高的资源
                         $downloadCount = $asset.download_count
                         return @{
                             url = $asset.browser_download_url
@@ -192,7 +203,7 @@ jobs:
             return $null
         }
 
-        # Function to get the latest model by highest 8-digit number at the end
+        # 通过文件末尾最高8位数字获取最新模型的函数
         function Get-LatestModelByNumber {
             param (
                 [string]$repo,
@@ -207,7 +218,7 @@ jobs:
             foreach ($release in $releases) {
                 foreach ($asset in $release.assets) {
                     if ($asset.name -match $pattern) {
-                        # Extract 8-digit number from the end of filename (before .zip)
+                        # 从文件名末尾提取8位数字（在.zip之前）
                         if ($asset.name -match '(\d{8})\.zip$') {
                             $number = [int]$matches[1]
                             if ($number -gt $maxNumber) {
@@ -219,7 +230,7 @@ jobs:
                                 }
                             }
                         }
-                        # For ppocrv5 and other models without 8-digit suffix, use as fallback
+                        # 对于ppocrv5和其他没有8位数字后缀的模型，作为备用选项
                         elseif ($bestAsset -eq $null) {
                             $bestAsset = @{
                                 url = $asset.browser_download_url
@@ -233,21 +244,21 @@ jobs:
             return $bestAsset
         }
 
-        # Get latest models by highest version numbers
-        Write-Host "Fetching latest model information..."
+        # 通过最高版本号获取最新模型
+        Write-Host "正在获取最新模型信息..."
 
-        # Get ppocrv5 model (onnx_ocr)
+        # 获取 ppocrv5 模型 (onnx_ocr)
         $ppocrModel = Get-LatestModelByNumber -repo "OneDragon-Anything/OneDragon-Env" -pattern "ppocrv5\.zip$"
         if ($ppocrModel) {
             $ppocrName = $ppocrModel.name -replace "\.zip$", ""
-            Write-Host "Found ppocrv5 model: $($ppocrModel.name) (Version: $($ppocrModel.version_number))"
+            Write-Host "找到 ppocrv5 模型: $($ppocrModel.name) (版本: $($ppocrModel.version_number))"
             Expand-ZipIntoNamedFolder `
               -url $ppocrModel.url `
               -downloadPath "$tempDir/ppocrv5.zip" `
               -destRoot "$modelBase/onnx_ocr" `
               -folderName $ppocrName
         } else {
-            Write-Warning "Could not find ppocrv5 model, using fallback"
+            Write-Warning "无法找到 ppocrv5 模型，使用备用版本"
             Expand-ZipIntoNamedFolder `
               -url "https://github.com/OneDragon-Anything/OneDragon-Env/releases/download/ppocrv5/ppocrv5.zip" `
               -downloadPath "$tempDir/ppocrv5.zip" `
@@ -255,18 +266,18 @@ jobs:
               -folderName "ppocrv5"
         }
 
-        # Get flash classifier model
+        # 获取 flash classifier 模型
         $flashModel = Get-LatestModelByNumber -repo "OneDragon-Anything/OneDragon-YOLO" -pattern "flash.*\.zip$"
         if ($flashModel) {
             $flashName = $flashModel.name -replace "\.zip$", ""
-            Write-Host "Found flash model: $($flashModel.name) (Version: $($flashModel.version_number))"
+            Write-Host "找到 flash 模型: $($flashModel.name) (版本: $($flashModel.version_number))"
             Expand-ZipIntoNamedFolder `
               -url $flashModel.url `
               -downloadPath "$tempDir/flash.zip" `
               -destRoot "$modelBase/flash_classifier" `
               -folderName $flashName
         } else {
-            Write-Warning "Could not find flash model, using fallback"
+            Write-Warning "无法找到 flash 模型，使用备用版本"
             Expand-ZipIntoNamedFolder `
               -url "https://github.com/OneDragon-Anything/OneDragon-YOLO/releases/download/zzz_model/yolov8n-640-flash-0127.zip" `
               -downloadPath "$tempDir/flash.zip" `
@@ -274,18 +285,18 @@ jobs:
               -folderName "yolov8n-640-flash-0127"
         }
 
-        # Get hollow zero event model
+        # 获取 hollow zero event 模型
         $hollowModel = Get-LatestModelByNumber -repo "OneDragon-Anything/OneDragon-YOLO" -pattern "hollow.*\.zip$"
         if ($hollowModel) {
             $hollowName = $hollowModel.name -replace "\.zip$", ""
-            Write-Host "Found hollow model: $($hollowModel.name) (Version: $($hollowModel.version_number))"
+            Write-Host "找到 hollow 模型: $($hollowModel.name) (版本: $($hollowModel.version_number))"
             Expand-ZipIntoNamedFolder `
               -url $hollowModel.url `
               -downloadPath "$tempDir/hollow.zip" `
               -destRoot "$modelBase/hollow_zero_event" `
               -folderName $hollowName
         } else {
-            Write-Warning "Could not find hollow model, using fallback"
+            Write-Warning "无法找到 hollow 模型，使用备用版本"
             Expand-ZipIntoNamedFolder `
               -url "https://github.com/OneDragon-Anything/OneDragon-YOLO/releases/download/zzz_model/yolov8s-736-hollow-zero-event-0126.zip" `
               -downloadPath "$tempDir/hollow.zip" `
@@ -293,18 +304,18 @@ jobs:
               -folderName "yolov8s-736-hollow-zero-event-0126"
         }
 
-        # Get lost void detection model
+        # 获取 lost void detection 模型
         $lostModel = Get-LatestModelByNumber -repo "OneDragon-Anything/OneDragon-YOLO" -pattern "lost.*\.zip$"
         if ($lostModel) {
             $lostName = $lostModel.name -replace "\.zip$", ""
-            Write-Host "Found lost void model: $($lostModel.name) (Version: $($lostModel.version_number))"
+            Write-Host "找到 lost void 模型: $($lostModel.name) (版本: $($lostModel.version_number))"
             Expand-ZipIntoNamedFolder `
               -url $lostModel.url `
               -downloadPath "$tempDir/lost.zip" `
               -destRoot "$modelBase/lost_void_det" `
               -folderName $lostName
         } else {
-            Write-Warning "Could not find lost void model, using fallback"
+            Write-Warning "无法找到 lost void 模型，使用备用版本"
             Expand-ZipIntoNamedFolder `
               -url "https://github.com/OneDragon-Anything/OneDragon-YOLO/releases/download/zzz_model/yolov8n-736-lost-void-det-20250612.zip" `
               -downloadPath "$tempDir/lost.zip" `
@@ -312,53 +323,62 @@ jobs:
               -folderName "yolov8n-736-lost-void-det-20250612"
         }
 
-        # Pack Launcher
+        # 打包启动器
         Compress-Archive -Path @(
           "$rootDir/OneDragon-Launcher.exe"
         ) -DestinationPath "$distDir/ZenlessZoneZero-OneDragon-Launcher.zip" -Force
 
-        # Copy packed launcher zip to .install folder
+        # 复制打包的启动器zip到.install文件夹
         Copy-Item "$distDir/ZenlessZoneZero-OneDragon-Launcher.zip" -Destination "$envDir/ZenlessZoneZero-OneDragon-Launcher.zip" -Force
 
-        # version
+        # 获取版本号
         $version = "${{ steps.get_version.outputs.version }}"
 
-        # Pack Full
+        # 打包完整版本
         Compress-Archive -Path "$rootDir\*" -DestinationPath "$distDir/ZenlessZoneZero-OneDragon-$version-Full.zip" -Force
 
-        # Copy Installer
+        # 复制环境依赖到 .install 目录
+        Copy-Item "$distDir/ZenlessZoneZero-OneDragon-Environment.zip" -Destination "$rootDir/.install/ZenlessZoneZero-OneDragon-Environment.zip" -Force
+
+        # 打包带环境的完整版本
+        Compress-Archive -Path "$rootDir\*" -DestinationPath "$distDir/ZenlessZoneZero-OneDragon-$version-Full-Environment.zip" -Force
+
+        # 复制安装程序
         Copy-Item "$rootDir/OneDragon-Installer.exe" -Destination "$distDir/ZenlessZoneZero-OneDragon-$version-Installer.exe" -Force
 
-    - name: Generate Changelog
+        # 清理临时文件
+        Remove-Item -Path deploy/dist/wheels -Recurse -Force
+
+    - name: 生成更新日志
       id: changelog
       shell: pwsh
       run: |
         $changelog_content = ""
-        $current_version_tag = "${{ steps.get_version.outputs.tag }}" # Tag from get_version step
+        $current_version_tag = "${{ steps.get_version.outputs.tag }}" # 从 get_version 步骤获取的标签
 
         if ($env:GITHUB_REF -like 'refs/tags/*') {
-          # This is a release triggered by a tag
-          # Attempt to find the latest tag on the parent of the current tag's commit
+          # 这是由标签触发的发布
+          # 尝试查找当前标签提交的父提交上的最新标签
           $previous_tag_candidate = $(git describe --tags --abbrev=0 "$current_version_tag^" 2>$null)
           if ($previous_tag_candidate) {
-            Write-Host "Generating changelog from $previous_tag_candidate to $current_version_tag"
+            Write-Host "正在生成从 $previous_tag_candidate 到 $current_version_tag 的更新日志"
             $changelog_content = git log --pretty=format:"- %s (%h)" "$previous_tag_candidate..$current_version_tag"
           } else {
-            Write-Host "No previous tag found relative to $current_version_tag^. Listing last 10 commits for $current_version_tag."
-            # This could be the first tag. List commits leading to it.
+            Write-Host "未找到相对于 $current_version_tag^ 的上一个标签。列出 $current_version_tag 的最后10个提交。"
+            # 这可能是第一个标签。列出导致它的提交。
             $changelog_content = git log --pretty=format:"- %s (%h)" -n 10 "$current_version_tag"
           }
         } else {
-          # This is a manual workflow_dispatch or a push to a branch
-          Write-Host "Manual or branch build. Listing last 5 commits from HEAD."
+          # 这是手动 workflow_dispatch 或分支推送
+          Write-Host "手动或分支构建。列出 HEAD 的最后5个提交。"
           $changelog_content = git log --pretty=format:"- %s (%h)" -n 5 HEAD
         }
 
-        # Convert array from git log to a single string, trim whitespace
+        # 将git log的数组转换为单个字符串，去除空白
         $changelog_content = ($changelog_content | Out-String).Trim()
 
         if ([string]::IsNullOrWhiteSpace($changelog_content)) {
-          $changelog_content = "No new changes or unable to determine changelog."
+          $changelog_content = "没有新的更改或无法确定更新日志。"
         }
 
         $output_name = "clean_changelog"
@@ -376,7 +396,8 @@ jobs:
         body: |
           # 安装方式
 
-          - `ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Full.zip` 为完整包，解压后选择解压目录为安装目录，不需要额外下载资源。
+          - `ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Full-Environment.zip` 为带环境的完整包，解压后选择解压目录为安装目录，不需要额外下载。
+          - `ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Full.zip` 为完整包，解压后选择解压目录为安装目录，只需要下载环境依赖。
           - `ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Installer.exe` 为精简安装程序，运行后会自动下载所需的资源。
           - 如果你想更新启动器，前往主程序【设置】-【资源下载】页面更新，或者下载 `ZenlessZoneZero-OneDragon-Launcher.zip`，解压后替换。
           - __不要下载Source Code__
@@ -388,8 +409,10 @@ jobs:
 
           ${{ steps.changelog.outputs.clean_changelog }}
         files: |
-          deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Installer.exe
+          deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Full-Environment.zip
           deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Full.zip
+          deploy/dist/ZenlessZoneZero-OneDragon-${{ steps.get_version.outputs.version }}-Installer.exe
+          deploy/dist/ZenlessZoneZero-OneDragon-Environment.zip
           deploy/dist/ZenlessZoneZero-OneDragon-Launcher.zip
         generate_release_notes: false
         prerelease: ${{ github.event_name == 'workflow_dispatch' }}
