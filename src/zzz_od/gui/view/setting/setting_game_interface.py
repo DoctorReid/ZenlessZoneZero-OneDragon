@@ -48,12 +48,9 @@ class SettingGameInterface(VerticalScrollInterface):
     def _get_agent_outfit_group(self) -> QWidget:
         agent_outfit_group = SettingCardGroup(gt('代理人皮肤'))
 
-        self.help_opt = HelpCard(title='！设置皮肤以正常使用自动战斗功能 ！', content=None)
-        agent_outfit_group.addSettingCard(self.help_opt)
-
-        self.match_all_outfits_switch = SwitchSettingCard(icon=FluentIcon.INFO, title='匹配所有可能的皮肤')
-        self.match_all_outfits_switch.value_changed.connect(self._on_match_all_outfits_changed)
-        agent_outfit_group.addSettingCard(self.match_all_outfits_switch)
+        self.compatibility_mode_switch = SwitchSettingCard(icon=FluentIcon.INFO, title='兼容模式', content='自动战斗识别出问题的时候可尝试开启')
+        self.compatibility_mode_switch.value_changed.connect(self._on_compatibility_mode_changed)
+        agent_outfit_group.addSettingCard(self.compatibility_mode_switch)
 
         self.outfit_nicole_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='妮可', options_enum=AgentOutfitNicole)
         self.outfit_nicole_opt.value_changed.connect(self._on_agent_outfit_changed)
@@ -289,11 +286,12 @@ class SettingGameInterface(VerticalScrollInterface):
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)
 
-        self.match_all_outfits_switch.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('match_all_outfits'))
+        self.compatibility_mode_switch.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('compatibility_mode'))
         self.outfit_nicole_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('nicole'))
         self.outfit_ellen_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('ellen'))
         self.outfit_astra_yao_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('astra_yao'))
-        self._update_agent_outfit_options(self.ctx.agent_outfit_config.match_all_outfits)
+        self.outfit_yixuan_opt.init_with_adapter(self.ctx.agent_outfit_config.get_prop_adapter('yixuan'))
+        self._update_agent_outfit_options(self.ctx.agent_outfit_config.compatibility_mode)
 
         self.input_way_opt.init_with_adapter(self.ctx.game_config.type_input_way_adapter)
 
@@ -405,25 +403,19 @@ class SettingGameInterface(VerticalScrollInterface):
     def _on_gamepad_type_changed(self, idx: int, value: str) -> None:
         self._update_gamepad_part()
 
-    def _on_match_all_outfits_changed(self, value: bool) -> None:
+    def _on_compatibility_mode_changed(self, value: bool) -> None:
+        self.ctx.agent_outfit_config.compatibility_mode = value
         if value:
-            dialog = Dialog(gt('警告'), gt('此功能可能会严重影响自动战斗的识别效率，如果自动战斗功能不正常，请关闭此功能！'), self)
-            dialog.setTitleBarVisible(False)
-            dialog.yesButton.setText(gt('确定'))
-            dialog.cancelButton.hide()
-            if dialog.exec():
-                self.ctx.agent_outfit_config.match_all_outfits = value
-                self.ctx.init_agent_template_id_list()
-        else:
-            self.ctx.agent_outfit_config.match_all_outfits = value
             self.ctx.init_agent_template_id()
+        else:
+            self.ctx.init_agent_template_id_list()
         self._update_agent_outfit_options(value)
 
     def _update_agent_outfit_options(self, value: bool) -> None:
-        self.agent_outfit_group_horizontal.setVisible(not value)
+        self.agent_outfit_group_horizontal.setVisible(value)
 
     def _on_agent_outfit_changed(self) -> None:
-        if not self.ctx.agent_outfit_config.match_all_outfits:
+        if self.ctx.agent_outfit_config.compatibility_mode:
             self.ctx.init_agent_template_id()
 
     def _on_hdr_enable_clicked(self) -> None:
