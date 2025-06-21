@@ -446,6 +446,8 @@ class LostVoidContext:
         :param consider_priority_new: 是否优先选择NEW类型 最高优先级
         :return: 按优先级选择的结果
         """
+        artifact_list = self.remove_overlapping_artifacts(artifact_list)
+
         log.info(f'当前考虑优先级 数量={choose_num} NEW!={consider_priority_new} 第一优先级={consider_priority_1} 第二优先级={consider_priority_2} 其他={consider_not_in_priority}')
         priority_list_to_consider = []
         if consider_priority_1:
@@ -542,6 +544,51 @@ class LostVoidContext:
         log.info(f'当前符合优先级列表 {display_text}')
 
         return result_list
+
+    def remove_overlapping_artifacts(self, artifact_list: List[LostVoidArtifactPos]) -> List[LostVoidArtifactPos]:
+        """
+        去掉横坐标太近的藏品，保留y坐标较小的（位置较高的）
+
+        :param artifact_list: 待处理的藏品列表
+        :return: 去重后的藏品列表
+        """
+        if len(artifact_list) <= 1:
+            return artifact_list
+
+        # 按x坐标排序，便于后续处理
+        sorted_artifacts = sorted(artifact_list, key=lambda art: art.rect.center.x)
+        result = []
+
+        i = 0
+        while i < len(sorted_artifacts):
+            current_art = sorted_artifacts[i]
+            overlapping_arts = [current_art]
+
+            # 找出所有与当前藏品横坐标接近的藏品
+            j = i + 1
+            while j < len(sorted_artifacts):
+                next_art = sorted_artifacts[j]
+                x_distance = abs(current_art.rect.center.x - next_art.rect.center.x)
+
+                if x_distance < 200:  # 横坐标太近
+                    overlapping_arts.append(next_art)
+                    log.debug(f'发现重叠藏品: {current_art.artifact.display_name} 和 {next_art.artifact.display_name}, 距离: {x_distance}')
+                    j += 1
+                else:
+                    break  # 由于已排序，后面的距离只会更大
+
+            # 在重叠的藏品中选择y坐标最小的（位置最高的）
+            best_art = min(overlapping_arts, key=lambda art: art.rect.center.y)
+            result.append(best_art)
+
+            if len(overlapping_arts) > 1:
+                removed_arts = [art.artifact.display_name for art in overlapping_arts if art != best_art]
+                log.debug(f'保留 {best_art.artifact.display_name}，移除 {", ".join(removed_arts)}')
+
+            # 跳过所有重叠的藏品
+            i = j
+
+        return result
 
     def get_entry_by_priority(self, entry_list: List[MoveTargetWrapper]) -> Optional[MoveTargetWrapper]:
         """
