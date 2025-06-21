@@ -144,22 +144,55 @@ class ImageAnalysisLogic:
 
     def get_color_info_at(self, image_x: int, image_y: int) -> dict | None:
         """
-        获取原始图片上某个坐标点的颜色信息
+        获取图片上某个坐标点的颜色信息
+        它会同时返回当前显示图像和原始图像的颜色
         """
-        if self.context is None or self.context.source_image is None:
+        if self.context is None:
             return None
 
-        image_height, image_width, _ = self.context.source_image.shape
+        # 1. 获取当前显示的图像
+        display_image = self.get_display_image()
+        if display_image is None:
+            return None
+
+        # 2. 检查坐标是否在显示图像的范围内
+        image_height, image_width = display_image.shape[:2]
         if not (0 <= image_y < image_height and 0 <= image_x < image_width):
             return None
 
-        rgb_color = self.context.source_image[image_y, image_x]
-        hsv_color = cv2.cvtColor(rgb_color.reshape(1, 1, 3), cv2.COLOR_RGB2HSV)[0, 0]
+        # 3. 获取显示图像的颜色
+        display_color_value = display_image[image_y, image_x]
+        if len(display_image.shape) == 2:  # 灰度图
+            display_rgb = (int(display_color_value), int(display_color_value), int(display_color_value))
+        else:  # BGR/RGB 彩色图
+            # 注意：OpenCV读取的是BGR，但在逻辑层已转为RGB
+            display_rgb = (int(display_color_value[0]), int(display_color_value[1]), int(display_color_value[2]))
+        display_hsv_raw = cv2.cvtColor(np.uint8([[display_rgb]]), cv2.COLOR_RGB2HSV)[0][0]
+        display_hsv = (int(display_hsv_raw[0]), int(display_hsv_raw[1]), int(display_hsv_raw[2]))
+
+        # 4. 计算并获取原始图像的颜色
+        offset_x, offset_y = self.context.crop_offset
+        source_x = image_x + offset_x
+        source_y = image_y + offset_y
+
+        source_image = self.context.source_image
+        source_rgb = None
+        source_hsv = None
+        if source_image is not None:
+            source_height, source_width = source_image.shape[:2]
+            if 0 <= source_y < source_height and 0 <= source_x < source_width:
+                source_color_rgb = source_image[source_y, source_x]
+                source_rgb = (int(source_color_rgb[0]), int(source_color_rgb[1]), int(source_color_rgb[2]))
+                source_hsv_raw = cv2.cvtColor(np.uint8([[source_rgb]]), cv2.COLOR_RGB2HSV)[0][0]
+                source_hsv = (int(source_hsv_raw[0]), int(source_hsv_raw[1]), int(source_hsv_raw[2]))
 
         return {
             'pos': (image_x, image_y),
-            'rgb': (int(rgb_color[0]), int(rgb_color[1]), int(rgb_color[2])),
-            'hsv': (int(hsv_color[0]), int(hsv_color[1]), int(hsv_color[2]))
+            'source_pos': (source_x, source_y),
+            'display_rgb': display_rgb,
+            'display_hsv': display_hsv,
+            'source_rgb': source_rgb,
+            'source_hsv': source_hsv
         }
 
     def get_pipeline_code(self) -> str:

@@ -463,14 +463,16 @@ class DevtoolsImageAnalysisInterface(VerticalScrollInterface):
                     new_options = self.logic.get_area_names_by_screen(parent_value) if parent_value else []
 
                 child_input_widget.blockSignals(True)
-                current_child_value = child_input_widget.currentText()
+                # 优先从数据模型中恢复值，而不是从UI状态中恢复
+                current_child_value = step.params.get(child_param_name)
                 child_input_widget.clear()
                 child_input_widget.addItems(new_options)
 
-                if current_child_value in new_options:
+                if current_child_value and current_child_value in new_options:
                     child_input_widget.setCurrentText(current_child_value)
                 else:
-                    if step.params.get(child_param_name) is not None:
+                    # 如果之前保存的值在新选项中不存在，则清空模型和UI
+                    if current_child_value is not None:
                         step.params[child_param_name] = ''
                     child_input_widget.setCurrentIndex(-1)
 
@@ -690,50 +692,6 @@ class DevtoolsImageAnalysisInterface(VerticalScrollInterface):
 
         dialog = ColorInfoDialog(color_info, self.window())
         dialog.exec()
-
-    def _on_pipeline_list_context_menu(self, pos: QPoint):
-        """
-        流水线步骤列表的右键菜单
-        """
-        item = self.pipeline_list_widget.itemAt(pos)
-        if item is None:
-            return
-
-        step_index = self.pipeline_list_widget.row(item)
-        step = self.logic.pipeline.steps[step_index]
-
-        # 只有查找轮廓步骤后，才有意义保存轮廓为模板
-        if not isinstance(step, CvFindContoursStep):
-            return
-
-        if self.logic.context is None or not self.logic.context.contours:
-            InfoBar.warning('提示', '请先执行流水线以获得可用的轮廓', parent=self)
-            return
-
-        menu = QMenu()
-        num_contours = len(self.logic.context.contours)
-        if num_contours > 0:
-            save_menu = menu.addMenu(f'将轮廓另存为模板 ({num_contours}个可用)')
-            for i in range(num_contours):
-                action = save_menu.addAction(f"轮廓 {i}")
-                action.triggered.connect(partial(self._on_save_contour_as_template, i))
-
-        menu.exec_(self.pipeline_list_widget.mapToGlobal(pos))
-
-    def _on_save_contour_as_template(self, contour_index: int):
-        """
-        响应保存轮廓为模板的操作
-        """
-        dialog = PipelineNameDialog('保存轮廓为模板', parent=self.window())
-        if dialog.exec():
-            template_name = dialog.name_edit.text()
-            if template_name:
-                if self.logic.save_contour_as_template(template_name, contour_index):
-                    InfoBar.success('成功', f'模板 {template_name} 已保存', parent=self)
-                    # 刷新参数面板，如果当前步骤是形状匹配
-                    self._update_param_display()
-                else:
-                    InfoBar.error('失败', '模板保存失败', parent=self)
 
     def _update_pipeline_combo(self):
         """

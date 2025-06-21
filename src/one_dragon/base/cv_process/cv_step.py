@@ -15,6 +15,7 @@ class CvPipelineContext:
         self.service: 'CvService' = service
         self.debug_mode: bool = debug_mode  # 是否为调试模式
         self.display_image: np.ndarray = source_image.copy()  # 用于UI显示的主图像，可被修改
+        self.crop_offset: tuple[int, int] = (0, 0)  # display_image 左上角相对于 source_image 的坐标偏移
         self.mask_image: np.ndarray = None  # 二值掩码图像
         self.contours: List[np.ndarray] = []  # 检测到的轮廓列表
         self.analysis_results: List[str] = []  # 存储分析结果的字符串列表
@@ -127,6 +128,25 @@ class CvStep:
         子类需要重写的执行方法
         """
         pass
+
+    def _crop_image_and_update_context(self, context: CvPipelineContext, rect, operation_name: str):
+        """
+        一个统一的裁剪方法，执行裁剪并更新上下文中的坐标偏移
+        :param context: 流水线上下文
+        :param rect: 裁剪区域
+        :param operation_name: 用于日志记录的操作名称
+        """
+        if rect is None:
+            context.error_str = f"错误: {operation_name} 的裁剪区域为空"
+            context.success = False
+            return
+
+        context.display_image = cv2_utils.crop_image_only(context.display_image, rect)
+
+        # 累加偏移量
+        context.crop_offset = (context.crop_offset[0] + rect.x1, context.crop_offset[1] + rect.y1)
+
+        context.analysis_results.append(f"已执行 {operation_name}，区域: {rect}，当前总偏移: {context.crop_offset}")
 
 
 class CvStepFilterByRGB(CvStep):
@@ -743,12 +763,11 @@ class CvStepCropByTemplate(CvStep):
             context.analysis_results.append(f"错误: 模板 {template_name} 没有定义裁剪区域")
             return
 
-        cropped_image = cv2_utils.crop_image_only(context.display_image, rect)
-        context.analysis_results.append(f"已按模板 {template_name} 裁剪图像，区域: {rect}")
+        self._crop_image_and_update_context(context, rect, f"按模板 {template_name} 裁剪")
 
-        if enable_match:
+        if context.is_success and enable_match:
             match_result = cv2_utils.match_template(
-                source=cropped_image,
+                source=context.display_image,  # 使用更新后的 display_image
                 template=template_info.raw,
                 mask=template_info.mask,
                 threshold=match_threshold
@@ -760,7 +779,7 @@ class CvStepCropByTemplate(CvStep):
                     f"模板匹配成功，置信度: {best_match.confidence:.4f} at {best_match.left_top}"
                 )
                 # 在裁剪后的图上画出匹配位置
-                cv2.rectangle(cropped_image, (best_match.x, best_match.y), (best_match.x + best_match.w, best_match.y + best_match.h), (0, 255, 255), 2)
+                cv2.rectangle(context.display_image, (best_match.x, best_match.y), (best_match.x + best_match.w, best_match.y + best_match.h), (0, 255, 255), 2)
             else:
                 context.success = False
                 if best_match is not None:
@@ -771,8 +790,6 @@ class CvStepCropByTemplate(CvStep):
                     context.analysis_results.append(
                         f"模板匹配失败，没有找到任何匹配项"
                     )
-
-        context.display_image = cropped_image
 
 
 class CvStepFilterByCentroidDistance(CvStep):
@@ -949,5 +966,4 @@ class CvStepCropByArea(CvStep):
             context.success = False
             return
 
-        context.display_image = cv2_utils.crop_image_only(context.display_image, area.rect)
-        context.analysis_results.append(f"已按区域裁剪: {screen_name} -> {area_name} ({area.rect})")
+        self._crop_image_and_update_context(context, area.rect, f"按区域 {screen_name}->{area_name} 裁剪")
