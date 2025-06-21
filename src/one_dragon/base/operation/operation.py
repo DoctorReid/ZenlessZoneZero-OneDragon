@@ -9,6 +9,7 @@ from io import BytesIO
 
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.matcher.match_result import MatchResultList
+from one_dragon.base.matcher.ocr import ocr_utils
 from one_dragon.base.operation.one_dragon_context import OneDragonContext, ContextRunningStateEventEnum
 from one_dragon.base.operation.operation_base import OperationBase, OperationResult
 from one_dragon.base.operation.operation_edge import OperationEdge, OperationEdgeDesc
@@ -732,12 +733,14 @@ class Operation(OperationBase):
         else:
             return self.round_retry(status=f'点击失败 {area_name}', wait=retry_wait, wait_round_time=retry_wait_round)
 
-    def round_by_ocr_and_click(self, screen: MatLike, target_cn: str,
-                               area: Optional[ScreenArea] = None, lcs_percent: float = 0.5,
-                               success_wait: Optional[float] = None, success_wait_round: Optional[float] = None,
-                               retry_wait: Optional[float] = None, retry_wait_round: Optional[float] = None,
-                               color_range: Optional[List] = None
-                               ):
+    def round_by_ocr_and_click(
+            self,
+            screen: MatLike, target_cn: str,
+            area: Optional[ScreenArea] = None, lcs_percent: float = 0.5,
+            success_wait: Optional[float] = None, success_wait_round: Optional[float] = None,
+            retry_wait: Optional[float] = None, retry_wait_round: Optional[float] = None,
+            color_range: Optional[List] = None,
+    ):
         """
         在目标区域内 找到对应文本 并进行点击
         :param screen: 游戏画面
@@ -793,6 +796,49 @@ class Operation(OperationBase):
             return self.round_success(target_cn, wait=success_wait, wait_round_time=success_wait_round)
         else:
             return self.round_retry(f'点击 {target_cn} 失败', wait=retry_wait, wait_round_time=retry_wait_round)
+
+    def round_by_ocr_and_click_by_priority(
+            self,
+            screen: MatLike,
+            target_cn_list: list[str],
+            ignore_cn_list: list[str] = None,
+            area: Optional[ScreenArea] = None,
+            success_wait: Optional[float] = None, success_wait_round: Optional[float] = None,
+            retry_wait: Optional[float] = None, retry_wait_round: Optional[float] = None,
+            color_range: Optional[List] = None,
+    ):
+        """
+        在目标区域内 按优先级 找到对应文本 并进行点击
+        :param screen: 游戏画面
+        :param target_cn_list: 目标文本列表
+        :param ignore_cn_list: 需要忽略的文本列表 目标列表中部分元素只是为了防止匹配错误例如传入 ["领取", "已领取"] 可以防止 "已领取*1" 匹配到 "领取"，而"已领取"又不需要真正匹配
+        :param area: 区域
+        :param success_wait: 成功后等待的秒数
+        :param success_wait_round: 成功后等待当前轮的运行时间到达这个时间时再结束 优先success_wait
+        :param retry_wait: 失败后等待的秒数
+        :param retry_wait_round: 失败后等待当前轮的运行时间到达这个时间时再结束 优先retry_wait
+        :param color_range: 文本匹配的颜色范围
+        :return: 点击结果
+        """
+        to_ocr_part = screen if area is None else cv2_utils.crop_image_only(screen, area.rect)
+        if color_range is not None:
+            mask = cv2.inRange(to_ocr_part, color_range[0], color_range[1])
+            mask = cv2_utils.dilate(mask, 5)
+            to_ocr_part = cv2.bitwise_and(to_ocr_part, to_ocr_part, mask=mask)
+            # cv2_utils.show_image(to_ocr_part, win_name='round_by_ocr_and_click', wait=0)
+
+        ocr_result_map = self.ctx.ocr.run_ocr(to_ocr_part)
+
+        match_word, match_word_mrl = ocr_utils.match_word_list_by_priority(
+            ocr_result_map,
+            target_cn_list,
+            ignore_list=ignore_cn_list
+        )
+        if match_word is not None and match_word_mrl is not None and match_word_mrl.max is not None:
+            self.ctx.controller.click(match_word_mrl.max.center)
+            return self.round_success(status=match_word, wait=success_wait, wait_round_time=success_wait_round)
+
+        return self.round_retry(status='未匹配到目标文本', wait=retry_wait, wait_round_time=retry_wait_round)
 
     def round_by_ocr(self, screen: MatLike, target_cn: str,
                      area: Optional[ScreenArea] = None, lcs_percent: float = 0.5,
@@ -887,7 +933,7 @@ class Operation(OperationBase):
         """
         current_screen_name = self.check_and_update_current_screen(screen)
         route = self.ctx.screen_loader.get_screen_route(current_screen_name, screen_name)
-        can_go = route is not None and route.can_go
+        can_go = current_screen_name == screen_name or (route is not None and route.can_go)
         return current_screen_name, can_go
 
     def check_current_can_go(self, screen_name: str) -> bool:

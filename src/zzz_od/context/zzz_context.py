@@ -1,7 +1,6 @@
 from typing import Optional
 
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
-from one_dragon.utils import i18_utils
 from zzz_od.game_data.agent import AgentEnum
 
 
@@ -139,6 +138,9 @@ class ZContext(OneDragonContext):
         self.lost_void_config: LostVoidConfig = LostVoidConfig(self.current_instance_idx)
         from zzz_od.application.hollow_zero.lost_void.lost_void_run_record import LostVoidRunRecord
         self.lost_void_record: LostVoidRunRecord = LostVoidRunRecord(self.lost_void_config, self.current_instance_idx, game_refresh_hour_offset)
+
+        from zzz_od.application.suibian_temple.suibian_temple_run_record import SuibianTempleRunRecord
+        self.suibian_temple_record: SuibianTempleRunRecord = SuibianTempleRunRecord(self.current_instance_idx, game_refresh_hour_offset)
 
         self.init_by_config()
 
